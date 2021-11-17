@@ -7,13 +7,17 @@ import org.jetbrains.exposed.sql.*
 
 class TiltaksvariantService {
 
-    suspend fun getTiltaksvarianter(): List<Tiltaksvariant> {
-        val tiltaksvariantRows = dbQuery {
-            TiltaksvariantTable.select { TiltaksvariantTable.archived eq false }
+    suspend fun getTiltaksvarianter(innsatsgruppe: Int?): List<Tiltaksvariant> {
+        val rows = dbQuery {
+            val query = TiltaksvariantTable
+                .select { TiltaksvariantTable.archived eq false }
                 .orderBy(TiltaksvariantTable.id to SortOrder.ASC)
-                .toList()
+
+            innsatsgruppe?.let { query.andWhere { TiltaksvariantTable.innsatsgruppeId eq it } }
+
+            query.toList()
         }
-        return tiltaksvariantRows.map { row ->
+        return rows.map { row ->
             toTiltaksvariant(row)
         }
     }
@@ -51,13 +55,12 @@ class TiltaksvariantService {
 
     suspend fun getTiltaksvariantById(id: Int): Tiltaksvariant? {
         val tiltaksvariantRow = dbQuery {
-            TiltaksvariantTable.select { TiltaksvariantTable.id eq id and (TiltaksvariantTable.archived eq false) }.firstOrNull()
+            TiltaksvariantTable
+                .select { TiltaksvariantTable.id eq id and (TiltaksvariantTable.archived eq false) }
+                .firstOrNull()
         }
-        if (tiltaksvariantRow !== null) {
-            return toTiltaksvariant(tiltaksvariantRow)
-        } else {
-            return null
-        }
+
+        return tiltaksvariantRow?.let { toTiltaksvariant(it) }
     }
 
     private fun toTiltaksvariant(row: ResultRow): Tiltaksvariant =
