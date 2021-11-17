@@ -21,6 +21,7 @@ class TiltaksvariantService {
     suspend fun createTiltaksvariant(tiltaksvariant: Tiltaksvariant): Tiltaksvariant {
         val id = dbQuery {
             TiltaksvariantTable.insertAndGetId {
+                it[innsatsgruppeId] = tiltaksvariant.innsatsgruppe
                 it[tittel] = tiltaksvariant.tittel
                 it[beskrivelse] = tiltaksvariant.beskrivelse
                 it[ingress] = tiltaksvariant.ingress
@@ -33,6 +34,7 @@ class TiltaksvariantService {
     suspend fun updateTiltaksvariant(id: Int, tiltaksvariant: Tiltaksvariant): Tiltaksvariant? {
         dbQuery {
             TiltaksvariantTable.update({ TiltaksvariantTable.id eq id and (TiltaksvariantTable.archived eq false) }) {
+                it[innsatsgruppeId] = tiltaksvariant.innsatsgruppe
                 it[tittel] = tiltaksvariant.tittel
                 it[beskrivelse] = tiltaksvariant.beskrivelse
                 it[ingress] = tiltaksvariant.ingress
@@ -63,6 +65,7 @@ class TiltaksvariantService {
             id = row[TiltaksvariantTable.id].value,
             tittel = row[TiltaksvariantTable.tittel],
             beskrivelse = row[TiltaksvariantTable.beskrivelse],
-            ingress = row[TiltaksvariantTable.ingress]
+            ingress = row[TiltaksvariantTable.ingress],
+            innsatsgruppe = row[TiltaksvariantTable.innsatsgruppeId]
         )
 }
