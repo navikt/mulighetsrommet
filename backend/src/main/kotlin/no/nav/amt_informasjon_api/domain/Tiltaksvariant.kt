@@ -14,9 +14,9 @@ data class Tiltaksvariant(
 )
 
 object TiltaksvariantTable : IntIdTable() {
-    val tittel: Column<String> = varchar("tittel", 50)
+    val tittel: Column<String> = varchar("tittel", 500)
     val beskrivelse: Column<String> = text("beskrivelse")
-    val ingress: Column<String> = varchar("ingress", 250)
+    val ingress: Column<String> = varchar("ingress", 500)
     val archived: Column<Boolean> = bool("archived")
     val innsatsgruppeId: Column<Int?> = integer("innsatsgruppe_id").references(InnsatsgruppeTable.id).nullable()
 }
