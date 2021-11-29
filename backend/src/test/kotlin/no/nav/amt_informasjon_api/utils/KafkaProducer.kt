@@ -5,13 +5,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.amt_informasjon_api.kafka.KafkaTopics
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerConfig.*
+import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.streams.StreamsConfig
-import java.util.*
+import java.util.Properties
 
 @ExperimentalSerializationApi
 fun main() {
@@ -23,9 +23,9 @@ fun main() {
     props[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "localhost:10002"
     props[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.String()::class.java.name
     props[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = Serdes.String()::class.java.name
-    props[ACKS_CONFIG] = "all"
-    props[KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.qualifiedName
-    props[VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.qualifiedName
+    props[ProducerConfig.ACKS_CONFIG] = "all"
+    props[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.qualifiedName
+    props[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.qualifiedName
 
     val numMessages = 10
     // `use` will execute block and close producer automatically
@@ -33,7 +33,7 @@ fun main() {
         repeat(numMessages) { i ->
             val key = "created_tiltak"
             val record = Json.encodeToString(ArenaEvent(i))
-            println("Producing record: $key\t${record}")
+            println("Producing record: $key\t$record")
 
             producer.send(
                 ProducerRecord(
@@ -53,5 +53,4 @@ fun main() {
         producer.flush()
         println("10 messages were produced to topic ${KafkaTopics.Tiltaksgjennomforing.topic}")
     }
-
 }

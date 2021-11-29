@@ -4,7 +4,6 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.jdbc.JdbcConnectionImpl
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 
-
 fun <T> Table.array(name: String, columnType: ColumnType): Column<Array<T>> =
     registerColumn(name, ArrayColumnType(columnType))
 

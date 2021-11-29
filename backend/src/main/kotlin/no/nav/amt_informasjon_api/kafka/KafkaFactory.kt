@@ -74,7 +74,7 @@ class KafkaFactory {
             val tiltaksnr = Random.nextInt(0, 999999)
             val tiltakstypeIdRandom = Random.nextInt(1, 20)
             val arenaEvent = ArenaEvent(
-                "Tiltaksgjennomføring (${uuid})",
+                "Tiltaksgjennomføring ($uuid)",
                 "Beskrivelse",
                 tiltaksnr,
                 LocalDateTime.now(),
