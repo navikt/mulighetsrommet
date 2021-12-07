@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es6",
+    "lib": ["es2017", "es7", "dom", "es2016.array.include", "DOM.Iterable", "ESNext", "es5", "es6", "dom.iterable"],
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "strictPropertyInitialization": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  "exclude": ["node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
+  "include": ["src", "mock"]
+}
