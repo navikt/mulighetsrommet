@@ -14,14 +14,12 @@ frontend/cypress/videos
 frontend/build
 frontend/.idea/*
 # misc
-frontend/.DS_Store
-frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
 
-frontend/src/tekster-built
+frontend/src/.env
+frontend/src/.env.local
+frontend/src/.env.development.local
+frontend/src/.env.test.local
+frontend/src/.env.production.local
 
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
@@ -59,3 +57,4 @@ backend/.gradletasknamecache
 
 #Annet
 .idea
+**/.DS_Store
