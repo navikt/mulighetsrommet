@@ -21,6 +21,8 @@
     "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
-  "include": ["src", "mock"]
+  "exclude": [
+    "../../mulighetsrommet/frontend/node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
+  "include": [
+    "src", "mock"]
 }

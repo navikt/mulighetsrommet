@@ -1,15 +1,15 @@
 {
-  "name": "amt-informasjon-flate",
+  "name": "mulighetsrommet",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "craco build",
-    "build:labs": "cross-env REACT_APP_DEV=true REACT_APP_ENABLE_MOCK=true craco build",
-    "clean": "rimraf build",
-    "eject": "craco eject",
-    "lint": "eslint src --ext .js,.ts,.tsx",
-    "start": "cross-env REACT_APP_ENABLE_MOCK=true REACT_APP_BACKEND_API_ROOT='' craco start",
-    "backend": "cross-env REACT_APP_DEV=true REACT_APP_BACKEND_API_ROOT='http://localhost:8080' craco start"
+    "build": "../../mulighetsrommet_test/frontend/node_modules/.bin/craco build",
+    "build:labs": "../../mulighetsrommet_test/frontend/node_modules/.bin/cross-env REACT_APP_DEV=true REACT_APP_ENABLE_MOCK=true craco build",
+    "clean": "../../mulighetsrommet_test/frontend/node_modules/.bin/rimraf build",
+    "eject": "../../mulighetsrommet_test/frontend/node_modules/.bin/craco eject",
+    "lint": "../../mulighetsrommet_test/frontend/node_modules/.bin/eslint src --ext .js,.ts,.tsx",
+    "start": "../../mulighetsrommet_test/frontend/node_modules/.bin/cross-env REACT_APP_ENABLE_MOCK=true REACT_APP_BACKEND_API_ROOT='' craco start",
+    "backend": "../../mulighetsrommet_test/frontend/node_modules/.bin/cross-env REACT_APP_DEV=true REACT_APP_BACKEND_API_ROOT='http://localhost:8080' craco start"
   },
   "eslintConfig": {
     "extends": "react-app"

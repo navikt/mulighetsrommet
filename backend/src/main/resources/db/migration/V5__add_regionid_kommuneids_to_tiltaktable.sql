@@ -1,0 +1,2 @@
+ALTER TABLE tiltak
+ADD COLUMN region_id Int NOT NULL;

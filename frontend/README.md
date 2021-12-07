@@ -1,6 +1,6 @@
-<h1 align="center">amt-informasjon-flate</h1>
+<h1 align="center">mulighetsrommet</h1>
 <p>
-Tilhørende flate for <strong>amt-informasjon-api</strong> for behandling av tiltaksinformasjon.
+Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaksinformasjon.
 </p>
 
 # Innhold
@@ -59,4 +59,4 @@ Kjør `npm run start` for å fyre opp frontenden med MirageJS.
 
 ### Backend
 
-Kjør `npm run start:backend` for å fyre opp frontend mot reell backend (`amt-informasjon-api`).
+Kjør `npm run start:backend` for å fyre opp frontend mot reell backend (`mulighetsrommet`).
