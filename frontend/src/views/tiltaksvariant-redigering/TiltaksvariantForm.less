@@ -1,0 +1,30 @@
+.rediger-opprett-tiltaksvariant {
+  width: 60vw;
+  margin: 2rem auto;
+  max-width: 1000px;
+
+  &__tilbakeknapp {
+    justify-self: start;
+  }
+
+  &__overskrift {
+    margin: 0 auto 2rem;
+  }
+  &__form {
+    &__tittel,
+    &__ingress,
+    &__beskrivelse,
+    .knapperad {
+      margin-bottom: 1rem;
+    }
+
+    .knapperad {
+      display: flex;
+      justify-content: space-between;
+
+      svg {
+        margin-left: 0.3rem;
+      }
+    }
+  }
+}

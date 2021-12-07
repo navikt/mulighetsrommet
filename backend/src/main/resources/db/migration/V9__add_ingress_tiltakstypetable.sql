@@ -1,0 +1,4 @@
+ALTER TABLE tiltakstype
+    ADD COLUMN ingress VARCHAR(250) NOT NULL,
+    ALTER COLUMN tittel TYPE VARCHAR(50),
+    ALTER COLUMN beskrivelse TYPE  VARCHAR(2000)

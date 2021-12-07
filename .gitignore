@@ -1,0 +1,60 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+#Frontend
+# dependencies
+frontend/node_modules
+frontend/.pnp
+frontend/.pnp.js
+# testing
+frontend/coverage
+frontend/*.iml
+frontend/cypress/screenshots
+frontend/cypress/videos
+# production
+frontend/build
+frontend/.idea/*
+# misc
+
+frontend/src/.env
+frontend/src/.env.local
+frontend/src/.env.development.local
+frontend/src/.env.test.local
+frontend/src/.env.production.local
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+frontend/.eslintcache
+
+
+#Backend
+backend/.idea/*
+backend/!.idea/runConfigurations/
+backend/*.iml
+backend/*.log
+
+backend/target/
+backend/bash.exe.stackdump
+
+backend/users.txt
+backend/.env
+
+backend/.gradle
+backend/**/build/
+backend/!src/**/build/
+
+# Ignore Gradle GUI config
+backend/gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+backend/!gradle-wrapper.jar
+
+# Cache of project
+backend/.gradletasknamecache
+
+
+
+#Annet
+.idea
+**/.DS_Store

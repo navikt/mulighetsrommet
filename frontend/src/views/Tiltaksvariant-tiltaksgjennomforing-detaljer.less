@@ -1,0 +1,25 @@
+.tiltaksvariant-detaljer,
+.tiltaksgjennomforing-detaljer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 5vw;
+  flex-basis: 70%;
+
+  .panel {
+    width: 30%;
+    height: fit-content;
+    max-width: 11rem;
+
+    .rediger-knapp {
+      margin: 1rem auto 0;
+      width: -webkit-fill-available;
+    }
+  }
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}

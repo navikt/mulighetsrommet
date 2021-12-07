@@ -1,0 +1,5 @@
+namespace: team-mulighetsrommet
+ingresses:
+   - https://mulighetsrommet.dev.intern.nav.no
+#  - https://amt-informasjon-flate.dev.intern.nav.no
+

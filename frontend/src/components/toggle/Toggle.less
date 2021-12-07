@@ -1,0 +1,81 @@
+@import 'src/App.less';
+
+.switch-button {
+  border-radius: 30px;
+  overflow: hidden;
+  width: 240px;
+  text-align: center;
+  font-size: 16px;
+  letter-spacing: 1px;
+  position: relative;
+  padding-right: 120px;
+  box-shadow: 1px 4px 5px @nav_teal;
+
+  &__venstre-tekst {
+    position: relative;
+    color: white;
+  }
+
+  &__hoyre-tekst {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  &__hoyre-tekst,
+  &__venstre-tekst {
+    width: 120px;
+  }
+
+  &__checkbox {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 2;
+
+    &:checked + .switch-button-label:before {
+      transform: translateX(120px);
+      transition: transform 300ms linear;
+    }
+
+    & + .switch-button-label {
+      position: relative;
+      padding: 0.5rem 0;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+
+      &:before {
+        content: '';
+        background: @nav_teal;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: 30px;
+        transform: translateX(0);
+        transition: transform 300ms;
+      }
+    }
+  }
+}
+
+.info__brukervisningstoggle {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
