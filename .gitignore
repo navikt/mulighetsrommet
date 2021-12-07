@@ -54,3 +54,8 @@ backend/!gradle-wrapper.jar
 
 # Cache of project
 backend/.gradletasknamecache
+
+
+
+#Annet
+.idea
