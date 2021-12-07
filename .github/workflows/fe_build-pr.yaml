@@ -1,11 +1,11 @@
-name: Build
+name: Build - Frontend
 on: [pull_request]
 env:
   NODE_VERSION: '14.x'
 
 jobs:
   build:
-    name: Build Project
+    name: Build project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

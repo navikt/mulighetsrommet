@@ -1,4 +1,4 @@
-name: Deploy (labs)
+name: Deploy (labs) - Frontend
 on:
   push:
     branches: [dev]
