@@ -25,7 +25,6 @@ class TiltaksvariantService {
                 it[beskrivelse] = tiltaksvariant.beskrivelse
                 it[ingress] = tiltaksvariant.ingress
                 it[archived] = false
-
             }
         }
         return getTiltaksvariantById(id.value)!!

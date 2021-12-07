@@ -43,7 +43,7 @@ object DatabaseFactory {
     }
 
     // TODO: Finn en løsning på å sjekke active connection. Ting bare tryner her uansett hva jeg tester.
-    //fun isConnectionActive() = !dataSource.connection.isClosed
+    // fun isConnectionActive() = !dataSource.connection.isClosed
 
     private fun hikari(): HikariDataSource {
         val config = HikariConfig()

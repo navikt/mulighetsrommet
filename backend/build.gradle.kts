@@ -7,10 +7,18 @@ plugins {
     kotlin("jvm") version "1.5.31"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
     id("org.flywaydb.flyway") version "8.0.3"
+    /**
+     * Linting and auto formatting of project sources
+     */
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
+}
+
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    disabledRules.addAll("no-wildcard-imports")
 }
 
 repositories {
@@ -40,9 +48,6 @@ dependencies {
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")
 }
 
-group = "no.nav.amt_informasjon_api"
-//version = "0.0.1"
-description = "amt-informasjon-api"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType<JavaCompile>() {
