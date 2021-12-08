@@ -1,9 +1,7 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  annotations:
-    nais.io/security-does-not-matter: "true"
-  name: mulighetsrommet
+  name: amt-informasjon-flate
   namespace: {{namespace}}
   labels:
     team: team-mulighetsrommet
