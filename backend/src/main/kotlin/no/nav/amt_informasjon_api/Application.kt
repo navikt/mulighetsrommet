@@ -8,15 +8,12 @@ import io.ktor.routing.routing
 import kotlinx.coroutines.launch
 import no.nav.amt_informasjon_api.kafka.KafkaFactory
 import no.nav.amt_informasjon_api.plugins.*
-import no.nav.amt_informasjon_api.routes.devRoutes
-import no.nav.amt_informasjon_api.routes.healthRoutes
-import no.nav.amt_informasjon_api.routes.tiltaksgjennomforingRoutes
-import no.nav.amt_informasjon_api.routes.tiltaksvariantRoutes
+import no.nav.amt_informasjon_api.routes.*
+import no.nav.amt_informasjon_api.services.InnsatsgruppeService
 import no.nav.amt_informasjon_api.services.TiltaksgjennomforingService
 import no.nav.amt_informasjon_api.services.TiltaksvariantService
 
-fun main(args: Array<String>): Unit =
-    io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
 fun Application.module() {
@@ -34,12 +31,15 @@ fun Application.module() {
 
     val tiltaksvariantService = TiltaksvariantService()
     val tiltaksgjennomforingService = TiltaksgjennomforingService()
+    val innsatsgruppeService = InnsatsgruppeService()
 
     routing {
         devRoutes()
         healthRoutes()
+
         tiltaksvariantRoutes(tiltaksvariantService, tiltaksgjennomforingService)
         tiltaksgjennomforingRoutes(tiltaksgjennomforingService)
+        innsatsgruppeRoutes(innsatsgruppeService)
     }
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.

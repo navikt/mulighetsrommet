@@ -14,7 +14,9 @@ fun Route.tiltaksvariantRoutes(
     tiltaksgjennomforingService: TiltaksgjennomforingService
 ) {
     get("/api/tiltaksvarianter") {
-        call.respond(tiltaksvariantService.getTiltaksvarianter())
+        val innsatsgruppe = call.request.queryParameters["innsatsgruppe"]?.toIntOrNull()
+        val items = tiltaksvariantService.getTiltaksvarianter(innsatsgruppe)
+        call.respond(items)
     }
     get("/api/tiltaksvarianter/{id}") {
         val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(

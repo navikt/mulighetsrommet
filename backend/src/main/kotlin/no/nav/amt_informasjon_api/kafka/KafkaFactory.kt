@@ -3,12 +3,15 @@ package no.nav.amt_informasjon_api.kafka
 import kotlinx.coroutines.delay
 import no.nav.amt_informasjon_api.database.DatabaseFactory.dbQuery
 import no.nav.amt_informasjon_api.domain.TiltaksgjennomforingTable
+import no.nav.amt_informasjon_api.domain.TiltaksvariantTable
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
+import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.selectAll
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
@@ -72,7 +75,7 @@ class KafkaFactory {
         while (true) {
             val uuid = UUID.randomUUID()
             val tiltaksnr = Random.nextInt(0, 999999)
-            val tiltakstypeIdRandom = Random.nextInt(1, 20)
+
             val arenaEvent = ArenaEvent(
                 "Tiltaksgjennomføring ($uuid)",
                 "Beskrivelse",
@@ -80,10 +83,11 @@ class KafkaFactory {
                 LocalDateTime.now(),
                 LocalDateTime.now().plusYears(2)
             )
+
             val tiltaksgjennomforingId = dbQuery {
                 TiltaksgjennomforingTable.insertAndGetId {
                     it[tittel] = arenaEvent.tittel
-                    it[tiltaksvariantId] = tiltakstypeIdRandom
+                    it[tiltaksvariantId] = getRandomId(TiltaksvariantTable)
                     it[tiltaksnummer] = arenaEvent.tiltaksnummer
                     it[beskrivelse] = arenaEvent.beskrivelse
                     it[fraDato] = arenaEvent.fraDato
@@ -102,4 +106,15 @@ class KafkaFactory {
         val fraDato: LocalDateTime,
         val tilDato: LocalDateTime
     )
+}
+
+/**
+ * Only for testing
+ */
+fun <T : IntIdTable> getRandomId(table: T): Int {
+    return table
+        .slice(table.id)
+        .selectAll()
+        .map { it[table.id].value }
+        .random()
 }
