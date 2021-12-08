@@ -6,8 +6,7 @@ on:
       - ci/setup-deploy-backend
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE_BE: ghcr.io/navikt/amt-informasjon-api
-  IMAGE_FE: ghcr.io/navikt/amt-informasjon-flate
+  IMAGE: ghcr.io/navikt/mulighetsrommet
   IMAGE_LABEL: dev
   RESOURCE: .nais/nais.yaml
   REACT_APP_BACKEND_API_ROOT: https://amt-informasjon-flate.dev.intern.nav.no
@@ -70,8 +69,8 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE_BE}:${IMAGE_TAG} .
-          docker push ${IMAGE_BE}:${IMAGE_TAG}
+          docker build -t ${IMAGE}-api:${IMAGE_TAG} .
+          docker push ${IMAGE}-api:${IMAGE_TAG}
   deploy-be:
     name: Deploy Docker image (backend)
     runs-on: ubuntu-latest
@@ -121,8 +120,8 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE_FE}-${IMAGE_LABEL}:${IMAGE_TAG} -f .docker/dev/Dockerfile .
-          docker push ${IMAGE_FE}-${IMAGE_LABEL}:${IMAGE_TAG}
+          docker build -t ${IMAGE}-flate-${IMAGE_LABEL}:${IMAGE_TAG} -f .docker/dev/Dockerfile .
+          docker push ${IMAGE}-flate-${IMAGE_LABEL}:${IMAGE_TAG}
   deploy-fe:
     name: Deploy Docker image (frontend)
     runs-on: ubuntu-latest
