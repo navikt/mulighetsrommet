@@ -3,14 +3,16 @@
 Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV kan tilby brukere.
 </p>
 
+# TESTER ENDRING AV BE!
+
 # Innhold
 
 - [Hensikt](#hensikt)
 - [Teknologier](#teknologier)
 - [Kom i gang](#kom-i-gang)
-    - [Forutsetninger](#forutsetninger)
-    - [Database](#database)
-    - [Steg for steg](#steg-for-steg)
+  - [Forutsetninger](#forutsetninger)
+  - [Database](#database)
+  - [Steg for steg](#steg-for-steg)
 - [Integrasjoner](#integrasjoner)
 
 # Hensikt
