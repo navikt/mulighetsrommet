@@ -3,6 +3,8 @@
 Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaksinformasjon.
 </p>
 
+# DEPLOY FE
+
 # Innhold
 
 - [Teknologier](#teknologier)
