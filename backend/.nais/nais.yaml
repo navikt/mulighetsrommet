@@ -9,7 +9,7 @@ metadata:
     nais.io/security-does-not-matter: "true"
 spec:
   port: 8080
-  image: {{image}}-api:{{image_tag}}
+  image: {{image}}-api-{{image_label}}:{{image_tag}}
   {{#if ingresses}}
   ingresses:
     {{#each ingresses}}
