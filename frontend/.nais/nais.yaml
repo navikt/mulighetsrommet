@@ -8,7 +8,7 @@ metadata:
   annotations:
     nais.io/security-does-not-matter: "true"
 spec:
-  image: {{image}}-{{image_label}}:{{image_tag}}
+  image: {{image}}-flate-{{image_label}}:{{image_tag}}
   port: 8080
   {{#if ingresses}}
   ingresses:
