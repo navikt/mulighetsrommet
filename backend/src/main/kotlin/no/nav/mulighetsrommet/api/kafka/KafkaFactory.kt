@@ -1,21 +1,10 @@
 package no.nav.mulighetsrommet.api.kafka
 
-import kotlinx.coroutines.delay
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.TiltaksgjennomforingTable
-import no.nav.mulighetsrommet.api.domain.TiltaksvariantTable
-import org.apache.kafka.clients.consumer.Consumer
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.selectAll
-import java.time.Duration
-import java.time.LocalDateTime
-import java.util.UUID
-import kotlin.random.Random
 
 class KafkaFactory(private val db: DatabaseFactory) {
 
