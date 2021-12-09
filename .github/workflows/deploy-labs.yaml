@@ -1,11 +1,15 @@
 name: Deploy (labs)
 
+# on:
+#   push:
+#     branches: [dev]
 on:
   push:
-    branches: [dev]
+    branches:
+      - ci/setup-deploy-backend
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE: ghcr.io/navikt/amt-informasjon-flate
+  IMAGE: ghcr.io/navikt/mulighetsrommet
   IMAGE_LABEL: labs
   RESOURCE: .nais/nais.yaml
   REACT_APP_BACKEND_API_ROOT: ""
@@ -14,32 +18,54 @@ env:
   NODE_VERSION: "14.x"
 
 jobs:
+  change-check:
+    name: Check changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed-fe: ${{ steps.changed-fe.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+      - name: Frontend
+        uses: marceloprado/has-changed-path@v1
+        id: changed-fe
+        with:
+          paths: frontend
   build-docker-image:
     runs-on: ubuntu-latest
-    name: Build and publish Docker image
-    needs: [build, test]
+    name: Build Docker image
+    needs: change-check
+    if: needs.change-check.outputs.changed-fe == 'true'
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: ${{env.NODE_VERSION}}
-      - name: Install production artifact
-        run: npm ci
-      - name: Build production artifact
-        run: npm run build:labs
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build:labs
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE}-${IMAGE_LABEL}:${IMAGE_TAG} -f .docker/labs/Dockerfile .
-          docker push ${IMAGE}-${IMAGE_LABEL}:${IMAGE_TAG}
+          docker build -t ${IMAGE}-flate-${IMAGE_LABEL}:${IMAGE_TAG} -f .docker/labs/Dockerfile .
+          docker push ${IMAGE}-flate-${IMAGE_LABEL}:${IMAGE_TAG}
   deploy-labs:
     name: Deploy application to labs
     needs:
       - build-docker-image
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
@@ -47,5 +73,5 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
           PRINT_PAYLOAD: true
-          VARS: .nais/labs-gcp.yaml
+          VARS: frontend/.nais/labs-gcp.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL}}
