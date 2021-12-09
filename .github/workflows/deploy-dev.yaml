@@ -135,7 +135,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: frontend/.nais/dev-gcp.yaml
+          RESOURCE: frontend/.nais/nais.yaml
           VARS: frontend/.nais/dev-gcp.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

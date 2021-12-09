@@ -71,6 +71,6 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
-          RESOURCE: frontend/.nais/labs-gcp.yaml
+          RESOURCE: frontend/.nais/nais.yaml
           VARS: frontend/.nais/labs-gcp.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL}}
