@@ -42,6 +42,9 @@ spec:
         databases:
           - name: amt-informasjon-api
             envVarPrefix: DB
+  kafka:
+    pool: nav-dev
+    streams: true
   azure:
     application:
       enabled: true
