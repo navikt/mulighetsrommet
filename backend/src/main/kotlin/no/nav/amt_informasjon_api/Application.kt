@@ -45,10 +45,6 @@ fun Application.module() {
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.
     if (enableKafka) {
         kafka = KafkaFactory()
-        val kafkaConsumers = launch {
-            kafka.consumeTiltaksgjennomforingEventsFromArena()
-        }
-        kafkaConsumers.start()
         environment.monitor.subscribe(ApplicationStopped) {
             println("Shutting down")
 //            kafka.shutdown()
