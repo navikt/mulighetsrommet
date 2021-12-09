@@ -1,14 +1,10 @@
 package no.nav.amt_informasjon_api.kafka
 
-import org.apache.kafka.clients.consumer.Consumer
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.selectAll
-import java.time.Duration
 
 class KafkaFactory {
 
