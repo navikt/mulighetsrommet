@@ -2,8 +2,8 @@ name: Deploy (dev)
 
 on:
   push:
-    branches: [dev]
-
+    branches:
+      - feature/tc-273-adjust-kafka-for-arena
 env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: ghcr.io/navikt/mulighetsrommet
@@ -34,7 +34,6 @@ jobs:
         id: changed-fe
         with:
           paths: frontend
-
   build-docker-image-be:
     name: Build Docker image (backend)
     runs-on: ubuntu-latest
@@ -88,7 +87,6 @@ jobs:
           tag_name: release/dev@${{ env.IMAGE_TAG }}
           release_name: Release to dev
           prerelease: true
-
   build-docker-image-fe:
     name: Build Docker image (frontend)
     runs-on: ubuntu-latest
