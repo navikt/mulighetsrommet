@@ -1,16 +1,14 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  annotations:
-    nais.io/security-does-not-matter: "true"
-  name: mulighetsrommet
+  name: amt-informasjon-flate
   namespace: {{namespace}}
   labels:
     team: team-mulighetsrommet
   annotations:
     nais.io/security-does-not-matter: "true"
 spec:
-  image: {{image}}-{{image_label}}:{{image_tag}}
+  image: {{image}}-flate-{{image_label}}:{{image_tag}}
   port: 8080
   {{#if ingresses}}
   ingresses:
