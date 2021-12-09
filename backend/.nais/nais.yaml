@@ -38,6 +38,9 @@ spec:
         databases:
           - name: mulighetsrommet-db
             envVarPrefix: DB
+  kafka:
+    pool: nav-dev
+    streams: true
   azure:
     application:
       enabled: true
