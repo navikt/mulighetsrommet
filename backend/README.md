@@ -1,10 +1,7 @@
-# `mulighetsrommet-api`
-
+<h1 align="center">mulighetsrommet</h1>
 <p>
 Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV kan tilby brukere.
 </p>
-
-# Deploy trigger
 
 # Innhold
 
