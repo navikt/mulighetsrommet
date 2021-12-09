@@ -1,9 +1,10 @@
 package no.nav.amt_informasjon_api.routes
 
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.respondText
+import io.ktor.routing.Route
+import io.ktor.routing.get
 import no.nav.amt_informasjon_api.database.DatabaseFactory
 
 // Kun midlertidig i dev-miljø for å kunne styre migrering og slette DB.
