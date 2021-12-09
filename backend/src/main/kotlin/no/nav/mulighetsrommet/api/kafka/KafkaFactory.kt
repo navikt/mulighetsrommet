@@ -67,45 +67,6 @@ class KafkaFactory(private val db: DatabaseFactory) {
             }
         }
     }
-
-    // Denne er kun for å ha en måte å simulere at events kommer inn fra Arena via Kafka.
-    // TODO: Fjern denne når bestilling av Arena er på plass.
-    suspend fun consumeTiltaksgjennomforingEventsFromArena() {
-        delay(Duration.ofMinutes(2).toMillis())
-        while (true) {
-            val uuid = UUID.randomUUID()
-            val tiltaksnr = Random.nextInt(0, 999999)
-
-            val arenaEvent = ArenaEvent(
-                "Tiltaksgjennomføring ($uuid)",
-                "Beskrivelse",
-                tiltaksnr,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusYears(2)
-            )
-
-            val tiltaksgjennomforingId = db.dbQuery {
-                TiltaksgjennomforingTable.insertAndGetId {
-                    it[tittel] = arenaEvent.tittel
-                    it[tiltaksvariantId] = getRandomId(TiltaksvariantTable)
-                    it[tiltaksnummer] = arenaEvent.tiltaksnummer
-                    it[beskrivelse] = arenaEvent.beskrivelse
-                    it[fraDato] = arenaEvent.fraDato
-                    it[tilDato] = arenaEvent.tilDato
-                }
-            }
-            println("Opprettet tiltaksgjennomforing med id $tiltaksgjennomforingId")
-            delay(Duration.ofHours(2).toMillis())
-        }
-    }
-
-    data class ArenaEvent(
-        val tittel: String,
-        val beskrivelse: String,
-        val tiltaksnummer: Int, // Ikke unikt, kan kolidere
-        val fraDato: LocalDateTime,
-        val tilDato: LocalDateTime
-    )
 }
 
 /**
