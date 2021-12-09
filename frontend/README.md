@@ -3,8 +3,6 @@
 Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaksinformasjon.
 </p>
 
-# TRIGGER MEEEEE!
-
 # Innhold
 
 - [Teknologier](#teknologier)

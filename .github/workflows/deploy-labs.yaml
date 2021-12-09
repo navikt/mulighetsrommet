@@ -1,12 +1,8 @@
 name: Deploy (labs)
 
-# on:
-#   push:
-#     branches: [dev]
 on:
   push:
-    branches:
-      - ci/setup-deploy-backend
+    branches: [dev]
 env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: ghcr.io/navikt/mulighetsrommet
