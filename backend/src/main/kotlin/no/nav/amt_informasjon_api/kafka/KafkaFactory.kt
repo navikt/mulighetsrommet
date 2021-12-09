@@ -1,21 +1,13 @@
 package no.nav.amt_informasjon_api.kafka
 
-import kotlinx.coroutines.delay
-import no.nav.amt_informasjon_api.database.DatabaseFactory.dbQuery
-import no.nav.amt_informasjon_api.domain.TiltaksgjennomforingTable
-import no.nav.amt_informasjon_api.domain.TiltaksvariantTable
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import java.time.Duration
-import java.time.LocalDateTime
-import java.util.*
-import kotlin.random.Random
 
 class KafkaFactory {
 
