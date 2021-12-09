@@ -10,7 +10,6 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import java.time.Duration
 import java.time.LocalDateTime
