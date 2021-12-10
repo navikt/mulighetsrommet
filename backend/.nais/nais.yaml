@@ -44,7 +44,6 @@ spec:
             envVarPrefix: DB
   kafka:
     pool: nav-dev
-    streams: true
   azure:
     application:
       enabled: true
