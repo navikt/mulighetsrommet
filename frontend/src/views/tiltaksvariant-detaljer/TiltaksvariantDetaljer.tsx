@@ -32,7 +32,7 @@ const TiltaksvariantDetaljer = () => {
   const { tittel, ingress, beskrivelse } = tiltaksvariant.data;
 
   return (
-    <MainView title={tittel} dataTestId="tiltaksvariant_header">
+    <MainView title={tittel} dataTestId="tiltaksvariant_header" tilbakelenke="./">
       <div className="tiltaksvariant-detaljer">
         <div className="tiltaksvariant-detaljer__info">
           <Ingress data-testid="tiltaksvariant_ingress">{ingress}</Ingress>

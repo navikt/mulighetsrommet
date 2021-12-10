@@ -28,7 +28,6 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
     register,
     handleSubmit,
     formState: { errors },
-    control,
   } = useForm<Tiltaksvariant>({
     defaultValues: { innsatsgruppe: null, ...tiltaksvariant },
   });
@@ -41,7 +40,7 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
       className="rediger-opprett-tiltaksvariant__form"
       data-testid="form__rediger-opprett"
     >
-      <Select label="Innsatsgruppe">
+      <Select label="Innsatsgruppe" data-testid="input_innsatsgruppe">
         <option value="">Velg innsatsgruppe</option>
         {innsatsgrupper.map(innsatsgruppe => (
           <option key={innsatsgruppe.id} value={innsatsgruppe.id}>

@@ -45,6 +45,8 @@ describe('CRUD tiltaksvariant', () => {
 
     cy.getByTestId('header_opprett-tiltaksvariant').should('contain', 'Opprett tiltaksvariant');
 
+    cy.getByTestId('input_innsatsgruppe').select('Situasjonsbestemt innsats');
+
     cy.getByTestId('input_tittel').should('have.css', 'border-color', borderWhite);
 
     cy.getByTestId('input_ingress').click().should('be.focused').type(ingress);

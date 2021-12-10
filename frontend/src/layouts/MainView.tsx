@@ -12,7 +12,7 @@ interface MainViewProps {
   tilbakelenke?: string;
 }
 
-const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestId, tilbakelenke = '/', children }) => {
+const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestId, tilbakelenke, children }) => {
   return (
     <Container className="main-view">
       <Row className="main-view__header">
