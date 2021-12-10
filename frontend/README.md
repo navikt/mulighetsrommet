@@ -1,4 +1,4 @@
-<h1 align="center">mulighetsrommet</h1>
+<h1 align="center">Mulighetsrommet frontend</h1>
 <p>
 Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaksinformasjon.
 </p>
@@ -55,8 +55,8 @@ Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett
 
 ### In-memory mock-server
 
-Kjør `npm run start` for å fyre opp frontenden med MirageJS.
+Kjør `npm start` for å kjøre frontenden med MSW.
 
 ### Backend
 
-Kjør `npm run start:backend` for å fyre opp frontend mot reell backend (`mulighetsrommet`).
+Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsrommet`).

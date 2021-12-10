@@ -12,7 +12,10 @@
     "backend": "cross-env REACT_APP_DEV=true REACT_APP_BACKEND_API_ROOT='http://localhost:8080' craco start"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": [
+      "react-app",
+      "plugin:cypress/recommended"
+    ]
   },
   "browserslist": [
     ">0.2%",
@@ -78,7 +81,7 @@
     "react-toastify": "^8.0.2"
   },
   "devDependencies": {
-    "@craco/craco": "^6.4.0",
+    "@craco/craco": "^6.4.3",
     "@types/faker": "^5.5.8",
     "@types/react": "17.0.11",
     "@types/react-collapse": "^5.0.1",
@@ -91,8 +94,9 @@
     "browserslist": "^4.17.1",
     "craco-less": "^1.20.0",
     "cross-env": "^7.0.3",
-    "cypress": "^9.1.0",
-    "cypress-dark": "^1.1.0",
+    "cypress": "^9.1.1",
+    "cypress-axe": "^0.13.0",
+    "cypress-dark": "^1.8.3",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -106,7 +110,7 @@
     "faker": "^5.5.3",
     "miragejs": "^0.1.42",
     "postcss": "^7.0.36",
-    "prettier": "^2.4.0",
+    "prettier": "^2.5.1",
     "react-scripts": "^4.0.3",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.2"

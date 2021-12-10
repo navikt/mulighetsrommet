@@ -19,10 +19,12 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "strictPropertyInitialization": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": "./",
+    "types": ["cypress", "cypress-axe"]
   },
   "exclude": [
-    "../../mulighetsrommet/frontend/node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
+    "node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
   "include": [
     "src", "mock"]
 }

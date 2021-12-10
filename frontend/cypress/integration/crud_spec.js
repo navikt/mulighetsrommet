@@ -1,6 +1,20 @@
 before('Start server', () => {
-  cy.configure();
+  // cy.configure();
+  cy.visit('/');
 });
+
+// describe('A11y', () => {
+//   it('Forside er universelt utformet', () => {
+//     cy.visit('./');
+//     cy.injectAxe();
+//     // cy.checkA11y();
+//   });
+// });
+
+// beforeEach(() => {
+//   cy.visit('./');
+//   cy.injectAxe();
+// });
 
 describe('CRUD tiltaksvariant', () => {
   const tittel = 'Test tiltaksvariant for Cypress';
