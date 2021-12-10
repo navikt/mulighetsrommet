@@ -18,7 +18,7 @@ const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestI
       <Row className="main-view__header">
         {tilbakelenke && (
           <Link to={tilbakelenke}>
-            <Tilbakeknapp data-testid="tilbakeknapp" />
+            <Tilbakeknapp data-testid="tilbakeknapp" title="Tilbake" />
           </Link>
         )}
       </Row>
