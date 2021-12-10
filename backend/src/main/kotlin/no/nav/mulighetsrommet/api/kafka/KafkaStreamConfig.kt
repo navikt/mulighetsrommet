@@ -11,7 +11,7 @@ class KafkaStreamConfig : Properties() {
 
     init {
         this[StreamsConfig.APPLICATION_ID_CONFIG] = appConfig.property("ktor.kafka.appId").getString()
-        this[StreamsConfig.CLIENT_ID_CONFIG] = appConfig.property("ktor.kafka.clientId").getString()
+        // this[StreamsConfig] = appConfig.property("ktor.kafka.clientId").getString()
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = appConfig.property("ktor.kafka.brokers").getString()
         this[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.String()::class.java.name
         this[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = Serdes.String()::class.java.name
