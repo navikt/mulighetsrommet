@@ -1,5 +1,5 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
+import { Tiltaksvariant } from '../../api';
 import { DatabaseDictionary } from '../database';
 
 export type TiltaksvariantEntity = Entity<DatabaseDictionary, 'tiltaksvariant'>;

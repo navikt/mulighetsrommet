@@ -1,5 +1,5 @@
 import { rest, RestHandler, RestRequest } from 'msw';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
+import { Tiltaksvariant } from '../../api';
 import { db } from '../database';
 import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomføring';
 import { toTiltaksvariant } from '../entities/tiltaksvariant';

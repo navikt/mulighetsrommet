@@ -1,21 +1,22 @@
+import AlertStripe from 'nav-frontend-alertstriper';
+import Panel from 'nav-frontend-paneler';
+import { Ingress, Normaltekst, Systemtittel } from 'nav-frontend-typografi';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import AlertStripe from 'nav-frontend-alertstriper';
-import MainView from '../../layouts/MainView';
 import Link from '../../components/link/Link';
-import { Ingress, Normaltekst, Systemtittel } from 'nav-frontend-typografi';
-import Panel from 'nav-frontend-paneler';
-import useTiltaksvariant from '../../hooks/tiltaksvariant/useTiltaksvariant';
 import useTiltaksgjennomforingerByTiltaksvariantId from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltaksvariantId';
-import TiltaksgjennomforingsTabell from './components/TiltaksgjennomforingTabell';
+import useTiltaksvariant from '../../hooks/tiltaksvariant/useTiltaksvariant';
+import MainView from '../../layouts/MainView';
 import '../Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
+import TiltaksgjennomforingsTabell from './components/TiltaksgjennomforingTabell';
 
 interface RouteParams {
   id: string;
 }
 
 const TiltaksvariantDetaljer = () => {
-  const { id } = useParams<RouteParams>();
+  const params = useParams<RouteParams>();
+  const id = Number(params.id);
 
   const tiltaksvariant = useTiltaksvariant(id);
   const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltaksvariantId(id);

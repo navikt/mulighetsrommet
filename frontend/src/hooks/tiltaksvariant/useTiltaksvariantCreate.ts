@@ -1,13 +1,12 @@
 import { useMutation } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import TiltaksvariantService from '../../core/api/TiltaksvariantService';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
+import { MulighetsrommetService } from '../../api';
 
 export default function useTiltaksvariantCreate() {
   const history = useHistory();
 
-  return useMutation((tiltaksvariant: Tiltaksvariant) => TiltaksvariantService.postTiltaksvariant(tiltaksvariant), {
+  return useMutation(MulighetsrommetService.createTiltaksvariant, {
     onSuccess(tiltaksvariant) {
       toast.success('Oppretting vellykket!');
 

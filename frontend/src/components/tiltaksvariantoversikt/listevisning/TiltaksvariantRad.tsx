@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tiltaksvariant } from '../../../core/domain/Tiltaksvariant';
+import { Tiltaksvariant } from '../../../api';
 import Link from '../../link/Link';
 import './TiltaksvariantRad.less';
 
