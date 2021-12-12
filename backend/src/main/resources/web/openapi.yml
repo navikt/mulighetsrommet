@@ -7,6 +7,8 @@ info:
 paths:
   /internal/ping:
     get:
+      tags:
+        - internal
       responses:
         200:
           description: API is online and responding
@@ -15,3 +17,255 @@ paths:
               schema:
                 type: string
                 enum: [PONG]
+
+  /api/innsatsgrupper:
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getInnsatsgrupper
+      responses:
+        200:
+          description: Array of innsatsgrupper.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Innsatsgruppe"
+  /api/tiltaksvarianter:
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getTiltaksvarianter
+      responses:
+        200:
+          description: Array of tiltaksvarianter.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksvariant"
+    post:
+      tags:
+        - mulighetsrommet
+      operationId: createTiltaksvariant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnsavedTiltaksvariant"
+      responses:
+        201:
+          description: The created tiltaksvariant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksvariant"
+
+  /api/tiltaksvarianter/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getTiltaksvariant
+      responses:
+        200:
+          description: The specified tiltaksvariant.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksvariant"
+        404:
+          description: The specified tiltaksvariant was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      tags:
+        - mulighetsrommet
+      operationId: updateTiltaksvariant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tiltaksvariant"
+      responses:
+        200:
+          description: The updated tiltaksvariant.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksvariant"
+        404:
+          description: The specified tiltaksvariant was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      tags:
+        - mulighetsrommet
+      operationId: deleteTiltaksvariant
+      responses:
+        200:
+          description: The delete was successful.
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: The specified tiltaksvariant was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/tiltaksvarianter/{id}/tiltaksgjennomforinger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getTiltaksgjennomforingerByTiltaksvariant
+      responses:
+        200:
+          description: Tiltaksgjennomføringer for the specified tiltaksvariant.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksgjennomforing"
+  /api/tiltaksgjennomforinger:
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getTiltaksgjennomforinger
+      responses:
+        200:
+          description: Array of tiltaksgjennomføringer.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksgjennomforing"
+  /api/tiltaksgjennomforinger/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getTiltaksgjennomforing
+      responses:
+        200:
+          description: The specified tiltaksgjennomføring.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        404:
+          description: The specified tiltaksgjennomføring was not found.
+          content:
+            application/json:
+              schema:
+                type: string
+
+components:
+  parameters:
+    ID:
+      name: id
+      in: path
+      description: ID
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    Innsatsgruppe:
+      type: object
+      properties:
+        id:
+          type: number
+        tittel:
+          type: string
+        beskrivelse:
+          type: string
+      required:
+        - id
+        - tittel
+        - beskrivelse
+    UnsavedTiltaksvariant:
+      type: object
+      properties:
+        innsatsgruppe:
+          type: number
+          nullable: true
+        tittel:
+          type: string
+        beskrivelse:
+          type: string
+        ingress:
+          type: string
+      required:
+        - tittel
+        - beskrivelse
+        - ingress
+    Tiltaksvariant:
+      type: object
+      properties:
+        id:
+          type: integer
+        innsatsgruppe:
+          type: number
+          nullable: true
+        tittel:
+          type: string
+        beskrivelse:
+          type: string
+        ingress:
+          type: string
+      required:
+        - id
+        - tittel
+        - beskrivelse
+        - ingress
+    Tiltaksgjennomforing:
+      type: object
+      properties:
+        id:
+          type: integer
+        tittel:
+          type: string
+        beskrivelse:
+          type: string
+        tiltaksvariantId:
+          type: integer
+        tiltaksnummer:
+          type: string
+        fraDato:
+          # TODO: Update definition when swagger-ui supports OAS 3.1
+          # oneOf:
+          #   - type: "null"
+          #   - type: string
+          #     format: date-time
+          type: string
+          format: date-time
+          nullable: true
+        tilDato:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - tittel
+        - beskrivelse
+        - tiltaksvariantId
+        - tilataksnummer
+        - fraDato
+        - tilDato
