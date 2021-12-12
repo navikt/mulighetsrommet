@@ -5,6 +5,9 @@ import '@navikt/ds-css';
 import './index.less';
 import store from './core/redux/Store';
 import { Provider } from 'react-redux';
+import { OpenAPI } from './api';
+
+OpenAPI.BASE = String(process.env.REACT_APP_BACKEND_API_ROOT);
 
 require('dotenv').config();
 
