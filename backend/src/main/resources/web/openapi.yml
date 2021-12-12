@@ -1,0 +1,17 @@
+openapi: 3.0.1
+
+info:
+  version: 1.0.0
+  title: Mulighetsrommet API
+
+paths:
+  /internal/ping:
+    get:
+      responses:
+        200:
+          description: API is online and responding
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum: [PONG]

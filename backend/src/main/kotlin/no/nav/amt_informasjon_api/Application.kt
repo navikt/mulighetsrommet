@@ -1,10 +1,9 @@
 package no.nav.amt_informasjon_api
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.application.Application
-import io.ktor.application.ApplicationStopped
-import io.ktor.config.HoconApplicationConfig
-import io.ktor.routing.routing
+import io.ktor.application.*
+import io.ktor.config.*
+import io.ktor.routing.*
 import kotlinx.coroutines.launch
 import no.nav.amt_informasjon_api.kafka.KafkaFactory
 import no.nav.amt_informasjon_api.plugins.*
@@ -28,6 +27,7 @@ fun Application.module() {
     configureHTTP()
     configureMonitoring()
     configureSerialization()
+    configureWebjars()
 
     val tiltaksvariantService = TiltaksvariantService()
     val tiltaksgjennomforingService = TiltaksgjennomforingService()
@@ -36,6 +36,7 @@ fun Application.module() {
     routing {
         devRoutes()
         healthRoutes()
+        swaggerRoutes()
 
         tiltaksvariantRoutes(tiltaksvariantService, tiltaksgjennomforingService)
         tiltaksgjennomforingRoutes(tiltaksgjennomforingService)
