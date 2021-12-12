@@ -2,8 +2,8 @@ import { Id } from './Generic';
 
 export interface Tiltaksgjennomforing {
   id?: Id;
-  tiltaksvariantId: Id;
-  tiltaksnummer: Id;
+  tiltaksvariantId: number;
+  tiltaksnummer: string;
   tittel: string;
   beskrivelse: string;
   fraDato: Date;

@@ -8,6 +8,11 @@ import { Provider } from 'react-redux';
 
 require('dotenv').config();
 
+if (process.env.REACT_APP_ENABLE_MOCK) {
+  const { worker } = require('./mock/worker');
+  worker.start();
+}
+
 ReactDOM.render(
   <Provider store={store}>
     <App />

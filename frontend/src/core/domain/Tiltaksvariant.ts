@@ -1,7 +1,7 @@
 import { Id } from './Generic';
 
 export interface Tiltaksvariant {
-  id?: Id;
+  id?: number;
   innsatsgruppe: number | null;
   tittel: string;
   ingress: string;
