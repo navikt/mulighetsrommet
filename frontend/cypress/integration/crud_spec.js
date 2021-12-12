@@ -143,7 +143,7 @@ describe('CRUD tiltaksvariant', () => {
     cy.getByTestId('tabell_tiltaksgjennomforinger')
       .children()
       .children()
-      .should('have.length.at.least', 1)
+      .should('have.length.at.least', 2)
       .last()
       .click();
 
