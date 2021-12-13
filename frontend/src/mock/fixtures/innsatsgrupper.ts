@@ -1,6 +1,6 @@
 import { Innsatsgruppe } from '../../core/domain/Innsatsgruppe';
 
-export const innsatsgrupperMock: Innsatsgruppe[] = [
+export const innsatsgrupper: Innsatsgruppe[] = [
   {
     id: 1,
     tittel: 'Standardinnsats',

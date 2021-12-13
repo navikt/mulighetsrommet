@@ -67,12 +67,11 @@ jobs:
         run: |
           npm ci
           npm run build
-      # TODO: Enable when MSW/Docker scope is up
-      # - name: Cypress run
-      #   uses: cypress-io/github-action@v2
-      #   with:
-      #     working-directory: frontend
-      #     browser: chrome
-      #     headless: true
-      #     wait-on: http://localhost:3000
-      #     start: npm start
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          working-directory: frontend
+          browser: chrome
+          headless: true
+          wait-on: http://localhost:3000
+          start: npm start
