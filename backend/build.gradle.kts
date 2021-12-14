@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.5.31"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
     id("org.flywaydb.flyway") version "8.0.3"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
     /**
      * Linting and auto formatting of project sources
      */
@@ -49,7 +50,6 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("org.apache.kafka:kafka_2.13:2.8.0")
     implementation("org.apache.kafka:kafka-streams:2.8.0")
-    implementation("io.confluent:kafka-avro-serializer:6.1.1")
     implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     testImplementation("io.ktor:ktor-server-tests:1.6.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
@@ -57,19 +57,27 @@ dependencies {
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")
 }
 
-tasks.withType<Jar> {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes["Main-Class"] = application.mainClass
+tasks {
+    shadowJar {
+        manifest {
+            attributes(Pair("Main-Class", "no.nav.amt_informasjon_api.ApplicationKt"))
+        }
     }
-    from(sourceSets.main.get().output)
-
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
 }
+
+// tasks.withType<Jar> {
+//     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//
+//     manifest {
+//         attributes["Main-Class"] = application.mainClass
+//     }
+//     from(sourceSets.main.get().output)
+//
+//     dependsOn(configurations.runtimeClasspath)
+//     from({
+//         configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+//     })
+// }
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
