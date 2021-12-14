@@ -28,7 +28,7 @@ fun Application.module() {
     // TODO: Fiks litt bedre config-oppsett for hele appen, sett i app context isteden.
     val appConfig = HoconApplicationConfig(ConfigFactory.load())
     val enableKafka = appConfig.property("ktor.kafka.enable").getString().toBoolean()
-    val kafka: KafkaFactory
+    // val kafka: KafkaFactory
 
     configureRouting()
     configureSecurity()
@@ -51,7 +51,7 @@ fun Application.module() {
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.
     if (enableKafka) {
-        kafka = KafkaFactory()
+        KafkaFactory()
         val kafkaBrokers = appConfig.property("ktor.kafka.brokers").getString()
         println("KAFKA_BROKERS: $kafkaBrokers")
         environment.monitor.subscribe(ApplicationStopped) {

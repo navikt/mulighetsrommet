@@ -1,24 +1,41 @@
 package no.nav.amt_informasjon_api.kafka
 
+import com.typesafe.config.ConfigFactory
+import io.ktor.config.HoconApplicationConfig
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
-import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.selectAll
+import java.util.Properties
 import java.util.function.Consumer
 
 class KafkaFactory {
 
+    private val appConfig = HoconApplicationConfig(ConfigFactory.load())
     // private val streamsConfiguration = KafkaStreamConfig()
     // private val kafkaStreams: KafkaStreams
     // private val topology: Topology
     private val client: KafkaConsumerClient
 //    private val adminClient: AdminClient
+    private val properties: Properties
 
     init {
-        val properties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("amt-informasjon-api-consumer.v2")
+        properties = if (appConfig.property("ktor.development").getString() == "true") {
+            KafkaPropertiesBuilder.consumerBuilder()
+                .withBrokerUrl("localhost:9092")
+                .withBaseProperties()
+                .withConsumerGroupId("amt-informasjon-api-consumer.v2")
+                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                .build()
+        } else {
+            KafkaPropertiesPreset.aivenDefaultConsumerProperties("amt-informasjon-api-consumer.v2")
+        }
+
         val arenaTiltakTopic = "teamarenanais.aapen-arena-tiltakendret-v1-q2"
         val topicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
             .withLogging()
@@ -32,6 +49,8 @@ class KafkaFactory {
             .withProperties(properties)
             .withTopicConfig(topicConfig)
             .build()
+
+        client.start()
         // topology = buildStream()
         // kafkaStreams = KafkaStreams(topology, streamsConfiguration)
         // kafkaStreams.cleanUp()
