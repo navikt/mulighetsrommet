@@ -42,6 +42,7 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("org.apache.kafka:kafka_2.13:2.8.0")
     implementation("org.apache.kafka:kafka-streams:2.8.0")
+    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     testImplementation("io.ktor:ktor-server-tests:1.6.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
     testImplementation("io.mockk:mockk:1.12.0")
