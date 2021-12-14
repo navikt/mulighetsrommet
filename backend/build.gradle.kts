@@ -23,6 +23,13 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 
 repositories {
     mavenCentral()
+    // Needed to get no.nav.common-java-modules to work. Deps from other repos
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
