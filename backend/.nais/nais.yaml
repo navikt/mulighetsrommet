@@ -14,7 +14,7 @@ spec:
     - https://mulighetsrommet-api.dev.intern.nav.no
   env:
     - name: KTOR_LOCAL_DEV
-      value: false
+      value: "false"
   prometheus:
     enabled: true
     path: /internal/prometheus
