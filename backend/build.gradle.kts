@@ -50,6 +50,7 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
+    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")
