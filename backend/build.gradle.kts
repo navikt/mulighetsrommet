@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.5.31"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
     id("org.flywaydb.flyway") version "8.0.3"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
     /**
      * Linting and auto formatting of project sources
      */
@@ -70,19 +71,27 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.withType<Jar> {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes["Main-Class"] = application.mainClass
+tasks {
+    shadowJar {
+        manifest {
+            attributes(Pair("Main-Class", "no.nav.amt_informasjon_api.ApplicationKt"))
+        }
     }
-    from(sourceSets.main.get().output)
-
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
 }
+
+// tasks.withType<Jar> {
+//     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//
+//     manifest {
+//         attributes["Main-Class"] = application.mainClass
+//     }
+//     from(sourceSets.main.get().output)
+//
+//     dependsOn(configurations.runtimeClasspath)
+//     from({
+//         configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+//     })
+// }
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
