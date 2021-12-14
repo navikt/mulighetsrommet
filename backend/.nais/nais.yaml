@@ -16,6 +16,9 @@ spec:
     - {{this}}
     {{/each}}
   {{/if}}
+  env:
+    - name: KTOR_LOCAL_DEV
+      value: false
   prometheus:
     enabled: true
     path: /internal/prometheus
