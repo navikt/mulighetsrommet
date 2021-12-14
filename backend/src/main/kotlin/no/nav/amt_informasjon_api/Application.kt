@@ -51,12 +51,12 @@ fun Application.module() {
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.
     if (enableKafka) {
-        KafkaFactory()
+        val kafkaFactory = KafkaFactory()
         val kafkaBrokers = appConfig.property("ktor.kafka.brokers").getString()
         println("KAFKA_BROKERS: $kafkaBrokers")
         environment.monitor.subscribe(ApplicationStopped) {
             println("Shutting down")
-//            kafka.shutdown()
+            kafkaFactory.stopClient()
         }
     }
 }

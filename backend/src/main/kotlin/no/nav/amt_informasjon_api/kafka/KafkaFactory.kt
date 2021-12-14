@@ -70,6 +70,10 @@ class KafkaFactory {
         // println("KAFKA STATE: ${kafkaStreams.state().name}")
     }
 
+    fun stopClient() {
+        client.stop()
+    }
+
     // private fun buildStream(): Topology {
     //     val builder = StreamsBuilder()
     //     builder.stream<String, String>(KafkaTopics.Tiltaksgjennomforing.topic)
