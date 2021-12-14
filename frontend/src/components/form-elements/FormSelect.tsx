@@ -1,6 +1,6 @@
-import { Select as DsSelect } from '@navikt/ds-react';
 import React, { ChangeEvent } from 'react';
 import { useController, UseControllerProps } from 'react-hook-form';
+import { Select } from 'nav-frontend-skjema';
 
 export interface SelectProps<T extends object, V> extends UseControllerProps<T> {
   label: string;
@@ -10,6 +10,7 @@ export interface SelectProps<T extends object, V> extends UseControllerProps<T> 
    * `null` instead of `undefined`.
    */
   nullable?: boolean;
+  dataTestId?: string;
   options: Option<V>[];
 }
 
@@ -21,7 +22,7 @@ export interface Option<T> {
 
 const EMPTY_VALUE = '';
 
-export function Select<T extends object, V>(props: SelectProps<T, V>) {
+export function FormSelect<T extends object, V>(props: SelectProps<T, V>) {
   const { field, fieldState } = useController(props);
 
   const selectedIndex = props.options.findIndex(option => option.value === field.value);
@@ -41,14 +42,20 @@ export function Select<T extends object, V>(props: SelectProps<T, V>) {
   };
 
   return (
-    <DsSelect {...field} label={props.label} error={error} value={value} onChange={onChange}>
+    <Select
+      {...field}
+      label={props.label}
+      feil={error}
+      value={value}
+      onChange={onChange}
+      data-testid={props.dataTestId}
+    >
       <option value={EMPTY_VALUE}>{props.placeholder}</option>
-
       {props.options.map(({ key, label, value }, index) => (
         <option key={key ?? `${label}:${value}`} value={String(index)}>
           {String(label)}
         </option>
       ))}
-    </DsSelect>
+    </Select>
   );
 }

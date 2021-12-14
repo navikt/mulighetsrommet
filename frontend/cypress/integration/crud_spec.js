@@ -16,6 +16,7 @@ describe('CRUD tiltaksvariant', () => {
   beforeEach('Skal være på listevisninga', () => {
     cy.getByTestId('header-tiltaksvarianter').should('contain', 'Tiltaksvarianter');
     cy.getByTestId('tabell_oversikt-tiltaksvarianter').children().children().should('have.length.at.least', 1);
+    cy.checkPageA11y();
   });
 
   afterEach('Fjerner søketekst', () => {
@@ -37,8 +38,11 @@ describe('CRUD tiltaksvariant', () => {
     cy.getByTestId('knapp_opprett-tiltaksvariant').click();
 
     cy.url().should('include', '/tiltaksvarianter/opprett');
+    cy.checkPageA11y();
 
     cy.getByTestId('header_opprett-tiltaksvariant').should('contain', 'Opprett tiltaksvariant');
+
+    cy.getByTestId('input_innsatsgruppe').select('Situasjonsbestemt innsats');
 
     cy.getByTestId('input_tittel').should('have.css', 'border-color', borderWhite);
 
@@ -56,6 +60,7 @@ describe('CRUD tiltaksvariant', () => {
     cy.get(`.Toastify__toast-container`).should('contain', 'Oppretting vellykket!');
 
     cy.url().should('include', '/tiltaksvarianter/');
+    cy.checkPageA11y();
 
     cy.getByTestId('tiltaksvariant_header').should('contain', tittel);
 
@@ -81,6 +86,7 @@ describe('CRUD tiltaksvariant', () => {
     cy.getByTestId('tabell_oversikt-tiltaksvarianter').children().children().last().contains('td', tittel).click();
 
     cy.url().should('include', '/tiltaksvarianter/');
+    cy.checkPageA11y();
 
     cy.getByTestId('tiltaksvariant_header').should('contain', tittel);
     cy.getByTestId('tiltaksvariant_ingress').should('contain', ingress);
@@ -89,6 +95,7 @@ describe('CRUD tiltaksvariant', () => {
     cy.getByTestId('knapp_rediger-tiltaksvariant').click();
 
     cy.url().should('include', '/rediger');
+    cy.checkPageA11y();
 
     cy.getByTestId('input_ingress').click().should('be.focused').clear().type(nyIngress);
     cy.getByTestId('input_beskrivelse').click().should('be.focused').clear().type(nyBeskrivelse);
@@ -98,6 +105,7 @@ describe('CRUD tiltaksvariant', () => {
     cy.get(`.Toastify__toast-container`).should('contain', 'Endring vellykket');
 
     cy.url().should('include', '/tiltaksvarianter/');
+    cy.checkPageA11y();
 
     cy.tilbakeTilListevisning();
   });
@@ -112,6 +120,9 @@ describe('CRUD tiltaksvariant', () => {
     cy.getByTestId('sokefelt_tiltaksvariant').focus().type(tittel);
 
     cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('td', tittel).click();
+
+    cy.url().should('include', '/tiltaksvarianter/');
+    cy.checkPageA11y();
 
     cy.getByTestId('tiltaksvariant_header').should('contain', tittel);
     cy.getByTestId('tiltaksvariant_ingress').should('contain', nyIngress);
@@ -148,11 +159,13 @@ describe('CRUD tiltaksvariant', () => {
       .click();
 
     cy.url().should('include', '/tiltaksgjennomforinger/');
+    cy.checkPageA11y();
 
     cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
     cy.getByTestId('tiltaksvariant_header').should('contain', amo);
 
     cy.url().should('include', '/tiltaksvarianter/');
+    cy.checkPageA11y();
 
     cy.tilbakeTilListevisning();
   });

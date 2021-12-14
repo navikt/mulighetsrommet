@@ -8,14 +8,12 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 //
-//
 // -- This is a parent command --
 // Cypress.Commands.add('login', (email, password) => { ... })
 //
 //
 // -- This is a child command --
 // Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
 //
 // -- This is a dual command --
 // Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
@@ -46,4 +44,39 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
 Cypress.Commands.add('tilbakeTilListevisning', () => {
   cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
   cy.getByTestId('header-tiltaksvarianter').should('contain', 'Tiltaksvarianter');
+});
+
+//Cypress
+const severityIndicators = {
+  minor: '⚪️',
+  moderate: '🟡',
+  serious: '🟠',
+  critical: '🔴',
+};
+
+function callback(violations) {
+  violations.forEach(violation => {
+    const nodes = Cypress.$(violation.nodes.map(node => node.target).join(','));
+
+    Cypress.log({
+      name: `${severityIndicators[violation.impact]} A11Y`,
+      consoleProps: () => violation,
+      $el: nodes,
+      message: `[${violation.help}](${violation.helpUrl}`,
+    });
+
+    violation.nodes.forEach(({ target }) => {
+      Cypress.log({
+        name: '🔧',
+        consoleProps: () => violation,
+        $el: Cypress.$(target.join(',')),
+        message: target,
+      });
+    });
+  });
+}
+
+Cypress.Commands.add('checkPageA11y', () => {
+  cy.injectAxe();
+  cy.checkA11y({ exclude: [[['.Toastify']]] }, null, callback);
 });

@@ -1,4 +1,4 @@
-import { AddCircle, Delete, Edit } from '@navikt/ds-icons';
+import { Delete, Edit } from '@navikt/ds-icons';
 import AlertStripe from 'nav-frontend-alertstriper';
 import { Fareknapp, Hovedknapp } from 'nav-frontend-knapper';
 import NavFrontendSpinner from 'nav-frontend-spinner';
@@ -6,10 +6,11 @@ import React from 'react';
 import { Row, Stack } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import FormInput from '../../components/form-elements/FormInput';
-import { Select } from '../../components/form-elements/Select';
 import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import { useInnsatsgrupper } from '../../hooks/tiltaksvariant/useInnsatsgrupper';
 import './TiltaksvariantForm.less';
+import { ReactComponent as AddCircle } from '../../ikoner/AddCircle.svg';
+import { FormSelect } from '../../components/form-elements/FormSelect';
 
 interface TiltaksvariantFormProps {
   isLoading?: boolean;
@@ -40,14 +41,16 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
       className="rediger-opprett-tiltaksvariant__form"
       data-testid="form__rediger-opprett"
     >
-      <Select
+      <FormSelect
         name="innsatsgruppe"
         control={control}
         nullable
         label="Innsatsgruppe"
         placeholder="Ingen innsatsgruppe"
         options={innsatsgrupper.map(innsatsgruppe => ({ value: innsatsgruppe.id, label: innsatsgruppe.tittel }))}
+        dataTestId="input_innsatsgruppe"
       />
+
       <FormInput
         label="Tittel"
         register={register('tittel', {
@@ -83,7 +86,7 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
           {onDelete ? (
             <>
               <Hovedknapp htmlType="submit" data-testid="submit-knapp_rediger-tiltaksvariant">
-                Rediger tiltaksvariant <Edit />
+                Rediger tiltaksvariant <Edit title="Blyant" />
               </Hovedknapp>
               <Fareknapp
                 spinner={isLoading}
@@ -91,7 +94,7 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
                 htmlType="button"
                 data-testid="slett-knapp_rediger-tiltaksvariant"
               >
-                Slett tiltaksvariant <Delete />
+                Slett tiltaksvariant <Delete title="Søppelkasse" />
               </Fareknapp>
             </>
           ) : (

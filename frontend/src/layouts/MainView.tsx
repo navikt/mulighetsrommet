@@ -12,13 +12,13 @@ interface MainViewProps {
   tilbakelenke?: string;
 }
 
-const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestId, tilbakelenke = '/', children }) => {
+const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestId, tilbakelenke, children }) => {
   return (
     <Container className="main-view">
       <Row className="main-view__header">
         {tilbakelenke && (
           <Link to={tilbakelenke}>
-            <Tilbakeknapp data-testid="tilbakeknapp" />
+            <Tilbakeknapp data-testid="tilbakeknapp" title="Tilbake" />
           </Link>
         )}
       </Row>
