@@ -4,7 +4,7 @@
 
 plugins {
     application
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.5.31"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
     id("org.flywaydb.flyway") version "8.0.3"
     /**
@@ -49,6 +49,7 @@ dependencies {
     implementation("org.apache.kafka:kafka-streams:2.8.1")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")

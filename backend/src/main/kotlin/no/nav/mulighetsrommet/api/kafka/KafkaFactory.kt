@@ -1,30 +1,52 @@
 package no.nav.mulighetsrommet.api.kafka
 
-import org.apache.kafka.streams.KafkaStreams
-import org.apache.kafka.streams.StreamsBuilder
-import org.apache.kafka.streams.Topology
+import no.nav.common.kafka.consumer.KafkaConsumerClient
+import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
+import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.selectAll
+import java.util.function.Consumer
 
 class KafkaFactory(private val db: DatabaseFactory) {
 
-    private val streamsConfiguration = KafkaStreamConfig()
-    private val kafkaStreams: KafkaStreams
-    private val topology: Topology
+    // private val streamsConfiguration = KafkaStreamConfig()
+    // private val kafkaStreams: KafkaStreams
+    // private val topology: Topology
+    private val client: KafkaConsumerClient
 //    private val adminClient: AdminClient
 
     init {
-        topology = buildStream()
-        kafkaStreams = KafkaStreams(topology, streamsConfiguration)
-        kafkaStreams.cleanUp()
-        kafkaStreams.start()
-        println("KAFKA STATE: ${kafkaStreams.state().name}")
+        val properties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("amt-informasjon-api-consumer.v2")
+        val arenaTiltakTopic = "teamarenanais.aapen-arena-tiltakendret-v1-q2"
+        val topicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
+            .withLogging()
+            .withConsumerConfig(
+                arenaTiltakTopic,
+                stringDeserializer(),
+                stringDeserializer(),
+                Consumer<ConsumerRecord<String, String>> { printTopicContent(it.value()) }
+            )
+        client = KafkaConsumerClientBuilder.builder()
+            .withProperties(properties)
+            .withTopicConfig(topicConfig)
+            .build()
+        // topology = buildStream()
+        // kafkaStreams = KafkaStreams(topology, streamsConfiguration)
+        // kafkaStreams.cleanUp()
+        // kafkaStreams.start()
+        // println("KAFKA STATE: ${kafkaStreams.state().name}")
     }
 
-    private fun buildStream(): Topology {
-        val builder = StreamsBuilder()
-        builder.stream<String, String>(KafkaTopics.Tiltaksgjennomforing.topic)
-        return builder.build()
+    // private fun buildStream(): Topology {
+    //     val builder = StreamsBuilder()
+    //     builder.stream<String, String>(KafkaTopics.Tiltaksgjennomforing.topic)
+    //     return builder.build()
+    // }
+
+    private fun printTopicContent(value: String) {
+        println("TOPIC: $value")
     }
 
 //    fun shutdown() {
