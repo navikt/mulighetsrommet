@@ -2,32 +2,6 @@ before('Start server', () => {
   cy.configure();
 });
 
-describe('Sjekk om det finnes test-tiltaksvariant fra før', () => {
-  const tittel = 'Test tiltaksvariant for Cypress';
-  it('Slett test-tiltaksvariant', () => {
-    cy.getByTestId('header-tiltaksvarianter').should('contain', 'Tiltaksvarianter');
-    cy.getByTestId('tabell_oversikt-tiltaksvarianter').children().children().should('have.length.at.least', 1);
-    cy.checkPageA11y();
-    cy.getByTestId('sokefelt_tiltaksvariant').focus().type(tittel);
-
-    cy.getByTestId('tabell_oversikt-tiltaksvarianter')
-      .find('tr')
-      .then($tiltak => {
-        if (Cypress.$($tiltak).length > 1) {
-          $tiltak.filter('.tabell__row').each(() => {
-            cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('td', tittel).click();
-            cy.getByTestId('tiltaksvariant_header').should('contain', tittel);
-            cy.getByTestId('knapp_rediger-tiltaksvariant').click();
-            cy.getByTestId('slett-knapp_rediger-tiltaksvariant').click();
-            cy.getByTestId('rediger-tiltaksvariant__slett-modal__knapperad').click();
-            cy.get(`.Toastify__toast-container`).should('contain', 'Sletting vellykket');
-          });
-        }
-        cy.getByTestId('sokefelt_tiltaksvariant').focus().clear();
-      });
-  });
-});
-
 describe('CRUD tiltaksvariant', () => {
   const tittel = 'Test tiltaksvariant for Cypress';
   const ingress = 'Ingress ingress ingress ingress';

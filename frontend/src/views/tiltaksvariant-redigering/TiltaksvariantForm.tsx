@@ -10,7 +10,7 @@ import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import { useInnsatsgrupper } from '../../hooks/tiltaksvariant/useInnsatsgrupper';
 import './TiltaksvariantForm.less';
 import { ReactComponent as AddCircle } from '../../ikoner/AddCircle.svg';
-import { Select } from 'nav-frontend-skjema';
+import { FormSelect } from '../../components/form-elements/FormSelect';
 
 interface TiltaksvariantFormProps {
   isLoading?: boolean;
@@ -28,6 +28,7 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm<Tiltaksvariant>({
     defaultValues: { innsatsgruppe: null, ...tiltaksvariant },
   });
@@ -40,14 +41,16 @@ const TiltaksvariantForm = ({ isLoading, isError, tiltaksvariant, onSubmit, onDe
       className="rediger-opprett-tiltaksvariant__form"
       data-testid="form__rediger-opprett"
     >
-      <Select label="Innsatsgruppe" data-testid="input_innsatsgruppe">
-        <option value="">Velg innsatsgruppe</option>
-        {innsatsgrupper.map(innsatsgruppe => (
-          <option key={innsatsgruppe.id} value={innsatsgruppe.id}>
-            {innsatsgruppe.tittel}
-          </option>
-        ))}
-      </Select>
+      <FormSelect
+        name="innsatsgruppe"
+        control={control}
+        nullable
+        label="Innsatsgruppe"
+        placeholder="Ingen innsatsgruppe"
+        options={innsatsgrupper.map(innsatsgruppe => ({ value: innsatsgruppe.id, label: innsatsgruppe.tittel }))}
+        dataTestId="input_innsatsgruppe"
+      />
+
       <FormInput
         label="Tittel"
         register={register('tittel', {
