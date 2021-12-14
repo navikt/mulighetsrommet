@@ -43,11 +43,23 @@ class KafkaFactory(private val db: DatabaseFactory) {
                 arenaTiltakTopic,
                 stringDeserializer(),
                 stringDeserializer(),
-                Consumer<ConsumerRecord<String, String>> { printTopicContent(it.value()) }
+                Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
             )
+
+        val testTopicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
+            .withLogging()
+            .withConsumerConfig(
+                "aura.kafkarator-canary-dev-gcp",
+                stringDeserializer(),
+                stringDeserializer(),
+                Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
+            )
+
+        val topics = listOf(topicConfig, testTopicConfig)
+
         client = KafkaConsumerClientBuilder.builder()
             .withProperties(properties)
-            .withTopicConfig(topicConfig)
+            .withTopicConfigs(topics)
             .build()
 
         client.start()
@@ -64,8 +76,8 @@ class KafkaFactory(private val db: DatabaseFactory) {
     //     return builder.build()
     // }
 
-    private fun printTopicContent(value: String) {
-        println("TOPIC: $value")
+    private fun printTopicContent(consumerRecord: ConsumerRecord<String, String>) {
+        println("TOPIC (${consumerRecord.topic()}): ${consumerRecord.value()}")
     }
 
 //    fun shutdown() {
