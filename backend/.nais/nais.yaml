@@ -12,6 +12,9 @@ spec:
   image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api-{{image_label}}:{{image_tag}}
   ingresses:
     - https://mulighetsrommet-api.dev.intern.nav.no
+  env:
+    - name: KTOR_LOCAL_DEV
+      value: false
   prometheus:
     enabled: true
     path: /internal/prometheus

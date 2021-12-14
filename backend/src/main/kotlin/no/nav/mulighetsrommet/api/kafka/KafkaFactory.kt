@@ -25,7 +25,7 @@ class KafkaFactory(private val db: DatabaseFactory) {
     private val properties: Properties
 
     init {
-        properties = if (appConfig.property("ktor.development").getString() == "true") {
+        properties = if (appConfig.property("ktor.localDevelopment").getString() == "true") {
             KafkaPropertiesBuilder.consumerBuilder()
                 .withBrokerUrl("localhost:9092")
                 .withBaseProperties()
