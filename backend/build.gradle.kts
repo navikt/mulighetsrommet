@@ -23,6 +23,13 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 
 repositories {
     mavenCentral()
+    // Needed to get no.nav.common-java-modules to work. Deps from other repos
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -48,9 +55,9 @@ dependencies {
     implementation("org.apache.kafka:kafka-streams:2.8.0")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
-    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")
