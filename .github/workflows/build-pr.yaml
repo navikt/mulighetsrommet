@@ -77,3 +77,4 @@ jobs:
           headless: true
           wait-on: http://localhost:3000
           start: npm start
+          install: false
