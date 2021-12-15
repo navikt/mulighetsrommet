@@ -51,15 +51,7 @@ jobs:
         with:
           distribution: "adopt"
           java-version: 11
-      - name: Apply gradle cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          cache: gradle
       - name: Build with Gradle
         run: ./gradlew test build --info
       - name: Build and push Docker image

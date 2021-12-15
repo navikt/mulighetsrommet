@@ -41,7 +41,7 @@ jobs:
         with:
           distribution: "adopt"
           java-version: 11
-          cache: "gradle"
+          cache: gradle
       - name: Build with Gradle
         run: ./gradlew test build --info
       - name: Publish test report
