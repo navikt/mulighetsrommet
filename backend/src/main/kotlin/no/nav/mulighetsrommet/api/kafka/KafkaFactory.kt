@@ -68,7 +68,6 @@ class KafkaFactory(private val db: DatabaseFactory) {
     private fun printTopicContent(consumerRecord: ConsumerRecord<String, String>) {
         println("TOPIC (${consumerRecord.topic()}): ${consumerRecord.value()}")
     }
-
 }
 
 /**
