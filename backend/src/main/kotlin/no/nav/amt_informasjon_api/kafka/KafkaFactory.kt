@@ -17,15 +17,11 @@ import java.util.function.Consumer
 class KafkaFactory {
 
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
-    // private val streamsConfiguration = KafkaStreamConfig()
-    // private val kafkaStreams: KafkaStreams
-    // private val topology: Topology
-    private val client: KafkaConsumerClient
-//    private val adminClient: AdminClient
-    private val properties: Properties
+    private val consumerClient: KafkaConsumerClient
+    private val consumerProperties: Properties
 
     init {
-        properties = if (appConfig.property("ktor.localDevelopment").getString() == "true") {
+        consumerProperties = if (appConfig.property("ktor.localDevelopment").getString() == "true") {
             KafkaPropertiesBuilder.consumerBuilder()
                 .withBrokerUrl("localhost:9092")
                 .withBaseProperties()
@@ -57,62 +53,22 @@ class KafkaFactory {
 
         val topics = listOf(topicConfig, testTopicConfig)
 
-        client = KafkaConsumerClientBuilder.builder()
-            .withProperties(properties)
+        consumerClient = KafkaConsumerClientBuilder.builder()
+            .withProperties(consumerProperties)
             .withTopicConfigs(topics)
             .build()
 
-        client.start()
-        // topology = buildStream()
-        // kafkaStreams = KafkaStreams(topology, streamsConfiguration)
-        // kafkaStreams.cleanUp()
-        // kafkaStreams.start()
-        // println("KAFKA STATE: ${kafkaStreams.state().name}")
+        consumerClient.start()
     }
 
     fun stopClient() {
-        client.stop()
+        consumerClient.stop()
     }
-
-    // private fun buildStream(): Topology {
-    //     val builder = StreamsBuilder()
-    //     builder.stream<String, String>(KafkaTopics.Tiltaksgjennomforing.topic)
-    //     return builder.build()
-    // }
 
     private fun printTopicContent(consumerRecord: ConsumerRecord<String, String>) {
         println("TOPIC (${consumerRecord.topic()}): ${consumerRecord.value()}")
     }
 
-//    fun shutdown() {
-//        kafkaStreams.close()
-//    }
-//
-//    fun isAlive(): Boolean {
-//        return kafkaStreams.state().isRunningOrRebalancing
-//    }
-
-    // private fun createConsumer(): Consumer<String, String> {
-    //     val props = streamsConfiguration
-    //     props["key.deserializer"] = StringDeserializer::class.java
-    //     props["value.deserializer"] = StringDeserializer::class.java
-    //     return KafkaConsumer(props)
-    // }
-    //
-    // fun consumeArenaEvents() {
-    //     val consumer = createConsumer()
-    //     consumer.subscribe(listOf(KafkaTopics.Tiltaksgjennomforing.topic))
-    //     while (true) {
-    //         val records = consumer.poll(Duration.ofSeconds(1))
-    //         if (!records.isEmpty) {
-    //             println("Consumed ${records.count()} records")
-    //             records.iterator().forEach {
-    //                 val message = it.value()
-    //                 println("Message: $message")
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 /**
