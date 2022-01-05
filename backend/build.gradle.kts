@@ -4,7 +4,7 @@
 
 plugins {
     application
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
     id("org.flywaydb.flyway") version "8.0.3"
     /**
@@ -38,19 +38,19 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.34.1")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.34.2")
     implementation("org.jetbrains.exposed:exposed-core:0.34.2")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.33.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.34.2")
     implementation("org.postgresql:postgresql:42.2.23")
     implementation("org.flywaydb:flyway-core:8.0.3")
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
-    implementation("org.apache.kafka:kafka_2.13:2.8.0")
-    implementation("org.apache.kafka:kafka-streams:2.8.0")
+    implementation("org.apache.kafka:kafka_2.13:2.8.1")
+    implementation("org.apache.kafka:kafka-streams:2.8.1")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")
 }
