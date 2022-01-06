@@ -1,4 +1,4 @@
-package no.nav.amt_informasjon_api.plugins
+package no.nav.mulighetsrommet.api.plugins
 
 import io.ktor.application.Application
 import io.ktor.application.install

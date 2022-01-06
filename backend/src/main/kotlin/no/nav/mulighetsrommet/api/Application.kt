@@ -11,9 +11,11 @@ import no.nav.mulighetsrommet.api.plugins.configureMonitoring
 import no.nav.mulighetsrommet.api.plugins.configureRouting
 import no.nav.mulighetsrommet.api.plugins.configureSecurity
 import no.nav.mulighetsrommet.api.plugins.configureSerialization
+import no.nav.mulighetsrommet.api.plugins.configureWebjars
 import no.nav.mulighetsrommet.api.routes.devRoutes
 import no.nav.mulighetsrommet.api.routes.healthRoutes
 import no.nav.mulighetsrommet.api.routes.innsatsgruppeRoutes
+import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksgjennomforingRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksvariantRoutes
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService

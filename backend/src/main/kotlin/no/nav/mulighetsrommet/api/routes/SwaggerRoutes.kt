@@ -1,4 +1,4 @@
-package no.nav.amt_informasjon_api.routes
+package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.application.call
 import io.ktor.http.content.resources
