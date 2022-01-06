@@ -4,13 +4,13 @@ services:
     image: "postgres:12.3-alpine"
     restart: "always"
     volumes:
-      - "amt-informasjon-api:/var/lib/postgresql/data"
+      - "mulighetsrommet-api:/var/lib/postgresql/data"
     ports:
       - "5442:5432"
     environment:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
-      POSTGRES_DB: "amt-informasjon-api"
+      POSTGRES_DB: "mulighetsrommet-db"
     mem_limit: "8g"
   zookeeper:
     image: "confluentinc/cp-zookeeper:latest"
@@ -43,4 +43,4 @@ services:
       KAFKA_BROKERCONNECT: "kafka:9092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
 volumes:
-  amt-informasjon-api:
+  mulighetsrommet-db:
