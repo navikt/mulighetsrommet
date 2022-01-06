@@ -78,7 +78,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          VARS: backend/.nais/dev-gcp.yaml
+          RESOURCE: backend/.nais/nais.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL}}
       - name: Create release tag
         uses: actions/create-release@v1
