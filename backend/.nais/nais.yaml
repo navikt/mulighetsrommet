@@ -9,7 +9,7 @@ metadata:
     nais.io/security-does-not-matter: "true"
 spec:
   port: 8080
-  image: mulighetsrommet/mulighetsrommet-api-{{image_label}}:{{image_tag}}
+  image: mulighetsrommet-api-{{image_label}}:{{image_tag}}
   ingresses:
     - https://mulighetsrommet-api.dev.intern.nav.no
   prometheus:
