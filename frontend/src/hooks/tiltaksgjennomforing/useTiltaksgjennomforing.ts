@@ -1,11 +1,9 @@
 import { useQuery } from 'react-query';
+import { MulighetsrommetService, Tiltaksgjennomforing } from '../../api';
 import { QueryKeys } from '../../core/api/QueryKeys';
-import TiltaksgjennomforingService from '../../core/api/TiltaksgjennomforingService';
-import { Id } from '../../core/domain/Generic';
-import { Tiltaksgjennomforing } from '../../core/domain/Tiltaksgjennomforing';
 
-export default function useTiltaksgjennomforing(id: Id) {
+export default function useTiltaksgjennomforing(id: number) {
   return useQuery<Tiltaksgjennomforing>([QueryKeys.Tiltaksgjennomforinger, id], () =>
-    TiltaksgjennomforingService.getTiltaksgjennomforingById(id)
+    MulighetsrommetService.getTiltaksgjennomforing({ id })
   );
 }

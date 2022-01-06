@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate-api-client": "openapi --useOptions --input ../backend/src/main/resources/web/openapi.yml --output ./src/api",
     "build": "craco build",
     "build:labs": "cross-env REACT_APP_DEV=true REACT_APP_ENABLE_MOCK=true craco build",
     "clean": "rimraf build",
@@ -111,6 +112,7 @@
     "eslint-plugin-react": "^7.24.0",
     "faker": "^5.5.3",
     "msw": "^0.36.2",
+    "openapi-typescript-codegen": "^0.12.5",
     "postcss": "^7.0.36",
     "prettier": "^2.5.1",
     "react-scripts": "^4.0.3",

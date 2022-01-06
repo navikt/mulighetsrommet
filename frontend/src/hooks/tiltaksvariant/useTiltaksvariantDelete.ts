@@ -1,13 +1,12 @@
 import { useMutation } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import TiltaksvariantService from '../../core/api/TiltaksvariantService';
-import { Id } from '../../core/domain/Generic';
+import { MulighetsrommetService } from '../../api';
 
-export default function useTiltaksvariantDelete(id: Id) {
+export default function useTiltaksvariantDelete() {
   const history = useHistory();
 
-  return useMutation(() => TiltaksvariantService.deleteTiltaksvariant(id), {
+  return useMutation(MulighetsrommetService.deleteTiltaksvariant, {
     onSuccess() {
       toast.success('Sletting vellykket!');
 

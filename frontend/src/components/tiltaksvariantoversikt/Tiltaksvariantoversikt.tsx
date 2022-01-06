@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import 'nav-frontend-tabell-style';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
-import Tiltaksvariantliste from './listevisning/Tiltaksvariantliste';
-import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
-import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
-import { useAtom } from 'jotai';
 import Fuse from 'fuse.js';
+import { useAtom } from 'jotai';
+import 'nav-frontend-tabell-style';
+import React, { useEffect, useState } from 'react';
+import { Tiltaksvariant } from '../../api';
+import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
+import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
+import Tiltaksvariantliste from './listevisning/Tiltaksvariantliste';
 
 interface TiltaksoversiktProps {
   tiltaksvarianter?: Tiltaksvariant[];

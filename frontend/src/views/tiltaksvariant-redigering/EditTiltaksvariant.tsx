@@ -8,14 +8,15 @@ import MainView from '../../layouts/MainView';
 import TiltaksvariantForm from './TiltaksvariantForm';
 
 export const EditTiltaksvariant = () => {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = Number(params.id);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading, isError } = useTiltaksvariant(id);
 
-  const edit = useTiltaksvariantUpdate(id);
-  const deleteMutation = useTiltaksvariantDelete(id);
+  const edit = useTiltaksvariantUpdate();
+  const deleteMutation = useTiltaksvariantDelete();
 
   return (
     <MainView
@@ -28,7 +29,7 @@ export const EditTiltaksvariant = () => {
           isLoading={isLoading}
           isError={isError}
           tiltaksvariant={data}
-          onSubmit={edit.mutate}
+          onSubmit={requestBody => edit.mutate({ id, requestBody })}
           onDelete={() => setIsModalOpen(true)}
         />
       </div>
@@ -36,7 +37,7 @@ export const EditTiltaksvariant = () => {
         tittel="Slett tiltaksvariant"
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        handleDelete={deleteMutation.mutate}
+        handleDelete={() => deleteMutation.mutate({ id })}
       />
     </MainView>
   );

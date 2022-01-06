@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { Tiltaksgjennomforing } from '../../../api';
 import Link from '../../../components/link/Link';
-import { Tiltaksgjennomforing } from '../../../core/domain/Tiltaksgjennomforing';
 import './TiltaksgjennomforingTabell.less';
 
 interface TiltaksgjennomforingTabellProps {

@@ -1,7 +1,7 @@
 import faker from 'faker';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
+import { UnsavedTiltaksvariant } from '../../api';
 
-export const tiltaksvarianter: Omit<Tiltaksvariant, 'id'>[] = [
+export const tiltaksvarianter: UnsavedTiltaksvariant[] = [
   {
     innsatsgruppe: 1,
     tittel: 'Opplæring',

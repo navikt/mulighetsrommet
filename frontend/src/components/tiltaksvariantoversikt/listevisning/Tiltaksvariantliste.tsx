@@ -1,6 +1,6 @@
 import React from 'react';
+import { Tiltaksvariant } from '../../../api';
 import TiltaksvariantRad from './TiltaksvariantRad';
-import { Tiltaksvariant } from '../../../core/domain/Tiltaksvariant';
 
 export interface TiltaksvariantlisteProps {
   tiltaksvariantliste?: Array<Tiltaksvariant>;
