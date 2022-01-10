@@ -11,7 +11,7 @@ spec:
   port: 8080
   image: mulighetsrommet-api-{{image_label}}:{{image_tag}}
   ingresses:
-    - https://mulighetsrommet-api.dev.intern.nav.no
+    - https://amt-informasjon-api.dev.intern.nav.no
   prometheus:
     enabled: true
     path: /internal/prometheus
