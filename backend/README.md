@@ -4,8 +4,6 @@
 Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV kan tilby brukere.
 </p>
 
-# Trigger deploy
-
 # Innhold
 
 - [Hensikt](#hensikt)
