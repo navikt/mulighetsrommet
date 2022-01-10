@@ -9,9 +9,11 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltaksvariantService
 import org.koin.dsl.module
 import org.koin.ktor.ext.Koin
+import org.koin.logger.SLF4JLogger
 
 fun Application.configureDependencyInjection() {
     install(Koin) {
+        SLF4JLogger()
         modules(db, kafka, services)
     }
 }
