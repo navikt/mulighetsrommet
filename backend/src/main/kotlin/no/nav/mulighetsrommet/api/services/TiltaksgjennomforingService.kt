@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 
-class TiltaksgjennomforingService(val db: DatabaseFactory) {
+class TiltaksgjennomforingService(private val db: DatabaseFactory) {
 
     suspend fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
         val tiltaksgjennomforingRows = db.dbQuery {

@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
 
-class TiltaksvariantService(val db: DatabaseFactory) {
+class TiltaksvariantService(private val db: DatabaseFactory) {
 
     suspend fun getTiltaksvarianter(innsatsgruppe: Int?): List<Tiltaksvariant> {
         val rows = db.dbQuery {
