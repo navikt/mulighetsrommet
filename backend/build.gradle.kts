@@ -27,6 +27,7 @@ repositories {
 
 dependencies {
     val ktorVersion = "1.6.2"
+    val koinVersion = "3.1.5"
 
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
@@ -45,6 +46,8 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("org.apache.kafka:kafka_2.13:2.8.0")
     implementation("org.apache.kafka:kafka-streams:2.8.0")
+    implementation("io.insert-koin:koin-ktor:$koinVersion")
+    implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
