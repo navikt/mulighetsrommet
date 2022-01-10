@@ -8,7 +8,7 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: ghcr.io/navikt/mulighetsrommet
   IMAGE_LABEL: dev
-  REACT_APP_BACKEND_API_ROOT: https://mulighetsrommet-flate.dev.intern.nav.no
+  REACT_APP_BACKEND_API_ROOT: https://mulighetsrommet-api.dev.intern.nav.no
   CI: true
   TZ: Europe/Amsterdam
 
