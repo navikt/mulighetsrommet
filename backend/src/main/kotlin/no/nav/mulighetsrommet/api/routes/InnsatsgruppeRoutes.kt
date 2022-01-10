@@ -5,9 +5,13 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
+import org.koin.ktor.ext.inject
 
-fun Route.innsatsgruppeRoutes(service: InnsatsgruppeService) {
+fun Route.innsatsgruppeRoutes() {
+
+    val innsatsgruppeService: InnsatsgruppeService by inject()
+
     get("/api/innsatsgrupper") {
-        call.respond(service.getInnsatsgrupper())
+        call.respond(innsatsgruppeService.getInnsatsgrupper())
     }
 }

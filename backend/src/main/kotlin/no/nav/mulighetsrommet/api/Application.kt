@@ -6,6 +6,7 @@ import io.ktor.config.*
 import io.ktor.routing.*
 import kotlinx.coroutines.launch
 import no.nav.mulighetsrommet.api.kafka.KafkaFactory
+import no.nav.mulighetsrommet.api.plugins.configureDependencyInjection
 import no.nav.mulighetsrommet.api.plugins.configureHTTP
 import no.nav.mulighetsrommet.api.plugins.configureMonitoring
 import no.nav.mulighetsrommet.api.plugins.configureRouting
@@ -32,6 +33,7 @@ fun Application.module() {
     val enableKafka = appConfig.property("ktor.kafka.enable").getString().toBoolean()
     val kafka: KafkaFactory
 
+    configureDependencyInjection()
     configureRouting()
     configureSecurity()
     configureHTTP()
@@ -39,18 +41,14 @@ fun Application.module() {
     configureSerialization()
     configureWebjars()
 
-    val tiltaksvariantService = TiltaksvariantService()
-    val tiltaksgjennomforingService = TiltaksgjennomforingService()
-    val innsatsgruppeService = InnsatsgruppeService()
-
     routing {
         devRoutes()
         healthRoutes()
         swaggerRoutes()
 
-        tiltaksvariantRoutes(tiltaksvariantService, tiltaksgjennomforingService)
-        tiltaksgjennomforingRoutes(tiltaksgjennomforingService)
-        innsatsgruppeRoutes(innsatsgruppeService)
+        tiltaksvariantRoutes()
+        tiltaksgjennomforingRoutes()
+        innsatsgruppeRoutes()
     }
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.

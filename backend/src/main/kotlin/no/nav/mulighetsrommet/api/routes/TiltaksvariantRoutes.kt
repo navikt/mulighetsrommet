@@ -13,11 +13,13 @@ import io.ktor.routing.put
 import no.nav.mulighetsrommet.api.domain.Tiltaksvariant
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltaksvariantService
+import org.koin.ktor.ext.inject
 
-fun Route.tiltaksvariantRoutes(
-    tiltaksvariantService: TiltaksvariantService,
-    tiltaksgjennomforingService: TiltaksgjennomforingService
-) {
+fun Route.tiltaksvariantRoutes() {
+
+    val tiltaksvariantService: TiltaksvariantService by inject()
+    val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
+
     get("/api/tiltaksvarianter") {
         val innsatsgruppe = call.request.queryParameters["innsatsgruppe"]?.toIntOrNull()
         val items = tiltaksvariantService.getTiltaksvarianter(innsatsgruppe)
