@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.kafka
 
 import com.typesafe.config.ConfigFactory
+import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
 import io.ktor.config.HoconApplicationConfig
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
@@ -12,10 +14,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.selectAll
+import org.slf4j.LoggerFactory
 import java.util.function.Consumer
 
 class KafkaFactory(private val db: DatabaseFactory) {
 
+    private val logger = LoggerFactory.getLogger(KafkaFactory::class.java)
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
     private val consumerClient: KafkaConsumerClient
 
@@ -24,11 +28,11 @@ class KafkaFactory(private val db: DatabaseFactory) {
             KafkaPropertiesBuilder.consumerBuilder()
                 .withBrokerUrl("localhost:9092")
                 .withBaseProperties()
-                .withConsumerGroupId("amt-informasjon-api-consumer.v2")
+                .withConsumerGroupId("mulighetsrommet-api-consumer.v2")
                 .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
                 .build()
         } else {
-            KafkaPropertiesPreset.aivenDefaultConsumerProperties("amt-informasjon-api-consumer.v2")
+            KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-consumer.v2")
         }
 
         val arenaTiltakTopic = "teamarenanais.aapen-arena-tiltakendret-v1-q2"
@@ -56,6 +60,8 @@ class KafkaFactory(private val db: DatabaseFactory) {
             .withProperties(consumerProperties)
             .withTopicConfigs(topics)
             .build()
+
+        logger.debug("Starting consumer client")
 
         consumerClient.start()
     }
