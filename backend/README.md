@@ -4,21 +4,14 @@
 Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV kan tilby brukere.
 </p>
 
-# Deploy trigger
-
 # Innhold
 
-- [Hensikt](#hensikt)
 - [Teknologier](#teknologier)
 - [Kom i gang](#kom-i-gang)
   - [Forutsetninger](#forutsetninger)
   - [Database](#database)
   - [Steg for steg](#steg-for-steg)
 - [Integrasjoner](#integrasjoner)
-
-# Hensikt
-
-Et eller annet forklarlig her...
 
 # <a name="teknologier"></a>Teknologier
 
