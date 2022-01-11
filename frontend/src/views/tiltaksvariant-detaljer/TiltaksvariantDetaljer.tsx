@@ -3,10 +3,11 @@ import { useHistory, useParams } from 'react-router-dom';
 import MainView from '../../layouts/MainView';
 import useTiltaksvariant from '../../hooks/tiltaksvariant/useTiltaksvariant';
 import useTiltaksgjennomforingerByTiltaksvariantId from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltaksvariantId';
-import TiltaksgjennomforingsTabell from './components/TiltaksgjennomforingTabell';
+import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingTabell';
 import '../Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
-import { Alert, Button, Heading, Loader, Panel, Ingress, BodyLong } from '@navikt/ds-react';
+import { Alert, Button, Loader, Ingress, BodyLong } from '@navikt/ds-react';
 import { ReactComponent as EditIcon } from '../../ikoner/Edit.svg';
+import Sidemeny from '../../components/sidemeny/Sidemeny';
 
 interface RouteParams {
   id: string;
@@ -39,8 +40,7 @@ const TiltaksvariantDetaljer = () => {
           <Ingress data-testid="tiltaksvariant_ingress">{ingress}</Ingress>
           <BodyLong data-testid="tiltaksvariant_beskrivelse">{beskrivelse}</BodyLong>
         </div>
-        <Panel border>
-          <Heading size="medium">Meny</Heading>
+        <Sidemeny>
           <Button
             variant="primary"
             className="knapp knapp--hoved rediger-knapp"
@@ -49,7 +49,7 @@ const TiltaksvariantDetaljer = () => {
           >
             Rediger <EditIcon />
           </Button>
-        </Panel>
+        </Sidemeny>
       </div>
       <TiltaksgjennomforingsTabell tiltaksgjennomforinger={tiltaksgjennomforinger.data} />
     </MainView>

@@ -1,14 +1,13 @@
 import React from 'react';
-import { Tiltaksvariant } from '../../../core/domain/Tiltaksvariant';
-import '@navikt/ds-css';
+import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import { Table } from '@navikt/ds-react';
-import Lenke from '../../link/Lenke';
+import Lenke from '../lenke/Lenke';
 
 export interface TiltaksvariantlisteProps {
-  tiltaksvariantliste?: Array<Tiltaksvariant>;
+  tiltaksvariantliste: Array<Tiltaksvariant>;
 }
 
-const Tiltaksvariantliste = ({ tiltaksvariantliste }: TiltaksvariantlisteProps) => {
+const TiltaksvariantTabell = ({ tiltaksvariantliste }: TiltaksvariantlisteProps) => {
   return (
     <Table zebraStripes data-testid="tabell_oversikt-tiltaksvarianter">
       <Table.Header>
@@ -18,7 +17,7 @@ const Tiltaksvariantliste = ({ tiltaksvariantliste }: TiltaksvariantlisteProps) 
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {tiltaksvariantliste?.map((tiltaksvariant: Tiltaksvariant) => (
+        {tiltaksvariantliste.map((tiltaksvariant: Tiltaksvariant) => (
           <Table.Row key={tiltaksvariant.id} className="tabell__row">
             <Table.HeaderCell scope="col">
               <Lenke to={`/tiltaksvarianter/${tiltaksvariant.id}`} isInline>
@@ -33,4 +32,4 @@ const Tiltaksvariantliste = ({ tiltaksvariantliste }: TiltaksvariantlisteProps) 
   );
 };
 
-export default Tiltaksvariantliste;
+export default TiltaksvariantTabell;

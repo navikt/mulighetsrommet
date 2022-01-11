@@ -70,7 +70,7 @@ describe('CRUD tiltaksvariant', () => {
 
     cy.tilbakeTilListevisning();
 
-    cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('td', tittel);
+    cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('th', tittel);
     cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('td', ingress);
 
     cy.getByTestId('tabell_oversikt-tiltaksvarianter')
@@ -83,7 +83,7 @@ describe('CRUD tiltaksvariant', () => {
   it('Rediger tiltaksvariant', () => {
     cy.getByTestId('sokefelt_tiltaksvariant').focus().type(tittel);
 
-    cy.getByTestId('tabell_oversikt-tiltaksvarianter').children().children().last().contains('td', tittel).click();
+    cy.getByTestId('tabell_oversikt-tiltaksvarianter').children().children().last().contains('a', tittel).click();
 
     cy.url().should('include', '/tiltaksvarianter/');
     cy.checkPageA11y();
@@ -119,7 +119,7 @@ describe('CRUD tiltaksvariant', () => {
 
     cy.getByTestId('sokefelt_tiltaksvariant').focus().type(tittel);
 
-    cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('td', tittel).click();
+    cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('th', tittel).click();
 
     cy.url().should('include', '/tiltaksvarianter/');
     cy.checkPageA11y();
@@ -141,7 +141,7 @@ describe('CRUD tiltaksvariant', () => {
     cy.getByTestId('tabell_oversikt-tiltaksvarianter')
       .find('.tabell__row')
       .then(listing => {
-        expect(listing).to.have.length(tabellrader);
+        expect(listing).to.have.length(tabellrader + 1);
       });
   });
 
@@ -149,13 +149,14 @@ describe('CRUD tiltaksvariant', () => {
     const amo = 'Arbeidsmarkedsopplæring (AMO)';
     cy.getByTestId('sokefelt_tiltaksvariant').focus().type(amo);
 
-    cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('td', amo).click();
+    cy.getByTestId('tabell_oversikt-tiltaksvarianter').contains('th', amo).click();
 
     cy.getByTestId('tabell_tiltaksgjennomforinger')
       .children()
       .children()
       .should('have.length.at.least', 2)
       .last()
+      .contains('a')
       .click();
 
     cy.url().should('include', '/tiltaksgjennomforinger/');

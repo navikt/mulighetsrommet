@@ -64,5 +64,6 @@ Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsro
 ### Testing
 
 #### Ende-til-ende testing med Cypress
-Gå inn til frontend-mappen i terminalen og kjør `npx cypress run`.
-For å se testene kjøre, kjør først `npm start` forå starte programmet lokalt, og kjør deretter `npx cypress open`.
+Gå inn til frontend-mappen i terminalen
+For å kjøre testene i IDE: `npx cypress run`.
+For å se testene, kjør først `npm start` for å starte programmet lokalt, og deretter `npx cypress open`.

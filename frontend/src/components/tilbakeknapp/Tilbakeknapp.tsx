@@ -17,7 +17,7 @@ const Tilbakeknapp = ({ tilbakelenke }: TilbakeknappProps) => {
       data-testid="tilbakeknapp"
       onClick={() => tilbakelenke && history.push(tilbakelenke)}
     >
-      <Back />
+      <Back aria-label="Tilbakeknapp" />
       <span>Tilbake</span>
     </Button>
   ) : (

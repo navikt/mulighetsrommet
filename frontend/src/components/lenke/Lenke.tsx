@@ -1,5 +1,5 @@
 import React from 'react';
-import './Link.less';
+import './Lenke.less';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import classNames from 'classnames';
 import { Link } from '@navikt/ds-react';
