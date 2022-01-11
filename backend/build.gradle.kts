@@ -67,7 +67,7 @@ dependencies {
 tasks {
     shadowJar {
         manifest {
-            attributes(Pair("Main-Class", "no.nav.amt_informasjon_api.ApplicationKt"))
+            attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
         }
     }
 }
