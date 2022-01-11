@@ -7,21 +7,20 @@ import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.selectAll
-import java.util.Properties
 import java.util.function.Consumer
 
 class KafkaFactory(private val db: DatabaseFactory) {
 
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
     private val consumerClient: KafkaConsumerClient
-    private val consumerProperties: Properties
 
     init {
-        consumerProperties = if (appConfig.property("ktor.localDevelopment").getString() == "true") {
+        val consumerProperties = if (appConfig.property("ktor.localDevelopment").getString() == "true") {
             KafkaPropertiesBuilder.consumerBuilder()
                 .withBrokerUrl("localhost:9092")
                 .withBaseProperties()
@@ -42,16 +41,16 @@ class KafkaFactory(private val db: DatabaseFactory) {
                 Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
             )
 
-        val testTopicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
-            .withLogging()
-            .withConsumerConfig(
-                "aura.kafkarator-canary-dev-gcp",
-                stringDeserializer(),
-                stringDeserializer(),
-                Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
-            )
+        // val testTopicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
+        //     .withLogging()
+        //     .withConsumerConfig(
+        //         "aura.kafkarator-canary-dev-gcp",
+        //         stringDeserializer(),
+        //         stringDeserializer(),
+        //         Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
+        //     )
 
-        val topics = listOf(topicConfig, testTopicConfig)
+        val topics = listOf(topicConfig)
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
