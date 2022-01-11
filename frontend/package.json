@@ -29,7 +29,7 @@
   "dependencies": {
     "@navikt/ds-css": "^0.12.9",
     "@navikt/ds-icons": "^0.7.2",
-    "@navikt/ds-react": "^0.14.5",
+    "@navikt/ds-react": "^0.14.6",
     "@navikt/fnrvalidator": "^1.1.4",
     "@navikt/navspa": "^3.0.0",
     "@reduxjs/toolkit": "^1.6.1",
@@ -37,8 +37,6 @@
     "fuse.js": "^6.4.6",
     "jotai": "^1.3.7",
     "lodash.throttle": "^4.1.1",
-    "nav-frontend-core": "^6.0.1",
-    "nav-frontend-ikonknapper": "^2.0.2",
     "nav-frontend-skjema": "^4.0.5",
     "nav-frontend-skjema-style": "^3.0.2",
     "prop-types": "^15.7.2",
