@@ -26,12 +26,16 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core:1.6.2")
-    implementation("io.ktor:ktor-server-sessions:1.6.2")
-    implementation("io.ktor:ktor-metrics-micrometer:1.6.2")
+    val ktorVersion = "1.6.2"
+    val koinVersion = "3.1.5"
+
+    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-serialization:$ktorVersion")
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-server-sessions:$ktorVersion")
+    implementation("io.ktor:ktor-webjars:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
-    implementation("io.ktor:ktor-serialization:1.6.2")
-    implementation("io.ktor:ktor-server-netty:1.6.2")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.jetbrains.exposed:exposed-java-time:0.34.1")
@@ -42,7 +46,10 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("org.apache.kafka:kafka_2.13:2.8.0")
     implementation("org.apache.kafka:kafka-streams:2.8.0")
-    testImplementation("io.ktor:ktor-server-tests:1.6.2")
+    implementation("io.insert-koin:koin-ktor:$koinVersion")
+    implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    runtimeOnly("org.webjars:swagger-ui:4.1.2")
+    testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.21")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")

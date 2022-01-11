@@ -1,4 +1,4 @@
-# `mulighetsrommet-flate `
+# `mulighetsrommet-flate`
 
 <p>
 Tilhørende flate for <strong>mulighetsrommet-api</strong> for behandling av tiltaksinformasjon.
@@ -39,7 +39,7 @@ Under er det satt opp et par ting som må på plass for at applikasjonen og data
 
 ### Node/NPM
 
-Last ned og installer Node (NPM er inkludert) [her](https://nodejs.org/en/).
+Last ned og installer Node versjon 16 (eller høyere, på eget ansvar) (NPM er inkludert) [her](https://nodejs.org/en/), eller gjennom tooling som f.eks. [asdf-vm](https://github.com/asdf-vm/asdf).
 
 ### Miljøvariabler
 

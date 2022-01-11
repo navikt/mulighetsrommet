@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Lenke from '../lenke/Lenke';
-import { Tiltaksgjennomforing } from '../../core/domain/Tiltaksgjennomforing';
 import { Table } from '@navikt/ds-react';
+import { Tiltaksgjennomforing } from '../../api';
 
 interface TiltaksgjennomforingTabellProps {
   tiltaksgjennomforinger?: Tiltaksgjennomforing[];

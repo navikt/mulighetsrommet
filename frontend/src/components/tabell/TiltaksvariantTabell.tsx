@@ -1,7 +1,7 @@
 import React from 'react';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import { Table } from '@navikt/ds-react';
 import Lenke from '../lenke/Lenke';
+import { Tiltaksvariant } from '../../api';
 
 export interface TiltaksvariantlisteProps {
   tiltaksvariantliste: Array<Tiltaksvariant>;

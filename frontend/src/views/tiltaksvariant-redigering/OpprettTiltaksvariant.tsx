@@ -8,7 +8,7 @@ export const OpprettTiltaksvariant = () => {
 
   return (
     <MainView title="Opprett tiltaksvariant" dataTestId="header_opprett-tiltaksvariant" tilbakelenke="/">
-      <TiltaksvariantForm onSubmit={create.mutate} isEdit={false} />
+      <TiltaksvariantForm onSubmit={requestBody => create.mutate({ requestBody })} isEdit={false} />
     </MainView>
   );
 };

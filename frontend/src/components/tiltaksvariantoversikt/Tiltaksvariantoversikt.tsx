@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import TiltaksvariantTabell from '../tabell/TiltaksvariantTabell';
 import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
-import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
-import { useAtom } from 'jotai';
 import Fuse from 'fuse.js';
+import { useAtom } from 'jotai';
+import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
+import { Tiltaksvariant } from '../../api';
 
 interface TiltaksoversiktProps {
   tiltaksvarianter: Tiltaksvariant[];

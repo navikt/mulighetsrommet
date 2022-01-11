@@ -1,4 +1,4 @@
-import { Innsatsgruppe } from '../../core/domain/Innsatsgruppe';
+import { Innsatsgruppe } from '../../api';
 
 export const innsatsgrupper: Innsatsgruppe[] = [
   {

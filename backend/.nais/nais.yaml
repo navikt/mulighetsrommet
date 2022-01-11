@@ -1,21 +1,17 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: amt-informasjon-api
-  namespace: {{namespace}}
+  name: mulighetsrommet-api
+  namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
   annotations:
     nais.io/security-does-not-matter: "true"
 spec:
   port: 8080
-  image: {{image}}-api-{{image_label}}:{{image_tag}}
-  {{#if ingresses}}
+  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api-{{image_label}}:{{image_tag}}
   ingresses:
-    {{#each ingresses}}
-    - {{this}}
-    {{/each}}
-  {{/if}}
+    - https://mulighetsrommet-api.dev.intern.nav.no
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -40,7 +36,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_12
         databases:
-          - name: amt-informasjon-api
+          - name: mulighetsrommet-db
             envVarPrefix: DB
   azure:
     application:

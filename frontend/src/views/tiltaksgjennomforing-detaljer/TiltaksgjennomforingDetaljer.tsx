@@ -14,7 +14,7 @@ interface RouteParams {
 const TiltaksgjennomforingDetaljer = () => {
   const { tiltaksgjennomforingsId, tiltaksvariantId }: RouteParams = useParams();
 
-  const tiltaksgjennomforing = useTiltaksgjennomforing(tiltaksgjennomforingsId);
+  const tiltaksgjennomforing = useTiltaksgjennomforing(Number(tiltaksgjennomforingsId));
 
   return (
     <MainView tilbakelenke={`/tiltaksvarianter/${tiltaksvariantId}`} title={tiltaksgjennomforing.data?.tittel}>

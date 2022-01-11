@@ -1,8 +1,8 @@
 import { Delete, Edit } from '@navikt/ds-icons';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { Tiltaksvariant } from '../../api';
 import FormInput from '../../components/form-elements/FormInput';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import { useInnsatsgrupper } from '../../hooks/tiltaksvariant/useInnsatsgrupper';
 import './TiltaksvariantForm.less';
 import { ReactComponent as AddCircle } from '../../ikoner/AddCircle.svg';

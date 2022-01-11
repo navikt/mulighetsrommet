@@ -1,11 +1,9 @@
 import { useQuery } from 'react-query';
+import { MulighetsrommetService, Tiltaksvariant } from '../../api';
 import { QueryKeys } from '../../core/api/QueryKeys';
-import TiltaksvariantService from '../../core/api/TiltaksvariantService';
-import { Id } from '../../core/domain/Generic';
-import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 
-export default function useTiltaksvariant(id: Id) {
+export default function useTiltaksvariant(id: number) {
   return useQuery<Tiltaksvariant>([QueryKeys.Tiltaksvarianter, id], () =>
-    TiltaksvariantService.getTiltaksvariantById(id)
+    MulighetsrommetService.getTiltaksvariant({ id })
   );
 }

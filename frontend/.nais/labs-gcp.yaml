@@ -1,3 +1,2 @@
-namespace: team-mulighetsrommet
 ingresses:
-  - https://amt-informasjon-flate.labs.nais.io
+  - https://mulighetsrommet-flate.labs.nais.io

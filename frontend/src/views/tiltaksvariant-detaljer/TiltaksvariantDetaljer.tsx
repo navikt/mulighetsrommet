@@ -1,9 +1,9 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import MainView from '../../layouts/MainView';
-import useTiltaksvariant from '../../hooks/tiltaksvariant/useTiltaksvariant';
 import useTiltaksgjennomforingerByTiltaksvariantId from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltaksvariantId';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingTabell';
+import useTiltaksvariant from '../../hooks/tiltaksvariant/useTiltaksvariant';
 import '../Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
 import { Alert, Button, Loader, Ingress, BodyLong } from '@navikt/ds-react';
 import { ReactComponent as EditIcon } from '../../ikoner/Edit.svg';
@@ -14,7 +14,8 @@ interface RouteParams {
 }
 
 const TiltaksvariantDetaljer = () => {
-  const { id } = useParams<RouteParams>();
+  const params = useParams<RouteParams>();
+  const id = Number(params.id);
   const history = useHistory();
   const tiltaksvariant = useTiltaksvariant(id);
   const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltaksvariantId(id);

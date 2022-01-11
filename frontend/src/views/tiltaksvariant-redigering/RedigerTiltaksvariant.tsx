@@ -8,14 +8,15 @@ import MainView from '../../layouts/MainView';
 import TiltaksvariantForm from './TiltaksvariantForm';
 
 export const RedigerTiltaksvariant = () => {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = Number(params.id);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading, isError, isSuccess } = useTiltaksvariant(id);
 
-  const edit = useTiltaksvariantUpdate(id);
-  const deleteMutation = useTiltaksvariantDelete(id);
+  const edit = useTiltaksvariantUpdate();
+  const deleteMutation = useTiltaksvariantDelete();
 
   return (
     <MainView
@@ -23,20 +24,22 @@ export const RedigerTiltaksvariant = () => {
       dataTestId="header-rediger-tiltaksvariant"
       tilbakelenke={'/tiltaksvarianter/' + id}
     >
-      <TiltaksvariantForm
-        isLoading={isLoading}
-        isError={isError}
-        isSuccess={isSuccess}
-        tiltaksvariant={data}
-        onSubmit={edit.mutate}
-        onDelete={() => setIsModalOpen(true)}
-        isEdit={true}
-      />
+      <div>
+        <TiltaksvariantForm
+          isLoading={isLoading}
+          isError={isError}
+          isSuccess={isSuccess}
+          tiltaksvariant={data}
+          onSubmit={requestBody => edit.mutate({ id, requestBody })}
+          onDelete={() => setIsModalOpen(true)}
+          isEdit={true}
+        />
+      </div>
       <SlettModal
         tittel="Slett tiltaksvariant"
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        handleDelete={deleteMutation.mutate}
+        handleDelete={() => deleteMutation.mutate({ id })}
       />
     </MainView>
   );
