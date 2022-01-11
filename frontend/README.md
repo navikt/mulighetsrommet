@@ -1,6 +1,7 @@
-<h1 align="center">Mulighetsrommet frontend</h1>
+# `mulighetsrommet-flate`
+
 <p>
-Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaksinformasjon.
+Tilhørende flate for <strong>mulighetsrommet-api</strong> for behandling av tiltaksinformasjon.
 </p>
 
 # Innhold
@@ -24,7 +25,7 @@ Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaks
 
 [**@navikt/nav-frontend-moduler**](https://github.com/navikt/nav-frontend-moduler)
 
-[**MirageJs**](https://miragejs.com/)
+[**MSW**](https://mswjs.io/)
 
 [**Cypress**](https://www.cypress.io/)
 
@@ -59,4 +60,4 @@ Kjør `npm start` for å kjøre frontenden med MSW.
 
 ### Backend
 
-Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsrommet`).
+Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsrommet-api`). Forutsetning at denne kjører.
