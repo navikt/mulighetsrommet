@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.kafka
 
 import kotlinx.coroutines.delay
-import no.nav.mulighetsrommet.api.database.DatabaseFactory.dbQuery
+import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.domain.TiltaksgjennomforingTable
 import no.nav.mulighetsrommet.api.domain.TiltaksvariantTable
 import org.apache.kafka.clients.consumer.Consumer
@@ -14,10 +14,10 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 import kotlin.random.Random
 
-class KafkaFactory {
+class KafkaFactory(private val db: DatabaseFactory) {
 
     private val streamsConfiguration = KafkaStreamConfig()
 //    private val kafkaStreams: KafkaStreams
@@ -84,7 +84,7 @@ class KafkaFactory {
                 LocalDateTime.now().plusYears(2)
             )
 
-            val tiltaksgjennomforingId = dbQuery {
+            val tiltaksgjennomforingId = db.dbQuery {
                 TiltaksgjennomforingTable.insertAndGetId {
                     it[tittel] = arenaEvent.tittel
                     it[tiltaksvariantId] = getRandomId(TiltaksvariantTable)

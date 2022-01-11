@@ -6,10 +6,10 @@ import no.nav.mulighetsrommet.api.domain.InnsatsgruppeTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
 
-class InnsatsgruppeService {
+class InnsatsgruppeService(private val db: DatabaseFactory) {
 
     suspend fun getInnsatsgrupper(): List<Innsatsgruppe> {
-        return DatabaseFactory.dbQuery {
+        return db.dbQuery {
             InnsatsgruppeTable
                 .selectAll()
                 .toList()

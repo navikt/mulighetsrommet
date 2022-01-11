@@ -10,7 +10,7 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object DatabaseFactory {
+class DatabaseFactory {
 
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
     private val dbUser = appConfig.property("ktor.db.user").getString()

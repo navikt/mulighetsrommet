@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.database.DatabaseFactory.dbQuery
+import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.domain.Tiltaksvariant
 import no.nav.mulighetsrommet.api.domain.TiltaksvariantTable
 import org.jetbrains.exposed.sql.ResultRow
@@ -11,10 +11,10 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
 
-class TiltaksvariantService {
+class TiltaksvariantService(private val db: DatabaseFactory) {
 
     suspend fun getTiltaksvarianter(innsatsgruppe: Int?): List<Tiltaksvariant> {
-        val rows = dbQuery {
+        val rows = db.dbQuery {
             val query = TiltaksvariantTable
                 .select { TiltaksvariantTable.archived eq false }
                 .orderBy(TiltaksvariantTable.id to SortOrder.ASC)
@@ -29,7 +29,7 @@ class TiltaksvariantService {
     }
 
     suspend fun createTiltaksvariant(tiltaksvariant: Tiltaksvariant): Tiltaksvariant {
-        val id = dbQuery {
+        val id = db.dbQuery {
             TiltaksvariantTable.insertAndGetId {
                 it[innsatsgruppeId] = tiltaksvariant.innsatsgruppe
                 it[tittel] = tiltaksvariant.tittel
@@ -42,7 +42,7 @@ class TiltaksvariantService {
     }
 
     suspend fun updateTiltaksvariant(id: Int, tiltaksvariant: Tiltaksvariant): Tiltaksvariant? {
-        dbQuery {
+        db.dbQuery {
             TiltaksvariantTable.update({ TiltaksvariantTable.id eq id and (TiltaksvariantTable.archived eq false) }) {
                 it[innsatsgruppeId] = tiltaksvariant.innsatsgruppe
                 it[tittel] = tiltaksvariant.tittel
@@ -53,14 +53,14 @@ class TiltaksvariantService {
         return getTiltaksvariantById(id)
     }
 
-    suspend fun archivedTiltaksvariant(tiltaksvariant: Tiltaksvariant) = dbQuery {
+    suspend fun archivedTiltaksvariant(tiltaksvariant: Tiltaksvariant) = db.dbQuery {
         TiltaksvariantTable.update({ TiltaksvariantTable.id eq tiltaksvariant.id }) {
             it[archived] = true
         }
     }
 
     suspend fun getTiltaksvariantById(id: Int): Tiltaksvariant? {
-        val tiltaksvariantRow = dbQuery {
+        val tiltaksvariantRow = db.dbQuery {
             TiltaksvariantTable
                 .select { TiltaksvariantTable.id eq id and (TiltaksvariantTable.archived eq false) }
                 .firstOrNull()

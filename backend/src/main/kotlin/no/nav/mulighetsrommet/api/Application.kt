@@ -6,21 +6,19 @@ import io.ktor.config.*
 import io.ktor.routing.*
 import kotlinx.coroutines.launch
 import no.nav.mulighetsrommet.api.kafka.KafkaFactory
+import no.nav.mulighetsrommet.api.plugins.configureDependencyInjection
 import no.nav.mulighetsrommet.api.plugins.configureHTTP
 import no.nav.mulighetsrommet.api.plugins.configureMonitoring
 import no.nav.mulighetsrommet.api.plugins.configureRouting
 import no.nav.mulighetsrommet.api.plugins.configureSecurity
 import no.nav.mulighetsrommet.api.plugins.configureSerialization
 import no.nav.mulighetsrommet.api.plugins.configureWebjars
-import no.nav.mulighetsrommet.api.routes.devRoutes
 import no.nav.mulighetsrommet.api.routes.healthRoutes
 import no.nav.mulighetsrommet.api.routes.innsatsgruppeRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksgjennomforingRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksvariantRoutes
-import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
-import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.TiltaksvariantService
+import org.koin.ktor.ext.inject
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -30,8 +28,8 @@ fun Application.module() {
     // TODO: Fiks litt bedre config-oppsett for hele appen, sett i app context isteden.
     val appConfig = HoconApplicationConfig(ConfigFactory.load())
     val enableKafka = appConfig.property("ktor.kafka.enable").getString().toBoolean()
-    val kafka: KafkaFactory
 
+    configureDependencyInjection()
     configureRouting()
     configureSecurity()
     configureHTTP()
@@ -39,23 +37,18 @@ fun Application.module() {
     configureSerialization()
     configureWebjars()
 
-    val tiltaksvariantService = TiltaksvariantService()
-    val tiltaksgjennomforingService = TiltaksgjennomforingService()
-    val innsatsgruppeService = InnsatsgruppeService()
-
     routing {
-        devRoutes()
         healthRoutes()
         swaggerRoutes()
 
-        tiltaksvariantRoutes(tiltaksvariantService, tiltaksgjennomforingService)
-        tiltaksgjennomforingRoutes(tiltaksgjennomforingService)
-        innsatsgruppeRoutes(innsatsgruppeService)
+        tiltaksvariantRoutes()
+        tiltaksgjennomforingRoutes()
+        innsatsgruppeRoutes()
     }
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.
     if (enableKafka) {
-        kafka = KafkaFactory()
+        val kafka: KafkaFactory by inject()
         val kafkaConsumers = launch {
             kafka.consumeTiltaksgjennomforingEventsFromArena()
         }
