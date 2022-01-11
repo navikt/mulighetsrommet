@@ -1,13 +1,13 @@
 import React from 'react';
-import { Input } from 'nav-frontend-skjema';
 import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
 import { useAtom } from 'jotai';
 import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
+import { TextField } from '@navikt/ds-react';
 
 const Sokefelt = () => {
   const [sok, setSok] = useAtom(tiltaksvariantOversiktSok);
   return (
-    <Input
+    <TextField
       label="Søk etter tiltaksvariant:"
       onChange={e => setSok(e.currentTarget.value)}
       value={sok}

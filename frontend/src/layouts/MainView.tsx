@@ -1,9 +1,7 @@
 import React, { FunctionComponent } from 'react';
-import { Tilbakeknapp } from 'nav-frontend-ikonknapper';
 import './MainView.less';
-import Link from '../components/link/Link';
 import MainViewTitle from './MainViewTitle';
-import { Container, Row } from 'react-bootstrap';
+import Tilbakeknapp from '../components/tilbakeknapp/Tilbakeknapp';
 
 interface MainViewProps {
   title?: string;
@@ -14,17 +12,13 @@ interface MainViewProps {
 
 const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestId, tilbakelenke, children }) => {
   return (
-    <Container className="main-view">
-      <Row className="main-view__header">
-        {tilbakelenke && (
-          <Link to={tilbakelenke}>
-            <Tilbakeknapp data-testid="tilbakeknapp" title="Tilbake" />
-          </Link>
-        )}
-      </Row>
-      {title && <MainViewTitle title={title} subTitle={subTitle} dataTestId={dataTestId} />}
+    <div className="main-view">
+      <div className="main-view__header">
+        <Tilbakeknapp tilbakelenke={tilbakelenke} />
+        {title && <MainViewTitle title={title} subTitle={subTitle} dataTestId={dataTestId} />}
+      </div>
       {children}
-    </Container>
+    </div>
   );
 };
 

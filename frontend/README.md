@@ -22,11 +22,11 @@ Tilhørende flate for <strong>mulighetsrommet</strong> for behandling av tiltaks
 
 [**jotai**](https://github.com/pmndrs/jotai)
 
-[**@navikt/nav-frontend-moduler**](https://github.com/navikt/nav-frontend-moduler)
+NAVs designsystem: [**@navikt/ds-css**](https://github.com/navikt/nav-frontend-moduler)
 
-[**MirageJs**](https://miragejs.com/)
+Mocking av testdata: [**MSW**](https://mswjs.io/)
 
-[**Cypress**](https://www.cypress.io/)
+Testverktøy for ende-til-ende-testing: [**Cypress**](https://www.cypress.io/)
 
 # <a name="kom-i-gang"></a>Kom i gang
 
@@ -60,3 +60,9 @@ Kjør `npm start` for å kjøre frontenden med MSW.
 ### Backend
 
 Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsrommet`).
+
+### Testing
+
+#### Ende-til-ende testing med Cypress
+Gå inn til frontend-mappen i terminalen og kjør `npx cypress run`.
+For å se testene kjøre, kjør først `npm start` forå starte programmet lokalt, og kjør deretter `npx cypress open`.

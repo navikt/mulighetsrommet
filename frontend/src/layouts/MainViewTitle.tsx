@@ -1,6 +1,6 @@
 import React from 'react';
-import { Sidetittel, Systemtittel } from 'nav-frontend-typografi';
 import './MainView.less';
+import { Heading } from '@navikt/ds-react';
 
 interface MainViewTitleProps {
   title: string;
@@ -11,8 +11,10 @@ interface MainViewTitleProps {
 function MainViewTitle({ title, subTitle, dataTestId }: MainViewTitleProps) {
   return (
     <div className="main-view__title">
-      <Sidetittel data-testid={dataTestId}>{title}</Sidetittel>
-      {subTitle && <Systemtittel>{subTitle}</Systemtittel>}
+      <Heading size="2xlarge" data-testid={dataTestId}>
+        {title}
+      </Heading>
+      {subTitle && <Heading size="medium">{subTitle}</Heading>}
     </div>
   );
 }

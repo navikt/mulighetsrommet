@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import 'nav-frontend-tabell-style';
 import { Tiltaksvariant } from '../../core/domain/Tiltaksvariant';
 import Tiltaksvariantliste from './listevisning/Tiltaksvariantliste';
 import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
