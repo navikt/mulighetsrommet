@@ -4,14 +4,13 @@ import com.typesafe.config.ConfigFactory
 import io.ktor.config.HoconApplicationConfig
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
-import java.util.*
+import java.util.Properties
 
 class KafkaStreamConfig : Properties() {
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
 
     init {
         this[StreamsConfig.APPLICATION_ID_CONFIG] = appConfig.property("ktor.kafka.appId").getString()
-        // this[StreamsConfig] = appConfig.property("ktor.kafka.clientId").getString()
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = appConfig.property("ktor.kafka.brokers").getString()
         this[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.String()::class.java.name
         this[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = Serdes.String()::class.java.name

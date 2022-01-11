@@ -1,11 +1,10 @@
 package no.nav.mulighetsrommet.api
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.application.*
-import io.ktor.config.*
-import io.ktor.routing.*
-import kotlinx.coroutines.launch
-import no.nav.mulighetsrommet.api.kafka.KafkaFactory
+import io.ktor.application.Application
+import io.ktor.application.ApplicationStopped
+import io.ktor.config.HoconApplicationConfig
+import io.ktor.routing.routing
 import no.nav.mulighetsrommet.api.plugins.configureDependencyInjection
 import no.nav.mulighetsrommet.api.plugins.configureHTTP
 import no.nav.mulighetsrommet.api.plugins.configureMonitoring
@@ -18,7 +17,6 @@ import no.nav.mulighetsrommet.api.routes.innsatsgruppeRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksgjennomforingRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksvariantRoutes
-import org.koin.ktor.ext.inject
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -40,7 +38,6 @@ fun Application.module() {
     routing {
         healthRoutes()
         swaggerRoutes()
-
         tiltaksvariantRoutes()
         tiltaksgjennomforingRoutes()
         innsatsgruppeRoutes()
@@ -48,11 +45,7 @@ fun Application.module() {
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.
     if (enableKafka) {
-        val kafka: KafkaFactory by inject()
-        val kafkaConsumers = launch {
-            kafka.consumeTiltaksgjennomforingEventsFromArena()
-        }
-        kafkaConsumers.start()
+        // val kafka: KafkaFactory by inject()
         environment.monitor.subscribe(ApplicationStopped) {
             println("Shutting down")
 //            kafka.shutdown()
