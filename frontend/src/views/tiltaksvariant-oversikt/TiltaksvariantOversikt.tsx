@@ -9,7 +9,7 @@ import { Button, Loader } from '@navikt/ds-react';
 import { useHistory } from 'react-router-dom';
 
 const TiltaksvariantOversikt = () => {
-  const { data, isLoading } = useTiltaksvarianter();
+  const { data, isFetching } = useTiltaksvarianter();
   const history = useHistory();
 
   return (
@@ -29,7 +29,7 @@ const TiltaksvariantOversikt = () => {
           Opprett tiltaksvariant <AddCircle />
         </Button>
       </div>
-      {isLoading && <Loader variant="neutral" size="2xlarge" />}
+      {isFetching && <Loader variant="neutral" size="2xlarge" />}
       {data && <Tiltaksvariantoversikt tiltaksvarianter={data} />}
     </MainView>
   );
