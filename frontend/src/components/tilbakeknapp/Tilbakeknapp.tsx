@@ -1,27 +1,18 @@
-import { Button } from '@navikt/ds-react';
 import { Back } from '@navikt/ds-icons';
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import './Tilbakeknapp.less';
+import Lenke from '../lenke/Lenke';
 
 interface TilbakeknappProps {
-  tilbakelenke?: string;
+  tilbakelenke: string;
 }
 
 const Tilbakeknapp = ({ tilbakelenke }: TilbakeknappProps) => {
-  const history = useHistory();
-  return tilbakelenke ? (
-    <Button
-      className="tilbakeknapp"
-      variant="tertiary"
-      data-testid="tilbakeknapp"
-      onClick={() => tilbakelenke && history.push(tilbakelenke)}
-    >
+  return (
+    <Lenke className="tilbakeknapp" data-testid="tilbakeknapp" to={tilbakelenke}>
       <Back aria-label="Tilbakeknapp" />
       <span>Tilbake</span>
-    </Button>
-  ) : (
-    <></>
+    </Lenke>
   );
 };
 export default Tilbakeknapp;

@@ -14,7 +14,7 @@ const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestI
   return (
     <div className="main-view">
       <div className="main-view__header">
-        <Tilbakeknapp tilbakelenke={tilbakelenke} />
+        {tilbakelenke && <Tilbakeknapp tilbakelenke={tilbakelenke} />}
         {title && <MainViewTitle title={title} subTitle={subTitle} dataTestId={dataTestId} />}
       </div>
       {children}
