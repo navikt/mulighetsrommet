@@ -1,14 +1,13 @@
+import React, { useEffect, useState } from 'react';
+import TiltaksvariantTabell from '../tabell/TiltaksvariantTabell';
+import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
 import Fuse from 'fuse.js';
 import { useAtom } from 'jotai';
-import 'nav-frontend-tabell-style';
-import React, { useEffect, useState } from 'react';
-import { Tiltaksvariant } from '../../api';
 import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
-import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
-import Tiltaksvariantliste from './listevisning/Tiltaksvariantliste';
+import { Tiltaksvariant } from '../../api';
 
 interface TiltaksoversiktProps {
-  tiltaksvarianter?: Tiltaksvariant[];
+  tiltaksvarianter: Tiltaksvariant[];
 }
 
 const Tiltaksvariantoversikt = (props: TiltaksoversiktProps) => {
@@ -31,7 +30,7 @@ const Tiltaksvariantoversikt = (props: TiltaksoversiktProps) => {
     }
   }, [tiltaksvarianter, sok]);
 
-  return <>{tiltaksvarianter && <Tiltaksvariantliste tiltaksvariantliste={queriedTiltaksvarianter} />}</>;
+  return <>{queriedTiltaksvarianter && <TiltaksvariantTabell tiltaksvariantliste={queriedTiltaksvarianter} />}</>;
 };
 
 export default Tiltaksvariantoversikt;

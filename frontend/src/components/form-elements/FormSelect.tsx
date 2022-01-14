@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { useController, UseControllerProps } from 'react-hook-form';
-import { Select } from 'nav-frontend-skjema';
+import { Select } from '@navikt/ds-react';
 
 export interface SelectProps<T extends object, V> extends UseControllerProps<T> {
   label: string;
@@ -45,7 +45,7 @@ export function FormSelect<T extends object, V>(props: SelectProps<T, V>) {
     <Select
       {...field}
       label={props.label}
-      feil={error}
+      error={error}
       value={value}
       onChange={onChange}
       data-testid={props.dataTestId}

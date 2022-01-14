@@ -1,10 +1,10 @@
-import Panel from 'nav-frontend-paneler';
-import { Normaltekst, Systemtittel } from 'nav-frontend-typografi';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
 import MainView from '../../layouts/MainView';
+import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
 import '../Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
+import { BodyLong } from '@navikt/ds-react';
+import Sidemeny from '../../components/sidemeny/Sidemeny';
 
 interface RouteParams {
   tiltaksvariantId: string;
@@ -20,11 +20,9 @@ const TiltaksgjennomforingDetaljer = () => {
     <MainView tilbakelenke={`/tiltaksvarianter/${tiltaksvariantId}`} title={tiltaksgjennomforing.data?.tittel}>
       <div className="tiltaksgjennomforing-detaljer">
         <div className="tiltaksgjennomforing-detaljer__info">
-          <Normaltekst>{tiltaksgjennomforing.data?.beskrivelse}</Normaltekst>
+          <BodyLong>{tiltaksgjennomforing.data?.beskrivelse}</BodyLong>
         </div>
-        <Panel border>
-          <Systemtittel>Meny</Systemtittel>
-        </Panel>
+        <Sidemeny />
       </div>
     </MainView>
   );

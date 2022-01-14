@@ -7,13 +7,13 @@ import useTiltaksvariantUpdate from '../../hooks/tiltaksvariant/useTiltaksvarian
 import MainView from '../../layouts/MainView';
 import TiltaksvariantForm from './TiltaksvariantForm';
 
-export const EditTiltaksvariant = () => {
+export const RedigerTiltaksvariant = () => {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, isLoading, isError } = useTiltaksvariant(id);
+  const { data, isLoading, isError, isSuccess } = useTiltaksvariant(id);
 
   const edit = useTiltaksvariantUpdate();
   const deleteMutation = useTiltaksvariantDelete();
@@ -28,9 +28,11 @@ export const EditTiltaksvariant = () => {
         <TiltaksvariantForm
           isLoading={isLoading}
           isError={isError}
+          isSuccess={isSuccess}
           tiltaksvariant={data}
           onSubmit={requestBody => edit.mutate({ id, requestBody })}
           onDelete={() => setIsModalOpen(true)}
+          isEdit={true}
         />
       </div>
       <SlettModal
