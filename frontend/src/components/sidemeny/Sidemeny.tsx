@@ -8,7 +8,9 @@ interface SidemenyProps {
 const Sidemeny = ({ children }: SidemenyProps) => {
   return (
     <Panel border className="sidemeny">
-      <Heading size="medium">Meny</Heading>
+      <Heading level="3" size="medium">
+        Meny
+      </Heading>
       {children}
     </Panel>
   );
