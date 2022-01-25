@@ -63,7 +63,8 @@ class KafkaFactory(private val db: DatabaseFactory) {
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> { logTopicContent(it) }
-                )}
+                )
+        }
     }
 
     // Temporary print out until we actually implement something with the events.
