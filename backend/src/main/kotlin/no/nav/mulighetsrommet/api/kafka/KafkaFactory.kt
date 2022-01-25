@@ -28,7 +28,7 @@ class KafkaFactory(private val db: DatabaseFactory) {
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
-            .withTopicConfigs(topics + testTopic)
+            .withTopicConfigs(topics)
             .build()
 
         consumerClient.start()
