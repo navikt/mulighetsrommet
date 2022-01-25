@@ -53,8 +53,8 @@ jobs:
           cache: gradle
       - name: Build with Gradle
         # Disabling testing for experiment
-        #run: ./gradlew test build --info
-        run: ./gradlew build --info
+        # run: ./gradlew test build --info
+        run: ./gradlew build -x test --info
       - name: Build and push Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
