@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import com.typesafe.config.ConfigFactory
 import io.ktor.application.Application
 import io.ktor.application.ApplicationStopped
+import io.ktor.application.log
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.routing.routing
 import no.nav.mulighetsrommet.api.kafka.KafkaFactory
@@ -47,6 +48,7 @@ fun Application.module() {
 
     // TODO: Lag noe som er litt mer robust. Kun for å få deployet.
     if (enableKafka) {
+        log.debug("Kafka is enabled")
         val kafka: KafkaFactory by inject()
         environment.monitor.subscribe(ApplicationStopped) {
             println("Shutting down")
