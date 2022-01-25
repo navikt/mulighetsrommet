@@ -18,11 +18,11 @@ fun Application.configureDependencyInjection() {
     }
 }
 
-private val db = module {
+private val db = module(createdAtStart = true) {
     single { DatabaseFactory() }
 }
 
-private val kafka = module {
+private val kafka = module(createdAtStart = true) {
     single { KafkaFactory(get()) }
 }
 
