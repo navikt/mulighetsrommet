@@ -28,6 +28,7 @@ repositories {
 dependencies {
     val ktorVersion = "1.6.2"
     val koinVersion = "3.1.5"
+    val kotestVersion = "5.1.0"
 
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
@@ -53,6 +54,12 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.8.1")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 tasks.withType<Jar> {
