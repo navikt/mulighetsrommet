@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.kafka
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
 import io.ktor.config.HoconApplicationConfig
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
@@ -12,9 +10,8 @@ import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.selectAll
 import org.slf4j.LoggerFactory
+import java.util.Properties
 import java.util.function.Consumer
 
 class KafkaFactory(private val db: DatabaseFactory) {
@@ -24,64 +21,53 @@ class KafkaFactory(private val db: DatabaseFactory) {
     private val consumerClient: KafkaConsumerClient
 
     init {
-        val consumerProperties = if (appConfig.property("ktor.localDevelopment").getString() == "true") {
-            KafkaPropertiesBuilder.consumerBuilder()
-                .withBrokerUrl("localhost:9092")
-                .withBaseProperties()
-                .withConsumerGroupId("mulighetsrommet-api-consumer.v2")
-                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-                .build()
-        } else {
-            KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-consumer.v2")
-        }
+        logger.debug("Initializing KafkaFactory.")
 
-        val arenaTiltakTopic = "teamarenanais.aapen-arena-tiltakendret-v1-q2"
-        val topicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
-            .withLogging()
-            .withConsumerConfig(
-                arenaTiltakTopic,
-                stringDeserializer(),
-                stringDeserializer(),
-                Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
-            )
-
-        // val testTopicConfig = KafkaConsumerClientBuilder.TopicConfig<String, String>()
-        //     .withLogging()
-        //     .withConsumerConfig(
-        //         "aura.kafkarator-canary-dev-gcp",
-        //         stringDeserializer(),
-        //         stringDeserializer(),
-        //         Consumer<ConsumerRecord<String, String>> { printTopicContent(it) }
-        //     )
-
-        val topics = listOf(topicConfig)
+        val consumerProperties = configureProperties()
+        val topics = configureTopics()
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
             .withTopicConfigs(topics)
             .build()
 
-        logger.debug("Starting consumer client")
-
         consumerClient.start()
+
+        logger.debug("Consumer client started. Done with initializing KafkaFactory.")
     }
 
     fun stopClient() {
         consumerClient.stop()
     }
 
-    private fun printTopicContent(consumerRecord: ConsumerRecord<String, String>) {
-        println("TOPIC (${consumerRecord.topic()}): ${consumerRecord.value()}")
+    private fun configureProperties(): Properties {
+        val consumerGroupId = "mulighetsrommet-api-consumer.v1"
+        return if (appConfig.property("ktor.localDevelopment").getString() == "true") {
+            KafkaPropertiesBuilder.consumerBuilder()
+                .withBrokerUrl("localhost:9092")
+                .withBaseProperties()
+                .withConsumerGroupId(consumerGroupId)
+                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                .build()
+        } else {
+            KafkaPropertiesPreset.aivenDefaultConsumerProperties(consumerGroupId)
+        }
     }
-}
 
-/**
- * Only for testing
- */
-fun <T : IntIdTable> getRandomId(table: T): Int {
-    return table
-        .slice(table.id)
-        .selectAll()
-        .map { it[table.id].value }
-        .random()
+    private fun configureTopics(): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
+        return KafkaTopics.values().map { it ->
+            KafkaConsumerClientBuilder.TopicConfig<String, String>()
+                .withLogging()
+                .withConsumerConfig(
+                    it.topic,
+                    stringDeserializer(),
+                    stringDeserializer(),
+                    Consumer<ConsumerRecord<String, String>> { logTopicContent(it) }
+                )}
+    }
+
+    // Temporary print out until we actually implement something with the events.
+    private fun logTopicContent(consumerRecord: ConsumerRecord<String, String>) {
+        logger.debug("Topic: ${consumerRecord.topic()} - Value: ${consumerRecord.value()}")
+    }
 }
