@@ -43,8 +43,8 @@ jobs:
           java-version: 11
           cache: gradle
       - name: Build with Gradle
-        # Disabling testing for experiment
-        #run: ./gradlew test build --info
+        # Disable test until we can mock out the koin components initialized at start
+        # run: ./gradlew test build --info
         run: ./gradlew build -x test --info
       - name: Publish test report
         uses: ScaCap/action-surefire-report@v1
