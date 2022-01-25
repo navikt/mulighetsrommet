@@ -25,10 +25,11 @@ class KafkaFactory(private val db: DatabaseFactory) {
 
         val consumerProperties = configureProperties()
         val topics = configureTopics()
+        val testTopic = configureTestTopic()
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
-            .withTopicConfigs(topics)
+            .withTopicConfigs(topics + testTopic)
             .build()
 
         consumerClient.start()
@@ -38,6 +39,17 @@ class KafkaFactory(private val db: DatabaseFactory) {
 
     fun stopClient() {
         consumerClient.stop()
+    }
+
+    private fun configureTestTopic(): KafkaConsumerClientBuilder.TopicConfig<String, String>? {
+        return KafkaConsumerClientBuilder.TopicConfig<String, String>()
+            .withLogging()
+            .withConsumerConfig(
+                "aura.kafkarator-canary-dev-gcp",
+                stringDeserializer(),
+                stringDeserializer(),
+                Consumer<ConsumerRecord<String, String>> { logTopicContent(it) }
+            )
     }
 
     private fun configureProperties(): Properties {
