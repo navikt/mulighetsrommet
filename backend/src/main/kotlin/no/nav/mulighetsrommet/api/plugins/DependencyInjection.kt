@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.plugins
 
-import io.ktor.application.Application
-import io.ktor.application.install
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.kafka.KafkaFactory
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService

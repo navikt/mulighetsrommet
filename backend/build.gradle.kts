@@ -26,15 +26,16 @@ repositories {
 }
 
 dependencies {
-    val ktorVersion = "1.6.2"
+    val ktorVersion = "2.0.0-beta-1"
     val koinVersion = "3.1.5"
 
-    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-serialization:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-sessions:$ktorVersion")
-    implementation("io.ktor:ktor-webjars:$ktorVersion")
+    implementation("io.ktor:ktor-server-webjars:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.zaxxer:HikariCP:4.0.3")
