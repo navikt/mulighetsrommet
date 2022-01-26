@@ -1,0 +1,55 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: mulighetsrommet-kafka-manager
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: docker.pkg.github.com/navikt/kafka-manager/kafka-manager:2.2022.01.13_14.52-999e3c414924 # See https://github.com/navikt/kafka-manager/packages
+  port: 8080
+  webproxy: true
+  ingresses:
+    - https://mulighetsrommet-kafka-manager.dev.intern.nav.no
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  readiness:
+    path: /internal/health/readiness
+    initialDelay: 20
+  liveness:
+    path: /internal/health/liveness
+    initialDelay: 20
+  replicas:
+    min: 1
+    max: 1 # 1 instance is required since in-memory session management is used
+    cpuThresholdPercentage: 75
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  azure: # Required
+    application:
+      enabled: true
+      tenant: nav.no
+      claims:
+        groups:
+          - id: team-mulighetsrommet # Required for authorization
+  kafka: # Optional. Required for Aiven
+    pool: nav-dev
+  env:
+    - name: APP_CONFIG_JSON # Required
+      value: >
+        {
+          "topics": [
+            {
+              "name": "teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            }
+          ]
+        }
