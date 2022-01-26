@@ -43,10 +43,6 @@ spec:
             envVarPrefix: DB
   kafka:
     pool: nav-dev
-  acl:
-    - team: team-mulighetsrommet
-      application: amt-informasjon-api
-      access: read
   azure:
     application:
       enabled: true
