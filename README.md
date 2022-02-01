@@ -25,3 +25,11 @@ Mulighetsrommet er en applikasjonsportfølje som skal hjelpe både brukere og ve
 | README          | https://github.com/navikt/mulighetsrommet/blob/dev/backend/README.md |
 | Url (dev-miljø) | https://mulighetsrommet-api.dev.intern.nav.no/                       |
 | API             | https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui             |
+
+### `mulighetsrommet-kafka-manager`
+
+Denne kjøres kun opp ved egen kommando `kubectl apply -f .nais/mulighetsrommet-kafka-manager.yaml`. Se README for mer detaljer.
+| | |
+| --------------- | -------------------------------------------------------- |
+| README | https://github.com/navikt/kafka-manager |
+| Url (dev-miljø) | https://mulighetsrommet-kafka-manager.dev.intern.nav.no/ |
