@@ -43,4 +43,4 @@ services:
       KAFKA_BROKERCONNECT: "kafka:9092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
 volumes:
-  mulighetsrommet-db:
+  mulighetsrommet-api:
