@@ -1,8 +1,11 @@
 name: Deploy (dev)
 
+# on:
+#   push:
+#     branches: [dev]
 on:
   push:
-    branches: [dev]
+    branches: [feature/tc-273-adjust-kafka-for-arena]
 
 env:
   IMAGE_TAG: ${{ github.sha }}
