@@ -6,7 +6,8 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: docker.pkg.github.com/navikt/kafka-manager/kafka-manager:2.2021.05.31_08.41-622e72c02ee1 # See https://github.com/navikt/kafka-manager/packages
+  # image: docker.pkg.github.com/navikt/kafka-manager/kafka-manager:2.2021.05.31_08.41-622e72c02ee1 # See https://github.com/navikt/kafka-manager/packages
+  image: ghcr.io/navikt/kafka-manager/kafka-manager:2.2022.01.13_14.52-999e3c414924
   port: 8080
   webproxy: true
   ingresses:
@@ -76,6 +77,6 @@ spec:
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
-            },
+            }
           ]
         }
