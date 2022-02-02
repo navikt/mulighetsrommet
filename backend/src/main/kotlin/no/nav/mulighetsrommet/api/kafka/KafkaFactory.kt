@@ -6,6 +6,7 @@ import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -49,17 +50,7 @@ class KafkaFactory(private val db: DatabaseFactory) {
                 .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
                 .build()
         } else {
-            // KafkaPropertiesPreset.aivenDefaultConsumerProperties(consumerGroupId)
-            KafkaPropertiesBuilder.consumerBuilder()
-                .withBaseProperties(1)
-                .withConsumerGroupId(consumerGroupId)
-                .withAivenBrokerUrl()
-                .withAivenAuth()
-                .withDeserializers(
-                    ByteArrayDeserializer::class.java,
-                    ByteArrayDeserializer::class.java
-                )
-                .build()
+            KafkaPropertiesPreset.aivenDefaultConsumerProperties(consumerGroupId)
         }
     }
 
