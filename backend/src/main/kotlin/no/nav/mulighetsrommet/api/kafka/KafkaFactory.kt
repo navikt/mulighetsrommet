@@ -41,10 +41,11 @@ class KafkaFactory(private val db: DatabaseFactory) {
     }
 
     private fun configureProperties(): Properties {
-        val consumerGroupId =  appConfig.property("ktor.kafka.consumerGroupId").getString()
+        val consumerGroupId = appConfig.property("ktor.kafka.consumerGroupId").getString()
+        val kafkaBrokers = appConfig.property("ktor.kafka.kafkaBrokers").getString()
         return if (appConfig.property("ktor.localDevelopment").getString() == "true") {
             KafkaPropertiesBuilder.consumerBuilder()
-                .withBrokerUrl("localhost:9092")
+                .withBrokerUrl(kafkaBrokers)
                 .withBaseProperties()
                 .withConsumerGroupId(consumerGroupId)
                 .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
