@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
     id("org.flywaydb.flyway") version "8.0.3"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
     /**
      * Linting and auto formatting of project sources
      */
@@ -23,6 +24,13 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 
 repositories {
     mavenCentral()
+    // Needed to get no.nav.common-java-modules to work. Deps from other repos
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -49,6 +57,7 @@ dependencies {
     implementation("org.apache.kafka:kafka-streams:2.8.1")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
@@ -62,18 +71,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.withType<Jar> {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes["Main-Class"] = application.mainClass
+tasks {
+    shadowJar {
+        manifest {
+            attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
+        }
     }
-    from(sourceSets.main.get().output)
-
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8

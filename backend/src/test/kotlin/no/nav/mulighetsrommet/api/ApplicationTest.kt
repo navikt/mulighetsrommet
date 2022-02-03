@@ -1,9 +1,10 @@
 package no.nav.mulighetsrommet.api
 
 import io.kotest.core.spec.style.FunSpec
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import io.ktor.application.Application
+import io.ktor.http.HttpMethod
+import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.withTestApplication
 import kotlin.test.assertEquals
 
 class ApplicationTest : FunSpec({
