@@ -1,9 +1,12 @@
 package no.nav.mulighetsrommet.api.kafka
 
+import com.typesafe.config.ConfigFactory
+import io.ktor.config.HoconApplicationConfig
+
 enum class KafkaTopics(val topic: String) {
-    TiltaksgjennomforingEndret("teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2"),
-    // TiltaksdeltakerEndret("teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2"),
-    // TiltaksgruppeEndret("teamarenanais.aapen-arena-tiltaksgruppeendret-v1-q2"),
-    // TiltakEndret("teamarenanais.aapen-arena-tiltakendret-v1-q2"),
-    // AvtaleinfoEndret("teamarenanais.aapen-arena-avtaleinfoendret-v1-q2")
+    TiltaksgjennomforingEndret(HoconApplicationConfig(ConfigFactory.load()).property("ktor.kafka.topics.tiltaksgjennomforingEndret").toString()),
+    TiltaksdeltakerEndret(HoconApplicationConfig(ConfigFactory.load()).property("ktor.kafka.topics.tiltaksdeltakerEndret").toString()),
+    TiltaksgruppeEndret(HoconApplicationConfig(ConfigFactory.load()).property("ktor.kafka.topics.tiltaksgruppeEndret").toString()),
+    TiltakEndret(HoconApplicationConfig(ConfigFactory.load()).property("ktor.kafka.topics.tiltakEndret").toString()),
+    AvtaleinfoEndret(HoconApplicationConfig(ConfigFactory.load()).property("ktor.kafka.topics.avtaleinfoEndret").toString())
 }
