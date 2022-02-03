@@ -41,7 +41,7 @@ class KafkaFactory(private val db: DatabaseFactory) {
     }
 
     private fun configureProperties(): Properties {
-        val consumerGroupId = "mulighetsrommet-api-consumer.v1"
+        val consumerGroupId =  appConfig.property("ktor.kafka.consumerGroupId").getString()
         return if (appConfig.property("ktor.localDevelopment").getString() == "true") {
             KafkaPropertiesBuilder.consumerBuilder()
                 .withBrokerUrl("localhost:9092")
