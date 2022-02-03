@@ -1,11 +1,8 @@
 name: Deploy (dev)
 
-# on:
-#   push:
-#     branches: [dev]
 on:
   push:
-    branches: [feat/move-topics-to-config]
+    branches: [dev]
 
 env:
   IMAGE_TAG: ${{ github.sha }}
