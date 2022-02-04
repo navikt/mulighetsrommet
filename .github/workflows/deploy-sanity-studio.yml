@@ -16,6 +16,6 @@ jobs:
           cache: npm
           cache-dependency-path: sanity/package-lock.json
       - run: npm ci
-      - run: npm run deploy
+      - run: npx sanity deploy
         env: 
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
