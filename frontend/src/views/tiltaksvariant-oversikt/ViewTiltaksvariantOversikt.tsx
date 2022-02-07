@@ -5,11 +5,12 @@ import './TiltaksvariantOversikt.less';
 import '../../layouts/MainView.less';
 import MainView from '../../layouts/MainView';
 import useTiltaksvarianter from '../../hooks/tiltaksvariant/useTiltaksvarianter';
-import { Loader } from '@navikt/ds-react';
+import { Button, Loader } from '@navikt/ds-react';
 import { useHistory } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
+import { AddCircle } from '@navikt/ds-icons';
 
-const TiltaksvariantOversikt = () => {
+const ViewTiltaksvariantOversikt = () => {
   const { data, isFetching } = useTiltaksvarianter();
   const history = useHistory();
 
@@ -18,19 +19,19 @@ const TiltaksvariantOversikt = () => {
       title="Tiltaksvarianter"
       subTitle="Se en oversikt over alle nasjonale tiltaksvarianter"
       dataTestId="header-tiltaksvarianter"
-      className="tiltaksvariant-oversikt"
+      contentClassName="tiltaksvariant-oversikt"
     >
       <Sidebar />
       <div className="tiltaksvariant-oversikt__actions">
         <Sokefelt />
-        {/*<Button*/}
-        {/*  variant="primary"*/}
-        {/*  className="knapp opprett-ny-tiltaksvariant__knapp"*/}
-        {/*  data-testid="knapp_opprett-tiltaksvariant"*/}
-        {/*  onClick={() => history.push('/tiltaksvarianter/opprett')}*/}
-        {/*>*/}
-        {/*  Opprett tiltaksvariant <AddCircle />*/}
-        {/*</Button>*/}
+        <Button
+          variant="primary"
+          className="knapp opprett-ny-tiltaksvariant__knapp"
+          data-testid="knapp_opprett-tiltaksvariant"
+          onClick={() => history.push('/tiltaksvarianter/opprett')}
+        >
+          Opprett tiltaksvariant <AddCircle />
+        </Button>
       </div>
       {isFetching && <Loader variant="neutral" size="2xlarge" />}
       {data && <Tiltaksvariantoversikt tiltaksvarianter={data} />}
@@ -38,4 +39,4 @@ const TiltaksvariantOversikt = () => {
   );
 };
 
-export default TiltaksvariantOversikt;
+export default ViewTiltaksvariantOversikt;

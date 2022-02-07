@@ -3,8 +3,9 @@ import TiltaksvariantTabell from '../tabell/TiltaksvariantTabell';
 import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
 import Fuse from 'fuse.js';
 import { useAtom } from 'jotai';
-import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
+import { tiltaksvariantOversiktSok } from '../../api/atoms/atoms';
 import { Tiltaksvariant } from '../../api';
+import { Alert } from '@navikt/ds-react';
 
 interface TiltaksoversiktProps {
   tiltaksvarianter: Tiltaksvariant[];
@@ -30,7 +31,15 @@ const Tiltaksvariantoversikt = (props: TiltaksoversiktProps) => {
     }
   }, [tiltaksvarianter, sok]);
 
-  return <>{queriedTiltaksvarianter && <TiltaksvariantTabell tiltaksvariantliste={queriedTiltaksvarianter} />}</>;
+  return (
+    <div className="tiltaksvariant-oversikt__tabell">
+      {queriedTiltaksvarianter ? (
+        <TiltaksvariantTabell tiltaksvariantliste={queriedTiltaksvarianter} />
+      ) : (
+        <Alert variant="error">En feil oppstod. Vi har problemer med å hente tiltaksvariantene.</Alert>
+      )}
+    </div>
+  );
 };
 
 export default Tiltaksvariantoversikt;

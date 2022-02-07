@@ -29,29 +29,32 @@ const TiltaksvariantDetaljer = () => {
   }
 
   if (!tiltaksvariant.data) {
-    return null;
+    return <Alert variant="warning">Nå er det noe rusk i maskineriet...</Alert>;
   }
 
   const { tittel, ingress, beskrivelse } = tiltaksvariant.data;
 
   return (
-    <MainView title={tittel} dataTestId="tiltaksvariant_header" tilbakelenke="./">
-      <div className="tiltaksvariant-detaljer">
-        <div className="tiltaksvariant-detaljer__info">
-          <Ingress data-testid="tiltaksvariant_ingress">{ingress}</Ingress>
-          <BodyLong data-testid="tiltaksvariant_beskrivelse">{beskrivelse}</BodyLong>
-        </div>
-        <Sidemeny>
-          <Button
-            variant="primary"
-            className="knapp knapp--hoved rediger-knapp"
-            data-testid="knapp_rediger-tiltaksvariant"
-            onClick={() => history.push(`/tiltaksvarianter/${id}/rediger`)}
-          >
-            Rediger <EditIcon />
-          </Button>
-        </Sidemeny>
+    <MainView
+      title={tittel}
+      dataTestId="tiltaksvariant_header"
+      tilbakelenke="./"
+      contentClassName="tiltaksvariant-detaljer"
+    >
+      <div className="tiltaksvariant-detaljer__info">
+        <Ingress data-testid="tiltaksvariant_ingress">{ingress}</Ingress>
+        <BodyLong data-testid="tiltaksvariant_beskrivelse">{beskrivelse}</BodyLong>
       </div>
+      <Sidemeny>
+        <Button
+          variant="primary"
+          className="knapp knapp--hoved rediger-knapp"
+          data-testid="knapp_rediger-tiltaksvariant"
+          onClick={() => history.push(`/tiltaksvarianter/${id}/rediger`)}
+        >
+          Rediger <EditIcon />
+        </Button>
+      </Sidemeny>
       <TiltaksgjennomforingsTabell tiltaksgjennomforinger={tiltaksgjennomforinger.data} />
     </MainView>
   );

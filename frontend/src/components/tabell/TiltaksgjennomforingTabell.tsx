@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Lenke from '../lenke/Lenke';
 import { Table } from '@navikt/ds-react';
 import { Tiltaksgjennomforing } from '../../api';
+import '../../views/Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
 
 interface TiltaksgjennomforingTabellProps {
   tiltaksgjennomforinger?: Tiltaksgjennomforing[];
@@ -13,7 +14,7 @@ function TiltaksgjennomforingsTabell(props: TiltaksgjennomforingTabellProps) {
   const { tiltaksgjennomforinger } = props;
 
   return (
-    <Table zebraStripes className="tabell__tiltaksgjennomforing" data-testid="tabell_tiltaksgjennomforinger">
+    <Table zebraStripes className="tabell__tiltaksgjennomforinger" data-testid="tabell_tiltaksgjennomforinger">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell scope="col">Tittel</Table.HeaderCell>

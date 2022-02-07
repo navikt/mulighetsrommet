@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
 import { useAtom } from 'jotai';
-import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
+import { tiltaksvariantOversiktSok } from '../../api/atoms/atoms';
 import { TextField } from '@navikt/ds-react';
 
 const Sokefelt = () => {

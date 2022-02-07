@@ -43,7 +43,7 @@ const TiltaksvariantForm = ({
   const tomtFeltErrorMessage = 'Dette feltet kan ikke være tomt';
 
   return (
-    <>
+    <div className="rediger-opprett-tiltaksvariant">
       {isLoading && <Loader variant="neutral" size="2xlarge" />}
       {isError && <Alert variant="error">Det har oppstått en feil</Alert>}
       {(!isEdit || (isEdit && isSuccess)) && (
@@ -115,7 +115,7 @@ const TiltaksvariantForm = ({
           </div>
         </form>
       )}
-    </>
+    </div>
   );
 };
 

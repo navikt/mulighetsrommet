@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import '@navikt/ds-css';
 import './index.less';
-import store from './core/redux/Store';
+import store from './api/redux/Store';
 import { Provider } from 'react-redux';
 import { OpenAPI } from './api';
 

@@ -24,17 +24,15 @@ export const RedigerTiltaksvariant = () => {
       dataTestId="header-rediger-tiltaksvariant"
       tilbakelenke={'/tiltaksvarianter/' + id}
     >
-      <div>
-        <TiltaksvariantForm
-          isLoading={isLoading}
-          isError={isError}
-          isSuccess={isSuccess}
-          tiltaksvariant={data}
-          onSubmit={requestBody => edit.mutate({ id, requestBody })}
-          onDelete={() => setIsModalOpen(true)}
-          isEdit={true}
-        />
-      </div>
+      <TiltaksvariantForm
+        isLoading={isLoading}
+        isError={isError}
+        isSuccess={isSuccess}
+        tiltaksvariant={data}
+        onSubmit={requestBody => edit.mutate({ id, requestBody })}
+        onDelete={() => setIsModalOpen(true)}
+        isEdit={true}
+      />
       <SlettModal
         tittel="Slett tiltaksvariant"
         open={isModalOpen}
