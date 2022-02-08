@@ -17,18 +17,19 @@ import java.util.function.Consumer
 class KafkaFactory(private val db: DatabaseFactory) {
 
     private val logger = LoggerFactory.getLogger(KafkaFactory::class.java)
-    private val appConfig = HoconApplicationConfig(ConfigFactory.load())
+    private val kafkaConfig = HoconApplicationConfig(ConfigFactory.load()).config("ktor.kafka")
     private val consumerClient: KafkaConsumerClient
 
     init {
         logger.debug("Initializing KafkaFactory.")
 
+        val topics = getConsumerTopics()
         val consumerProperties = configureProperties()
-        val topics = configureTopics()
+        val consumerTopics = configureConsumersTopics(topics)
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
-            .withTopicConfigs(topics)
+            .withTopicConfigs(consumerTopics)
             .build()
 
         consumerClient.start()
@@ -41,10 +42,13 @@ class KafkaFactory(private val db: DatabaseFactory) {
     }
 
     private fun configureProperties(): Properties {
-        val consumerGroupId = "mulighetsrommet-api-consumer.v1"
-        return if (appConfig.property("ktor.localDevelopment").getString() == "true") {
+        val consumerGroupId = kafkaConfig.property("consumerGroupId").getString()
+        val kafkaBrokers = kafkaConfig.property("kafkaBrokers").getString()
+        val isLocalDevelopment = HoconApplicationConfig(ConfigFactory.load()).property("ktor.localDevelopment").getString()
+        // // TODO: Discuss if we really need a local setup of kafka or not
+        return if (isLocalDevelopment == "true") {
             KafkaPropertiesBuilder.consumerBuilder()
-                .withBrokerUrl("localhost:9092")
+                .withBrokerUrl(kafkaBrokers)
                 .withBaseProperties()
                 .withConsumerGroupId(consumerGroupId)
                 .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
@@ -54,12 +58,14 @@ class KafkaFactory(private val db: DatabaseFactory) {
         }
     }
 
-    private fun configureTopics(): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
-        return KafkaTopics.values().map { it ->
+    private fun getConsumerTopics() = kafkaConfig.config("topics").property("consumer").getList()
+
+    private fun configureConsumersTopics(topics: List<String>): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
+        return topics.map { topic ->
             KafkaConsumerClientBuilder.TopicConfig<String, String>()
                 .withLogging()
                 .withConsumerConfig(
-                    it.topic,
+                    topic,
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> { logTopicContent(it) }

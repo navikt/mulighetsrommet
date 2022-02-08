@@ -12,7 +12,7 @@ const SlettModal = ({ tittel, handleDelete, ...others }: SlettModalProps) => {
   return (
     <Modal {...others}>
       <Modal.Content>
-        <Heading level="1" size="xlarge" className="modal-info-tekst__overskrift">
+        <Heading level="1" size="large" className="modal-info-tekst__overskrift">
           {tittel}
         </Heading>
         <div className="rediger-tiltaksvariant__slett-modal__tekst">
