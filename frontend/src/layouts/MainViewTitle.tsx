@@ -11,7 +11,7 @@ interface MainViewTitleProps {
 function MainViewTitle({ title, subTitle, dataTestId }: MainViewTitleProps) {
   return (
     <div className="main-view__title">
-      <Heading level="1" size="2xlarge" data-testid={dataTestId}>
+      <Heading level="1" size="xlarge" data-testid={dataTestId}>
         {title}
       </Heading>
       {subTitle && (
