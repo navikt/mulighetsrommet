@@ -1,6 +1,6 @@
 import React from 'react';
 import { Heading, Panel } from '@navikt/ds-react';
-import InnsatsgruppeFilter from './filter/Innsatsgruppefilter';
+import InnsatsgruppeFilter from '../filtrering/InnsatsgruppeFilter';
 import './Sidebar.less';
 
 const Sidebar = () => {

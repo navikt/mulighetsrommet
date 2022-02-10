@@ -1,8 +1,8 @@
 import React from 'react';
 import { Checkbox, CheckboxGroup } from '@navikt/ds-react';
-import { useInnsatsgrupper } from '../../../hooks/tiltaksvariant/useInnsatsgrupper';
+import { useInnsatsgrupper } from '../../hooks/tiltaksvariant/useInnsatsgrupper';
 import { useAtom } from 'jotai';
-import { filtreringInnsatsgruppe } from '../../../api/atoms/atoms';
+import { filtreringInnsatsgruppe } from '../../api/atoms/atoms';
 
 const InnsatsgruppeFilter = () => {
   const innsatsgrupper = useInnsatsgrupper().data;
@@ -19,7 +19,7 @@ const InnsatsgruppeFilter = () => {
   };
 
   return (
-    <CheckboxGroup legend="Innsatsgruppe">
+    <CheckboxGroup legend="Innsatsgruppe" size="small">
       {innsatsgrupper?.map(innsatsgruppe => (
         <Checkbox
           key={innsatsgruppe.id}

@@ -10,7 +10,7 @@ export interface TiltaksvariantlisteProps {
 
 const TiltaksvariantTabell = ({ tiltaksvariantliste }: TiltaksvariantlisteProps) => {
   return (
-    <Table zebraStripes data-testid="tabell__oversikt-tiltaksvarianter">
+    <Table zebraStripes size="small" data-testid="tabell__oversikt-tiltaksvarianter">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell scope="col">Tittel</Table.HeaderCell>
