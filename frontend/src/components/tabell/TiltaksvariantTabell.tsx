@@ -13,28 +13,34 @@ const TiltaksvariantTabell = ({ tiltaksvariantliste }: TiltaksvariantlisteProps)
     <Table zebraStripes size="small" data-testid="tabell__oversikt-tiltaksvarianter">
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell scope="col">Tittel</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Ingress</Table.HeaderCell>
+          <Table.HeaderCell className="tabell-tiltaksvarianter__tittel">Tittel</Table.HeaderCell>
+          <Table.HeaderCell>Ingress</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
-      {tiltaksvariantliste.length === 0 ? (
-        <Alert variant="info" className="tabell__alert">
-          Det finnes ingen tiltaksvarianter med dette søket.
-        </Alert>
-      ) : (
-        <Table.Body>
-          {tiltaksvariantliste.map((tiltaksvariant: Tiltaksvariant) => (
-            <Table.Row key={tiltaksvariant.id}>
-              <Table.HeaderCell scope="col">
-                <Lenke to={`/tiltaksvarianter/${tiltaksvariant.id}`} isInline>
-                  {tiltaksvariant.tittel}
-                </Lenke>
-              </Table.HeaderCell>
-              <Table.DataCell>{tiltaksvariant.ingress}</Table.DataCell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      )}
+      <Table.Body>
+        {tiltaksvariantliste.length === 0 ? (
+          <Table.Row>
+            <Table.DataCell>
+              <Alert variant="info" className="tabell__alert">
+                Det finnes ingen tiltaksvarianter med dette søket.
+              </Alert>
+            </Table.DataCell>
+          </Table.Row>
+        ) : (
+          <>
+            {tiltaksvariantliste.map((tiltaksvariant: Tiltaksvariant) => (
+              <Table.Row key={tiltaksvariant.id}>
+                <Table.HeaderCell>
+                  <Lenke to={`/tiltaksvarianter/${tiltaksvariant.id}`} isInline>
+                    {tiltaksvariant.tittel}
+                  </Lenke>
+                </Table.HeaderCell>
+                <Table.DataCell>{tiltaksvariant.ingress}</Table.DataCell>
+              </Table.Row>
+            ))}
+          </>
+        )}
+      </Table.Body>
     </Table>
   );
 };

@@ -51,8 +51,8 @@ export const db = createMockDatabase(definition, (db: any) => {
         tiltaksnummer: faker.random.alphaNumeric(12),
         tittel: `Kjøreopplæring av ${faker.vehicle.manufacturer()}`,
         beskrivelse: faker.lorem.paragraph(1),
-        fraDato: faker.date.past(3).toString(),
-        tilDato: faker.date.future(3).toString(),
+        tilDato: faker.date.future(3).toLocaleDateString(),
+        fraDato: faker.date.past(3).toLocaleDateString(),
       });
     }
   });

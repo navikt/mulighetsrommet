@@ -28,9 +28,9 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@navikt/ds-css": "^0.12.14",
-    "@navikt/ds-icons": "^0.7.3",
-    "@navikt/ds-react": "^0.14.15",
+    "@navikt/ds-css": "^0.15.3",
+    "@navikt/ds-icons": "^0.8.4",
+    "@navikt/ds-react": "^0.16.5",
     "@navikt/fnrvalidator": "^1.2.0",
     "@navikt/navspa": "^3.0.2",
     "@reduxjs/toolkit": "^1.6.1",
@@ -76,7 +76,6 @@
     "cross-env": "^7.0.3",
     "cypress": "^9.2.1",
     "cypress-axe": "^0.13.0",
-    "cypress-dark": "^1.8.3",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
