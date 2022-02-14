@@ -1,10 +1,10 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltaksvariant } from '../../api';
+import { Tiltakstype } from '../../api';
 import { DatabaseDictionary } from '../database';
 
-export type TiltaksvariantEntity = Entity<DatabaseDictionary, 'tiltaksvariant'>;
+export type TiltakstypeEntity = Entity<DatabaseDictionary, 'tiltakstype'>;
 
-export function toTiltaksvariant(entity: TiltaksvariantEntity): Tiltaksvariant {
+export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
   return {
     id: entity.id,
     innsatsgruppe: entity.innsatsgruppe?.id ?? null,

@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Tiltaksvariant = {
+export type Tiltakstype = {
     id: number;
     innsatsgruppe?: number | null;
     tittel: string;

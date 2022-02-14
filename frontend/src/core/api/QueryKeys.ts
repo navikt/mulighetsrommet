@@ -1,5 +1,5 @@
 export const enum QueryKeys {
   Innsatsgrupper = 'innsatsgrupper',
-  Tiltaksvarianter = 'tiltaksvarianter',
+  Tiltakstyper = 'tiltakstyper',
   Tiltaksgjennomforinger = 'tiltaksgjennomforinger',
 }

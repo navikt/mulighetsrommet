@@ -34,7 +34,7 @@ Cypress.Commands.add('configure', () => {
     method: 'GET',
     url: '/',
   });
-  cy.getByTestId('header-tiltaksvarianter').should('contain', 'Tiltaksvarianter');
+  cy.getByTestId('header-tiltakstyper').should('contain', 'Tiltakstyper');
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {
@@ -43,7 +43,7 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
 
 Cypress.Commands.add('tilbakeTilListevisning', () => {
   cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
-  cy.getByTestId('header-tiltaksvarianter').should('contain', 'Tiltaksvarianter');
+  cy.getByTestId('header-tiltakstyper').should('contain', 'Tiltakstyper');
 });
 
 //Cypress

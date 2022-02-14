@@ -1,7 +1,7 @@
 import { oneOf, primaryKey } from '@mswjs/data';
 import faker from 'faker';
 import { innsatsgrupper } from './fixtures/innsatsgrupper';
-import { tiltaksvarianter } from './fixtures/tiltaksvarianter';
+import { tiltakstyper } from './fixtures/tiltakstyper';
 import { createMockDatabase, idAutoIncrement } from './helpers';
 
 export const definition = {
@@ -10,7 +10,7 @@ export const definition = {
     tittel: String,
     beskrivelse: String,
   },
-  tiltaksvariant: {
+  tiltakstype: {
     id: idAutoIncrement(),
     innsatsgruppe: oneOf('innsatsgruppe', { nullable: true }),
     tittel: String,
@@ -19,7 +19,7 @@ export const definition = {
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
-    tiltaksvariantId: oneOf('tiltaksvariant'),
+    tiltakstypeId: oneOf('tiltakstype'),
     tiltaksnummer: String,
     tittel: String,
     beskrivelse: String,
@@ -33,21 +33,21 @@ export type DatabaseDictionary = typeof definition;
 export const db = createMockDatabase(definition, (db: any) => {
   innsatsgrupper.forEach(db.innsatsgruppe.create);
 
-  tiltaksvarianter.forEach(({ innsatsgruppe, ...data }) => {
+  tiltakstyper.forEach(({ innsatsgruppe, ...data }) => {
     const relatedInnsatsgruppe = innsatsgruppe
       ? db.innsatsgruppe.findFirst({ where: { id: { equals: innsatsgruppe } } })
       : null;
 
-    db.tiltaksvariant.create({
+    db.tiltakstype.create({
       innsatsgruppe: relatedInnsatsgruppe ?? undefined,
       ...data,
     });
   });
 
-  db.tiltaksvariant.getAll().forEach((tiltaksvariant: any) => {
+  db.tiltakstype.getAll().forEach((tiltakstype: any) => {
     for (let index = 0; index < faker.datatype.number({ min: 1, max: 5 }); index++) {
       db.tiltaksgjennomforing.create({
-        tiltaksvariantId: tiltaksvariant,
+        tiltakstypeId: tiltakstype,
         tiltaksnummer: faker.random.alphaNumeric(12),
         tittel: `Kjøreopplæring av ${faker.vehicle.manufacturer()}`,
         beskrivelse: faker.lorem.paragraph(1),

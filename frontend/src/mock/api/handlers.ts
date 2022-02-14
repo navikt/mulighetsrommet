@@ -1,8 +1,8 @@
 import { rest, RestHandler, RestRequest } from 'msw';
-import { Tiltaksvariant } from '../../api';
+import { Tiltakstype } from '../../api';
 import { db } from '../database';
 import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomføring';
-import { toTiltaksvariant } from '../entities/tiltaksvariant';
+import { toTiltakstype } from '../entities/tiltakstype';
 import { notFound, ok } from './responses';
 
 export const handlers: RestHandler[] = [
@@ -10,13 +10,13 @@ export const handlers: RestHandler[] = [
     return ok(db.innsatsgruppe.getAll());
   }),
 
-  rest.get('*/api/tiltaksvarianter', () => {
-    return ok(db.tiltaksvariant.getAll().map(toTiltaksvariant));
+  rest.get('*/api/tiltakstyper', () => {
+    return ok(db.tiltakstype.getAll().map(toTiltakstype));
   }),
-  rest.get('*/api/tiltaksvarianter/:id', req => {
+  rest.get('*/api/tiltakstyper/:id', req => {
     const { id } = req.params;
 
-    const entity = db.tiltaksvariant.findFirst({
+    const entity = db.tiltakstype.findFirst({
       where: { id: { equals: Number(id) } },
     });
 
@@ -24,25 +24,25 @@ export const handlers: RestHandler[] = [
       return notFound();
     }
 
-    return ok(toTiltaksvariant(entity));
+    return ok(toTiltakstype(entity));
   }),
-  rest.post('*/api/tiltaksvarianter', (req: RestRequest<Tiltaksvariant>) => {
+  rest.post('*/api/tiltakstyper', (req: RestRequest<Tiltakstype>) => {
     const innsatsgruppe = db.innsatsgruppe.findFirst({
       where: { id: { equals: Number(req.body.innsatsgruppe) } },
     });
 
-    const entity = db.tiltaksvariant.create({ ...req.body, innsatsgruppe: innsatsgruppe ?? undefined });
+    const entity = db.tiltakstype.create({ ...req.body, innsatsgruppe: innsatsgruppe ?? undefined });
 
     return ok(entity);
   }),
-  rest.put('*/api/tiltaksvarianter/:id', (req: RestRequest<Tiltaksvariant>) => {
+  rest.put('*/api/tiltakstyper/:id', (req: RestRequest<Tiltakstype>) => {
     const { id } = req.params;
 
     const innsatsgruppe = db.innsatsgruppe.findFirst({
       where: { id: { equals: Number(req.body.innsatsgruppe) } },
     });
 
-    const entity = db.tiltaksvariant.update({
+    const entity = db.tiltakstype.update({
       where: { id: { equals: Number(id) } },
       data: { ...req.body, innsatsgruppe: innsatsgruppe ?? undefined },
     });
@@ -51,22 +51,22 @@ export const handlers: RestHandler[] = [
       return notFound();
     }
 
-    return ok(toTiltaksvariant(entity));
+    return ok(toTiltakstype(entity));
   }),
-  rest.delete('*/api/tiltaksvarianter/:id', req => {
+  rest.delete('*/api/tiltakstyper/:id', req => {
     const { id } = req.params;
 
-    const entity = db.tiltaksvariant.delete({
+    const entity = db.tiltakstype.delete({
       where: { id: { equals: Number(id) } },
     });
 
     return entity ? ok({}) : notFound();
   }),
-  rest.get('*/api/tiltaksvarianter/:id/tiltaksgjennomforinger', req => {
+  rest.get('*/api/tiltakstyper/:id/tiltaksgjennomforinger', req => {
     const { id } = req.params;
 
     const items = db.tiltaksgjennomforing.findMany({
-      where: { tiltaksvariantId: { id: { equals: Number(id) } } },
+      where: { tiltakstypeId: { id: { equals: Number(id) } } },
     });
 
     return ok(items.map(toTiltaksgjennomforing));

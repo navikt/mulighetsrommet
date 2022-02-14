@@ -6,7 +6,7 @@ export type Tiltaksgjennomforing = {
     id: number;
     tittel: string;
     beskrivelse: string;
-    tiltaksvariantId: number;
+    tiltakstypeId: number;
     tiltaksnummer?: string;
     fraDato: string | null;
     tilDato: string | null;

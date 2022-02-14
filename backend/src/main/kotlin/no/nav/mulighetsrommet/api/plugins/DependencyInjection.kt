@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.kafka.KafkaFactory
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.TiltaksvariantService
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.koin.dsl.module
 import org.koin.ktor.ext.Koin
 import org.koin.logger.SLF4JLogger
@@ -28,6 +28,6 @@ private val kafka = module(createdAtStart = true) {
 
 private val services = module {
     single { TiltaksgjennomforingService(get()) }
-    single { TiltaksvariantService(get()) }
+    single { TiltakstypeService(get()) }
     single { InnsatsgruppeService(get()) }
 }

@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.routes.healthRoutes
 import no.nav.mulighetsrommet.api.routes.innsatsgruppeRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.tiltaksgjennomforingRoutes
-import no.nav.mulighetsrommet.api.routes.tiltaksvariantRoutes
+import no.nav.mulighetsrommet.api.routes.tiltakstypeRoutes
 import org.koin.ktor.ext.inject
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -41,7 +41,7 @@ fun Application.module() {
     routing {
         healthRoutes()
         swaggerRoutes()
-        tiltaksvariantRoutes()
+        tiltakstypeRoutes()
         tiltaksgjennomforingRoutes()
         innsatsgruppeRoutes()
     }

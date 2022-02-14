@@ -1,7 +1,7 @@
 import faker from 'faker';
-import { UnsavedTiltaksvariant } from '../../api';
+import { UnsavedTiltakstype } from '../../api';
 
-export const tiltaksvarianter: UnsavedTiltaksvariant[] = [
+export const tiltakstyper: UnsavedTiltakstype[] = [
   {
     innsatsgruppe: 1,
     tittel: 'Opplæring',

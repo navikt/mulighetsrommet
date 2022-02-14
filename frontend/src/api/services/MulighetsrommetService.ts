@@ -3,8 +3,8 @@
 /* eslint-disable */
 import type { Innsatsgruppe } from '../models/Innsatsgruppe';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
-import type { Tiltaksvariant } from '../models/Tiltaksvariant';
-import type { UnsavedTiltaksvariant } from '../models/UnsavedTiltaksvariant';
+import type { Tiltakstype } from '../models/Tiltakstype';
+import type { UnsavedTiltakstype } from '../models/UnsavedTiltakstype';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { request as __request } from '../core/request';
 
@@ -22,71 +22,71 @@ export class MulighetsrommetService {
     }
 
     /**
-     * @returns Tiltaksvariant Array of tiltaksvarianter.
+     * @returns Tiltakstype Array of tiltakstyper.
      * @throws ApiError
      */
-    public static getTiltaksvarianter(): CancelablePromise<Array<Tiltaksvariant>> {
+    public static getTiltakstyper(): CancelablePromise<Array<Tiltakstype>> {
         return __request({
             method: 'GET',
-            path: `/api/tiltaksvarianter`,
+            path: `/api/tiltakstyper`,
         });
     }
 
     /**
-     * @returns Tiltaksvariant The created tiltaksvariant
+     * @returns Tiltakstype The created tiltakstype
      * @throws ApiError
      */
-    public static createTiltaksvariant({
+    public static createTiltakstype({
         requestBody,
     }: {
-        requestBody: UnsavedTiltaksvariant,
-    }): CancelablePromise<Tiltaksvariant> {
+        requestBody: UnsavedTiltakstype,
+    }): CancelablePromise<Tiltakstype> {
         return __request({
             method: 'POST',
-            path: `/api/tiltaksvarianter`,
+            path: `/api/tiltakstyper`,
             body: requestBody,
             mediaType: 'application/json',
         });
     }
 
     /**
-     * @returns Tiltaksvariant The specified tiltaksvariant.
+     * @returns Tiltakstype The specified tiltakstype.
      * @throws ApiError
      */
-    public static getTiltaksvariant({
+    public static getTiltakstype({
         id,
     }: {
         /** ID **/
         id: number,
-    }): CancelablePromise<Tiltaksvariant> {
+    }): CancelablePromise<Tiltakstype> {
         return __request({
             method: 'GET',
-            path: `/api/tiltaksvarianter/${id}`,
+            path: `/api/tiltakstyper/${id}`,
             errors: {
-                404: `The specified tiltaksvariant was not found.`,
+                404: `The specified tiltakstype was not found.`,
             },
         });
     }
 
     /**
-     * @returns Tiltaksvariant The updated tiltaksvariant.
+     * @returns Tiltakstype The updated tiltakstype.
      * @throws ApiError
      */
-    public static updateTiltaksvariant({
+    public static updateTiltakstype({
         id,
         requestBody,
     }: {
         /** ID **/
         id: number,
-        requestBody: Tiltaksvariant,
-    }): CancelablePromise<Tiltaksvariant> {
+        requestBody: Tiltakstype,
+    }): CancelablePromise<Tiltakstype> {
         return __request({
             method: 'PUT',
-            path: `/api/tiltaksvarianter/${id}`,
+            path: `/api/tiltakstyper/${id}`,
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                404: `The specified tiltaksvariant was not found.`,
+                404: `The specified tiltakstype was not found.`,
             },
         });
     }
@@ -95,7 +95,7 @@ export class MulighetsrommetService {
      * @returns any The delete was successful.
      * @throws ApiError
      */
-    public static deleteTiltaksvariant({
+    public static deleteTiltakstype({
         id,
     }: {
         /** ID **/
@@ -103,18 +103,18 @@ export class MulighetsrommetService {
     }): CancelablePromise<any> {
         return __request({
             method: 'DELETE',
-            path: `/api/tiltaksvarianter/${id}`,
+            path: `/api/tiltakstyper/${id}`,
             errors: {
-                404: `The specified tiltaksvariant was not found.`,
+                404: `The specified tiltakstype was not found.`,
             },
         });
     }
 
     /**
-     * @returns Tiltaksgjennomforing Tiltaksgjennomføringer for the specified tiltaksvariant.
+     * @returns Tiltaksgjennomforing Tiltaksgjennomføringer for the specified tiltakstype.
      * @throws ApiError
      */
-    public static getTiltaksgjennomforingerByTiltaksvariant({
+    public static getTiltaksgjennomforingerByTiltakstype({
         id,
     }: {
         /** ID **/
@@ -122,7 +122,7 @@ export class MulighetsrommetService {
     }): CancelablePromise<Array<Tiltaksgjennomforing>> {
         return __request({
             method: 'GET',
-            path: `/api/tiltaksvarianter/${id}/tiltaksgjennomforinger`,
+            path: `/api/tiltakstyper/${id}/tiltaksgjennomforinger`,
         });
     }
 
