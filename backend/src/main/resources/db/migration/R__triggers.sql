@@ -7,10 +7,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS set_timestamp ON tiltakstype;
+DROP TRIGGER IF EXISTS set_timestamp ON tiltaksvariant;
 
 CREATE TRIGGER set_timestamp
     BEFORE UPDATE
-    ON tiltakstype
+    ON tiltaksvariant
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
