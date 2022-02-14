@@ -1,7 +1,7 @@
 ALTER TABLE tiltakstype
-    RENAME TO tiltaksvariant;
-ALTER TABLE tiltaksvariant
-    RENAME CONSTRAINT tiltakstype_pkey TO tiltaksvariant_pkey;
+    RENAME TO tiltakstype;
+ALTER TABLE tiltakstype
+    RENAME CONSTRAINT tiltakstype_pkey TO tiltakstype_pkey;
 ALTER TABLE tiltaksgjennomforing
-    RENAME COLUMN tiltakstype_id to tiltaksvariant_id;
+    RENAME COLUMN tiltakstype_id to tiltakstype_id;
 

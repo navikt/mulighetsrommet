@@ -6,7 +6,7 @@ values (1, 'Standardinnsats', 'Gode muligheter'),
 on conflict (id) do update set tittel      = excluded.tittel,
                                beskrivelse = excluded.beskrivelse;
 
-insert into tiltaksvariant (id, innsatsgruppe_id, tittel, beskrivelse, ingress)
+insert into tiltakstype (id, innsatsgruppe_id, tittel, beskrivelse, ingress)
 values (1,
         2,
         'Avklaring',
@@ -212,4 +212,4 @@ ON CONFLICT (id) DO UPDATE SET innsatsgruppe_id = EXCLUDED.innsatsgruppe_id,
                                ingress          = EXCLUDED.ingress,
                                beskrivelse      = EXCLUDED.beskrivelse;
 
-SELECT setval('tiltaksvariant_id_seq', (SELECT MAX(id) from "tiltaksvariant"));
+SELECT setval('tiltakstype_id_seq', (SELECT MAX(id) from "tiltaksvariant"));

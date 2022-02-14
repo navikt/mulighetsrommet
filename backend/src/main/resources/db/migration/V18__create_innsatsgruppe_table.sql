@@ -5,5 +5,5 @@ create table innsatsgruppe
     beskrivelse text not null
 );
 
-alter table tiltaksvariant
+alter table tiltakstype
     add innsatsgruppe_id int references innsatsgruppe (id) on update cascade;

@@ -32,54 +32,54 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Innsatsgruppe"
-  /api/tiltaksvarianter:
+  /api/tiltakstyper:
     get:
       tags:
         - mulighetsrommet
-      operationId: getTiltaksvarianter
+      operationId: getTiltakstyper
       responses:
         200:
-          description: Array of tiltaksvarianter.
+          description: Array of tiltakstyper.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Tiltaksvariant"
+                  $ref: "#/components/schemas/Tiltakstype"
     post:
       tags:
         - mulighetsrommet
-      operationId: createTiltaksvariant
+      operationId: createTiltakstype
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UnsavedTiltaksvariant"
+              $ref: "#/components/schemas/UnsavedTiltakstype"
       responses:
         201:
-          description: The created tiltaksvariant
+          description: The created tiltakstype
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksvariant"
+                $ref: "#/components/schemas/Tiltakstype"
 
-  /api/tiltaksvarianter/{id}:
+  /api/tiltakstyper/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - mulighetsrommet
-      operationId: getTiltaksvariant
+      operationId: getTiltakstype
       responses:
         200:
-          description: The specified tiltaksvariant.
+          description: The specified tiltakstype.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksvariant"
+                $ref: "#/components/schemas/Tiltakstype"
         404:
-          description: The specified tiltaksvariant was not found.
+          description: The specified tiltakstype was not found.
           content:
             text/plain:
               schema:
@@ -87,22 +87,22 @@ paths:
     put:
       tags:
         - mulighetsrommet
-      operationId: updateTiltaksvariant
+      operationId: updateTiltakstype
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Tiltaksvariant"
+              $ref: "#/components/schemas/Tiltakstype"
       responses:
         200:
-          description: The updated tiltaksvariant.
+          description: The updated tiltakstype.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksvariant"
+                $ref: "#/components/schemas/Tiltakstype"
         404:
-          description: The specified tiltaksvariant was not found.
+          description: The specified tiltakstype was not found.
           content:
             text/plain:
               schema:
@@ -110,7 +110,7 @@ paths:
     delete:
       tags:
         - mulighetsrommet
-      operationId: deleteTiltaksvariant
+      operationId: deleteTiltakstype
       responses:
         200:
           description: The delete was successful.
@@ -119,22 +119,22 @@ paths:
               schema:
                 type: object
         404:
-          description: The specified tiltaksvariant was not found.
+          description: The specified tiltakstype was not found.
           content:
             text/plain:
               schema:
                 type: string
 
-  /api/tiltaksvarianter/{id}/tiltaksgjennomforinger:
+  /api/tiltakstyper/{id}/tiltaksgjennomforinger:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - mulighetsrommet
-      operationId: getTiltaksgjennomforingerByTiltaksvariant
+      operationId: getTiltaksgjennomforingerByTiltakstype
       responses:
         200:
-          description: Tiltaksgjennomføringer for the specified tiltaksvariant.
+          description: Tiltaksgjennomføringer for the specified tiltakstype.
           content:
             application/json:
               schema:
@@ -200,7 +200,7 @@ components:
         - id
         - tittel
         - beskrivelse
-    UnsavedTiltaksvariant:
+    UnsavedTiltakstype:
       type: object
       properties:
         innsatsgruppe:
@@ -216,7 +216,7 @@ components:
         - tittel
         - beskrivelse
         - ingress
-    Tiltaksvariant:
+    Tiltakstype:
       type: object
       properties:
         id:
@@ -244,7 +244,7 @@ components:
           type: string
         beskrivelse:
           type: string
-        tiltaksvariantId:
+        tiltakstypeId:
           type: integer
         tiltaksnummer:
           type: string
@@ -265,7 +265,7 @@ components:
         - id
         - tittel
         - beskrivelse
-        - tiltaksvariantId
+        - tiltakstypeId
         - tilataksnummer
         - fraDato
         - tilDato

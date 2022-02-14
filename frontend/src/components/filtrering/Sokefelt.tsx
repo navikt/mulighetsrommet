@@ -1,18 +1,18 @@
 import React from 'react';
-import '../../views/tiltaksvariant-oversikt/TiltaksvariantOversikt.less';
+import '../../views/tiltakstype-oversikt/TiltakstypeOversikt.less';
 import { useAtom } from 'jotai';
-import { tiltaksvariantOversiktSok } from '../../core/atoms/atoms';
+import { tiltakstypeOversiktSok } from '../../core/atoms/atoms';
 import { TextField } from '@navikt/ds-react';
 
 const Sokefelt = () => {
-  const [sok, setSok] = useAtom(tiltaksvariantOversiktSok);
+  const [sok, setSok] = useAtom(tiltakstypeOversiktSok);
   return (
     <TextField
-      label="Søk etter tiltaksvariant:"
+      label="Søk etter tiltakstype:"
       onChange={e => setSok(e.currentTarget.value)}
       value={sok}
-      data-testid="sokefelt_tiltaksvariant"
-      className="sokefelt-tiltaksvariant"
+      data-testid="sokefelt_tiltakstype"
+      className="sokefelt-tiltakstype"
     />
   );
 };

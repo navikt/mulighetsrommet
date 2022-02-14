@@ -12,7 +12,7 @@ data class Tiltaksgjennomforing(
     val id: Int? = 0,
     val tittel: String,
     val beskrivelse: String,
-    val tiltaksvariantId: Int,
+    val tiltakstypeId: Int,
     val tiltaksnummer: Int,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
@@ -21,7 +21,7 @@ data class Tiltaksgjennomforing(
 )
 
 object TiltaksgjennomforingTable : IntIdTable() {
-    val tiltaksvariantId = reference("tiltaksvariant_id", TiltaksvariantTable)
+    val tiltakstypeId = reference("tiltakstype_id", TiltakstypeTable)
     val tittel: Column<String> = text("tittel")
     val beskrivelse: Column<String> = text("beskrivelse")
     val tiltaksnummer: Column<Int> = integer("tiltaksnummer")

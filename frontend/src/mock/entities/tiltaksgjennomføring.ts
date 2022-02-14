@@ -8,7 +8,7 @@ export function toTiltaksgjennomforing(entity: TiltaksgjennomforingEntity): Tilt
   return {
     id: entity.id,
     tiltaksnummer: entity.tiltaksnummer,
-    tiltaksvariantId: entity.tiltaksvariantId?.id ?? -1,
+    tiltakstypeId: entity.tiltakstypeId?.id ?? -1,
     tittel: entity.tittel,
     beskrivelse: entity.beskrivelse,
     fraDato: entity.fraDato,

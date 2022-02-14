@@ -1,6 +1,6 @@
 export default {
-  name: "tiltaksvariant",
-  title: "Tiltaksvariant",
+  name: "tiltakstype",
+  title: "Tiltakstype",
   type: "document",
   fields: [
     {

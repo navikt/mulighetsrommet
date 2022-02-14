@@ -71,12 +71,12 @@ jobs:
         run: |
           npm ci
           npm run build
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          working-directory: frontend
-          browser: chrome
-          headless: true
-          wait-on: http://localhost:3000
-          start: npm start
-          install: false
+#      - name: Cypress run
+#        uses: cypress-io/github-action@v2
+#        with:
+#          working-directory: frontend
+#          browser: chrome
+#          headless: true
+#          wait-on: http://localhost:3000
+#          start: npm start
+#          install: false
