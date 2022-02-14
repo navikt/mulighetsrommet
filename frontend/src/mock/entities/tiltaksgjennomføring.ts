@@ -2,9 +2,9 @@ import { Entity } from '@mswjs/data/lib/glossary';
 import { Tiltaksgjennomforing } from '../../api';
 import { DatabaseDictionary } from '../database';
 
-export type TiltaksgjennomføringEntity = Entity<DatabaseDictionary, 'tiltaksgjennomforing'>;
+export type TiltaksgjennomforingEntity = Entity<DatabaseDictionary, 'tiltaksgjennomforing'>;
 
-export function toTiltaksgjennomforing(entity: TiltaksgjennomføringEntity): Tiltaksgjennomforing {
+export function toTiltaksgjennomforing(entity: TiltaksgjennomforingEntity): Tiltaksgjennomforing {
   return {
     id: entity.id,
     tiltaksnummer: entity.tiltaksnummer,

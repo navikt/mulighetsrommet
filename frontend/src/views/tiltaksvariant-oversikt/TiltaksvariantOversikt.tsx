@@ -4,13 +4,10 @@ import Sokefelt from '../../components/filtrering/Sokefelt';
 import './TiltaksvariantOversikt.less';
 import MainView from '../../layouts/MainView';
 import useTiltaksvarianter from '../../hooks/tiltaksvariant/useTiltaksvarianter';
-import { ReactComponent as AddCircle } from '../../ikoner/AddCircle.svg';
-import { Button, Loader } from '@navikt/ds-react';
-import { useHistory } from 'react-router-dom';
+import { Loader } from '@navikt/ds-react';
 
 const TiltaksvariantOversikt = () => {
   const { data, isFetching } = useTiltaksvarianter();
-  const history = useHistory();
 
   return (
     <MainView
@@ -20,14 +17,6 @@ const TiltaksvariantOversikt = () => {
     >
       <div className="tiltaksvarianter-oversikt-actions">
         <Sokefelt />
-        <Button
-          variant="primary"
-          className="knapp opprett-ny-tiltaksvariant__knapp"
-          data-testid="knapp_opprett-tiltaksvariant"
-          onClick={() => history.push('/tiltaksvarianter/opprett')}
-        >
-          Opprett tiltaksvariant <AddCircle />
-        </Button>
       </div>
       {isFetching && <Loader variant="neutral" size="2xlarge" />}
       {data && <Tiltaksvariantoversikt tiltaksvarianter={data} />}

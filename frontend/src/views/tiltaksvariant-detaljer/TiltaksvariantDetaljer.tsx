@@ -1,13 +1,11 @@
 import React from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import MainView from '../../layouts/MainView';
 import useTiltaksgjennomforingerByTiltaksvariantId from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltaksvariantId';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingTabell';
 import useTiltaksvariant from '../../hooks/tiltaksvariant/useTiltaksvariant';
 import '../Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
-import { Alert, Button, Loader, Ingress, BodyLong } from '@navikt/ds-react';
-import { ReactComponent as EditIcon } from '../../ikoner/Edit.svg';
-import Sidemeny from '../../components/sidemeny/Sidemeny';
+import { Alert, Loader, Ingress, BodyLong } from '@navikt/ds-react';
 
 interface RouteParams {
   id: string;
@@ -16,7 +14,6 @@ interface RouteParams {
 const TiltaksvariantDetaljer = () => {
   const params = useParams<RouteParams>();
   const id = Number(params.id);
-  const history = useHistory();
   const tiltaksvariant = useTiltaksvariant(id);
   const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltaksvariantId(id);
 
@@ -37,20 +34,8 @@ const TiltaksvariantDetaljer = () => {
   return (
     <MainView title={tittel} dataTestId="tiltaksvariant_header" tilbakelenke="./">
       <div className="tiltaksvariant-detaljer">
-        <div className="tiltaksvariant-detaljer__info">
-          <Ingress data-testid="tiltaksvariant_ingress">{ingress}</Ingress>
-          <BodyLong data-testid="tiltaksvariant_beskrivelse">{beskrivelse}</BodyLong>
-        </div>
-        <Sidemeny>
-          <Button
-            variant="primary"
-            className="knapp knapp--hoved rediger-knapp"
-            data-testid="knapp_rediger-tiltaksvariant"
-            onClick={() => history.push(`/tiltaksvarianter/${id}/rediger`)}
-          >
-            Rediger <EditIcon />
-          </Button>
-        </Sidemeny>
+        <Ingress data-testid="tiltaksvariant_ingress">{ingress}</Ingress>
+        <BodyLong data-testid="tiltaksvariant_beskrivelse">{beskrivelse}</BodyLong>
       </div>
       <TiltaksgjennomforingsTabell tiltaksgjennomforinger={tiltaksgjennomforinger.data} />
     </MainView>
