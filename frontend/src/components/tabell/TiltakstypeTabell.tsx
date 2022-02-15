@@ -1,6 +1,7 @@
 import React from 'react';
-import { Table } from '@navikt/ds-react';
+import { Alert, Table } from '@navikt/ds-react';
 import Lenke from '../lenke/Lenke';
+import './Tabell.less';
 import { Tiltakstype } from '../../api';
 
 export interface TiltakstypelisteProps {
@@ -9,24 +10,36 @@ export interface TiltakstypelisteProps {
 
 const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
   return (
-    <Table zebraStripes data-testid="tabell_oversikt-tiltakstyper">
+    <Table zebraStripes size="small" data-testid="tabell__oversikt-tiltakstyper">
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell scope="col">Tittel</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Ingress</Table.HeaderCell>
+          <Table.HeaderCell className="tabell-tiltakstyper__tittel">Tittel</Table.HeaderCell>
+          <Table.HeaderCell>Ingress</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {tiltakstypeliste.map((tiltakstype: Tiltakstype) => (
-          <Table.Row key={tiltakstype.id} className="tabell__row">
-            <Table.HeaderCell scope="col">
-              <Lenke to={`/tiltakstyper/${tiltakstype.id}`} isInline>
-                {tiltakstype.tittel}
-              </Lenke>
-            </Table.HeaderCell>
-            <Table.DataCell className="tabell__row__ingress">{tiltakstype.ingress}</Table.DataCell>
+        {tiltakstypeliste.length === 0 ? (
+          <Table.Row>
+            <Table.DataCell>
+              <Alert variant="info" className="tabell__alert">
+                Det finnes ingen tiltakstyper med dette søket.
+              </Alert>
+            </Table.DataCell>
           </Table.Row>
-        ))}
+        ) : (
+          <>
+            {tiltakstypeliste.map((tiltakstype: Tiltakstype) => (
+              <Table.Row key={tiltakstype.id}>
+                <Table.HeaderCell>
+                  <Lenke to={`/tiltakstyper/${tiltakstype.id}`} isInline>
+                    {tiltakstype.tittel}
+                  </Lenke>
+                </Table.HeaderCell>
+                <Table.DataCell>{tiltakstype.ingress}</Table.DataCell>
+              </Table.Row>
+            ))}
+          </>
+        )}
       </Table.Body>
     </Table>
   );

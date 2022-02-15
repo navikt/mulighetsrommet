@@ -3,13 +3,17 @@ import { Heading, Panel } from '@navikt/ds-react';
 import InnsatsgruppeFilter from '../filtrering/InnsatsgruppeFilter';
 import './Sidebar.less';
 
-const Sidebar = () => {
+interface InnsatsgruppeFilterProps {
+  filter: number[];
+  setFilter: (innsatsgrupper: number[]) => void;
+}
+const Sidebar = ({ filter, setFilter }: InnsatsgruppeFilterProps) => {
   return (
-    <Panel border className="tiltaksvariant-oversikt__sidebar">
-      <Heading size="xlarge" level="2" className="sidebar__heading">
+    <Panel border className="tiltakstype-oversikt__sidebar">
+      <Heading size="large" level="2" className="sidebar__heading">
         Filter
       </Heading>
-      <InnsatsgruppeFilter />
+      <InnsatsgruppeFilter innsatsgruppefilter={filter} setInnsatsgruppefilter={setFilter} />
     </Panel>
   );
 };

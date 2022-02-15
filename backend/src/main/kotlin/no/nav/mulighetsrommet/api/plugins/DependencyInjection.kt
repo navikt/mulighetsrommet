@@ -22,7 +22,7 @@ private val db = module(createdAtStart = true) {
     single { DatabaseFactory() }
 }
 
-private val kafka = module(createdAtStart = true) {
+private val kafka = module() {
     single { KafkaFactory(get()) }
 }
 

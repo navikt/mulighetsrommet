@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Lenke from '../lenke/Lenke';
 import { Table } from '@navikt/ds-react';
 import { Tiltaksgjennomforing } from '../../api';
-import '../../views/Tiltaksvariant-tiltaksgjennomforing-detaljer.less';
+import '../../views/ViewTiltakstype-tiltaksgjennomforing-detaljer.less';
 
 interface TiltaksgjennomforingTabellProps {
   tiltaksgjennomforinger?: Tiltaksgjennomforing[];

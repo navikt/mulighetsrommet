@@ -1,16 +1,18 @@
 import React from 'react';
-import '../../views/tiltakstype-oversikt/TiltakstypeOversikt.less';
-import { useAtom } from 'jotai';
-import { tiltakstypeOversiktSok } from '../../api/atoms/atoms';
+import '../../views/tiltakstype-oversikt/ViewTiltakstypeOversikt.less';
 import { TextField } from '@navikt/ds-react';
 
-const Sokefelt = () => {
-  const [sok, setSok] = useAtom(tiltakstypeOversiktSok);
+interface SokeFilterProps {
+  sokefilter: string;
+  setSokefilter: (sokefilter: string) => void;
+}
+
+const Sokefelt = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
   return (
     <TextField
       label="Søk etter tiltakstype:"
-      onChange={e => setSok(e.currentTarget.value)}
-      value={sok}
+      onChange={e => setSokefilter(e.currentTarget.value)}
+      value={sokefilter}
       data-testid="sokefelt_tiltakstype"
       className="sokefelt-tiltakstype"
     />

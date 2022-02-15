@@ -37,6 +37,19 @@ paths:
       tags:
         - mulighetsrommet
       operationId: getTiltakstyper
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for tiltakstyper
+        - in: query
+          name: innsatsgrupper
+          schema:
+            type: array
+            items:
+              type: number
+          description: Innsatsgruppefilter
       responses:
         200:
           description: Array of tiltakstyper.
@@ -46,23 +59,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tiltakstype"
-    post:
-      tags:
-        - mulighetsrommet
-      operationId: createTiltakstype
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UnsavedTiltakstype"
-      responses:
-        201:
-          description: The created tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
 
   /api/tiltakstyper/{id}:
     parameters:
@@ -78,46 +74,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
-        404:
-          description: The specified tiltakstype was not found.
-          content:
-            text/plain:
-              schema:
-                type: string
-    put:
-      tags:
-        - mulighetsrommet
-      operationId: updateTiltakstype
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Tiltakstype"
-      responses:
-        200:
-          description: The updated tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
-        404:
-          description: The specified tiltakstype was not found.
-          content:
-            text/plain:
-              schema:
-                type: string
-    delete:
-      tags:
-        - mulighetsrommet
-      operationId: deleteTiltakstype
-      responses:
-        200:
-          description: The delete was successful.
-          content:
-            application/json:
-              schema:
-                type: object
         404:
           description: The specified tiltakstype was not found.
           content:

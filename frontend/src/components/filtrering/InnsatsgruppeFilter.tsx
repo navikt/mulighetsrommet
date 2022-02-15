@@ -1,20 +1,20 @@
 import React from 'react';
 import { Accordion, Checkbox, CheckboxGroup } from '@navikt/ds-react';
-import { useInnsatsgrupper } from '../../hooks/tiltaksvariant/useInnsatsgrupper';
-import { useAtom } from 'jotai';
-import { filtreringInnsatsgruppe } from '../../api/atoms/atoms';
+import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
 
-const InnsatsgruppeFilter = () => {
+interface InnsatsgruppeFilterProps {
+  innsatsgruppefilter: number[];
+  setInnsatsgruppefilter: (innsatsgrupper: number[]) => void;
+}
+const InnsatsgruppeFilter = ({ innsatsgruppefilter, setInnsatsgruppefilter }: InnsatsgruppeFilterProps) => {
   const innsatsgrupper = useInnsatsgrupper().data;
-
-  const [valgteInnsatsgrupper, setValgteInnsatsgrupper] = useAtom(filtreringInnsatsgruppe);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (!valgteInnsatsgrupper.includes(value)) {
-      setValgteInnsatsgrupper([...valgteInnsatsgrupper, value]);
+    if (!innsatsgruppefilter?.includes(value)) {
+      setInnsatsgruppefilter([...(innsatsgruppefilter ?? []), value]);
     } else {
-      setValgteInnsatsgrupper(valgteInnsatsgrupper.filter(elem => elem !== value));
+      setInnsatsgruppefilter(innsatsgruppefilter.filter((elem: number) => elem !== value));
     }
   };
 
