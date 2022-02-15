@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import '@navikt/ds-css';
 import './index.less';
+import './views/ViewTiltakstype-tiltaksgjennomforing-detaljer.less';
 import { OpenAPI } from './api';
 
 OpenAPI.BASE = String(process.env.REACT_APP_BACKEND_API_ROOT);

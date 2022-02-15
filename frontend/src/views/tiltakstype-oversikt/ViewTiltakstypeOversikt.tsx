@@ -1,36 +1,30 @@
 import React from 'react';
-import Sokefelt from '../../components/filtrering/Sokefelt';
 import './ViewTiltakstypeOversikt.less';
 import '../../layouts/MainView.less';
-import MainView from '../../layouts/MainView';
 import { Alert, BodyShort, Loader } from '@navikt/ds-react';
-import Sidebar from '../../components/sidebar/Sidebar';
+import Sidemeny from '../../components/sidemeny/Sidemeny';
 import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
-import { tiltakstypefilter } from '../../api/atoms/atoms';
-import { useAtom } from 'jotai';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
+import { useAtom } from 'jotai';
+import { tiltakstypefilter, visSidemeny } from '../../api/atoms/atoms';
+import hiddenIf from '../../utils/HiddenIf';
+import SidemenyKnapp from '../../components/knapper/SidemenyKnapp';
+import { Filter } from '@navikt/ds-icons';
 
 const ViewTiltakstypeOversikt = () => {
-  const [filter, setFilter] = useAtom(tiltakstypefilter);
+  const [filter] = useAtom(tiltakstypefilter);
+  const [sidemenyApen] = useAtom(visSidemeny);
+
   const { data, isFetching, isError } = useTiltakstyper(filter); //isLoading vs isFetching?
 
+  const HiddenIfSidemeny = hiddenIf(Sidemeny);
+
   return (
-    <MainView
-      title="Tiltakstyper"
-      subTitle="Se en oversikt over alle nasjonale tiltakstyper"
-      dataTestId="header-tiltakstyper"
-      contentClassName="tiltakstype-oversikt"
-    >
-      <Sidebar
-        filter={filter.innsatsgrupper ?? []}
-        setFilter={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
-      />
-      <div className="tiltakstype-oversikt__sokefelt">
-        <Sokefelt
-          sokefilter={filter.search ?? ''}
-          setSokefilter={(search: string) => setFilter({ ...filter, search })}
-        />
-      </div>
+    <div className="tiltakstype-oversikt">
+      <HiddenIfSidemeny hidden={!sidemenyApen} />
+      <SidemenyKnapp className="filterknapp">
+        <Filter />
+      </SidemenyKnapp>
       <div className="tiltakstype-oversikt__tiltak">
         <BodyShort>
           Viser {data?.length} av {data?.length} tiltak
@@ -39,7 +33,7 @@ const ViewTiltakstypeOversikt = () => {
         {data && <TiltakstypeTabell tiltakstypeliste={data} />}
         {isError && <Alert variant="error">En feil oppstod. Vi har problemer med å hente tiltakstypene.</Alert>}
       </div>
-    </MainView>
+    </div>
   );
 };
 

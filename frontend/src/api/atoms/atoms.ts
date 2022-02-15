@@ -6,3 +6,4 @@ export interface Tiltakstypefilter {
 }
 
 export const tiltakstypefilter = atom<Tiltakstypefilter>({});
+export const visSidemeny = atom<boolean>(true);
