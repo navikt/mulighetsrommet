@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type UnsavedTiltaksvariant = {
+export type UnsavedTiltakstype = {
     innsatsgruppe?: number | null;
     tittel: string;
     beskrivelse: string;

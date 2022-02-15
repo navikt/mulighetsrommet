@@ -1,4 +1,4 @@
-.tiltaksvariant-oversikt {
+.tiltakstyper-oversikt {
   display: grid;
   grid-template-columns: 20% 80%;
   grid-template-rows: 5rem auto;
@@ -18,15 +18,9 @@
     justify-content: space-between;
     grid-gap: 0 2rem;
 
-    .sokefelt-tiltaksvariant {
+    .sokefelt-tiltakstype {
       width: 70%;
       height: fit-content;
-    }
-
-    .opprett-ny-tiltaksvariant__knapp {
-      width: fit-content;
-      height: fit-content;
-      align-self: end;
     }
   }
 
@@ -36,13 +30,13 @@
 }
 
 @media (max-width: 1220px) {
-  .tiltaksvariant-oversikt {
+  .tiltakstyper-oversikt {
     grid-template-rows: 9rem auto;
 
     &__actions {
       flex-direction: column;
 
-      .sokefelt-tiltaksvariant {
+      .sokefelt-tiltakstype {
         width: 100%;
         margin-bottom: 1rem;
       }

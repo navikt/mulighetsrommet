@@ -29,9 +29,9 @@ class TiltaksgjennomforingService(private val db: DatabaseFactory) {
         }
     }
 
-    suspend fun getTiltaksgjennomforingerByTiltaksvariantId(id: Int): List<Tiltaksgjennomforing> {
+    suspend fun getTiltaksgjennomforingerByTiltakstypeId(id: Int): List<Tiltaksgjennomforing> {
         val tiltaksgjennomforingRows = db.dbQuery {
-            TiltaksgjennomforingTable.select { TiltaksgjennomforingTable.tiltaksvariantId eq id }.toList()
+            TiltaksgjennomforingTable.select { TiltaksgjennomforingTable.tiltakstypeId eq id }.toList()
         }
         return tiltaksgjennomforingRows.map { row ->
             toTiltaksgjennomforing(row)
@@ -44,7 +44,7 @@ class TiltaksgjennomforingService(private val db: DatabaseFactory) {
             tittel = row[TiltaksgjennomforingTable.tittel],
             beskrivelse = row[TiltaksgjennomforingTable.beskrivelse],
             tiltaksnummer = row[TiltaksgjennomforingTable.tiltaksnummer],
-            tiltaksvariantId = row[TiltaksgjennomforingTable.tiltaksvariantId].value,
+            tiltakstypeId = row[TiltaksgjennomforingTable.tiltakstypeId].value,
             fraDato = row[TiltaksgjennomforingTable.fraDato],
             tilDato = row[TiltaksgjennomforingTable.tilDato]
         )

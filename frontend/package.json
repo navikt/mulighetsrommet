@@ -43,8 +43,6 @@
     "jotai": "^1.5.3",
     "lodash.throttle": "^4.1.1",
     "mem": "^9.0.2",
-    "nav-frontend-skjema": "^4.0.5",
-    "nav-frontend-skjema-style": "^3.0.2",
     "node-forge": "^1.2.1",
     "nth-check": "^2.0.1",
     "prop-types": "^15.7.2",
