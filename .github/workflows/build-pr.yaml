@@ -42,8 +42,8 @@ jobs:
           distribution: temurin
           java-version: 11
           cache: gradle
-      - name: Build with Gradle
         # Disable test until we can mock out the koin components initialized at start
+#      - name: Build with Gradle
         # run: ./gradlew test build --info
 #        run: ./gradlew build -x test --info
 #      - name: Publish test report
