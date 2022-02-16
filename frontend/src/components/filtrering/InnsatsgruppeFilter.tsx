@@ -9,6 +9,8 @@ interface InnsatsgruppeFilterProps {
 const InnsatsgruppeFilter = ({ innsatsgruppefilter, setInnsatsgruppefilter }: InnsatsgruppeFilterProps) => {
   const innsatsgrupper = useInnsatsgrupper().data;
 
+  console.log('rgg', innsatsgruppefilter);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (!innsatsgruppefilter?.includes(value)) {
@@ -30,6 +32,7 @@ const InnsatsgruppeFilter = ({ innsatsgruppefilter, setInnsatsgruppefilter }: In
                 value={innsatsgruppe.id.toString()}
                 name={innsatsgruppe.tittel}
                 onChange={handleChange}
+                checked={innsatsgruppefilter.includes(innsatsgruppe.id)}
               >
                 {innsatsgruppe.tittel}
               </Checkbox>

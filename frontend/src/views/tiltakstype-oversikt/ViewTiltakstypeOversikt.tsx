@@ -20,7 +20,7 @@ const ViewTiltakstypeOversikt = () => {
   const HiddenIfSidemeny = hiddenIf(Sidemeny);
 
   return (
-    <div className="tiltakstype-oversikt">
+    <div className="tiltakstype-oversikt" id="tiltakstype-oversikt">
       <HiddenIfSidemeny hidden={!sidemenyApen} />
       <SidemenyKnapp className="filterknapp">
         <Filter />
