@@ -8,23 +8,38 @@ import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
 import { useAtom } from 'jotai';
 import { tiltakstypefilter, visSidemeny } from '../../api/atoms/atoms';
 import hiddenIf from '../../utils/HiddenIf';
-import SidemenyKnapp from '../../components/knapper/SidemenyKnapp';
+import Ikonknapp from '../../components/knapper/Ikonknapp';
 import { Filter } from '@navikt/ds-icons';
+import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTags';
+import SearchFieldTag from '../../components/tags/SearchFieldTag';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter] = useAtom(tiltakstypefilter);
-  const [sidemenyApen] = useAtom(visSidemeny);
+  const [sidemenyVisning, setSidemenyVisning] = useAtom(visSidemeny);
 
   const { data, isFetching, isError } = useTiltakstyper(filter); //isLoading vs isFetching?
 
   const HiddenIfSidemeny = hiddenIf(Sidemeny);
 
+  const handleClickSkjulSidemeny = () => {
+    setSidemenyVisning(!sidemenyVisning);
+    sidemenyVisning
+      ? (document.getElementById('tiltakstype-oversikt')!.style.gridTemplateColumns = 'auto')
+      : (document.getElementById('tiltakstype-oversikt')!.style.gridTemplateColumns = '15rem auto');
+  };
+
   return (
     <div className="tiltakstype-oversikt" id="tiltakstype-oversikt">
-      <HiddenIfSidemeny hidden={!sidemenyApen} />
-      <SidemenyKnapp className="filterknapp">
-        <Filter />
-      </SidemenyKnapp>
+      <HiddenIfSidemeny hidden={!sidemenyVisning} handleClickSkjulSidemeny={handleClickSkjulSidemeny} />
+      <div className="filtercontainer">
+        <Ikonknapp className="filterknapp" handleClick={handleClickSkjulSidemeny}>
+          <Filter />
+        </Ikonknapp>
+        <div className="filtertags">
+          <InnsatsgruppefilterTags />
+          <SearchFieldTag />
+        </div>
+      </div>
       <div className="tiltakstype-oversikt__tiltak">
         <BodyShort>
           Viser {data?.length} av {data?.length} tiltak

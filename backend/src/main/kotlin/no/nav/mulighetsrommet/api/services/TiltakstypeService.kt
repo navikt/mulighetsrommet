@@ -13,13 +13,14 @@ import org.jetbrains.exposed.sql.update
 
 class TiltakstypeService(private val db: DatabaseFactory) {
 
-    suspend fun getTiltakstyper(innsatsgruppe: Int?): List<Tiltakstype> {
+    suspend fun getTiltakstyper(innsatsgruppe: List<Int>?, search: String?): List<Tiltakstype> {
         val rows = db.dbQuery {
             val query = TiltakstypeTable
                 .select { TiltakstypeTable.archived eq false }
                 .orderBy(TiltakstypeTable.id to SortOrder.ASC)
 
-            innsatsgruppe?.let { query.andWhere { TiltakstypeTable.innsatsgruppeId eq it } }
+            innsatsgruppe?.let { query.andWhere { TiltakstypeTable.innsatsgruppeId inList it } }
+            search?.let { query.andWhere { TiltakstypeTable.tittel like ("%$it%") } }
 
             query.toList()
         }

@@ -1,8 +1,9 @@
 import { atom } from 'jotai';
+import { Innsatsgruppe } from '../models/Innsatsgruppe';
 
 export interface Tiltakstypefilter {
   search?: string;
-  innsatsgrupper?: number[];
+  innsatsgrupper?: Innsatsgruppe[];
 }
 
 export const tiltakstypefilter = atom<Tiltakstypefilter>({});

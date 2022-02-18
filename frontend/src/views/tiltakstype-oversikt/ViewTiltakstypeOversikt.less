@@ -1,8 +1,10 @@
 .tiltakstype-oversikt {
   display: grid;
   grid-template-columns: 15rem auto;
-  grid-template-rows: 4rem auto;
+  grid-template-rows: minmax(4rem, min-content) auto;
   grid-gap: 1rem;
+  min-height: 86vh;
+  margin: 0 0.5rem;
 
   &__sidemeny {
     grid-column: 1;
@@ -10,19 +12,34 @@
     grid-row-end: 3;
   }
 
-  .filterknapp {
+  .filtercontainer {
     grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+
+    .filterknapp {
+      margin-top: 1rem;
+    }
+
+    .filtertags {
+      display: flex;
+      justify-content: flex-start;
+      gap: 1rem;
+      height: fit-content;
+      flex-wrap: wrap;
+    }
   }
 
   &__tiltak {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    margin-left: 0.75rem;
+    margin: 0 0 2rem;
   }
 
   &__tabell {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
   }
 }
