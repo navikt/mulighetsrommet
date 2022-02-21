@@ -11,6 +11,7 @@ const Sokefelt = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
   return (
     <TextField
       label="Søk etter tiltakstype:"
+      hideLabel
       onChange={e => setSokefilter(e.currentTarget.value)}
       value={sokefilter}
       data-testid="sokefelt_tiltakstype"

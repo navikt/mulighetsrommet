@@ -19,13 +19,12 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
       </Table.Header>
       <Table.Body>
         {tiltakstypeliste.length === 0 ? (
-          <Table.Row>
-            <Table.DataCell>
-              <Alert variant="info" className="tabell__alert">
-                Det finnes ingen tiltakstyper med dette søket.
-              </Alert>
-            </Table.DataCell>
-          </Table.Row>
+          // @ts-ignore
+          <Table.DataCell colSpan="2">
+            <Alert variant="info" className="tabell__alert">
+              Det finnes ingen tiltakstyper med dette søket.
+            </Alert>
+          </Table.DataCell>
         ) : (
           <>
             {tiltakstypeliste.map((tiltakstype: Tiltakstype) => (

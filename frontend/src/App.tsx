@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Decorator from './components/decorator/Decorator';
 import './App.less';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
@@ -17,7 +16,6 @@ Modal.setAppElement?.('#applikasjon');
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Decorator />
       <Router>
         <Routes />
       </Router>

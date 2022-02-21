@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
@@ -15,14 +15,21 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.koin.ktor.ext.inject
 
+fun Parameters.parseList(parameter: String): List<String> {
+    return entries().filter { it.key == parameter }.flatMap { it.value }
+}
+
 fun Route.tiltakstypeRoutes() {
 
     val tiltakstypeService: TiltakstypeService by inject()
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
     get("/api/tiltakstyper") {
-        val innsatsgruppe = call.request.queryParameters["innsatsgruppe"]?.toIntOrNull()
-        val items = tiltakstypeService.getTiltakstyper(innsatsgruppe)
+        val search = call.request.queryParameters["search"]
+
+        val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
+
+        val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search)
         call.respond(items)
     }
     get("/api/tiltakstyper/{id}") {

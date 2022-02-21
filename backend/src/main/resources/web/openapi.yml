@@ -50,6 +50,8 @@ paths:
             items:
               type: number
           description: Innsatsgruppefilter
+          style: form
+          explode: false
       responses:
         200:
           description: Array of tiltakstyper.
