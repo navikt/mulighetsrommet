@@ -34,6 +34,7 @@
     "@navikt/fnrvalidator": "^1.2.0",
     "@navikt/frontendlogger": "^2.0.0",
     "@navikt/navspa": "^3.0.2",
+    "@nutgaard/use-fetch": "^2.3.1",
     "@reduxjs/toolkit": "^1.6.1",
     "ansi-regex": "^6.0.1",
     "classnames": "^2.3.1",

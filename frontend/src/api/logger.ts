@@ -3,8 +3,7 @@ import {
   createMockFrontendLogger,
   DEFAULT_FRONTENDLOGGER_API_URL,
 } from '@navikt/frontendlogger/lib';
-
-const APP_NAME = 'mulighetsrommet';
+import { APP_NAME } from '../utils/constants';
 
 export const logger = process.env.REACT_APP_DEV
   ? createMockFrontendLogger(APP_NAME)
