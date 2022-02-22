@@ -19,8 +19,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
       </Table.Header>
       <Table.Body>
         {tiltakstypeliste.length === 0 ? (
-          // @ts-ignore
-          <Table.DataCell colSpan="2">
+          <Table.DataCell colSpan={2}>
             <Alert variant="info" className="tabell__alert">
               Det finnes ingen tiltakstyper med dette søket.
             </Alert>
