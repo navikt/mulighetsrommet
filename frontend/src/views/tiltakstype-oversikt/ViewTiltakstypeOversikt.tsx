@@ -2,7 +2,7 @@ import React from 'react';
 import './ViewTiltakstypeOversikt.less';
 import '../../layouts/MainView.less';
 import { Alert, BodyShort, Loader } from '@navikt/ds-react';
-import Sidemeny from '../../components/sidemeny/Sidemeny';
+import Filtermeny from '../../components/filtrering/Filtermeny';
 import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
 import { useAtom } from 'jotai';
@@ -14,12 +14,12 @@ import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTa
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 
 const ViewTiltakstypeOversikt = () => {
-  const [filter] = useAtom(tiltakstypefilter);
+  const [filtrertListe] = useAtom(tiltakstypefilter);
   const [sidemenyVisning, setSidemenyVisning] = useAtom(visSidemeny);
 
-  const { data, isFetching, isError } = useTiltakstyper(filter); //isLoading vs isFetching?
+  const { data, isFetching, isError } = useTiltakstyper(filtrertListe); //isLoading vs isFetching?
 
-  const HiddenIfSidemeny = hiddenIf(Sidemeny);
+  const HiddenIfSidemeny = hiddenIf(Filtermeny);
 
   const handleClickSkjulSidemeny = () => {
     setSidemenyVisning(!sidemenyVisning);

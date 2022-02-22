@@ -7,17 +7,18 @@ interface SokeFilterProps {
   setSokefilter: (sokefilter: string) => void;
 }
 
-const Sokefelt = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
+const Searchfield = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
   return (
     <TextField
       label="Søk etter tiltakstype:"
       hideLabel
-      onChange={e => setSokefilter(e.currentTarget.value)}
+      onChange={(e: React.FormEvent<HTMLInputElement>) => setSokefilter(e.currentTarget.value)}
       value={sokefilter}
       data-testid="sokefelt_tiltakstype"
       className="sokefelt-tiltakstype"
+      aria-label="Søk etter tiltakstype"
     />
   );
 };
 
-export default Sokefelt;
+export default Searchfield;

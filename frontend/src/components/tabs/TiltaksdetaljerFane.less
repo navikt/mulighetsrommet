@@ -1,0 +1,39 @@
+.fane {
+  &__root {
+    margin: 1rem 0;
+  }
+  &__liste {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--navds-semantic-color-border-muted);
+    margin-bottom: 2rem;
+    gap: 1%;
+
+    button {
+      background-color: transparent;
+      border: none;
+      padding: 1rem 0;
+    }
+
+    .btn {
+      &__tab1 {
+        width: 13rem;
+      }
+      &__tab2,
+      &__tab4,
+      &__tab7 {
+        width: 6rem;
+      }
+      &__tab3,
+      &__tab5,
+      &__tab6 {
+        width: 5rem;
+      }
+    }
+
+    button[data-state='active'] {
+      font-weight: bold;
+      border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
+    }
+  }
+}

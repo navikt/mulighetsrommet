@@ -7,15 +7,13 @@ import ViewTiltaksgjennomforingDetaljer from './views/tiltaksgjennomforing-detal
 const Routes = () => {
   return (
     <Switch>
-      <div className="mulighetsrommet__container">
-        <Route exact path="/tiltakstyper/:id" component={ViewTiltakstypeDetaljer} />
-        <Route
-          exact
-          path="/tiltakstyper/:tiltakstypeId/tiltaksgjennomforinger/:tiltaksgjennomforingsId"
-          component={ViewTiltaksgjennomforingDetaljer}
-        />
-        <Route path="/" component={ViewTiltakstypeOversikt} />
-      </div>
+      <Route exact path="/tiltakstyper/:id" component={ViewTiltakstypeDetaljer} />
+      <Route
+        exact
+        path="/tiltakstyper/:tiltakstypeId/tiltaksgjennomforinger/:tiltaksgjennomforingsId"
+        component={ViewTiltaksgjennomforingDetaljer}
+      />
+      <Route path="/" component={ViewTiltakstypeOversikt} />
     </Switch>
   );
 };

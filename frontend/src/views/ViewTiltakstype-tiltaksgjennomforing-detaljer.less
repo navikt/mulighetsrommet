@@ -1,31 +1,29 @@
-.tiltakstype-detaljer,
-.tiltaksgjennomforing-detaljer {
+.tiltakstype-detaljer {
   display: grid;
-  grid-template-columns: 70% 30%;
   grid-template-rows: auto auto;
-  grid-gap: 1rem 2rem;
+  grid-template-columns: auto 22rem;
+  grid-gap: 1%;
+  margin: 0 1rem;
+
+  .tilbakeknapp {
+    grid-column: 1;
+    grid-row: 1;
+  }
 
   &__info {
-    grid-row: 1;
     grid-column: 1;
-  }
-
-  .panel {
-    grid-row: 1;
-    grid-column: 2;
-    width: 30%;
-    height: fit-content;
-    max-width: 11rem;
-
-    .rediger-knapp {
-      margin: 1rem auto 0;
-      width: -webkit-fill-available;
-    }
-  }
-
-  .tabell__tiltaksgjennomforinger {
     grid-row: 2;
-    grid-column-start: 1;
-    grid-column-end: 3;
+    display: grid;
+    grid-gap: 1rem;
+    height: fit-content;
+  }
+
+  &__sidemeny {
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    height: fit-content;
+    width: 22rem;
   }
 }

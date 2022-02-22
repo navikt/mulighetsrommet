@@ -1,34 +1,68 @@
-import React from 'react';
-import { Heading } from '@navikt/ds-react';
-import InnsatsgruppeFilter from '../filtrering/InnsatsgruppeFilter';
+import React, { useState } from 'react';
+import { Button, Panel } from '@navikt/ds-react';
+import SidemenyAccordion from './SidemenyAccordion';
 import './Sidemeny.less';
-import Sokefelt from '../filtrering/Sokefelt';
-import Ikonknapp from '../knapper/Ikonknapp';
-import { Close } from '@navikt/ds-icons';
-import { useAtom } from 'jotai';
-import { tiltakstypefilter } from '../../api/atoms/atoms';
+import Tilbakemeldingsmodal from '../modal/Tilbakemeldingsmodal';
+import SendInformasjonModal from '../modal/SendInformasjonModal';
 
 interface SidemenyProps {
-  handleClickSkjulSidemeny: () => void;
+  tiltaksnavn: string;
 }
 
-const Sidemeny = ({ handleClickSkjulSidemeny }: SidemenyProps) => {
-  const [filter, setFilter] = useAtom(tiltakstypefilter);
+const Sidemeny = ({ tiltaksnavn }: SidemenyProps) => {
+  const [tilbakemeldingsmodalOpen, setTilbakemeldingsmodalOpen] = useState(false);
+  const [sendInformasjonModalOpen, setSendInformasjonModalOpen] = useState(false);
 
   return (
-    <div className="tiltakstype-oversikt__sidemeny">
-      <Heading size="large" level="2" className="sidemeny__heading">
-        Filter
-        <Ikonknapp handleClick={handleClickSkjulSidemeny}>
-          <Close />
-        </Ikonknapp>
-      </Heading>
-      <Sokefelt sokefilter={filter.search ?? ''} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
-      <InnsatsgruppeFilter
-        innsatsgruppefilter={filter.innsatsgrupper ?? []}
-        setInnsatsgruppefilter={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
+    <>
+      <Panel className="tiltakstype-detaljer__sidemeny">
+        <Button>Meld på</Button>
+        <Button variant="tertiary" onClick={() => setSendInformasjonModalOpen(true)}>
+          Send informasjon
+        </Button>
+        <Button variant="tertiary">Se ekstern nettside</Button>
+
+        <SidemenyAccordion tittel="Kontaktinfo" isOpen={false}>
+          Kontaktinfo
+        </SidemenyAccordion>
+
+        <SidemenyAccordion tittel="Dokumenter" isOpen={false}>
+          Dokumenter
+        </SidemenyAccordion>
+
+        <SidemenyAccordion tittel="Lenker" isOpen={false}>
+          Lenker
+        </SidemenyAccordion>
+
+        <SidemenyAccordion tittel="Info til deltaker" isOpen={false}>
+          Info til deltaker
+        </SidemenyAccordion>
+
+        <SidemenyAccordion tittel="Veiledning" isOpen={false}>
+          Veiledning
+        </SidemenyAccordion>
+
+        <SidemenyAccordion tittel="Relaterte tiltak" isOpen={false}>
+          Relaterte tiltak
+        </SidemenyAccordion>
+
+        <Panel className="tiltakstype-detaljer__sidemeny__tilbakemelding">
+          Har du forslag til forbedringer eller endringer vil vi gjerne at du sier ifra
+          <Button onClick={() => setTilbakemeldingsmodalOpen(true)}>Gi tilbakemelding</Button>
+        </Panel>
+      </Panel>
+
+      <Tilbakemeldingsmodal
+        modalOpen={tilbakemeldingsmodalOpen}
+        setModalOpen={() => setTilbakemeldingsmodalOpen(false)}
       />
-    </div>
+
+      <SendInformasjonModal
+        modalOpen={sendInformasjonModalOpen}
+        setModalOpen={() => setSendInformasjonModalOpen(false)}
+        tiltaksnavn={tiltaksnavn}
+      />
+    </>
   );
 };
 
