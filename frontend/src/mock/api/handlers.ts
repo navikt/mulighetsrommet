@@ -4,8 +4,13 @@ import { db } from '../database';
 import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomføring';
 import { toTiltakstype } from '../entities/tiltakstype';
 import { notFound, ok } from './responses';
+import { mockFeatures } from './data';
 
 export const handlers: RestHandler[] = [
+  rest.get('*/api/feature', (req, res, ctx) => {
+    return res(ctx.delay(500), ctx.json(mockFeatures));
+  }),
+
   rest.get('*/api/innsatsgrupper', () => {
     return ok(db.innsatsgruppe.getAll());
   }),
