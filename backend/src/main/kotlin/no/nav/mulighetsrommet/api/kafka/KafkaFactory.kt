@@ -19,13 +19,15 @@ class KafkaFactory(private val db: DatabaseFactory) {
     private val logger = LoggerFactory.getLogger(KafkaFactory::class.java)
     private val kafkaConfig = HoconApplicationConfig(ConfigFactory.load()).config("ktor.kafka")
     private val consumerClient: KafkaConsumerClient
+    private val topicMap: Map<String, String>
 
     init {
         logger.debug("Initializing KafkaFactory.")
 
-        val topics = getConsumerTopics()
+        topicMap = getConsumerTopics()
+
         val consumerProperties = configureProperties()
-        val consumerTopics = configureConsumersTopics(topics)
+        val consumerTopics = configureConsumersTopics()
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
@@ -58,23 +60,29 @@ class KafkaFactory(private val db: DatabaseFactory) {
         }
     }
 
-    private fun getConsumerTopics() = kafkaConfig.config("topics").property("consumer").getList()
+    // TODO: Kanskje finne en bedre måte. ApplicationConfig støtter ikke å iterere over keys, noe som er tullete
+    fun getConsumerTopics(): Map<String, String> {
+        val configTopics = kafkaConfig.config("topics.consumer")
+        return mapOf<String, String>(
+            // Pair("tiltakgjennomforingendret", configTopics.property("tiltakgjennomforingendret").getString()),
+            // Pair("tiltakdeltakerendret", configTopics.property("tiltakdeltakeredret").getString()),
+            // Pair("tiltaksgruppeendret", configTopics.property("tiltaksgruppeendret").getString()),
+            Pair("tiltakendret", configTopics.property("tiltakendret").getString()),
+            // Pair("avtaleinfoendret", configTopics.property("avtaleinfoendret").getString())
+        )
+    }
 
-    private fun configureConsumersTopics(topics: List<String>): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
-        return topics.map { topic ->
+    private fun configureConsumersTopics(): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
+        return topicMap.values.map { topic ->
+            val eventProcessor = EventProcessor(db, topicMap)
             KafkaConsumerClientBuilder.TopicConfig<String, String>()
                 .withLogging()
                 .withConsumerConfig(
                     topic,
                     stringDeserializer(),
                     stringDeserializer(),
-                    Consumer<ConsumerRecord<String, String>> { logTopicContent(it) }
+                    Consumer<ConsumerRecord<String, String>> { eventProcessor.process(it) }
                 )
         }
-    }
-
-    // Temporary print out until we actually implement something with the events.
-    private fun logTopicContent(consumerRecord: ConsumerRecord<String, String>) {
-        logger.debug("Topic: ${consumerRecord.topic()} - Value: ${consumerRecord.value()}")
     }
 }
