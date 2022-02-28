@@ -16,6 +16,9 @@ jobs:
   change-check:
     name: Check changes
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     outputs:
       changed-fe: ${{ steps.changed-fe.outputs.changed }}
     steps:
