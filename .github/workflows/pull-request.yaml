@@ -2,9 +2,10 @@ name: Run Cypress
 on: pull_request
 
 jobs:
-  change-check:
-    name: Check changes
+  cypress-run:
+    name: Cypress run
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       changed-fe: ${{ steps.changed-fe.outputs.changed }}
     steps:
@@ -17,12 +18,6 @@ jobs:
         id: changed-fe
         with:
           paths: frontend
-
-  cypress-run:
-    name: Cypress run
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
