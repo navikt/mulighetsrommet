@@ -64,7 +64,7 @@ jobs:
     name: Deploy application to dev
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
-    needs: build-docker-image-dev
+    needs: build-docker-image-frontend-dev
     defaults:
       run:
         working-directory: frontend
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     needs:
-      - build-docker-image-labs
+      - build-docker-image-frontend-labs
     defaults:
       run:
         working-directory: frontend
