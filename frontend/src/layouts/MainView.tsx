@@ -13,10 +13,10 @@ interface MainViewProps {
 const MainView: FunctionComponent<MainViewProps> = ({ title, subTitle, dataTestId, tilbakelenke, children }) => {
   return (
     <div className="main-view">
-      <div className="main-view__header">
+      <header className="main-view__header">
         {tilbakelenke && <Tilbakeknapp tilbakelenke={tilbakelenke} />}
         {title && <MainViewTitle title={title} subTitle={subTitle} dataTestId={dataTestId} />}
-      </div>
+      </header>
       {children}
     </div>
   );
