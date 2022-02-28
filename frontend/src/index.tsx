@@ -13,11 +13,9 @@ require('dotenv').config();
 
 if (process.env.REACT_APP_ENABLE_MOCK) {
   worker.start();
-
   const elem = document.createElement('div');
   document.body.appendChild(elem);
   ReactDOM.render(<App />, elem);
-  Navspa.eksporter('mulighetsrommet-flate', App);
 } else {
   Navspa.eksporter('mulighetsrommet-flate', App);
 }
