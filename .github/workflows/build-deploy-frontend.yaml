@@ -1,5 +1,8 @@
 name: Build and deploy frontend
-on: push
+on:
+  push:
+    branches:
+      - dev
 
 env:
   IMAGE_TAG: ${{ github.sha }}
@@ -26,24 +29,14 @@ jobs:
         with:
           paths: frontend
 
-#      - name: Cypress run
-#        uses: cypress-io/github-action@v2
-#        with:
-#          working-directory: frontend
-#          browser: chrome
-#          headless: true
-#          wait-on: http://localhost:3000
-#          start: npm start
-#          install: false
-
-
 #deploy-dev
   build-docker-image-frontend-dev:
     name: Build Docker image (dev)
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev'
     needs: change-check
-    if: needs.change-check.outputs.changed-fe == 'true'
+    if:
+      needs.change-check.outputs.changed-fe == 'true'
+      github.ref == 'refs/heads/dev'
     defaults:
       run:
         working-directory: frontend
@@ -135,4 +128,3 @@ jobs:
           RESOURCE: frontend/.nais/nais.yaml
           VARS: frontend/.nais/labs-gcp.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_LABS}}
-
