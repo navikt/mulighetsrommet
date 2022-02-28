@@ -1,0 +1,28 @@
+name: Run Cypress
+on: pull_request
+
+jobs:
+  cypress-run:
+    name: Cypress run
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      changed-fe: ${{ steps.changed-fe.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+      - name: Frontend
+        uses: marceloprado/has-changed-path@v1
+        id: changed-fe
+        with:
+          paths: frontend
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          working-directory: frontend
+          browser: chrome
+          headless: true
+          start: npm start cypress:run
+          wait-on: http://localhost:3000

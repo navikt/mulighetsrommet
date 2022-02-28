@@ -5,17 +5,18 @@ import '@navikt/ds-css';
 import './index.less';
 import './views/ViewTiltakstype-tiltaksgjennomforing-detaljer.less';
 import { OpenAPI } from './api';
-import NAVSPA from '@navikt/navspa';
+import Navspa from '@navikt/navspa';
+import { worker } from './mock/worker';
 
 OpenAPI.BASE = String(process.env.REACT_APP_BACKEND_API_ROOT);
 
 require('dotenv').config();
 
-NAVSPA.eksporter('mulighetsrommet-flate', App);
-
 if (process.env.REACT_APP_ENABLE_MOCK) {
-  const { worker } = require('./mock/worker');
   worker.start();
+  const elem = document.createElement('div');
+  document.body.appendChild(elem);
+  ReactDOM.render(<App />, elem);
+} else {
+  Navspa.eksporter('mulighetsrommet-flate', App);
 }
-
-ReactDOM.render(<App />, document.getElementById('mulighetsrommet-root'));

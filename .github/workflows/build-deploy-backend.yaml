@@ -1,14 +1,14 @@
-name: Deploy (dev)
-
+name: Build and deploy backend
 on:
   push:
     branches: [dev]
-
+    paths:
+      - 'backend/'
 env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: ghcr.io/navikt/mulighetsrommet
   IMAGE_LABEL: dev
-  REACT_APP_BACKEND_API_ROOT: https://mulighetsrommet-api.dev.intern.nav.no
+  REACT_APP_BACKEND_API_ROOT: https://mulighetsrommet-flate.dev.intern.nav.no
   CI: true
   TZ: Europe/Amsterdam
 
@@ -18,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed-be: ${{ steps.changed-be.outputs.changed }}
-      changed-fe: ${{ steps.changed-fe.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,12 +28,35 @@ jobs:
         id: changed-be
         with:
           paths: backend
-      - name: Frontend
-        uses: marceloprado/has-changed-path@v1
-        id: changed-fe
+
+  build-backend:
+    name: Build (backend)
+    runs-on: ubuntu-latest
+    needs: change-check
+    if: needs.change-check.outputs.changed-be == 'true'
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          paths: frontend
-  build-docker-image-be:
+          distribution: temurin
+          java-version: 11
+          cache: gradle
+        # Disable test until we can mock out the koin components initialized at start
+        #      - name: Build with Gradle
+        # run: ./gradlew test build --info
+  #        run: ./gradlew build -x test --info
+  #      - name: Publish test report
+  #        uses: ScaCap/action-surefire-report@v1
+  #        with:
+  #          github_token: ${{ secrets.GITHUB_TOKEN }}
+  #          report_paths: "**/build/test-results/test/TEST-*.xml"
+
+  build-docker-image-backend:
     name: Build Docker image (backend)
     runs-on: ubuntu-latest
     needs: change-check
@@ -64,10 +86,11 @@ jobs:
           docker build -t ${IMAGE}/mulighetsrommet-api-${IMAGE_LABEL}:${IMAGE_TAG} .
           docker push ${IMAGE}/mulighetsrommet-api-${IMAGE_LABEL}:${IMAGE_TAG}
 
-  deploy-be:
+  deploy-backend:
     name: Deploy Docker image (backend)
     runs-on: ubuntu-latest
-    needs: build-docker-image-be
+    needs: build-docker-image-backend
+
     defaults:
       run:
         working-directory: backend
@@ -89,49 +112,3 @@ jobs:
           tag_name: release/dev@${{ env.IMAGE_TAG }}
           release_name: Release to dev
           prerelease: true
-  build-docker-image-fe:
-    name: Build Docker image (frontend)
-    runs-on: ubuntu-latest
-    needs: change-check
-    if: needs.change-check.outputs.changed-fe == 'true'
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install and build
-        run: |
-          npm ci
-          npm run build
-      - name: Build and publish Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL}:${IMAGE_TAG} -f .docker/dev/Dockerfile .
-          docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL}:${IMAGE_TAG}
-
-  deploy-fe:
-    name: Deploy Docker image (frontend)
-    runs-on: ubuntu-latest
-    needs: build-docker-image-fe
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: frontend/.nais/nais.yaml
-          VARS: frontend/.nais/dev-gcp.yaml
-          VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL}}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

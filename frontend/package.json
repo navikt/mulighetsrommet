@@ -75,7 +75,7 @@
     "browserslist": "^4.19.1",
     "craco-less": "^1.20.0",
     "cross-env": "^7.0.3",
-    "cypress": "^9.2.1",
+    "cypress": "^9.5.0",
     "cypress-axe": "^0.13.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
