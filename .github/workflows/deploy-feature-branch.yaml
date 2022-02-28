@@ -18,7 +18,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ./node_modules
-          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-cache
       - run: npm ci
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ./node_modules
-          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/frontpackage-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-cache
       - name: Build production artifact
