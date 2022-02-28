@@ -21,6 +21,7 @@ class EventProcessor(private val topicMap: Map<String, String>, private val tilt
     }
 
     private suspend fun insertTiltakstype(recordValue: String) {
+        logger.debug("Processing event from topic: ${topicMap["tiltakendret"]} (insert)")
         val arenaTiltakstype = Json.parseToJsonElement(recordValue).jsonObject.get("after")?.jsonObject
         val newTiltakstype = Tiltakstype(
             navn = arenaTiltakstype?.get("TILTAKSNAVN").toString().replace("\"", ""),
@@ -31,7 +32,6 @@ class EventProcessor(private val topicMap: Map<String, String>, private val tilt
             createdBy = arenaTiltakstype?.get("REG_USER").toString().replace("\"", ""),
             createdAt = LocalDateTime.parse(arenaTiltakstype?.get("REG_DATO").toString().replace("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         )
-        println(newTiltakstype)
         tiltakstypeService.createTiltakstype(newTiltakstype)
     }
 }
