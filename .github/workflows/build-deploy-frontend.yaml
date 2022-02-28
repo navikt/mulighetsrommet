@@ -84,9 +84,10 @@ jobs:
   build-docker-image-frontend-labs:
     name: Build Docker image (labs)
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev'
     needs: change-check
-    if: needs.change-check.outputs.changed-fe == 'true'
+    if:
+      needs.change-check.outputs.changed-fe == 'true'
+      github.ref == 'refs/heads/dev'
     defaults:
       run:
         working-directory: frontend
