@@ -2,19 +2,21 @@ package no.nav.mulighetsrommet.api.kafka
 
 import com.typesafe.config.ConfigFactory
 import io.ktor.config.HoconApplicationConfig
+import kotlinx.coroutines.runBlocking
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.slf4j.LoggerFactory
 import java.util.Properties
 import java.util.function.Consumer
 
-class KafkaFactory(private val db: DatabaseFactory) {
+class KafkaFactory(private val tiltakstypeService: TiltakstypeService) {
 
     private val logger = LoggerFactory.getLogger(KafkaFactory::class.java)
     private val kafkaConfig = HoconApplicationConfig(ConfigFactory.load()).config("ktor.kafka")
@@ -74,14 +76,15 @@ class KafkaFactory(private val db: DatabaseFactory) {
 
     private fun configureConsumersTopics(): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
         return topicMap.values.map { topic ->
-            val eventProcessor = EventProcessor(db, topicMap)
+            // TODO: Må være en bedre måte å løse dependencies på her...
+            val eventProcessor = EventProcessor(topicMap, tiltakstypeService)
             KafkaConsumerClientBuilder.TopicConfig<String, String>()
                 .withLogging()
                 .withConsumerConfig(
                     topic,
                     stringDeserializer(),
                     stringDeserializer(),
-                    Consumer<ConsumerRecord<String, String>> { eventProcessor.process(it) }
+                    Consumer<ConsumerRecord<String, String>> { runBlocking { eventProcessor.process(it) } }
                 )
         }
     }

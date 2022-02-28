@@ -1,7 +1,7 @@
 -- Add new columns to table
 ALTER TABLE tiltakstype
     ADD COLUMN sanity_id   INT,
-    ADD COLUMN tiltakskode tiltakskode,
+    ADD COLUMN tiltakskode tiltakskode UNIQUE,
     ADD COLUMN dato_fra TIMESTAMP,
     ADD COLUMN dato_til TIMESTAMP,
     ADD COLUMN created_by TEXT,

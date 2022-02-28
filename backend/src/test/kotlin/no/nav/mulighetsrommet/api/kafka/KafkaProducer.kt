@@ -9,6 +9,7 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
+// Utrekk av en tilfeldig melding fra vår kafka-manager
 val topic = """
             {
               "table": "SIAMO.TILTAK",
@@ -23,7 +24,7 @@ val topic = """
                 "REG_USER": "SIAMO",
                 "MOD_DATO": "2021-04-09 09:21:26",
                 "MOD_USER": "SIAMO",
-                "TILTAKSKODE": "OPPLT2AAR",
+                "TILTAKSKODE": "MENTOR",
                 "DATO_FRA": "2016-01-01 00:00:00",
                 "DATO_TIL": "2019-06-30 00:00:00",
                 "AVSNITT_ID_GENERELT": null,
@@ -55,6 +56,7 @@ val topic = """
             }
 """.trimIndent()
 
+// Denne er kun ment som en måte å produsere tilsvarende events inn på køene for å utvikle/test
 fun main(args: Array<String>): Unit = runBlocking {
     val properties = KafkaPropertiesBuilder.producerBuilder()
         .withBrokerUrl("localhost:29092")

@@ -13,68 +13,74 @@ import org.jetbrains.exposed.sql.update
 
 class TiltakstypeService(private val db: DatabaseFactory) {
 
-    suspend fun getTiltakstyper(innsatsgruppe: Int?): List<Tiltakstype> {
-        val rows = db.dbQuery {
-            val query = TiltakstypeTable
-                .select { TiltakstypeTable.archived eq false }
-                .orderBy(TiltakstypeTable.id to SortOrder.ASC)
-
-            innsatsgruppe?.let { query.andWhere { TiltakstypeTable.innsatsgruppeId eq it } }
-
-            query.toList()
-        }
-        return rows.map { row ->
-            toTiltakstype(row)
-        }
-    }
+    // suspend fun getTiltakstyper(innsatsgruppe: Int?): List<Tiltakstype> {
+    //     val rows = db.dbQuery {
+    //         val query = TiltakstypeTable
+    //             .select { TiltakstypeTable.archived eq false }
+    //             .orderBy(TiltakstypeTable.id to SortOrder.ASC)
+    //
+    //         innsatsgruppe?.let { query.andWhere { TiltakstypeTable.innsatsgruppeId eq it } }
+    //
+    //         query.toList()
+    //     }
+    //     return rows.map { row ->
+    //         toTiltakstype(row)
+    //     }
+    // }
 
     suspend fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
         val id = db.dbQuery {
             TiltakstypeTable.insertAndGetId {
                 it[innsatsgruppeId] = tiltakstype.innsatsgruppe
-                it[tittel] = tiltakstype.tittel
-                it[beskrivelse] = tiltakstype.beskrivelse
-                it[ingress] = tiltakstype.ingress
-                it[archived] = false
+                it[navn] = tiltakstype.navn
+                it[sanityId] = tiltakstype.sanityId
+                it[tiltakskode] = tiltakstype.tiltakskode
+                it[fraDato] = tiltakstype.fraDato
+                it[tilDato] = tiltakstype.tilDato
+                it[createdBy] = tiltakstype.createdBy
+                it[createdAt] = tiltakstype.createdAt
             }
         }
         return getTiltakstypeById(id.value)!!
     }
 
-    suspend fun updateTiltakstype(id: Int, tiltakstype: Tiltakstype): Tiltakstype? {
-        db.dbQuery {
-            TiltakstypeTable.update({ TiltakstypeTable.id eq id and (TiltakstypeTable.archived eq false) }) {
-                it[innsatsgruppeId] = tiltakstype.innsatsgruppe
-                it[tittel] = tiltakstype.tittel
-                it[beskrivelse] = tiltakstype.beskrivelse
-                it[ingress] = tiltakstype.ingress
-            }
-        }
-        return getTiltakstypeById(id)
-    }
+    // suspend fun updateTiltakstype(id: Int, tiltakstype: Tiltakstype): Tiltakstype? {
+    //     db.dbQuery {
+    //         TiltakstypeTable.update({ TiltakstypeTable.id eq id and (TiltakstypeTable.archived eq false) }) {
+    //             it[innsatsgruppeId] = tiltakstype.innsatsgruppe
+    //             it[tittel] = tiltakstype.tittel
+    //             it[beskrivelse] = tiltakstype.beskrivelse
+    //             it[ingress] = tiltakstype.ingress
+    //         }
+    //     }
+    //     return getTiltakstypeById(id)
+    // }
 
-    suspend fun archivedTiltakstype(tiltakstype: Tiltakstype) = db.dbQuery {
-        TiltakstypeTable.update({ TiltakstypeTable.id eq tiltakstype.id }) {
-            it[archived] = true
-        }
-    }
+    // suspend fun archivedTiltakstype(tiltakstype: Tiltakstype) = db.dbQuery {
+    //     TiltakstypeTable.update({ TiltakstypeTable.id eq tiltakstype.id }) {
+    //         it[archived] = true
+    //     }
+    // }
 
     suspend fun getTiltakstypeById(id: Int): Tiltakstype? {
         val tiltakstypeRow = db.dbQuery {
             TiltakstypeTable
-                .select { TiltakstypeTable.id eq id and (TiltakstypeTable.archived eq false) }
+                .select { TiltakstypeTable.id eq id }
                 .firstOrNull()
         }
-
         return tiltakstypeRow?.let { toTiltakstype(it) }
     }
 
     private fun toTiltakstype(row: ResultRow): Tiltakstype =
         Tiltakstype(
             id = row[TiltakstypeTable.id].value,
-            tittel = row[TiltakstypeTable.tittel],
-            beskrivelse = row[TiltakstypeTable.beskrivelse],
-            ingress = row[TiltakstypeTable.ingress],
-            innsatsgruppe = row[TiltakstypeTable.innsatsgruppeId]
+            navn = row[TiltakstypeTable.navn],
+            innsatsgruppe = row[TiltakstypeTable.innsatsgruppeId],
+            sanityId = row[TiltakstypeTable.sanityId],
+            tiltakskode = row[TiltakstypeTable.tiltakskode],
+            fraDato = row[TiltakstypeTable.fraDato],
+            tilDato = row[TiltakstypeTable.tilDato],
+            createdBy = row[TiltakstypeTable.createdBy],
+            createdAt = row[TiltakstypeTable.createdAt]
         )
 }
