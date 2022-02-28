@@ -1,8 +1,7 @@
 name: Build and deploy frontend
 on:
   push:
-    branches:
-      - dev
+    branches: [dev]
 
 env:
   IMAGE_TAG: ${{ github.sha }}
@@ -16,9 +15,6 @@ jobs:
   change-check:
     name: Check changes
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     outputs:
       changed-fe: ${{ steps.changed-fe.outputs.changed }}
     steps:
