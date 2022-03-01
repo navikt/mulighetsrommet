@@ -27,6 +27,8 @@ frontend/yarn-error.log*
 
 frontend/.eslintcache
 
+frontend/dist
+
 
 #Backend
 backend/.idea/*
