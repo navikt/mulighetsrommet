@@ -8,15 +8,17 @@ import { OpenAPI } from './api';
 import Navspa from '@navikt/navspa';
 import { worker } from './mock/worker';
 
-OpenAPI.BASE = String(process.env.REACT_APP_BACKEND_API_ROOT);
+OpenAPI.BASE = String(import.meta.env.VITE_BACKEND_API_ROOT);
 
-require('dotenv').config();
+worker.start();
+ReactDOM.render(<App />, document.getElementById('mulighetsrommet-root'));
 
-if (process.env.REACT_APP_ENABLE_MOCK) {
-  worker.start();
-  const elem = document.createElement('div');
-  document.body.appendChild(elem);
-  ReactDOM.render(<App />, elem);
-} else {
-  Navspa.eksporter('mulighetsrommet-flate', App);
-}
+//TODO skal se på dette sammen med Håkon
+// if (import.meta.env.VITE_ENABLE_MOCK === true) {
+//   console.log('mock true?', import.meta.env.VITE_ENABLE_MOCK);
+//   worker.start();
+// ReactDOM.render(<App />, document.getElementById('mulighetsrommet-root'));
+// } else {
+//   console.log('mock false?', import.meta.env.VITE_ENABLE_MOCK);
+//   Navspa.eksporter('mulighetsrommet-flate', App);
+// }

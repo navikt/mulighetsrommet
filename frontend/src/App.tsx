@@ -11,7 +11,7 @@ import { Modal } from '@navikt/ds-react';
 const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.('#applikasjon');
+Modal.setAppElement?.('#mulighetsrommet-root');
 
 function App() {
   return (

@@ -2,15 +2,15 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es6",
-    "lib": ["es2017", "es7", "dom", "es2016.array.include", "DOM.Iterable", "ESNext", "es5", "es6", "dom.iterable"],
-    "allowJs": true,
+    "lib": ["dom", "DOM.Iterable", "ESNext", "es5", "es6", "es7", "es2016.array.include", "es2017"],
+    "allowJs": false,
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "skipLibCheck": false,
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "resolveJsonModule": true,
@@ -21,10 +21,8 @@
     "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./",
-    "types": ["cypress", "cypress-axe"]
+    "types": ["cypress", "cypress-axe", "vite/client", "vite-plugin-svgr/client"]
   },
-  "exclude": [
-    "node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
-  "include": [
-    "src", "mock"]
+  "exclude": ["node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
+  "include": ["src", "mock"]
 }
