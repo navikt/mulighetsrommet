@@ -34,7 +34,7 @@ Cypress.Commands.add('configure', () => {
     method: 'GET',
     url: '/',
   });
-  cy.getByTestId('header-tiltakstyper').should('contain', 'Tiltakstyper');
+  cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {

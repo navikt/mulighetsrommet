@@ -21,8 +21,8 @@ const InnsatsgruppefilterTags = () => {
       {filter.innsatsgrupper?.map(innsatsgruppe => (
         <Tag key={innsatsgruppe.id} variant="info" size="small">
           {innsatsgruppe.tittel}
-          <Ikonknapp handleClick={() => handleClickFjernFilter(innsatsgruppe.id)}>
-            <Close className="filtertags__ikon" />
+          <Ikonknapp handleClick={() => handleClickFjernFilter(innsatsgruppe.id)} ariaLabel="Lukkeknapp">
+            <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
           </Ikonknapp>
         </Tag>
       ))}

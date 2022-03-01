@@ -17,10 +17,10 @@ const Filtermeny = ({ handleClickSkjulSidemeny }: SidemenyProps) => {
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">
-      <Heading size="large" level="2" className="sidemeny__heading">
+      <Heading size="medium" level="1" className="sidemeny__heading" role="heading">
         Filter
-        <Ikonknapp handleClick={handleClickSkjulSidemeny}>
-          <Close />
+        <Ikonknapp handleClick={handleClickSkjulSidemeny} ariaLabel="Lukkeknapp">
+          <Close aria-label="Lukkeknapp" />
         </Ikonknapp>
       </Heading>
       <Searchfield sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />

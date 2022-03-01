@@ -1,7 +1,7 @@
 import React from 'react';
 import './ViewTiltakstypeOversikt.less';
 import '../../layouts/MainView.less';
-import { Alert, BodyShort, Loader } from '@navikt/ds-react';
+import { Alert, Heading, Loader } from '@navikt/ds-react';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
@@ -29,11 +29,11 @@ const ViewTiltakstypeOversikt = () => {
   };
 
   return (
-    <div className="tiltakstype-oversikt" id="tiltakstype-oversikt">
+    <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
       <HiddenIfSidemeny hidden={!sidemenyVisning} handleClickSkjulSidemeny={handleClickSkjulSidemeny} />
       <div className="filtercontainer">
-        <Ikonknapp className="filterknapp" handleClick={handleClickSkjulSidemeny}>
-          <Filter />
+        <Ikonknapp className="filterknapp" handleClick={handleClickSkjulSidemeny} ariaLabel="Filterknapp">
+          <Filter aria-label="Filterknapp" />
         </Ikonknapp>
         <div className="filtertags">
           <InnsatsgruppefilterTags />
@@ -41,9 +41,9 @@ const ViewTiltakstypeOversikt = () => {
         </div>
       </div>
       <div className="tiltakstype-oversikt__tiltak">
-        <BodyShort>
+        <Heading level="1" size="xsmall">
           Viser {data?.length} av {data?.length} tiltak
-        </BodyShort>
+        </Heading>
         {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
         {data && <TiltakstypeTabell tiltakstypeliste={data} />}
         {isError && <Alert variant="error">En feil oppstod. Vi har problemer med å hente tiltakstypene.</Alert>}

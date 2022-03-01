@@ -7,11 +7,17 @@ interface SidemenyKnappProps {
   children: React.ReactNode;
   className?: string;
   handleClick: () => void;
+  ariaLabel: string;
 }
 
-const Ikonknapp = ({ children, className, handleClick }: SidemenyKnappProps) => {
+const Ikonknapp = ({ children, ariaLabel, className, handleClick }: SidemenyKnappProps) => {
   return (
-    <Button onClick={handleClick} variant="tertiary" className={classNames('ikonknapp', className)}>
+    <Button
+      onClick={handleClick}
+      variant="tertiary"
+      className={classNames('ikonknapp', className)}
+      aria-label={ariaLabel}
+    >
       {children}
     </Button>
   );

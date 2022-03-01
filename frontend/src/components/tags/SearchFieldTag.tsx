@@ -21,8 +21,8 @@ const SearchFieldTag = () => {
       {filter.search && (
         <Tag variant="info" size="small">
           Søk på tittel
-          <Ikonknapp handleClick={handleClickFjernFilter}>
-            <Close className="filtertags__ikon" />
+          <Ikonknapp handleClick={handleClickFjernFilter} ariaLabel="Lukkeknapp">
+            <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
           </Ikonknapp>
         </Tag>
       )}
