@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Decorator from './components/decorator/Decorator';
 import './App.less';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
@@ -12,12 +11,11 @@ import { Modal } from '@navikt/ds-react';
 const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.('#applikasjon');
+Modal.setAppElement?.('#mulighetsrommet-root');
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Decorator />
       <Router>
         <Routes />
       </Router>
