@@ -70,13 +70,14 @@ fun main(args: Array<String>): Unit = runBlocking {
         .build()
 
     launch {
-        sendPeriodicEvent(producer)
+        produceTiltakEndretEvents(producer)
+        producer.close()
     }
 }
 
-private suspend fun sendPeriodicEvent(producer: KafkaProducerClient<String, String>) {
-    while (true) {
-        producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakendret-v1-q2", "UTFAS", topic))
-        delay(6000L*5)
+private suspend fun produceTiltakEndretEvents(producer: KafkaProducerClient<String, String>) {
+    tiltakEndretTopic.forEach { it ->
+        producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakendret-v1-q2", it.first, it.second))
+        delay(5000)
     }
 }
