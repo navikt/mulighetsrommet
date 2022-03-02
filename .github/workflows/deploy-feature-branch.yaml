@@ -3,8 +3,11 @@ on:
   workflow_dispatch:
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/mulighetsrommet/frontend
-  PRINT_PAYLOAD: true
+  IMAGE: ghcr.io/navikt/mulighetsrommet
+  IMAGE_LABEL_DEV: dev
+  IMAGE_LABEL_LABS: labs
+  CI: true
+  TZ: Europe/Amsterdam
 
 jobs:
   build-docker-image-frontend-dev:
