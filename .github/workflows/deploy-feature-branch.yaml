@@ -3,19 +3,19 @@ on:
   workflow_dispatch:
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/mulighetsrommet
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/mulighetsrommet/frontend
   PRINT_PAYLOAD: true
 
 jobs:
-  build-docker-image:
-    name: Build and publish Docker image
+  build-docker-image-frontend-dev:
+    name: Build Docker image (dev)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: 16
           cache: npm
@@ -33,16 +33,122 @@ jobs:
           docker build -t ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG} -f .docker/dev/Dockerfile .
           docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG}
 
-  deploy-dev:
-    name: Deploy q1 fss
-    needs:
-      - build-docker-image
+  deploy-frontend-dev:
+    name: Deploy dev
     runs-on: ubuntu-latest
+    needs: build-docker-image-frontend-dev
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: nais-dev.yaml
-          VAR: version=${{ env.IMAGE_TAG }},namespace=pto
+          CLUSTER: dev-gcp
+          RESOURCE: frontend/.nais/nais.yaml
+          VARS: frontend/.nais/dev-gcp.yaml
+          VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_DEV}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #deploy-labs
+  build-docker-image-frontend-labs:
+    name: Build Docker image (labs)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build:labs
+      - name: Build and publish Docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
+          docker build -t ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG} -f .docker/labs/Dockerfile .
+          docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG}
+
+  deploy-frontend-labs:
+    name: Deploy labs
+    runs-on: ubuntu-latest
+    needs:
+      - build-docker-image-frontend-labs
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: labs-gcp
+          RESOURCE: frontend/.nais/nais.yaml
+          VARS: frontend/.nais/labs-gcp.yaml
+          VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_LABS}}
+#  build:
+#    name: Build Project
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#      - uses: actions/setup-node@v1
+#        with:
+#          node-version: 16
+#      - uses: actions/cache@v2
+#        with:
+#          path: ./node_modules
+#          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/frontend/package-lock.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-node-cache
+#      - run: npm ci
+#      - run: npm run build
+#      - run: npm run test
+#
+#  build-docker-image:
+#    runs-on: ubuntu-latest
+#    name: Build and publish Docker image
+#    needs: build
+#    steps:
+#      - uses: actions/checkout@v1
+#      - uses: actions/setup-node@v1
+#        with:
+#          node-version: '12.x'
+#      - uses: actions/cache@v2
+#        with:
+#          path: ./node_modules
+#          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/frontend/package-lock.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-node-cache
+#      - name: Build production artifact
+#        run: npm run build
+#      - name: Build and publish Docker image
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+#          docker build -t ${IMAGE}:${IMAGE_TAG} .
+#          docker push ${IMAGE}:${IMAGE_TAG}
+#
+#  deploy-dev:
+#    name: Deploy q1 fss
+#    needs:
+#      - build-docker-image
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#      - uses: nais/deploy/actions/deploy@v1
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: dev-fss
+#          RESOURCE: nais-dev.yaml
+#          VAR: version=${{ env.IMAGE_TAG }},namespace=pto
