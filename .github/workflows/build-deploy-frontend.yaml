@@ -58,7 +58,7 @@ jobs:
           docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG}
 
   deploy-frontend-dev:
-    name: Deploy application to dev
+    name: Deploy dev
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     needs: build-docker-image-frontend-dev
@@ -107,7 +107,7 @@ jobs:
           docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG}
 
   deploy-frontend-labs:
-    name: Deploy application to labs
+    name: Deploy labs
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     needs:
