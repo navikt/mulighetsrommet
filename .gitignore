@@ -15,7 +15,7 @@ frontend/build
 frontend/.idea/*
 # misc
 
-frontend/src/.env
+frontend/.env
 frontend/src/.env.local
 frontend/src/.env.development.local
 frontend/src/.env.test.local
