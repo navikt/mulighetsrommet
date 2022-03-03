@@ -1,14 +1,16 @@
 package no.nav.mulighetsrommet.api.kafka
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.Tiltakskode
 import no.nav.mulighetsrommet.api.domain.Tiltakstype
+import no.nav.mulighetsrommet.api.kafka.ProcessingUtils.getArenaDateFormat
+import no.nav.mulighetsrommet.api.kafka.ProcessingUtils.removeDoubleQuotes
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class EventProcessor(private val topicMap: Map<String, String>, private val tiltakstypeService: TiltakstypeService) {
 
@@ -17,21 +19,41 @@ class EventProcessor(private val topicMap: Map<String, String>, private val tilt
     suspend fun process(record: ConsumerRecord<String, String>) {
         when (record.topic()) {
             topicMap["tiltakendret"] -> insertTiltakstype(record.value())
+            else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: ${record.topic()}")
         }
     }
 
+    /**
+     * Gjør om string value fra arena event til Json. Henter så ut "after" JsonObject.
+     * Mapper dette til tiltakstype DTO og kaller tiltakstypeService for opprettelse.
+     */
     private suspend fun insertTiltakstype(recordValue: String) {
         logger.debug("Processing event from topic: ${topicMap["tiltakendret"]} (insert)")
-        val arenaTiltakstype = Json.parseToJsonElement(recordValue).jsonObject.get("after")?.jsonObject
-        val newTiltakstype = Tiltakstype(
-            navn = arenaTiltakstype?.get("TILTAKSNAVN").toString().replace("\"", ""),
+        val arenaTiltakstypeJson = Json.parseToJsonElement(recordValue).jsonObject.get("after")?.jsonObject!!
+        val tiltakstype = toTiltakstypeFromArenaJson(arenaTiltakstypeJson)
+        tiltakstypeService.createTiltakstype(tiltakstype)
+    }
+
+    private fun toTiltakstypeFromArenaJson(json: JsonObject): Tiltakstype {
+        return Tiltakstype(
+            navn = removeDoubleQuotes(json["TILTAKSNAVN"].toString()),
             innsatsgruppe = 1,
-            tiltakskode = Tiltakskode.valueOf(arenaTiltakstype?.get("TILTAKSKODE").toString().replace("\"", "")),
-            fraDato = LocalDateTime.parse(arenaTiltakstype?.get("DATO_FRA").toString().replace("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            tilDato = LocalDateTime.parse(arenaTiltakstype?.get("DATO_TIL").toString().replace("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            createdBy = arenaTiltakstype?.get("REG_USER").toString().replace("\"", ""),
-            createdAt = LocalDateTime.parse(arenaTiltakstype?.get("REG_DATO").toString().replace("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            tiltakskode = Tiltakskode.valueOf(
+                removeDoubleQuotes(json["TILTAKSKODE"].toString())
+            ),
+            fraDato = LocalDateTime.parse(
+                removeDoubleQuotes(json["DATO_FRA"].toString()),
+                getArenaDateFormat()
+            ),
+            tilDato = LocalDateTime.parse(
+                removeDoubleQuotes(json["DATO_TIL"].toString()),
+                getArenaDateFormat()
+            ),
+            createdBy = removeDoubleQuotes(json["REG_USER"].toString()),
+            createdAt = LocalDateTime.parse(
+                removeDoubleQuotes(json["REG_DATO"].toString()),
+                getArenaDateFormat()
+            )
         )
-        tiltakstypeService.createTiltakstype(newTiltakstype)
     }
 }

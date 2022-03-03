@@ -5,7 +5,7 @@ package no.nav.mulighetsrommet.api.kafka
  */
 
 
-val tiltakEndretUtfas = """
+val tiltakEndretMentor = """
 {
   "table": "SIAMO.TILTAK",
   "op_type": "I",
@@ -97,4 +97,4 @@ val tiltakEndretJobbklubb = """
 }
 """.trimIndent()
 
-val tiltakEndretTopic = listOf(Pair("UTFAS", tiltakEndretUtfas), Pair("DIGIOPPARB", tiltakEndretJobbklubb))
+val tiltakEndretTopic = listOf(Pair("MENTOR", tiltakEndretMentor), Pair("DIGIOPPARB", tiltakEndretJobbklubb))

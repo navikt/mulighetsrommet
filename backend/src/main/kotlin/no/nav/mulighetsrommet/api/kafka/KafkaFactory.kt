@@ -8,7 +8,6 @@ import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -45,6 +44,18 @@ class KafkaFactory(private val tiltakstypeService: TiltakstypeService) {
         consumerClient.stop()
     }
 
+    // TODO: Kanskje finne en bedre måte. ApplicationConfig støtter ikke å iterere over keys, noe som er tullete
+    fun getConsumerTopics(): Map<String, String> {
+        val configTopics = kafkaConfig.config("topics.consumer")
+        return mapOf<String, String>(
+            // Pair("tiltakgjennomforingendret", configTopics.property("tiltakgjennomforingendret").getString()),
+            // Pair("tiltakdeltakerendret", configTopics.property("tiltakdeltakeredret").getString()),
+            // Pair("tiltaksgruppeendret", configTopics.property("tiltaksgruppeendret").getString()),
+            Pair("tiltakendret", configTopics.property("tiltakendret").getString()),
+            // Pair("avtaleinfoendret", configTopics.property("avtaleinfoendret").getString())
+        )
+    }
+
     private fun configureProperties(): Properties {
         val consumerGroupId = kafkaConfig.property("consumerGroupId").getString()
         val kafkaBrokers = kafkaConfig.property("kafkaBrokers").getString()
@@ -60,18 +71,6 @@ class KafkaFactory(private val tiltakstypeService: TiltakstypeService) {
         } else {
             KafkaPropertiesPreset.aivenDefaultConsumerProperties(consumerGroupId)
         }
-    }
-
-    // TODO: Kanskje finne en bedre måte. ApplicationConfig støtter ikke å iterere over keys, noe som er tullete
-    fun getConsumerTopics(): Map<String, String> {
-        val configTopics = kafkaConfig.config("topics.consumer")
-        return mapOf<String, String>(
-            // Pair("tiltakgjennomforingendret", configTopics.property("tiltakgjennomforingendret").getString()),
-            // Pair("tiltakdeltakerendret", configTopics.property("tiltakdeltakeredret").getString()),
-            // Pair("tiltaksgruppeendret", configTopics.property("tiltaksgruppeendret").getString()),
-            Pair("tiltakendret", configTopics.property("tiltakendret").getString()),
-            // Pair("avtaleinfoendret", configTopics.property("avtaleinfoendret").getString())
-        )
     }
 
     private fun configureConsumersTopics(): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {

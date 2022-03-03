@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain
 
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
 
@@ -11,10 +12,7 @@ data class Innsatsgruppe(
     val beskrivelse: String,
 )
 
-object InnsatsgruppeTable : Table() {
-    val id: Column<Int> = integer("id")
+object InnsatsgruppeTable : IntIdTable() {
     val tittel: Column<String> = text("tittel")
     val beskrivelse: Column<String> = text("beskrivelse")
-
-    override val primaryKey = PrimaryKey(id)
 }
