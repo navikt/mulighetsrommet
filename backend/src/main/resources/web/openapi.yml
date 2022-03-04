@@ -48,7 +48,7 @@ paths:
                   $ref: "#/components/schemas/Tiltakstype"
   /api/tiltakstyper/{tiltakskode}:
     parameters:
-      - $ref: "#/components/parameters/ID"
+      - $ref: "#/components/parameters/Tiltakskode"
     get:
       tags:
         - mulighetsrommet
@@ -110,6 +110,13 @@ components:
       required: true
       schema:
         type: integer
+    Tiltakskode:
+      name: tiltakskode
+      in: path
+      description: Tiltakskode
+      required: true
+      schema:
+        type: string
 
   schemas:
     Innsatsgruppe:

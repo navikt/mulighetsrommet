@@ -19,17 +19,13 @@ fun Route.tiltakstypeRoutes() {
         call.respond(tiltakstyper)
     }
     get("/api/tiltakstyper/{tiltakskode}") {
-        val tiltakskodeParam = call.parameters["tiltakskode"]!!
-        // TODO: To forskjellige feilhåndteringsmetoder. Kan skrives bedre
         runCatching {
-            Tiltakskode.valueOf(tiltakskodeParam)
-        }.onSuccess { tiltakskode ->
-            val tiltakstype =
-                tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode) ?: return@get call.respondText(
-                    "Fant ikke tiltakstype med tiltakskode $tiltakskode",
-                    status = HttpStatusCode.NotFound
-                )
-            call.respond(tiltakstype)
-        }.onFailure { call.respondText(text = "Ugyldig tiltaskode", status = HttpStatusCode.BadRequest) }
+            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
+        }.onSuccess { tiltakstype ->
+            call.respond(tiltakstype!!)
+        }.onFailure {
+            call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
+        }
     }
 }
