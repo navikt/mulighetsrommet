@@ -97,4 +97,50 @@ val tiltakEndretJobbklubb = """
 }
 """.trimIndent()
 
-val tiltakEndretTopic = listOf(Pair("MENTOR", tiltakEndretMentor), Pair("DIGIOPPARB", tiltakEndretJobbklubb))
+val tiltakEndretJobbklubbUpdate = """
+{
+  "table": "SIAMO.TILTAK",
+  "op_type": "U",
+  "op_ts": "2021-11-18 11:32:21.953855",
+  "current_ts": "2021-11-18 12:48:35.189000",
+  "pos": "00000000000000018863",
+  "after": {
+    "TILTAKSNAVN": "Digitalt oppfølgingstiltak for arbeidsledige (jobbklubb) OPPDATERT!!!",
+    "TILTAKSGRUPPEKODE": "OPPFOLG",
+    "REG_DATO": "2021-01-01 13:49:57",
+    "REG_USER": "SKRIPT",
+    "MOD_DATO": "2021-04-09 09:21:26",
+    "MOD_USER": "SIAMO",
+    "TILTAKSKODE": "DIGIOPPARB",
+    "DATO_FRA": "2021-01-01 00:00:00",
+    "DATO_TIL": "2025-01-01 00:00:00",
+    "AVSNITT_ID_GENERELT": null,
+    "STATUS_BASISYTELSE": "J",
+    "ADMINISTRASJONKODE": "AMO",
+    "STATUS_KOPI_TILSAGN": "N",
+    "ARKIVNOKKEL": "529",
+    "STATUS_ANSKAFFELSE": "J",
+    "MAKS_ANT_PLASSER": null,
+    "MAKS_ANT_SOKERE": null,
+    "STATUS_FAST_ANT_PLASSER": "N",
+    "STATUS_SJEKK_ANT_DELTAKERE": "N",
+    "STATUS_KALKULATOR": "N",
+    "RAMMEAVTALE": "SKAL",
+    "OPPLAERINGSGRUPPE": null,
+    "HANDLINGSPLAN": "SOK",
+    "STATUS_SLUTTDATO": "N",
+    "MAKS_PERIODE": null,
+    "STATUS_MELDEPLIKT": null,
+    "STATUS_VEDTAK": "N",
+    "STATUS_IA_AVTALE": "N",
+    "STATUS_TILLEGGSSTONADER": "J",
+    "STATUS_UTDANNING": "N",
+    "AUTOMATISK_TILSAGNSBREV": "N",
+    "STATUS_BEGRUNNELSE_INNSOKT": "N",
+    "STATUS_HENVISNING_BREV": "N",
+    "STATUS_KOPIBREV": "N"
+  }
+}
+""".trimIndent()
+
+val tiltakEndretTopic = listOf(Pair("MENTOR", tiltakEndretMentor), Pair("DIGIOPPARB", tiltakEndretJobbklubb), Pair("DIGIOPPARB", tiltakEndretJobbklubbUpdate))

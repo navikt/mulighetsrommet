@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.update
 
 class TiltakstypeService(private val db: DatabaseFactory) {
 
@@ -34,10 +35,22 @@ class TiltakstypeService(private val db: DatabaseFactory) {
                 it[fraDato] = tiltakstype.fraDato
                 it[tilDato] = tiltakstype.tilDato
                 it[createdBy] = tiltakstype.createdBy
-                it[createdAt] = tiltakstype.createdAt
             }
         }
         return getTiltakstypeById(id.value)!!
+    }
+
+    suspend fun updateTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
+        db.dbQuery {
+            TiltakstypeTable.update ({ TiltakstypeTable.tiltakskode eq tiltakstype.tiltakskode}) {
+                it[navn] = tiltakstype.navn
+                it[innsatsgruppeId] = tiltakstype.innsatsgruppe
+                it[fraDato] = tiltakstype.fraDato
+                it[tilDato] = tiltakstype.tilDato
+                it[updatedBy] = tiltakstype.updatedBy
+            }
+        }
+        return getTiltakstypeByTiltakskode(tiltakstype.tiltakskode)!!
     }
 
     suspend fun getTiltakstypeByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype? {
@@ -65,7 +78,9 @@ class TiltakstypeService(private val db: DatabaseFactory) {
             tiltakskode = row[TiltakstypeTable.tiltakskode],
             fraDato = row[TiltakstypeTable.fraDato],
             tilDato = row[TiltakstypeTable.tilDato],
+            createdAt = row[TiltakstypeTable.createdAt],
             createdBy = row[TiltakstypeTable.createdBy],
-            createdAt = row[TiltakstypeTable.createdAt]
+            updatedAt = row[TiltakstypeTable.updatedAt],
+            updatedBy = row[TiltakstypeTable.updatedBy]
         )
 }

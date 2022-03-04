@@ -15,3 +15,7 @@ ALTER TABLE tiltakstype
     DROP COLUMN beskrivelse,
     DROP COLUMN ingress,
     DROP COLUMN archived;
+
+-- Remove existing temporary tiltakstype data
+TRUNCATE tiltakstype CASCADE;
+SELECT setval('tiltakstype_id_seq', 1, FALSE);

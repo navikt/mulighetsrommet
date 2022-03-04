@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.domain
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.database.PGEnum
-import no.nav.mulighetsrommet.api.domain.TiltaksgjennomforingTable.nullable
 import no.nav.mulighetsrommet.api.utils.DateSerializer
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
@@ -24,9 +23,12 @@ data class Tiltakstype(
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null,
-    val createdBy: String,
+    val createdBy: String? = "MRSYS",
     @Serializable(with = DateSerializer::class)
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime? = null,
+    val updatedBy: String? = "MRSYS",
+    @Serializable(with = DateSerializer::class)
+    val updatedAt: LocalDateTime? = null
 )
 
 object TiltakstypeTable : IntIdTable() {
@@ -36,6 +38,8 @@ object TiltakstypeTable : IntIdTable() {
     val tiltakskode = customEnumeration("tiltakskode", "tiltakskode", { value -> Tiltakskode.valueOf(value as String) }, { PGEnum("tiltakskode", it) })
     val fraDato: Column<LocalDateTime?> = datetime("dato_fra").nullable()
     val tilDato: Column<LocalDateTime?> = datetime("dato_til").nullable()
-    val createdBy: Column<String> = text("created_by")
+    val createdBy: Column<String?> = text("created_by").nullable()
     val createdAt: Column<LocalDateTime> = datetime("created_at")
+    val updatedBy: Column<String?> = text("updated_by").nullable()
+    val updatedAt: Column<LocalDateTime> = datetime("updated_at")
 }
