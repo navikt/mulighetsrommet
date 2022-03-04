@@ -46,25 +46,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tiltakstype"
-    post:
-      tags:
-        - mulighetsrommet
-      operationId: createTiltakstype
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UnsavedTiltakstype"
-      responses:
-        201:
-          description: The created tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
-
-  /api/tiltakstyper/{id}:
+  /api/tiltakstyper/{tiltakskode}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -84,63 +66,6 @@ paths:
             text/plain:
               schema:
                 type: string
-    put:
-      tags:
-        - mulighetsrommet
-      operationId: updateTiltakstype
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Tiltakstype"
-      responses:
-        200:
-          description: The updated tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
-        404:
-          description: The specified tiltakstype was not found.
-          content:
-            text/plain:
-              schema:
-                type: string
-    delete:
-      tags:
-        - mulighetsrommet
-      operationId: deleteTiltakstype
-      responses:
-        200:
-          description: The delete was successful.
-          content:
-            application/json:
-              schema:
-                type: object
-        404:
-          description: The specified tiltakstype was not found.
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  /api/tiltakstyper/{id}/tiltaksgjennomforinger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - mulighetsrommet
-      operationId: getTiltaksgjennomforingerByTiltakstype
-      responses:
-        200:
-          description: Tiltaksgjennomføringer for the specified tiltakstype.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
   /api/tiltaksgjennomforinger:
     get:
       tags:
@@ -224,17 +149,31 @@ components:
         innsatsgruppe:
           type: number
           nullable: true
-        tittel:
+        sanityId:
+          type: number
+          nullable: true
+        navn:
           type: string
-        beskrivelse:
+        tiltakskode:
           type: string
-        ingress:
+        fraDato:
           type: string
-      required:
-        - id
-        - tittel
-        - beskrivelse
-        - ingress
+          nullable: true
+        tilDato:
+          type: string
+          nullable: true
+        createdBy:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          nullable: true
+        updatedBy:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+          nullable: true
     Tiltaksgjennomforing:
       type: object
       properties:
