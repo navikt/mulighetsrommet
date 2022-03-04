@@ -42,7 +42,7 @@ class TiltakstypeService(private val db: DatabaseFactory) {
 
     suspend fun updateTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
         db.dbQuery {
-            TiltakstypeTable.update ({ TiltakstypeTable.tiltakskode eq tiltakstype.tiltakskode}) {
+            TiltakstypeTable.update({ TiltakstypeTable.tiltakskode eq tiltakstype.tiltakskode }) {
                 it[navn] = tiltakstype.navn
                 it[innsatsgruppeId] = tiltakstype.innsatsgruppe
                 it[fraDato] = tiltakstype.fraDato

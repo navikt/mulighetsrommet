@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.kafka
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.maps.shouldContainAnyKeysOf
 import io.kotest.matchers.maps.shouldContainValues
 import io.mockk.clearMocks
 import io.mockk.coEvery

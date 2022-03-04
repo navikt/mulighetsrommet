@@ -4,7 +4,6 @@ package no.nav.mulighetsrommet.api.kafka
  * Litt tilfeldig uttrek av events på topics fra kafka-manager som Strings.
  */
 
-
 val tiltakEndretMentor = """
 {
   "table": "SIAMO.TILTAK",

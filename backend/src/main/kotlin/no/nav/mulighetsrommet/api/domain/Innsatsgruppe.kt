@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.domain
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 
 @Serializable
 data class Innsatsgruppe(
