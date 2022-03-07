@@ -28,33 +28,6 @@ jobs:
         with:
           paths: backend
 
-  build-backend:
-    name: Build (backend)
-    runs-on: ubuntu-latest
-    needs: change-check
-    if: needs.change-check.outputs.changed-be == 'true'
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 11
-          cache: gradle
-        # Disable test until we can mock out the koin components initialized at start
-        #      - name: Build with Gradle
-        # run: ./gradlew test build --info
-  #        run: ./gradlew build -x test --info
-  #      - name: Publish test report
-  #        uses: ScaCap/action-surefire-report@v1
-  #        with:
-  #          github_token: ${{ secrets.GITHUB_TOKEN }}
-  #          report_paths: "**/build/test-results/test/TEST-*.xml"
-
   build-docker-image-backend:
     name: Build Docker image (backend)
     runs-on: ubuntu-latest
@@ -76,6 +49,11 @@ jobs:
         # Disable test until we can mock out the koin components initialized at start
         # run: ./gradlew test build --info
         run: ./gradlew build -x test --info
+      - name: Publish test report
+        uses: ScaCap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: "**/build/test-results/test/TEST-*.xml"
       - name: Build and push Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
