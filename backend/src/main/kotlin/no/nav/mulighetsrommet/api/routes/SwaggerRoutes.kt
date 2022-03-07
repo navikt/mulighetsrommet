@@ -1,13 +1,11 @@
 package no.nav.mulighetsrommet.api.routes
 
-import io.ktor.application.call
-import io.ktor.http.content.resources
-import io.ktor.http.content.static
-import io.ktor.response.respondRedirect
-import io.ktor.routing.Routing
-import io.ktor.routing.get
+import io.ktor.application.*
+import io.ktor.http.content.*
+import io.ktor.response.*
+import io.ktor.routing.*
 
-fun Routing.swaggerRoutes() {
+fun Route.swaggerRoutes() {
     static("static") {
         resources("web")
     }
