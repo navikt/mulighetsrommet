@@ -2,30 +2,33 @@ package no.nav.mulighetsrommet.api.kafka
 
 import com.typesafe.config.ConfigFactory
 import io.ktor.config.HoconApplicationConfig
+import kotlinx.coroutines.runBlocking
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.slf4j.LoggerFactory
 import java.util.Properties
 import java.util.function.Consumer
 
-class KafkaFactory(private val db: DatabaseFactory) {
+class KafkaFactory(private val tiltakstypeService: TiltakstypeService) {
 
     private val logger = LoggerFactory.getLogger(KafkaFactory::class.java)
     private val kafkaConfig = HoconApplicationConfig(ConfigFactory.load()).config("ktor.kafka")
     private val consumerClient: KafkaConsumerClient
+    private val topicMap: Map<String, String>
 
     init {
         logger.debug("Initializing KafkaFactory.")
 
-        val topics = getConsumerTopics()
+        topicMap = getConsumerTopics()
+
         val consumerProperties = configureProperties()
-        val consumerTopics = configureConsumersTopics(topics)
+        val consumerTopics = configureConsumersTopics()
 
         consumerClient = KafkaConsumerClientBuilder.builder()
             .withProperties(consumerProperties)
@@ -39,6 +42,18 @@ class KafkaFactory(private val db: DatabaseFactory) {
 
     fun stopClient() {
         consumerClient.stop()
+    }
+
+    // TODO: Kanskje finne en bedre måte. ApplicationConfig støtter ikke å iterere over keys, noe som er tullete
+    fun getConsumerTopics(): Map<String, String> {
+        val configTopics = kafkaConfig.config("topics.consumer")
+        return mapOf<String, String>(
+            // Pair("tiltakgjennomforingendret", configTopics.property("tiltakgjennomforingendret").getString()),
+            // Pair("tiltakdeltakerendret", configTopics.property("tiltakdeltakeredret").getString()),
+            // Pair("tiltaksgruppeendret", configTopics.property("tiltaksgruppeendret").getString()),
+            Pair("tiltakendret", configTopics.property("tiltakendret").getString()),
+            // Pair("avtaleinfoendret", configTopics.property("avtaleinfoendret").getString())
+        )
     }
 
     private fun configureProperties(): Properties {
@@ -58,23 +73,18 @@ class KafkaFactory(private val db: DatabaseFactory) {
         }
     }
 
-    private fun getConsumerTopics() = kafkaConfig.config("topics").property("consumer").getList()
-
-    private fun configureConsumersTopics(topics: List<String>): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
-        return topics.map { topic ->
+    private fun configureConsumersTopics(): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
+        return topicMap.values.map { topic ->
+            // TODO: Må være en bedre måte å løse dependencies på her...
+            val eventProcessor = EventProcessor(topicMap, tiltakstypeService)
             KafkaConsumerClientBuilder.TopicConfig<String, String>()
                 .withLogging()
                 .withConsumerConfig(
                     topic,
                     stringDeserializer(),
                     stringDeserializer(),
-                    Consumer<ConsumerRecord<String, String>> { logTopicContent(it) }
+                    Consumer<ConsumerRecord<String, String>> { runBlocking { eventProcessor.process(it) } }
                 )
         }
-    }
-
-    // Temporary print out until we actually implement something with the events.
-    private fun logTopicContent(consumerRecord: ConsumerRecord<String, String>) {
-        logger.debug("Topic: ${consumerRecord.topic()} - Value: ${consumerRecord.value()}")
     }
 }

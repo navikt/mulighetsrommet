@@ -4,7 +4,6 @@
 import type { Innsatsgruppe } from '../models/Innsatsgruppe';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
 import type { Tiltakstype } from '../models/Tiltakstype';
-import type { UnsavedTiltakstype } from '../models/UnsavedTiltakstype';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { request as __request } from '../core/request';
 
@@ -33,96 +32,21 @@ export class MulighetsrommetService {
     }
 
     /**
-     * @returns Tiltakstype The created tiltakstype
-     * @throws ApiError
-     */
-    public static createTiltakstype({
-        requestBody,
-    }: {
-        requestBody: UnsavedTiltakstype,
-    }): CancelablePromise<Tiltakstype> {
-        return __request({
-            method: 'POST',
-            path: `/api/tiltakstyper`,
-            body: requestBody,
-            mediaType: 'application/json',
-        });
-    }
-
-    /**
      * @returns Tiltakstype The specified tiltakstype.
      * @throws ApiError
      */
     public static getTiltakstype({
-        id,
+        tiltakskode,
     }: {
-        /** ID **/
-        id: number,
+        /** Tiltakskode **/
+        tiltakskode: string,
     }): CancelablePromise<Tiltakstype> {
         return __request({
             method: 'GET',
-            path: `/api/tiltakstyper/${id}`,
+            path: `/api/tiltakstyper/${tiltakskode}`,
             errors: {
                 404: `The specified tiltakstype was not found.`,
             },
-        });
-    }
-
-    /**
-     * @returns Tiltakstype The updated tiltakstype.
-     * @throws ApiError
-     */
-    public static updateTiltakstype({
-        id,
-        requestBody,
-    }: {
-        /** ID **/
-        id: number,
-        requestBody: Tiltakstype,
-    }): CancelablePromise<Tiltakstype> {
-        return __request({
-            method: 'PUT',
-            path: `/api/tiltakstyper/${id}`,
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                404: `The specified tiltakstype was not found.`,
-            },
-        });
-    }
-
-    /**
-     * @returns any The delete was successful.
-     * @throws ApiError
-     */
-    public static deleteTiltakstype({
-        id,
-    }: {
-        /** ID **/
-        id: number,
-    }): CancelablePromise<any> {
-        return __request({
-            method: 'DELETE',
-            path: `/api/tiltakstyper/${id}`,
-            errors: {
-                404: `The specified tiltakstype was not found.`,
-            },
-        });
-    }
-
-    /**
-     * @returns Tiltaksgjennomforing Tiltaksgjennomføringer for the specified tiltakstype.
-     * @throws ApiError
-     */
-    public static getTiltaksgjennomforingerByTiltakstype({
-        id,
-    }: {
-        /** ID **/
-        id: number,
-    }): CancelablePromise<Array<Tiltaksgjennomforing>> {
-        return __request({
-            method: 'GET',
-            path: `/api/tiltakstyper/${id}/tiltaksgjennomforinger`,
         });
     }
 
