@@ -2,8 +2,7 @@ name: Build and deploy backend
 on:
   push:
     branches: [dev]
-    paths:
-      - 'backend/'
+
 env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: ghcr.io/navikt/mulighetsrommet
