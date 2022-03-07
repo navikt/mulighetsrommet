@@ -3,9 +3,15 @@
 /* eslint-disable */
 
 export type Tiltakstype = {
-    id: number;
+    id?: number;
     innsatsgruppe?: number | null;
-    tittel: string;
-    beskrivelse: string;
-    ingress: string;
+    sanityId?: number | null;
+    navn?: string;
+    tiltakskode?: string;
+    fraDato?: string | null;
+    tilDato?: string | null;
+    createdBy?: string | null;
+    createdAt?: string | null;
+    updatedBy?: string | null;
+    updatedAt?: string | null;
 }
