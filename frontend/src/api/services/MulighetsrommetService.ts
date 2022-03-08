@@ -32,7 +32,7 @@ export class MulighetsrommetService {
     }
 
     /**
-     * @returns Tiltakstype The specified tiltakstype.
+     * @returns Tiltakstype the specified tiltakstype.
      * @throws ApiError
      */
     public static getTiltakstype({
@@ -45,7 +45,26 @@ export class MulighetsrommetService {
             method: 'GET',
             path: `/api/tiltakstyper/${tiltakskode}`,
             errors: {
-                404: `The specified tiltakstype was not found.`,
+                404: `the specified tiltakstype was not found.`,
+            },
+        });
+    }
+
+    /**
+     * @returns Tiltaksgjennomforing An array of tiltaksgjennomføringer for specified tiltakskode.
+     * @throws ApiError
+     */
+    public static getTiltaksgjennomforingerByTiltakskode({
+        tiltakskode,
+    }: {
+        /** Tiltakskode **/
+        tiltakskode: string,
+    }): CancelablePromise<Array<Tiltaksgjennomforing>> {
+        return __request({
+            method: 'GET',
+            path: `/api/tiltakstyper/${tiltakskode}/tiltaksgjennomforinger`,
+            errors: {
+                404: `the specified tiltakstype was not found.`,
             },
         });
     }

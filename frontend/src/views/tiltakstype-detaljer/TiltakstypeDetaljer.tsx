@@ -1,21 +1,21 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import MainView from '../../layouts/MainView';
-import useTiltaksgjennomforingerByTiltakstypeId from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakstypeId';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingTabell';
 import '../Tiltakstype-tiltaksgjennomforing-detaljer.less';
 import { Alert, Loader, Ingress, BodyLong } from '@navikt/ds-react';
 import useTiltakstype from '../../hooks/tiltakstype/useTiltakstype';
+import useTiltaksgjennomforingerByTiltakskode from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode';
 
 interface RouteParams {
-  id: string;
+  tiltakskode: string;
 }
 
 const TiltakstypeDetaljer = () => {
   const params = useParams<RouteParams>();
-  const id = Number(params.id);
-  const tiltakstype = useTiltakstype(id);
-  const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltakstypeId(id);
+  const tiltakskode = params.tiltakskode;
+  const tiltakstype = useTiltakstype(tiltakskode);
+  const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltakskode(tiltakskode);
 
   if (tiltakstype.isError) {
     return <Alert variant="error">Det skjedde en feil</Alert>;
@@ -29,13 +29,14 @@ const TiltakstypeDetaljer = () => {
     return null;
   }
 
-  const { tittel, ingress, beskrivelse } = tiltakstype.data;
+  const { navn } = tiltakstype.data;
 
   return (
-    <MainView title={tittel} dataTestId="tiltakstype_header" tilbakelenke="./">
+    <MainView title={navn} dataTestId="tiltakstype_header" tilbakelenke="./">
       <div className="tiltakstype-detaljer">
-        <Ingress data-testid="tiltakstype_ingress">{ingress}</Ingress>
-        <BodyLong data-testid="tiltakstype_beskrivelse">{beskrivelse}</BodyLong>
+        {/* Ingress og beskrivelse er fjernet fra tiltakstype. Dette må vi håndtere i Sanity */}
+        <Ingress data-testid="tiltakstype_ingress">INGRESS FRA SANITY</Ingress>
+        <BodyLong data-testid="tiltakstype_beskrivelse">BESKRIVELSE FRA SANITY</BodyLong>
       </div>
       <TiltaksgjennomforingsTabell tiltaksgjennomforinger={tiltaksgjennomforinger.data} />
     </MainView>

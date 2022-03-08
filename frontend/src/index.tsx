@@ -11,8 +11,10 @@ OpenAPI.BASE = String(import.meta.env.VITE_BACKEND_API_ROOT);
 
 if (import.meta.env.VITE_ENABLE_MOCK === 'true') {
   worker.start();
-  ReactDOM.render(<App />, document.getElementById('mulighetsrommet-root'));
 }
+
+ReactDOM.render(<App />, document.getElementById('mulighetsrommet-root'));
+
 // TODO skal se på dette sammen med Håkon
 // else if (import.meta.env.VITE_ENABLE_MOCK === 'true') {
 //   Navspa.eksporter('mulighetsrommet-flate', App);

@@ -16,12 +16,12 @@ paths:
             text/plain:
               schema:
                 type: string
-                enum: [PONG]
+                enum: [ PONG ]
 
   /api/innsatsgrupper:
     get:
       tags:
-        - innsatsgrupper
+        - mulighetsrommet
       operationId: getInnsatsgrupper
       responses:
         200:
@@ -35,7 +35,7 @@ paths:
   /api/tiltakstyper:
     get:
       tags:
-        - tiltakstype
+        - mulighetsrommet
       operationId: getTiltakstyper
       responses:
         200:
@@ -51,7 +51,8 @@ paths:
       - $ref: "#/components/parameters/Tiltakskode"
     get:
       tags:
-        - tiltakstype
+        - mulighetsrommet
+      operationId: getTiltakstype
       responses:
         200:
           description: the specified tiltakstype.
@@ -70,14 +71,17 @@ paths:
       - $ref: "#/components/parameters/Tiltakskode"
     get:
       tags:
-        - tiltakstype
+        - mulighetsrommet
+      operationId: getTiltaksgjennomforingerByTiltakskode
       responses:
         200:
           description: An array of tiltaksgjennomføringer for specified tiltakskode.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksgjennomforing"
         404:
           description: the specified tiltakstype was not found.
           content:
@@ -87,7 +91,7 @@ paths:
   /api/tiltaksgjennomforinger:
     get:
       tags:
-        - tiltaksgjennomføring
+        - mulighetsrommet
       operationId: getTiltaksgjennomforinger
       responses:
         200:
@@ -103,7 +107,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - tiltaksgjennomføring
+        - mulighetsrommet
       operationId: getTiltaksgjennomforing
       responses:
         200:
@@ -217,3 +221,110 @@ components:
         - tilataksnummer
         - fraDato
         - tilDato
+    Tiltaskode:
+      type: string
+      enum:
+        - ABIST
+        - ABOPPF
+        - ABTBOPPF
+        - ABUOPPF
+        - AMBF1
+        - AMBF2
+        - AMBF3
+        - AMO
+        - AMOB
+        - AMOE
+        - AMOY
+        - ANNUTDANN
+        - ARBDOGNSM
+        - ARBFORB
+        - ARBRDAGSM
+        - ARBRRDOGN
+        - ARBRRHBAG
+        - ARBRRHBSM
+        - ARBRRHDAG
+        - ARBTREN
+        - ASV
+        - ATG
+        - AVKLARAG
+        - AVKLARKV
+        - AVKLARSP
+        - AVKLARSV
+        - AVKLARUS
+        - BIA
+        - BIO
+        - BREVKURS
+        - DIGIOPPARB
+        - DIVTILT
+        - EKSPEBIST
+        - ENKELAMO
+        - ENKFAGYRKE
+        - ETAB
+        - FLEKSJOBB
+        - FORSAMOENK
+        - FORSAMOGRU
+        - FORSFAGENK
+        - FORSFAGGRU
+        - FORSHOYUTD
+        - FUNKSJASS
+        - GRUFAGYRKE
+        - GRUNNSKOLE
+        - GRUPPEAMO
+        - HOYEREUTD
+        - HOYSKOLE
+        - INDJOBSTOT
+        - INDOPPFAG
+        - INDOPPFOLG
+        - INDOPPFSP
+        - INDOPPRF
+        - INKLUTILS
+        - INST_S
+        - IPSUNG
+        - ITGRTILS
+        - JOBBBONUS
+        - JOBBFOKUS
+        - JOBBK
+        - JOBBKLUBB
+        - JOBBSKAP
+        - KAT
+        - KURS
+        - LONNTIL
+        - LONNTILAAP
+        - LONNTILL
+        - LONNTILS
+        - MENTOR
+        - MIDLONTIL
+        - NETTAMO
+        - NETTKURS
+        - OPPLT2AAR
+        - PRAKSKJERM
+        - PRAKSORD
+        - PV
+        - REAKTUFOR
+        - REFINO
+        - SPA
+        - STATLAERL
+        - SUPPEMP
+        - SYSSLANG
+        - SYSSOFF
+        - TIDSUBLONN
+        - TILPERBED
+        - TILRETTEL
+        - TILRTILSK
+        - TILSJOBB
+        - UFØREPENLØ
+        - UTBHLETTPS
+        - UTBHPSLD
+        - UTBHSAMLI
+        - UTDPERMVIK
+        - UTDYRK
+        - UTVAOONAV
+        - UTVOPPFOPL
+        - VALS
+        - VARLONTIL
+        - VASV
+        - VATIAROR
+        - VIDRSKOLE
+        - VIKARBLED
+        - VV
+        - YHEMMOFF

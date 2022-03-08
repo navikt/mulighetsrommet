@@ -20,11 +20,12 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
         {tiltakstypeliste.map((tiltakstype: Tiltakstype) => (
           <Table.Row key={tiltakstype.id} className="tabell__row">
             <Table.HeaderCell scope="col">
-              <Lenke to={`/tiltakstyper/${tiltakstype.id}`} isInline>
-                {tiltakstype.tittel}
+              <Lenke to={`/tiltakstyper/${tiltakstype.tiltakskode}`} isInline>
+                {tiltakstype.navn}
               </Lenke>
             </Table.HeaderCell>
-            <Table.DataCell className="tabell__row__ingress">{tiltakstype.ingress}</Table.DataCell>
+            {/* Ingress er fjernet fra tiltakstype. Dette må vi håndtere i Sanity */}
+            <Table.DataCell className="tabell__row__ingress">INGRESS FRA SANITY</Table.DataCell>
           </Table.Row>
         ))}
       </Table.Body>

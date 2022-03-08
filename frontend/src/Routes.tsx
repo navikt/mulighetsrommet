@@ -7,7 +7,7 @@ import TiltakstypeOversikt from './views/tiltakstype-oversikt/TiltakstypeOversik
 const Routes = () => {
   return (
     <Switch>
-      <Route exact path="/tiltakstyper/:id" component={TiltakstypeDetaljer} />
+      <Route exact path="/tiltakstyper/:tiltakskode" component={TiltakstypeDetaljer} />
       <Route
         exact
         path="/tiltakstyper/:tiltakstypeId/tiltaksgjennomforinger/:tiltaksgjennomforingsId"

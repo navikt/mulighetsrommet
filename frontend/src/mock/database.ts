@@ -13,13 +13,12 @@ export const definition = {
   tiltakstype: {
     id: idAutoIncrement(),
     innsatsgruppe: oneOf('innsatsgruppe', { nullable: true }),
-    tittel: String,
-    beskrivelse: String,
-    ingress: String,
+    tiltakskode: String,
+    navn: String,
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
-    tiltakstypeId: oneOf('tiltakstype'),
+    tiltakskode: String,
     tiltaksnummer: String,
     tittel: String,
     beskrivelse: String,
@@ -47,7 +46,7 @@ export const db = createMockDatabase(definition, (db: any) => {
   db.tiltakstype.getAll().forEach((tiltakstype: any) => {
     for (let index = 0; index < faker.datatype.number({ min: 1, max: 5 }); index++) {
       db.tiltaksgjennomforing.create({
-        tiltakstypeId: tiltakstype,
+        tiltakskode: tiltakstype.tiltakskode,
         tiltaksnummer: faker.random.alphaNumeric(12),
         tittel: `Kjøreopplæring av ${faker.vehicle.manufacturer()}`,
         beskrivelse: faker.lorem.paragraph(1),

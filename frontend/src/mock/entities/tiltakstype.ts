@@ -8,8 +8,7 @@ export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
   return {
     id: entity.id,
     innsatsgruppe: entity.innsatsgruppe?.id ?? null,
-    tittel: entity.tittel,
-    ingress: entity.ingress,
-    beskrivelse: entity.beskrivelse,
+    navn: entity.navn,
+    tiltakskode: entity.tiltakskode,
   };
 }
