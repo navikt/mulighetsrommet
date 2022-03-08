@@ -19,7 +19,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   return (
     <MainView
       tilbakelenke={`/tiltakstyper/${tiltakstypeId}`}
-      title={tiltaksgjennomforing.data?.tittel}
+      title={tiltaksgjennomforing.data ? tiltaksgjennomforing.data.tittel : ''}
       contentClassName="tiltaksgjennomforing-detaljer"
     >
       <div className="tiltaksgjennomforing-detaljer">
