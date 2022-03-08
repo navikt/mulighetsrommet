@@ -16,5 +16,5 @@ if (import.meta.env.VITE_ENABLE_MOCK === 'true') {
 }
 // TODO skal se på dette sammen med Håkon
 // else if (import.meta.env.VITE_ENABLE_MOCK === 'true') {
-//   Navspa.eksporter('mulighetsrommet-flate', App);
+Navspa.eksporter('mulighetsrommet-flate', App);
 // }
