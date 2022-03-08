@@ -14,7 +14,6 @@ const Searchfield = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
       hideLabel
       onChange={(e: React.FormEvent<HTMLInputElement>) => setSokefilter(e.currentTarget.value)}
       value={sokefilter}
-      data-testid="sokefelt_tiltakstype"
       className="sokefelt-tiltakstype"
       aria-label="Søk etter tiltakstype"
     />

@@ -14,12 +14,7 @@ function TiltaksgjennomforingsTabell(props: TiltaksgjennomforingTabellProps) {
   const { tiltaksgjennomforinger } = props;
 
   return (
-    <Table
-      zebraStripes
-      size="small"
-      className="tabell__tiltaksgjennomforinger"
-      data-testid="tabell_tiltaksgjennomforinger"
-    >
+    <Table zebraStripes size="small" className="tabell__tiltaksgjennomforinger">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell className="tabell__tiltaksgjennomforinger__tittel">Tittel</Table.HeaderCell>

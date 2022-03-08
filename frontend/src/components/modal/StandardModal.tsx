@@ -29,13 +29,15 @@ const StandardModal = ({
   return (
     <Modal closeButton open={modalOpen} onClose={setModalOpen} className={className!}>
       <Modal.Content>
-        <Heading spacing level="1" size="large">
+        <Heading spacing level="1" size="large" data-testid="modal_header">
           {heading}
         </Heading>
         {children}
         <div>
-          <Button onClick={handleSend}>{btnText || 'Send'}</Button>
-          <Button variant="tertiary" onClick={setModalOpen}>
+          <Button onClick={handleSend} data-testid="modal_btn-send">
+            {btnText || 'Send'}
+          </Button>
+          <Button variant="tertiary" onClick={setModalOpen} data-testid="modal_btn-cancel">
             Avbryt
           </Button>
         </div>

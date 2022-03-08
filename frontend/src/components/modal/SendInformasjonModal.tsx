@@ -28,6 +28,7 @@ const SendInformasjonModal = ({ modalOpen, setModalOpen, tiltaksnavn }: SendInfo
         onChange={e => setVerdi(e.target.value)}
         label="Legg til kommentar til brukeren"
         minRows={5}
+        data-testid="textarea_send-informasjon"
       />
     </StandardModal>
   );

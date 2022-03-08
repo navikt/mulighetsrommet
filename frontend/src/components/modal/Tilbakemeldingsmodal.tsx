@@ -18,7 +18,13 @@ const Tilbakemeldingsmodal = ({ modalOpen, setModalOpen }: TilbakemeldingsmodalP
       setModalOpen={setModalOpen}
       heading="Tilbakemelding"
     >
-      <Textarea value={verdi} onChange={e => setVerdi(e.target.value)} label="Hva er din tilbakemelding?" minRows={5} />
+      <Textarea
+        value={verdi}
+        onChange={e => setVerdi(e.target.value)}
+        label="Hva er din tilbakemelding?"
+        minRows={5}
+        data-testid="textarea_tilbakemelding"
+      />
     </StandardModal>
   );
 };

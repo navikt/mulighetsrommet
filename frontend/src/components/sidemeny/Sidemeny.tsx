@@ -17,7 +17,7 @@ const Sidemeny = ({ tiltaksnavn }: SidemenyProps) => {
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">
         <Button>Meld på</Button>
-        <Button variant="tertiary" onClick={() => setSendInformasjonModalOpen(true)}>
+        <Button variant="tertiary" onClick={() => setSendInformasjonModalOpen(true)} data-testid="btn_send-informasjon">
           Send informasjon
         </Button>
         <Button variant="tertiary">Se ekstern nettside</Button>
@@ -48,7 +48,9 @@ const Sidemeny = ({ tiltaksnavn }: SidemenyProps) => {
 
         <Panel className="tiltakstype-detaljer__sidemeny__tilbakemelding">
           Har du forslag til forbedringer eller endringer vil vi gjerne at du sier ifra
-          <Button onClick={() => setTilbakemeldingsmodalOpen(true)}>Gi tilbakemelding</Button>
+          <Button onClick={() => setTilbakemeldingsmodalOpen(true)} data-testid="btn_gi-tilbakemelding">
+            Gi tilbakemelding
+          </Button>
         </Panel>
       </Panel>
 

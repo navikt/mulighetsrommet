@@ -10,7 +10,7 @@ export interface TiltakstypelisteProps {
 
 const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
   return (
-    <Table zebraStripes size="small" data-testid="tabell__oversikt-tiltakstyper">
+    <Table zebraStripes size="small" data-testid="tabell_tiltakstyper">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell className="tabell-tiltakstyper__tiltaksnummer">Tiltaksnummer</Table.HeaderCell>
@@ -31,7 +31,11 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
             {tiltakstypeliste.map((tiltakstype: Tiltakstype) => (
               <Table.Row key={tiltakstype.id}>
                 <Table.HeaderCell>
-                  <Lenke to={`/tiltakstyper/${tiltakstype.id}`} isInline>
+                  <Lenke
+                    to={`/tiltakstyper/${tiltakstype.id}`}
+                    isInline
+                    data-testid="tabell_tiltakstyper_tiltaksnummer"
+                  >
                     {tiltakstype.id}
                   </Lenke>
                 </Table.HeaderCell>
