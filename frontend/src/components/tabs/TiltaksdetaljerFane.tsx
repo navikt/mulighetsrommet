@@ -13,31 +13,24 @@ const TiltaksdetaljerFane = () => {
   const params = useParams<RouteParams>();
   const id = Number(params.id);
   const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltakstypeId(id);
+  const faneoverskrifter = [
+    'Tiltaksgjennomføringer',
+    'Om kurset',
+    'Detaljer',
+    'Påmelding',
+    'Innhold',
+    'Varighet',
+    'Statistikk',
+  ];
 
   return (
     <Tabs.Root defaultValue="tab1" orientation="vertical" className="fane__root">
       <Tabs.List className="fane__liste">
-        <Tabs.Trigger value="tab1" className="btn__tab1">
-          Tiltaksgjennomføringer
-        </Tabs.Trigger>
-        <Tabs.Trigger value="tab2" className="btn__tab2">
-          Om kurset
-        </Tabs.Trigger>
-        <Tabs.Trigger value="tab3" className="btn__tab3">
-          Detaljer
-        </Tabs.Trigger>
-        <Tabs.Trigger value="tab4" className="btn__tab4">
-          Påmelding
-        </Tabs.Trigger>
-        <Tabs.Trigger value="tab5" className="btn__tab5">
-          Innhold
-        </Tabs.Trigger>
-        <Tabs.Trigger value="tab6" className="btn__tab6">
-          Varighet
-        </Tabs.Trigger>
-        <Tabs.Trigger value="tab7" className="btn__tab7">
-          Statistikk
-        </Tabs.Trigger>
+        {faneoverskrifter.map((fane, index) => (
+          <Tabs.Trigger value={`tab${index + 1}`} className={`btn__tab${index + 1}`}>
+            {fane}
+          </Tabs.Trigger>
+        ))}
       </Tabs.List>
       <Tabs.Content value="tab1">
         <TiltaksgjennomforingsTabell tiltaksgjennomforinger={tiltaksgjennomforinger.data} />
