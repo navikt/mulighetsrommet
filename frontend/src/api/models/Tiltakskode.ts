@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export enum Tiltaskode {
+export enum Tiltakskode {
     ABIST = 'ABIST',
     ABOPPF = 'ABOPPF',
     ABTBOPPF = 'ABTBOPPF',

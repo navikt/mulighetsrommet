@@ -3,6 +3,7 @@
 /* eslint-disable */
 import type { Innsatsgruppe } from '../models/Innsatsgruppe';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
+import type { Tiltakskode } from '../models/Tiltakskode';
 import type { Tiltakstype } from '../models/Tiltakstype';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { request as __request } from '../core/request';
@@ -39,7 +40,7 @@ export class MulighetsrommetService {
         tiltakskode,
     }: {
         /** Tiltakskode **/
-        tiltakskode: string,
+        tiltakskode: Tiltakskode,
     }): CancelablePromise<Tiltakstype> {
         return __request({
             method: 'GET',
@@ -58,7 +59,7 @@ export class MulighetsrommetService {
         tiltakskode,
     }: {
         /** Tiltakskode **/
-        tiltakskode: string,
+        tiltakskode: Tiltakskode,
     }): CancelablePromise<Array<Tiltaksgjennomforing>> {
         return __request({
             method: 'GET',

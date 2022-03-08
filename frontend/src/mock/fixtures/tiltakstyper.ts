@@ -1,114 +1,114 @@
-import { Tiltakstype } from '../../api';
+import { Tiltakskode, Tiltakstype } from '../../api';
 
 export const tiltakstyper: Tiltakstype[] = [
   {
     innsatsgruppe: 1,
     navn: 'Opplæring',
-    tiltakskode: 'ABIST',
+    tiltakskode: Tiltakskode.ABIST,
   },
   {
     innsatsgruppe: 1,
     navn: 'Funksjonsassistanse',
-    tiltakskode: 'ABOPPF',
+    tiltakskode: Tiltakskode.ABIST,
   },
   {
     innsatsgruppe: 1,
     navn: 'Utvidet oppfølging',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABIST,
   },
   {
     innsatsgruppe: 1,
     navn: 'Avklaring',
-    tiltakskode: 'ABIST',
+    tiltakskode: Tiltakskode.AMBF1,
   },
   {
     innsatsgruppe: 1,
     navn: 'Arbeidsmarkedsopplæring (AMO)',
-    tiltakskode: 'ABIST',
+    tiltakskode: Tiltakskode.ARBRDAGSM,
   },
   {
     innsatsgruppe: 1,
     navn: 'Ekspertbistand',
-    tiltakskode: 'ABIST',
+    tiltakskode: Tiltakskode.ABIST,
   },
   {
     innsatsgruppe: 1,
     navn: 'Jobbklubb',
-    tiltakskode: 'ABIST',
+    tiltakskode: Tiltakskode.ABIST,
   },
   {
     innsatsgruppe: 2,
     navn: 'Oppfølging',
-    tiltakskode: 'ABOPPF',
+    tiltakskode: Tiltakskode.ABOPPF,
   },
   {
     innsatsgruppe: 2,
     navn: 'Digital jobbklubb',
-    tiltakskode: 'ABOPPF',
+    tiltakskode: Tiltakskode.ABOPPF,
   },
   {
     innsatsgruppe: 2,
     navn: 'Fag- og yrkesopplæring',
-    tiltakskode: 'ABOPPF',
+    tiltakskode: Tiltakskode.ABOPPF,
   },
   {
     innsatsgruppe: 2,
     navn: 'Arbeidstrening',
-    tiltakskode: 'ABOPPF',
+    tiltakskode: Tiltakskode.ABOPPF,
   },
   {
     innsatsgruppe: 2,
     navn: 'Arbeidsforberedende trening',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 2,
     navn: 'Midlertidig lønnstilskudd',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 2,
     navn: 'Varig lønnstilskudd',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Varig tilrettelagt arbeid i skjermet virksomhet',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Varig tilrettelagt arbeid i ordinær virksomhet',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Inkluderingstilskudd',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Funksjonsassistanse i arbeidslivet',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Mentor',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Arbeidsrettet rehabilitering',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 3,
     navn: 'Individuell jobbstøtte',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
   {
     innsatsgruppe: 4,
     navn: 'Tilskudd til sommerjobb',
-    tiltakskode: 'ABTBOPPF',
+    tiltakskode: Tiltakskode.ABTBOPPF,
   },
 ];

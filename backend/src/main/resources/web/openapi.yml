@@ -138,7 +138,7 @@ components:
       description: Tiltakskode
       required: true
       schema:
-        type: string
+        $ref: "#/components/schemas/Tiltakskode"
 
   schemas:
     Innsatsgruppe:
@@ -168,7 +168,7 @@ components:
         navn:
           type: string
         tiltakskode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
         fraDato:
           type: string
           nullable: true
@@ -197,7 +197,7 @@ components:
         beskrivelse:
           type: string
         tiltakskode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
         tiltaksnummer:
           type: string
         fraDato:
@@ -221,7 +221,7 @@ components:
         - tilataksnummer
         - fraDato
         - tilDato
-    Tiltaskode:
+    Tiltakskode:
       type: string
       enum:
         - ABIST

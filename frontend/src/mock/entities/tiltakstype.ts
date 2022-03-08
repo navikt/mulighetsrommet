@@ -1,5 +1,5 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltakstype } from '../../api';
+import { Tiltakskode, Tiltakstype } from '../../api';
 import { DatabaseDictionary } from '../database';
 
 export type TiltakstypeEntity = Entity<DatabaseDictionary, 'tiltakstype'>;
@@ -9,6 +9,6 @@ export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
     id: entity.id,
     innsatsgruppe: entity.innsatsgruppe?.id ?? null,
     navn: entity.navn,
-    tiltakskode: entity.tiltakskode,
+    tiltakskode: Tiltakskode[entity.tiltakskode as keyof typeof Tiltakskode],
   };
 }

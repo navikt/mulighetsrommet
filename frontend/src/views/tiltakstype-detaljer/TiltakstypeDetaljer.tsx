@@ -6,6 +6,7 @@ import '../Tiltakstype-tiltaksgjennomforing-detaljer.less';
 import { Alert, Loader, Ingress, BodyLong } from '@navikt/ds-react';
 import useTiltakstype from '../../hooks/tiltakstype/useTiltakstype';
 import useTiltaksgjennomforingerByTiltakskode from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode';
+import { Tiltakskode } from '../../api';
 
 interface RouteParams {
   tiltakskode: string;
@@ -13,7 +14,7 @@ interface RouteParams {
 
 const TiltakstypeDetaljer = () => {
   const params = useParams<RouteParams>();
-  const tiltakskode = params.tiltakskode;
+  const tiltakskode = Tiltakskode[params.tiltakskode as keyof typeof Tiltakskode];
   const tiltakstype = useTiltakstype(tiltakskode);
   const tiltaksgjennomforinger = useTiltaksgjennomforingerByTiltakskode(tiltakskode);
 

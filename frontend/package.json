@@ -92,7 +92,7 @@
     "eslint-plugin-react": "^7.24.0",
     "faker": "^5.5.3",
     "msw": "^0.36.2",
-    "openapi-typescript-codegen": "^0.12.5",
+    "openapi-typescript-codegen": "^0.20.1",
     "postcss": "^8.4.6",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
