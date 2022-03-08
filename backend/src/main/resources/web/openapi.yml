@@ -21,7 +21,7 @@ paths:
   /api/innsatsgrupper:
     get:
       tags:
-        - mulighetsrommet
+        - innsatsgrupper
       operationId: getInnsatsgrupper
       responses:
         200:
@@ -35,7 +35,7 @@ paths:
   /api/tiltakstyper:
     get:
       tags:
-        - mulighetsrommet
+        - tiltakstype
       operationId: getTiltakstyper
       responses:
         200:
@@ -51,17 +51,35 @@ paths:
       - $ref: "#/components/parameters/Tiltakskode"
     get:
       tags:
-        - mulighetsrommet
-      operationId: getTiltakstype
+        - tiltakstype
       responses:
         200:
-          description: The specified tiltakstype.
+          description: the specified tiltakstype.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
         404:
-          description: The specified tiltakstype was not found.
+          description: the specified tiltakstype was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
+    parameters:
+      - $ref: "#/components/parameters/Tiltakskode"
+    get:
+      tags:
+        - tiltakstype
+      responses:
+        200:
+          description: An array of tiltaksgjennomføringer for specified tiltakskode.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        404:
+          description: the specified tiltakstype was not found.
           content:
             text/plain:
               schema:
@@ -69,7 +87,7 @@ paths:
   /api/tiltaksgjennomforinger:
     get:
       tags:
-        - mulighetsrommet
+        - tiltaksgjennomføring
       operationId: getTiltaksgjennomforinger
       responses:
         200:
@@ -85,7 +103,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - mulighetsrommet
+        - tiltaksgjennomføring
       operationId: getTiltaksgjennomforing
       responses:
         200:
@@ -132,22 +150,6 @@ components:
         - id
         - tittel
         - beskrivelse
-    UnsavedTiltakstype:
-      type: object
-      properties:
-        innsatsgruppe:
-          type: number
-          nullable: true
-        tittel:
-          type: string
-        beskrivelse:
-          type: string
-        ingress:
-          type: string
-      required:
-        - tittel
-        - beskrivelse
-        - ingress
     Tiltakstype:
       type: object
       properties:
@@ -190,8 +192,8 @@ components:
           type: string
         beskrivelse:
           type: string
-        tiltakstypeId:
-          type: integer
+        tiltakskode:
+          type: string
         tiltaksnummer:
           type: string
         fraDato:
@@ -211,7 +213,7 @@ components:
         - id
         - tittel
         - beskrivelse
-        - tiltakstypeId
+        - tiltakskode
         - tilataksnummer
         - fraDato
         - tilDato

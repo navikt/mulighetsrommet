@@ -35,7 +35,7 @@ object TiltakstypeTable : IntIdTable() {
     val navn: Column<String> = text("navn")
     val innsatsgruppeId: Column<Int> = integer("innsatsgruppe_id").references(InnsatsgruppeTable.id)
     val sanityId: Column<Int?> = integer("sanity_id").nullable()
-    val tiltakskode = customEnumeration("tiltakskode", "tiltakskode", { value -> Tiltakskode.valueOf(value as String) }, { PGEnum("tiltakskode", it) })
+    val tiltakskode: Column<Tiltakskode> = customEnumeration("tiltakskode", "tiltakskode", { value -> Tiltakskode.valueOf(value as String) }, { PGEnum("tiltakskode", it) })
     val fraDato: Column<LocalDateTime?> = datetime("dato_fra").nullable()
     val tilDato: Column<LocalDateTime?> = datetime("dato_til").nullable()
     val createdBy: Column<String?> = text("created_by").nullable()

@@ -7,12 +7,14 @@ import io.ktor.response.respondText
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import no.nav.mulighetsrommet.api.domain.Tiltakskode
+import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.koin.ktor.ext.inject
 
 fun Route.tiltakstypeRoutes() {
 
     val tiltakstypeService: TiltakstypeService by inject()
+    val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
     get("/api/tiltakstyper") {
         val tiltakstyper = tiltakstypeService.getTiltakstyper()
@@ -27,5 +29,13 @@ fun Route.tiltakstypeRoutes() {
         }.onFailure {
             call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
         }
+    }
+    get("/api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger") {
+        runCatching {
+            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakskode(tiltakskode)
+        }.onSuccess { tiltaksgjennomforinger ->
+            call.respond(tiltaksgjennomforinger)
+        }.onFailure { call.respondText("Fant ikke tiltakstype", status = HttpStatusCode.NotFound) }
     }
 }
