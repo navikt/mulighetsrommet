@@ -6,6 +6,7 @@ import { context, response } from 'msw';
 export const Responses = {
   ok,
   notFound,
+  badReq,
 };
 
 export function ok<T>(data?: T) {
@@ -14,4 +15,8 @@ export function ok<T>(data?: T) {
 
 export function notFound<T>(data?: T) {
   return response(context.delay(), context.status(404), data ? context.json(data) : context.text('Not found'));
+}
+
+export function badReq<T>(data?: T) {
+  return response(context.delay(), context.status(400), data ? context.json(data) : context.text('Bad request'));
 }

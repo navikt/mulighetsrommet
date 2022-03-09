@@ -7,8 +7,8 @@ export { OpenAPI } from './core/OpenAPI';
 
 export type { Innsatsgruppe } from './models/Innsatsgruppe';
 export type { Tiltaksgjennomforing } from './models/Tiltaksgjennomforing';
+export { Tiltakskode } from './models/Tiltakskode';
 export type { Tiltakstype } from './models/Tiltakstype';
-export type { UnsavedTiltakstype } from './models/UnsavedTiltakstype';
 
 export { InternalService } from './services/InternalService';
 export { MulighetsrommetService } from './services/MulighetsrommetService';

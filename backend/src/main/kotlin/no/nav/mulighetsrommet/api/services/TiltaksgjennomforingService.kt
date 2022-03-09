@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.TiltaksgjennomforingTable
+import no.nav.mulighetsrommet.api.domain.Tiltakskode
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -29,9 +30,9 @@ class TiltaksgjennomforingService(private val db: DatabaseFactory) {
         }
     }
 
-    suspend fun getTiltaksgjennomforingerByTiltakstypeId(id: Int): List<Tiltaksgjennomforing> {
+    suspend fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
         val tiltaksgjennomforingRows = db.dbQuery {
-            TiltaksgjennomforingTable.select { TiltaksgjennomforingTable.tiltakstypeId eq id }.toList()
+            TiltaksgjennomforingTable.select { TiltaksgjennomforingTable.tiltakskode eq tiltakskode }.toList()
         }
         return tiltaksgjennomforingRows.map { row ->
             toTiltaksgjennomforing(row)
@@ -44,7 +45,7 @@ class TiltaksgjennomforingService(private val db: DatabaseFactory) {
             tittel = row[TiltaksgjennomforingTable.tittel],
             beskrivelse = row[TiltaksgjennomforingTable.beskrivelse],
             tiltaksnummer = row[TiltaksgjennomforingTable.tiltaksnummer],
-            tiltakstypeId = row[TiltaksgjennomforingTable.tiltakstypeId].value,
+            tiltakskode = row[TiltaksgjennomforingTable.tiltakskode],
             fraDato = row[TiltaksgjennomforingTable.fraDato],
             tilDato = row[TiltaksgjennomforingTable.tilDato]
         )

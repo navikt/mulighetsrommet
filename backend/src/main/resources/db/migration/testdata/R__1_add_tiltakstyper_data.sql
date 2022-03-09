@@ -9,7 +9,7 @@ on conflict (id) do update set tittel      = excluded.tittel,
 
 -- La til 50, ikke sikkert vi trenger flere.
 -- insert into tiltakstype (id, innsatsgruppe_id, navn, tiltakskode, dato_fra, dato_til)
--- values  (1, 1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
+-- values  (1, 1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31')
 --         (2, 1, 'Arbeid med bistand A oppfølging', 'ABOPPF', '2008-08-01', '2013-12-31'),
 --         (3, 1, 'Arbeid med bistand B', 'ABTBOPPF', '2008-08-01', '2013-12-31'),
 --         (4, 1, 'Arbeid med bistand A utvidet oppfølging', 'ABUOPPF', '2008-08-01', '2013-12-31'),

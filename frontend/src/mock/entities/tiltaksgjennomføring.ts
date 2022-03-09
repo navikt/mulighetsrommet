@@ -1,5 +1,5 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltaksgjennomforing } from '../../api';
+import { Tiltaksgjennomforing, Tiltakskode } from '../../api';
 import { DatabaseDictionary } from '../database';
 
 export type TiltaksgjennomforingEntity = Entity<DatabaseDictionary, 'tiltaksgjennomforing'>;
@@ -8,7 +8,7 @@ export function toTiltaksgjennomforing(entity: TiltaksgjennomforingEntity): Tilt
   return {
     id: entity.id,
     tiltaksnummer: entity.tiltaksnummer,
-    tiltakstypeId: entity.tiltakstypeId?.id ?? -1,
+    tiltakskode: Tiltakskode[entity.tiltakskode as keyof typeof Tiltakskode],
     tittel: entity.tittel,
     beskrivelse: entity.beskrivelse,
     fraDato: entity.fraDato,

@@ -16,7 +16,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                enum: [PONG]
+                enum: [ PONG ]
 
   /api/innsatsgrupper:
     get:
@@ -55,13 +55,35 @@ paths:
       operationId: getTiltakstype
       responses:
         200:
-          description: The specified tiltakstype.
+          description: the specified tiltakstype.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
         404:
-          description: The specified tiltakstype was not found.
+          description: the specified tiltakstype was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
+    parameters:
+      - $ref: "#/components/parameters/Tiltakskode"
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getTiltaksgjennomforingerByTiltakskode
+      responses:
+        200:
+          description: An array of tiltaksgjennomføringer for specified tiltakskode.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksgjennomforing"
+        404:
+          description: the specified tiltakstype was not found.
           content:
             text/plain:
               schema:
@@ -116,7 +138,7 @@ components:
       description: Tiltakskode
       required: true
       schema:
-        type: string
+        $ref: "#/components/schemas/Tiltakskode"
 
   schemas:
     Innsatsgruppe:
@@ -132,22 +154,6 @@ components:
         - id
         - tittel
         - beskrivelse
-    UnsavedTiltakstype:
-      type: object
-      properties:
-        innsatsgruppe:
-          type: number
-          nullable: true
-        tittel:
-          type: string
-        beskrivelse:
-          type: string
-        ingress:
-          type: string
-      required:
-        - tittel
-        - beskrivelse
-        - ingress
     Tiltakstype:
       type: object
       properties:
@@ -162,7 +168,7 @@ components:
         navn:
           type: string
         tiltakskode:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
         fraDato:
           type: string
           nullable: true
@@ -190,8 +196,8 @@ components:
           type: string
         beskrivelse:
           type: string
-        tiltakstypeId:
-          type: integer
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         tiltaksnummer:
           type: string
         fraDato:
@@ -211,7 +217,114 @@ components:
         - id
         - tittel
         - beskrivelse
-        - tiltakstypeId
+        - tiltakskode
         - tilataksnummer
         - fraDato
         - tilDato
+    Tiltakskode:
+      type: string
+      enum:
+        - ABIST
+        - ABOPPF
+        - ABTBOPPF
+        - ABUOPPF
+        - AMBF1
+        - AMBF2
+        - AMBF3
+        - AMO
+        - AMOB
+        - AMOE
+        - AMOY
+        - ANNUTDANN
+        - ARBDOGNSM
+        - ARBFORB
+        - ARBRDAGSM
+        - ARBRRDOGN
+        - ARBRRHBAG
+        - ARBRRHBSM
+        - ARBRRHDAG
+        - ARBTREN
+        - ASV
+        - ATG
+        - AVKLARAG
+        - AVKLARKV
+        - AVKLARSP
+        - AVKLARSV
+        - AVKLARUS
+        - BIA
+        - BIO
+        - BREVKURS
+        - DIGIOPPARB
+        - DIVTILT
+        - EKSPEBIST
+        - ENKELAMO
+        - ENKFAGYRKE
+        - ETAB
+        - FLEKSJOBB
+        - FORSAMOENK
+        - FORSAMOGRU
+        - FORSFAGENK
+        - FORSFAGGRU
+        - FORSHOYUTD
+        - FUNKSJASS
+        - GRUFAGYRKE
+        - GRUNNSKOLE
+        - GRUPPEAMO
+        - HOYEREUTD
+        - HOYSKOLE
+        - INDJOBSTOT
+        - INDOPPFAG
+        - INDOPPFOLG
+        - INDOPPFSP
+        - INDOPPRF
+        - INKLUTILS
+        - INST_S
+        - IPSUNG
+        - ITGRTILS
+        - JOBBBONUS
+        - JOBBFOKUS
+        - JOBBK
+        - JOBBKLUBB
+        - JOBBSKAP
+        - KAT
+        - KURS
+        - LONNTIL
+        - LONNTILAAP
+        - LONNTILL
+        - LONNTILS
+        - MENTOR
+        - MIDLONTIL
+        - NETTAMO
+        - NETTKURS
+        - OPPLT2AAR
+        - PRAKSKJERM
+        - PRAKSORD
+        - PV
+        - REAKTUFOR
+        - REFINO
+        - SPA
+        - STATLAERL
+        - SUPPEMP
+        - SYSSLANG
+        - SYSSOFF
+        - TIDSUBLONN
+        - TILPERBED
+        - TILRETTEL
+        - TILRTILSK
+        - TILSJOBB
+        - UFØREPENLØ
+        - UTBHLETTPS
+        - UTBHPSLD
+        - UTBHSAMLI
+        - UTDPERMVIK
+        - UTDYRK
+        - UTVAOONAV
+        - UTVOPPFOPL
+        - VALS
+        - VARLONTIL
+        - VASV
+        - VATIAROR
+        - VIDRSKOLE
+        - VIKARBLED
+        - VV
+        - YHEMMOFF

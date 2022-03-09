@@ -13,7 +13,7 @@ interface TiltaksoversiktProps {
 const Tiltakstypeoversikt = (props: TiltaksoversiktProps) => {
   const { tiltakstyper } = props;
   const fuse = new Fuse(tiltakstyper ?? [], {
-    keys: ['id', 'tittel', 'ingress'],
+    keys: ['id', 'navn', 'ingress'],
     shouldSort: true,
     threshold: 0.3,
   });
