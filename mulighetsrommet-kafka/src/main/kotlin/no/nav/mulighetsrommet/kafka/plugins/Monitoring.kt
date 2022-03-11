@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.plugins
+package no.nav.mulighetsrommet.kafka.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.call

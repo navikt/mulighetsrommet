@@ -1,10 +1,10 @@
-package no.nav.mulighetsrommet
+package no.nav.mulighetsrommet.kafka
 
 import io.ktor.server.application.Application
-import no.nav.mulighetsrommet.plugins.configureHTTP
-import no.nav.mulighetsrommet.plugins.configureMonitoring
-import no.nav.mulighetsrommet.plugins.configureRouting
-import no.nav.mulighetsrommet.plugins.configureSerialization
+import no.nav.mulighetsrommet.kafka.plugins.configureHTTP
+import no.nav.mulighetsrommet.kafka.plugins.configureMonitoring
+import no.nav.mulighetsrommet.kafka.plugins.configureRouting
+import no.nav.mulighetsrommet.kafka.plugins.configureSerialization
 
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain.main(args)

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.plugins
+package no.nav.mulighetsrommet.kafka.plugins
 
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application

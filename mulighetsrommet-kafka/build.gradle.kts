@@ -8,7 +8,7 @@ val ktlint_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
 }
@@ -17,7 +17,7 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     disabledRules.addAll("no-wildcard-imports")
 }
 
-group = "no.nav.mulighetsrommet"
+group = "no.nav.mulighetsrommet.kafka"
 version = "0.0.1"
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
