@@ -28,6 +28,12 @@ application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
+flyway {
+    url = "jdbc:postgresql://localhost:5442/mulighetsrommet-kafka-db"
+    user = System.getenv("DB_USERNAME")
+    password = System.getenv("DB_PASSWORD")
+}
+
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
