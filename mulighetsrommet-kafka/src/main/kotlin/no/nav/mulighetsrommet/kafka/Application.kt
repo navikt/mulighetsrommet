@@ -34,11 +34,17 @@ fun main(args: Array<String>) {
             }
         }
     )
+
     server.start(true)
 }
 
 @Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
 fun Application.main() {
+
+    val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
+
+    Database(config.database)
+
     configureRouting()
     configureSerialization()
     configureMonitoring()

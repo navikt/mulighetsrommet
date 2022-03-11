@@ -6,4 +6,7 @@ server:
 
 database:
   host: localhost
-  port: 5432
+  port: 5442
+  name: mulighetsrommet-kafka-db
+  user: valp
+  password: valp

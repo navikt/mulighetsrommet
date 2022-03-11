@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.kafka
 
+import com.sksamuel.hoplite.Masked
+
 data class AppConfig(
     val env: String,
     val server: ServerConfig,
@@ -13,5 +15,8 @@ data class ServerConfig(
 
 data class DatabaseConfig(
     val host: String,
-    val port: Int
+    val port: Int,
+    val name: String,
+    val user: String,
+    val password: Masked
 )
