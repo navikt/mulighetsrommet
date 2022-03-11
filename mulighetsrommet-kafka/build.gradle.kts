@@ -5,10 +5,15 @@ val prometeus_version: String by project
 val kotest_version: String by project
 val mockk_version: String by project
 val ktlint_version: String by project
+val hikari_version: String by project
+val postgresql_version: String by project
+val flyway_version: String by project
+val hoplite_version: String by project
 
 plugins {
     application
     kotlin("jvm") version "1.6.10"
+    id("org.flywaydb.flyway") version "8.5.2"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
 }
@@ -39,6 +44,11 @@ dependencies {
     implementation("io.ktor:ktor-server-cors-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("com.zaxxer:HikariCP:$hikari_version")
+    implementation("org.postgresql:postgresql:$postgresql_version")
+    implementation("org.flywaydb:flyway-core:$flyway_version")
+    implementation("com.sksamuel.hoplite:hoplite-core:$hoplite_version")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:$hoplite_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.mockk:mockk:$mockk_version")
