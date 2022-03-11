@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet
+package no.nav.mulighetsrommet.kafka
 
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
