@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.kafka
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.Application
-import io.ktor.server.config.*
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
@@ -43,7 +42,7 @@ fun Application.main() {
 
     val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
 
-    Database(config.database)
+    val db = Database(config.database)
 
     configureRouting()
     configureSerialization()
@@ -53,4 +52,6 @@ fun Application.main() {
     routing {
         healthRoutes()
     }
+
+    db.testSelect()
 }
