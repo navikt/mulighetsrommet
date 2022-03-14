@@ -3,7 +3,7 @@ CREATE TABLE events(
     topic   TEXT NOT NULL,
     key     TEXT NOT NULL,
     "offset"  INTEGER NOT NULL,
-    payload JSON NOT NULL
+    payload JSONB NOT NULL
 );
 
 ALTER TABLE events
