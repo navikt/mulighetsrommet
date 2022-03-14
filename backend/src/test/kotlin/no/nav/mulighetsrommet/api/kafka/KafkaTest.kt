@@ -41,12 +41,15 @@ class KafkaTest : FunSpec({
                 LocalDateTime.parse("2016-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 LocalDateTime.parse("2019-06-30 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 "SIAMO",
-                LocalDateTime.parse("2015-12-30 08:42:06", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                LocalDateTime.parse("2015-12-30 08:42:06", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                "SIAMO"
             )
             coEvery { mockTiltakstypeService.createTiltakstype(any()) } returns expectedTiltakstype
             val record = ConsumerRecord("topic-tiltakendret", 0, 0, "MENTOR", tiltakEndretMentor)
             eventProcessor.process(record)
-            coVerify(exactly = 1) { mockTiltakstypeService.createTiltakstype(expectedTiltakstype) }
+            coVerify(exactly = 1) {
+                mockTiltakstypeService.createTiltakstype(expectedTiltakstype)
+            }
         }
     }
 })
