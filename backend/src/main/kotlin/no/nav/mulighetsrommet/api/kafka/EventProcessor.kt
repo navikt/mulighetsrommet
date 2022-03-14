@@ -66,7 +66,8 @@ class EventProcessor(private val topicMap: Map<String, String>, private val tilt
                 getArenaDateFormat()
             ),
             createdBy = json["REG_USER"]!!.jsonPrimitive.content,
-            updatedBy = json["MOD_USER"]!!.jsonPrimitive.content
+            updatedBy = json["MOD_USER"]!!.jsonPrimitive.content,
+            createdAt = LocalDateTime.parse(json["REG_DATO"]!!.jsonPrimitive.content, getArenaDateFormat())
         )
     }
 }
