@@ -43,7 +43,9 @@ jobs:
           distribution: temurin
           java-version: 11
           cache: gradle
-      - name: Build with Gradle
+      - name: Set up test environment
+        run: docker-compose up -d
+      - name: Build and test
         run: ./gradlew build --info
 
   build-fe:

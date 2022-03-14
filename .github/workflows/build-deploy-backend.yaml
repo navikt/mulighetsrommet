@@ -45,10 +45,10 @@ jobs:
           distribution: temurin
           java-version: 11
           cache: gradle
+      - name: Set up test environment
+        run: docker-compose up -d
       - name: Build with Gradle
-        # Disable test until we can mock out the koin components initialized at start
-        # run: ./gradlew test build --info
-        run: ./gradlew build -x test --info
+        run: ./gradlew build --info
       - name: Publish test report
         uses: ScaCap/action-surefire-report@v1
         with:
