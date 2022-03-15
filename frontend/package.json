@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate-api-client": "openapi --useOptions --input ../backend/src/main/resources/web/openapi.yml --output ./src/api",
     "build": "eslint && tsc && vite build",
     "build:labs": "cross-env VITE_DEV=true VITE_ENABLE_MOCK=true eslint && tsc && vite build",
     "clean": "rimraf build",
@@ -48,6 +47,7 @@
     "jotai": "^1.5.3",
     "lodash.throttle": "^4.1.1",
     "mem": "^9.0.2",
+    "mulighetsrommet-api-client": "file:../api-client",
     "node-forge": "^1.2.1",
     "nth-check": "^2.0.1",
     "prop-types": "^15.7.2",
@@ -92,7 +92,6 @@
     "eslint-plugin-react": "^7.24.0",
     "faker": "^5.5.3",
     "msw": "^0.36.2",
-    "openapi-typescript-codegen": "^0.20.1",
     "postcss": "^8.4.6",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",

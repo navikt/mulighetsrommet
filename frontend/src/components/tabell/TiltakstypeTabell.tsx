@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from '@navikt/ds-react';
 import Lenke from '../lenke/Lenke';
-import { Tiltakstype } from '../../api';
+import { Tiltakstype } from 'mulighetsrommet-api-client';
 
 export interface TiltakstypelisteProps {
   tiltakstypeliste: Array<Tiltakstype>;
