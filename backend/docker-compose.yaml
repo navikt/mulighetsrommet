@@ -4,7 +4,7 @@ services:
     image: "postgres:12.3-alpine"
     restart: "always"
     volumes:
-      - "mulighetsrommet-api:/var/lib/postgresql/data"
+      - "mulighetsrommet:/var/lib/postgresql/data"
     ports:
       - "5442:5432"
     environment:
@@ -42,4 +42,4 @@ services:
     depends_on:
       - kafka
 volumes:
-  mulighetsrommet-api:
+  mulighetsrommet:

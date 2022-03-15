@@ -1,12 +1,17 @@
-env: local
-
 server:
   port: 8080
   host: 0.0.0.0
 
 database:
-  host: localhost
-  port: 5442
-  name: mulighetsrommet-kafka-db
-  user: valp
-  password: valp
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  name: ${DB_DATABASE}
+  user: ${DB_USERNAME}
+  password: ${DB_PASSWORD}
+
+kafka:
+  brokers: ${KAFKA_BROKERS}
+  consumerGroupId: mulighetsrommet-kafka-consumer.v1
+  topics:
+    consumer:
+      tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET}

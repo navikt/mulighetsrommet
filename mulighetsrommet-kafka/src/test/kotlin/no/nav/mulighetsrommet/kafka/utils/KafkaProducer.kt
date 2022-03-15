@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.kafka
+package no.nav.mulighetsrommet.kafka.utils
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

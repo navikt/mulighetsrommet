@@ -42,7 +42,6 @@ fun initializeServer(config: AppConfig, kafka: Kafka) {
 
 fun Application.main(config: AppConfig, kafka: Kafka) {
 
-
     configureRouting()
     configureSerialization()
     configureMonitoring()

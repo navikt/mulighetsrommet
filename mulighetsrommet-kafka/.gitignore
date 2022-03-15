@@ -8,6 +8,7 @@ users.txt
 .gradle
 build/
 !src/**/build/
+.envrc
 
 # Ignore Gradle GUI config
 gradle-app.setting

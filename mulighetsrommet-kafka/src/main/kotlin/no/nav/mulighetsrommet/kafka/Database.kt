@@ -2,13 +2,10 @@ package no.nav.mulighetsrommet.kafka
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
 
