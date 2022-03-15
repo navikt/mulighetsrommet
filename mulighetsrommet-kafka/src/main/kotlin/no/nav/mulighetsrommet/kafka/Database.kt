@@ -4,12 +4,20 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotliquery.Session
+import kotliquery.queryOf
+import kotliquery.sessionOf
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.flywaydb.core.Flyway
+import org.slf4j.LoggerFactory
 
 class Database(databaseConfig: DatabaseConfig) {
 
+    private val logger = LoggerFactory.getLogger(Database::class.java)
     private var flyway: Flyway
     private var db: HikariDataSource
+    private var session: Session
 
     init {
         val jdbcUrl = "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.name}"
@@ -23,35 +31,16 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.validate()
 
         db = HikariDataSource(hikariConfig)
+        session = sessionOf(db)
 
+        // TODO: Flytt ut til CI etterhvert
         flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
         flyway.migrate()
     }
 
-    fun testSelect() {
-        val query = "select * from events"
-        var events: MutableList<Event>? = null
-        db.connection.use { con ->
-            con.prepareStatement(query).use { pst ->
-                pst.executeQuery().use { rs ->
-                    events = mutableListOf()
-                    var event: Event
-                    while (rs.next()) {
-                        event = Event(
-                            rs.getInt("id"),
-                            rs.getString("topic"),
-                            rs.getString("key"),
-                            rs.getLong("offset"),
-                            Json.parseToJsonElement(rs.getString("payload"))
-                        )
-                        events!!.add(event)
-                    }
-                }
-            }
-        }
-        events?.forEach {
-            println(it.id)
-        }
+    fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: JsonElement) {
+        val query = "insert into events(topic, key, offset, payload) values(?, ?, ?, ?, ?)"
+        session.run(queryOf(query, topic, key, offset, payload).asUpdate)
     }
 
     data class Event(

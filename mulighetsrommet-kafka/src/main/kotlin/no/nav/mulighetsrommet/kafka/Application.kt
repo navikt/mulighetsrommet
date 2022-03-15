@@ -7,6 +7,7 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.kafka.plugins.configureHTTP
 import no.nav.mulighetsrommet.kafka.plugins.configureMonitoring
 import no.nav.mulighetsrommet.kafka.plugins.configureRouting
@@ -15,16 +16,19 @@ import no.nav.mulighetsrommet.kafka.routes.healthRoutes
 import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>) {
-
     val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
+    val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.kafka.consumerGroupId)
+    initializeServer(config, Kafka(config.kafka, preset, Database(config.database)))
+}
 
+fun initializeServer(config: AppConfig, kafka: Kafka) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                main()
+                main(config, kafka)
             }
 
             connector {
@@ -33,16 +37,11 @@ fun main(args: Array<String>) {
             }
         }
     )
-
     server.start(true)
 }
 
-@Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
-fun Application.main() {
+fun Application.main(config: AppConfig, kafka: Kafka) {
 
-    val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
-
-    val db = Database(config.database)
 
     configureRouting()
     configureSerialization()
@@ -52,6 +51,4 @@ fun Application.main() {
     routing {
         healthRoutes()
     }
-
-    db.testSelect()
 }

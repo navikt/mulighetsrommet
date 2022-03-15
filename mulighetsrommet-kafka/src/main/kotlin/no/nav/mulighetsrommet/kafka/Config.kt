@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.kafka
 import com.sksamuel.hoplite.Masked
 
 data class AppConfig(
-    val env: String,
     val server: ServerConfig,
-    val database: DatabaseConfig
+    val database: DatabaseConfig,
+    val kafka: KafkaConfig
 )
 
 data class ServerConfig(
@@ -19,4 +19,14 @@ data class DatabaseConfig(
     val name: String,
     val user: String,
     val password: Masked
+)
+
+data class KafkaConfig(
+    val brokers: String,
+    val consumerGroupId: String,
+    val topics: TopicsConfig
+)
+
+data class TopicsConfig(
+    val consumer: Map<String, String>
 )
