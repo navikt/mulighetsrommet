@@ -1,4 +1,4 @@
-import { Innsatsgruppe } from '../../api';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 
 export const innsatsgrupper: Innsatsgruppe[] = [
   {

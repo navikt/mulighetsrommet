@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { MulighetsrommetService, Tiltakstype } from '../../api';
+import { MulighetsrommetService, Tiltakstype } from 'mulighetsrommet-api-client';
 import { QueryKeys } from '../../core/api/QueryKeys';
 
 export default function useTiltakstyper() {

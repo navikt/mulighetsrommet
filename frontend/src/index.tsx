@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import '@navikt/ds-css';
 import './index.less';
-import { OpenAPI } from './api';
+import { OpenAPI } from 'mulighetsrommet-api-client';
 // import Navspa from '@navikt/navspa';
 import { worker } from './mock/worker';
 

@@ -16,4 +16,4 @@ export type Tiltakstype = {
     createdAt?: string | null;
     updatedBy?: string | null;
     updatedAt?: string | null;
-}
+};

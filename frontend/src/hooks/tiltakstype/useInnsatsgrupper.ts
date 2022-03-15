@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { MulighetsrommetService, Innsatsgruppe } from '../../api';
+import { MulighetsrommetService, Innsatsgruppe } from 'mulighetsrommet-api-client';
 import { QueryKeys } from '../../core/api/QueryKeys';
 
 export function useInnsatsgrupper() {

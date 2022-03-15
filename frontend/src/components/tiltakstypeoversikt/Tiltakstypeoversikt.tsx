@@ -4,7 +4,7 @@ import '../../views/tiltakstype-oversikt/TiltakstypeOversikt.less';
 import Fuse from 'fuse.js';
 import { useAtom } from 'jotai';
 import { tiltakstypeOversiktSok } from '../../core/atoms/atoms';
-import { Tiltakstype } from '../../api';
+import { Tiltakstype } from 'mulighetsrommet-api-client';
 
 interface TiltaksoversiktProps {
   tiltakstyper: Tiltakstype[];

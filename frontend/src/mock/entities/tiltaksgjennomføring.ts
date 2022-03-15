@@ -1,5 +1,5 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltaksgjennomforing, Tiltakskode } from '../../api';
+import { Tiltaksgjennomforing, Tiltakskode } from 'mulighetsrommet-api-client';
 import { DatabaseDictionary } from '../database';
 
 export type TiltaksgjennomforingEntity = Entity<DatabaseDictionary, 'tiltaksgjennomforing'>;

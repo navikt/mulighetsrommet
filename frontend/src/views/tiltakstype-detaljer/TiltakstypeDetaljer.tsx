@@ -6,7 +6,7 @@ import '../Tiltakstype-tiltaksgjennomforing-detaljer.less';
 import { Alert, Loader, Ingress, BodyLong } from '@navikt/ds-react';
 import useTiltakstype from '../../hooks/tiltakstype/useTiltakstype';
 import useTiltaksgjennomforingerByTiltakskode from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode';
-import { Tiltakskode } from '../../api';
+import { Tiltakskode } from 'mulighetsrommet-api-client';
 
 interface RouteParams {
   tiltakskode: string;
