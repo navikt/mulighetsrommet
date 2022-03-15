@@ -9,6 +9,8 @@ val hikari_version: String by project
 val postgresql_version: String by project
 val flyway_version: String by project
 val hoplite_version: String by project
+val common_java_modules_version: String by project
+val kotliquery_version: String by project
 
 plugins {
     application
@@ -37,6 +39,13 @@ flyway {
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
+    // Needed to get no.nav.common-java-modules to work. Deps from other repos
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -55,6 +64,8 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flyway_version")
     implementation("com.sksamuel.hoplite:hoplite-core:$hoplite_version")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hoplite_version")
+    implementation("no.nav.common:kafka:$common_java_modules_version")
+    implementation("com.github.seratch:kotliquery:$kotliquery_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.mockk:mockk:$mockk_version")
