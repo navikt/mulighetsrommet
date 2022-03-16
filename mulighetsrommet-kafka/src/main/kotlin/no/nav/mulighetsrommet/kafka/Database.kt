@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.kafka
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
@@ -35,9 +37,10 @@ class Database(databaseConfig: DatabaseConfig) {
         flyway.migrate()
     }
 
-    fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: JsonElement) {
-        val query = "insert into events(topic, key, offset, payload) values(?, ?, ?, ?, ?)"
-        session.run(queryOf(query, topic, key, offset, payload).asUpdate)
+    fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
+        val query = "insert into events(topic, key, \"offset\", payload) values(?, ?, ?, ? ::jsonb)"
+        val result = session.run(queryOf(query, topic, key, offset, payload).asUpdate)
+        if (result > 0) logger.debug("persisted kafka event ($topic, $key, $offset)")
     }
 
     data class Event(
