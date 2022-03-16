@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.kafka
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.ktor.server.application.Application
+import io.ktor.server.application.*
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
@@ -10,7 +10,6 @@ import io.ktor.server.routing.routing
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.kafka.plugins.configureHTTP
 import no.nav.mulighetsrommet.kafka.plugins.configureMonitoring
-import no.nav.mulighetsrommet.kafka.plugins.configureRouting
 import no.nav.mulighetsrommet.kafka.plugins.configureSerialization
 import no.nav.mulighetsrommet.kafka.routes.healthRoutes
 import org.slf4j.LoggerFactory
@@ -42,7 +41,6 @@ fun initializeServer(config: AppConfig, kafka: Kafka) {
 
 fun Application.main(config: AppConfig, kafka: Kafka) {
 
-    configureRouting()
     configureSerialization()
     configureMonitoring()
     configureHTTP()
@@ -50,4 +48,9 @@ fun Application.main(config: AppConfig, kafka: Kafka) {
     routing {
         healthRoutes()
     }
+
+    environment.monitor.subscribe(ApplicationStopPreparing) {
+        kafka.stopClient()
+    }
+
 }
