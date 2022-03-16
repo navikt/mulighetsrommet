@@ -4,5 +4,9 @@
     "frontend",
     "api-client",
     "sanity"
-  ]
+  ],
+  "devDependencies": {
+    "turbo": "^1.1.6"
+  },
+  "packageManager": "npm@7.21.1"
 }
