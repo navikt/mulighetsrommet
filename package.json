@@ -1,7 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "frontend",
+    "veileder-flate",
     "api-client",
     "sanity"
   ],
