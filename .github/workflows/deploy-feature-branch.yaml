@@ -13,9 +13,6 @@ jobs:
   build-docker-image-frontend-dev:
     name: Build Docker image (dev)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
@@ -31,16 +28,13 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG} -f .docker/dev/Dockerfile .
-          docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG}
+          docker build -t ${IMAGE}/mulighetsrommet-veileder-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG} -f .docker/dev/Dockerfile .
+          docker push ${IMAGE}/mulighetsrommet-veileder-flate-${IMAGE_LABEL_DEV}:${IMAGE_TAG}
 
   deploy-frontend-dev:
     name: Deploy dev
     runs-on: ubuntu-latest
     needs: build-docker-image-frontend-dev
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -48,8 +42,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: frontend/.nais/nais.yaml
-          VARS: frontend/.nais/dev-gcp.yaml
+          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
+          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_DEV}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -71,8 +65,8 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG} -f .docker/labs/Dockerfile .
-          docker push ${IMAGE}/mulighetsrommet-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG}
+          docker build -t ${IMAGE}/mulighetsrommet-veileder-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG} -f .docker/labs/Dockerfile .
+          docker push ${IMAGE}/mulighetsrommet-veileder-flate-${IMAGE_LABEL_LABS}:${IMAGE_TAG}
 
   deploy-frontend-labs:
     name: Deploy labs
@@ -85,6 +79,6 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
-          RESOURCE: frontend/.nais/nais.yaml
-          VARS: frontend/.nais/labs-gcp.yaml
+          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
+          VARS: frontend/mulighetsrommet-veileder-flate/.nais/labs-gcp.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_LABS}}
