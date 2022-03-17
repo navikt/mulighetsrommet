@@ -1,6 +1,6 @@
 {
-  "name": "mulighetsrommet-flate",
-  "version": "0.1.0",
+  "name": "mulighetsrommet-veileder-flate",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "build": "eslint && tsc && vite build",
