@@ -65,7 +65,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          working-directory: frontend
+          working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
           headless: true
           wait-on: http://localhost:3000

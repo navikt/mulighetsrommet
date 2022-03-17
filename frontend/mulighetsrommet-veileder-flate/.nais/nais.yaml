@@ -1,0 +1,38 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: mulighetsrommet-veileder-flate
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+  annotations:
+    nais.io/security-does-not-matter: "true"
+spec:
+  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-{{image_label}}:{{image_tag}}
+  port: 8080
+  {{#if ingresses}}
+  ingresses:
+    {{#each ingresses}}
+    - {{this}}
+    {{/each}}
+  {{/if}}
+  liveness:
+    path: /
+    initialDelay: 10
+  readiness:
+    path: /
+    initialDelay: 10
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 75
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    - name: CORS_DOMAIN
+      value: "*"
