@@ -23,6 +23,7 @@ jobs:
       - name: Build packages
         run: npx turbo run build
       - name: Build and publish Docker image
+        working-directory: frontend/mulighetsrommet-veileder-flate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -60,6 +61,7 @@ jobs:
       - name: Build packages
         run: npx turbo run build:labs
       - name: Build and publish Docker image
+        working-directory: frontend/mulighetsrommet-veileder-flate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
