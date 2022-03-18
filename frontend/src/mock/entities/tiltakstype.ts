@@ -11,5 +11,6 @@ export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
     tittel: entity.tittel,
     ingress: entity.ingress,
     beskrivelse: entity.beskrivelse,
+    arrangor: entity.arrangor,
   };
 }

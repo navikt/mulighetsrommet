@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Table } from '@navikt/ds-react';
+import { Alert, Heading, Table } from '@navikt/ds-react';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
 import { Tiltakstype } from '../../api';
@@ -39,8 +39,11 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                     {tiltakstype.id}
                   </Lenke>
                 </Table.HeaderCell>
-                <Table.DataCell>{tiltakstype.tittel}</Table.DataCell>
-                <Table.DataCell>{'Tiltakstype'}</Table.DataCell>
+                <Table.DataCell>
+                  <Heading size="xsmall">{tiltakstype.tittel}</Heading>
+                  {tiltakstype.arrangor}
+                </Table.DataCell>
+                <Table.DataCell>Tiltakstype</Table.DataCell>
                 <Table.DataCell>{tiltakstype.innsatsgruppe}</Table.DataCell>
               </Table.Row>
             ))}

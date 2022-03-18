@@ -9,15 +9,14 @@ interface SidemenyProps {
   tiltaksnavn: string;
 }
 
-const Sidemeny = ({ tiltaksnavn }: SidemenyProps) => {
+const SidemenyDetaljer = ({ tiltaksnavn }: SidemenyProps) => {
   const [tilbakemeldingsmodalOpen, setTilbakemeldingsmodalOpen] = useState(false);
   const [sendInformasjonModalOpen, setSendInformasjonModalOpen] = useState(false);
 
   return (
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">
-        <Button>Meld på</Button>
-        <Button variant="tertiary" onClick={() => setSendInformasjonModalOpen(true)} data-testid="btn_send-informasjon">
+        <Button onClick={() => setSendInformasjonModalOpen(true)} data-testid="btn_send-informasjon">
           Send informasjon
         </Button>
         <Button variant="tertiary">Se ekstern nettside</Button>
@@ -28,22 +27,6 @@ const Sidemeny = ({ tiltaksnavn }: SidemenyProps) => {
 
         <SidemenyAccordion tittel="Dokumenter" isOpen={false}>
           Dokumenter
-        </SidemenyAccordion>
-
-        <SidemenyAccordion tittel="Lenker" isOpen={false}>
-          Lenker
-        </SidemenyAccordion>
-
-        <SidemenyAccordion tittel="Info til deltaker" isOpen={false}>
-          Info til deltaker
-        </SidemenyAccordion>
-
-        <SidemenyAccordion tittel="Veiledning" isOpen={false}>
-          Veiledning
-        </SidemenyAccordion>
-
-        <SidemenyAccordion tittel="Relaterte tiltak" isOpen={false}>
-          Relaterte tiltak
         </SidemenyAccordion>
 
         <Panel className="tiltakstype-detaljer__sidemeny__tilbakemelding">
@@ -68,4 +51,4 @@ const Sidemeny = ({ tiltaksnavn }: SidemenyProps) => {
   );
 };
 
-export default Sidemeny;
+export default SidemenyDetaljer;

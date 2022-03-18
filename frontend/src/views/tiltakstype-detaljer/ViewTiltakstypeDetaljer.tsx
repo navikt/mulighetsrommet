@@ -1,12 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import '../ViewTiltakstype-tiltaksgjennomforing-detaljer.less';
-import { Alert, Loader, Ingress, BodyLong } from '@navikt/ds-react';
+import { Alert, Loader } from '@navikt/ds-react';
 import useTiltakstype from '../../hooks/tiltakstype/useTiltakstype';
-import Sidemeny from '../../components/sidemeny/Sidemeny';
+import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import MainViewTitle from '../../layouts/MainViewTitle';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
+import Statistikk from '../../components/statistikk/Statistikk';
 
 interface RouteParams {
   id: string;
@@ -29,18 +30,18 @@ const ViewTiltakstypeDetaljer = () => {
     return <Alert variant="warning">Nå er det noe rusk i maskineriet...</Alert>;
   }
 
-  const { tittel, ingress, beskrivelse } = tiltakstype.data;
+  const { tittel, arrangor, innsatsgruppe } = tiltakstype.data;
 
   return (
     <div className="tiltakstype-detaljer">
       <Tilbakeknapp tilbakelenke="./" />
       <div className="tiltakstype-detaljer__info">
-        <MainViewTitle title={tittel} />
-        <Ingress data-testid="tiltakstype_ingress">{ingress}</Ingress>
-        <BodyLong data-testid="tiltakstype_beskrivelse">{beskrivelse}</BodyLong>
+        <MainViewTitle title={tittel} tiltakstype={tittel} arrangor={arrangor} />
+        <Statistikk innsatsgruppe={innsatsgruppe} />
+
         <TiltaksdetaljerFane />
       </div>
-      <Sidemeny tiltaksnavn={tittel} />
+      <SidemenyDetaljer tiltaksnavn={tittel} />
     </div>
   );
 };

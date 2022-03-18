@@ -21,7 +21,7 @@ const SendInformasjonModal = ({ modalOpen, setModalOpen, tiltaksnavn }: SendInfo
       btnText="Send informasjon"
     >
       <BodyLong>
-        Kandidatene blir varsel på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Ditt NAV.{' '}
+        Kandidatene blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Ditt NAV.{' '}
       </BodyLong>
       <Textarea
         value={verdi}

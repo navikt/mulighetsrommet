@@ -33,7 +33,7 @@ const StandardModal = ({
           {heading}
         </Heading>
         {children}
-        <div>
+        <div className="modal_btngroup">
           <Button onClick={handleSend} data-testid="modal_btn-send">
             {btnText || 'Send'}
           </Button>

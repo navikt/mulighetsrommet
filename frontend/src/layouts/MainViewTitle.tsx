@@ -5,20 +5,26 @@ import { kebabCase } from '../utils/Utils';
 
 interface MainViewTitleProps {
   title: string;
-  subTitle?: string;
+  arrangor?: string;
+  tiltakstype: string;
 }
 
-function MainViewTitle({ title, subTitle }: MainViewTitleProps) {
+function MainViewTitle({ title, arrangor, tiltakstype }: MainViewTitleProps) {
   return (
     <div className="main-view__title">
       <Heading level="1" size="xlarge" data-testid={`main-view-header_${kebabCase(title)}`}>
         {title}
       </Heading>
-      {subTitle && (
-        <Heading level="2" size="medium">
-          {subTitle}
+      <div className="main-view__subtitle-container">
+        {arrangor && (
+          <Heading level="2" size="xsmall">
+            {arrangor}
+          </Heading>
+        )}
+        <Heading level="2" size="xsmall">
+          {tiltakstype}
         </Heading>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ViewTiltakstypeOversikt.less';
 import '../../layouts/MainView.less';
-import { Alert, Heading, Loader } from '@navikt/ds-react';
+import { Alert, Button, Heading, Loader } from '@navikt/ds-react';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
@@ -9,7 +9,7 @@ import { useAtom } from 'jotai';
 import { tiltakstypefilter, visSidemeny } from '../../api/atoms/atoms';
 import hiddenIf from '../../utils/HiddenIf';
 import Ikonknapp from '../../components/knapper/Ikonknapp';
-import { Filter } from '@navikt/ds-icons';
+import { Close, Filter } from '@navikt/ds-icons';
 import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 
@@ -17,9 +17,23 @@ const ViewTiltakstypeOversikt = () => {
   const [filtrertListe] = useAtom(tiltakstypefilter);
   const [sidemenyVisning, setSidemenyVisning] = useAtom(visSidemeny);
 
+  const [visInfoboks, setVisInfoboks] = useState(true);
+
   const { data, isFetching, isError } = useTiltakstyper(filtrertListe); //isLoading vs isFetching?
 
+  const Infotekst = () => {
+    return (
+      <Alert variant="info" size="small">
+        Utvalget av arbeidsmarkedstiltakene du ser er tilpasset din tiltaksregion.
+        <Button variant="tertiary" size="small" onClick={() => setVisInfoboks(false)}>
+          <Close />
+        </Button>
+      </Alert>
+    );
+  };
+
   const HiddenIfSidemeny = hiddenIf(Filtermeny);
+  const HiddenIfInfoboks = hiddenIf(Infotekst);
 
   const handleClickSkjulSidemeny = () => {
     setSidemenyVisning(!sidemenyVisning);
@@ -40,6 +54,7 @@ const ViewTiltakstypeOversikt = () => {
           <SearchFieldTag />
         </div>
       </div>
+      <HiddenIfInfoboks hidden={!visInfoboks} />
       <div className="tiltakstype-oversikt__tiltak">
         <Heading level="1" size="xsmall">
           Viser {data?.length} av {data?.length} tiltak

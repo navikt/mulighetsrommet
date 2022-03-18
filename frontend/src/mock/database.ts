@@ -16,6 +16,7 @@ export const definition = {
     tittel: String,
     beskrivelse: String,
     ingress: String,
+    arrangor: String,
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
