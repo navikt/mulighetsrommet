@@ -13,7 +13,6 @@ jobs:
   build-docker-image-backend:
     name: Build Docker image (backend)
     runs-on: ubuntu-latest
-    needs: change-check
     defaults:
       run:
         working-directory: backend
