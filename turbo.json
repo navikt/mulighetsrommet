@@ -11,6 +11,9 @@
     "lint": {
       "outputs": []
     },
+    "mulighetsrommet-cms#deploy": {
+      "dependsOn": ["build", "$SANITY_AUTH_TOKEN"]
+    },
     "dev": {
       "cache": false
     }

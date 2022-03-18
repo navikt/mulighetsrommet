@@ -11,9 +11,7 @@ jobs:
         with:
           node-version: 17
           cache: npm
-          cache-dependency-path: package-lock.json
       - run: npm ci
-      - run: npx sanity deploy
-        working-directory: sanity
-        env: 
+      - run: npx turbo run mulighetsrommet-cms#deploy
+        env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
