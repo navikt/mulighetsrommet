@@ -171,6 +171,18 @@ components:
         - beskrivelse
     Tiltakstype:
       type: object
+      required:
+        - id
+        - innsatsgruppe
+        - sanityId
+        - navn
+        - tiltakskode
+        - fraDato
+        - tilDato
+        - createdBy
+        - createdAt
+        - updatedBy
+        - updatedAt
       properties:
         id:
           type: integer
