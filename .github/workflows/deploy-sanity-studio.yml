@@ -5,17 +5,13 @@ on: workflow_dispatch
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: sanity
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 17
           cache: npm
-          cache-dependency-path: sanity/package-lock.json
       - run: npm ci
-      - run: npx sanity deploy
-        env: 
+      - run: npx turbo run mulighetsrommet-cms#deploy
+        env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}

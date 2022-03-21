@@ -1,0 +1,14 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+.eslintcache
+
+# testing
+coverage
+*.iml
+cypress/screenshots
+cypress/videos
+
+# build
+dist

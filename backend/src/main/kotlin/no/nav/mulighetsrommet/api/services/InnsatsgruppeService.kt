@@ -18,7 +18,6 @@ class InnsatsgruppeService(private val db: DatabaseFactory) {
     }
 
     private fun toInnsatsgruppe(row: ResultRow): Innsatsgruppe = Innsatsgruppe(
-        id = row[InnsatsgruppeTable.id],
         tittel = row[InnsatsgruppeTable.tittel],
         beskrivelse = row[InnsatsgruppeTable.beskrivelse],
     )
