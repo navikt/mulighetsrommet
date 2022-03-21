@@ -6,12 +6,12 @@ import Filtermeny from '../../components/filtrering/Filtermeny';
 import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
 import { useAtom } from 'jotai';
-import { tiltakstypefilter, visSidemeny } from '../../api/atoms/atoms';
 import hiddenIf from '../../utils/HiddenIf';
 import Ikonknapp from '../../components/knapper/Ikonknapp';
 import { Close, Filter } from '@navikt/ds-icons';
 import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
+import { tiltakstypefilter, visSidemeny } from '../../core/atoms/atoms';
 
 const ViewTiltakstypeOversikt = () => {
   const [filtrertListe] = useAtom(tiltakstypefilter);

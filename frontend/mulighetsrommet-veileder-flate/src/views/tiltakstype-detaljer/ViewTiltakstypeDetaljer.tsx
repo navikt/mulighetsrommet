@@ -8,15 +8,16 @@ import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import MainViewTitle from '../../layouts/MainViewTitle';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Statistikk from '../../components/statistikk/Statistikk';
+import { Tiltakskode } from '../../../../mulighetsrommet-api';
 
 interface RouteParams {
-  id: string;
+  tiltakskode: Tiltakskode;
 }
 
 const ViewTiltakstypeDetaljer = () => {
   const params = useParams<RouteParams>();
-  const id = Number(params.id);
-  const tiltakstype = useTiltakstype(id);
+
+  const tiltakstype = useTiltakstype(params.tiltakskode);
 
   if (tiltakstype.isError) {
     return <Alert variant="error">Det skjedde en feil</Alert>;
@@ -30,18 +31,18 @@ const ViewTiltakstypeDetaljer = () => {
     return <Alert variant="warning">Nå er det noe rusk i maskineriet...</Alert>;
   }
 
-  const { tittel, arrangor, innsatsgruppe } = tiltakstype.data;
+  const { navn, innsatsgruppe } = tiltakstype.data;
 
   return (
     <div className="tiltakstype-detaljer">
       <Tilbakeknapp tilbakelenke="./" />
       <div className="tiltakstype-detaljer__info">
-        <MainViewTitle title={tittel} tiltakstype={tittel} arrangor={arrangor} />
+        <MainViewTitle title={navn} tiltakstype={navn} />
         <Statistikk innsatsgruppe={innsatsgruppe} />
 
         <TiltaksdetaljerFane />
       </div>
-      <SidemenyDetaljer tiltaksnavn={tittel} />
+      <SidemenyDetaljer tiltaksnavn={navn} />
     </div>
   );
 };

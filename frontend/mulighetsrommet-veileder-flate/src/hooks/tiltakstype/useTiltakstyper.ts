@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { MulighetsrommetService, Tiltakstype } from 'mulighetsrommet-api';
-import { QueryKeys } from '../../api/QueryKeys';
-import { Tiltakstypefilter } from '../../api/atoms/atoms';
+import { Tiltakstypefilter } from '../../core/atoms/atoms';
+import { QueryKeys } from '../../core/api/QueryKeys';
 
 export default function useTiltakstyper(filter: Tiltakstypefilter = {}) {
   return useQuery<Tiltakstype[]>([QueryKeys.Tiltakstyper, filter], () =>

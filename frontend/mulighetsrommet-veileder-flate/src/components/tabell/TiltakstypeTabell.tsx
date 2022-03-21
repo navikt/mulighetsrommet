@@ -40,10 +40,10 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                   </Lenke>
                 </Table.HeaderCell>
                 <Table.DataCell>
-                  <Heading size="xsmall">{tiltakstype.tittel}</Heading>
+                  <Heading size="xsmall">{tiltakstype.navn}</Heading>
                   ARRANGØRNAVN
                 </Table.DataCell>
-                <Table.DataCell>Tiltakstype</Table.DataCell>
+                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                 <Table.DataCell>{tiltakstype.innsatsgruppe}</Table.DataCell>
               </Table.Row>
             ))}

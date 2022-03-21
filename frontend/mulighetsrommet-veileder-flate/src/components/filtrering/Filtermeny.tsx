@@ -2,11 +2,11 @@ import React from 'react';
 import { Heading } from '@navikt/ds-react';
 import InnsatsgruppeFilter from './InnsatsgruppeFilter';
 import './Filtermeny.less';
-import Searchfield from './Searchfield';
 import Ikonknapp from '../knapper/Ikonknapp';
 import { Close } from '@navikt/ds-icons';
 import { useAtom } from 'jotai';
-import { tiltakstypefilter } from '../../api/atoms/atoms';
+import Searchfield from './Searchfield';
+import { tiltakstypefilter } from '../../core/atoms/atoms';
 
 interface SidemenyProps {
   handleClickSkjulSidemeny: () => void;

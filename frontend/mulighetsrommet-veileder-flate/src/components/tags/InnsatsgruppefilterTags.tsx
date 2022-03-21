@@ -1,10 +1,10 @@
 import React from 'react';
 import { Tag } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { tiltakstypefilter } from '../../api/atoms/atoms';
 import { Close } from '@navikt/ds-icons';
 import Ikonknapp from '../knapper/Ikonknapp';
 import './Filtertags.less';
+import { tiltakstypefilter } from '../../core/atoms/atoms';
 
 const InnsatsgruppefilterTags = () => {
   const [filter, setFilter] = useAtom(tiltakstypefilter);
