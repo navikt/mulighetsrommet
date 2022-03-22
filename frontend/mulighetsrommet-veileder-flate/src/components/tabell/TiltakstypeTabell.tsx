@@ -41,7 +41,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                 </Table.HeaderCell>
                 <Table.DataCell>
                   <Heading size="xsmall">{tiltakstype.navn}</Heading>
-                  ARRANGØRNAVN
+                  Arrangørnavn
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                 <Table.DataCell>{tiltakstype.innsatsgruppe}</Table.DataCell>

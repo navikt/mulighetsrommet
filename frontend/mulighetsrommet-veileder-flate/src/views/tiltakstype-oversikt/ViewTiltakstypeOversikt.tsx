@@ -26,7 +26,7 @@ const ViewTiltakstypeOversikt = () => {
       <Alert variant="info" size="small">
         Utvalget av arbeidsmarkedstiltakene du ser er tilpasset din tiltaksregion.
         <Button variant="tertiary" size="small" onClick={() => setVisInfoboks(false)}>
-          <Close />
+          <Close aria-label="Lukknapp for alertstripe" />
         </Button>
       </Alert>
     );
