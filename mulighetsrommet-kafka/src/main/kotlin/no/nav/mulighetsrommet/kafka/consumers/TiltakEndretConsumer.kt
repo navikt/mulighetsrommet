@@ -1,11 +1,13 @@
 package no.nav.mulighetsrommet.kafka.consumers
 
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.kafka.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.domain.Tiltakstype
@@ -14,31 +16,23 @@ import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils.isInsertArenaOperation
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
-object TiltakEndretConsumer {
+class TiltakEndretConsumer(private val client: HttpClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakEndretConsumer::class.java)
-//    private val client = HttpClient()
-    private var endpointUri = ""
+    private var resourceUri = "/api/tiltakstyper"
 
     fun process(payload: JsonElement) {
-        logger.debug("ASDALDSAD?D????")
         if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)
     }
 
-    fun setEndpointUri(uri: String = "http://localhost:8080") {
-        endpointUri = "$uri/api/tiltakstyper"
-    }
-
     private fun handleInsert(payload: JsonObject) {
-        logger.debug("HALLO INSERT")
         val newTiltakstype = payload["after"]!!.jsonObject.toTiltakstype()
-//        sendRequest(HttpMethod.Post, newTiltakstype)
+        sendRequest(HttpMethod.Post, newTiltakstype)
     }
 
     private fun handleUpdate(payload: JsonObject) {
-        logger.debug("HALLO UPDATE")
         val updatedTiltakstype = payload["after"]!!.jsonObject.toTiltakstype()
-//        sendRequest(HttpMethod.Put, updatedTiltakstype)
+        sendRequest(HttpMethod.Put, updatedTiltakstype)
     }
 
     private fun JsonObject.toTiltakstype() = Tiltakstype(
@@ -51,13 +45,13 @@ object TiltakEndretConsumer {
         updatedBy = this["MOD_USER"]!!.jsonPrimitive.content
     )
 
-//    @OptIn(InternalAPI::class)
-//    private fun sendRequest(method: HttpMethod, tiltakstype: Tiltakstype) = runBlocking {
-//        val response: HttpResponse = client.request(endpointUri) {
-//            contentType(ContentType.Application.Json)
-//            body = tiltakstype
-//            method
-//        }
-//        logger.debug("sent request status ${response.status}")
-//    }
+    @OptIn(InternalAPI::class)
+    private fun sendRequest(m: HttpMethod, tiltakstype: Tiltakstype) = runBlocking {
+        val response: HttpResponse = client.request(resourceUri) {
+            contentType(ContentType.Application.Json)
+            body = Json.encodeToString(tiltakstype)
+            method = m
+        }
+        logger.debug("sent request status ${response.status}")
+    }
 }

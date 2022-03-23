@@ -44,7 +44,7 @@ services:
   wiremock:
     image: wiremock/wiremock:2.32.0
     ports:
-      - "8090:8090"
+      - "8090:8080"
     volumes:
       - ./wiremock:/home/wiremock
 volumes:

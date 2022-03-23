@@ -7,6 +7,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import org.flywaydb.core.Flyway
+import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
 class Database(databaseConfig: DatabaseConfig) {
@@ -36,7 +37,10 @@ class Database(databaseConfig: DatabaseConfig) {
     }
 
     fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
-        val query = "insert into events(topic, key, \"offset\", payload) values(?, ?, ?, ? ::jsonb)"
+        @Language("SQL")
+        val query = """
+            insert into events(topic, key, "offset", payload) values(?, ?, ?, ? ::jsonb)
+        """.trimIndent()
         val result = session.run(queryOf(query, topic, key, offset, payload).asUpdate)
         if (result > 0) logger.debug("persisted kafka event ($topic, $key, $offset)")
     }

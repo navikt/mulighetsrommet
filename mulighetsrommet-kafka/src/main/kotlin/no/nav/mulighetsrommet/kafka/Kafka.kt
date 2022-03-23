@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.kafka
 
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import no.nav.common.kafka.consumer.KafkaConsumerClient
@@ -11,14 +14,16 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
 
-class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Database) {
+class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Database, private val client: HttpClient) {
 
     private val logger = LoggerFactory.getLogger(Kafka::class.java)
     private val consumerClient: KafkaConsumerClient
     private val consumerTopics: Map<String, String> = config.topics.consumer
 
+    private val tiltakEndretConsumer = TiltakEndretConsumer(client)
+
     init {
-        logger.debug("Initializing KafkaFactory.")
+        logger.debug("Initializing KafkaFactory")
 
         val consumerTopicsConfig = configureConsumersTopics()
 
@@ -27,9 +32,8 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
             .withTopicConfigs(consumerTopicsConfig)
             .build()
 
+        logger.debug("Starting kafka consumer client")
         consumerClient.start()
-
-        logger.debug("Consumer client started. Done with initializing KafkaFactory.")
     }
 
     fun stopClient() {
@@ -45,7 +49,7 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> {
-//                        db.persistKafkaEvent(it.topic(), it.key(), it.offset(), it.value())
+                        db.persistKafkaEvent(it.topic(), it.key(), it.offset(), it.value())
                         topicMapper(it.topic(), it.value())
                     }
                 )
@@ -54,15 +58,9 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
 
     private fun topicMapper(topic: String, value: String) {
         val payload = Json.parseToJsonElement(value)
-        logger.debug("Inne her???? $topic")
-        logger.debug("cons ${consumerTopics.get("tiltakendret")}")
-        val cons = consumerTopics.get("tiltakendret")
-        if (topic == cons) {
-            TiltakEndretConsumer.process(payload)
+        when (topic) {
+            consumerTopics.get("tiltakendret") -> tiltakEndretConsumer.process(payload)
+            else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
         }
-//        when (topic) {
-//            consumerTopics.get("tiltakendret") -> TiltakEndretConsumer.process(payload)
-//            else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
-//        }
     }
 }

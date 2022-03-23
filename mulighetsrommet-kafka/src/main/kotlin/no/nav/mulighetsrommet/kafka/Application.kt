@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.kafka
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
@@ -17,7 +20,15 @@ import org.slf4j.LoggerFactory
 fun main(args: Array<String>) {
     val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
     val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.kafka.consumerGroupId)
-    initializeServer(config, Kafka(config.kafka, preset, Database(config.database)))
+
+    val client = HttpClient {
+        defaultRequest {
+            url.takeFrom(URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetBackend")!!).apply {
+                encodedPath += url.encodedPath
+            })
+        }
+    }
+    initializeServer(config, Kafka(config.kafka, preset, Database(config.database), client))
 }
 
 fun initializeServer(config: AppConfig, kafka: Kafka) {
