@@ -11,6 +11,7 @@ val flyway_version: String by project
 val hoplite_version: String by project
 val common_java_modules_version: String by project
 val kotliquery_version: String by project
+val wiremock_version: String by project
 
 plugins {
     application
@@ -58,6 +59,7 @@ dependencies {
     implementation("io.ktor:ktor-server-default-headers-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-cors-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
+    implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("com.zaxxer:HikariCP:$hikari_version")
     implementation("org.postgresql:postgresql:$postgresql_version")
@@ -66,9 +68,11 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hoplite_version")
     implementation("no.nav.common:kafka:$common_java_modules_version")
     implementation("com.github.seratch:kotliquery:$kotliquery_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.mockk:mockk:$mockk_version")
     testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
     testImplementation("io.kotest:kotest-assertions-core:$kotest_version")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:$wiremock_version")
 }

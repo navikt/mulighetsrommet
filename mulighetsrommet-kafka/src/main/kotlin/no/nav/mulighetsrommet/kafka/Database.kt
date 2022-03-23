@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.kafka
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
