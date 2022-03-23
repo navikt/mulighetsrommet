@@ -29,7 +29,7 @@
   "dependencies": {
     "@navikt/ds-css": "^0.15.12",
     "@navikt/ds-icons": "^0.8.6",
-    "@navikt/ds-react": "^0.16.20",
+    "@navikt/ds-react": "^0.17.11",
     "@navikt/fnrvalidator": "^1.2.0",
     "@navikt/frontendlogger": "^2.0.0",
     "@navikt/navspa": "^4.1.1",
@@ -94,7 +94,7 @@
     "faker": "^5.5.3",
     "msw": "^0.36.2",
     "postcss": "^8.4.6",
-    "prettier": "^2.5.1",
+    "prettier": "^2.6.0",
     "rimraf": "^3.0.2",
     "sass": "^1.49.9",
     "typescript": "^4.5.3"

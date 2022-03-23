@@ -28,8 +28,6 @@ fun Route.tiltakstypeRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
     get("/api/tiltakstyper") {
-        val tiltakstyper = tiltakstypeService.getTiltakstyper()
-        call.respond(tiltakstyper)
         val search = call.request.queryParameters["search"]
 
         val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }

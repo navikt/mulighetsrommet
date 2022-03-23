@@ -17,7 +17,7 @@ const Filtermeny = ({ handleClickSkjulSidemeny }: SidemenyProps) => {
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">
-      <Heading size="medium" level="1" className="sidemeny__heading" role="heading">
+      <Heading size="medium" level="1" className="filtermeny__heading" role="heading">
         Filter
         <Ikonknapp handleClick={handleClickSkjulSidemeny} ariaLabel="Lukkeknapp">
           <Close aria-label="Lukkeknapp" />

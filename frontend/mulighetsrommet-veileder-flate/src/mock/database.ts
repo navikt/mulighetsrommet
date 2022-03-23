@@ -1,4 +1,4 @@
-import { oneOf, primaryKey } from '@mswjs/data';
+import { nullable, oneOf, primaryKey } from '@mswjs/data';
 import faker from 'faker';
 import { innsatsgrupper } from './fixtures/innsatsgrupper';
 import { tiltakstyper } from './fixtures/tiltakstyper';
@@ -13,15 +13,15 @@ export const definition = {
   tiltakstype: {
     id: idAutoIncrement(),
     innsatsgruppe: oneOf('innsatsgruppe', { nullable: true }),
-    sanityId: Number,
+    sanityId: nullable(Number),
     tiltakskode: String,
     navn: String,
-    fraDato: String,
-    tilDato: String,
-    createdBy: String,
-    createdAt: String,
-    updatedBy: String,
-    updatedAt: String,
+    fraDato: nullable(String),
+    tilDato: nullable(String),
+    createdBy: nullable(String),
+    createdAt: nullable(String),
+    updatedBy: nullable(String),
+    updatedAt: nullable(String),
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
