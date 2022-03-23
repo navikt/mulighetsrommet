@@ -14,12 +14,6 @@ fun Route.healthRoutes() {
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/readiness") {
-//        if (DatabaseFactory.isConnectionEstablished()) {
-//            call.respond(HttpStatusCode.OK)
-//        } else {
-//            call.respond(HttpStatusCode.InternalServerError)
-//        }
-        // Les kommentar i DatabaseFactory
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/ping") {
