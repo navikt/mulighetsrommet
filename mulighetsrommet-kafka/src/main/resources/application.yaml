@@ -2,6 +2,9 @@ server:
   port: 8080
   host: 0.0.0.0
 
+endpoints:
+  mulighetsrommetBackend: ${MR_BACKEND_API_URI}
+
 database:
   host: ${DB_HOST}
   port: ${DB_PORT}

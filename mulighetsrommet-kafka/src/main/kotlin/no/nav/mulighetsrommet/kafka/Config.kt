@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.Masked
 
 data class AppConfig(
     val server: ServerConfig,
+    val endpoints: Map<String, String>,
     val database: DatabaseConfig,
     val kafka: KafkaConfig
 )

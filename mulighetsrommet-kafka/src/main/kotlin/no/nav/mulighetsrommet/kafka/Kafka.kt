@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.kafka
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
@@ -44,7 +45,7 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> {
-                        db.persistKafkaEvent(it.topic(), it.key(), it.offset(), it.value())
+//                        db.persistKafkaEvent(it.topic(), it.key(), it.offset(), it.value())
                         topicMapper(it.topic(), it.value())
                     }
                 )
@@ -53,9 +54,15 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
 
     private fun topicMapper(topic: String, value: String) {
         val payload = Json.parseToJsonElement(value)
-        when (topic) {
-            consumerTopics.get("tiltakendret") -> TiltakEndretConsumer.process(payload)
-            else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
+        logger.debug("Inne her???? $topic")
+        logger.debug("cons ${consumerTopics.get("tiltakendret")}")
+        val cons = consumerTopics.get("tiltakendret")
+        if (topic == cons) {
+            TiltakEndretConsumer.process(payload)
         }
+//        when (topic) {
+//            consumerTopics.get("tiltakendret") -> TiltakEndretConsumer.process(payload)
+//            else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
+//        }
     }
 }

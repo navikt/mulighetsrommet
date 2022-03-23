@@ -18,13 +18,13 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - 22181:2181
+      - "22181:2181"
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
     ports:
-      - 29092:29092
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -35,11 +35,17 @@ services:
   kafdrop:
     image: obsidiandynamics/kafdrop
     ports:
-      - 9000:9000
+      - "9000:9000"
     environment:
       KAFKA_BROKERCONNECT: kafka:9092
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     depends_on:
       - kafka
+  wiremock:
+    image: wiremock/wiremock:2.32.0
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./wiremock:/home/wiremock
 volumes:
   mulighetsrommet:
