@@ -13,8 +13,15 @@ export const definition = {
   tiltakstype: {
     id: idAutoIncrement(),
     innsatsgruppe: oneOf('innsatsgruppe', { nullable: true }),
+    sanityId: Number,
     tiltakskode: String,
     navn: String,
+    fraDato: String,
+    tilDato: String,
+    createdBy: String,
+    createdAt: String,
+    updatedBy: String,
+    updatedAt: String,
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
