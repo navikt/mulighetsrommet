@@ -5,9 +5,7 @@ import type { Innsatsgruppe } from '../models/Innsatsgruppe';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
 import type { Tiltakskode } from '../models/Tiltakskode';
 import type { Tiltakstype } from '../models/Tiltakstype';
-
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class MulighetsrommetService {
@@ -17,9 +15,9 @@ export class MulighetsrommetService {
      * @throws ApiError
      */
     public static getInnsatsgrupper(): CancelablePromise<Array<Innsatsgruppe>> {
-        return __request(OpenAPI, {
+        return __request({
             method: 'GET',
-            url: '/api/innsatsgrupper',
+            path: `/api/innsatsgrupper`,
         });
     }
 
@@ -27,10 +25,22 @@ export class MulighetsrommetService {
      * @returns Tiltakstype Array of tiltakstyper.
      * @throws ApiError
      */
-    public static getTiltakstyper(): CancelablePromise<Array<Tiltakstype>> {
-        return __request(OpenAPI, {
+    public static getTiltakstyper({
+        search,
+        innsatsgrupper,
+    }: {
+        /** Search for tiltakstyper **/
+        search?: string,
+        /** Innsatsgruppefilter **/
+        innsatsgrupper?: Array<number>,
+    }): CancelablePromise<Array<Tiltakstype>> {
+        return __request({
             method: 'GET',
-            url: '/api/tiltakstyper',
+            path: `/api/tiltakstyper`,
+            query: {
+                'search': search,
+                'innsatsgrupper': innsatsgrupper,
+            },
         });
     }
 
@@ -44,14 +54,11 @@ export class MulighetsrommetService {
         /** Tiltakskode **/
         tiltakskode: Tiltakskode,
     }): CancelablePromise<Tiltakstype> {
-        return __request(OpenAPI, {
+        return __request({
             method: 'GET',
-            url: '/api/tiltakstyper/{tiltakskode}',
-            path: {
-                'tiltakskode': tiltakskode,
-            },
+            path: `/api/tiltakstyper/${tiltakskode}`,
             errors: {
-                404: `the specified tiltakstype was not found.`,
+                404: `The specified tiltakstype was not found.`,
             },
         });
     }
@@ -66,12 +73,9 @@ export class MulighetsrommetService {
         /** Tiltakskode **/
         tiltakskode: Tiltakskode,
     }): CancelablePromise<Array<Tiltaksgjennomforing>> {
-        return __request(OpenAPI, {
+        return __request({
             method: 'GET',
-            url: '/api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger',
-            path: {
-                'tiltakskode': tiltakskode,
-            },
+            path: `/api/tiltakstyper/${tiltakskode}/tiltaksgjennomforinger`,
             errors: {
                 404: `the specified tiltakstype was not found.`,
             },
@@ -83,9 +87,9 @@ export class MulighetsrommetService {
      * @throws ApiError
      */
     public static getTiltaksgjennomforinger(): CancelablePromise<Array<Tiltaksgjennomforing>> {
-        return __request(OpenAPI, {
+        return __request({
             method: 'GET',
-            url: '/api/tiltaksgjennomforinger',
+            path: `/api/tiltaksgjennomforinger`,
         });
     }
 
@@ -99,12 +103,9 @@ export class MulighetsrommetService {
         /** ID **/
         id: number,
     }): CancelablePromise<Tiltaksgjennomforing> {
-        return __request(OpenAPI, {
+        return __request({
             method: 'GET',
-            url: '/api/tiltaksgjennomforinger/{id}',
-            path: {
-                'id': id,
-            },
+            path: `/api/tiltaksgjennomforinger/${id}`,
             errors: {
                 404: `The specified tiltaksgjennomføring was not found.`,
             },

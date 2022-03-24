@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.application.call
 import io.ktor.features.BadRequestException
+import io.ktor.http.*
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -17,14 +18,22 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
+fun Parameters.parseList(parameter: String): List<String> {
+    return entries().filter { it.key == parameter }.flatMap { it.value }
+}
+
 fun Route.tiltakstypeRoutes() {
 
     val tiltakstypeService: TiltakstypeService by inject()
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
     get("/api/tiltakstyper") {
-        val tiltakstyper = tiltakstypeService.getTiltakstyper()
-        call.respond(tiltakstyper)
+        val search = call.request.queryParameters["search"]
+
+        val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
+
+        val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search)
+        call.respond(items)
     }
     get("/api/tiltakstyper/{tiltakskode}") {
         runCatching {

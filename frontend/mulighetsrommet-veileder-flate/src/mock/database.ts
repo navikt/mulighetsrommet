@@ -1,4 +1,4 @@
-import { oneOf, primaryKey } from '@mswjs/data';
+import { nullable, oneOf, primaryKey } from '@mswjs/data';
 import faker from 'faker';
 import { innsatsgrupper } from './fixtures/innsatsgrupper';
 import { tiltakstyper } from './fixtures/tiltakstyper';
@@ -13,8 +13,15 @@ export const definition = {
   tiltakstype: {
     id: idAutoIncrement(),
     innsatsgruppe: oneOf('innsatsgruppe', { nullable: true }),
+    sanityId: nullable(Number),
     tiltakskode: String,
     navn: String,
+    fraDato: nullable(String),
+    tilDato: nullable(String),
+    createdBy: nullable(String),
+    createdAt: nullable(String),
+    updatedBy: nullable(String),
+    updatedAt: nullable(String),
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
@@ -50,8 +57,8 @@ export const db = createMockDatabase(definition, (db: any) => {
         tiltaksnummer: faker.random.alphaNumeric(12),
         tittel: `Kjøreopplæring av ${faker.vehicle.manufacturer()}`,
         beskrivelse: faker.lorem.paragraph(1),
-        fraDato: faker.date.past(3).toString(),
-        tilDato: faker.date.future(3).toString(),
+        tilDato: faker.date.future(3).toLocaleDateString(),
+        fraDato: faker.date.past(3).toLocaleDateString(),
       });
     }
   });

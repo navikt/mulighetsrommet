@@ -1,0 +1,29 @@
+.statistikk {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  &__bolk {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-left: 1px solid var(--navds-semantic-color-border-muted);
+    padding: 0.5rem 2%;
+
+    &__heading {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+
+      .navds-heading {
+        font-weight: unset;
+      }
+    }
+
+    .navds-body-short {
+      font-size: 32px;
+      line-height: unset;
+    }
+  }
+}

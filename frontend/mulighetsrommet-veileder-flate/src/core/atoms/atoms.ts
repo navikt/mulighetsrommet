@@ -1,3 +1,10 @@
 import { atom } from 'jotai';
+import { Innsatsgruppe } from '../../../../mulighetsrommet-api';
 
-export const tiltakstypeOversiktSok = atom('');
+export interface Tiltakstypefilter {
+  search?: string;
+  innsatsgrupper?: Innsatsgruppe[];
+}
+
+export const tiltakstypefilter = atom<Tiltakstypefilter>({ search: '', innsatsgrupper: [] });
+export const visSidemeny = atom<boolean>(true);
