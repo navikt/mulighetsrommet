@@ -22,7 +22,7 @@
     </header>
     <main id="applikasjon" class="app">
       <div id="modal-a11y-wrapper">
-        <div id="root"></div>
+        <div id="mulighetsrommet-root"></div>
       </div>
 
       <script type="module" src="./src/index.tsx"></script>
@@ -33,9 +33,11 @@
         import Navspa from '@navikt/navspa';
         import { APPLICATION_NAME } from './src/constants';
 
-        const MulighetsrommetVeilederFlate = Navspa.importer(APPLICATION_NAME);
-
-        ReactDOM.render(React.createElement(MulighetsrommetVeilederFlate), document.getElementById('root'));
+        const root = document.getElementById('mulighetsrommet-root');
+        if (root) {
+          const MulighetsrommetVeilederFlate = Navspa.importer(APPLICATION_NAME);
+          ReactDOM.render(React.createElement(MulighetsrommetVeilederFlate), root);
+        }
       </script>
     </main>
   </body>
