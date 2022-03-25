@@ -7,6 +7,7 @@
     "build:labs": "cross-env VITE_DEV=true VITE_ENABLE_MOCK=true eslint && tsc && vite build",
     "clean": "rimraf build",
     "lint": "eslint src --ext .js,.ts,.tsx",
+    "prettier": "prettier --write 'src/**/*.ts{,x}'",
     "start": "cross-env VITE_ENABLE_MOCK=true VITE_BACKEND_API_ROOT='' vite",
     "backend": "cross-env VITE_DEV=true VITE_BACKEND_API_ROOT='http://localhost:8080' vite",
     "serve": "vite preview"
