@@ -16,6 +16,6 @@ export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
     createdBy: entity.createdBy,
     createdAt: entity.createdAt,
     updatedBy: entity.updatedBy,
-    updatedAt: entity.updatedAt
+    updatedAt: entity.updatedAt,
   };
 }
