@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "eslint && tsc && vite build",
-    "build:labs": "cross-env VITE_DEV=true VITE_ENABLE_MOCK=true eslint && tsc && vite build",
+    "build:labs": "eslint && tsc && cross-env VITE_DEV=true VITE_ENABLE_MOCK=true vite build",
     "clean": "rimraf build",
     "lint": "eslint src --ext .js,.ts,.tsx",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
