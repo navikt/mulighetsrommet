@@ -7,11 +7,12 @@ import Routes from './Routes';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Modal } from '@navikt/ds-react';
-
-const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
+import { MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.('#mulighetsrommet-root');
+Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
 
 function App() {
   return (
