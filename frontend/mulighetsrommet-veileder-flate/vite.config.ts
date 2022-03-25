@@ -6,8 +6,4 @@ export default defineConfig({
   build: {
     manifest: 'asset-manifest.json',
   },
-  define: {
-    // Polyfill the window.global object used by `@navikt/navspa`
-    global: {},
-  },
 });
