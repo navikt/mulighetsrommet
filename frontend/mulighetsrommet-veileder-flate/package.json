@@ -33,7 +33,7 @@
     "@navikt/ds-react": "^0.17.11",
     "@navikt/fnrvalidator": "^1.2.0",
     "@navikt/frontendlogger": "^2.0.0",
-    "@navikt/navspa": "^4.1.1",
+    "@navikt/navspa": "^5.0.1",
     "@nutgaard/use-fetch": "^2.3.1",
     "@radix-ui/react-tabs": "^0.1.5",
     "@reduxjs/toolkit": "^1.6.1",
