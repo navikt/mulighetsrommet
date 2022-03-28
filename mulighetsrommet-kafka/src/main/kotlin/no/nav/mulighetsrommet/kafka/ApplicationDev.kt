@@ -20,9 +20,11 @@ fun main(args: Array<String>) {
 
     val client = HttpClient(CIO) {
         defaultRequest {
-            url.takeFrom(URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetBackend")!!).apply {
-                encodedPath += url.encodedPath
-            })
+            url.takeFrom(
+                URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetBackend")!!).apply {
+                    encodedPath += url.encodedPath
+                }
+            )
         }
     }
 

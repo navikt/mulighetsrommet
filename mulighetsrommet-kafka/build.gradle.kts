@@ -32,7 +32,7 @@ application {
 }
 
 flyway {
-    url = "jdbc:postgresql://localhost:5442/mulighetsrommet-kafka-db"
+    url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
     password = System.getenv("DB_PASSWORD")
 }

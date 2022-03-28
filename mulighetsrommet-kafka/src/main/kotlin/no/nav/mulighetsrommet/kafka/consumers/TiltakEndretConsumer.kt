@@ -27,12 +27,12 @@ class TiltakEndretConsumer(private val client: HttpClient) {
 
     private fun handleInsert(payload: JsonObject) {
         val newTiltakstype = payload["after"]!!.jsonObject.toTiltakstype()
-        sendRequest(HttpMethod.Post, newTiltakstype)
+        sendRequest(HttpMethod.Post, newTiltakstype, resourceUri)
     }
 
     private fun handleUpdate(payload: JsonObject) {
         val updatedTiltakstype = payload["after"]!!.jsonObject.toTiltakstype()
-        sendRequest(HttpMethod.Put, updatedTiltakstype)
+        sendRequest(HttpMethod.Put, updatedTiltakstype, "$resourceUri/${updatedTiltakstype.tiltakskode}")
     }
 
     private fun JsonObject.toTiltakstype() = Tiltakstype(
@@ -46,8 +46,8 @@ class TiltakEndretConsumer(private val client: HttpClient) {
     )
 
     @OptIn(InternalAPI::class)
-    private fun sendRequest(m: HttpMethod, tiltakstype: Tiltakstype) = runBlocking {
-        val response: HttpResponse = client.request(resourceUri) {
+    private fun sendRequest(m: HttpMethod, tiltakstype: Tiltakstype, requestUri: String) = runBlocking {
+        val response: HttpResponse = client.request(requestUri) {
             contentType(ContentType.Application.Json)
             body = Json.encodeToString(tiltakstype)
             method = m

@@ -23,8 +23,8 @@ fun main(): Unit = runBlocking {
         .build()
 
     launch {
-        produceTiltakEndretEvents(producer)
-//        produceTiltakEndretUpdateEvents(producer)
+//        produceTiltakEndretEvents(producer)
+        produceTiltakEndretUpdateEvents(producer)
         producer.close()
     }
 }

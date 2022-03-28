@@ -1,6 +1,6 @@
 version: '2'
 services:
-  postgres:
+  mulighetsrommet-api-db:
     image: "postgres:12.3-alpine"
     restart: "always"
     volumes:
@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
-      POSTGRES_DB: "mulighetsrommet-db"
+      POSTGRES_DB: "mulighetsrommet-api-db"
     mem_limit: "8g"
 volumes:
   mulighetsrommet:
