@@ -2,7 +2,6 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import App from './App';
 import '@navikt/ds-css';
-import './index.less';
 import { OpenAPI } from 'mulighetsrommet-api';
 import Navspa from '@navikt/navspa';
 import { worker } from './mock/worker';
