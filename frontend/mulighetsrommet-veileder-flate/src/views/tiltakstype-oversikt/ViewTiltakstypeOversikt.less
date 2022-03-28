@@ -1,62 +1,64 @@
-.tiltakstype-oversikt {
-  display: grid;
-  grid-template-columns: 15rem auto;
-  grid-template-rows: minmax(4rem, min-content) minmax(min-content, 2rem) auto;
-  grid-gap: 1rem;
-  min-height: 86vh;
-  margin: 0 1rem;
+.mulighetsrommet-veileder-flate {
+  .tiltakstype-oversikt {
+    display: grid;
+    grid-template-columns: 15rem auto;
+    grid-template-rows: minmax(4rem, min-content) minmax(min-content, 2rem) auto;
+    grid-gap: 1rem;
+    min-height: 86vh;
+    margin: 0 1rem;
 
-  &__filtermeny {
-    grid-column: 1;
-    grid-row-start: 1;
-    grid-row-end: 4;
-  }
-
-  .filtercontainer {
-    grid-row: 1;
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-
-    .filterknapp {
-      margin-top: 1rem;
+    &__filtermeny {
+      grid-column: 1;
+      grid-row-start: 1;
+      grid-row-end: 4;
     }
 
-    .filtertags {
+    .filtercontainer {
+      grid-row: 1;
       display: flex;
-      justify-content: flex-start;
-      gap: 1rem;
-      height: fit-content;
-      flex-wrap: wrap;
-      align-self: end;
+      flex-direction: row;
+      gap: 0.5rem;
+
+      .filterknapp {
+        margin-top: 1rem;
+      }
+
+      .filtertags {
+        display: flex;
+        justify-content: flex-start;
+        gap: 1rem;
+        height: fit-content;
+        flex-wrap: wrap;
+        align-self: end;
+      }
     }
-  }
 
-  &__tiltak {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin: 0 0 2rem;
-  }
-
-  &__tabell {
-    grid-column: 2;
-    grid-row: 3;
-  }
-
-  .navds-alert {
-    max-width: fit-content;
-    padding-right: 0.2rem;
-    max-height: fit-content;
-
-    &__wrapper {
+    &__tiltak {
       display: flex;
-      align-items: center;
-      gap: 1rem;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 0 0 2rem;
+    }
 
-      .navds-button {
-        padding-top: 0.2rem;
-        padding-bottom: 0.2rem;
+    &__tabell {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    .navds-alert {
+      max-width: fit-content;
+      padding-right: 0.2rem;
+      max-height: fit-content;
+
+      &__wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .navds-button {
+          padding-top: 0.2rem;
+          padding-bottom: 0.2rem;
+        }
       }
     }
   }
