@@ -1,27 +1,26 @@
 import React from 'react';
-import * as Tabs from '@radix-ui/react-tabs';
 import './TiltaksdetaljerFane.less';
+import { Tabs } from '@navikt/ds-react';
 
-const TiltaksdetaljerFane = () => {
+const TiltaksdetaljerFane2 = () => {
   const faneoverskrifter = ['Om kurset', 'Detaljer', 'Påmelding', 'Innhold', 'Varighet', 'Statistikk'];
 
   return (
-    <Tabs.Root defaultValue="tab1" orientation="vertical" className="fane__root">
-      <Tabs.List className="fane__liste">
+    <Tabs defaultValue="tab1" size="medium" selectionFollowsFocus className="fane__root">
+      <Tabs.List loop className="fane__liste">
         {faneoverskrifter.map((fane, index) => (
-          <Tabs.Trigger key={index} value={`tab${index + 1}`} className="btn__tab">
-            {fane}
-          </Tabs.Trigger>
+          <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className="btn__tab" />
         ))}
       </Tabs.List>
-      <Tabs.Content value="tab1">Om kurset</Tabs.Content>
-      <Tabs.Content value="tab2">Detaljer</Tabs.Content>
-      <Tabs.Content value="tab3">Påmelding</Tabs.Content>
-      <Tabs.Content value="tab4">Innhold</Tabs.Content>
-      <Tabs.Content value="tab5">Varighet</Tabs.Content>
-      <Tabs.Content value="tab6">Statistikk</Tabs.Content>
-    </Tabs.Root>
+
+      <Tabs.Panel value="tab1">Om kurset</Tabs.Panel>
+      <Tabs.Panel value="tab2">Detaljer</Tabs.Panel>
+      <Tabs.Panel value="tab3">Påmelding</Tabs.Panel>
+      <Tabs.Panel value="tab4">Innhold</Tabs.Panel>
+      <Tabs.Panel value="tab5">Varighet</Tabs.Panel>
+      <Tabs.Panel value="tab6">Statistikk</Tabs.Panel>
+    </Tabs>
   );
 };
 
-export default TiltaksdetaljerFane;
+export default TiltaksdetaljerFane2;
