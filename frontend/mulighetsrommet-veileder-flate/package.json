@@ -29,7 +29,7 @@
   "dependencies": {
     "@navikt/ds-css": "^0.15.12",
     "@navikt/ds-icons": "^0.8.6",
-    "@navikt/ds-react": "^0.17.11",
+    "@navikt/ds-react": "^0.17.14",
     "@navikt/fnrvalidator": "^1.2.0",
     "@navikt/frontendlogger": "^2.0.0",
     "@navikt/navspa": "^4.1.1",
