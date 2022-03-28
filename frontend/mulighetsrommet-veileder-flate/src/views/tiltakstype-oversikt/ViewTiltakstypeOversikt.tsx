@@ -12,6 +12,7 @@ import { Close, Filter } from '@navikt/ds-icons';
 import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltakstypefilter, visSidemeny } from '../../core/atoms/atoms';
+import { logEvent } from '../../api/logger';
 
 const ViewTiltakstypeOversikt = () => {
   const [filtrertListe] = useAtom(tiltakstypefilter);
@@ -21,11 +22,16 @@ const ViewTiltakstypeOversikt = () => {
 
   const { data, isFetching, isError } = useTiltakstyper(filtrertListe); //isLoading vs isFetching?
 
+  const handleClick = () => {
+    logEvent('mulighetsrommet-alert-info');
+    setVisInfoboks(false);
+  };
+
   const Infotekst = () => {
     return (
       <Alert variant="info" size="small">
         Utvalget av arbeidsmarkedstiltakene du ser er tilpasset din tiltaksregion.
-        <Button variant="tertiary" size="small" onClick={() => setVisInfoboks(false)}>
+        <Button variant="tertiary" size="small" onClick={handleClick}>
           <Close aria-label="Lukknapp for alertstripe" />
         </Button>
       </Alert>
