@@ -13,8 +13,6 @@ import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTa
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltakstypefilter, visSidemeny } from '../../core/atoms/atoms';
 import { logEvent } from '../../api/logger';
-import { useFetchFeatureToggle } from '../../api/api';
-import { ALERT_INFO } from '../../api/features';
 
 const ViewTiltakstypeOversikt = () => {
   const [filtrertListe] = useAtom(tiltakstypefilter);
@@ -23,11 +21,6 @@ const ViewTiltakstypeOversikt = () => {
   const [visInfoboks, setVisInfoboks] = useState(true);
 
   const { data, isFetching, isError } = useTiltakstyper(filtrertListe); //isLoading vs isFetching?
-
-  const features = useFetchFeatureToggle();
-  // const alertInfo = features[ALERT_INFO];
-
-  const alertInfo = features[ALERT_INFO];
 
   const handleClick = () => {
     logEvent('mulighetsrommet-alert-info');
@@ -67,7 +60,7 @@ const ViewTiltakstypeOversikt = () => {
           <SearchFieldTag />
         </div>
       </div>
-      <HiddenIfInfoboks hidden={!visInfoboks && !alertInfo} />
+      <HiddenIfInfoboks hidden={!visInfoboks} />
       <div className="tiltakstype-oversikt__tiltak">
         <Heading level="1" size="xsmall">
           Viser {data?.length} av {data?.length} tiltak

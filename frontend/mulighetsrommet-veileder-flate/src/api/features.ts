@@ -1,12 +1,12 @@
-export const ALERT_INFO = 'mulighetsrommet.alert-info';
+export const TILTAKSTYPELISTE = 'mulighetsrommet.tiltakstypeliste';
 
-export const ALL_TOGGLES = [ALERT_INFO];
+export const ALL_TOGGLES = [TILTAKSTYPELISTE];
 
 export interface Features {
-  [ALERT_INFO]: boolean;
+  [TILTAKSTYPELISTE]: boolean;
 }
 export const initialFeatures: Features = {
-  [ALERT_INFO]: false,
+  [TILTAKSTYPELISTE]: false,
 };
 
 //TODO brukes på denne måten, og den delen som skal være i en feature-toggle skal være wrappet med {tiltaksliste}.
