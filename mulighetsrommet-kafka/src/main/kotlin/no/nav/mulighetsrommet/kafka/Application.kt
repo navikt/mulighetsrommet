@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
 
     val client = HttpClient {
         defaultRequest {
-            url.takeFrom(URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetBackend")!!).apply {
+            url.takeFrom(URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetApi")!!).apply {
                 encodedPath += url.encodedPath
             })
         }

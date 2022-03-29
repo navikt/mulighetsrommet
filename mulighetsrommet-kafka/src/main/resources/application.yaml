@@ -3,7 +3,7 @@ server:
   host: 0.0.0.0
 
 endpoints:
-  mulighetsrommetBackend: ${MR_BACKEND_API_URI}
+  mulighetsrommetApi: ${MR_API_URI}
 
 database:
   host: ${DB_HOST}
