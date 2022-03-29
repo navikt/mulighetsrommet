@@ -1,5 +1,5 @@
-import { Features, TILTAKSTYPELISTE } from '../../api/features';
+import { Features, ALERT_INFO } from '../../api/features';
 
 export const mockFeatures: Features = {
-  [TILTAKSTYPELISTE]: false,
+  [ALERT_INFO]: false,
 };
