@@ -4,7 +4,7 @@ CREATE TABLE events(
     key     TEXT NOT NULL,
     "offset"  INTEGER NOT NULL,
     payload JSONB NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW();
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE events
