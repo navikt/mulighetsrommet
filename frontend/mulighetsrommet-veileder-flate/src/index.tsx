@@ -7,9 +7,9 @@ import Navspa from '@navikt/navspa';
 import { worker } from './mock/worker';
 import { APPLICATION_NAME } from './constants';
 
-OpenAPI.BASE = String(import.meta.env.VITE_BACKEND_API_ROOT ?? '');
+OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
 
-if (import.meta.env.VITE_ENABLE_MOCK === 'true') {
+if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
   worker.start();
 }
 

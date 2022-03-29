@@ -7,7 +7,6 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: ghcr.io/navikt/mulighetsrommet
   IMAGE_LABEL: dev
-  VITE_BACKEND_API_ROOT: https://mulighetsrommet-api.dev.intern.nav.no
   CI: true
   TZ: Europe/Amsterdam
 

@@ -41,11 +41,14 @@ Last ned og installer Node versjon 16 (eller høyere, på eget ansvar) (NPM er i
 
 ### Miljøvariabler
 
-Kjører man opp frontend med scriptene som ligger i `package.json` trenger man ikke foreta seg noe. Men vi to miljøvariabler som man kan sette manuelt hvis man har lyst. `VITE_ENABLE_MOCK` er en toggle for å kjøre in-memory mock-server sammen med applikasjonen. `VITE_BACKEND_API_ROOT` setter root uri for alle fetch-kall.
+Kjører man opp frontend med scriptene som ligger i `package.json` trenger man ikke foreta seg noe.
+Følgende miljøvariabler kan settes manuelt:
 
 ```sh
-export VITE_ENABLE_MOCK=true/false
-export VITE_BACKEND_API_ROOT='http://localhost:8080'
+# Toggle for å kjre en in-memory mock av APIet sammen med applikasjonen.
+export VITE_MULIGHETSROMMET_API_MOCK=true/false
+# Setter root url for alle HTTP-kall til mulighetsrommet-api
+export VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
 ```
 
 Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen.
