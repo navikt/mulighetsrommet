@@ -1,0 +1,12 @@
+{
+  "request": {
+    "method": "PUT",
+    "url": "/api/tiltakstyper"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain"
+    }
+  }
+}
