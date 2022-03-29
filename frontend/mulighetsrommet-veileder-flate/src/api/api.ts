@@ -8,4 +8,4 @@ const headers = {
 
 const toggles = ALL_TOGGLES.map(element => 'feature=' + element).join('&');
 
-export const useFetchFeatureToggle = () => useFetch<Features>(`/api/feature?${toggles}`, headers);
+export const useFetchFeatureToggle = () => useFetch<Features>(`/veilarbpersonflatefs/api/feature?${toggles}`, headers);
