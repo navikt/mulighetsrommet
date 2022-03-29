@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, Heading, Table } from '@navikt/ds-react';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
-import { Tiltakstype } from 'mulighetsrommet-api';
+import { Tiltakstype } from 'mulighetsrommet-api-client';
 
 export interface TiltakstypelisteProps {
   tiltakstypeliste: Array<Tiltakstype>;

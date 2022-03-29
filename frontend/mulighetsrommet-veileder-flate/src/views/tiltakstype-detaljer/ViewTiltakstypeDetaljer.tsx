@@ -8,7 +8,7 @@ import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import MainViewTitle from '../../layouts/MainViewTitle';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Statistikk from '../../components/statistikk/Statistikk';
-import { Tiltakskode } from '../../../../mulighetsrommet-api';
+import { Tiltakskode } from '../../../../mulighetsrommet-api-client';
 
 interface RouteParams {
   tiltakskode: Tiltakskode;
