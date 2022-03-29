@@ -37,7 +37,7 @@ private suspend fun produceTiltakEndretEvents(producer: KafkaProducerClient<Stri
 }
 
 private suspend fun produceTiltakEndretUpdateEvents(producer: KafkaProducerClient<String, String>) {
-    while(true) {
+    while (true) {
         producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakendret-v1-q2", "DIGIOPPARB", tiltakEndretJobbklubbUpdate))
         delay(5000)
     }

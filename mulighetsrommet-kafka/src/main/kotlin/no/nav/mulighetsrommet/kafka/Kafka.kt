@@ -4,7 +4,6 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer

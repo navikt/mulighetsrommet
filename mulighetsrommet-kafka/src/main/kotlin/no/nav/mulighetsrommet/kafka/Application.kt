@@ -23,9 +23,11 @@ fun main(args: Array<String>) {
 
     val client = HttpClient {
         defaultRequest {
-            url.takeFrom(URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetApi")!!).apply {
-                encodedPath += url.encodedPath
-            })
+            url.takeFrom(
+                URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetApi")!!).apply {
+                    encodedPath += url.encodedPath
+                }
+            )
         }
     }
     initializeServer(config, Kafka(config.kafka, preset, Database(config.database), client))
@@ -63,5 +65,4 @@ fun Application.main(config: AppConfig, kafka: Kafka) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
         kafka.stopClient()
     }
-
 }

@@ -26,5 +26,3 @@ data class Tiltakstype(
     @Serializable(with = DateSerializer::class)
     val updatedAt: LocalDateTime? = null
 )
-
-
