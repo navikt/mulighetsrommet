@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.kafka
+package no.nav.mulighetsrommet.kafka.utils
 
 /**
  * Litt tilfeldig uttrek av events på topics fra kafka-manager som Strings.

@@ -34,17 +34,6 @@ class DatabaseFactory {
             transaction { block() }
         }
 
-    fun migrateDatabase(): Int {
-        return flyway.migrate().migrationsExecuted
-    }
-
-    fun cleanDatabase(): ArrayList<String>? {
-        return flyway.clean().schemasCleaned
-    }
-
-    // TODO: Finn en løsning på å sjekke active connection. Ting bare tryner her uansett hva jeg tester.
-    // fun isConnectionActive() = !dataSource.connection.isClosed
-
     private fun hikari(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
