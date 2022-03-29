@@ -7,6 +7,9 @@ import Navspa from '@navikt/navspa';
 import { worker } from './mock/worker';
 import { APPLICATION_NAME } from './constants';
 
+OpenAPI.HEADERS = {
+  'Nav-Consumer-Id': APPLICATION_NAME,
+};
 OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
