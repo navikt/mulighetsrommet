@@ -13,7 +13,7 @@ import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltakstypefilter, visSidemeny } from '../../core/atoms/atoms';
 import { logEvent } from '../../api/logger';
 import { useFetchFeatureToggle } from '../../api/api';
-import { ALERT_INFO } from '../../api/features';
+import { ALERT_INFO, FAKE_DOOR } from '../../api/features';
 import { hasData } from '../../api/utils';
 import Show from '../../utils/Show';
 
@@ -25,6 +25,7 @@ const ViewTiltakstypeOversikt = () => {
 
   const features = useFetchFeatureToggle();
   const visAlertInfoFeature = hasData(features) && features.data[ALERT_INFO];
+  const visFakeDoorFeature = hasData(features) && features.data[FAKE_DOOR];
 
   const { data, isFetching, isError } = useTiltakstyper(filtrertListe); //isLoading vs isFetching?
 
@@ -52,31 +53,39 @@ const ViewTiltakstypeOversikt = () => {
   };
 
   return (
-    <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
-      <Show if={sidemenyVisning}>
-        <Filtermeny handleClickSkjulSidemeny={handleClickSkjulSidemeny} />
-      </Show>
-      <div className="filtercontainer">
-        <Ikonknapp className="filterknapp" handleClick={handleClickSkjulSidemeny} ariaLabel="Filterknapp">
-          <Filter aria-label="Filterknapp" />
-        </Ikonknapp>
-        <div className="filtertags">
-          <InnsatsgruppefilterTags />
-          <SearchFieldTag />
+    <>
+      {visFakeDoorFeature ? (
+        <Alert variant="info">
+          Ååååja, så du tror at hvis du trykker på en knapp så skjer det ting automatisk, du da?
+        </Alert>
+      ) : (
+        <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
+          <Show if={sidemenyVisning}>
+            <Filtermeny handleClickSkjulSidemeny={handleClickSkjulSidemeny} />
+          </Show>
+          <div className="filtercontainer">
+            <Ikonknapp className="filterknapp" handleClick={handleClickSkjulSidemeny} ariaLabel="Filterknapp">
+              <Filter aria-label="Filterknapp" />
+            </Ikonknapp>
+            <div className="filtertags">
+              <InnsatsgruppefilterTags />
+              <SearchFieldTag />
+            </div>
+          </div>
+          <Show if={visInfoboks && visAlertInfoFeature}>
+            <Infotekst />
+          </Show>
+          <div className="tiltakstype-oversikt__tiltak">
+            <Heading level="1" size="xsmall">
+              Viser {data?.length} av {data?.length} tiltak
+            </Heading>
+            {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
+            {data && <TiltakstypeTabell tiltakstypeliste={data} />}
+            {isError && <Alert variant="error">En feil oppstod. Vi har problemer med å hente tiltakstypene.</Alert>}
+          </div>
         </div>
-      </div>
-      <Show if={visInfoboks && visAlertInfoFeature}>
-        <Infotekst />
-      </Show>
-      <div className="tiltakstype-oversikt__tiltak">
-        <Heading level="1" size="xsmall">
-          Viser {data?.length} av {data?.length} tiltak
-        </Heading>
-        {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
-        {data && <TiltakstypeTabell tiltakstypeliste={data} />}
-        {isError && <Alert variant="error">En feil oppstod. Vi har problemer med å hente tiltakstypene.</Alert>}
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
