@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "backend": "cross-env VITE_DEV=true VITE_BACKEND_API_ROOT='http://localhost:8080' vite",
-    "build": "eslint && tsc && vite build",
-    "build:labs": "eslint && tsc && cross-env VITE_DEV=true VITE_ENABLE_MOCK=true vite build",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
+    "build": "eslint && tsc && VITE_MULIGHETSROMMET_API_BASE='poao-openam-proxy/proxy/mulighetsrommet-api' vite build",
+    "build:labs": "eslint && tsc && cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite build",
     "clean": "rimraf build",
     "cy:run": "cypress run",
     "lint": "eslint src --ext .js,.ts,.tsx",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
     "serve": "vite preview",
-    "start": "cross-env VITE_ENABLE_MOCK=true VITE_BACKEND_API_ROOT='' vite"
+    "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },
   "eslintConfig": {
     "extends": [

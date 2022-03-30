@@ -5,7 +5,7 @@ import {
 } from '@navikt/frontendlogger/lib';
 import { APP_NAME } from '../utils/constants';
 
-export const logger = import.meta.env.VITE_DEV
+export const logger = import.meta.env.DEV
   ? createMockFrontendLogger(APP_NAME)
   : createFrontendLogger(APP_NAME, DEFAULT_FRONTENDLOGGER_API_URL);
 
@@ -20,7 +20,7 @@ export const logMetrikk = (metrikkNavn: string, fields?: {}, tags?: {}): void =>
 export const logEvent = (logTag: string, fields?: {}, tags?: {}): void => {
   const frontendlogger = (window as any).frontendlogger;
 
-  if (import.meta.env.VITE_ENABLE_MOCK) {
+  if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
     console.log('Event', logTag, 'Fields:', fields, 'Tags:', tags); // tslint:disable-line
   } else if (frontendlogger.event) {
     frontendlogger.event(logTag, fields || {}, tags || {});
