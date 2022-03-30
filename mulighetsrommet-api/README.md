@@ -68,11 +68,9 @@ export DB_DATABASE=mulighetsrommet-db
 export DB_USERNAME=valp
 export DB_PASSWORD=valp
 export DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}
-export KAFKA_PORT=10002
-export KAFKA_HOST=localhost
 ```
 
-Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen.
+Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen. Eller bruk et verktøy som [direnv](https://direnv.net/).
 
 ## <a name="database"></a>Database
 
@@ -92,8 +90,4 @@ For å komme fort i gang fra en terminal gjør følgende:
    på nytt kan man kjøre `./gradlew flywayClean` før migrate)
 4. Start applikasjonen med å kjøre `./gradlew run`.
 
-Hvis alt gikk knirkefritt skal nå applikasjonen kjøre på http://0.0.0.0:8080.
-
-# Integrasjoner
-
-Når vi har noe vi integrerer mot eller integrerer med, så vil det stå her...
+Hvis alt gikk knirkefritt skal nå applikasjonen kjøre på <http://0.0.0.0:8080>.
