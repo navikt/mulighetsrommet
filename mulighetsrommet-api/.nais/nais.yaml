@@ -28,6 +28,12 @@ spec:
     min: 1
     max: 2
     cpuThresholdPercentage: 75
+  accessPolicy:
+    inbound:
+      rules:
+        - application: poao-openam-proxy
+          namespace: pto
+          cluster: dev-fss
   resources:
     limits:
       cpu: "1"
