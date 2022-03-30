@@ -1,7 +1,7 @@
 import React from 'react';
 import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from '@navikt/ds-react';
 import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
-import { Innsatsgruppe } from '../../../../mulighetsrommet-api';
+import { Innsatsgruppe } from '../../../../mulighetsrommet-api-client';
 
 interface InnsatsgruppeFilterProps {
   innsatsgruppefilter: Innsatsgruppe[];

@@ -14,21 +14,21 @@ Hensikten er å kunne gi begge parter lett tilgang til den samme kvalitetssikret
 
 ### `mulighetsrommet-veileder-flate`
 
-|                  |                                                                       |
-| ---------------- | --------------------------------------------------------------------- |
-| Kildekode        | https://github.com/navikt/mulighetsrommet/tree/dev/frontend/mulighetsrommet-veileder-flate |
+|                  |                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
+| Kildekode        | https://github.com/navikt/mulighetsrommet/tree/dev/frontend/mulighetsrommet-veileder-flate           |
 | README           | https://github.com/navikt/mulighetsrommet/blob/dev/frontend/mulighetsrommet-veileder-flate/README.md |
-| Url (dev-miljø)  | https://mulighetsrommet-veileder-flate.dev.intern.nav.no/                      |
-| Url (labs-miljø) | https://mulighetsrommet-veileder-flate.labs.nais.no/                           |
+| Url (dev-miljø)  | https://mulighetsrommet-veileder-flate.dev.intern.nav.no/                                            |
+| Url (labs-miljø) | https://mulighetsrommet-veileder-flate.labs.nais.no/                                                 |
 
 ### `mulighetsrommet-api`
 
-|                 |                                                                      |
-| --------------- | -------------------------------------------------------------------- |
-| Kildekode       | https://github.com/navikt/mulighetsrommet/tree/dev/backend           |
-| README          | https://github.com/navikt/mulighetsrommet/blob/dev/backend/README.md |
-| Url (dev-miljø) | https://mulighetsrommet-api.dev.intern.nav.no/                       |
-| API             | https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui             |
+|                 |                                                                                  |
+| --------------- | -------------------------------------------------------------------------------- |
+| Kildekode       | https://github.com/navikt/mulighetsrommet/tree/dev/mulighetsrommet-api           |
+| README          | https://github.com/navikt/mulighetsrommet/blob/dev/mulighetsrommet-api/README.md |
+| Url (dev-miljø) | https://mulighetsrommet-api.dev.intern.nav.no/                                   |
+| API             | https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui                         |
 
 ### `mulighetsrommet-kafka-manager`
 
