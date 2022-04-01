@@ -1,0 +1,10 @@
+server:
+  port: 8080
+  host: 0.0.0.0
+
+database:
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  name: ${DB_DATABASE}
+  user: ${DB_USERNAME}
+  password: ${DB_PASSWORD}
