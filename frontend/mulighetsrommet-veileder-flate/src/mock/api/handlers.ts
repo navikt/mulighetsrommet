@@ -3,7 +3,7 @@ import { db } from '../database';
 import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomføring';
 import { toTiltakstype } from '../entities/tiltakstype';
 import { badReq, notFound, ok } from './responses';
-import { mockFeatures } from './data';
+import { mockFeatures } from './features';
 
 export const handlers: RestHandler[] = [
   rest.get('*/api/feature', (req, res, ctx) => {

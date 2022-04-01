@@ -35,7 +35,6 @@
     "@navikt/fnrvalidator": "^1.2.0",
     "@navikt/frontendlogger": "^2.0.0",
     "@navikt/navspa": "^5.0.1",
-    "@nutgaard/use-fetch": "^2.3.1",
     "@reduxjs/toolkit": "^1.6.1",
     "@types/node": "^17.0.21",
     "@vitejs/plugin-react": "^1.2.0",

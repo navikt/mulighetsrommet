@@ -12,9 +12,7 @@ import InnsatsgruppefilterTags from '../../components/tags/InnsatsgruppefilterTa
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltakstypefilter, visSidemeny } from '../../core/atoms/atoms';
 import { logEvent } from '../../api/logger';
-import { useFetchFeatureToggle } from '../../api/api';
-import { ALERT_INFO, FAKE_DOOR } from '../../api/features';
-import { hasData } from '../../api/utils';
+import { ALERT_INFO, FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import Show from '../../utils/Show';
 
 const ViewTiltakstypeOversikt = () => {
@@ -23,9 +21,9 @@ const ViewTiltakstypeOversikt = () => {
 
   const [visInfoboks, setVisInfoboks] = useState(true);
 
-  const features = useFetchFeatureToggle();
-  const visAlertInfoFeature = hasData(features) && features.data[ALERT_INFO];
-  const visFakeDoorFeature = hasData(features) && features.data[FAKE_DOOR];
+  const features = useFeatureToggles();
+  const visAlertInfoFeature = features.isSuccess && features.data[ALERT_INFO];
+  const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
 
   const { data, isFetching, isError } = useTiltakstyper(filtrertListe); //isLoading vs isFetching?
 
