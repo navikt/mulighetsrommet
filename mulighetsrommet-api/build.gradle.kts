@@ -4,14 +4,14 @@
 
 plugins {
     application
-    kotlin("jvm") version "1.6.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
     id("org.flywaydb.flyway") version "8.0.3"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     /**
      * Linting and auto formatting of project sources
      */
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 application {
@@ -38,6 +38,7 @@ dependencies {
     val koinVersion = "3.1.5"
     val kotestVersion = "5.1.0"
 
+    implementation(project(":mulighetsrommet-domain"))
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")

@@ -11,10 +11,10 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.put
-import no.nav.mulighetsrommet.api.domain.Tiltakskode
-import no.nav.mulighetsrommet.api.domain.Tiltakstype
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
