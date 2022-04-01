@@ -9,5 +9,5 @@ export function hasData<TYPE>(result: AsyncData<TYPE>): result is WithData<TYPE>
 }
 
 export const headers = {
-  headers: { 'Nav-Consumer-Id': APPLICATION_NAME },
+  'Nav-Consumer-Id': APPLICATION_NAME,
 };

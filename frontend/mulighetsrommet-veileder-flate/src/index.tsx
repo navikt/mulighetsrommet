@@ -8,7 +8,7 @@ import { worker } from './mock/worker';
 import { APPLICATION_NAME } from './constants';
 import { headers } from './api/utils';
 
-OpenAPI.HEADERS = headers.headers;
+OpenAPI.HEADERS = headers;
 
 OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
 
