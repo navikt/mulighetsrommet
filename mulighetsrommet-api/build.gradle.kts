@@ -19,10 +19,22 @@ application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
+repositories {
+    mavenCentral()
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
+    // Needed to get no.nav.common-java-modules to work. Deps from other repos
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
+    maven {
+        url = uri("https://jitpack.io")
+    }
+}
+
 dependencies {
     val ktorVersion = "1.6.2"
     val koinVersion = "3.1.5"
-
+    val kotestVersion = "5.2.2"
     implementation(project(":mulighetsrommet-domain"))
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
@@ -38,9 +50,15 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    implementation("org.flywaydb:flyway-core:8.5.5")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.postgresql:postgresql:42.3.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
+    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 }
 
 tasks.withType<Test> {
