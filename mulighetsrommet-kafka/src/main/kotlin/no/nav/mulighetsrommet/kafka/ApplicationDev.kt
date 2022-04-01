@@ -8,7 +8,7 @@ import io.ktor.http.*
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
-fun main(args: Array<String>) {
+fun main() {
     val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
 
     val preset = KafkaPropertiesBuilder.consumerBuilder()

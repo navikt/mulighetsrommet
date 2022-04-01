@@ -2,12 +2,9 @@ val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val prometeus_version: String by project
-val kotest_version: String by project
-val mockk_version: String by project
 val ktlint_version: String by project
 val hikari_version: String by project
 val postgresql_version: String by project
-val flyway_version: String by project
 val hoplite_version: String by project
 val common_java_modules_version: String by project
 val kotliquery_version: String by project
@@ -17,12 +14,8 @@ plugins {
     application
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("org.flywaydb.flyway") version "8.5.2"
+    id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
-}
-
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    disabledRules.addAll("no-wildcard-imports")
 }
 
 group = "no.nav.mulighetsrommet.kafka"
@@ -31,22 +24,8 @@ application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USERNAME")
-    password = System.getenv("DB_PASSWORD")
-}
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
-    // Needed to get no.nav.common-java-modules to work. Deps from other repos
-    maven {
-        url = uri("https://packages.confluent.io/maven/")
-    }
-    maven {
-        url = uri("https://jitpack.io")
-    }
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    disabledRules.addAll("no-wildcard-imports")
 }
 
 dependencies {
@@ -63,9 +42,6 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("com.zaxxer:HikariCP:$hikari_version")
-    implementation("org.postgresql:postgresql:$postgresql_version")
-    implementation("org.flywaydb:flyway-core:$flyway_version")
     implementation("com.sksamuel.hoplite:hoplite-core:$hoplite_version")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hoplite_version")
     implementation("no.nav.common:kafka:$common_java_modules_version")
@@ -73,8 +49,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    testImplementation("io.mockk:mockk:$mockk_version")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
-    testImplementation("io.kotest:kotest-assertions-core:$kotest_version")
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wiremock_version")
+}
+
+flyway {
+    url = System.getenv("DB_URL")
+    user = System.getenv("DB_USERNAME")
+    password = System.getenv("DB_PASSWORD")
 }
