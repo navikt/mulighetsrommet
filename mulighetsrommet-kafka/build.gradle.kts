@@ -15,10 +15,10 @@ val wiremock_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
     id("org.flywaydb.flyway") version "8.5.2"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
@@ -50,6 +50,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":mulighetsrommet-domain"))
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")

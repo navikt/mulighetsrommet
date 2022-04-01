@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.InnsatsgruppeTable
+import no.nav.mulighetsrommet.domain.Innsatsgruppe
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
 

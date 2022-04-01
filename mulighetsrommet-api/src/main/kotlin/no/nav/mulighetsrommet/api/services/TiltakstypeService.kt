@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.Tiltakskode
-import no.nav.mulighetsrommet.api.domain.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.TiltakstypeTable
+import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.jetbrains.exposed.sql.*
 
 class TiltakstypeService(private val db: DatabaseFactory) {

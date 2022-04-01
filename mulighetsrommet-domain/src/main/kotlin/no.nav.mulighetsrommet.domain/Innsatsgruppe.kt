@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.domain
+package no.nav.mulighetsrommet.domain
 
 import kotlinx.serialization.Serializable
 

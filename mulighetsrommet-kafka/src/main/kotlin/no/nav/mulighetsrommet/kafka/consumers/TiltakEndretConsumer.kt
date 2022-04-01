@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.kafka.consumers
 
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -9,8 +8,8 @@ import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import no.nav.mulighetsrommet.kafka.domain.Tiltakskode
-import no.nav.mulighetsrommet.kafka.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils.isInsertArenaOperation
 import org.slf4j.LoggerFactory
