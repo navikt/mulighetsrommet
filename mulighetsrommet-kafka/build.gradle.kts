@@ -1,13 +1,9 @@
-val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val prometeus_version: String by project
-val kotest_version: String by project
-val mockk_version: String by project
 val ktlint_version: String by project
 val hikari_version: String by project
 val postgresql_version: String by project
-val flyway_version: String by project
 val hoplite_version: String by project
 val common_java_modules_version: String by project
 val kotliquery_version: String by project
@@ -15,14 +11,10 @@ val wiremock_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.5.2"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-}
-
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    disabledRules.addAll("no-wildcard-imports")
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("org.flywaydb.flyway")
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 group = "no.nav.mulighetsrommet.kafka"
@@ -31,10 +23,8 @@ application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USERNAME")
-    password = System.getenv("DB_PASSWORD")
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    disabledRules.addAll("no-wildcard-imports")
 }
 
 repositories {
@@ -50,30 +40,40 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktor_version")
-    implementation("io.micrometer:micrometer-registry-prometheus:$prometeus_version")
-    implementation("io.ktor:ktor-server-call-logging-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-default-headers-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-cors-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("com.zaxxer:HikariCP:$hikari_version")
-    implementation("org.postgresql:postgresql:$postgresql_version")
-    implementation("org.flywaydb:flyway-core:$flyway_version")
-    implementation("com.sksamuel.hoplite:hoplite-core:$hoplite_version")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:$hoplite_version")
-    implementation("no.nav.common:kafka:$common_java_modules_version")
-    implementation("com.github.seratch:kotliquery:$kotliquery_version")
+    val ktorVersion = "2.0.0-beta-1"
+    val kotestVersion = "5.2.2"
+    val hopliteVersion = "1.4.16"
+    implementation(project(":mulighetsrommet-domain"))
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
+    implementation("io.ktor:ktor-server-call-logging-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-default-headers-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
+    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
+    implementation("com.github.seratch:kotliquery:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    testImplementation("io.mockk:mockk:$mockk_version")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
-    testImplementation("io.kotest:kotest-assertions-core:$kotest_version")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:$wiremock_version")
+    implementation("org.flywaydb:flyway-core:8.5.5")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.postgresql:postgresql:42.3.3")
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
+    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+}
+
+flyway {
+    url = System.getenv("DB_URL")
+    user = System.getenv("DB_USERNAME")
+    password = System.getenv("DB_PASSWORD")
 }

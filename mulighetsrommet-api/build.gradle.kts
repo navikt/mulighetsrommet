@@ -4,26 +4,24 @@
 
 plugins {
     application
-    kotlin("jvm") version "1.6.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
-    id("org.flywaydb.flyway") version "8.0.3"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("org.flywaydb.flyway")
+    id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    /**
-     * Linting and auto formatting of project sources
-     */
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
-}
-
-application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     disabledRules.addAll("no-wildcard-imports")
 }
 
+application {
+    mainClass.set("io.ktor.server.netty.EngineMain")
+}
+
 repositories {
     mavenCentral()
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
     // Needed to get no.nav.common-java-modules to work. Deps from other repos
     maven {
         url = uri("https://packages.confluent.io/maven/")
@@ -36,8 +34,8 @@ repositories {
 dependencies {
     val ktorVersion = "1.6.2"
     val koinVersion = "3.1.5"
-    val kotestVersion = "5.1.0"
-
+    val kotestVersion = "5.2.2"
+    implementation(project(":mulighetsrommet-domain"))
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
@@ -46,19 +44,19 @@ dependencies {
     implementation("io.ktor:ktor-webjars:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.jetbrains.exposed:exposed-java-time:0.34.2")
     implementation("org.jetbrains.exposed:exposed-core:0.34.2")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.34.2")
-    implementation("org.postgresql:postgresql:42.2.23")
-    implementation("org.flywaydb:flyway-core:8.0.3")
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    implementation("org.flywaydb:flyway-core:8.5.5")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.postgresql:postgresql:42.3.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 }

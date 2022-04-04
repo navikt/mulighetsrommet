@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.kafka.plugins.configureSerialization
 import no.nav.mulighetsrommet.kafka.routes.healthRoutes
 import org.slf4j.LoggerFactory
 
-fun main(args: Array<String>) {
+fun main() {
     val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
     val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.kafka.consumerGroupId)
 
@@ -40,7 +40,7 @@ fun initializeServer(config: AppConfig, kafka: Kafka) {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                main(config, kafka)
+                main(kafka)
             }
 
             connector {
@@ -52,7 +52,7 @@ fun initializeServer(config: AppConfig, kafka: Kafka) {
     server.start(true)
 }
 
-fun Application.main(config: AppConfig, kafka: Kafka) {
+fun Application.main(kafka: Kafka) {
 
     configureSerialization()
     configureMonitoring()
