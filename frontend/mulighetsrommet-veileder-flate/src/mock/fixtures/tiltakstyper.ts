@@ -1,5 +1,5 @@
-import { Tiltakskode, Tiltakstype } from 'mulighetsrommet-api';
 import faker from 'faker';
+import { Tiltakskode, Tiltakstype } from '../../../../mulighetsrommet-api-client';
 export const tiltakstyper: Tiltakstype[] = [
   {
     id: 1,
