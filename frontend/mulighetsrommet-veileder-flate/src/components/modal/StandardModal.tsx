@@ -1,6 +1,7 @@
 import { Button, Heading, Modal } from '@navikt/ds-react';
 import React from 'react';
 import './modal.less';
+import classNames from 'classnames';
 
 interface SendInformasjonModalProps {
   modalOpen: boolean;
@@ -27,7 +28,12 @@ const StandardModal = ({
   };
 
   return (
-    <Modal closeButton open={modalOpen} onClose={setModalOpen} className={className!}>
+    <Modal
+      closeButton
+      open={modalOpen}
+      onClose={setModalOpen}
+      className={classNames('mulighetsrommet-veileder-flate__modal', className)}
+    >
       <Modal.Content>
         <Heading spacing level="1" size="large" data-testid="modal_header">
           {heading}
