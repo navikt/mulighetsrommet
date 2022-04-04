@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="no" style="height: 100%; background-color: #f1f1f1">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -7,21 +7,22 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="manifest" href="/manifest.json" />
     <title>Arbeidsmarkedstiltak</title>
-
-    <style>
-      #veilarbpersonflatefs-root {
-        width: 100%;
-        height: 174px;
-      }
-    </style>
   </head>
 
   <body>
     <header>
-      <img src="/internflate20211122.png" id="veilarbpersonflatefs-root" alt="veilarbpersonflate-bilde" />
+      <img
+        src="/internflate20211122.png"
+        id="veilarbpersonflatefs-root"
+        alt="veilarbpersonflate-bilde"
+        style="width: 100%; height: 174px"
+      />
     </header>
+
     <main id="applikasjon" class="app">
-      <div id="mulighetsrommet-root"></div>
+      <div id="modal-a11y-wrapper">
+        <div id="mulighetsrommet-veileder-flate"></div>
+      </div>
       <script type="module" src="./src/index.tsx"></script>
     </main>
   </body>

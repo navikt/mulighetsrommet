@@ -1,32 +1,35 @@
-.fane {
-  &__root {
-    margin: 1rem 0;
-  }
-  &__liste {
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid var(--navds-semantic-color-border-muted);
-    margin-bottom: 2rem;
-    gap: 1%;
+.mulighetsrommet-veileder-flate {
+  .fane {
+    &__root {
+      margin: 1rem 0;
+    }
 
-    button {
-      background-color: transparent;
-      border: none;
-      padding: 1rem 0;
-      cursor: pointer;
+    &__liste {
+      display: flex;
+      flex-direction: row;
+      border-bottom: 1px solid var(--navds-semantic-color-border-muted);
+      margin-bottom: 2rem;
+      gap: 1%;
 
-      &:hover {
-        color: var(--navds-accordion-color-text-hover);
+      button {
+        background-color: transparent;
+        border: none;
+        padding: 1rem 0;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--navds-accordion-color-text-hover);
+        }
       }
-    }
 
-    .btn__tab {
-      width: 6rem;
-    }
+      .btn__tab {
+        width: 6rem;
+      }
 
-    button[data-state='active'] {
-      font-weight: bold;
-      border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
+      button[data-state='active'] {
+        font-weight: bold;
+        border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
+      }
     }
   }
 }

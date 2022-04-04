@@ -12,6 +12,14 @@ jobs:
           node-version: 17
           cache: npm
       - run: npm ci
+      - name: Cache Turborepo
+        uses: actions/cache@v3
+        with:
+          path: node_modules/.cache/turbo
+          key: turborepo-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turborepo-${{ github.ref_name }}-
+            turborepo-
       - run: npx turbo run mulighetsrommet-cms#deploy
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}

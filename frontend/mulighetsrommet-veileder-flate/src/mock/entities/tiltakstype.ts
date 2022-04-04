@@ -1,5 +1,5 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltakskode, Tiltakstype } from 'mulighetsrommet-api';
+import { Tiltakskode, Tiltakstype } from 'mulighetsrommet-api-client';
 import { DatabaseDictionary } from '../database';
 
 export type TiltakstypeEntity = Entity<DatabaseDictionary, 'tiltakstype'>;
@@ -16,6 +16,6 @@ export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
     createdBy: entity.createdBy,
     createdAt: entity.createdAt,
     updatedBy: entity.updatedBy,
-    updatedAt: entity.updatedAt
+    updatedAt: entity.updatedAt,
   };
 }

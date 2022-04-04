@@ -10,12 +10,12 @@ env:
   TZ: Europe/Amsterdam
 
 jobs:
-  build-docker-image-backend:
-    name: Build Docker image (backend)
+  build-docker-image-api:
+    name: Build Docker image (mulighetsrommet-api)
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: mulighetsrommet-api
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,13 +38,13 @@ jobs:
           docker build -t ${IMAGE}/mulighetsrommet-api-${IMAGE_LABEL_DEV}:${IMAGE_TAG} .
           docker push ${IMAGE}/mulighetsrommet-api-${IMAGE_LABEL_DEV}:${IMAGE_TAG}
 
-  deploy-backend:
-    name: Deploy Docker image (backend)
+  deploy-api:
+    name: Deploy Docker image (mulighetsrommet-api)
     runs-on: ubuntu-latest
-    needs: build-docker-image-backend
+    needs: build-docker-image-api
     defaults:
       run:
-        working-directory: backend
+        working-directory: mulighetsrommet-api
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: backend/.nais/nais.yaml
+          RESOURCE: mulighetsrommet-api/.nais/nais.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_DEV}}
       - name: Create release tag
         uses: actions/create-release@v1
@@ -74,6 +74,14 @@ jobs:
           node-version: 17
           cache: npm
       - run: npm ci
+      - name: Cache Turborepo
+        uses: actions/cache@v3
+        with:
+          path: node_modules/.cache/turbo
+          key: turborepo-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turborepo-${{ github.ref_name }}-
+            turborepo-
       - name: Build packages
         run: npx turbo run build
       - name: Build and publish Docker image

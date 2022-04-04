@@ -7,31 +7,36 @@ import Routes from './Routes';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Modal } from '@navikt/ds-react';
+import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
+
+// Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
+Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
 
-// Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
-Modal.setAppElement?.('#mulighetsrommet-root');
-
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes />
-      </Router>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <div className="app__container">
+      <div className={APPLICATION_NAME}>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <Routes />
+          </Router>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </div>
+    </div>
   );
 }
 

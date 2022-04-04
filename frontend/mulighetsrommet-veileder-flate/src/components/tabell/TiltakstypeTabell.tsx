@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pagination, Table, BodyShort, Alert } from '@navikt/ds-react';
 import './Tabell.less';
+import { Tiltakstype } from 'mulighetsrommet-api-client';
 import { Tiltakstype } from 'mulighetsrommet-api';
 import Lenke from '../lenke/Lenke';
 
