@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.TiltaksgjennomforingTable
-import no.nav.mulighetsrommet.api.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll

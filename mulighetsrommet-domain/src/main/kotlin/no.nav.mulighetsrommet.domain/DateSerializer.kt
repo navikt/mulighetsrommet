@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.utils
+package no.nav.mulighetsrommet.domain
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
