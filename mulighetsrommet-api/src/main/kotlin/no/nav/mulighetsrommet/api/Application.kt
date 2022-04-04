@@ -33,8 +33,7 @@ fun initializeServer(config: AppConfig) {
     server.start(true)
 }
 
-@Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
-fun Application.module() {
+fun Application.main() {
 
     configureDependencyInjection()
     configureRouting()
