@@ -16,7 +16,15 @@ fun <R> withMulighetsrommetApp(
 }
 
 fun createTestApplicationConfig() = AppConfig(
-    database = createDatabaseConfig()
+    database = createDatabaseConfig(),
+    auth = mapOf(
+        "azure" to AuthProvider(
+            issuer = "http://localhost:8081/azure",
+            jwksUri = "http://localhost:8081/azure/jwks",
+            discoveryUrl = "http://localhost:8081/azure/.well-known/openid-configuration",
+            audience = "mulighetsrommet-api"
+        )
+    )
 )
 
 fun createDatabaseConfig(

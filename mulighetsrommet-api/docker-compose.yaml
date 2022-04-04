@@ -25,11 +25,11 @@ services:
          "tokenCallbacks": [
            {
              "issuerId": "azure",
-             "tokenExpiry": 604800,
+             "tokenExpiry": 15780000,
              "requestMappings": [
                {
                  "requestParam": "scope",
-                 "match": "openid",
+                 "match": "openid somescope",
                  "claims": {
                    "sub": "admin@mulighetsrommet",
                    "aud": ["mulighetsrommet-api"]

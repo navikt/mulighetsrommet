@@ -14,6 +14,7 @@ data class ServerConfig(
 
 data class AppConfig(
     val database: DatabaseConfig,
+    val auth: Map<String, AuthProvider>
 )
 
 data class DatabaseConfig(
@@ -23,4 +24,11 @@ data class DatabaseConfig(
     val schema: String?,
     val user: String,
     val password: Masked
+)
+
+data class AuthProvider(
+    val issuer: String,
+    val jwksUri: String,
+    val discoveryUrl: String,
+    val audience: String
 )
