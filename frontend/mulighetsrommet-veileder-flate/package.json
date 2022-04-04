@@ -5,6 +5,7 @@
   "scripts": {
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
     "build": "eslint && tsc && VITE_MULIGHETSROMMET_API_BASE='/poao-openam-proxy/proxy/mulighetsrommet-api' vite build",
+    "build:labs": "eslint && tsc && cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite build",
     "clean": "rimraf build",
     "cy:run": "cypress run",
     "lint": "eslint src --ext .js,.ts,.tsx",
