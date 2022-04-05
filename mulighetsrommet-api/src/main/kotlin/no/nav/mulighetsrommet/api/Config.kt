@@ -2,14 +2,18 @@ package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
 
-data class AppConfig(
+data class Config(
     val server: ServerConfig,
-    val database: DatabaseConfig,
+    val app: AppConfig,
 )
 
 data class ServerConfig(
     val host: String,
     val port: Int
+)
+
+data class AppConfig(
+    val database: DatabaseConfig,
 )
 
 data class DatabaseConfig(
