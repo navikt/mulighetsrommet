@@ -18,22 +18,22 @@ import no.nav.mulighetsrommet.kafka.routes.healthRoutes
 import org.slf4j.LoggerFactory
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
-    val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.kafka.consumerGroupId)
+    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
+    val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.app.kafka.consumerGroupId)
 
     val client = HttpClient {
         defaultRequest {
             url.takeFrom(
-                URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetApi")!!).apply {
+                URLBuilder().takeFrom(config.app.endpoints.get("mulighetsrommetApi")!!).apply {
                     encodedPath += url.encodedPath
                 }
             )
         }
     }
-    initializeServer(config, Kafka(config.kafka, preset, Database(config.database), client))
+    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), client))
 }
 
-fun initializeServer(config: AppConfig, kafka: Kafka) {
+fun initializeServer(config: Config, kafka: Kafka) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {

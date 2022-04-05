@@ -9,24 +9,24 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
+    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
 
     val preset = KafkaPropertiesBuilder.consumerBuilder()
-        .withBrokerUrl(config.kafka.brokers)
+        .withBrokerUrl(config.app.kafka.brokers)
         .withBaseProperties()
-        .withConsumerGroupId(config.kafka.consumerGroupId)
+        .withConsumerGroupId(config.app.kafka.consumerGroupId)
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
     val client = HttpClient(CIO) {
         defaultRequest {
             url.takeFrom(
-                URLBuilder().takeFrom(config.endpoints.get("mulighetsrommetApi")!!).apply {
+                URLBuilder().takeFrom(config.app.endpoints.get("mulighetsrommetApi")!!).apply {
                     encodedPath += url.encodedPath
                 }
             )
         }
     }
 
-    initializeServer(config, Kafka(config.kafka, preset, Database(config.database), client))
+    initializeServer(config.app, Kafka(config.app.kafka, preset, Database(config.app.database), client))
 }
