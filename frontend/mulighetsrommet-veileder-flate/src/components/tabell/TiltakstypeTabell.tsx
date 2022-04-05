@@ -83,6 +83,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                   key={id}
                   onClick={() => (location.href = `/tiltakstyper/${tiltakskode}`)}
                   className="row-btn"
+                  data-testid="tabell_tiltakstyper_rad"
                 >
                   <Table.HeaderCell>{id}</Table.HeaderCell>
                   <Table.DataCell className="tabell__tiltaksnavn">
