@@ -16,24 +16,26 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWind
 
 function App() {
   return (
-    <div className={APPLICATION_NAME}>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Routes />
-        </Router>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+    <div className="app__container">
+      <div className={APPLICATION_NAME}>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <Routes />
+          </Router>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </div>
     </div>
   );
 }
