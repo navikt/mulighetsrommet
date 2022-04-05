@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pagination, Table, BodyShort, Alert } from '@navikt/ds-react';
 import './Tabell.less';
-import Lenke from '../lenke/Lenke';
+import '../../App.less';
 import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
 
 export interface TiltakstypelisteProps {
@@ -79,16 +79,14 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
               .map(({ id, tiltakskode, navn, fraDato }) => (
-                <Table.Row key={id}>
+                <Table.Row
+                  key={id}
+                  onClick={() => (location.href = `/tiltakstyper/${tiltakskode}`)}
+                  className="row-btn"
+                >
                   <Table.HeaderCell>{id}</Table.HeaderCell>
-                  <Table.DataCell>
-                    <Lenke
-                      to={`/tiltakstyper/${tiltakskode}`}
-                      className="tabell__tiltaksnavn"
-                      data-testid="tabell_tiltakstyper_tiltaksnummer"
-                    >
-                      {navn}
-                    </Lenke>
+                  <Table.DataCell className="tabell__tiltaksnavn">
+                    <BodyShort>{navn}</BodyShort>
                     <BodyShort>Leverandør</BodyShort>
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
