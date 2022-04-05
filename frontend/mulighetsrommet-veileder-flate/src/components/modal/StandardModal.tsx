@@ -33,6 +33,7 @@ const StandardModal = ({
       open={modalOpen}
       onClose={setModalOpen}
       className={classNames('mulighetsrommet-veileder-flate__modal', className)}
+      aria-label="modal"
     >
       <Modal.Content>
         <Heading spacing level="1" size="large" data-testid="modal_header">

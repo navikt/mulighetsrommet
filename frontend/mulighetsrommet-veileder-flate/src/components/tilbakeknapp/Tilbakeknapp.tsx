@@ -9,7 +9,7 @@ interface TilbakeknappProps {
 
 const Tilbakeknapp = ({ tilbakelenke }: TilbakeknappProps) => {
   return (
-    <Lenke className="tilbakeknapp" to={tilbakelenke}>
+    <Lenke className="tilbakeknapp" to={tilbakelenke} data-testid="lenke-tilbakeknapp">
       <Back aria-label="Tilbakeknapp" />
       <span>Tilbake</span>
     </Lenke>
