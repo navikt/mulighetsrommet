@@ -10,18 +10,18 @@ import no.nav.mulighetsrommet.api.routes.*
 import org.slf4j.LoggerFactory
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<AppConfig>("/application.yaml")
+    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
     initializeServer(config)
 }
 
-fun initializeServer(config: AppConfig) {
+fun initializeServer(config: Config) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                main(config)
+                configure(config.app)
             }
 
             connector {
@@ -33,8 +33,7 @@ fun initializeServer(config: AppConfig) {
     server.start(true)
 }
 
-fun Application.main(config: AppConfig) {
-
+fun Application.configure(config: AppConfig) {
     configureDependencyInjection(config)
     configureRouting()
     configureSecurity()
