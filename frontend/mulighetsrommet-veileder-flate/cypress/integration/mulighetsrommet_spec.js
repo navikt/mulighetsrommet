@@ -4,13 +4,14 @@ before('Start server', () => {
 
 describe('Mulighetsrommet', () => {
   //TODO fiks denne når ny frontend er klar
-  it('Sjekk at det er tiltak i listen', () => {
+  it('Sjekk at det er tiltaksgjennomføringer i listen', () => {
     cy.checkPageA11y();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
 
   it('Gå inn på den første tiltaksgjennomføringen', () => {
     cy.getByTestId('tabell_tiltakstyper_tiltaksnummer').first().click();
+    cy.url().should('include', '/tiltakstyper/ABIST');
     cy.getByTestId('main-view-header_opplaering').should('be.visible');
     cy.checkPageA11y();
   });
@@ -25,7 +26,7 @@ describe('Mulighetsrommet', () => {
     cy.get('.ReactModal__Content').should('not.exist');
   });
   it('Gå tilbake til tiltaksoversikten', () => {
-    cy.getByTestId('lenke-tilbakeknapp').contains('Tilbake').click();
+    cy.tilbakeTilListevisning();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
 });

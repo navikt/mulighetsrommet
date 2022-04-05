@@ -34,7 +34,8 @@ Cypress.Commands.add('configure', () => {
     method: 'GET',
     url: '/',
   });
-  cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
+  cy.getByTestId('tiltakstype-oversikt').should('be.visible');
+  cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {
@@ -43,10 +44,9 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
 
 Cypress.Commands.add('tilbakeTilListevisning', () => {
   cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
-  cy.getByTestId('header-tiltakstyper').should('contain', 'Tiltakstyper');
 });
 
-//Cypress
+//Cypress-axe
 const severityIndicators = {
   minor: '⚪️',
   moderate: '🟡',
