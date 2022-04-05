@@ -21,7 +21,7 @@ fun initializeServer(config: AppConfig) {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                main()
+                main(config)
             }
 
             connector {
@@ -33,9 +33,9 @@ fun initializeServer(config: AppConfig) {
     server.start(true)
 }
 
-fun Application.main() {
+fun Application.main(config: AppConfig) {
 
-    configureDependencyInjection()
+    configureDependencyInjection(config)
     configureRouting()
     configureSecurity()
     configureHTTP()
