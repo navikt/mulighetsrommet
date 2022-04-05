@@ -40,8 +40,8 @@ class TiltakEndretConsumer(private val client: HttpClient) {
         tiltakskode = Tiltakskode.valueOf(this["TILTAKSKODE"]!!.jsonPrimitive.content),
         fraDato = LocalDateTime.parse(this["DATO_FRA"]!!.jsonPrimitive.content, ProcessingUtils.getArenaDateFormat()),
         tilDato = LocalDateTime.parse(this["DATO_TIL"]!!.jsonPrimitive.content, ProcessingUtils.getArenaDateFormat()),
-        createdBy = this["REG_USER"]!!.jsonPrimitive.content,
-        updatedBy = this["MOD_USER"]!!.jsonPrimitive.content
+//        createdBy = this["REG_USER"]!!.jsonPrimitive.content,
+//        updatedBy = this["MOD_USER"]!!.jsonPrimitive.content
     )
 
     @OptIn(InternalAPI::class)

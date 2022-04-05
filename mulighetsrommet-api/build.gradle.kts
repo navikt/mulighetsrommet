@@ -56,6 +56,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.5")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
+    implementation("com.github.seratch:kotliquery:1.6.2")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
@@ -70,13 +71,14 @@ tasks.withType<Test> {
 
 tasks {
     shadowJar {
+
         manifest {
             attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
         }
     }
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+//java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"

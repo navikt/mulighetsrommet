@@ -18,14 +18,14 @@ fun Route.tiltaksgjennomforingRoutes() {
         call.respond(tiltaksgjennomforingService.getTiltaksgjennomforinger())
     }
     get("/api/tiltaksgjennomforinger/{id}") {
-        val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
-            "Mangler eller ugyldig id",
-            status = HttpStatusCode.BadRequest
-        )
-        val tiltaksgjennomforing = tiltaksgjennomforingService.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
-            "Det finner ikke noe tiltak med id $id",
-            status = HttpStatusCode.NotFound
-        )
-        call.respond(tiltaksgjennomforing)
+//        val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
+//            "Mangler eller ugyldig id",
+//            status = HttpStatusCode.BadRequest
+//        )
+//        val tiltaksgjennomforing = tiltaksgjennomforingService.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
+//            "Det finner ikke noe tiltak med id $id",
+//            status = HttpStatusCode.NotFound
+//        )
+//        call.respond(tiltaksgjennomforing)
     }
 }

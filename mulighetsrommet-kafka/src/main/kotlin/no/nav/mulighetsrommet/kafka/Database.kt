@@ -37,7 +37,6 @@ class Database(databaseConfig: DatabaseConfig) {
     }
 
     fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
-        @Language("SQL")
         val query = """
             insert into events(topic, key, "offset", payload) values(?, ?, ?, ? ::jsonb)
         """.trimIndent()

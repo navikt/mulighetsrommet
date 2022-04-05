@@ -4,7 +4,7 @@ import io.ktor.application.Application
 import io.ktor.application.install
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.DatabaseConfig
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
+import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -22,7 +22,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
 private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
-        single { DatabaseFactory(databaseConfig) }
+        single { Database(databaseConfig) }
     }
 }
 

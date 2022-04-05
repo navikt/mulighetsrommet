@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Innsatsgruppe(
     val id: Int? = 0,
     val tittel: String,
-    val beskrivelse: String,
+    val beskrivelse: String
 )
