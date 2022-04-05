@@ -45,7 +45,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
               Tiltakstype
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
-              Oppstart
+              Oppstartsdato
             </Table.ColumnHeader>
             <Table.ColumnHeader className="tabell__kolonne__plasser">Plasser/Ventetid</Table.ColumnHeader>
           </Table.Row>
