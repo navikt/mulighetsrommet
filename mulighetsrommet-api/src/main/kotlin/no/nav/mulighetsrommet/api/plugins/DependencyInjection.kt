@@ -21,7 +21,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 }
 
 private fun db(databaseConfig: DatabaseConfig): Module {
-    module(createdAtStart = true) {
+    return module(createdAtStart = true) {
         single { DatabaseFactory(databaseConfig) }
     }
 }
