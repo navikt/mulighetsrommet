@@ -2,23 +2,28 @@ package no.nav.mulighetsrommet.api.plugins
 
 import io.ktor.application.Application
 import io.ktor.application.install
+import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.DatabaseConfig
 import no.nav.mulighetsrommet.api.database.DatabaseFactory
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.ext.Koin
 import org.koin.logger.SLF4JLogger
 
-fun Application.configureDependencyInjection() {
+fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(Koin) {
         SLF4JLogger()
-        modules(db, services)
+        modules(db(appConfig.database), services)
     }
 }
 
-private val db = module(createdAtStart = true) {
-    single { DatabaseFactory() }
+private fun db(databaseConfig: DatabaseConfig): Module {
+    module(createdAtStart = true) {
+        single { DatabaseFactory(databaseConfig) }
+    }
 }
 
 private val services = module {

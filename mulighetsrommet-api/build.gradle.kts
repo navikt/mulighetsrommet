@@ -35,6 +35,7 @@ dependencies {
     val ktorVersion = "1.6.2"
     val koinVersion = "3.1.5"
     val kotestVersion = "5.2.2"
+    val hopliteVersion = "1.4.16"
     implementation(project(":mulighetsrommet-domain"))
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
@@ -47,6 +48,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:0.34.2")
     implementation("org.jetbrains.exposed:exposed-core:0.34.2")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.34.2")
+    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
