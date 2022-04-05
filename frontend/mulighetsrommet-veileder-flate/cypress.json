@@ -11,5 +11,6 @@
     "componentFolder": "src",
     "testFiles": ".*/__tests__/.*spec.tsx"
   },
-  "videoUploadOnPasses": false
+  "videoUploadOnPasses": false,
+  "screenshotOnRunFailure": true
 }

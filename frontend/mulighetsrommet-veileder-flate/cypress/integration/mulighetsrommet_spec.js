@@ -21,6 +21,7 @@ describe('Mulighetsrommet', () => {
     cy.getByTestId('modal_btn-cancel').contains('Avbryt').click(); //TODO send denne istedenfor å avbryte når Grafana er oppe og går
     cy.get('.ReactModal__Content').should('not.exist');
   });
+
   it('Gå tilbake til tiltaksoversikten', () => {
     cy.tilbakeTilListevisning();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
