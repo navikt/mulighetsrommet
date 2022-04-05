@@ -55,14 +55,6 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais.yaml
           VAR: image_tag=${{env.IMAGE_TAG}},image_label=${{env.IMAGE_LABEL_DEV}}
-      - name: Create release tag
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: release/dev@${{ env.IMAGE_TAG }}
-          release_name: Release to dev
-          prerelease: true
 
   build-docker-image-frontend-dev:
     name: Build Docker image (dev)
