@@ -8,15 +8,15 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 
 class TiltaksgjennomforingService(private val db: Database) {
 
-    fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): Tiltaksgjennomforing? {
+    fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
         val query = """
             select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode = ?
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { toTiltaksgjennomforing(it) }.asSingle
+        val queryResult = queryOf(query, tiltakskode.name).map { toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
     }
 
-    fun getTiltaksgjennomforingerById(id: Int): Tiltaksgjennomforing? {
+    fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
         val query = """
             select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where id = ?
         """.trimIndent()

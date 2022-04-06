@@ -59,6 +59,46 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tiltakstype"
+    post:
+      tags:
+        - mulighetsrommet
+      operationId: createTiltakstype
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tiltakstype"
+            examples:
+              Tiltakstype:
+                $ref: "#/components/examples/Tiltakstype"
+      responses:
+        201:
+          description: "Created tiltakstype"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltakstype"
+    put:
+      tags:
+        - mulighetsrommet
+      operationId: updateTiltakstype
+      parameters:
+        - $ref: "#/components/parameters/Tiltakskode"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tiltakstype"
+            examples:
+              Tiltakstype:
+                $ref: "#/components/examples/Tiltakstype"
+      responses:
+        200:
+          description: "Updated tiltakstype"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltakstype"
   /api/tiltakstyper/{tiltakskode}:
     parameters:
       - $ref: "#/components/parameters/Tiltakskode"
@@ -115,6 +155,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tiltaksgjennomforing"
+
   /api/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -177,10 +218,10 @@ components:
         - tiltakskode
         - fraDato
         - tilDato
-        - createdBy
-        - createdAt
-        - updatedBy
-        - updatedAt
+#        - createdBy
+#        - createdAt
+#        - updatedBy
+#        - updatedAt
       properties:
         id:
           type: integer
@@ -200,18 +241,18 @@ components:
         tilDato:
           type: string
           nullable: true
-        createdBy:
-          type: string
-          nullable: true
-        createdAt:
-          type: string
-          nullable: true
-        updatedBy:
-          type: string
-          nullable: true
-        updatedAt:
-          type: string
-          nullable: true
+#        createdBy:
+#          type: string
+#          nullable: true
+#        createdAt:
+#          type: string
+#          nullable: true
+#        updatedBy:
+#          type: string
+#          nullable: true
+#        updatedAt:
+#          type: string
+#          nullable: true
     Tiltaksgjennomforing:
       type: object
       properties:
@@ -353,3 +394,14 @@ components:
         - VIKARBLED
         - VV
         - YHEMMOFF
+  examples:
+    Tiltakstype:
+      summary: "Tiltakstype eksempel"
+      value:
+        id: null
+        navn: "Ny tiltakstype"
+        innsatsgruppe: 1
+        tiltakskode: "SPA"
+        sanityId: null
+        fraDato: "2022-04-06T07:14:19.780"
+        tilDato: "2023-04-06T07:14:19.780"
