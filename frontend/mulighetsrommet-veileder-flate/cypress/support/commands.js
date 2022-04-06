@@ -21,8 +21,7 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-
-Cypress.Commands.add('configure', () => {
+before('Start server', () => {
   cy.server();
   cy.visit('/');
   cy.url().should('include', '/');
@@ -43,7 +42,6 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
 
 Cypress.Commands.add('tilbakeTilListevisning', () => {
   cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
-  cy.getByTestId('header-tiltakstyper').should('contain', 'Tiltakstyper');
 });
 
 //Cypress
