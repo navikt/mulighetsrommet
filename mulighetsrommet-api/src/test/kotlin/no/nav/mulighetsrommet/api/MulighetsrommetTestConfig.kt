@@ -1,21 +1,23 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.application.*
-import io.ktor.config.*
+import com.sksamuel.hoplite.Masked
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.withTestApplication
 
-fun <R> withMulighetsrommetApp(test: TestApplicationEngine.() -> R): R {
+fun <R> withMulighetsrommetApp(config: AppConfig = createTestApplicationConfig(), test: TestApplicationEngine.() -> R): R {
     return withTestApplication({
-        config()
-        module()
+        configure(config)
     }) {
         test()
     }
 }
 
-fun Application.config() {
-    (environment.config as MapApplicationConfig).apply {
-        put("ktor.kafka.enable", "false")
-    }
-}
+fun createTestApplicationConfig() = AppConfig(
+    database = DatabaseConfig(
+        host = "localhost",
+        port = 5442,
+        name = "mulighetsrommet-api-db",
+        user = "valp",
+        password = Masked("valp")
+    )
+)
