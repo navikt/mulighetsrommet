@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pagination, Table, BodyShort, Alert } from '@navikt/ds-react';
+import { Pagination, Table, Alert, Label } from '@navikt/ds-react';
 import './Tabell.less';
 import '../../App.less';
 import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
@@ -14,7 +14,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
   const rowsPerPage = 10;
 
   return (
-    <>
+    <div className="w-full flex flex-col gap-4">
       <Table
         zebraStripes
         size="small"
@@ -35,16 +35,16 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
       >
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
+            <Table.ColumnHeader sortKey="id" sortable className="tabell__kolonne__tiltaksnummer">
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltaksnavn" sortable className="tabell__kolonne__tiltaksnavn">
+            <Table.ColumnHeader sortKey="navn" sortable className="tabell__kolonne__tiltaksnavn">
               Tiltaksnavn
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltakstype" sortable className="tabell__kolonne__tiltakstype">
+            <Table.ColumnHeader sortKey="tiltakskode" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
+            <Table.ColumnHeader sortKey="fraDato" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
             <Table.ColumnHeader className="tabell__kolonne__plasser">Plasser/Ventetid</Table.ColumnHeader>
@@ -78,20 +78,20 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                 return 1;
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(({ id, tiltakskode, navn, fraDato }) => (
+              .map(({ id, tiltakskode, fraDato, navn }) => (
                 <Table.Row
                   key={id}
                   onClick={() => (location.href = `/tiltakstyper/${tiltakskode}`)}
                   className="row-btn"
                   data-testid="tabell_tiltakstyper_rad"
                 >
-                  <Table.HeaderCell>{id}</Table.HeaderCell>
+                  <Table.DataCell>{id}</Table.DataCell>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <BodyShort>{navn}</BodyShort>
-                    <BodyShort>Leverandør</BodyShort>
+                    <Label>{navn}</Label>
+                    {'Leverandør'}
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
-                  <Table.DataCell>{fraDato}</Table.DataCell>
+                  <Table.DataCell>{new Date(fraDato!).toLocaleDateString()}</Table.DataCell>
                   <Table.DataCell>Plasser</Table.DataCell>
                 </Table.Row>
               ))
@@ -99,7 +99,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
         </Table.Body>
       </Table>
       <Pagination page={page} onPageChange={setPage} count={Math.ceil(tiltakstypeliste.length / rowsPerPage)} />
-    </>
+    </div>
   );
 };
 
