@@ -10,8 +10,8 @@ export type Tiltakstype = {
   sanityId: number | null;
   navn: string;
   tiltakskode: Tiltakskode;
-  fraDato: Date | null;
-  tilDato: Date | null;
+  fraDato: string | null;
+  tilDato: string | null;
   createdBy: string | null;
   createdAt: string | null;
   updatedBy: string | null;

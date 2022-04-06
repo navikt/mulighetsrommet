@@ -91,7 +91,9 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                     {'Leverandør'}
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
-                  <Table.DataCell>{new Date(fraDato!).toLocaleDateString()}</Table.DataCell>
+                  <Table.DataCell>
+                    {fraDato ? new Intl.DateTimeFormat().format(new Date(fraDato)) : 'Mangler dato'}
+                  </Table.DataCell>
                   <Table.DataCell>Plasser</Table.DataCell>
                 </Table.Row>
               ))
