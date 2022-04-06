@@ -1,10 +1,38 @@
 .mulighetsrommet-veileder-flate {
   .navds-table {
     border: 1px solid var(--navds-semantic-color-border-muted);
-  }
 
-  .tabell-tiltakstyper__tiltaksnummer {
-    width: 10%;
+    &__sort-button {
+      height: 4rem;
+    }
+
+    .row-btn {
+      cursor: pointer;
+    }
+
+    .tabell {
+      &__tiltaksnavn {
+        font-weight: bold;
+      }
+
+      &__kolonne {
+        &__tiltaksnummer {
+          width: 10%;
+        }
+
+        &__tiltaksnavn {
+          width: 40%;
+        }
+
+        &__tiltakstype {
+          width: 15%;
+        }
+      }
+
+      &__alert {
+        max-width: unset;
+      }
+    }
   }
 
   .navds-table__header,
