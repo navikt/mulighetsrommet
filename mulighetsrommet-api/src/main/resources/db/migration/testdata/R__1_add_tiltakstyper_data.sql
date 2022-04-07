@@ -1,20 +1,20 @@
-insert into innsatsgruppe (id, tittel, beskrivelse)
-values (1, 'Standardinnsats', 'Gode muligheter'),
-       (2, 'Situasjonsbestemt innsats', 'Trenger veiledning'),
-       (3, 'Spesielt tilpasset innsats', 'Trenger veiledning, nedsatt arbeidsevne'),
-       (4, 'Varig tilpasset innsats', 'Jobbe delvis eller liten mulighet til å jobbe')
-on conflict (id) do update set tittel      = excluded.tittel,
-                               beskrivelse = excluded.beskrivelse;
-
-
--- La til 50, ikke sikkert vi trenger flere.
-insert into tiltakstype (id, innsatsgruppe_id, navn, tiltakskode, dato_fra, dato_til)
-values  (1, 1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
-        (2, 2, 'Arbeid med bistand A oppfølging', 'ABOPPF', '2008-08-01', '2013-12-31'),
-        (3, 2, 'Arbeid med bistand B', 'ABTBOPPF', '2008-08-01', '2013-12-31'),
-        (4, 3, 'Arbeid med bistand A utvidet oppfølging', 'ABUOPPF', '2008-08-01', '2013-12-31'),
-        (5, 4, 'AMB Avklaring (fase 1)', 'AMBF1', '2001-01-01', '2010-12-31'),
-        (6, 1, 'Kvalifisering i arbeidsmarkedsbedrift', 'AMBF2', '2001-01-01', '2099-01-01')
+-- insert into innsatsgruppe (id, tittel, beskrivelse)
+-- values (1, 'Standardinnsats', 'Gode muligheter'),
+--        (2, 'Situasjonsbestemt innsats', 'Trenger veiledning'),
+--        (3, 'Spesielt tilpasset innsats', 'Trenger veiledning, nedsatt arbeidsevne'),
+--        (4, 'Varig tilpasset innsats', 'Jobbe delvis eller liten mulighet til å jobbe')
+-- on conflict (id) do update set tittel      = excluded.tittel,
+--                                beskrivelse = excluded.beskrivelse;
+--
+--
+-- -- La til 50, ikke sikkert vi trenger flere.
+-- insert into tiltakstype (id, innsatsgruppe_id, navn, tiltakskode, dato_fra, dato_til)
+-- values  (1, 1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
+--         (2, 2, 'Arbeid med bistand A oppfølging', 'ABOPPF', '2008-08-01', '2013-12-31'),
+--         (3, 2, 'Arbeid med bistand B', 'ABTBOPPF', '2008-08-01', '2013-12-31'),
+--         (4, 3, 'Arbeid med bistand A utvidet oppfølging', 'ABUOPPF', '2008-08-01', '2013-12-31'),
+--         (5, 4, 'AMB Avklaring (fase 1)', 'AMBF1', '2001-01-01', '2010-12-31'),
+--         (6, 1, 'Kvalifisering i arbeidsmarkedsbedrift', 'AMBF2', '2001-01-01', '2099-01-01')
 --         (7, 1, 'Tilrettelagt arbeid i arbeidsmarkedsbedrift', 'AMBF3', '2001-01-01', '2019-12-31'),
 --         (8, 1, 'Arbeidsmarkedsopplæring (AMO)', 'AMO', '2001-01-01', '2019-06-30'),
 --         (9, 1, 'Arbeidsmarkedsopplæring (AMO) i bedrift', 'AMOB', '2009-11-20', '2015-12-31'),
@@ -113,7 +113,7 @@ values  (1, 1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
 --         ('Utdanningsvikariater', 'VIKARBLED', '2001-01-01', '2010-12-31'),
 --         ('Varig vernet arbeid (VVA)', 'VV', '2001-01-01', '2099-01-01'),
 --         ('Sysselsettingstiltak for yrkeshemmede', 'YHEMMOFF', '2001-01-01', '2015-12-31')
-ON CONFLICT (id) DO UPDATE SET innsatsgruppe_id = EXCLUDED.innsatsgruppe_id,
-                               navn             = EXCLUDED.navn;
---
-SELECT setval('tiltakstype_id_seq', (SELECT MAX(id) from "tiltakstype"));
+-- ON CONFLICT (id) DO UPDATE SET innsatsgruppe_id = EXCLUDED.innsatsgruppe_id,
+--                                navn             = EXCLUDED.navn;
+-- --
+-- SELECT setval('tiltakstype_id_seq', (SELECT MAX(id) from "tiltakstype"));
