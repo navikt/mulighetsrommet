@@ -5,8 +5,9 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import org.slf4j.Logger
 
-class TiltaksgjennomforingService(private val db: Database) {
+class TiltaksgjennomforingService(private val db: Database, private val logger: Logger) {
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
         val query = """

@@ -27,7 +27,7 @@ private fun db(databaseConfig: DatabaseConfig): Module {
 }
 
 private fun services(logger: Logger) = module {
-    single { TiltaksgjennomforingService(get()) }
+    single { TiltaksgjennomforingService(get(), logger) }
     single { TiltakstypeService(get(), logger) }
-    single { InnsatsgruppeService(get()) }
+    single { InnsatsgruppeService(get(), logger) }
 }
