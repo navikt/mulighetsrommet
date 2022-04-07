@@ -11,7 +11,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
         val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode = ?
+            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode::text = ?
         """.trimIndent()
         val queryResult = queryOf(query, tiltakskode.name).map { toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
