@@ -2,16 +2,20 @@ package no.nav.mulighetsrommet.kafka
 
 import com.sksamuel.hoplite.Masked
 
-data class AppConfig(
+data class Config(
     val server: ServerConfig,
-    val endpoints: Map<String, String>,
-    val database: DatabaseConfig,
-    val kafka: KafkaConfig
+    val app: AppConfig
 )
 
 data class ServerConfig(
     val host: String,
     val port: Int
+)
+
+data class AppConfig(
+    val endpoints: Map<String, String>,
+    val database: DatabaseConfig,
+    val kafka: KafkaConfig
 )
 
 data class DatabaseConfig(
