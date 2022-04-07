@@ -36,7 +36,6 @@ fun Route.tiltakstypeRoutes() {
         call.respond(items)
     }
     get("/api/tiltakstyper/{tiltakskode}") {
-        call.application.environment.log.debug("her??")
         runCatching {
             val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
             tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
@@ -70,10 +69,7 @@ fun Route.tiltakstypeRoutes() {
         }
     }
     put("/api/tiltakstyper/{tiltakskode}") {
-        call.application.environment.log.debug("her??")
         runCatching {
-            call.application.environment.log.debug("hallo?????")
-            println("faen som skjer")
             val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
             val tiltakstype = call.receive<Tiltakstype>()
             tiltakstypeService.updateTiltakstype(tiltakskode, tiltakstype)

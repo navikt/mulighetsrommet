@@ -46,8 +46,6 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
             tiltakstype.tilDato,
             tiltakskode.name
         ).asExecute.query.map { toTiltakstype(it) }.asSingle
-        logger.debug("hallo? ${tiltakskode.name}")
-        logger.debug("$queryResult.query")
         return db.session.run(queryResult)!!
     }
 
