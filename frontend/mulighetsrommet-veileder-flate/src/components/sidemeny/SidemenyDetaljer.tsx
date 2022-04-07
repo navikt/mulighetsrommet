@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Link, Panel } from '@navikt/ds-react';
+import { Button, Panel } from '@navikt/ds-react';
 import SidemenyAccordion from './SidemenyAccordion';
 import './Sidemeny.less';
 import Tilbakemeldingsmodal from '../modal/Tilbakemeldingsmodal';
