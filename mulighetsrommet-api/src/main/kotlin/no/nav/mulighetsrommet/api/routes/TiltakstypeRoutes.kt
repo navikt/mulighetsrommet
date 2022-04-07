@@ -36,11 +36,15 @@ fun Route.tiltakstypeRoutes() {
         call.respond(items)
     }
     get("/api/tiltakstyper/{tiltakskode}") {
+        call.application.environment.log.debug("her??")
         runCatching {
             val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
             tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
         }.onSuccess { fetchedTiltakstype ->
-            call.respond(fetchedTiltakstype!!)
+            if (fetchedTiltakstype != null) {
+                call.respond(fetchedTiltakstype)
+            }
+            call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
         }.onFailure {
             call.application.environment.log.error(it.stackTraceToString())
             call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
@@ -66,13 +70,13 @@ fun Route.tiltakstypeRoutes() {
         }
     }
     put("/api/tiltakstyper/{tiltakskode}") {
+        call.application.environment.log.debug("her??")
         runCatching {
+            call.application.environment.log.debug("hallo?????")
+            println("faen som skjer")
             val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
             val tiltakstype = call.receive<Tiltakstype>()
-            if (tiltakskode != tiltakstype.tiltakskode) {
-                throw BadRequestException("Tiltakskode er ikke lik")
-            }
-            tiltakstypeService.updateTiltakstype(tiltakstype)
+            tiltakstypeService.updateTiltakstype(tiltakskode, tiltakstype)
         }.onSuccess { updatedTiltakstype ->
             call.respond(updatedTiltakstype)
         }

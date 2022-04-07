@@ -33,19 +33,21 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
         return db.session.run(queryResult)!!
     }
 
-    fun updateTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
+    fun updateTiltakstype(tiltakskode: Tiltakskode, tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, tiltakskode = ?, fra_dato = ?, til_dato = ? where id = ? returning *
+            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where tiltakskode::text = ? returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
             tiltakstype.navn,
             tiltakstype.innsatsgruppe,
             tiltakstype.sanityId,
-            tiltakstype.tiltakskode.name,
             tiltakstype.fraDato,
-            tiltakstype.tilDato
+            tiltakstype.tilDato,
+            tiltakskode.name
         ).asExecute.query.map { toTiltakstype(it) }.asSingle
+        logger.debug("hallo? ${tiltakskode.name}")
+        logger.debug("$queryResult.query")
         return db.session.run(queryResult)!!
     }
 
