@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Pagination, Table, Alert, Label } from '@navikt/ds-react';
+import { Pagination, Table, Alert, Label, BodyShort } from '@navikt/ds-react';
 import './Tabell.less';
 import '../../App.less';
 import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import { CopyFilled } from '@navikt/ds-icons';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 export interface TiltakstypelisteProps {
   tiltakstypeliste: Array<Tiltakstype>;
@@ -85,10 +87,15 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                   className="row-btn"
                   data-testid="tabell_tiltakstyper_rad"
                 >
-                  <Table.DataCell>{id}</Table.DataCell>
+                  <Table.DataCell>
+                    <Kopiknapp kopitekst={id.toString()}>
+                      <CopyFilled />
+                      {id}
+                    </Kopiknapp>
+                  </Table.DataCell>
                   <Table.DataCell className="tabell__tiltaksnavn">
                     <Label>{navn}</Label>
-                    {'Leverandør'}
+                    <BodyShort>Leverandør</BodyShort>
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
                   <Table.DataCell>
