@@ -28,7 +28,7 @@ jobs:
       - name: Set up test environment
         run: docker-compose up -d
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -x test
       - name: Build and push Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
