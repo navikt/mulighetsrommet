@@ -8,7 +8,7 @@ import io.ktor.routing.get
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 
-fun Route.healthRoutes() {
+fun Route.internalRoutes() {
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     get("/internal/liveness") {
         call.respond(HttpStatusCode.OK)
