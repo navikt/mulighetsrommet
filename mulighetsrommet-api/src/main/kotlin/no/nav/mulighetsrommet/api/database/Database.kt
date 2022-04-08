@@ -27,7 +27,7 @@ class Database(databaseConfig: DatabaseConfig) {
         db = HikariDataSource(hikariConfig)
         session = sessionOf(db)
 
-        flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
+        flyway = Flyway.configure().locations("db/migration", "db/callback").dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
         flyway.migrate()
     }
 }
