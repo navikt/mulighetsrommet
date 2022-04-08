@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Pagination, Table, Alert, Label } from '@navikt/ds-react';
+import { Pagination, Table, Alert, Label, BodyShort, Button } from '@navikt/ds-react';
 import './Tabell.less';
-import '../../App.less';
 import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import Lenke from '../lenke/Lenke';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 export interface TiltakstypelisteProps {
   tiltakstypeliste: Array<Tiltakstype>;
@@ -35,11 +36,11 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
       >
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader sortKey="id" sortable className="tabell__kolonne__tiltaksnummer">
-              Tiltaksnr.
-            </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="navn" sortable className="tabell__kolonne__tiltaksnavn">
               Tiltaksnavn
+            </Table.ColumnHeader>
+            <Table.ColumnHeader sortKey="id" sortable className="tabell__kolonne__tiltaksnummer">
+              Tiltaksnr.
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="tiltakskode" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
@@ -79,16 +80,16 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
               .map(({ id, tiltakskode, fraDato, navn }) => (
-                <Table.Row
-                  key={id}
-                  onClick={() => (location.href = `/tiltakstyper/${tiltakskode}`)}
-                  className="row-btn"
-                  data-testid="tabell_tiltakstyper_rad"
-                >
-                  <Table.DataCell>{id}</Table.DataCell>
+                <Table.Row key={id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Label>{navn}</Label>
-                    {'Leverandør'}
+                    <Lenke to={`/tiltakstyper/${tiltakskode}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
+                      {navn}
+                    </Lenke>
+                    <div>{'Leverandør'}</div>
+                  </Table.DataCell>
+                  <Table.DataCell className="tabell__tiltaksnummer">
+                    {id}
+                    <Kopiknapp kopitekst={id.toString()} />
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
                   <Table.DataCell>
