@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.application.*
+import io.ktor.config.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -14,19 +15,19 @@ fun main() {
     initializeServer(config)
 }
 
-fun initializeServer(config: Config) {
+fun initializeServer(hoplite: Config) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                configure(config.app)
+                configure(hoplite.app)
             }
 
             connector {
-                port = config.server.port
-                host = config.server.host
+                port = hoplite.server.port
+                host = hoplite.server.host
             }
         }
     )

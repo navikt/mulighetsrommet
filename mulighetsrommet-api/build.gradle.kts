@@ -16,7 +16,7 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 }
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }
 
 repositories {

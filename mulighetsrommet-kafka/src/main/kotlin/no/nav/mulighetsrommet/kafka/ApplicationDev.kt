@@ -28,5 +28,5 @@ fun main() {
         }
     }
 
-    initializeServer(config.app, Kafka(config.app.kafka, preset, Database(config.app.database), client))
+    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), client))
 }
