@@ -15,19 +15,19 @@ fun main() {
     initializeServer(config)
 }
 
-fun initializeServer(hoplite: Config) {
+fun initializeServer(config: Config) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                configure(hoplite.app)
+                configure(config.app)
             }
 
             connector {
-                port = hoplite.server.port
-                host = hoplite.server.host
+                port = config.server.port
+                host = config.server.host
             }
         }
     )
