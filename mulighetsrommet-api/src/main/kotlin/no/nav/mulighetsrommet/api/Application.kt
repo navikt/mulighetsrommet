@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.application.*
-import io.ktor.config.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
