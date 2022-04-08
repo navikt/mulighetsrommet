@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotliquery.Session
 import kotliquery.sessionOf
 import no.nav.mulighetsrommet.api.DatabaseConfig

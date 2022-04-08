@@ -7,7 +7,6 @@ import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import org.flywaydb.core.Flyway
-import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
 class Database(databaseConfig: DatabaseConfig) {
