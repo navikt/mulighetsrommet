@@ -43,7 +43,7 @@ fun Application.configure(config: AppConfig) {
     configureWebjars()
 
     routing {
-        healthRoutes()
+        internalRoutes()
         swaggerRoutes()
         tiltakstypeRoutes()
         tiltaksgjennomforingRoutes()
