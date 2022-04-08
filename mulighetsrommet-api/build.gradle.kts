@@ -45,9 +45,6 @@ dependencies {
     implementation("io.ktor:ktor-webjars:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.34.2")
-    implementation("org.jetbrains.exposed:exposed-core:0.34.2")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.34.2")
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
@@ -56,6 +53,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.5")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
+    implementation("com.github.seratch:kotliquery:1.6.2")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
@@ -70,13 +68,14 @@ tasks.withType<Test> {
 
 tasks {
     shadowJar {
+
         manifest {
             attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
         }
     }
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+//java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"

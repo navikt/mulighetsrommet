@@ -30,7 +30,7 @@ fun Route.tiltakstypeRoutes() {
     get("/api/tiltakstyper") {
         val search = call.request.queryParameters["search"]
 
-        val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
+        val innsatsgrupper = call.request.queryParameters["innsatsgrupper"]?.toInt()
 
         val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search)
         call.respond(items)
@@ -40,8 +40,12 @@ fun Route.tiltakstypeRoutes() {
             val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
             tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
         }.onSuccess { fetchedTiltakstype ->
-            call.respond(fetchedTiltakstype!!)
+            if (fetchedTiltakstype != null) {
+                call.respond(fetchedTiltakstype)
+            }
+            call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
         }.onFailure {
+            call.application.environment.log.error(it.stackTraceToString())
             call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
         }
     }
@@ -58,17 +62,17 @@ fun Route.tiltakstypeRoutes() {
             val tiltakstype = call.receive<Tiltakstype>()
             tiltakstypeService.createTiltakstype(tiltakstype)
         }.onSuccess { createdTiltakstype ->
+            call.response.status(HttpStatusCode.Created)
             call.respond(createdTiltakstype)
-        }.onFailure { call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError) }
+        }.onFailure {
+            call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
+        }
     }
     put("/api/tiltakstyper/{tiltakskode}") {
         runCatching {
             val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
             val tiltakstype = call.receive<Tiltakstype>()
-            if (tiltakskode != tiltakstype.tiltakskode) {
-                throw BadRequestException("Tiltakskode er ikke lik")
-            }
-            tiltakstypeService.updateTiltakstype(tiltakstype)
+            tiltakstypeService.updateTiltakstype(tiltakskode, tiltakstype)
         }.onSuccess { updatedTiltakstype ->
             call.respond(updatedTiltakstype)
         }

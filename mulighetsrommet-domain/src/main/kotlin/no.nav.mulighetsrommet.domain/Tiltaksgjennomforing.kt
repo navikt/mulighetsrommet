@@ -11,7 +11,7 @@ data class Tiltaksgjennomforing(
     val tiltakskode: Tiltakskode,
     val tiltaksnummer: Int,
     @Serializable(with = DateSerializer::class)
-    val fraDato: LocalDateTime? = null,
+    val fraDato: LocalDateTime,
     @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime? = null
+    val tilDato: LocalDateTime
 )

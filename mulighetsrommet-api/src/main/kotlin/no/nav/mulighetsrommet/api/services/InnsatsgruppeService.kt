@@ -1,24 +1,24 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.InnsatsgruppeTable
+import kotliquery.Row
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.domain.Innsatsgruppe
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.selectAll
+import org.slf4j.Logger
 
-class InnsatsgruppeService(private val db: DatabaseFactory) {
+class InnsatsgruppeService(private val db: Database, private val logger: Logger) {
 
-    suspend fun getInnsatsgrupper(): List<Innsatsgruppe> {
-        return db.dbQuery {
-            InnsatsgruppeTable
-                .selectAll()
-                .toList()
-                .map { toInnsatsgruppe(it) }
-        }
+    fun getInnsatsgrupper(): List<Innsatsgruppe> {
+        val query = """
+            select id, tittel, beskrivelse from innsatsgruppe
+        """.trimIndent()
+        val queryResult = queryOf(query).map {toInnsatsgruppe(it)}.asList
+        return db.session.run(queryResult)
     }
 
-    private fun toInnsatsgruppe(row: ResultRow): Innsatsgruppe = Innsatsgruppe(
-        tittel = row[InnsatsgruppeTable.tittel],
-        beskrivelse = row[InnsatsgruppeTable.beskrivelse],
+    private fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
+        id = row.int("id"),
+        tittel = row.string("tittel"),
+        beskrivelse = row.string("beskrivelse")
     )
 }

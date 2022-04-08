@@ -1,52 +1,46 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.TiltaksgjennomforingTable
+import kotliquery.Row
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.slf4j.Logger
 
-class TiltaksgjennomforingService(private val db: DatabaseFactory) {
+class TiltaksgjennomforingService(private val db: Database, private val logger: Logger) {
 
-    suspend fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
-        val tiltaksgjennomforingRows = db.dbQuery {
-            TiltaksgjennomforingTable.selectAll().toList()
-        }
-        return tiltaksgjennomforingRows.map { row ->
-            toTiltaksgjennomforing(row)
-        }
+    fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
+        val query = """
+            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode::text = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, tiltakskode.name).map { toTiltaksgjennomforing(it) }.asList
+        return db.session.run(queryResult)
     }
 
-    suspend fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
-        val tiltaksgjennomforingRow = db.dbQuery {
-            TiltaksgjennomforingTable.select { TiltaksgjennomforingTable.id eq id }.firstOrNull()
-        }
-        if (tiltaksgjennomforingRow != null) {
-            return toTiltaksgjennomforing(tiltaksgjennomforingRow)
-        } else {
-            return null
-        }
+    fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
+        val query = """
+            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where id = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, id).map { toTiltaksgjennomforing(it) }.asSingle
+        return db.session.run(queryResult)
     }
 
-    suspend fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
-        val tiltaksgjennomforingRows = db.dbQuery {
-            TiltaksgjennomforingTable.select { TiltaksgjennomforingTable.tiltakskode eq tiltakskode }.toList()
-        }
-        return tiltaksgjennomforingRows.map { row ->
-            toTiltaksgjennomforing(row)
-        }
+    fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
+        val query = """
+            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing
+        """.trimIndent()
+        val queryResult = queryOf(query).map { toTiltaksgjennomforing(it) }.asList
+        return db.session.run(queryResult)
     }
 
-    private fun toTiltaksgjennomforing(row: ResultRow): Tiltaksgjennomforing =
+    private fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
         Tiltaksgjennomforing(
-            id = row[TiltaksgjennomforingTable.id].value,
-            tittel = row[TiltaksgjennomforingTable.tittel],
-            beskrivelse = row[TiltaksgjennomforingTable.beskrivelse],
-            tiltaksnummer = row[TiltaksgjennomforingTable.tiltaksnummer],
-            tiltakskode = row[TiltaksgjennomforingTable.tiltakskode],
-            fraDato = row[TiltaksgjennomforingTable.fraDato],
-            tilDato = row[TiltaksgjennomforingTable.tilDato]
+            id = row.int("id"),
+            tittel = row.string("tittel"),
+            beskrivelse = row.string("beskrivelse"),
+            tiltaksnummer = row.int("tiltaksnummer"),
+            tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
+            fraDato = row.localDateTime("fra_dato"),
+            tilDato = row.localDateTime("til_dato")
         )
 }

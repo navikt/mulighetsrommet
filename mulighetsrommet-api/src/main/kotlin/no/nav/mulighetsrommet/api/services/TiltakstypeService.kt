@@ -1,85 +1,89 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.database.DatabaseFactory
-import no.nav.mulighetsrommet.api.domain.TiltakstypeTable
+import kotliquery.Row
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
-import org.jetbrains.exposed.sql.*
+import org.slf4j.Logger
 
-class TiltakstypeService(private val db: DatabaseFactory) {
+class TiltakstypeService(private val db: Database, private val logger: Logger) {
 
-    suspend fun getTiltakstyper(innsatsgruppe: List<Int>?, search: String?): List<Tiltakstype> {
-        val rows = db.dbQuery {
-            val query = TiltakstypeTable
-                .selectAll()
-                .orderBy(TiltakstypeTable.id to SortOrder.ASC)
-
-            innsatsgruppe?.let { query.andWhere { TiltakstypeTable.innsatsgruppeId inList it } }
-            search?.let { query.andWhere { TiltakstypeTable.navn like ("%$it%") } }
-
-            query.toList()
-        }
-        return rows.map { row ->
-            toTiltakstype(row)
-        }
+    fun getTiltakstypeByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype? {
+        val query = """
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode::text = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, tiltakskode.name).map { toTiltakstype(it) }.asSingle
+        return db.session.run(queryResult)
     }
 
-    suspend fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
-        val id = db.dbQuery {
-            TiltakstypeTable.insertAndGetId {
-                it[innsatsgruppeId] = tiltakstype.innsatsgruppe
-                it[navn] = tiltakstype.navn
-                it[sanityId] = tiltakstype.sanityId
-                it[tiltakskode] = tiltakstype.tiltakskode
-                it[fraDato] = tiltakstype.fraDato
-                it[tilDato] = tiltakstype.tilDato
-                it[createdBy] = tiltakstype.createdBy
+    fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
+        val query = """
+            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?::tiltakskode, ?, ?) returning *
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            tiltakstype.navn,
+            tiltakstype.innsatsgruppe,
+            tiltakstype.sanityId,
+            tiltakstype.tiltakskode.name,
+            tiltakstype.fraDato,
+            tiltakstype.tilDato
+        ).asExecute.query.map { toTiltakstype(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
+    fun updateTiltakstype(tiltakskode: Tiltakskode, tiltakstype: Tiltakstype): Tiltakstype {
+        val query = """
+            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where tiltakskode::text = ? returning *
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            tiltakstype.navn,
+            tiltakstype.innsatsgruppe,
+            tiltakstype.sanityId,
+            tiltakstype.fraDato,
+            tiltakstype.tilDato,
+            tiltakskode.name
+        ).asExecute.query.map { toTiltakstype(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
+    fun getTiltakstyper(innsatsgruppe: Int?, searchQuery: String?): List<Tiltakstype> {
+        val query = """
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype
+        """
+            .where(innsatsgruppe, "(innsatsgruppe_id <= :innsatsgruppe_id)")
+            .andWhere(searchQuery, "(lower(navn) like lower(:navn))")
+            .trimIndent()
+        val queryResult = queryOf(query, mapOf("innsatsgruppe_id" to innsatsgruppe, "navn" to "%$searchQuery%")).map {
+            toTiltakstype(it)
+        }.asList
+        return db.session.run(queryResult)
+    }
+
+    private fun <T> String.where(v: T?, query: String): String = if (v != null) "$this where $query" else this
+
+    private fun <T> String.andWhere(v: T?, query: String): String {
+        return if (v == null) {
+            this
+        } else {
+            if (this.contains(" where ")) {
+                "$this and $query"
+            } else {
+                this.where(v, query)
             }
         }
-        return getTiltakstypeById(id.value)!!
     }
 
-    suspend fun updateTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
-        db.dbQuery {
-            TiltakstypeTable.update({ TiltakstypeTable.tiltakskode eq tiltakstype.tiltakskode }) {
-                it[navn] = tiltakstype.navn
-                it[innsatsgruppeId] = tiltakstype.innsatsgruppe
-                it[fraDato] = tiltakstype.fraDato
-                it[tilDato] = tiltakstype.tilDato
-                it[updatedBy] = tiltakstype.updatedBy
-            }
-        }
-        return getTiltakstypeByTiltakskode(tiltakstype.tiltakskode)!!
-    }
-
-    suspend fun getTiltakstypeByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype? {
-        val row = db.dbQuery {
-            TiltakstypeTable.select { TiltakstypeTable.tiltakskode eq tiltakskode }.firstOrNull()
-        }
-        return row?.let { toTiltakstype(it) }
-    }
-
-    private suspend fun getTiltakstypeById(id: Int): Tiltakstype? {
-        val row = db.dbQuery {
-            TiltakstypeTable
-                .select { TiltakstypeTable.id eq id }
-                .firstOrNull()
-        }
-        return row?.let { toTiltakstype(it) }
-    }
-
-    private fun toTiltakstype(row: ResultRow): Tiltakstype =
+    private fun toTiltakstype(row: Row): Tiltakstype =
         Tiltakstype(
-            id = row[TiltakstypeTable.id].value,
-            navn = row[TiltakstypeTable.navn],
-            innsatsgruppe = row[TiltakstypeTable.innsatsgruppeId],
-            sanityId = row[TiltakstypeTable.sanityId],
-            tiltakskode = row[TiltakstypeTable.tiltakskode],
-            fraDato = row[TiltakstypeTable.fraDato],
-            tilDato = row[TiltakstypeTable.tilDato],
-            createdAt = row[TiltakstypeTable.createdAt],
-            createdBy = row[TiltakstypeTable.createdBy],
-            updatedAt = row[TiltakstypeTable.updatedAt],
-            updatedBy = row[TiltakstypeTable.updatedBy]
+            id = row.int("id"),
+            navn = row.string("navn"),
+            innsatsgruppe = row.int("innsatsgruppe_id"),
+            sanityId = row.intOrNull("sanity_id"),
+            tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
+            fraDato = row.localDateTime("fra_dato"),
+            tilDato = row.localDateTime("til_dato"),
         )
 }
