@@ -5,7 +5,7 @@ describe('Mulighetsrommet', () => {
   });
 
   it('Gå inn på den første tiltaksgjennomføringen', () => {
-    cy.getByTestId('tabell_tiltakstyper_rad').first().click();
+    cy.getByTestId('tabell_tiltakstyper_tiltaksnummer').first().click();
     cy.url().should('include', '/tiltakstyper/ABIST');
     cy.getByTestId('main-view-header_opplaering').should('be.visible');
     cy.checkPageA11y();
