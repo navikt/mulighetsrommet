@@ -9,8 +9,8 @@ import org.flywaydb.core.Flyway
 
 class Database(databaseConfig: DatabaseConfig) {
 
-    private var flyway: Flyway
     private var db: HikariDataSource
+    var flyway: Flyway
     var session: Session
 
     init {
