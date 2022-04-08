@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.application.call
-import io.ktor.features.BadRequestException
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
