@@ -42,7 +42,7 @@ const ViewTiltakstypeDetaljer = () => {
 
         <TiltaksdetaljerFane />
       </div>
-      <SidemenyDetaljer tiltaksnavn={navn} />
+      <SidemenyDetaljer />
     </div>
   );
 };

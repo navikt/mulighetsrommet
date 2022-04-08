@@ -17,8 +17,9 @@ describe('Mulighetsrommet', () => {
     cy.get('.ReactModal__Content').should('be.visible');
     cy.getByTestId('modal_header').contains('Tilbakemelding');
     cy.getByTestId('textarea_tilbakemelding').type('Her kommer en kjempefin tilbakemelding trudeluuu.');
-    cy.getByTestId('modal_btn-cancel').contains('Avbryt').click(); //TODO send denne istedenfor å avbryte når Grafana er oppe og går
+    cy.getByTestId('modal_btn-send').contains('Send').click();
     cy.get('.ReactModal__Content').should('not.exist');
+    cy.get('.Toastify__toast').should('be.visible').and('contain', 'Takk for din tilbakemelding!');
   });
 
   it('Gå tilbake til tiltaksoversikten', () => {
