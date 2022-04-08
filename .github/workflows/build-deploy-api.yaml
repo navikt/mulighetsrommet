@@ -47,7 +47,7 @@ jobs:
       - name: Set up test environment
         run: docker-compose up -d
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -x test
       - name: Publish test report
         uses: ScaCap/action-surefire-report@v1
         with:
