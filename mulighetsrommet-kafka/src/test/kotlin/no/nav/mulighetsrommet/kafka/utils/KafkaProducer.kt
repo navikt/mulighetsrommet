@@ -42,3 +42,10 @@ private suspend fun produceTiltakEndretUpdateEvents(producer: KafkaProducerClien
         delay(5000)
     }
 }
+
+private suspend fun produceTiltakgjennomforingEndretEvents(producer: KafkaProducerClient<String, String>) {
+    tiltakgjennomforingEndretTopic.forEach { it ->
+        producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2", it.first, it.second))
+        delay(500)
+    }
+}
