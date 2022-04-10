@@ -33,13 +33,50 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
         return db.session.run(queryResult)
     }
 
+    fun createTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
+        val query = """
+            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sanity_id, fra_dato, til_dato) values (?, ?, ?::tiltakskode, ?, ?, ?, ?, ?) returning *
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            tiltaksgjennomforing.navn,
+            tiltaksgjennomforing.arrangorId,
+            tiltaksgjennomforing.tiltakskode.name,
+            tiltaksgjennomforing.tiltaksnummer,
+            tiltaksgjennomforing.arenaId,
+            tiltaksgjennomforing.sanityId,
+            tiltaksgjennomforing.fraDato,
+            tiltaksgjennomforing.tilDato
+        ).asExecute.query.map { toTiltaksgjennomforing(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
+    fun updateTiltaksgjennomforing(arenaId: Int, tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
+        val query = """
+            update tiltaksgjennomforing set navn = ?, arrangor_id = ?, tiltakskode = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where arena_id = ?
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            tiltaksgjennomforing.navn,
+            tiltaksgjennomforing.arrangorId,
+            tiltaksgjennomforing.tiltakskode.name,
+            tiltaksgjennomforing.sanityId,
+            tiltaksgjennomforing.fraDato,
+            tiltaksgjennomforing.tilDato,
+            arenaId
+        ).asExecute.query.map { toTiltaksgjennomforing(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
     private fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
         Tiltaksgjennomforing(
             id = row.int("id"),
-            tittel = row.string("tittel"),
-            beskrivelse = row.string("beskrivelse"),
+            navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
+            arrangorId = row.int("arrangor_id"),
             tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
+            arenaId = row.int("arena_id"),
+            sanityId = row.int("sanity_id"),
             fraDato = row.localDateTime("fra_dato"),
             tilDato = row.localDateTime("til_dato")
         )
