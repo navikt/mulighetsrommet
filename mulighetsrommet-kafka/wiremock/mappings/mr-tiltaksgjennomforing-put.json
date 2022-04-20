@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "url": "/api/tiltaksgjennomforinger"
+    "urlPattern": "/api/tiltaksgjennomforinger/(\\d+)"
   },
   "response": {
     "status": 200,
