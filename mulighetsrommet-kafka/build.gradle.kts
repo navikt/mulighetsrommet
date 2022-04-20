@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    val ktorVersion = "2.0.0-beta-1"
+    val ktorVersion = "2.0.0"
     val kotestVersion = "5.2.2"
     val hopliteVersion = "1.4.16"
     implementation(project(":mulighetsrommet-domain"))
