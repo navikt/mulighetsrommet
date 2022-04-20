@@ -5,13 +5,14 @@ import java.time.LocalDateTime
 
 @Serializable
 data class Tiltaksgjennomforing(
-    val id: Int? = 0,
+    val id: Int? = null,
     val navn: String,
-    val arrangorId: Int?,
+    val arrangorId: Int,
     val tiltakskode: Tiltakskode,
     val tiltaksnummer: Int,
     val arenaId: Int,
-    val sanityId: Int?,
+    val sakId: Int,
+    val sanityId: Int? = null,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime,
     @Serializable(with = DateSerializer::class)

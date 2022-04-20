@@ -2,19 +2,19 @@ server:
   port: 8084
   host: 0.0.0.0
 
-endpoints:
-  mulighetsrommetApi: ${MR_API_URI}
-
-database:
-  host: ${DB_HOST}
-  port: ${DB_PORT}
-  name: ${DB_DATABASE}
-  user: ${DB_USERNAME}
-  password: ${DB_PASSWORD}
-
-kafka:
-  brokers: ${KAFKA_BROKERS}
-  consumerGroupId: mulighetsrommet-kafka-consumer.v1
-  topics:
-    consumer:
-      tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET}
+app:
+  endpoints:
+    mulighetsrommetApi: ${MR_API_URI}
+  database:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    name: ${DB_DATABASE}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  kafka:
+    brokers: ${KAFKA_BROKERS}
+    consumerGroupId: mulighetsrommet-kafka-consumer.v1
+    topics:
+      consumer:
+        tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET}
+        tiltakgjennomforingendret: ${MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET}

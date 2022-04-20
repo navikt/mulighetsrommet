@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "url": "/api/tiltakstyper"
+    "url": "/api/tiltaksgjennomforinger"
   },
   "response": {
     "status": 201,
