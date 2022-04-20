@@ -12,6 +12,7 @@ users.txt
 build/
 .idea
 **/.DS_Store
+**/bin
 
 # npm
 node_modules
