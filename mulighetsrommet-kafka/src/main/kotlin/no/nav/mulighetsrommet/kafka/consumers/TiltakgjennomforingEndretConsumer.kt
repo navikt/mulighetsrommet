@@ -38,9 +38,9 @@ class TiltakgjennomforingEndretConsumer(private val client: HttpClient) {
     private fun JsonObject.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         navn = this["LOKALTNAVN"]!!.jsonPrimitive.content,
         tiltakskode = Tiltakskode.valueOf(this["TILTAKSKODE"]!!.jsonPrimitive.content),
-        fraDato = LocalDateTime.parse(this["DATO_FRA"]!!.jsonPrimitive.content, ProcessingUtils.getArenaDateFormat()),
-        tilDato = LocalDateTime.parse(this["DATO_TIL"]!!.jsonPrimitive.content, ProcessingUtils.getArenaDateFormat()),
-        arrangorId = this["ARBGIV_ID_ARRANGOR"]!!.jsonPrimitive.content.toInt(),
+        fraDato = ProcessingUtils.getArenaDateFromTo(this["DATO_FRA"]!!.jsonPrimitive.content),
+        tilDato = ProcessingUtils.getArenaDateFromTo(this["DATO_TIL"]!!.jsonPrimitive.content),
+        arrangorId = this["ARBGIV_ID_ARRANGOR"]!!.jsonPrimitive.content.toIntOrNull(),
         arenaId = this["TILTAKGJENNOMFORING_ID"]!!.jsonPrimitive.content.toInt(),
         tiltaksnummer = 0,
         sakId = this["SAK_ID"]!!.jsonPrimitive.content.toInt()
@@ -53,6 +53,7 @@ class TiltakgjennomforingEndretConsumer(private val client: HttpClient) {
             body = Json.encodeToString(tiltaksgjennomforing)
             method = m
         }
+        if (response.status == HttpStatusCode.InternalServerError) throw Exception("Request to mulighetsrommet-api failed")
         logger.debug("sent request status ${response.status}")
     }
 }

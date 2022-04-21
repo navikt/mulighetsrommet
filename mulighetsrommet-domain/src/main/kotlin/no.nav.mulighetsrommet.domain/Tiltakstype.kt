@@ -15,7 +15,7 @@ data class Tiltakstype(
     val sanityId: Int? = null,
     val tiltakskode: Tiltakskode,
     @Serializable(with = DateSerializer::class)
-    val fraDato: LocalDateTime,
+    val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime,
+    val tilDato: LocalDateTime? = null,
 )
