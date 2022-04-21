@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.kafka.utils
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 enum class ArenaEventOperationType(val type: String) {
@@ -16,7 +17,15 @@ enum class ArenaEventOperationType(val type: String) {
 
 object ProcessingUtils {
 
-    fun getArenaDateFormat() = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    fun getArenaDateFormat(): DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+    fun getArenaDateFromTo(value: String): LocalDateTime? {
+        return if (value != "null") {
+            LocalDateTime.parse(value, getArenaDateFormat())
+        } else {
+            null
+        }
+    }
 
     fun getArenaOperationType(json: JsonObject) = ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content]
 

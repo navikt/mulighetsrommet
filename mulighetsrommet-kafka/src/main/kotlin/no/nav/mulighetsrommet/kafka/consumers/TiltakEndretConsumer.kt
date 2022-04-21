@@ -38,8 +38,8 @@ class TiltakEndretConsumer(private val client: HttpClient) {
         navn = this["TILTAKSNAVN"]!!.jsonPrimitive.content,
         innsatsgruppe = 1,
         tiltakskode = Tiltakskode.valueOf(this["TILTAKSKODE"]!!.jsonPrimitive.content),
-        fraDato = LocalDateTime.parse(this["DATO_FRA"]!!.jsonPrimitive.content, ProcessingUtils.getArenaDateFormat()),
-        tilDato = LocalDateTime.parse(this["DATO_TIL"]!!.jsonPrimitive.content, ProcessingUtils.getArenaDateFormat()),
+        fraDato = ProcessingUtils.getArenaDateFromTo(this["DATO_FRA"]!!.jsonPrimitive.content),
+        tilDato = ProcessingUtils.getArenaDateFromTo(this["DATO_TIL"]!!.jsonPrimitive.content)
 //        createdBy = this["REG_USER"]!!.jsonPrimitive.content,
 //        updatedBy = this["MOD_USER"]!!.jsonPrimitive.content
     )
@@ -51,6 +51,7 @@ class TiltakEndretConsumer(private val client: HttpClient) {
             body = Json.encodeToString(tiltakstype)
             method = m
         }
+        if (response.status == HttpStatusCode.InternalServerError) throw Exception("Request to mulighetsrommet-api failed")
         logger.debug("sent request status ${response.status}")
     }
 }
