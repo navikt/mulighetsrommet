@@ -78,6 +78,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             arenaId = row.int("arena_id"),
             sanityId = row.int("sanity_id"),
             fraDato = row.localDateTime("fra_dato"),
-            tilDato = row.localDateTime("til_dato")
+            tilDato = row.localDateTime("til_dato"),
+            sakId = row.int("sak_id")
         )
 }
