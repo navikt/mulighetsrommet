@@ -1,8 +1,9 @@
+-- For manual insertion
 insert into innsatsgruppe (id, tittel, beskrivelse)
 values (1, 'Standardinnsats', 'Gode muligheter'),
        (2, 'Situasjonsbestemt innsats', 'Trenger veiledning'),
        (3, 'Spesielt tilpasset innsats', 'Trenger veiledning, nedsatt arbeidsevne'),
-       (4, 'Varig tilpasset innsats', 'Jobbe delvis eller liten mulighet til å jobbe')
+       (4, 'Varig tilpasset innsats', 'Jobbe delvis eller liten mulighet til å jobbe');
 
 insert into tiltakstype (innsatsgruppe_id, navn, tiltakskode, fra_dato, til_dato)
 values  (1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
