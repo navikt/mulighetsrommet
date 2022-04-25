@@ -7,19 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
-          cache: npm
-      - run: npm ci
-      - name: Cache Turborepo
-        uses: actions/cache@v3
-        with:
-          path: node_modules/.cache/turbo
-          key: turborepo-${{ github.ref_name }}-${{ github.sha }}
-          restore-keys: |
-            turborepo-${{ github.ref_name }}-
-            turborepo-
-      - run: npx turbo run mulighetsrommet-cms#deploy
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Deploy
+        run: npx turbo run mulighetsrommet-cms#deploy
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}

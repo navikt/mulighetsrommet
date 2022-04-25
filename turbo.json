@@ -9,7 +9,7 @@
         "$VITE_MULIGHETSROMMET_API_BASE"
       ]
     },
-    "build:labs": {
+    "build:mock": {
       "dependsOn": ["^build"]
     },
     "lint": {

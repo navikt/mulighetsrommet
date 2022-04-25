@@ -5,10 +5,8 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
-  annotations:
-    nais.io/security-does-not-matter: "true"
 spec:
-  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-{{image_label}}:{{image_tag}}
+  image: {{image}}
   port: 8080
   {{#if ingresses}}
   ingresses:
