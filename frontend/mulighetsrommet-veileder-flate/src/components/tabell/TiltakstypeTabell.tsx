@@ -45,10 +45,15 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
             <Table.ColumnHeader sortKey="tiltakskode" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
+            <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
+              Lokasjon
+            </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="fraDato" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
-            <Table.ColumnHeader className="tabell__kolonne__plasser">Plasser/Ventetid</Table.ColumnHeader>
+            <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
+              Status
+            </Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -79,7 +84,7 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                 return 1;
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(({ id, tiltakskode, fraDato, navn }) => (
+              .map(({ id, navn, tiltakskode, fraDato }) => (
                 <Table.Row key={id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
                     <Lenke to={`/tiltakstyper/${tiltakskode}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
@@ -92,10 +97,11 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                     <Kopiknapp kopitekst={id.toString()} />
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
+                  <Table.DataCell>Lokasjon</Table.DataCell>
                   <Table.DataCell>
                     {fraDato ? new Intl.DateTimeFormat().format(new Date(fraDato)) : 'Mangler dato'}
                   </Table.DataCell>
-                  <Table.DataCell>Plasser</Table.DataCell>
+                  <Table.DataCell>Status</Table.DataCell>
                 </Table.Row>
               ))
           )}
