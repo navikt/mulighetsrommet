@@ -7,4 +7,3 @@ export interface Tiltakstypefilter {
 }
 
 export const tiltakstypefilter = atom<Tiltakstypefilter>({ search: '', innsatsgrupper: [] });
-export const visSidemeny = atom<boolean>(true);

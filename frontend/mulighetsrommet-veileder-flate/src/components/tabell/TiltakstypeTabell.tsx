@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pagination, Table, Alert, Label, BodyShort, Button } from '@navikt/ds-react';
+import { Pagination, Table, Alert, Heading } from '@navikt/ds-react';
 import './Tabell.less';
 import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
@@ -101,7 +101,12 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
           )}
         </Table.Body>
       </Table>
-      <Pagination page={page} onPageChange={setPage} count={Math.ceil(tiltakstypeliste.length / rowsPerPage)} />
+      <div className="under-tabell">
+        <Heading level="1" size="xsmall">
+          Viser {tiltakstypeliste?.length} av {tiltakstypeliste?.length} tiltak
+        </Heading>
+        <Pagination page={page} onPageChange={setPage} count={Math.ceil(tiltakstypeliste.length / rowsPerPage)} />
+      </div>
     </div>
   );
 };

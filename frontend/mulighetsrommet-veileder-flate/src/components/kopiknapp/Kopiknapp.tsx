@@ -39,7 +39,7 @@ const Kopiknapp = ({ kopitekst }: KopiknappProps) => {
           copyToClipboard(kopitekst, e);
         }}
       >
-        {hover ? <CopyFilled /> : <Copy />}
+        {hover ? <CopyFilled aria-label="Kopiknapp" /> : <Copy aria-label="Kopiknapp" />}
       </Button>
     </Tooltip>
   );
