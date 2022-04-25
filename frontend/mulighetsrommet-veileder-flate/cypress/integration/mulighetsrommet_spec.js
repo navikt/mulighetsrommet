@@ -1,7 +1,7 @@
 describe('Mulighetsrommet', () => {
   it('Sjekk at det er tiltaksgjennomføringer i listen', () => {
-    cy.checkPageA11y();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+    cy.checkPageA11y();
   });
 
   it('Gå inn på den første tiltaksgjennomføringen', () => {
