@@ -73,10 +73,10 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             id = row.int("id"),
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
-            arrangorId = row.int("arrangor_id"),
+            arrangorId = row.intOrNull("arrangor_id"),
             tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
             arenaId = row.int("arena_id"),
-            sanityId = row.int("sanity_id"),
+            sanityId = row.intOrNull("sanity_id"),
             fraDato = row.localDateTime("fra_dato"),
             tilDato = row.localDateTime("til_dato"),
             sakId = row.int("sak_id")

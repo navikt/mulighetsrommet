@@ -11,12 +11,13 @@ import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.kafka.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils.isInsertArenaOperation
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
-class TiltakgjennomforingEndretConsumer(private val client: HttpClient) {
+class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
     private var resourceUri = "/api/tiltaksgjennomforinger"
@@ -27,12 +28,14 @@ class TiltakgjennomforingEndretConsumer(private val client: HttpClient) {
 
     private fun handleInsert(payload: JsonObject) {
         val newTiltaksgjennomforing = payload["after"]!!.jsonObject.toTiltaksgjennomforing()
-        sendRequest(HttpMethod.Post, newTiltaksgjennomforing, resourceUri)
+        client.sendRequest(HttpMethod.Post, resourceUri, newTiltaksgjennomforing)
+        logger.debug("processed tiltakgjennomforing endret insert")
     }
 
     private fun handleUpdate(payload: JsonObject) {
         val updateTiltaksgjennomforing = payload["after"]!!.jsonObject.toTiltaksgjennomforing()
-        sendRequest(HttpMethod.Put, updateTiltaksgjennomforing, "$resourceUri/${updateTiltaksgjennomforing.arenaId}")
+        client.sendRequest(HttpMethod.Put, "$resourceUri/${updateTiltaksgjennomforing.arenaId}", updateTiltaksgjennomforing)
+        logger.debug("processed tiltakgjennomforing endret update")
     }
 
     private fun JsonObject.toTiltaksgjennomforing() = Tiltaksgjennomforing(
@@ -45,15 +48,4 @@ class TiltakgjennomforingEndretConsumer(private val client: HttpClient) {
         tiltaksnummer = 0,
         sakId = this["SAK_ID"]!!.jsonPrimitive.content.toInt()
     )
-
-    @OptIn(InternalAPI::class)
-    private fun sendRequest(m: HttpMethod, tiltaksgjennomforing: Tiltaksgjennomforing, requestUri: String) = runBlocking {
-        val response: HttpResponse = client.request(requestUri) {
-            contentType(ContentType.Application.Json)
-            body = Json.encodeToString(tiltaksgjennomforing)
-            method = m
-        }
-        if (response.status == HttpStatusCode.InternalServerError) throw Exception("Request to mulighetsrommet-api failed")
-        logger.debug("sent request status ${response.status}")
-    }
 }
