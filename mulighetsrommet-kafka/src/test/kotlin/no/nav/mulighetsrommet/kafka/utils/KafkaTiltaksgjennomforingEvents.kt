@@ -211,7 +211,7 @@ val tiltaksgjennomforingMentorUpdate2 = """
         "REG_USER": "JSZ0219",
         "MOD_DATO": "2022-03-30 12:49:18",
         "MOD_USER": "JSZ0219",
-        "LOKALTNAVN": ".",
+        "LOKALTNAVN": "Tullball",
         "TILTAKSTATUSKODE": "PLANLAGT",
         "PROSENT_DELTID": 100,
         "KOMMENTAR": null,

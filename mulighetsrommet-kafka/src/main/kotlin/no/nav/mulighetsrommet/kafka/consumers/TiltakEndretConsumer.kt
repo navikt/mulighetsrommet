@@ -1,21 +1,15 @@
 package no.nav.mulighetsrommet.kafka.consumers
 
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.kafka.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils.isInsertArenaOperation
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
-class TiltakEndretConsumer(private val client: HttpClient) {
+class TiltakEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakEndretConsumer::class.java)
     private var resourceUri = "/api/tiltakstyper"
@@ -26,12 +20,14 @@ class TiltakEndretConsumer(private val client: HttpClient) {
 
     private fun handleInsert(payload: JsonObject) {
         val newTiltakstype = payload["after"]!!.jsonObject.toTiltakstype()
-        sendRequest(HttpMethod.Post, newTiltakstype, resourceUri)
+        client.sendRequest(HttpMethod.Post, resourceUri, newTiltakstype)
+        logger.debug("processed tiltak endret insert")
     }
 
     private fun handleUpdate(payload: JsonObject) {
         val updatedTiltakstype = payload["after"]!!.jsonObject.toTiltakstype()
-        sendRequest(HttpMethod.Put, updatedTiltakstype, "$resourceUri/${updatedTiltakstype.tiltakskode}")
+        client.sendRequest(HttpMethod.Put, "$resourceUri/${updatedTiltakstype.tiltakskode}", updatedTiltakstype)
+        logger.debug("processed tiltak endret update")
     }
 
     private fun JsonObject.toTiltakstype() = Tiltakstype(
@@ -40,18 +36,5 @@ class TiltakEndretConsumer(private val client: HttpClient) {
         tiltakskode = Tiltakskode.valueOf(this["TILTAKSKODE"]!!.jsonPrimitive.content),
         fraDato = ProcessingUtils.getArenaDateFromTo(this["DATO_FRA"]!!.jsonPrimitive.content),
         tilDato = ProcessingUtils.getArenaDateFromTo(this["DATO_TIL"]!!.jsonPrimitive.content)
-//        createdBy = this["REG_USER"]!!.jsonPrimitive.content,
-//        updatedBy = this["MOD_USER"]!!.jsonPrimitive.content
     )
-
-    @OptIn(InternalAPI::class)
-    private fun sendRequest(m: HttpMethod, tiltakstype: Tiltakstype, requestUri: String) = runBlocking {
-        val response: HttpResponse = client.request(requestUri) {
-            contentType(ContentType.Application.Json)
-            body = Json.encodeToString(tiltakstype)
-            method = m
-        }
-        if (response.status == HttpStatusCode.InternalServerError) throw Exception("Request to mulighetsrommet-api failed")
-        logger.debug("sent request status ${response.status}")
-    }
 }
