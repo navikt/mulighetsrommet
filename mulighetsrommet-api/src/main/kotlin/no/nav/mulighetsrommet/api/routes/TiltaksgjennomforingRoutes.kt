@@ -47,6 +47,9 @@ fun Route.tiltaksgjennomforingRoutes() {
             tiltaksgjennomforingService.updateTiltaksgjennomforing(arenaId, tiltaksgjennomforing)
         }.onSuccess { updatedTiltakstype ->
             call.respond(updatedTiltakstype)
+        }.onFailure {
+            it.printStackTrace()
+            call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
         }
     }
 }
