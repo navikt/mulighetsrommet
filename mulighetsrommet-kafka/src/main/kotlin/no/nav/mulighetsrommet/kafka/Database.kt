@@ -37,7 +37,7 @@ class Database(databaseConfig: DatabaseConfig) {
 
     fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
         val query = """
-            insert into events(topic, key, "offset", payload) values(?, ?, ?, ? ::jsonb) on conflict do nothing
+            insert into events(topic, key, record_offset, payload) values(?, ?, ?, ? ::jsonb) on conflict do nothing
         """.trimIndent()
         session.run(queryOf(query, topic, key, offset, payload).asUpdate)
         logger.debug("Persisted kafka event: $topic:$key:$offset")

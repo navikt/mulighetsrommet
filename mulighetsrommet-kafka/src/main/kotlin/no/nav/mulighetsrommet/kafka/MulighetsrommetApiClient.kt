@@ -38,6 +38,6 @@ class MulighetsrommetApiClient(uriBase: String) {
             method = m
         }
         if (response.status == HttpStatusCode.InternalServerError) throw Exception("Request to mulighetsrommet-api failed")
-        logger.debug("sent request status ${response.status}")
+        logger.debug("sent request status ${response.status} (${response.request.url})")
     }
 }
