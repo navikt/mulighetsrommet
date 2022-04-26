@@ -8,6 +8,7 @@ import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.kafka.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.kafka.consumers.TiltakgjennomforingEndretConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -20,6 +21,7 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
     private val consumerTopics: Map<String, String> = config.topics.consumer
 
     private val tiltakEndretConsumer = TiltakEndretConsumer(client)
+    private val tiltakgjennomforingEndretConsumer = TiltakgjennomforingEndretConsumer(client)
 
     init {
         logger.debug("Initializing KafkaFactory")
@@ -59,6 +61,7 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
         val payload = Json.parseToJsonElement(value)
         when (topic) {
             consumerTopics.get("tiltakendret") -> tiltakEndretConsumer.process(payload)
+            consumerTopics.get("tiltakgjennomforingendret") -> tiltakgjennomforingEndretConsumer.process(payload)
             else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
         }
     }

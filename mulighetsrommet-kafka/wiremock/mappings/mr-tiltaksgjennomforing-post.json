@@ -1,10 +1,10 @@
 {
   "request": {
-    "method": "PUT",
-    "urlPattern": "/api/tiltakstyper/([A-Z]*)"
+    "method": "POST",
+    "url": "/api/tiltaksgjennomforinger"
   },
   "response": {
-    "status": 200,
+    "status": 201,
     "headers": {
       "Content-Type": "application/json"
     }

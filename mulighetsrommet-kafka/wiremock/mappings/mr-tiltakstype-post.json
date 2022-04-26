@@ -6,7 +6,7 @@
   "response": {
     "status": 201,
     "headers": {
-      "Content-Type": "text/plain"
+      "Content-Type": "application/json"
     }
   }
 }

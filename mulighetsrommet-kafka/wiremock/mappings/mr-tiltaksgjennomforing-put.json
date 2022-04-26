@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "urlPattern": "/api/tiltakstyper/([A-Z]*)"
+    "urlPattern": "/api/tiltaksgjennomforinger/(\\d+)"
   },
   "response": {
     "status": 200,

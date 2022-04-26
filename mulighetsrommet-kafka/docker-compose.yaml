@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   mulighetsrommet-kafka-db:
     image: "postgres:12.3-alpine"
@@ -11,7 +11,6 @@ services:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
       POSTGRES_DB: "mulighetsrommet-kafka-db"
-    mem_limit: "8g"
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:

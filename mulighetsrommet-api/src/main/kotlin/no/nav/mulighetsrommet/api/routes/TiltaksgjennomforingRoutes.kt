@@ -2,18 +2,18 @@ package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.*
 import io.ktor.response.respond
 import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.get
+import io.ktor.routing.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import org.koin.ktor.ext.inject
 
 fun Route.tiltaksgjennomforingRoutes() {
 
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
-    // TODO: Vurder om det blir mer REST-ish å ha disse på /api/tiltakstyper/tiltaksgjennomforinger/
     get("/api/tiltaksgjennomforinger") {
         call.respond(tiltaksgjennomforingService.getTiltaksgjennomforinger())
     }
@@ -27,5 +27,25 @@ fun Route.tiltaksgjennomforingRoutes() {
             status = HttpStatusCode.NotFound
         )
         call.respond(tiltaksgjennomforing)
+    }
+    post("/api/tiltaksgjennomforinger") {
+        runCatching {
+            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
+            tiltaksgjennomforingService.createTiltaksgjennomforing(tiltaksgjennomforing)
+        }.onSuccess { createdTiltakstype ->
+            call.response.status(HttpStatusCode.Created)
+            call.respond(createdTiltakstype)
+        }.onFailure {
+            call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
+        }
+    }
+    put("/api/tiltaksgjennomforinger/{id}") {
+        runCatching {
+            val arenaId = call.parameters["id"]!!.toInt()
+            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
+            tiltaksgjennomforingService.updateTiltaksgjennomforing(arenaId, tiltaksgjennomforing)
+        }.onSuccess { updatedTiltakstype ->
+            call.respond(updatedTiltakstype)
+        }
     }
 }
