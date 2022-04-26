@@ -15,6 +15,8 @@ on:
       - build.gradle.kts
       - settings.gradle.kts
       - mulighetsrommet-api/**
+# TODO: support workflow_dispatch
+#  workflow_dispatch:
 
 env:
   IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api:${{ github.sha }}
