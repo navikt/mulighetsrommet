@@ -65,5 +65,5 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${IMAGE}
+          VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/labs-gcp.yaml

@@ -66,7 +66,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${IMAGE}
+          VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
 
   deploy-prod:
@@ -81,5 +81,5 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${IMAGE}
+          VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
