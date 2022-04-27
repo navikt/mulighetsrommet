@@ -4,10 +4,10 @@ import { useAtom } from 'jotai';
 import { Close } from '@navikt/ds-icons';
 import Ikonknapp from '../knapper/Ikonknapp';
 import './Filtertags.less';
-import { tiltakstypefilter } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 
 const SearchFieldTag = () => {
-  const [filter, setFilter] = useAtom(tiltakstypefilter);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   const handleClickFjernFilter = () => {
     setFilter({

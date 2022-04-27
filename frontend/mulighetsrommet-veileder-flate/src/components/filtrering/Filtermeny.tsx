@@ -1,13 +1,17 @@
 import React from 'react';
 import { Heading } from '@navikt/ds-react';
-import InnsatsgruppeFilter from './InnsatsgruppeFilter';
 import './Filtermeny.less';
 import { useAtom } from 'jotai';
 import Searchfield from './Searchfield';
-import { tiltakstypefilter } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import CheckboxFilter from './CheckboxFilter';
+import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
+import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
 
 const Filtermeny = () => {
-  const [filter, setFilter] = useAtom(tiltakstypefilter);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const innsatsgrupper = useInnsatsgrupper();
+  const tiltakstyper = useTiltakstyper();
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">
@@ -15,9 +19,30 @@ const Filtermeny = () => {
         Filter
       </Heading>
       <Searchfield sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
-      <InnsatsgruppeFilter
-        innsatsgruppefilter={filter.innsatsgrupper!}
-        setInnsatsgruppefilter={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
+      <CheckboxFilter
+        accordionNavn="Innsatsgrupper"
+        options={filter.innsatsgrupper!}
+        setOptions={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
+        data={innsatsgrupper.data!}
+        isLoading={innsatsgrupper.isLoading}
+        isError={innsatsgrupper.isError}
+        defaultOpen
+      />
+      <CheckboxFilter
+        accordionNavn="Tiltakstyper"
+        options={filter.tiltakstyper!}
+        setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
+        data={
+          tiltakstyper.data?.map(tiltakstype => {
+            return {
+              id: tiltakstype.id,
+              tittel: tiltakstype.navn,
+            };
+          }) ?? []
+        }
+        isLoading={tiltakstyper.isLoading}
+        isError={tiltakstyper.isError}
+        sortert
       />
     </div>
   );

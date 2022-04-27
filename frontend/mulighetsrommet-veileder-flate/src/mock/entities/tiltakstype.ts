@@ -13,9 +13,5 @@ export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
     tiltakskode: Tiltakskode[entity.tiltakskode as keyof typeof Tiltakskode],
     fraDato: entity.fraDato,
     tilDato: entity.tilDato,
-    createdBy: entity.createdBy,
-    createdAt: entity.createdAt,
-    updatedBy: entity.updatedBy,
-    updatedAt: entity.updatedAt,
   };
 }
