@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
-    private var resourceUri = "/api/tiltaksgjennomforinger"
+    private var resourceUri = "/api/arena/tiltaksgjennomforinger"
 
     fun process(payload: JsonElement) {
         if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)
