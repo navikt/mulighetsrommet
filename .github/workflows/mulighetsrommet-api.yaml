@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - dev
-      # TODO: remove
-      - feature/deploy-to-production
     paths:
       - build.gradle.kts
       - settings.gradle.kts

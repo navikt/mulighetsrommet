@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - dev
-      # TODO: remove
-      - feature/deploy-to-production
     paths:
       - package.json
       - package-lock.json
