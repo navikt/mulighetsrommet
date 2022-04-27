@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 class TiltakEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakEndretConsumer::class.java)
-    private var resourceUri = "/api/tiltakstyper"
+    private var resourceUri = "/api/arena/tiltakstyper"
 
     fun process(payload: JsonElement) {
         if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)

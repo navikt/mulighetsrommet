@@ -48,5 +48,6 @@ fun Application.configure(config: AppConfig) {
         tiltakstypeRoutes()
         tiltaksgjennomforingRoutes()
         innsatsgruppeRoutes()
+        arenaRoutes()
     }
 }

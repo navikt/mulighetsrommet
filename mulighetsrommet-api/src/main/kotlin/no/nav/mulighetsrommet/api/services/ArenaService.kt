@@ -5,32 +5,41 @@ import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.slf4j.Logger
 
-class TiltaksgjennomforingService(private val db: Database, private val logger: Logger) {
+class ArenaService(private val db: Database, private val logger: Logger) {
 
-    fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
+    fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode::text = ?
+            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?::tiltakskode, ?, ?) returning *
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
-        return db.session.run(queryResult)
+        val queryResult = queryOf(
+            query,
+            tiltakstype.navn,
+            tiltakstype.innsatsgruppe,
+            tiltakstype.sanityId,
+            tiltakstype.tiltakskode.name,
+            tiltakstype.fraDato,
+            tiltakstype.tilDato
+        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        return db.session.run(queryResult)!!
     }
 
-    fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
+    fun updateTiltakstype(tiltakskode: Tiltakskode, tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where id = ?
+            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where tiltakskode::text = ? returning *
         """.trimIndent()
-        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)
-    }
-
-    fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
-        val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing
-        """.trimIndent()
-        val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
-        return db.session.run(queryResult)
+        val queryResult = queryOf(
+            query,
+            tiltakstype.navn,
+            tiltakstype.innsatsgruppe,
+            tiltakstype.sanityId,
+            tiltakstype.fraDato,
+            tiltakstype.tilDato,
+            tiltakskode.name
+        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        return db.session.run(queryResult)!!
     }
 
     fun createTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {

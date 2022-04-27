@@ -4,6 +4,7 @@ import io.ktor.application.*
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.DatabaseConfig
 import no.nav.mulighetsrommet.api.database.Database
+import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -27,6 +28,7 @@ private fun db(databaseConfig: DatabaseConfig): Module {
 }
 
 private fun services(logger: Logger) = module {
+    single { ArenaService(get(), logger) }
     single { TiltaksgjennomforingService(get(), logger) }
     single { TiltakstypeService(get(), logger) }
     single { InnsatsgruppeService(get(), logger) }
