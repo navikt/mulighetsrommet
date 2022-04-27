@@ -1,4 +1,4 @@
-name: Deploy Sanity Studio
+name: Deploy mulighetsrommet-cms (Sanity Studio)
 
 on: workflow_dispatch
 

@@ -2,19 +2,20 @@ name: Build and deploy mulighetsrommet-api
 
 on:
   push:
-    branches:
-      - dev
     paths:
+      - .github/workflows/mulighetsrommet-api.yaml
       - build.gradle.kts
       - settings.gradle.kts
       - mulighetsrommet-api/**
-  pull_request:
-    paths:
-      - build.gradle.kts
-      - settings.gradle.kts
-      - mulighetsrommet-api/**
-# TODO: support workflow_dispatch
-#  workflow_dispatch:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
 
 env:
   IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api:${{ github.sha }}
@@ -48,7 +49,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/build/test-results/test/TEST-*.xml"
       - name: Build and push Docker image
-        if: github.ref_name == 'dev'
+        if: github.event_name == 'push' && github.ref_name == 'dev' || github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -61,7 +62,7 @@ jobs:
     name: Deploy (dev)
     runs-on: ubuntu-latest
     needs: [build-and-test]
-    if: github.ref_name == 'dev'
+    if: github.event_name == 'push' && github.ref_name == 'dev' || github.event_name == 'workflow_dispatch'
     defaults:
       run:
         working-directory: mulighetsrommet-api
