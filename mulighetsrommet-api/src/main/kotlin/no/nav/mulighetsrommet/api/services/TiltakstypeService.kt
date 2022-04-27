@@ -18,19 +18,19 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
     }
 
     fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
-            val query = """
+        val query = """
             insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?::tiltakskode, ?, ?) returning *
         """.trimIndent()
-            val queryResult = queryOf(
-                query,
-                tiltakstype.navn,
-                tiltakstype.innsatsgruppe,
-                tiltakstype.sanityId,
-                tiltakstype.tiltakskode.name,
-                tiltakstype.fraDato,
-                tiltakstype.tilDato
-            ).asExecute.query.map { toTiltakstype(it) }.asSingle
-            return db.session.run(queryResult)!!
+        val queryResult = queryOf(
+            query,
+            tiltakstype.navn,
+            tiltakstype.innsatsgruppe,
+            tiltakstype.sanityId,
+            tiltakstype.tiltakskode.name,
+            tiltakstype.fraDato,
+            tiltakstype.tilDato
+        ).asExecute.query.map { toTiltakstype(it) }.asSingle
+        return db.session.run(queryResult)!!
     }
 
     fun updateTiltakstype(tiltakskode: Tiltakskode, tiltakstype: Tiltakstype): Tiltakstype {

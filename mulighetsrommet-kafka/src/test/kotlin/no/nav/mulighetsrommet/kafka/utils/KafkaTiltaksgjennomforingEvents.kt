@@ -52,7 +52,6 @@ val tiltaksgjennomforingMentorInsert = """
     }
 """.trimIndent()
 
-
 val tiltaksgjennomforingMentorUpdate = """
    {
   "table": "SIAMO.TILTAKGJENNOMFORING",

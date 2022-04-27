@@ -5,17 +5,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.kafka.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils
 import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils.isInsertArenaOperation
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiClient) {
 
