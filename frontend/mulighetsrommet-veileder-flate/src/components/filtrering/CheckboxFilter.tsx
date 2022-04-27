@@ -40,8 +40,8 @@ const CheckboxFilter = ({
         else if (a.tittel > b.tittel) return 1;
         else return 0;
       })
-      .map(filtertype => (
-        <Checkbox key={filtertype.id} value={filtertype.id.toString()} onChange={handleFjernFilter}>
+      .map((filtertype, index) => (
+        <Checkbox key={index} value={filtertype.id.toString()} onChange={handleFjernFilter}>
           {filtertype.tittel}
         </Checkbox>
       ));
