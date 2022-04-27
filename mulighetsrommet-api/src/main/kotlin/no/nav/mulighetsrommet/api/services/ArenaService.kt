@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
@@ -22,7 +22,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltakstype.tiltakskode.name,
             tiltakstype.fraDato,
             tiltakstype.tilDato
-        ).asExecute.query.map { DatabaseUtils.toTiltakstype(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
@@ -38,7 +38,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltakstype.fraDato,
             tiltakstype.tilDato,
             tiltakskode.name
-        ).asExecute.query.map { DatabaseUtils.toTiltakstype(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
@@ -57,7 +57,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,
             tiltaksgjennomforing.sakId
-        ).asExecute.query.map { DatabaseUtils.toTiltaksgjennomforing(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
@@ -74,7 +74,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,
             arenaId
-        ).asExecute.query.map { DatabaseUtils.toTiltaksgjennomforing(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 

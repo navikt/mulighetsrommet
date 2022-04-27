@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 
-object DatabaseUtils {
+object DatabaseMapper {
 
     fun toTiltakstype(row: Row): Tiltakstype =
         Tiltakstype(

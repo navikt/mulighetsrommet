@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
-import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.slf4j.Logger
@@ -14,7 +13,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
         val query = """
             select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode::text = ?
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseUtils.toTiltaksgjennomforing(it) }.asList
+        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
     }
 
@@ -22,7 +21,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
         val query = """
             select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where id = ?
         """.trimIndent()
-        val queryResult = queryOf(query, id).map { DatabaseUtils.toTiltaksgjennomforing(it) }.asSingle
+        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)
     }
 
@@ -30,7 +29,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
         val query = """
             select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing
         """.trimIndent()
-        val queryResult = queryOf(query).map { DatabaseUtils.toTiltaksgjennomforing(it) }.asList
+        val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
     }
 
@@ -49,7 +48,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,
             tiltaksgjennomforing.sakId
-        ).asExecute.query.map { DatabaseUtils.toTiltaksgjennomforing(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
@@ -66,7 +65,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,
             arenaId
-        ).asExecute.query.map { DatabaseUtils.toTiltaksgjennomforing(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 

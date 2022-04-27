@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
-import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.slf4j.Logger
@@ -14,7 +13,7 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
         val query = """
             select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode::text = ?
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseUtils.toTiltakstype(it) }.asSingle
+        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)
     }
 
@@ -30,7 +29,7 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
             tiltakstype.tiltakskode.name,
             tiltakstype.fraDato,
             tiltakstype.tilDato
-        ).asExecute.query.map { DatabaseUtils.toTiltakstype(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
@@ -46,7 +45,7 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
             tiltakstype.fraDato,
             tiltakstype.tilDato,
             tiltakskode.name
-        ).asExecute.query.map { DatabaseUtils.toTiltakstype(it) }.asSingle
+        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
@@ -58,7 +57,7 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
             .andWhere(searchQuery, "(lower(navn) like lower(:navn))")
             .trimIndent()
         val queryResult = queryOf(query, mapOf("innsatsgruppe_id" to innsatsgruppe, "navn" to "%$searchQuery%")).map {
-            DatabaseUtils.toTiltakstype(it)
+            DatabaseMapper.toTiltakstype(it)
         }.asList
         return db.session.run(queryResult)
     }
