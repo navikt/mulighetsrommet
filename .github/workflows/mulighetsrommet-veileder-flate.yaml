@@ -1,4 +1,4 @@
-name: Build and deploy mulighetsrommet-veileder-flate
+name: CI/CD (mulighetsrommet-veileder-flate)
 
 on:
   push:
