@@ -12,4 +12,4 @@ export type Tiltaksgjennomforing = {
     tiltaksnummer?: string;
     fraDato: string | null;
     tilDato: string | null;
-}
+};

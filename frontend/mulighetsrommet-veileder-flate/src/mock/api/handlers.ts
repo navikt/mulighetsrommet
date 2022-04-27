@@ -43,7 +43,9 @@ export const handlers: RestHandler[] = [
 
     return ok(items.map(toTiltaksgjennomforing));
   }),
-
+  rest.get('*/api/tiltaksgjennomforinger', req => {
+    return ok(db.tiltaksgjennomforing.getAll().map(toTiltaksgjennomforing));
+  }),
   rest.get('*/api/tiltaksgjennomforinger/:id', req => {
     const { id } = req.params;
 

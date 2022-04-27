@@ -3,6 +3,7 @@ import faker from 'faker';
 import { innsatsgrupper } from './fixtures/innsatsgrupper';
 import { tiltakstyper } from './fixtures/tiltakstyper';
 import { createMockDatabase, idAutoIncrement } from './helpers';
+import { Tiltakstype } from '../../../mulighetsrommet-api-client';
 
 export const definition = {
   innsatsgruppe: {
@@ -50,15 +51,15 @@ export const db = createMockDatabase(definition, (db: any) => {
     });
   });
 
-  db.tiltakstype.getAll().forEach((tiltakstype: any) => {
+  db.tiltakstype.getAll().forEach((tiltakstype: Tiltakstype) => {
     for (let index = 0; index < faker.datatype.number({ min: 1, max: 5 }); index++) {
       db.tiltaksgjennomforing.create({
         tiltakskode: tiltakstype.tiltakskode,
-        tiltaksnummer: faker.random.alphaNumeric(12),
+        tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
         tittel: `Kjøreopplæring av ${faker.vehicle.manufacturer()}`,
         beskrivelse: faker.lorem.paragraph(1),
-        tilDato: faker.date.future(3).toLocaleDateString(),
-        fraDato: faker.date.past(3).toLocaleDateString(),
+        tilDato: faker.date.future(2).toISOString(),
+        fraDato: faker.date.future(2).toISOString(),
       });
     }
   });

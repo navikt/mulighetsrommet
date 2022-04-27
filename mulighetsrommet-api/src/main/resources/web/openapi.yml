@@ -16,7 +16,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                enum: [ PONG ]
+                enum: [PONG]
   /api/innsatsgrupper:
     get:
       tags:
@@ -146,6 +146,28 @@ paths:
       tags:
         - mulighetsrommet
       operationId: getTiltaksgjennomforinger
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for tiltaksgjennomforinger
+        - in: query
+          name: innsatsgrupper
+          schema:
+            type: array
+            items:
+              type: number
+          description: Innsatsgruppefilter
+        - in: query
+          name: tiltakstyper
+          schema:
+            type: array
+            items:
+              type: number
+          description: Tiltakstypefilter
+          style: form
+          explode: false
       responses:
         200:
           description: Array of tiltaksgjennomføringer.

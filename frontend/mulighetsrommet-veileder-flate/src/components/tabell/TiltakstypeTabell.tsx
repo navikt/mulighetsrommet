@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Pagination, Table, Alert, Heading } from '@navikt/ds-react';
 import './Tabell.less';
-import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 export interface TiltakstypelisteProps {
-  tiltakstypeliste: Array<Tiltakstype>;
+  tiltaksgjennomforingsliste: Array<Tiltaksgjennomforing>;
 }
 
-const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
+const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps) => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
@@ -57,14 +57,14 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltakstypeliste.length === 0 ? (
+          {tiltaksgjennomforingsliste.length === 0 ? (
             <Table.DataCell colSpan={5}>
               <Alert variant="info" className="tabell__alert">
                 Det finnes ingen tiltakstyper med dette søket.
               </Alert>
             </Table.DataCell>
           ) : (
-            tiltakstypeliste
+            tiltaksgjennomforingsliste
               .slice()
               .sort((a, b) => {
                 if (sort) {
@@ -84,17 +84,17 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
                 return 1;
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(({ id, navn, tiltakskode, fraDato }) => (
+              .map(({ id, tittel, tiltakskode, fraDato, tiltaksnummer }) => (
                 <Table.Row key={id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
                     <Lenke to={`/tiltakstyper/${tiltakskode}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
-                      {navn}
+                      {tittel}
                     </Lenke>
                     <div>{'Leverandør'}</div>
                   </Table.DataCell>
                   <Table.DataCell className="tabell__tiltaksnummer">
-                    {id}
-                    <Kopiknapp kopitekst={id.toString()} />
+                    {tiltaksnummer}
+                    <Kopiknapp kopitekst={tiltaksnummer!} />
                   </Table.DataCell>
                   <Table.DataCell>{tiltakskode}</Table.DataCell>
                   <Table.DataCell>Lokasjon</Table.DataCell>
@@ -109,9 +109,13 @@ const TiltakstypeTabell = ({ tiltakstypeliste }: TiltakstypelisteProps) => {
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {tiltakstypeliste?.length} av {tiltakstypeliste?.length} tiltak
+          Viser {tiltaksgjennomforingsliste?.length} av {tiltaksgjennomforingsliste?.length} tiltak
         </Heading>
-        <Pagination page={page} onPageChange={setPage} count={Math.ceil(tiltakstypeliste.length / rowsPerPage)} />
+        <Pagination
+          page={page}
+          onPageChange={setPage}
+          count={Math.ceil(tiltaksgjennomforingsliste.length / rowsPerPage)}
+        />
       </div>
     </div>
   );

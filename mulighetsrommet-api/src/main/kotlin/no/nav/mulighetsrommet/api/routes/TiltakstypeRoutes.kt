@@ -29,7 +29,7 @@ fun Route.tiltakstypeRoutes() {
     get("/api/tiltakstyper") {
         val search = call.request.queryParameters["search"]
 
-        val innsatsgrupper = call.request.queryParameters["innsatsgrupper"]?.toInt()
+        val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
 
         val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search)
         call.respond(items)

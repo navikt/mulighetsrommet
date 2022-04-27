@@ -49,7 +49,7 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
         return db.session.run(queryResult)!!
     }
 
-    fun getTiltakstyper(innsatsgruppe: Int?, searchQuery: String?): List<Tiltakstype> {
+    fun getTiltakstyper(innsatsgruppe: List<Int>?, searchQuery: String?): List<Tiltakstype> {
         val query = """
             select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype
         """
