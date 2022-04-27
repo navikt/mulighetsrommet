@@ -21,16 +21,9 @@ fun main() {
     val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
     val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.app.kafka.consumerGroupId)
 
-    val client = HttpClient {
-        defaultRequest {
-            url.takeFrom(
-                URLBuilder().takeFrom(config.app.endpoints.get("mulighetsrommetApi")!!).apply {
-                    encodedPath += url.encodedPath
-                }
-            )
-        }
-    }
-    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), client))
+    val mulighetsrommetApiClient = MulighetsrommetApiClient(config.app.endpoints.get("mulighetsrommetApi")!!)
+
+    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), mulighetsrommetApiClient))
 }
 
 fun initializeServer(config: Config, kafka: Kafka) {

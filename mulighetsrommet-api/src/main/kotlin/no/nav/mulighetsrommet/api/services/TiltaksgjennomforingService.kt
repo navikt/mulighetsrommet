@@ -35,7 +35,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun createTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
         val query = """
-            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sanity_id, fra_dato, til_dato) values (?, ?, ?::tiltakskode, ?, ?, ?, ?, ?) returning *
+            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sanity_id, fra_dato, til_dato, sak_id) values (?, ?, ?::tiltakskode, ?, ?, ?, ?, ?, ?) returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
@@ -46,14 +46,15 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             tiltaksgjennomforing.arenaId,
             tiltaksgjennomforing.sanityId,
             tiltaksgjennomforing.fraDato,
-            tiltaksgjennomforing.tilDato
+            tiltaksgjennomforing.tilDato,
+            tiltaksgjennomforing.sakId
         ).asExecute.query.map { toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
     fun updateTiltaksgjennomforing(arenaId: Int, tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
         val query = """
-            update tiltaksgjennomforing set navn = ?, arrangor_id = ?, tiltakskode = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where arena_id = ?
+            update tiltaksgjennomforing set navn = ?, arrangor_id = ?, tiltakskode = ?::tiltakskode, sanity_id = ?, fra_dato = ?, til_dato = ? where arena_id = ? returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
@@ -73,12 +74,12 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             id = row.int("id"),
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
-            arrangorId = row.int("arrangor_id"),
+            arrangorId = row.intOrNull("arrangor_id"),
             tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
             arenaId = row.int("arena_id"),
-            sanityId = row.int("sanity_id"),
-            fraDato = row.localDateTime("fra_dato"),
-            tilDato = row.localDateTime("til_dato"),
+            sanityId = row.intOrNull("sanity_id"),
+            fraDato = row.localDateTimeOrNull("fra_dato"),
+            tilDato = row.localDateTimeOrNull("til_dato"),
             sakId = row.int("sak_id")
         )
 }

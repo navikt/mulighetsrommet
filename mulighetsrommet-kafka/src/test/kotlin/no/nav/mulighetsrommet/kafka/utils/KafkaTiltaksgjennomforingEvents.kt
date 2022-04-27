@@ -155,7 +155,7 @@ val tiltaksgjennomforingMentorUpdate2 = """
       "before": {
         "TILTAKGJENNOMFORING_ID": 3728231,
         "SAK_ID": 13501601,
-        "TILTAKSKODE": "ARBTREN",
+        "TILTAKSKODE": "DIGIOPPARB",
         "ANTALL_DELTAKERE": null,
         "ANTALL_VARIGHET": null,
         "DATO_FRA": null,
@@ -196,7 +196,7 @@ val tiltaksgjennomforingMentorUpdate2 = """
       "after": {
         "TILTAKGJENNOMFORING_ID": 3728231,
         "SAK_ID": 13501601,
-        "TILTAKSKODE": "ARBTREN",
+        "TILTAKSKODE": "DIGIOPPARB",
         "ANTALL_DELTAKERE": 1,
         "ANTALL_VARIGHET": null,
         "DATO_FRA": "2022-01-01 00:00:00",
@@ -211,7 +211,7 @@ val tiltaksgjennomforingMentorUpdate2 = """
         "REG_USER": "JSZ0219",
         "MOD_DATO": "2022-03-30 12:49:18",
         "MOD_USER": "JSZ0219",
-        "LOKALTNAVN": ".",
+        "LOKALTNAVN": "Tullball",
         "TILTAKSTATUSKODE": "PLANLAGT",
         "PROSENT_DELTID": 100,
         "KOMMENTAR": null,

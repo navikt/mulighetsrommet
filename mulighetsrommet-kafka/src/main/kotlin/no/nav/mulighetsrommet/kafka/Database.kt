@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.kafka
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -13,10 +12,11 @@ class Database(databaseConfig: DatabaseConfig) {
 
     private val logger = LoggerFactory.getLogger(Database::class.java)
     private var flyway: Flyway
-    private var db: HikariDataSource
-    private var session: Session
+    val dataSource: HikariDataSource
+    val session: Session
 
     init {
+        logger.debug("Initializing Database")
         val jdbcUrl = "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.name}"
         val hikariConfig = HikariConfig()
         hikariConfig.jdbcUrl = jdbcUrl
@@ -26,27 +26,20 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.maximumPoolSize = 3
 
         hikariConfig.validate()
-
-        db = HikariDataSource(hikariConfig)
-        session = sessionOf(db)
+        dataSource = HikariDataSource(hikariConfig)
+        session = sessionOf(dataSource)
 
         // TODO: Flytt ut til CI etterhvert
+        logger.debug("Start flyway migrations")
         flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
         flyway.migrate()
     }
 
     fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
         val query = """
-            insert into events(topic, key, "offset", payload) values(?, ?, ?, ? ::jsonb) on conflict do nothing
+            insert into events(topic, key, record_offset, payload) values(?, ?, ?, ? ::jsonb) on conflict do nothing
         """.trimIndent()
         session.run(queryOf(query, topic, key, offset, payload).asUpdate)
+        logger.debug("Persisted kafka event: $topic:$key:$offset")
     }
-
-    data class Event(
-        val id: Int?,
-        val topic: String,
-        val key: String,
-        val offset: Long,
-        val payload: JsonElement
-    )
 }
