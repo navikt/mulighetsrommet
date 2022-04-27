@@ -6,7 +6,6 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import org.apache.kafka.common.TopicPartition
 
-
 class KafkaConsumerRepository(private val db: Database) :
     KafkaConsumerRepository {
     override fun storeRecord(record: StoredConsumerRecord): Long {
@@ -80,7 +79,6 @@ class KafkaConsumerRepository(private val db: Database) :
         val query = """
             select distinct topic, partition from failed_events where topic = any(?)
         """.trimIndent()
-
 
         val topicsArray = db.session.createArrayOf("varchar", topics)
 

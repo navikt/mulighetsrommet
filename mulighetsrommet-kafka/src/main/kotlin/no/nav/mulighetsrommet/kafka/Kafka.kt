@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
 
-
 class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Database, client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(Kafka::class.java)
@@ -26,7 +25,6 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
 
     private val tiltakEndretConsumer = TiltakEndretConsumer(client)
     private val tiltakgjennomforingEndretConsumer = TiltakgjennomforingEndretConsumer(client)
-
 
     init {
         logger.debug("Initializing Kafka")
