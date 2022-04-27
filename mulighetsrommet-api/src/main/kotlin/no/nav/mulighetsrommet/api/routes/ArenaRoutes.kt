@@ -71,9 +71,9 @@ fun Route.arenaRoutes() {
             call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
         }
     }
-    put("/api/arena/deltakere/{arenaTiltaksgjennomforingId}") {
+    put("/api/arena/deltakere/{arenaId}") {
         runCatching {
-            val arenaId = call.parameters["arenaTiltaksgjennomforingId"]!!.toInt()
+            val arenaId = call.parameters["arenaId"]!!.toInt()
             val deltaker = call.receive<Deltaker>()
             arenaService.updateDeltaker(arenaId, deltaker)
         }.onSuccess { updatedDeltaker ->

@@ -81,22 +81,23 @@ class ArenaService(private val db: Database, private val logger: Logger) {
 
     fun createDeltaker(deltaker: Deltaker): Deltaker {
         val query = """
-            insert into deltaker (tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status) values (?, ?, ?, ?, ?::deltakerstatus) returning *
+            insert into deltaker (arena_id, tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status) values (?, ?, ?, ?, ?, ?::deltakerstatus) returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
+            deltaker.arenaId,
             deltaker.tiltaksgjennomforingId,
             deltaker.personId,
             deltaker.fraDato,
             deltaker.tilDato,
-            deltaker.status
+            deltaker.status.name
         ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
-    fun updateDeltaker(tiltaksgjennomforingId: Int, deltaker: Deltaker): Deltaker {
+    fun updateDeltaker(arenaId: Int, deltaker: Deltaker): Deltaker {
         val query = """
-            update deltaker set tiltaksgjennomforing_id = ?, person_id = ?, fra_dato = ?, til_dato = ?, status = ?::deltakerstatus where tiltaksgjennomforing_id = ? and personId = ? returning *
+            update deltaker set tiltaksgjennomforing_id = ?, person_id = ?, fra_dato = ?, til_dato = ?, status = ?::deltakerstatus where arena_id = ? returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
@@ -105,8 +106,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             deltaker.fraDato,
             deltaker.tilDato,
             deltaker.status.name,
-            tiltaksgjennomforingId,
-            deltaker.personId
+            arenaId,
         ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
         return db.session.run(queryResult)!!
     }

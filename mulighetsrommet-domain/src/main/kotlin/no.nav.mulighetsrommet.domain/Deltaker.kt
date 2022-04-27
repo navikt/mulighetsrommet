@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
 enum class Deltakerstatus {
+    IKKE_AKTUELL,
     VENTER,
     DELTAR,
     AVSLUTTET
@@ -12,6 +13,7 @@ enum class Deltakerstatus {
 @Serializable
 data class Deltaker(
     val id: Int? = null,
+    val arenaId: Int,
     val tiltaksgjennomforingId: Int,
     val personId: Int,
     @Serializable(with = DateSerializer::class)
