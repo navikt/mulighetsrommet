@@ -38,11 +38,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-          cache: gradle
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
       - name: Set up test environment
         run: docker-compose up -d
       - name: Build with Gradle
-        run: ./gradlew build --info
+        run: ./gradlew build
       - name: Publish test report
         uses: ScaCap/action-surefire-report@v1
         with:
