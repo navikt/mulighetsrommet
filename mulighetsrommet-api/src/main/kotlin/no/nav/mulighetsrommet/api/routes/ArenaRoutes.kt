@@ -6,6 +6,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import no.nav.mulighetsrommet.api.services.ArenaService
+import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
@@ -57,6 +58,28 @@ fun Route.arenaRoutes() {
             call.respond(updatedTiltaksgjennomforing)
         }.onFailure {
             call.respondText("Kunne ikke oppdatere tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
+        }
+    }
+    post("/api/arena/deltakere") {
+        runCatching {
+            val deltaker = call.receive<Deltaker>()
+            arenaService.createDeltaker(deltaker)
+        }.onSuccess { createdDeltaker ->
+            call.response.status(HttpStatusCode.Created)
+            call.respond(createdDeltaker)
+        }.onFailure {
+            call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
+        }
+    }
+    put("/api/arena/deltakere/{arenaTiltaksgjennomforingId}") {
+        runCatching {
+            val arenaId = call.parameters["arenaTiltaksgjennomforingId"]!!.toInt()
+            val deltaker = call.receive<Deltaker>()
+            arenaService.updateDeltaker(arenaId, deltaker)
+        }.onSuccess { updatedDeltaker ->
+            call.respond(updatedDeltaker)
+        }.onFailure {
+            call.respondText("Kunne ikke oppdatere deltaker", status = HttpStatusCode.InternalServerError)
         }
     }
 }

@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.utils
 
 import kotliquery.Row
-import no.nav.mulighetsrommet.domain.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.*
 
 object DatabaseMapper {
 
@@ -37,5 +34,14 @@ object DatabaseMapper {
         id = row.int("id"),
         tittel = row.string("tittel"),
         beskrivelse = row.string("beskrivelse")
+    )
+
+    fun toDeltaker(row: Row): Deltaker = Deltaker(
+        id = row.int("id"),
+        tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
+        personId = row.int("person_id"),
+        fraDato = row.localDateTimeOrNull("fra_dato"),
+        tilDato = row.localDateTimeOrNull("til_dato"),
+        status = Deltakerstatus.valueOf(row.string("status"))
     )
 }
