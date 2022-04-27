@@ -36,7 +36,6 @@ fun Route.tiltaksgjennomforingRoutes() {
             call.response.status(HttpStatusCode.Created)
             call.respond(createdTiltakstype)
         }.onFailure {
-            it.printStackTrace()
             call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -48,7 +47,6 @@ fun Route.tiltaksgjennomforingRoutes() {
         }.onSuccess { updatedTiltakstype ->
             call.respond(updatedTiltakstype)
         }.onFailure {
-            it.printStackTrace()
             call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
         }
     }

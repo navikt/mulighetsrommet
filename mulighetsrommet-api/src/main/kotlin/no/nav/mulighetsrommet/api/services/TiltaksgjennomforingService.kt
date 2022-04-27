@@ -66,9 +66,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             tiltaksgjennomforing.tilDato,
             arenaId
         ).asExecute.query.map { toTiltaksgjennomforing(it) }.asSingle
-        val lol = db.session.run(queryResult)!!
-        return lol
-//        return db.session.run(queryResult)!!
+        return db.session.run(queryResult)!!
     }
 
     private fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =

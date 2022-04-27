@@ -51,7 +51,6 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
             .build()
 
         consumerRecordProcessor.start()
-        consumerRecordProcessor.close()
         logger.debug("Starting kafka consumer record processor")
     }
 
