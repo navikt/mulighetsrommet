@@ -44,20 +44,20 @@ fun Route.arenaRoutes() {
         runCatching {
             val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
             arenaService.createTiltaksgjennomforing(tiltaksgjennomforing)
-        }.onSuccess { createdTiltakstype ->
+        }.onSuccess { createdTiltaksgjennomforing ->
             call.response.status(HttpStatusCode.Created)
-            call.respond(createdTiltakstype)
+            call.respond(createdTiltaksgjennomforing)
         }.onFailure {
             call.respondText("Kunne ikke opprette tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
         }
     }
     put("/api/arena/tiltaksgjennomforinger/{arenaId}") {
         runCatching {
-            val arenaId = call.parameters["id"]!!.toInt()
+            val arenaId = call.parameters["arenaId"]!!.toInt()
             val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
             arenaService.updateTiltaksgjennomforing(arenaId, tiltaksgjennomforing)
-        }.onSuccess { updatedTiltakstype ->
-            call.respond(updatedTiltakstype)
+        }.onSuccess { updatedTiltaksgjennomforing ->
+            call.respond(updatedTiltaksgjennomforing)
         }.onFailure {
             call.respondText("Kunne ikke oppdatere tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
         }
