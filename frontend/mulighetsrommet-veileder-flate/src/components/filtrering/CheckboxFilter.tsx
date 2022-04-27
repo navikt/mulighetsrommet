@@ -30,17 +30,17 @@ const CheckboxFilter = ({
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
       : valgteTypeIDer.filter((id: number) => id !== value);
-    setOptions(data?.filter((type: any) => valgteTyper.includes(type.id)) ?? []);
+    setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
   };
 
-  const sortertListe = (data: any[]) => {
+  const sortertListe = () => {
     return data
       .sort(function (a: { tittel: number }, b: { tittel: number }) {
         if (a.tittel < b.tittel) return -1;
         else if (a.tittel > b.tittel) return 1;
         else return 0;
       })
-      .map((filtertype: any) => (
+      .map(filtertype => (
         <Checkbox key={filtertype.id} value={filtertype.id.toString()} onChange={handleFjernFilter}>
           {filtertype.tittel}
         </Checkbox>
@@ -56,8 +56,8 @@ const CheckboxFilter = ({
           {data && (
             <CheckboxGroup legend="" hideLegend size="small" value={valgteTypeIDer.map(String)}>
               {sortert
-                ? sortertListe(data)
-                : data.map((filtertype: any) => (
+                ? sortertListe()
+                : data.map(filtertype => (
                     <Checkbox key={filtertype.id} value={filtertype.id.toString()} onChange={handleFjernFilter}>
                       {filtertype.tittel}
                     </Checkbox>
