@@ -4,9 +4,9 @@ import './Filtermeny.less';
 
 interface CheckboxFilterProps {
   accordionNavn: string;
-  typeFilter: any[];
-  setTypeFilter: (type: any[]) => void;
-  data: any;
+  options: [];
+  setOptions: (type: object) => void;
+  data: [];
   isLoading: boolean;
   isError: boolean;
   defaultOpen?: boolean;
@@ -15,34 +15,30 @@ interface CheckboxFilterProps {
 
 const CheckboxFilter = ({
   accordionNavn,
-  typeFilter,
-  setTypeFilter,
+  options,
+  setOptions,
   data,
   isLoading,
   isError,
   defaultOpen = false,
   sortert = false,
 }: CheckboxFilterProps) => {
-  const valgteTypeIDer = typeFilter!.map(type => type.id);
+  const valgteTypeIDer = options!.map((type: any) => type.id);
 
   const handleFjernFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
-      : valgteTypeIDer.filter(id => id !== value);
-    setTypeFilter(data?.filter((type: { id: any }) => valgteTyper.includes(type.id)) ?? []);
+      : valgteTypeIDer.filter((id: number) => id !== value);
+    setOptions(data?.filter((type: any) => valgteTyper.includes(type.id)) ?? []);
   };
 
   const sortertListe = (data: []) => {
     return data
       .sort(function (a: { tittel: number }, b: { tittel: number }) {
-        if (a.tittel < b.tittel) {
-          return -1;
-        }
-        if (a.tittel > b.tittel) {
-          return 1;
-        }
-        return 0;
+        if (a.tittel < b.tittel) return -1;
+        else if (a.tittel > b.tittel) return 1;
+        else return 0;
       })
       .map((filtertype: any) => (
         <Checkbox key={filtertype.id} value={filtertype.id.toString()} onChange={handleFjernFilter}>

@@ -45,7 +45,9 @@ paths:
         - in: query
           name: innsatsgrupper
           schema:
-            type: number
+            type: array
+            items:
+              type: number
           description: Innsatsgruppefilter
           style: form
           explode: false

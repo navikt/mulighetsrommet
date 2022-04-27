@@ -21,8 +21,8 @@ const Filtermeny = () => {
       <Searchfield sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
       <CheckboxFilter
         accordionNavn="Innsatsgrupper"
-        typeFilter={filter.innsatsgrupper!}
-        setTypeFilter={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
+        options={filter.innsatsgrupper!}
+        setOptions={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
         data={innsatsgrupper.data}
         isLoading={innsatsgrupper.isLoading}
         isError={innsatsgrupper.isError}
@@ -30,8 +30,8 @@ const Filtermeny = () => {
       />
       <CheckboxFilter
         accordionNavn="Tiltakstyper"
-        typeFilter={filter.tiltakstyper!}
-        setTypeFilter={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
+        options={filter.tiltakstyper!}
+        setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
         data={
           tiltakstyper.data?.map(tiltakstype => {
             return {

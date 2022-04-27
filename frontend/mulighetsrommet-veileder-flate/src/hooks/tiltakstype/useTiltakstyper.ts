@@ -7,7 +7,7 @@ export default function useTiltakstyper(filter: Tiltaksgjennomforingsfilter = {}
   return useQuery<Tiltakstype[]>([QueryKeys.Tiltakstyper, filter], () =>
     MulighetsrommetService.getTiltakstyper({
       ...filter,
-      innsatsgrupper: undefined,
+      innsatsgrupper: filter.innsatsgrupper?.map(gruppe => gruppe.id),
     })
   );
 }

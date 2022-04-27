@@ -34,7 +34,7 @@ export class MulighetsrommetService {
         /** Search for tiltakstyper **/
         search?: string,
         /** Innsatsgruppefilter **/
-        innsatsgrupper?: number,
+        innsatsgrupper?: Array<number>,
     }): CancelablePromise<Array<Tiltakstype>> {
         return __request(OpenAPI, {
             method: 'GET',
