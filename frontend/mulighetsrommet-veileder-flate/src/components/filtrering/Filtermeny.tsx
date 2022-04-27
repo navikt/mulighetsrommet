@@ -23,7 +23,7 @@ const Filtermeny = () => {
         accordionNavn="Innsatsgrupper"
         options={filter.innsatsgrupper!}
         setOptions={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
-        data={innsatsgrupper.data}
+        data={innsatsgrupper.data!}
         isLoading={innsatsgrupper.isLoading}
         isError={innsatsgrupper.isError}
         defaultOpen

@@ -4,9 +4,9 @@ import './Filtermeny.less';
 
 interface CheckboxFilterProps {
   accordionNavn: string;
-  options: [];
-  setOptions: (type: object) => void;
-  data: [];
+  options: object[];
+  setOptions: (type: any[]) => void;
+  data: any[];
   isLoading: boolean;
   isError: boolean;
   defaultOpen?: boolean;
@@ -33,7 +33,7 @@ const CheckboxFilter = ({
     setOptions(data?.filter((type: any) => valgteTyper.includes(type.id)) ?? []);
   };
 
-  const sortertListe = (data: []) => {
+  const sortertListe = (data: any[]) => {
     return data
       .sort(function (a: { tittel: number }, b: { tittel: number }) {
         if (a.tittel < b.tittel) return -1;
