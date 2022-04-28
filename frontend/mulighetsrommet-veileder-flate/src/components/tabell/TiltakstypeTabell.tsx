@@ -4,6 +4,9 @@ import './Tabell.less';
 import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
+import StatusGronn from '../../ikoner/Sirkel-gronn.png';
+import StatusGul from '../../ikoner/Sirkel-gul.png';
+import StatusRod from '../../ikoner/Sirkel-rod.png';
 
 export interface TiltakstypelisteProps {
   tiltaksgjennomforingsliste: Array<Tiltaksgjennomforing>;
@@ -12,8 +15,33 @@ export interface TiltakstypelisteProps {
 const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps) => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
+  const rowsPerPage = 15;
 
+  const tilgjengelighetsstatus = (status: string) => {
+    //TODO endre denne når vi får inn data fra Arena
+    if (status === 'Åpent') {
+      return (
+        <div className="tabell__tilgjengelighetsstatus">
+          <img src={StatusGronn} />
+          <div>Åpent</div>
+        </div>
+      );
+    } else if (status === 'Stengt') {
+      return (
+        <div className="tabell__tilgjengelighetsstatus">
+          <img src={StatusRod} />
+          <div>Stengt</div>
+        </div>
+      );
+    } else if (status === 'Venteliste') {
+      return (
+        <div className="tabell__tilgjengelighetsstatus">
+          <img src={StatusGul} />
+          <div>Venteliste</div>
+        </div>
+      );
+    }
+  };
   return (
     <div className="w-full flex flex-col gap-4">
       <Table
@@ -101,7 +129,7 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
                   <Table.DataCell>
                     {fraDato ? new Intl.DateTimeFormat().format(new Date(fraDato)) : 'Mangler dato'}
                   </Table.DataCell>
-                  <Table.DataCell>Status</Table.DataCell>
+                  <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
                 </Table.Row>
               ))
           )}
