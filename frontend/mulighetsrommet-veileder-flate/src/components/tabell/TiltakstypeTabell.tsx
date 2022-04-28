@@ -22,21 +22,21 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
     if (status === 'Åpent') {
       return (
         <div className="tabell__tilgjengelighetsstatus">
-          <img src={StatusGronn} />
+          <img src={StatusGronn} alt="Grønt sirkelikon" />
           <div>Åpent</div>
         </div>
       );
     } else if (status === 'Stengt') {
       return (
         <div className="tabell__tilgjengelighetsstatus">
-          <img src={StatusRod} />
+          <img src={StatusRod} alt="Rødt sirkelikon" />
           <div>Stengt</div>
         </div>
       );
     } else if (status === 'Venteliste') {
       return (
         <div className="tabell__tilgjengelighetsstatus">
-          <img src={StatusGul} />
+          <img src={StatusGul} alt="Gult sirkelikon" />
           <div>Venteliste</div>
         </div>
       );
