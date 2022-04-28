@@ -68,5 +68,4 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
         ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
-
 }
