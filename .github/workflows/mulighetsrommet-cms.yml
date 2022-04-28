@@ -1,0 +1,15 @@
+name: Deploy mulighetsrommet-cms
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Deploy
+        run: npx turbo run mulighetsrommet-cms#deploy
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}

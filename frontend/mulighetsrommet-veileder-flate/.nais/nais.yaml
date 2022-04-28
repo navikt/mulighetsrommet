@@ -6,9 +6,11 @@ metadata:
   labels:
     team: team-mulighetsrommet
   annotations:
+    # Disable security context
+    # Ser ut til å være nødvendig for nginx-imaget
     nais.io/security-does-not-matter: "true"
 spec:
-  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-{{image_label}}:{{image_tag}}
+  image: {{image}}
   port: 8080
   {{#if ingresses}}
   ingresses:

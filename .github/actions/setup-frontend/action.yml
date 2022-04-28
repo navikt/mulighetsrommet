@@ -1,0 +1,20 @@
+name: Setup frontend
+description: Steps for setup of the frontend modules
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+        cache: npm
+    - run: npm ci
+      shell: bash
+    - name: Cache Turborepo
+      uses: actions/cache@v3
+      with:
+        path: node_modules/.cache/turbo
+        key: turborepo-${{ github.ref_name }}-${{ github.sha }}
+        restore-keys: |
+          turborepo-${{ github.ref_name }}-
+          turborepo-
