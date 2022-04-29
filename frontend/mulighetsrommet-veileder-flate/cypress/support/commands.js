@@ -40,6 +40,21 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
   return cy.get(`[data-testid=${selector}]`, ...args);
 });
 
+Cypress.Commands.add('velgFilter', filternavn => {
+  cy.getByTestId(`filter_checkbox_${filternavn}`).should('not.be.checked').click().should('be.checked');
+  cy.getByTestId(`filtertag_${filternavn}`).should('exist');
+});
+
+Cypress.Commands.add('apneLukketFilterAccordion', (filternavn, apne) => {
+  if (apne) {
+    cy.getByTestId(`filter_accordionheader_${filternavn}`).click();
+    cy.getByTestId(`filter_accordioncontent_${filternavn}`).should('exist');
+  } else {
+    cy.getByTestId(`filter_accordioncontent_${filternavn}`).should('exist');
+    cy.getByTestId(`filter_accordionheader_${filternavn}`).click();
+  }
+});
+
 Cypress.Commands.add('tilbakeTilListevisning', () => {
   cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
 });

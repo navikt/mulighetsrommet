@@ -35,7 +35,7 @@ const ViewTiltakstypeOversikt = () => {
         <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
           <Filtermeny />
           <div className="filtercontainer">
-            <div className="filtertags">
+            <div className="filtertags" data-testid="filtertags">
               <FilterTags
                 options={filter.innsatsgrupper!}
                 handleClick={(id: number) =>
@@ -58,7 +58,12 @@ const ViewTiltakstypeOversikt = () => {
             </div>
             <Show if={filter !== tiltaksgjennomforingsfilter.init}>
               <div className="tilbakestill-filter-knapp">
-                <Button size="small" variant="secondary" onClick={() => setFilter(tiltaksgjennomforingsfilter.init)}>
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={() => setFilter(tiltaksgjennomforingsfilter.init)}
+                  data-testid="knapp_tilbakestill-filter"
+                >
                   Tilbakestill filter
                 </Button>
               </div>
@@ -67,7 +72,7 @@ const ViewTiltakstypeOversikt = () => {
           <div className="tiltakstype-oversikt__tiltak">
             {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
             {data && <TiltakstypeTabell tiltaksgjennomforingsliste={data} />}
-            {isError && <Alert variant="error">En feil oppstod. Vi har problemer med å hente tiltakstypene.</Alert>}
+            {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
           </div>
         </div>
       )}
