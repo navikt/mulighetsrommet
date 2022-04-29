@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './ViewTiltakstypeOversikt.less';
 import '../../layouts/MainView.less';
-import { Alert, Loader } from '@navikt/ds-react';
+import { Alert, Button, Loader } from '@navikt/ds-react';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
 import { useAtom } from 'jotai';
@@ -10,6 +10,7 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import FilterTags from '../../components/tags/Filtertags';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
+import Show from '../../utils/Show';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -19,12 +20,17 @@ const ViewTiltakstypeOversikt = () => {
 
   const { data, isFetching, isError } = useTiltaksgjennomforinger(filter);
 
+  //TODO fiks denne når vi får inn prefiltrering
+  useEffect(() => {
+    if (filter.tiltakstyper?.length === 0 && filter.innsatsgrupper?.length === 0) {
+      setFilter(tiltaksgjennomforingsfilter.init);
+    }
+  }, [filter.tiltakstyper, filter.innsatsgrupper]);
+
   return (
     <>
       {visFakeDoorFeature ? (
-        <Alert variant="info">
-          Ååååja, så du tror at hvis du trykker på en knapp så skjer det ting automatisk, du da?
-        </Alert>
+        <Alert variant="info">Her kommer det noe spennende!</Alert>
       ) : (
         <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
           <Filtermeny />
@@ -50,6 +56,13 @@ const ViewTiltakstypeOversikt = () => {
               />
               <SearchFieldTag />
             </div>
+            <Show if={filter !== tiltaksgjennomforingsfilter.init}>
+              <div className="tilbakestill-filter-knapp">
+                <Button size="small" variant="secondary" onClick={() => setFilter(tiltaksgjennomforingsfilter.init)}>
+                  Tilbakestill filter
+                </Button>
+              </div>
+            </Show>
           </div>
           <div className="tiltakstype-oversikt__tiltak">
             {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
