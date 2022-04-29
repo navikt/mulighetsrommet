@@ -68,7 +68,6 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
               sortKey="navn"
               sortable
               className="tabell__kolonne__tiltaksnavn"
-              // data-testid={`tabellheader_tiltaksnavn_${sort !== undefined ? sort.direction : undefined}`}
               data-testid="tabellheader_tiltaksnavn"
             >
               Tiltaksnavn
