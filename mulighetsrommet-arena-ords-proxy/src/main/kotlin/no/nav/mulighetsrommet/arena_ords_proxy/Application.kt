@@ -6,6 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.arena_ords_proxy.plugins.*
+import no.nav.mulighetsrommet.arena_ords_proxy.routes.arenaOrdsRoutes
 import no.nav.mulighetsrommet.arena_ords_proxy.routes.internalRoutes
 import org.slf4j.LoggerFactory
 
@@ -37,8 +38,10 @@ fun Application.configure(appConfig: AppConfig) {
     configureHTTP()
     configureMonitoring()
     configureSerialization()
+    configureErrorHandling()
 
     routing {
         internalRoutes()
+        arenaOrdsRoutes()
     }
 }

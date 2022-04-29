@@ -5,17 +5,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import no.nav.mulighetsrommet.arena_ords_proxy.plugins.configureRouting
 
 class ApplicationTest {
     @Test
     fun testRoot() = testApplication {
-        application {
-            configureRouting()
-        }
-        client.get("/").apply {
+        client.get("/internal/ping").apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertEquals("Hello World!", bodyAsText())
+            assertEquals("PONG", bodyAsText())
         }
     }
 }
