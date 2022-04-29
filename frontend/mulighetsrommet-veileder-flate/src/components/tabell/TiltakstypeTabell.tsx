@@ -64,7 +64,12 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
       >
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader sortKey="navn" sortable className="tabell__kolonne__tiltaksnavn">
+            <Table.ColumnHeader
+              sortKey="navn"
+              sortable
+              className="tabell__kolonne__tiltaksnavn"
+              data-testid="tabellheader_tiltaksnavn"
+            >
               Tiltaksnavn
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="id" sortable className="tabell__kolonne__tiltaksnummer">
@@ -120,7 +125,7 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
                     </Lenke>
                     <div>{'Leverandør'}</div>
                   </Table.DataCell>
-                  <Table.DataCell className="tabell__tiltaksnummer">
+                  <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
                     {tiltaksnummer}
                     <Kopiknapp kopitekst={tiltaksnummer!} />
                   </Table.DataCell>

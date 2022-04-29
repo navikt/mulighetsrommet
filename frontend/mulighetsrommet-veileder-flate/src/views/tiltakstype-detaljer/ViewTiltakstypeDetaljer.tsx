@@ -20,7 +20,7 @@ const ViewTiltakstypeDetaljer = () => {
   const tiltakstype = useTiltakstype(params.tiltakskode);
 
   if (tiltakstype.isError) {
-    return <Alert variant="error">Det skjedde en feil</Alert>;
+    return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
   if (tiltakstype.isLoading) {

@@ -38,6 +38,7 @@ const Kopiknapp = ({ kopitekst }: KopiknappProps) => {
         onClick={e => {
           copyToClipboard(kopitekst, e);
         }}
+        data-testid="knapp_kopier"
       >
         {hover ? <CopyFilled aria-label="Kopiknapp" /> : <Copy aria-label="Kopiknapp" />}
       </Button>
