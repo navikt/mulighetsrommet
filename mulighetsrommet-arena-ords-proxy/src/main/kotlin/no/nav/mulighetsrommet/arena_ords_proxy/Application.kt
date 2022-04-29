@@ -33,7 +33,6 @@ fun initializeServer(config: Config) {
     server.start(true)
 }
 
-@Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
 fun Application.configure(appConfig: AppConfig) {
     configureHTTP()
     configureMonitoring()
