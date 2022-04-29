@@ -1,46 +1,23 @@
 import React from 'react';
+import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
 import './Statistikk.less';
-import StatistikkBolk from './StatistikkBolk';
-import { Tag } from '@navikt/ds-react';
 
 interface StatistikkProps {
-  innsatsgruppe: number | null | undefined;
+  tittel: string;
+  hjelpetekst: string;
+  statistikktekst: any;
 }
-const Statistikk = ({ innsatsgruppe }: StatistikkProps) => {
-  const velgInnsatsgruppe = () => {
-    if (innsatsgruppe === 1) {
-      return <Tag variant="info">Si</Tag>;
-    } else if (innsatsgruppe === 2) {
-      return <Tag variant="info">Sbi</Tag>;
-    } else if (innsatsgruppe === 3) {
-      return <Tag variant="info">Sti</Tag>;
-    } else if (innsatsgruppe === 4) {
-      return <Tag variant="info">Vti</Tag>;
-    }
-  };
 
+const Statistikk = ({ tittel, hjelpetekst, statistikktekst }: StatistikkProps) => {
   return (
     <div className="statistikk">
-      <StatistikkBolk
-        tittel="Overgang til arbeid"
-        hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
-        statistikktekst="0%"
-      />
-      <StatistikkBolk
-        tittel="Oppstart"
-        hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
-        statistikktekst="Løpende"
-      />
-      <StatistikkBolk
-        tittel="Varighet"
-        hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
-        statistikktekst="8 uker"
-      />
-      <StatistikkBolk
-        tittel="Innsatsgruppe"
-        hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
-        statistikktekst={velgInnsatsgruppe()}
-      />
+      <div className="statistikk__heading">
+        <Heading size="xsmall" level="3">
+          {tittel}
+        </Heading>
+        <HelpText title="Hva er dette?">{hjelpetekst}</HelpText>
+      </div>
+      <BodyShort>{statistikktekst}</BodyShort>
     </div>
   );
 };
