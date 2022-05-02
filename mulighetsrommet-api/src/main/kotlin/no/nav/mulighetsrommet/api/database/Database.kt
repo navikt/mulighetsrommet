@@ -39,4 +39,8 @@ class Database(databaseConfig: DatabaseConfig) {
 
         session = sessionOf(db)
     }
+
+    fun clean() {
+        flyway.clean()
+    }
 }
