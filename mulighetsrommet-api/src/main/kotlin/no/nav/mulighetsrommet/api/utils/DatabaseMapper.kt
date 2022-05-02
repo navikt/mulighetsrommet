@@ -15,8 +15,8 @@ object DatabaseMapper {
             innsatsgruppe = row.int("innsatsgruppe_id"),
             sanityId = row.intOrNull("sanity_id"),
             tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
-            fraDato = row.localDateTime("fra_dato"),
-            tilDato = row.localDateTime("til_dato"),
+            fraDato = row.localDateTimeOrNull("fra_dato"),
+            tilDato = row.localDateTimeOrNull("til_dato"),
         )
 
     fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
