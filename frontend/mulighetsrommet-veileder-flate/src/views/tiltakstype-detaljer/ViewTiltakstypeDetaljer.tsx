@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 import '../ViewTiltakstype-tiltaksgjennomforing-detaljer.less';
 import { Alert, Loader } from '@navikt/ds-react';
 import useTiltakstype from '../../hooks/tiltakstype/useTiltakstype';
-import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import MainViewTitle from '../../layouts/MainViewTitle';
+import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
-import Statistikk from '../../components/statistikk/Statistikk';
 import { Tiltakskode } from '../../../../mulighetsrommet-api-client';
+import Statistikk from '../../components/statistikk/Statistikk';
+import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 
 interface RouteParams {
   tiltakskode: Tiltakskode;
@@ -17,6 +17,7 @@ interface RouteParams {
 const ViewTiltakstypeDetaljer = () => {
   const params = useParams<RouteParams>();
 
+  //TODO legg inn tiltaksgjennomføring når den er klar
   const tiltakstype = useTiltakstype(params.tiltakskode);
 
   if (tiltakstype.isError) {
@@ -31,18 +32,29 @@ const ViewTiltakstypeDetaljer = () => {
     return <Alert variant="warning">Nå er det noe rusk i maskineriet...</Alert>;
   }
 
-  const { navn, innsatsgruppe } = tiltakstype.data;
+  const { navn, tiltakskode, innsatsgruppe, fraDato } = tiltakstype.data;
 
   return (
     <div className="tiltakstype-detaljer">
       <Tilbakeknapp tilbakelenke="./" />
       <div className="tiltakstype-detaljer__info">
-        <MainViewTitle title={navn} tiltakstype={navn} />
-        <Statistikk innsatsgruppe={innsatsgruppe} />
+        <TiltaksgjennomforingsHeader title={navn} tiltakstype={navn} />
+        <Statistikk
+          tittel="Overgang til arbeid"
+          hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
+          statistikktekst="69%"
+        />
 
         <TiltaksdetaljerFane />
       </div>
-      <SidemenyDetaljer />
+      <SidemenyDetaljer
+        tiltaksnummer={tiltakskode}
+        tiltakstype={tiltakskode}
+        innsatsgruppe={innsatsgruppe}
+        leverandor={'Leverandør'}
+        oppstartsdato={fraDato}
+        beskrivelse={'lorem ipsum'}
+      />
     </div>
   );
 };

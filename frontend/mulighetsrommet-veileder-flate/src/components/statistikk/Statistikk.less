@@ -1,31 +1,25 @@
 .mulighetsrommet-veileder-flate {
   .statistikk {
+    width: 40%;
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-right: 1px solid var(--navds-semantic-color-border-muted);
+    padding: 0.5rem 2%;
 
-    &__bolk {
-      width: 30%;
+    &__heading {
       display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      border-left: 1px solid var(--navds-semantic-color-border-muted);
-      padding: 0.5rem 2%;
+      flex-direction: row;
+      gap: 2rem;
 
-      &__heading {
-        display: flex;
-        flex-direction: row;
-        gap: 2rem;
-
-        .navds-heading {
-          font-weight: unset;
-        }
+      .navds-heading {
+        font-weight: unset;
       }
+    }
 
-      .navds-body-short {
-        font-size: 32px;
-        line-height: unset;
-      }
+    .navds-body-short {
+      font-size: 32px;
+      line-height: unset;
     }
   }
 }

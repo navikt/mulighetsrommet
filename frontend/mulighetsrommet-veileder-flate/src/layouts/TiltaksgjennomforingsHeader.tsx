@@ -3,19 +3,19 @@ import './MainView.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
 
-interface MainViewTitleProps {
+interface TiltaksgjennomforingsHeaderProps {
   title: string;
   arrangor?: string;
   tiltakstype: string;
 }
 
-function MainViewTitle({ title, arrangor, tiltakstype }: MainViewTitleProps) {
+function TiltaksgjennomforingsHeader({ title, arrangor, tiltakstype }: TiltaksgjennomforingsHeaderProps) {
   return (
-    <div className="main-view__title">
-      <Heading level="1" size="xlarge" data-testid={`main-view-header_${kebabCase(title)}`}>
+    <div className="tiltaksgjennomforing__title">
+      <Heading level="1" size="xlarge" data-testid={`tiltaksgjennomforing-header_${kebabCase(title)}`}>
         {title}
       </Heading>
-      <div className="main-view__subtitle-container">
+      <div className="tiltaksgjennomforing__subtitle-container">
         {arrangor && (
           <Heading level="2" size="xsmall">
             {arrangor}
@@ -29,4 +29,4 @@ function MainViewTitle({ title, arrangor, tiltakstype }: MainViewTitleProps) {
   );
 }
 
-export default MainViewTitle;
+export default TiltaksgjennomforingsHeader;
