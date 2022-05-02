@@ -2,7 +2,7 @@ import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { Innsatsgruppe, Tiltakskode } from '../../../../mulighetsrommet-api-client';
+import { Tiltakskode } from '../../../../mulighetsrommet-api-client';
 
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;
