@@ -14,5 +14,4 @@ app:
     azure:
       issuer: ${AZURE_OPENID_CONFIG_ISSUER:-http://localhost:8081/azure}
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI:-http://localhost:8081/azure/jwks}
-      discoveryUrl: ${AZURE_APP_WELL_KNOWN_URL:-http://localhost:8081/azure/.well-known/openid-configuration}
       audience: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}

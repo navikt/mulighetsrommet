@@ -29,6 +29,5 @@ data class DatabaseConfig(
 data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
-    val discoveryUrl: String,
     val audience: String
 )

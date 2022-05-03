@@ -21,7 +21,6 @@ fun createTestApplicationConfig() = AppConfig(
         "azure" to AuthProvider(
             issuer = "http://localhost:8081/azure",
             jwksUri = "http://localhost:8081/azure/jwks",
-            discoveryUrl = "http://localhost:8081/azure/.well-known/openid-configuration",
             audience = "mulighetsrommet-api"
         )
     )
