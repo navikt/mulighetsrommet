@@ -11,7 +11,9 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: Tiltakskode): List<Tiltaksgjennomforing> {
         val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where tiltakskode::text = ?
+            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            from tiltaksgjennomforing
+            where tiltakskode::text = ?
         """.trimIndent()
         val queryResult = queryOf(query, tiltakskode.name).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
@@ -19,7 +21,9 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
         val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing where id = ?
+            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            from tiltaksgjennomforing
+            where id = ?
         """.trimIndent()
         val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)
@@ -27,7 +31,8 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
         val query = """
-            select id, tittel, beskrivelse, tiltaksnummer, tiltakskode, fra_dato, til_dato from tiltaksgjennomforing
+            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            from tiltaksgjennomforing
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
@@ -35,7 +40,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun createTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
         val query = """
-            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sanity_id, fra_dato, til_dato, sak_id) values (?, ?, ?::tiltakskode, ?, ?, ?, ?, ?, ?) returning *
+            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sak_id, sanity_id, fra_dato, til_dato) values (?, ?, ?::tiltakskode, ?, ?, ?, ?, ?, ?) returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
@@ -44,23 +49,25 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             tiltaksgjennomforing.tiltakskode.name,
             tiltaksgjennomforing.tiltaksnummer,
             tiltaksgjennomforing.arenaId,
+            tiltaksgjennomforing.sakId,
             tiltaksgjennomforing.sanityId,
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,
-            tiltaksgjennomforing.sakId
         ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
     fun updateTiltaksgjennomforing(arenaId: Int, tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
         val query = """
-            update tiltaksgjennomforing set navn = ?, arrangor_id = ?, tiltakskode = ?::tiltakskode, sanity_id = ?, fra_dato = ?, til_dato = ? where arena_id = ? returning *
+            update tiltaksgjennomforing set navn = ?, arrangor_id = ?, tiltakskode = ?::tiltakskode, tiltaksnummer = ?, sak_id = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where arena_id = ? returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
             tiltaksgjennomforing.navn,
             tiltaksgjennomforing.arrangorId,
             tiltaksgjennomforing.tiltakskode.name,
+            tiltaksgjennomforing.tiltaksnummer,
+            tiltaksgjennomforing.sakId,
             tiltaksgjennomforing.sanityId,
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,

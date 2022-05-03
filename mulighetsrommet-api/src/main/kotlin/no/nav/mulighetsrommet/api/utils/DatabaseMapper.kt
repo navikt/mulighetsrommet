@@ -27,10 +27,10 @@ object DatabaseMapper {
             arrangorId = row.intOrNull("arrangor_id"),
             tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
             arenaId = row.int("arena_id"),
+            sakId = row.int("sak_id"),
             sanityId = row.intOrNull("sanity_id"),
             fraDato = row.localDateTimeOrNull("fra_dato"),
             tilDato = row.localDateTimeOrNull("til_dato"),
-            sakId = row.int("sak_id")
         )
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
