@@ -48,7 +48,7 @@ fun Application.configure(config: AppConfig) {
         internalRoutes()
         swaggerRoutes()
 
-        authenticate("mulighetsrommet-auth") {
+        authenticate {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             innsatsgruppeRoutes()

@@ -14,7 +14,7 @@ data class ServerConfig(
 
 data class AppConfig(
     val database: DatabaseConfig,
-    val auth: Map<String, AuthProvider>
+    val auth: AuthConfig
 )
 
 data class DatabaseConfig(
@@ -24,6 +24,10 @@ data class DatabaseConfig(
     val schema: String?,
     val user: String,
     val password: Masked
+)
+
+data class AuthConfig(
+    val azure: AuthProvider
 )
 
 data class AuthProvider(

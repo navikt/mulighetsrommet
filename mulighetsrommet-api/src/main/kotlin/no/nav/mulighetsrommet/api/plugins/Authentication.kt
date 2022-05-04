@@ -4,23 +4,18 @@ import com.auth0.jwk.UrlJwkProvider
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
-import io.ktor.request.*
-import no.nav.mulighetsrommet.api.AuthProvider
+import no.nav.mulighetsrommet.api.AuthConfig
 import java.net.URI
 
-fun Application.configureAuthentication(auth: Map<String, AuthProvider>) {
+fun Application.configureAuthentication(auth: AuthConfig) {
+    val (azure) = auth
 
     install(Authentication) {
-        jwt("mulighetsrommet-auth") {
-            val config = auth.getOrElse("azure") { throw RuntimeException("Azure auth provider is missing") }
+        jwt {
+            val jwkProvider = UrlJwkProvider(URI(azure.jwksUri).toURL())
 
-            val jwkProvider = UrlJwkProvider(URI(config.jwksUri).toURL())
-
-            // TODO: Include realm?
-            // realm = config.application.name
-
-            verifier(jwkProvider, config.issuer) {
-                withAudience(config.audience)
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
             }
 
             validate { credentials ->

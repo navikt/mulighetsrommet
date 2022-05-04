@@ -1,11 +1,12 @@
 package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.withTestApplication
+import io.ktor.server.testing.*
+import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun <R> withMulighetsrommetApp(
-    config: AppConfig = createTestApplicationConfig(),
+    oauth: MockOAuth2Server = MockOAuth2Server(),
+    config: AppConfig = createTestApplicationConfig(oauth),
     test: TestApplicationEngine.() -> R
 ): R {
     return withTestApplication({
@@ -15,15 +16,9 @@ fun <R> withMulighetsrommetApp(
     }
 }
 
-fun createTestApplicationConfig() = AppConfig(
+fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseConfig(),
-    auth = mapOf(
-        "azure" to AuthProvider(
-            issuer = "http://localhost:8081/azure",
-            jwksUri = "http://localhost:8081/azure/jwks",
-            audience = "mulighetsrommet-api"
-        )
-    )
+    auth = createAuthConfig(oauth),
 )
 
 fun createDatabaseConfig(
@@ -44,3 +39,17 @@ fun createDatabaseConfigWithRandomSchema(
     val schema = "$name-${java.util.UUID.randomUUID()}"
     return DatabaseConfig(host, port, name, schema, user, password)
 }
+
+// Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
+// These values are set as the default here so that standard tokens issued by MockOAuth2Server works with a minimal amount of setup.
+fun createAuthConfig(
+    oauth: MockOAuth2Server,
+    issuer: String = "default",
+    audience: String = "default"
+) = AuthConfig(
+    azure = AuthProvider(
+        issuer = oauth.issuerUrl(issuer).toString(),
+        jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
+        audience = audience
+    )
+)

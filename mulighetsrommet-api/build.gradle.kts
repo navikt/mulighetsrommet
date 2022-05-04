@@ -61,6 +61,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.3")
+    implementation("no.nav.security:mock-oauth2-server:0.4.3")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 }
