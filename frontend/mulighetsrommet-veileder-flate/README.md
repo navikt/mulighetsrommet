@@ -13,19 +13,14 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 
 Øvrige teknologier, rammeverk og biblioteker som er blitt tatt i bruk:
 
-[**Typescript**](https://www.typescriptlang.org/)
-
-[**React**](https://reactjs.org/)
-
-[**react-query**](https://react-query.tanstack.com/)
-
-[**jotai**](https://github.com/pmndrs/jotai)
-
-NAVs designsystem: [**@navikt/ds-css**](https://github.com/navikt/nav-frontend-moduler)
-
-Mocking av testdata: [**MSW**](https://mswjs.io/)
-
-Testverktøy for ende-til-ende-testing: [**Cypress**](https://www.cypress.io/)
+- [**Typescript**](https://www.typescriptlang.org/)
+- [**Vite**](vitejs.dev/)
+- [**React**](https://reactjs.org/)
+- [**react-query**](https://react-query.tanstack.com/)
+- [**jotai**](https://github.com/pmndrs/jotai)
+- NAVs designsystem: [**@navikt/ds-css**](https://github.com/navikt/nav-frontend-moduler)
+- Mocking av testdata: [**MSW**](https://mswjs.io/)
+- Testverktøy for ende-til-ende-testing: [**Cypress**](https://www.cypress.io/)
 
 # <a name="kom-i-gang"></a>Kom i gang
 
@@ -42,16 +37,21 @@ Last ned og installer Node versjon 16 (eller høyere, på eget ansvar) (NPM er i
 ### Miljøvariabler
 
 Kjører man opp frontend med scriptene som ligger i `package.json` trenger man ikke foreta seg noe.
-Følgende miljøvariabler kan settes manuelt:
+Følgende miljøvariabler kan settes manuelt i `.env`:
 
-```sh
-# Toggle for å kjre en in-memory mock av APIet sammen med applikasjonen.
-export VITE_MULIGHETSROMMET_API_MOCK=true/false
+```
+# Toggle for å kjøre en in-memory mock av APIet sammen med applikasjonen.
+VITE_MULIGHETSROMMET_API_MOCK=true/false
+
 # Setter root url for alle HTTP-kall til mulighetsrommet-api
-export VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
+VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
+
+# Setter Bearer token for HTTP-kall mot mulighetsrommet-api
+# Se egen dokumentasjon for hvordan man kan opprette et slikt token for lokal utvikling
+VITE_MULIGHETSROMMET_API_AUTH_TOKEN=...
 ```
 
-Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen.
+Legg til disse enten i lokal `.env`-fil (denne skal ikke sjekkes inn git), eller sett disse i lokalt miljø slik du selv ønsker.
 
 ## <a name="steg-for-steg"></a>Steg for steg
 
@@ -61,7 +61,8 @@ Kjør `npm start` for å kjøre frontenden med MSW.
 
 ### Backend
 
-Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsrommet-api`). Forutsetning at denne kjører.
+Kjør `npm run backend` for å fyre opp frontend mot reell backend (`mulighetsrommet-api`).
+Forutsetning at denne kjører. Husk å sette `VITE_MULIGHETSROMMET_API_AUTH_TOKEN` med et gyldig token i `.env`.
 
 ### Testing
 
