@@ -1,0 +1,48 @@
+name: CI/CD (mulighetsrommet-arena-ords-proxy)
+
+on:
+  push:
+    paths:
+      - .github/workflows/mulighetsrommet-arena-ords-proxy.yaml
+      - build.gradle.kts
+      - settings.gradle.kts
+      - mulighetsrommet-arena-ords-proxy/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+
+env:
+  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-arena-ords-proxy:${{ github.sha }}
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mulighetsrommet-arena-ords-proxy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Publish test report
+        uses: ScaCap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: "**/build/test-results/test/TEST-*.xml"
