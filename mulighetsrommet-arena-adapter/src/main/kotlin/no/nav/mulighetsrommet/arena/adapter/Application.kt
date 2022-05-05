@@ -6,6 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
@@ -15,7 +16,13 @@ import org.slf4j.LoggerFactory
 fun main() {
     val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
 
-    val mulighetsrommetApiClient = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url)
+    val tokenClient = AzureAdTokenClientBuilder.builder()
+        .withNaisDefaults()
+        .buildMachineToMachineTokenClient()
+
+    val mulighetsrommetApiClient = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url) {
+        tokenClient.createMachineToMachineToken(app.services.mulighetsrommetApi.scope)
+    }
 
     val db = Database(app.database)
     val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)

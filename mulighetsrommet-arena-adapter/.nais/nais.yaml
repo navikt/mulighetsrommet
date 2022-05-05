@@ -41,3 +41,8 @@ spec:
   azure:
     application:
       enabled: true
+  env:
+    - name: MR_API_URL
+      value: https://mulighetsrommet-api.dev.intern.nav.no
+    - name: MR_API_SCOPE
+      value: api://dev-gcp.mulighetsrommet.mulighetsrommet-api/.default

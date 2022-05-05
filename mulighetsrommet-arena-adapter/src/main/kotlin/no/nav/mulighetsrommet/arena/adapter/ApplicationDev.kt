@@ -12,16 +12,23 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
+    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
 
-    val mulighetsrommetApiClient = MulighetsrommetApiClient(config.app.endpoints.get("mulighetsrommetApi")!!)
+    val mulighetsrommetApiClient = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url) {
+        "TODO: mock-oauth2-server token"
+    }
 
     val preset = KafkaPropertiesBuilder.consumerBuilder()
-        .withBrokerUrl(config.app.kafka.brokers)
+        .withBrokerUrl(app.kafka.brokers)
         .withBaseProperties()
-        .withConsumerGroupId(config.app.kafka.consumerGroupId)
+        .withConsumerGroupId(app.kafka.consumerGroupId)
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
-    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), mulighetsrommetApiClient))
+    val db = Database(app.database)
+    val kafka = Kafka(app.kafka, preset, db, mulighetsrommetApiClient)
+
+    initializeServer(server) {
+        main(kafka)
+    }
 }

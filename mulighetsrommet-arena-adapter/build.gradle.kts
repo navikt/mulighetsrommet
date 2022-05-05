@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    val ktorVersion = "2.0.0"
+    val ktorVersion = "2.0.1"
     val kotestVersion = "5.2.2"
     val hopliteVersion = "1.4.16"
     implementation(project(":mulighetsrommet-domain"))
@@ -46,10 +46,12 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-    implementation("no.nav.common:kafka:2.2021.12.09_11.56-a71c36a61ba3")
+    implementation("no.nav.common:kafka:2.2022.05.05_06.41-84855089824b")
+    implementation("no.nav.common:token-client:2.2022.05.05_06.41-84855089824b")
     implementation("com.github.seratch:kotliquery:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("org.flywaydb:flyway-core:8.5.5")
