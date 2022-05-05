@@ -36,11 +36,11 @@ object ProcessingUtils {
     fun isUpdateArenaOperation(json: JsonObject) =
         ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content] == ArenaEventOperationType.UPDATE
 
-    fun toDeltakerstatus(arenaStatus: String): Deltakerstatus = when(arenaStatus) {
-            "AVSLAG", "IKKAKTUELL", "NEITAKK" -> Deltakerstatus.IKKE_AKTUELL
-            "TILBUD", "JATAKK", "INFOMOETE", "AKTUELL", "VENTELISTE" -> Deltakerstatus.VENTER
-            "GJENN" -> Deltakerstatus.DELTAR
-            "DELAVB", "GJENN_AVB", "GJENN_AVL", "FULLF", "IKKEM" -> Deltakerstatus.AVSLUTTET
+    fun toDeltakerstatus(arenaStatus: String): Deltakerstatus = when (arenaStatus) {
+        "AVSLAG", "IKKAKTUELL", "NEITAKK" -> Deltakerstatus.IKKE_AKTUELL
+        "TILBUD", "JATAKK", "INFOMOETE", "AKTUELL", "VENTELISTE" -> Deltakerstatus.VENTER
+        "GJENN" -> Deltakerstatus.DELTAR
+        "DELAVB", "GJENN_AVB", "GJENN_AVL", "FULLF", "IKKEM" -> Deltakerstatus.AVSLUTTET
         else -> throw Exception("Ukjent deltakerstatus fra Arena")
     }
 }

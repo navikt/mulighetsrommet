@@ -110,5 +110,4 @@ class ArenaService(private val db: Database, private val logger: Logger) {
         ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
         return db.session.run(queryResult)!!
     }
-
 }

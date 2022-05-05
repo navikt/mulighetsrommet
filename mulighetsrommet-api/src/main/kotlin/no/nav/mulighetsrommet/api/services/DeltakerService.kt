@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
@@ -16,5 +15,4 @@ class DeltakerService(private val db: Database, private val logger: Logger) {
         val queryResult = queryOf(query).map { DatabaseMapper.toDeltaker(it) }.asList
         return db.session.run(queryResult)
     }
-
 }
