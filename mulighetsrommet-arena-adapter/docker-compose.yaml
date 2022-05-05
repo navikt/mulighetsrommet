@@ -1,6 +1,6 @@
 version: '3'
 services:
-  mulighetsrommet-kafka-db:
+  mulighetsrommet-arena-adapter-db:
     image: "postgres:12.3-alpine"
     restart: "always"
     volumes:
@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
-      POSTGRES_DB: "mulighetsrommet-kafka-db"
+      POSTGRES_DB: "mulighetsrommet-arena-adapter-db"
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -46,7 +46,7 @@ services:
       - "8090:8080"
     profiles: ["wiremock"]
     depends_on:
-      - mulighetsrommet-kafka-db
+      - mulighetsrommet-arena-adapter-db
       - zookeeper
       - kafka
       - kafdrop

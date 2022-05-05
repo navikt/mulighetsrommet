@@ -1,4 +1,4 @@
-group = "no.nav.mulighetsrommet.kafka"
+group = "no.nav.mulighetsrommet.arena-adapter"
 version = "0.0.1"
 
 plugins {

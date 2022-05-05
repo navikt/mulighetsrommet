@@ -1,17 +1,15 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: mulighetsrommet-kafka
+  name: mulighetsrommet-arena-adapter
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
-  annotations:
-    nais.io/security-does-not-matter: "true"
 spec:
   port: 8080
-  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-kafka-{{image_label}}:{{image_tag}}
+  image: {{IMAGE}}
   ingresses:
-    - https://mulighetsrommet-kafka.dev.intern.nav.no
+    - https://mulighetsrommet-arena-adapter.dev.intern.nav.no
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -36,7 +34,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_12
         databases:
-          - name: mulighetsrommet-kafka-db
+          - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
   kafka:
     pool: nav-dev
