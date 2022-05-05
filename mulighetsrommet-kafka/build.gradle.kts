@@ -1,13 +1,5 @@
-val kotlin_version: String by project
-val logback_version: String by project
-val prometeus_version: String by project
-val ktlint_version: String by project
-val hikari_version: String by project
-val postgresql_version: String by project
-val hoplite_version: String by project
-val common_java_modules_version: String by project
-val kotliquery_version: String by project
-val wiremock_version: String by project
+group = "no.nav.mulighetsrommet.kafka"
+version = "0.0.1"
 
 plugins {
     application
@@ -17,8 +9,6 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
 }
 
-group = "no.nav.mulighetsrommet.kafka"
-version = "0.0.1"
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
