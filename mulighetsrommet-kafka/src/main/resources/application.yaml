@@ -18,3 +18,4 @@ app:
       consumer:
         tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET}
         tiltakgjennomforingendret: ${MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET}
+        tiltakdeltakerendret: ${MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET}

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.kafka
 
-import io.ktor.client.*
 import kotlinx.serialization.json.Json
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
@@ -10,6 +9,7 @@ import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithSt
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.kafka.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.kafka.consumers.TiltakdeltakerEndretConsumer
 import no.nav.mulighetsrommet.kafka.consumers.TiltakgjennomforingEndretConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -25,6 +25,7 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
 
     private val tiltakEndretConsumer = TiltakEndretConsumer(client)
     private val tiltakgjennomforingEndretConsumer = TiltakgjennomforingEndretConsumer(client)
+    private val tiltakdeltakerEndretConsumer = TiltakdeltakerEndretConsumer(client)
 
     init {
         logger.debug("Initializing Kafka")
@@ -80,6 +81,7 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
         when (topic) {
             consumerTopics.get("tiltakendret") -> tiltakEndretConsumer.process(payload)
             consumerTopics.get("tiltakgjennomforingendret") -> tiltakgjennomforingEndretConsumer.process(payload)
+            consumerTopics.get("tiltakdeltakerendret") -> tiltakdeltakerEndretConsumer.process(payload)
             else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
         }
     }

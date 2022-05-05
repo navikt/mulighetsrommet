@@ -24,8 +24,8 @@ fun main(): Unit = runBlocking {
 
     launch {
         produceTiltakEndretEvents(producer)
-//        produceTiltakEndretUpdateEvents(producer)
         produceTiltakgjennomforingEndretEvents(producer)
+        produceTiltaksdeltakerEndretEvents(producer)
         producer.close()
     }
 }
@@ -37,16 +37,16 @@ private suspend fun produceTiltakEndretEvents(producer: KafkaProducerClient<Stri
     }
 }
 
-private suspend fun produceTiltakEndretUpdateEvents(producer: KafkaProducerClient<String, String>) {
-    while (true) {
-        producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakendret-v1-q2", "DIGIOPPARB", tiltakEndretJobbklubbUpdate))
-        delay(5000)
-    }
-}
-
 private suspend fun produceTiltakgjennomforingEndretEvents(producer: KafkaProducerClient<String, String>) {
     tiltakgjennomforingEndretTopic.forEach { it ->
         producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2", it.first, it.second))
+        delay(500)
+    }
+}
+
+private suspend fun produceTiltaksdeltakerEndretEvents(producer: KafkaProducerClient<String, String>) {
+    tiltakdeltakerTopic.forEach { it ->
+        producer.send(ProducerRecord("teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2", it.first, it.second))
         delay(500)
     }
 }

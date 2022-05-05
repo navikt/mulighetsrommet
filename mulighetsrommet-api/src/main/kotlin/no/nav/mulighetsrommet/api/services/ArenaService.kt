@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
@@ -75,6 +76,38 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltaksgjennomforing.tilDato,
             arenaId
         ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
+    fun createDeltaker(deltaker: Deltaker): Deltaker {
+        val query = """
+            insert into deltaker (arena_id, tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status) values (?, ?, ?, ?, ?, ?::deltakerstatus) returning *
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            deltaker.arenaId,
+            deltaker.tiltaksgjennomforingId,
+            deltaker.personId,
+            deltaker.fraDato,
+            deltaker.tilDato,
+            deltaker.status.name
+        ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
+    fun updateDeltaker(arenaId: Int, deltaker: Deltaker): Deltaker {
+        val query = """
+            update deltaker set tiltaksgjennomforing_id = ?, person_id = ?, fra_dato = ?, til_dato = ?, status = ?::deltakerstatus where arena_id = ? returning *
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            deltaker.tiltaksgjennomforingId,
+            deltaker.personId,
+            deltaker.fraDato,
+            deltaker.tilDato,
+            deltaker.status.name,
+            arenaId,
+        ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 }
