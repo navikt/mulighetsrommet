@@ -35,6 +35,8 @@ fun initializeServer(config: Config) {
 }
 
 fun Application.configure(appConfig: AppConfig) {
+    val arenaOrdsClient = ArenaOrdsClient(appConfig.ords)
+
     configureHTTP()
     configureMonitoring()
     configureSerialization()
@@ -42,6 +44,6 @@ fun Application.configure(appConfig: AppConfig) {
 
     routing {
         internalRoutes()
-        arenaOrdsRoutes()
+        arenaOrdsRoutes(arenaOrdsClient)
     }
 }
