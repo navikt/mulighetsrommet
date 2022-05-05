@@ -56,3 +56,19 @@ Denne kjøres kun opp ved egen kommando `kubectl apply -f .nais/mulighetsrommet-
 | --------------- | -------------------------------------------------------- |
 | README | <https://github.com/navikt/kafka-manager> |
 | Url (dev-miljø) | <https://mulighetsrommet-kafka-manager.dev.intern.nav.no/> |
+
+## Oppsett
+
+Dette prosjektet er strukturert som et monorepo, der både backend- og frontent-kode er organisert i samme kodebase.
+Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis backend og frontend:
+
+- [Gradle](https://gradle.org/) med subprojects
+- [Turborepo](https://turborepo.org/) i kombinasjon med [NPM workspaces](https://turborepo.org/)
+
+### Git hooks
+
+For å gjøre noen rutineoppgaver enklere er det mulig å installere følgende git hooks på eget initiativ (ikke en komplett liste, blir oppdatert etter hvert som behovet oppstår):
+
+- Installasjon av pre-commit hook for å kjøre `ktlintFormat` på endrede filer: Kjør kommando `./gradlew addKtlintFormatGitPreCommitHook`
+- Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør kommando `./gradlew waddKtlintCheckGitPreCommitHook`
+

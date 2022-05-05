@@ -28,8 +28,9 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 }
 
 repositories {
-    mavenCentral()
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
+    maven {
+        url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+    }
     // Needed to get no.nav.common-java-modules to work. Deps from other repos
     maven {
         url = uri("https://packages.confluent.io/maven/")
