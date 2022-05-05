@@ -5,15 +5,12 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
-class ArenaOrdsClient(val config: ArenaOrdsConfig) {
+class ArenaOrdsClient(private val config: ArenaOrdsConfig) {
 
     private val logger = LoggerFactory.getLogger(ArenaOrdsClient::class.java)
     private val client: HttpClient
@@ -36,12 +33,11 @@ class ArenaOrdsClient(val config: ArenaOrdsConfig) {
         }
     }
 
-    @OptIn(InternalAPI::class)
     suspend fun getFnrByArenaPersonId(arenaPersonIdList: ArenaPersonIdList): ArenaPersonIdList {
         val response = client.request("/arena/api/v1/person/identListe") {
             contentType(ContentType.Application.Json)
             method = HttpMethod.Post
-            body = Json.encodeToString(ArenaPersonIdList)
+            setBody(Json.encodeToString(arenaPersonIdList))
         }
         return response.body()
     }
