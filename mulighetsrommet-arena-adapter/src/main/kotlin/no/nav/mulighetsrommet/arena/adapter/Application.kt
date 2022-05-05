@@ -13,27 +13,30 @@ import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import org.slf4j.LoggerFactory
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
-    val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.app.kafka.consumerGroupId)
+    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
 
-    val mulighetsrommetApiClient = MulighetsrommetApiClient(config.app.endpoints.get("mulighetsrommetApi")!!)
+    val mulighetsrommetApiClient = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url)
 
-    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), mulighetsrommetApiClient))
+    val db = Database(app.database)
+    val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)
+    val kafka = Kafka(app.kafka, kafkaPreset, db, mulighetsrommetApiClient)
+
+    initializeServer(server) {
+        main(kafka)
+    }
 }
 
-fun initializeServer(config: Config, kafka: Kafka) {
+fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
-            module {
-                main(kafka)
-            }
+            module(main)
 
             connector {
-                port = config.server.port
-                host = config.server.host
+                port = config.port
+                host = config.host
             }
         }
     )
@@ -41,7 +44,6 @@ fun initializeServer(config: Config, kafka: Kafka) {
 }
 
 fun Application.main(kafka: Kafka) {
-
     configureSerialization()
     configureMonitoring()
     configureHTTP()
