@@ -6,13 +6,10 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  port: 8080
   image: {{image}}
+  port: 8080
   ingresses:
     - https://mulighetsrommet-api.dev.intern.nav.no
-  env:
-    - name: KTOR_LOCAL_DEV
-      value: "false"
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -26,12 +23,6 @@ spec:
     min: 1
     max: 2
     cpuThresholdPercentage: 75
-  accessPolicy:
-    inbound:
-      rules:
-        - application: poao-openam-proxy
-          namespace: pto
-          cluster: dev-fss
   resources:
     limits:
       cpu: "1"
@@ -50,3 +41,13 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: poao-openam-proxy
+          namespace: pto
+          cluster: dev-fss
+        - application: mulighetsrommet-arena-adapter
+  env:
+    - name: KTOR_LOCAL_DEV
+      value: "false"

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.plugins
+package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod

@@ -1,17 +1,15 @@
-package no.nav.mulighetsrommet.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.*
-import io.ktor.server.engine.applicationEngineEnvironment
-import io.ktor.server.engine.connector
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.routing.routing
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
-import no.nav.mulighetsrommet.kafka.plugins.configureHTTP
-import no.nav.mulighetsrommet.kafka.plugins.configureMonitoring
-import no.nav.mulighetsrommet.kafka.plugins.configureSerialization
-import no.nav.mulighetsrommet.kafka.routes.internalRoutes
+import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
+import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
+import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
+import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import org.slf4j.LoggerFactory
 
 fun main() {

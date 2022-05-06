@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.client.*
