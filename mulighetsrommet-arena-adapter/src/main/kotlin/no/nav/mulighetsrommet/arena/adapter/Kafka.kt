@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
 import kotlinx.serialization.json.Json
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
@@ -8,9 +8,9 @@ import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProce
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.kafka.consumers.TiltakEndretConsumer
-import no.nav.mulighetsrommet.kafka.consumers.TiltakdeltakerEndretConsumer
-import no.nav.mulighetsrommet.kafka.consumers.TiltakgjennomforingEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import java.util.*

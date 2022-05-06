@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.kafka.consumers
+package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
 import kotlinx.serialization.json.*
+import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils.isInsertArenaOperation
 import no.nav.mulighetsrommet.domain.Deltaker
-import no.nav.mulighetsrommet.kafka.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils
-import no.nav.mulighetsrommet.kafka.utils.ProcessingUtils.isInsertArenaOperation
 import org.slf4j.LoggerFactory
 
 class TiltakdeltakerEndretConsumer(private val client: MulighetsrommetApiClient) {

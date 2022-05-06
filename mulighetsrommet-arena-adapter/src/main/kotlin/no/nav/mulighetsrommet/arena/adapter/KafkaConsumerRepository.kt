@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
 import kotliquery.Row
 import kotliquery.queryOf

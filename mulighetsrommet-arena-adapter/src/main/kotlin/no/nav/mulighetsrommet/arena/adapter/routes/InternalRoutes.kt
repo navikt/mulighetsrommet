@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.routes
+package no.nav.mulighetsrommet.arena.adapter.routes
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
