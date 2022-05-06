@@ -18,19 +18,12 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 
 Øvrige teknologier, rammeverk og biblioteker som er blitt tatt i bruk:
 
-[**Kotlin**](https://kotlinlang.org/)
-
-[**Ktor**](https://ktor.io/)
-
-[**PostgreSQL 12**](https://www.postgresql.org/)
-
-[**MocKK**](https://mockk.io/)
-
-[**Exposed**](https://github.com/JetBrains/Exposed)
-
-[**Flyway**](https://flywaydb.org/)
-
-[**Gradle**](https://gradle.org/)
+- [**Kotlin**](https://kotlinlang.org/)
+- [**Ktor**](https://ktor.io/)
+- [**PostgreSQL**](https://www.postgresql.org/)
+- [**MocKK**](https://mockk.io/)
+- [**Flyway**](https://flywaydb.org/)
+- [**Gradle**](https://gradle.org/)
 
 # <a name="kom-i-gang"></a>Kom i gang
 
@@ -91,3 +84,21 @@ For å komme fort i gang fra en terminal gjør følgende:
 4. Start applikasjonen med å kjøre `./gradlew run`.
 
 Hvis alt gikk knirkefritt skal nå applikasjonen kjøre på <http://0.0.0.0:8080>.
+
+### Autentisering
+
+For å kalle APIet lokalt må man være autentisert med et Bearer token.
+
+Vi benytter [mock-ouath2-server](https://github.com/navikt/mock-oauth2-server) til å utstede tokens på lokal maskin.
+Følgende steg kan benyttes til å generere opp et token:
+
+1. Sørg for at containeren for `mock-oauth2-server` kjører lokalt (`docker-compose up -d`)
+2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger)
+3. Trykk på knappen `Get a token`
+4. Full ut felt for `user/subject` (spiller ingen trille hva dette er) og trykk deretter `Sign in`
+5. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header
+
+Eksempel:
+```sh
+$ curl localhost:8080/api/innsatsgrupper -H 'Authorization: Bearer <access_token>'
+```

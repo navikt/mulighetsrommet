@@ -12,5 +12,33 @@ services:
       POSTGRES_PASSWORD: "valp"
       POSTGRES_DB: "mulighetsrommet-api-db"
     mem_limit: "8g"
+  mock-oauth2-server:
+    image: ghcr.io/navikt/mock-oauth2-server:0.4.3
+    ports:
+      - 8081:8081
+    environment:
+      SERVER_PORT: 8081
+      JSON_CONFIG: >
+       {
+         "interactiveLogin": true,
+         "httpServer": "NettyWrapper",
+         "tokenCallbacks": [
+           {
+             "issuerId": "azure",
+             "tokenExpiry": 15780000,
+             "requestMappings": [
+               {
+                 "requestParam": "scope",
+                 "match": "openid somescope",
+                 "claims": {
+                   "sub": "admin@mulighetsrommet",
+                   "aud": ["mulighetsrommet-api"]
+                 }
+               }
+             ]
+           }
+         ]
+       }
+
 volumes:
   mulighetsrommet:

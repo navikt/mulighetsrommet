@@ -24,13 +24,17 @@ fun Application.configureHTTP() {
     install(ConditionalHeaders)
     install(CORS) {
         anyHost()
+
         method(HttpMethod.Options)
         method(HttpMethod.Put)
-        method(HttpMethod.Delete)
         method(HttpMethod.Patch)
+        method(HttpMethod.Delete)
+
         header(HttpHeaders.Authorization)
         header(HttpHeaders.ContentType)
         header(HttpHeaders.AccessControlAllowOrigin)
+
+        allowHeadersPrefixed("nav-")
     }
     install(DefaultHeaders) {
         header("X-Engine", "Ktor") // will send this header with each response

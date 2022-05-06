@@ -1,4 +1,4 @@
-import { headers } from './utils';
+import { headers } from './headers';
 import { useQuery } from 'react-query';
 
 export const FAKE_DOOR = 'mulighetsrommet.fake-door';
