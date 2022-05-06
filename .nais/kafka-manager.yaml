@@ -32,6 +32,10 @@ spec:
     requests:
       cpu: 250m
       memory: 512Mi
+  secureLogs:
+    enabled: true
+  kafka: # Optional. Required for Aiven
+    pool: nav-dev
   azure: # Required
     application:
       enabled: true
@@ -39,10 +43,6 @@ spec:
       claims:
         groups:
           - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
-  secureLogs:
-    enabled: true
-  kafka: # Optional. Required for Aiven
-    pool: nav-dev
   env:
     - name: APP_CONFIG_JSON # Required
       value: >

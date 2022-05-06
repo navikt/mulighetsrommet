@@ -6,8 +6,8 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
+  image: {{image}}
   port: 8080
-  image: {{IMAGE}}
   ingresses:
     - https://mulighetsrommet-arena-adapter.dev.intern.nav.no
   prometheus:
