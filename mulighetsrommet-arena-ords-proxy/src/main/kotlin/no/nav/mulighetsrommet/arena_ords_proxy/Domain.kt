@@ -10,7 +10,7 @@ data class ArenaPersonIdList(
 @Serializable
 data class PersonFnr(
     val personId: String,
-    val fnr: String?
+    val fnr: String? = null
 )
 
 @Serializable
