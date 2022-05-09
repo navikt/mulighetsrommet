@@ -33,7 +33,6 @@ repositories {
 }
 
 dependencies {
-
     implementation(project(":mulighetsrommet-domain"))
 
     val ktorVersion = "2.0.1"
@@ -76,6 +75,7 @@ dependencies {
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
 }
 
 tasks.withType<Test> {
