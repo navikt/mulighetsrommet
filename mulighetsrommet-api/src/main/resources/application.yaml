@@ -4,11 +4,11 @@ server:
 
 app:
   database:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    name: ${DB_DATABASE}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    host: ${DB_HOST:-localhost}
+    port: ${DB_PORT:-5442}
+    name: ${DB_DATABASE:-mulighetsrommet-api-db}
+    user: ${DB_USERNAME:-valp}
+    password: ${DB_PASSWORD:-valp}
 
   auth:
     azure:
