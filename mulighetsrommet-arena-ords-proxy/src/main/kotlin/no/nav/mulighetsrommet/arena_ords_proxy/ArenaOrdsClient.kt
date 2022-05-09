@@ -5,11 +5,9 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
@@ -22,8 +20,14 @@ class ArenaOrdsClient(private val config: ArenaOrdsConfig) {
     init {
         logger.debug("Init ArenaOrdsClient")
         client = HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                })
+            }
             expectSuccess = true
             defaultRequest {
+                // TODO: Sette denne per request når vi får credentials til ords.
                 headers {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
@@ -38,20 +42,19 @@ class ArenaOrdsClient(private val config: ArenaOrdsConfig) {
 
     suspend fun getFnrByArenaPersonId(arenaPersonIdList: ArenaPersonIdList): ArenaPersonIdList {
         val response = client.request("/arena/api/v1/person/identListe") {
-            contentType(ContentType.Application.Json)
             method = HttpMethod.Post
-            setBody(Json.encodeToString(arenaPersonIdList))
+            setBody(arenaPersonIdList)
         }
         return response.body()
     }
 
-    suspend fun getArbeidsgiverInfoByArenaArbeidsgiverId(arenaArbeidsgiverId: Int) =
-        client.request("/arena/api/v1/arbeidsgiver/ident") {
-            contentType(ContentType.Application.Json)
+    suspend fun getArbeidsgiverInfoByArenaArbeidsgiverId(arenaArbeidsgiverId: Int): ArbeidsgiverInfo {
+        val response = client.request("/arena/api/v1/arbeidsgiver/ident") {
             headers {
                 append("arbgivId", arenaArbeidsgiverId.toString())
             }
             method = HttpMethod.Get
         }
-
+        return response.body()
+    }
 }

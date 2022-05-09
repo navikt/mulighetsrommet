@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/arena/api/v1/person/identListe"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "personListe": [
+        {
+          "personId": 1234,
+          "fnr": "11035431234"
+        },
+        {
+          "personId": 1235,
+          "fnr": "28076132345"
+        },
+        {
+          "personId": 1236,
+          "fnr": "08087743456"
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
