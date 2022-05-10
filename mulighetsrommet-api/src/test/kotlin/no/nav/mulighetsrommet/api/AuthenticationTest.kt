@@ -44,7 +44,7 @@ class AuthenticationTest : FunSpec({
                     header(HttpHeaders.Authorization, "Bearer ${oauth.issueToken(audience = "skatteetaten").serialize()}")
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
-        }
+            }
         }
 
         test("should respond with 200 when request is authenticated") {

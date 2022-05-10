@@ -8,7 +8,8 @@ fun <R> withMulighetsrommetApp(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R
-) { testApplication {
+) {
+    testApplication {
         application {
             configure(config)
         }
