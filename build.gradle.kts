@@ -2,7 +2,7 @@ group = "no.nav.mulighetsrommet"
 version = "0.0.1"
 
 plugins {
-    val kotlinVersion = "1.6.10"
+    val kotlinVersion = "1.6.21"
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.serialization") version kotlinVersion apply false
     id("org.flywaydb.flyway") version "8.5.5" apply false

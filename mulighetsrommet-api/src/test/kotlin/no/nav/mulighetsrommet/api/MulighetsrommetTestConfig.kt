@@ -7,11 +7,11 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 fun <R> withMulighetsrommetApp(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
-    test: TestApplicationEngine.() -> R
-): R {
-    return withTestApplication({
-        configure(config)
-    }) {
+    test: suspend ApplicationTestBuilder.() -> R
+) { testApplication {
+        application {
+            configure(config)
+        }
         test()
     }
 }
