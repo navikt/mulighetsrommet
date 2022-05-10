@@ -4,18 +4,18 @@ server:
 
 app:
   endpoints:
-    mulighetsrommetApi: ${MR_API_URI}
+    mulighetsrommetApi: ${MR_API_URI:-http://localhost:8080}
   database:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    name: ${DB_DATABASE}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    host: ${DB_HOST:-localhost}
+    port: ${DB_PORT:-5443}
+    name: ${DB_DATABASE:-mulighetsrommet-arena-adapter-db}
+    user: ${DB_USERNAME:-valp}
+    password: ${DB_PASSWORD:-valp}
   kafka:
-    brokers: ${KAFKA_BROKERS}
+    brokers: ${KAFKA_BROKERS:-localhost:29092}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
       consumer:
-        tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET}
-        tiltakgjennomforingendret: ${MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET}
-        tiltakdeltakerendret: ${MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET}
+        tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET:-tiltakendret}
+        tiltakgjennomforingendret: ${MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET:-tiltakgjennomforingendret}
+        tiltakdeltakerendret: ${MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET:-tiltakdeltakerendret}
