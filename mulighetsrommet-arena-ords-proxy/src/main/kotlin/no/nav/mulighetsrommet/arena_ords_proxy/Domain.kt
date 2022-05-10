@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena_ords_proxy
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,7 +10,7 @@ data class ArenaPersonIdList(
 
 @Serializable
 data class PersonFnr(
-    val personId: String,
+    val personId: Int,
     val fnr: String? = null
 )
 
