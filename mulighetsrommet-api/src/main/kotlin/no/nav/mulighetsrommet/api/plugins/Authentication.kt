@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.api.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.*
-import no.nav.mulighetsrommet.api.AuthConfig
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import no.nav.mulighetsrommet.api.AuthConfig
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
