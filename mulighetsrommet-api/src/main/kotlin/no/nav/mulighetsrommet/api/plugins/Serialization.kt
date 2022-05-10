@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.plugins
 
-import io.ktor.application.Application
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.serialization.json
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
