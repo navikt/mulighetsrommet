@@ -33,37 +33,42 @@ repositories {
 }
 
 dependencies {
-    val ktorVersion = "1.6.2"
-    val koinVersion = "3.1.5"
-    val kotestVersion = "5.2.2"
-    val hopliteVersion = "1.4.16"
+
     implementation(project(":mulighetsrommet-domain"))
+
+    val ktorVersion = "2.0.1"
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-sessions:$ktorVersion")
-    implementation("io.ktor:ktor-auth:$ktorVersion")
-    implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
     implementation("io.ktor:ktor-webjars:$ktorVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
+
+    val hopliteVersion = "1.4.16"
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-    implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.6.0")
+
+    val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+
+    val kotestVersion = "5.2.2"
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+
+    implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.flywaydb:flyway-core:8.5.5")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.github.seratch:kotliquery:1.6.2")
+    implementation("no.nav.security:mock-oauth2-server:0.4.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
-    testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.3")
-    implementation("no.nav.security:mock-oauth2-server:0.4.3")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 }
 
 tasks.withType<Test> {
