@@ -1,0 +1,133 @@
+version: '3'
+
+services:
+  # Mock implementation of Oauth2/OIDC.
+  # The service is referenced as part of the authentication between applications as part of local development.
+  mock-oauth2-server:
+    image: ghcr.io/navikt/mock-oauth2-server:0.4.6
+    ports:
+      - "8081:8081"
+    profiles:
+      - dev
+    environment:
+      SERVER_PORT: 8081
+      JSON_CONFIG: >
+        {
+          "interactiveLogin": true,
+          "httpServer": "NettyWrapper",
+          "tokenCallbacks": [
+            {
+              "issuerId": "azure",
+              "tokenExpiry": 15780000,
+              "requestMappings": [
+                {
+                  "requestParam": "scope",
+                  "match": "openid somescope",
+                  "claims": {
+                    "sub": "admin@mulighetsrommet",
+                    "aud": ["mulighetsrommet-api"]
+                  }
+                },
+                {
+                  "requestParam": "scope",
+                  "match": "default",
+                  "claims": {
+                    "aud": ["mulighetsrommet-api"]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+
+  # Database for mulighetsrommet-api.
+  mulighetsrommet-api-db:
+    image: "postgres:12.3-alpine"
+    restart: "always"
+    volumes:
+      - "mulighetsrommet-api:/var/lib/postgresql/data"
+    ports:
+      - "5442:5432"
+    profiles:
+      - dev
+      - ci
+    environment:
+      POSTGRES_USER: "valp"
+      POSTGRES_PASSWORD: "valp"
+      POSTGRES_DB: "mulighetsrommet-api-db"
+
+  # Database for mulighetsrommet-arena-adapter.
+  mulighetsrommet-arena-adapter-db:
+    image: "postgres:12.3-alpine"
+    restart: "always"
+    volumes:
+      - "mulighetsrommet-arena-adapter:/var/lib/postgresql/data"
+    ports:
+      - "5443:5432"
+    profiles:
+      - dev
+      - ci
+    environment:
+      POSTGRES_USER: "valp"
+      POSTGRES_PASSWORD: "valp"
+      POSTGRES_DB: "mulighetsrommet-arena-adapter-db"
+
+  # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "22181:2181"
+    profiles:
+      - dev
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # Kafka broker.
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    profiles:
+      - dev
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # Kafdrop is a web UI for viewing Kafka topics and browsing consumer groups.
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - "9000:9000"
+    profiles:
+      - dev
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - kafka
+
+  # WireMock is a tool for creating mock APIs.
+  wiremock:
+    image: wiremock/wiremock:2.32.0
+    ports:
+      - "8090:8080"
+    profiles:
+      - wiremock
+    depends_on:
+      - mulighetsrommet-arena-adapter-db
+      - zookeeper
+      - kafka
+      - kafdrop
+    volumes:
+      - ./wiremock:/home/wiremock
+
+volumes:
+  mulighetsrommet-api:
+  mulighetsrommet-arena-adapter:
