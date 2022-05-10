@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.routes
 
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.mulighetsrommet.api.database.Database
