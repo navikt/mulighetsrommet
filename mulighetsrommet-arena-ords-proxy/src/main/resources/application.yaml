@@ -4,6 +4,6 @@ server:
 
 app:
   ords:
-    url: ${ARENA_ORDS_URL:-http://localhost:8989}
+    url: ${ARENA_ORDS_URL:-http://localhost:9898}
     clientId: ${ARENA_ORDS_CLIENT_ID:-clientId}
     clientSecret: ${ARENA_ORDS_CLIENT_SECRET:-clientSecret}
