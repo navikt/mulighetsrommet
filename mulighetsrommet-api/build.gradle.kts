@@ -44,7 +44,11 @@ dependencies {
     implementation("io.ktor:ktor-server-sessions:$ktorVersion")
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-    implementation("io.ktor:ktor-webjars:$ktorVersion")
+    implementation("io.ktor:ktor-server-webjars:$ktorVersion")
+    implementation("io.ktor:ktor-server-caching-headers:$ktorVersion")
+    implementation("io.ktor:ktor-server-conditional-headers:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors:$ktorVersion")
+    implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
 
     val hopliteVersion = "1.4.16"
