@@ -25,7 +25,7 @@ fun initializeServer(config: Config, arenaOrdsClient: ArenaOrdsClient) {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                configure(config.app, arenaOrdsClient)
+                configure(arenaOrdsClient)
             }
 
             connector {
@@ -37,7 +37,7 @@ fun initializeServer(config: Config, arenaOrdsClient: ArenaOrdsClient) {
     server.start(true)
 }
 
-fun Application.configure(appConfig: AppConfig, arenaOrdsClient: ArenaOrdsClient) {
+fun Application.configure(arenaOrdsClient: ArenaOrdsClient) {
     configureHTTP()
     configureMonitoring()
     configureSerialization()

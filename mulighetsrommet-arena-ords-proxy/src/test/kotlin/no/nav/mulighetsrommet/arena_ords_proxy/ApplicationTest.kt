@@ -12,13 +12,7 @@ class ApplicationTest : FunSpec({
 
     context("ping") {
         test("should respond with pong") {
-            testApplication {
-                // TODO: generalize setup
-                application {
-                    val appConfig = AppConfig(ArenaOrdsConfig("", "", Masked("")))
-                    configure(appConfig, ArenaOrdsClient(appConfig.ords))
-                }
-
+            withArenaOrdsProxyApp {
                 val response = client.get("/internal/ping")
 
                 response.status shouldBe HttpStatusCode.OK
