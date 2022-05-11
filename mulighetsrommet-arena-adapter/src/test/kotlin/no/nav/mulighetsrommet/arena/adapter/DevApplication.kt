@@ -5,6 +5,9 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.sksamuel.hoplite.ConfigLoader
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -22,7 +25,7 @@ fun main() {
         .withTokenEndpointUrl("http://localhost:8081/azure/token")
         .buildMachineToMachineTokenClient()
 
-    val mulighetsrommetApiClient = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url) {
+    val api = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url) {
         tokenClient.createMachineToMachineToken(app.services.mulighetsrommetApi.scope)
     }
 
@@ -33,8 +36,14 @@ fun main() {
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
-    val db = Database(app.database)
-    val kafka = Kafka(app.kafka, preset, db, mulighetsrommetApiClient)
+    val kafka = Kafka(
+        app.kafka,
+        preset,
+        Database(app.database),
+        TiltakEndretConsumer(api),
+        TiltakgjennomforingEndretConsumer(api),
+        TiltakdeltakerEndretConsumer(api)
+    )
 
     initializeServer(server) {
         configure(app, kafka)

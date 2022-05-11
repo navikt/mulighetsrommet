@@ -20,17 +20,15 @@ class Kafka(
     config: KafkaConfig,
     consumerPreset: Properties,
     private val db: Database,
-    client: MulighetsrommetApiClient
+    private val tiltakEndretConsumer: TiltakEndretConsumer,
+    private val tiltakgjennomforingEndretConsumer: TiltakgjennomforingEndretConsumer,
+    private val tiltakdeltakerEndretConsumer: TiltakdeltakerEndretConsumer
 ) {
 
     private val logger = LoggerFactory.getLogger(Kafka::class.java)
     private val consumerClient: KafkaConsumerClient
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
     private val consumerTopics: Map<String, String> = config.topics.consumer
-
-    private val tiltakEndretConsumer = TiltakEndretConsumer(client)
-    private val tiltakgjennomforingEndretConsumer = TiltakgjennomforingEndretConsumer(client)
-    private val tiltakdeltakerEndretConsumer = TiltakdeltakerEndretConsumer(client)
 
     init {
         logger.debug("Initializing Kafka")
