@@ -58,7 +58,7 @@ class ArenaOrdsRoutesTest : FunSpec({
                     }
                 }
 
-                val response = client.get("/api/arbeidsgiver/asdasasd") {
+                val response = client.get("/api/arbeidsgiver/123") {
                     contentType(ContentType.Application.Json)
                 }
 
