@@ -7,6 +7,7 @@ plugins {
     kotlin("plugin.serialization") version kotlinVersion apply false
     id("org.flywaydb.flyway") version "8.5.5" apply false
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0" apply false
 }
 
 allprojects {

@@ -26,13 +26,15 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mulighetsrommet-api
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
-        working-directory: mulighetsrommet-api
         run: ./gradlew build
       - name: Build and push Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
@@ -49,9 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-test]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-    defaults:
-      run:
-        working-directory: mulighetsrommet-api
     steps:
       - name: Checkout
         uses: actions/checkout@v3

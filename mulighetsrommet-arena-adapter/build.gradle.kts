@@ -1,19 +1,17 @@
-group = "no.nav.mulighetsrommet.arena-adapter"
-version = "0.0.1"
-
 plugins {
     application
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
+    id("com.github.johnrengelman.shadow")
 }
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("no.nav.mulighetsrommet.arena.adapter.ApplicationKt")
 }
 
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+ktlint {
     disabledRules.addAll("no-wildcard-imports")
 }
 
@@ -70,6 +68,18 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+tasks {
+    shadowJar {
+        manifest {
+            attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
+        }
+    }
 }
 
 flyway {

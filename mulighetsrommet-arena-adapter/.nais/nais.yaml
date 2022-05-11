@@ -7,7 +7,7 @@ metadata:
     team: team-mulighetsrommet
 spec:
   image: {{image}}
-  port: 8080
+  port: 8084
   ingresses:
     - https://mulighetsrommet-arena-adapter.dev.intern.nav.no
   prometheus:
@@ -45,4 +45,4 @@ spec:
     - name: MR_API_URL
       value: https://mulighetsrommet-api.dev.intern.nav.no
     - name: MR_API_SCOPE
-      value: api://dev-gcp.mulighetsrommet.mulighetsrommet-api/.default
+      value: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default

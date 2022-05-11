@@ -26,10 +26,13 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mulighetsrommet-arena-ords-proxy
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup backend
         uses: ./.github/actions/setup-backend
-        working-directory: mulighetsrommet-arena-ords-proxy
+      - name: Build with Gradle
         run: ./gradlew build
