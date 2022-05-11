@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena_ords_proxy
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -28,9 +28,8 @@ class ArenaOrdsClient(private val config: ArenaOrdsConfig) {
             expectSuccess = true
             defaultRequest {
                 // TODO: Sette denne per request når vi får credentials til ords.
-                headers {
-                    append(HttpHeaders.Authorization, "Bearer $token")
-                }
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
                 url.takeFrom(
                     URLBuilder().takeFrom(config.url).apply {
                         encodedPath += url.encodedPath

@@ -18,17 +18,17 @@ class ArenaOrdsClientTest : FunSpec({
 
     test("should return a populated list of people ArenaPersonIdList") {
         val personList = ArenaPersonIdList(
-            listOf(PersonFnr("123", "123"), PersonFnr("456", "456"))
+            listOf(PersonFnr(123, "123"), PersonFnr(456, "456"))
         )
         arenaOrdsEndpoint.stubFor(
             WireMock.post(WireMock.urlEqualTo("/arena/api/v1/person/identListe"))
                 .willReturn(WireMock.ok().withBody(Json.encodeToString(personList)).withHeader("Content-Type", "application/json"))
         )
-        val response = arenaOrdsClient.getFnrByArenaPersonId(ArenaPersonIdList(listOf(PersonFnr("123"), PersonFnr("456"))))
+        val response = arenaOrdsClient.getFnrByArenaPersonId(ArenaPersonIdList(listOf(PersonFnr(123), PersonFnr(456))))
 
-        response.personListe.first().personId.shouldBe("123")
+        response.personListe.first().personId.shouldBe(123)
         response.personListe.first().fnr.shouldBe("123")
-        response.personListe.last().personId.shouldBe("456")
+        response.personListe.last().personId.shouldBe(456)
         response.personListe.last().fnr.shouldBe("456")
     }
 
