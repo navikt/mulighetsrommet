@@ -16,7 +16,12 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
 
-class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Database, client: MulighetsrommetApiClient) {
+class Kafka(
+    config: KafkaConfig,
+    consumerPreset: Properties,
+    private val db: Database,
+    client: MulighetsrommetApiClient
+) {
 
     private val logger = LoggerFactory.getLogger(Kafka::class.java)
     private val consumerClient: KafkaConsumerClient
@@ -39,21 +44,23 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
             .withTopicConfigs(consumerTopicsConfig)
             .build()
 
-        logger.debug("Starting kafka consumer client")
-        consumerClient.start()
-
         consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
             .builder()
             .withLockProvider(lockProvider)
             .withKafkaConsumerRepository(kafkaConsumerRepository)
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(consumerTopicsConfig))
             .build()
-
-        consumerRecordProcessor.start()
-        logger.debug("Starting kafka consumer record processor")
     }
 
-    fun stopClient() {
+    fun startTopicConsumption() {
+        logger.debug("Starting kafka consumer client")
+        consumerClient.start()
+
+        logger.debug("Starting kafka consumer record processor")
+        consumerRecordProcessor.start()
+    }
+
+    fun stopTopicConsumption() {
         consumerClient.stop()
         consumerRecordProcessor.close()
         logger.debug("Stopped kafka clients and processors")
@@ -79,9 +86,9 @@ class Kafka(config: KafkaConfig, consumerPreset: Properties, private val db: Dat
     private fun topicMapper(topic: String, value: String) {
         val payload = Json.parseToJsonElement(value)
         when (topic) {
-            consumerTopics.get("tiltakendret") -> tiltakEndretConsumer.process(payload)
-            consumerTopics.get("tiltakgjennomforingendret") -> tiltakgjennomforingEndretConsumer.process(payload)
-            consumerTopics.get("tiltakdeltakerendret") -> tiltakdeltakerEndretConsumer.process(payload)
+            consumerTopics["tiltakendret"] -> tiltakEndretConsumer.process(payload)
+            consumerTopics["tiltakgjennomforingendret"] -> tiltakgjennomforingEndretConsumer.process(payload)
+            consumerTopics["tiltakdeltakerendret"] -> tiltakdeltakerEndretConsumer.process(payload)
             else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
         }
     }

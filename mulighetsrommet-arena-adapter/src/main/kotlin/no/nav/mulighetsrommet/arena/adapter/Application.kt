@@ -29,7 +29,7 @@ fun main() {
     val kafka = Kafka(app.kafka, kafkaPreset, db, mulighetsrommetApiClient)
 
     initializeServer(server) {
-        main(kafka)
+        configure(app, kafka)
     }
 }
 
@@ -50,7 +50,7 @@ fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     server.start(true)
 }
 
-fun Application.main(kafka: Kafka) {
+fun Application.configure(config: AppConfig, kafka: Kafka) {
     configureSerialization()
     configureMonitoring()
     configureHTTP()
@@ -59,7 +59,13 @@ fun Application.main(kafka: Kafka) {
         internalRoutes()
     }
 
+    environment.monitor.subscribe(ApplicationStarted) {
+        if (config.startKafkaTopicConsumption) {
+            kafka.startTopicConsumption()
+        }
+    }
+
     environment.monitor.subscribe(ApplicationStopPreparing) {
-        kafka.stopClient()
+        kafka.stopTopicConsumption()
     }
 }

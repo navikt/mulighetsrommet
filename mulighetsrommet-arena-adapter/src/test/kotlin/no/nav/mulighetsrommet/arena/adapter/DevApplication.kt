@@ -37,7 +37,7 @@ fun main() {
     val kafka = Kafka(app.kafka, preset, db, mulighetsrommetApiClient)
 
     initializeServer(server) {
-        main(kafka)
+        configure(app, kafka)
     }
 }
 
