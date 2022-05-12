@@ -5,6 +5,7 @@ plugins {
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
+    id("com.adarshr.test-logger")
 }
 
 application {

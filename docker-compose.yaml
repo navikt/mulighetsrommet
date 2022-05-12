@@ -120,13 +120,8 @@ services:
       - "8090:8080"
     profiles:
       - wiremock
-    depends_on:
-      - mulighetsrommet-arena-adapter-db
-      - zookeeper
-      - kafka
-      - kafdrop
     volumes:
-      - ./wiremock:/home/wiremock
+      - ./mulighetsrommet-arena-adapter/wiremock:/home/wiremock
 
 volumes:
   mulighetsrommet-api:
