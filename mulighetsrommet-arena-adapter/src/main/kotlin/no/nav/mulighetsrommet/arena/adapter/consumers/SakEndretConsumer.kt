@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 class SakEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
-    private var resourceUri = "/api/arena/tiltaksgjennomforinger"
+    private var resourceUri = "/api/arena/sak"
 
     fun process(payload: JsonElement) {
         if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)
@@ -20,25 +20,25 @@ class SakEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private fun handleInsert(payload: JsonObject) {
         val newSak = payload["after"]!!.jsonObject.toSak()
-        logger.debug("${newTiltaksgjennomforing.sakId}")
-        client.sendRequest(HttpMethod.Post, resourceUri, newTiltaksgjennomforing)
-        logger.debug("processed tiltakgjennomforing endret insert")
+        client.sendRequest(HttpMethod.Put, "$resourceUri/${newSak.sakId}", newSak)
+        logger.debug("processed sak endret insert")
     }
 
     private fun handleUpdate(payload: JsonObject) {
         val updatedSak = payload["after"]!!.jsonObject.toSak()
-        logger.debug("ARENA ID: ${updateTiltaksgjennomforing.arenaId}")
-        client.sendRequest(HttpMethod.Put, "$resourceUri/${updateTiltaksgjennomforing.arenaId}", updateTiltaksgjennomforing)
-        logger.debug("processed tiltakgjennomforing endret update")
+        client.sendRequest(HttpMethod.Put, "$resourceUri/${updatedSak.sakId}", updatedSak)
+        logger.debug("processed sak endret update")
     }
 
     private fun JsonObject.toSak() = ArenaSak(
+        sakId = this["SAK_ID"]!!.jsonPrimitive.content.toInt(),
         aar = this["AAR"]!!.jsonPrimitive.content.toInt(),
         tiltaksnummer = this["LOPENRSAK"]!!.jsonPrimitive.content.toInt(),
         enhet = this["DATO_FRA"]!!.jsonPrimitive.content.toInt(),
     )
 
     data class ArenaSak(
+        val sakId: Int,
         val aar: Int,
         val tiltaksnummer: Int,
         val enhet: Int
