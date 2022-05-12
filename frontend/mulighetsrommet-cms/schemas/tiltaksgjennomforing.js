@@ -4,7 +4,7 @@ export default {
   type: "document",
   fields: [
     {
-      name: "tiltaksgjennomforingtiltakstype",
+      name: "tiltakstype",
       title: "Tiltakstype",
       type: "reference",
       to: [{ type: "tiltakstype" }],
@@ -12,8 +12,19 @@ export default {
     },
     {
       name: "title",
-      title: "Tittel",
+      title: "Navn på tiltaksgjennomføring",
       type: "string",
+      validation: (Rule) => Rule.required(),
+    },
+    //Kan hende denne er unødvendig
+    {
+      name: "slug",
+      type: "slug",
+      description: "Url til tiltaksgjennomforing",
+      options: {
+        source: "title",
+        maxLength: 40,
+      },
       validation: (Rule) => Rule.required(),
     },
     {
@@ -25,6 +36,18 @@ export default {
       name: "leverandor",
       title: "Leverandør",
       type: "string",
+    },
+    {
+      //TODO denne skal være hidden om "løpende" oppstart på valgt på tiltakstype
+      name: "oppstartsdato",
+      title: "Oppstart dato",
+      type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
+      hidden: async ({ parent }) => {
+        const ref = parent.tiltakstype._ref;
+        const result = await groq(`*[_type == "tiltakstype" && _id == ${ref}]`);
+        return result.oppstart !== "dato";
+      },
     },
     //Faneinnhold
     {
@@ -47,72 +70,24 @@ export default {
           title: "Påmelding og varighet",
           type: "blockContent",
         },
-      ],
-    },
-    {
-      name: "kontaktinfo",
-      title: "Kontaktinfo",
-      type: "document",
-      fields: [
         {
-          name: "kontaktinfoleverandor",
-          title: "Leverandør",
+          name: "kontaktinfo",
+          title: "Kontaktinfo",
           type: "document",
           fields: [
             {
-              name: "navnkontaktperson",
-              title: "Navn på kontaktperson",
-              type: "string",
+              name: "kontaktinfoleverandor",
+              title: "Leverandør",
+              type: "reference",
+              to: [{ type: "tiltaksarrangor" }],
               validation: (Rule) => Rule.required(),
             },
             {
-              name: "telefonnummer",
-              title: "Telefonnummer",
-              type: "number",
+              name: "kontaktinfotiltaksansvarlig",
+              title: "Tiltaksansvarlig",
+              type: "reference",
+              to: [{ type: "navkontaktperson" }],
               validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "epost",
-              title: "E-post",
-              type: "string",
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "adresse",
-              title: "Adresse",
-              type: "string",
-              validation: (Rule) => Rule.required(),
-            },
-          ],
-        },
-        {
-          name: "kontaktinfotiltaksansvarlig",
-          title: "Tiltaksansvarlig",
-          type: "document",
-          fields: [
-            {
-              name: "tiltaksansvarlig",
-              title: "Navn",
-              type: "string",
-              validation: (Rule) => Rule.required().min(2).max(200),
-            },
-            {
-              name: "telefonnummer",
-              title: "Telefonnummer",
-              type: "string",
-              validation: (Rule) => Rule.required().min(2).max(200),
-            },
-            {
-              name: "epost",
-              title: "E-post",
-              type: "string",
-              validation: (Rule) => Rule.required().min(2).max(200),
-            },
-            {
-              name: "navkontor",
-              title: "NAV-kontor",
-              type: "string",
-              validation: (Rule) => Rule.required().min(2).max(200),
             },
           ],
         },
@@ -122,7 +97,6 @@ export default {
   preview: {
     select: {
       title: "title",
-      media: "promoImage",
     },
   },
 };

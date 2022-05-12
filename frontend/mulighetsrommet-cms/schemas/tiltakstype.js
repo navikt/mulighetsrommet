@@ -17,8 +17,8 @@ export default {
     },
     //  Sammendrag/Infoboks
     {
-      name: "Innsatsgruppe",
-      title: "innsatsgruppe",
+      name: "innsatsgruppe",
+      title: "Innsatsgruppe",
       type: "string",
       options: {
         layout: "dropdown",
@@ -42,13 +42,6 @@ export default {
         ],
       },
       validation: (Rule) => Rule.required(),
-    },
-    {
-      name: "oppstartsdato",
-      title: "Oppstart dato",
-      type: "date",
-      options: { dateFormat: "DD/MM/YYYY" },
-      hidden: ({ parent }) => !(parent?.oppstart === "dato"),
     },
     {
       name: "beskrivelse",
@@ -77,35 +70,11 @@ export default {
           title: "Påmelding og varighet",
           type: "blockContent",
         },
-      ],
-    },
-    {
-      name: "kontaktinfofagansvarlig",
-      title: "Kontaktinfo fagansvarlig",
-      type: "document",
-      fields: [
         {
-          name: "fagansvarlig",
-          title: "Navn",
-          type: "string",
-          validation: (Rule) => Rule.required(),
-        },
-        {
-          name: "telefonnummer",
-          title: "Telefonnummer",
-          type: "number",
-          validation: (Rule) => Rule.required(),
-        },
-        {
-          name: "epost",
-          title: "E-post",
-          type: "string",
-          validation: (Rule) => Rule.required(),
-        },
-        {
-          name: "adresse",
-          title: "Adresse",
-          type: "string",
+          name: "kontaktinfofagansvarlig",
+          title: "Kontaktinfo fagansvarlig",
+          type: "reference",
+          to: [{ type: "navkontaktperson" }],
           validation: (Rule) => Rule.required(),
         },
       ],

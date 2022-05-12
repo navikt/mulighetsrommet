@@ -7,7 +7,9 @@ const Routes = () => {
   return (
     <Switch>
       <Route exact path="/tiltakstyper/:tiltakskode" component={ViewTiltakstypeDetaljer} />
-      <Route path="/" component={ViewTiltakstypeOversikt} />
+      //TODO må legge til riktig URL her, dette skal ikke være tiltakskode, men en ID for tiltaksgjennomføring
+      {/*<Route exact path="/tiltakstyper/:slug" component={ViewTiltakstypeDetaljer} />*/}
+      <Route path="/" exact component={ViewTiltakstypeOversikt} />
     </Switch>
   );
 };
