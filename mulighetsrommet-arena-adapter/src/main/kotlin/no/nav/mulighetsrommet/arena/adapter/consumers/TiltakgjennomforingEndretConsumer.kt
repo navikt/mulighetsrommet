@@ -24,14 +24,12 @@ class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiCl
 
     private fun handleInsert(payload: JsonObject) {
         val newTiltaksgjennomforing = payload["after"]!!.jsonObject.toTiltaksgjennomforing()
-        logger.debug("${newTiltaksgjennomforing.sakId}")
         client.sendRequest(HttpMethod.Post, resourceUri, newTiltaksgjennomforing)
         logger.debug("processed tiltakgjennomforing endret insert")
     }
 
     private fun handleUpdate(payload: JsonObject) {
         val updateTiltaksgjennomforing = payload["after"]!!.jsonObject.toTiltaksgjennomforing()
-        logger.debug("ARENA ID: ${updateTiltaksgjennomforing.arenaId}")
         client.sendRequest(HttpMethod.Put, "$resourceUri/${updateTiltaksgjennomforing.arenaId}", updateTiltaksgjennomforing)
         logger.debug("processed tiltakgjennomforing endret update")
     }
