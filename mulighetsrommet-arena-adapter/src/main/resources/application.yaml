@@ -3,14 +3,20 @@ server:
   host: 0.0.0.0
 
 app:
-  endpoints:
-    mulighetsrommetApi: ${MR_API_URI:-http://localhost:8080}
+  services:
+    mulighetsrommetApi:
+      url: ${MR_API_URL:-http://localhost:8080}
+      scope: ${MR_API_SCOPE:-default}
+
   database:
     host: ${DB_HOST:-localhost}
     port: ${DB_PORT:-5443}
     name: ${DB_DATABASE:-mulighetsrommet-arena-adapter-db}
     user: ${DB_USERNAME:-valp}
     password: ${DB_PASSWORD:-valp}
+
+  startKafkaTopicConsumption: false
+
   kafka:
     brokers: ${KAFKA_BROKERS:-localhost:29092}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1

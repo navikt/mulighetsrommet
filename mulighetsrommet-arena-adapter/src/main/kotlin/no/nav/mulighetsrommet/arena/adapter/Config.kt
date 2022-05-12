@@ -13,9 +13,19 @@ data class ServerConfig(
 )
 
 data class AppConfig(
-    val endpoints: Map<String, String>,
+    val startKafkaTopicConsumption: Boolean,
+    val services: ServiceConfig,
     val database: DatabaseConfig,
     val kafka: KafkaConfig
+)
+
+data class ServiceConfig(
+    val mulighetsrommetApi: AuthenticatedService
+)
+
+data class AuthenticatedService(
+    val url: String,
+    val scope: String
 )
 
 data class DatabaseConfig(

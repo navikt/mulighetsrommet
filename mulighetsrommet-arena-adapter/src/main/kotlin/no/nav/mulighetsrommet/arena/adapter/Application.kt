@@ -6,6 +6,10 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
@@ -13,35 +17,50 @@ import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import org.slf4j.LoggerFactory
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
-    val preset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.app.kafka.consumerGroupId)
+    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
 
-    val mulighetsrommetApiClient = MulighetsrommetApiClient(config.app.endpoints.get("mulighetsrommetApi")!!)
+    val tokenClient = AzureAdTokenClientBuilder.builder()
+        .withNaisDefaults()
+        .buildMachineToMachineTokenClient()
 
-    initializeServer(config, Kafka(config.app.kafka, preset, Database(config.app.database), mulighetsrommetApiClient))
+    val api = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url) {
+        tokenClient.createMachineToMachineToken(app.services.mulighetsrommetApi.scope)
+    }
+
+    val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)
+
+    val kafka = Kafka(
+        app.kafka,
+        kafkaPreset,
+        Database(app.database),
+        TiltakEndretConsumer(api),
+        TiltakgjennomforingEndretConsumer(api),
+        TiltakdeltakerEndretConsumer(api)
+    )
+
+    initializeServer(server) {
+        configure(app, kafka)
+    }
 }
 
-fun initializeServer(config: Config, kafka: Kafka) {
+fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
-            module {
-                main(kafka)
-            }
+            module(main)
 
             connector {
-                port = config.server.port
-                host = config.server.host
+                port = config.port
+                host = config.host
             }
         }
     )
     server.start(true)
 }
 
-fun Application.main(kafka: Kafka) {
-
+fun Application.configure(config: AppConfig, kafka: Kafka) {
     configureSerialization()
     configureMonitoring()
     configureHTTP()
@@ -50,7 +69,13 @@ fun Application.main(kafka: Kafka) {
         internalRoutes()
     }
 
+    environment.monitor.subscribe(ApplicationStarted) {
+        if (config.startKafkaTopicConsumption) {
+            kafka.startTopicConsumption()
+        }
+    }
+
     environment.monitor.subscribe(ApplicationStopPreparing) {
-        kafka.stopClient()
+        kafka.stopTopicConsumption()
     }
 }
