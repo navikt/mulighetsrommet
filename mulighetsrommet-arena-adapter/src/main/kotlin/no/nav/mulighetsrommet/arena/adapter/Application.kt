@@ -29,7 +29,7 @@ fun main() {
 
     val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)
 
-    val kafka = Kafka(
+    val kafka = KafkaConsumerOrchestrator(
         app.kafka,
         kafkaPreset,
         Database(app.database),
@@ -60,7 +60,7 @@ fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     server.start(true)
 }
 
-fun Application.configure(config: AppConfig, kafka: Kafka) {
+fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator) {
     configureSerialization()
     configureMonitoring()
     configureHTTP()

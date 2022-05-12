@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
 
-class Kafka(
+class KafkaConsumerOrchestrator(
     config: KafkaConfig,
     consumerPreset: Properties,
     private val db: Database,
@@ -25,7 +25,7 @@ class Kafka(
     private val tiltakdeltakerEndretConsumer: TiltakdeltakerEndretConsumer
 ) {
 
-    private val logger = LoggerFactory.getLogger(Kafka::class.java)
+    private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
     private val consumerClient: KafkaConsumerClient
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
     private val consumerTopics: Map<String, String> = config.topics.consumer
