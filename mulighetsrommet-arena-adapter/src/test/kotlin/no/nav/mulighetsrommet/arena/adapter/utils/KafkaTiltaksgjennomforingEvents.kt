@@ -9,7 +9,59 @@ val tiltaksgjennomforingMentorInsert = """
       "pos": "00000000120073317470",
       "after": {
         "TILTAKGJENNOMFORING_ID": 3728231,
-        "SAK_ID": 13501601,
+        "SAK_ID": 12345678,
+        "TILTAKSKODE": "MENTOR",
+        "ANTALL_DELTAKERE": null,
+        "ANTALL_VARIGHET": null,
+        "DATO_FRA": null,
+        "DATO_TIL": null,
+        "FAGPLANKODE": null,
+        "MAALEENHET_VARIGHET": null,
+        "TEKST_FAGBESKRIVELSE": null,
+        "TEKST_KURSSTED": null,
+        "TEKST_MAALGRUPPE": null,
+        "STATUS_TREVERDIKODE_INNSOKNING": "J",
+        "REG_DATO": "2022-03-30 12:45:53",
+        "REG_USER": "JSZ0219",
+        "MOD_DATO": "2022-03-30 12:45:53",
+        "MOD_USER": "JSZ0219",
+        "LOKALTNAVN": null,
+        "TILTAKSTATUSKODE": "PLANLAGT",
+        "PROSENT_DELTID": 100,
+        "KOMMENTAR": null,
+        "ARBGIV_ID_ARRANGOR": null,
+        "PROFILELEMENT_ID_GEOGRAFI": null,
+        "KLOKKETID_FREMMOTE": null,
+        "DATO_FREMMOTE": null,
+        "BEGRUNNELSE_STATUS": null,
+        "AVTALE_ID": null,
+        "AKTIVITET_ID": null,
+        "DATO_INNSOKNINGSTART": null,
+        "GML_FRA_DATO": null,
+        "GML_TIL_DATO": null,
+        "AETAT_FREMMOTEREG": null,
+        "AETAT_KONTERINGSSTED": null,
+        "OPPLAERINGNIVAAKODE": null,
+        "TILTAKGJENNOMFORING_ID_REL": null,
+        "VURDERING_GJENNOMFORING": null,
+        "PROFILELEMENT_ID_OPPL_TILTAK": null,
+        "DATO_OPPFOLGING_OK": null,
+        "PARTISJON": null,
+        "MAALFORM_KRAVBREV": "NO"
+      }
+    }
+""".trimIndent()
+
+val tiltaksgjennomforingMentorInsert2 = """
+    {
+      "table": "SIAMO.TILTAKGJENNOMFORING",
+      "op_type": "I",
+      "op_ts": "2022-03-30 12:49:25.000000",
+      "current_ts": "2022-03-30 12:49:28.872000",
+      "pos": "00000000120073317470",
+      "after": {
+        "TILTAKGJENNOMFORING_ID": 3799999,
+        "SAK_ID": 12312312,
         "TILTAKSKODE": "MENTOR",
         "ANTALL_DELTAKERE": null,
         "ANTALL_VARIGHET": null,
@@ -236,4 +288,4 @@ val tiltaksgjennomforingMentorUpdate2 = """
     }
 """.trimIndent()
 
-val tiltakgjennomforingEndretTopic = listOf(Pair("3728231", tiltaksgjennomforingMentorInsert), Pair("3728231", tiltaksgjennomforingMentorUpdate), Pair("3728231", tiltaksgjennomforingMentorUpdate2))
+val tiltakgjennomforingEndretTopic = listOf(Pair("3728231", tiltaksgjennomforingMentorInsert), Pair("3728231", tiltaksgjennomforingMentorUpdate), Pair("3728231", tiltaksgjennomforingMentorUpdate2), Pair("3799999", tiltaksgjennomforingMentorInsert2))
