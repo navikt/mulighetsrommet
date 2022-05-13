@@ -13,7 +13,7 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 
 fun main() {
-    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
+    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application-local.yaml")
 
     // Referer her til mock-oauth2-server som er hostet gjennom lokal docker-compose.
     // Her er det også satt opp config som gjør at mock-oauth2-server returnerer et gyldig token når vi ber om et

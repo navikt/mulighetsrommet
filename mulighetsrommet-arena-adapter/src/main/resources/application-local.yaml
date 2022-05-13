@@ -1,0 +1,30 @@
+server:
+  port: 8084
+  host: 0.0.0.0
+
+app:
+  services:
+    mulighetsrommetApi:
+      url: http://localhost:8080
+      scope: default
+
+  database:
+    host: localhost
+    port: 5443
+    name: mulighetsrommet-arena-adapter-db
+    user: valp
+    password: valp
+    maximumPoolSize: 10
+
+  enableFailedRecordProcessor: true
+
+  kafka:
+    brokers: localhost:29092
+    consumerGroupId: mulighetsrommet-kafka-consumer.v1
+    topics:
+      pollChangesDelayMs: 10000
+      consumer:
+        tiltakendret: tiltakendret
+        tiltakgjennomforingendret: tiltakgjennomforingendret
+        tiltakdeltakerendret: tiltakdeltakerendret
+        sakendret: sakendret

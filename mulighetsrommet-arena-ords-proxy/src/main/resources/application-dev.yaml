@@ -1,0 +1,9 @@
+server:
+  port: 8086
+  host: 0.0.0.0
+
+app:
+  ords:
+    url: https://arena-ords-q2.nais.preprod.local
+    clientId: ${ARENA_ORDS_CLIENT_ID}
+    clientSecret: ${ARENA_ORDS_CLIENT_SECRET}

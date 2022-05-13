@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -21,11 +20,12 @@ import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import java.util.*
 
 fun main() {
-    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
+    val (server, app) = loadConfiguration<Config>()
 
     val tokenClient = AzureAdTokenClientBuilder.builder()
         .withNaisDefaults()

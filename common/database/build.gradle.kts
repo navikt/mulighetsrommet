@@ -17,7 +17,7 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
 
-    val hopliteVersion = "2.1.4"
+    val hopliteVersion = "2.4.0"
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
 
     // Test

@@ -41,18 +41,3 @@ spec:
   azure:
     application:
       enabled: true
-  env:
-    - name: MR_API_URL
-      value: https://mulighetsrommet-api.dev.intern.nav.no
-    - name: MR_API_SCOPE
-      value: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
-    - name: ENABLE_FAILED_RECORD_PROCESSOR
-      value: "true"
-    - name: MR_KAFKA_TOPIC_TILTAKENDRET
-      value: teamarenanais.aapen-arena-tiltakendret-v1-q2
-    - name: MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET
-      value: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2
-    - name: MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET
-      value: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
-    - name: MR_KAFKA_TOPIC_SAKENDRET
-      value: teamarenanais.aapen-arena-sakendret-v1-q2
