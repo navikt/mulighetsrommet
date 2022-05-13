@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
@@ -82,4 +83,25 @@ fun Route.arenaRoutes() {
             call.respondText("Kunne ikke oppdatere deltaker", status = HttpStatusCode.InternalServerError)
         }
     }
+    put("/api/arena/sak/{sakId}") {
+        runCatching {
+            val sakId = call.parameters["sakId"]!!.toInt()
+            val sak = call.receive<ArenaSak>()
+            arenaService.updateTiltaksgjennomforingWithSak(sakId, sak)
+        }.onSuccess { call.respond(it) }.onFailure {
+            call.application.environment.log.debug(it.stackTraceToString())
+            call.respondText(
+                "FEIL: ${it.stackTraceToString()}",
+                status = HttpStatusCode.InternalServerError
+            )
+        }
+    }
 }
+
+@Serializable
+data class ArenaSak(
+    val sakId: Int,
+    val aar: Int,
+    val tiltaksnummer: Int,
+    val enhet: Int
+)

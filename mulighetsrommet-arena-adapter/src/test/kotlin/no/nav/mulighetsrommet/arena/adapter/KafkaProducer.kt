@@ -23,9 +23,9 @@ fun main(): Unit = runBlocking {
         .build()
 
     launch {
-        produceTiltakEndretEvents(producer)
-        produceTiltakgjennomforingEndretEvents(producer)
-        produceTiltaksdeltakerEndretEvents(producer)
+//        produceTiltakEndretEvents(producer)
+//        produceTiltakgjennomforingEndretEvents(producer)
+//        produceTiltaksdeltakerEndretEvents(producer)
         produceSakEndretEvents(producer)
         producer.close()
     }

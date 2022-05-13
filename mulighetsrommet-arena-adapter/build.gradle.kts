@@ -75,14 +75,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks {
-    shadowJar {
-        manifest {
-            attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
-        }
-    }
-}
-
 flyway {
     url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
