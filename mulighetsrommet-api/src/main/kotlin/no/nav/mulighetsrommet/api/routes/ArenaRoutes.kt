@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.arena.ArenaSak
 import org.koin.ktor.ext.inject
 
 fun Route.arenaRoutes() {
@@ -97,11 +98,3 @@ fun Route.arenaRoutes() {
         }
     }
 }
-
-@Serializable
-data class ArenaSak(
-    val sakId: Int,
-    val aar: Int,
-    val tiltaksnummer: Int,
-    val enhet: Int
-)
