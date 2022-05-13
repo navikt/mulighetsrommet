@@ -36,6 +36,7 @@ repositories {
 
 dependencies {
     implementation(project(":mulighetsrommet-domain"))
+    implementation(project(":common:ktor"))
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")

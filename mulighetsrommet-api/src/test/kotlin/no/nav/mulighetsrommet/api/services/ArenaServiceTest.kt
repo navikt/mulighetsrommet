@@ -92,7 +92,7 @@ class ArenaServiceTest : FunSpec({
         context("update tiltaksgjennomføring with sak") {
             val table = Table(listener.db.dataSource, "tiltaksgjennomforing")
             test("should update tiltaksnummer when sak references tiltaksgjennomføring") {
-                val updated = service.updateTiltaksgjennomforingWithSak(sak)
+                service.updateTiltaksgjennomforingWithSak(sak)
 
                 assertThat(table).row(0)
                     .column("id").value().isEqualTo(1)

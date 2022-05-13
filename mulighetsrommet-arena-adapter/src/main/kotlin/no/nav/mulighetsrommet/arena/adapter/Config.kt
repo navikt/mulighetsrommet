@@ -1,16 +1,12 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import com.sksamuel.hoplite.Masked
+import no.nav.mulighetsrommet.ktor.ServerConfig
 import java.lang.RuntimeException
 
 data class Config(
     val server: ServerConfig,
     val app: AppConfig
-)
-
-data class ServerConfig(
-    val host: String,
-    val port: Int
 )
 
 data class AppConfig(

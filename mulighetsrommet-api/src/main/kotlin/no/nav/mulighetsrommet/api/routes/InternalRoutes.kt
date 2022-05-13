@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.routes
 
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -12,9 +12,11 @@ import org.koin.ktor.ext.inject
 fun Route.internalRoutes() {
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val db: Database by inject()
+
     get("/internal/liveness") {
         call.respond(HttpStatusCode.OK)
     }
+
     get("/internal/readiness") {
         if (db.isHealthy()) {
             call.respond(HttpStatusCode.OK)
@@ -22,9 +24,7 @@ fun Route.internalRoutes() {
             call.respond(HttpStatusCode.InternalServerError)
         }
     }
-    get("/internal/ping") {
-        call.respondText("PONG")
-    }
+
     get("/internal/prometheus") {
         call.respond(appMicrometerRegistry.scrape())
     }

@@ -3,15 +3,11 @@ package no.nav.mulighetsrommet.api
 import com.sksamuel.hoplite.Masked
 import io.ktor.client.*
 import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
     val server: ServerConfig,
-    val app: AppConfig
-)
-
-data class ServerConfig(
-    val host: String,
-    val port: Int
+    val app: AppConfig,
 )
 
 data class AppConfig(
