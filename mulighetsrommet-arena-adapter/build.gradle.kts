@@ -5,7 +5,6 @@ plugins {
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
-    id("com.adarshr.test-logger")
 }
 
 application {
@@ -14,6 +13,17 @@ application {
 
 ktlint {
     disabledRules.addAll("no-wildcard-imports")
+}
+
+flyway {
+    url = System.getenv("DB_URL")
+    user = System.getenv("DB_USERNAME")
+    password = System.getenv("DB_PASSWORD")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    // Needed to use the `@OptIn` annotation for exeprimental features
+    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
 repositories {
@@ -79,21 +89,4 @@ dependencies {
     // Health Check
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    // Needed to use the `@OptIn` annotation for exeprimental features
-    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-
-    kotlinOptions.jvmTarget = "11"
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USERNAME")
-    password = System.getenv("DB_PASSWORD")
 }
