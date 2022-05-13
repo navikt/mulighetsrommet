@@ -36,7 +36,7 @@ fun main() {
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
-    val kafka = Kafka(
+    val kafka = KafkaConsumerOrchestrator(
         app.kafka,
         preset,
         Database(app.database),
