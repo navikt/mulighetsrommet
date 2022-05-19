@@ -88,10 +88,11 @@ fun Route.arenaRoutes() {
             val sakId = call.parameters["sakId"]!!.toInt()
             val sak = call.receive<ArenaSak>()
             arenaService.updateTiltaksgjennomforingWithSak(sakId, sak)
-        }.onSuccess { call.respond(it) }.onFailure {
-            call.application.environment.log.debug(it.stackTraceToString())
+        }.onSuccess {
+            call.respond(it)
+        }.onFailure {
             call.respondText(
-                "FEIL: ${it.stackTraceToString()}",
+                "Kunne ikke oppdatere tiltaksgjennomføring med sak: ${it.stackTraceToString()}",
                 status = HttpStatusCode.InternalServerError
             )
         }
