@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -23,7 +24,7 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
             install(ContentNegotiation) {
                 json()
             }
-
+            install(Logging)
             defaultRequest {
                 contentType(ContentType.Application.Json)
 
