@@ -25,3 +25,4 @@ app:
         tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET:-tiltakendret}
         tiltakgjennomforingendret: ${MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET:-tiltakgjennomforingendret}
         tiltakdeltakerendret: ${MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET:-tiltakdeltakerendret}
+        sakendret: ${MR_KAFKA_TOPIC_SAKENDRET:-sakendret}

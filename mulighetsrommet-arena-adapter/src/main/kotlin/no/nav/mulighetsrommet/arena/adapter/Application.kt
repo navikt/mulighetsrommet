@@ -7,6 +7,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
@@ -35,7 +36,8 @@ fun main() {
         Database(app.database),
         TiltakEndretConsumer(api),
         TiltakgjennomforingEndretConsumer(api),
-        TiltakdeltakerEndretConsumer(api)
+        TiltakdeltakerEndretConsumer(api),
+        SakEndretConsumer(api)
     )
 
     initializeServer(server) {

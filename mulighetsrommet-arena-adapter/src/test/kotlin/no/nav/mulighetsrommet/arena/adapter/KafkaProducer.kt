@@ -26,6 +26,7 @@ fun main(): Unit = runBlocking {
         produceTiltakEndretEvents(producer)
         produceTiltakgjennomforingEndretEvents(producer)
         produceTiltaksdeltakerEndretEvents(producer)
+        produceSakEndretEvents(producer)
         producer.close()
     }
 }
@@ -47,6 +48,13 @@ private suspend fun produceTiltakgjennomforingEndretEvents(producer: KafkaProduc
 private suspend fun produceTiltaksdeltakerEndretEvents(producer: KafkaProducerClient<String, String>) {
     tiltakdeltakerTopic.forEach { it ->
         producer.send(ProducerRecord("tiltakdeltakerendret", it.first, it.second))
+        delay(500)
+    }
+}
+
+private suspend fun produceSakEndretEvents(producer: KafkaProducerClient<String, String>) {
+    sakEndretTopic.forEach { it ->
+        producer.send(ProducerRecord("sakendret", it.first, it.second))
         delay(500)
     }
 }

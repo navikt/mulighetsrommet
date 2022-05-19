@@ -16,8 +16,9 @@ class Database(databaseConfig: DatabaseConfig) {
     val session: Session
 
     init {
-        logger.debug("Initializing Database")
         val jdbcUrl = "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.name}"
+
+        logger.debug("Initializing Database")
         val hikariConfig = HikariConfig()
         hikariConfig.jdbcUrl = jdbcUrl
         hikariConfig.driverClassName = "org.postgresql.Driver"
@@ -29,7 +30,6 @@ class Database(databaseConfig: DatabaseConfig) {
         dataSource = HikariDataSource(hikariConfig)
         session = sessionOf(dataSource)
 
-        // TODO: Flytt ut til CI etterhvert
         logger.debug("Start flyway migrations")
         flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
         flyway.migrate()

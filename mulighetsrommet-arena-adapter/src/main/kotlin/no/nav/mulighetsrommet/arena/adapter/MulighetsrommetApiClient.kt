@@ -39,9 +39,7 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
     internal inline fun <reified T> sendRequest(method: HttpMethod, requestUri: String, payload: T) = runBlocking {
         val response: HttpResponse = client.request(requestUri) {
             bearerAuth(getToken())
-
             this.method = method
-
             setBody(payload)
         }
 

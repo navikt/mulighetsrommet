@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.arena.ArenaSak
 import org.koin.ktor.ext.inject
 
 fun Route.arenaRoutes() {
@@ -80,6 +81,20 @@ fun Route.arenaRoutes() {
             call.respond(updatedDeltaker)
         }.onFailure {
             call.respondText("Kunne ikke oppdatere deltaker", status = HttpStatusCode.InternalServerError)
+        }
+    }
+    put("/api/arena/sak/{sakId}") {
+        runCatching {
+            val sakId = call.parameters["sakId"]!!.toInt()
+            val sak = call.receive<ArenaSak>()
+            arenaService.updateTiltaksgjennomforingWithSak(sakId, sak)
+        }.onSuccess {
+            call.respond(it)
+        }.onFailure {
+            call.respondText(
+                "Kunne ikke oppdatere tiltaksgjennomføring med sak: ${it.stackTraceToString()}",
+                status = HttpStatusCode.InternalServerError
+            )
         }
     }
 }

@@ -8,6 +8,7 @@ import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProce
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
@@ -22,7 +23,8 @@ class KafkaConsumerOrchestrator(
     private val db: Database,
     private val tiltakEndretConsumer: TiltakEndretConsumer,
     private val tiltakgjennomforingEndretConsumer: TiltakgjennomforingEndretConsumer,
-    private val tiltakdeltakerEndretConsumer: TiltakdeltakerEndretConsumer
+    private val tiltakdeltakerEndretConsumer: TiltakdeltakerEndretConsumer,
+    private val sakEndretConsumer: SakEndretConsumer
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
@@ -87,6 +89,7 @@ class KafkaConsumerOrchestrator(
             consumerTopics["tiltakendret"] -> tiltakEndretConsumer.process(payload)
             consumerTopics["tiltakgjennomforingendret"] -> tiltakgjennomforingEndretConsumer.process(payload)
             consumerTopics["tiltakdeltakerendret"] -> tiltakdeltakerEndretConsumer.process(payload)
+            consumerTopics["sakendret"] -> sakEndretConsumer.process(payload)
             else -> logger.info("Klarte ikke å mappe topic. Ukjent topic: $topic")
         }
     }

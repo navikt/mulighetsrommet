@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.arena.ArenaSak
 import org.slf4j.Logger
 
 class ArenaService(private val db: Database, private val logger: Logger) {
@@ -108,6 +109,19 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             deltaker.status.name,
             arenaId,
         ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
+        return db.session.run(queryResult)!!
+    }
+
+    fun updateTiltaksgjennomforingWithSak(sakId: Int, sak: ArenaSak): Tiltaksgjennomforing {
+        val query = """
+            update tiltaksgjennomforing set tiltaksnummer = ?, aar = ? where sak_id = ? returning *
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            sak.lopenrsak,
+            sak.aar,
+            sakId,
+        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 }
