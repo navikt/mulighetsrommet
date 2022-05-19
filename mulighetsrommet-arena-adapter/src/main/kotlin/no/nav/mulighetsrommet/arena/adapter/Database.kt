@@ -18,8 +18,6 @@ class Database(databaseConfig: DatabaseConfig) {
     init {
         val jdbcUrl = "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.name}"
 
-        flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
-        flyway.migrate()
         logger.debug("Initializing Database")
         val hikariConfig = HikariConfig()
         hikariConfig.jdbcUrl = jdbcUrl
@@ -32,8 +30,9 @@ class Database(databaseConfig: DatabaseConfig) {
         dataSource = HikariDataSource(hikariConfig)
         session = sessionOf(dataSource)
 
-        // TODO: Flytt ut til CI etterhvert
         logger.debug("Start flyway migrations")
+        flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
+        flyway.migrate()
     }
 
     fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
