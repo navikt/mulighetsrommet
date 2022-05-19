@@ -77,6 +77,12 @@ spec:
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamarenanais.aapen-arena-sakendret-v1-q2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
             }
           ]
         }
