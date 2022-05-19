@@ -114,7 +114,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
 
     fun updateTiltaksgjennomforingWithSak(sakId: Int, sak: ArenaSak): Tiltaksgjennomforing {
         val query = """
-            update tiltaksgjennomforing set tiltaksnummer = ?, aar = ?, enhet = ? where sak_id = ? returning *
+            update tiltaksgjennomforing set tiltaksnummer = ?, aar = ? where sak_id = ? returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
