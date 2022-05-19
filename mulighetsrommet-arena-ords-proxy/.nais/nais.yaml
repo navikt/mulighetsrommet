@@ -7,7 +7,7 @@ metadata:
     team: team-mulighetsrommet
 spec:
   image: {{image}}
-  port: 8084
+  port: 8086
   ingresses:
     - https://mulighetsrommet-arena-ords-proxy.dev.intern.nav.no
   prometheus:
