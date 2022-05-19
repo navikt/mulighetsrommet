@@ -7,7 +7,7 @@ plugins {
 }
 
 application {
-    mainClass.set("no.nav.mulighetsrommet.arena.ords.proxy.ApplicationKt")
+    mainClass.set("no.nav.mulighetsrommet.arena_ords_proxy.ApplicationKt")
 }
 
 repositories {
