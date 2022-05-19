@@ -53,17 +53,23 @@ class KafkaConsumerOrchestrator(
     }
 
     fun startTopicConsumption() {
-        logger.debug("Starting kafka consumer client")
         consumerClient.start()
+        logger.debug("Started kafka consumer client")
+    }
 
-        logger.debug("Starting kafka consumer record processor")
+    fun startFailedRecordProcessor() {
+        logger.debug("Started kafka consumer record processor")
         consumerRecordProcessor.start()
     }
 
     fun stopTopicConsumption() {
         consumerClient.stop()
+        logger.debug("Stopped kafka clients")
+    }
+
+    fun stopFailedRecordProcessor() {
         consumerRecordProcessor.close()
-        logger.debug("Stopped kafka clients and processors")
+        logger.debug("Stopped kafka processors")
     }
 
     private fun configureConsumersTopics(repository: KafkaConsumerRepository): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
