@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing

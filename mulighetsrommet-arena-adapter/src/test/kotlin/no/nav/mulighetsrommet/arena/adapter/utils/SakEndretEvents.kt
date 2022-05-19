@@ -89,7 +89,6 @@ val sakUpdate1 = """
     }
 """.trimIndent()
 
-
 val sakUpdate2 = """
         {
           "table": "SIAMO.SAK",

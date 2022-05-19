@@ -34,7 +34,6 @@ class Database(databaseConfig: DatabaseConfig) {
 
         // TODO: Flytt ut til CI etterhvert
         logger.debug("Start flyway migrations")
-
     }
 
     fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
