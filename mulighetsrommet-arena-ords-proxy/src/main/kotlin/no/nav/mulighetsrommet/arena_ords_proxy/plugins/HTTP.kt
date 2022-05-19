@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.arena_ords_proxy.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.cors.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 
 fun Application.configureHTTP() {

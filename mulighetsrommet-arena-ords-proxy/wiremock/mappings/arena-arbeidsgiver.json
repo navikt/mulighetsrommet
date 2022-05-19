@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/arena/api/v1/arbeidsgiver/ident"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "bedriftsnr": 123,
+      "orgnrMorselskap": 123
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -12,17 +12,20 @@ import org.slf4j.LoggerFactory
 
 fun main() {
     val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
-    initializeServer(config)
+
+    val arenaOrdsClient = ArenaOrdsClient(config.app.ords)
+
+    initializeServer(config, arenaOrdsClient)
 }
 
-fun initializeServer(config: Config) {
+fun initializeServer(config: Config, arenaOrdsClient: ArenaOrdsClient) {
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
 
             module {
-                configure(config.app)
+                configure(arenaOrdsClient)
             }
 
             connector {
@@ -34,9 +37,7 @@ fun initializeServer(config: Config) {
     server.start(true)
 }
 
-fun Application.configure(appConfig: AppConfig) {
-    val arenaOrdsClient = ArenaOrdsClient(appConfig.ords)
-
+fun Application.configure(arenaOrdsClient: ArenaOrdsClient) {
     configureHTTP()
     configureMonitoring()
     configureSerialization()

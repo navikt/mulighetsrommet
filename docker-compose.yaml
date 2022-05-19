@@ -121,7 +121,8 @@ services:
     profiles:
       - wiremock
     volumes:
-      - ./mulighetsrommet-arena-adapter/wiremock:/home/wiremock
+      - ./mulighetsrommet-arena-adapter/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-arena-adapter
+      - ./mulighetsrommet-arena-ords-proxy/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-arena-ords-proxy
 
 volumes:
   mulighetsrommet-api:
