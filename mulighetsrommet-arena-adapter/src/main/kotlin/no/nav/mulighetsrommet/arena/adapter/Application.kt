@@ -75,9 +75,13 @@ fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator) {
         if (config.startKafkaTopicConsumption) {
             kafka.startTopicConsumption()
         }
+        if (config.startFailedRecordProcessor) {
+            kafka.startFailedRecordProcessor()
+        }
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
         kafka.stopTopicConsumption()
+        kafka.stopFailedRecordProcessor()
     }
 }
