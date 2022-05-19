@@ -32,6 +32,5 @@ class SakEndretConsumer(private val client: MulighetsrommetApiClient) {
         sakId = this["SAK_ID"]!!.jsonPrimitive.content.toInt(),
         aar = this["AAR"]!!.jsonPrimitive.content.toInt(),
         lopenrsak = this["LOPENRSAK"]!!.jsonPrimitive.content.toInt(),
-        aetatenhetAnsvarlig = this["AETATENHET_ANSVARLIG"]!!.jsonPrimitive.content.toInt(),
     )
 }

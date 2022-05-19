@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
-import no.nav.mulighetsrommet.api.routes.ArenaSak
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
@@ -121,7 +120,6 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             query,
             sak.lopenrsak,
             sak.aar,
-            sak.aetatenhetAnsvarlig,
             sakId,
         ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
