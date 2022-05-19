@@ -7,6 +7,7 @@ metadata:
     team: team-mulighetsrommet
 spec:
   image: {{image}}
+#  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-arena-adapter:ff62d1e4a37f04b429ca63a0bdc74abfc5eae270
   port: 8084
   ingresses:
     - https://mulighetsrommet-arena-adapter.dev.intern.nav.no
@@ -47,9 +48,9 @@ spec:
     - name: MR_API_SCOPE
       value: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
     - name: START_KAFKA_TOPIC_CONSUMPTION
-      value: false
+      value: "false"
     - name: START_FAILED_RECORD_PROCESSOR
-      value: true
+      value: "true"
     - name: MR_KAFKA_TOPIC_TILTAKENDRET
       value: teamarenanais.aapen-arena-tiltakendret-v1-q2
     - name: MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET
