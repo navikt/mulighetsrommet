@@ -6,8 +6,8 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  #image: {{image}}
-  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-arena-adapter:ff61d1e4a37f04b429ca63a0bdc74abfc5eae270
+  image: {{image}}
+#  image: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-arena-adapter:ff62d1e4a37f04b429ca63a0bdc74abfc5eae270
   port: 8084
   ingresses:
     - https://mulighetsrommet-arena-adapter.dev.intern.nav.no
