@@ -24,6 +24,7 @@ fun Route.arenaRoutes() {
             call.response.status(HttpStatusCode.Created)
             call.respond(createdTiltakstype)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -35,6 +36,7 @@ fun Route.arenaRoutes() {
         }.onSuccess { updatedTiltakstype ->
             call.respond(updatedTiltakstype)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -46,6 +48,7 @@ fun Route.arenaRoutes() {
             call.response.status(HttpStatusCode.Created)
             call.respond(createdTiltaksgjennomforing)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText("Kunne ikke opprette tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -57,6 +60,7 @@ fun Route.arenaRoutes() {
         }.onSuccess { updatedTiltaksgjennomforing ->
             call.respond(updatedTiltaksgjennomforing)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText("Kunne ikke oppdatere tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -68,6 +72,7 @@ fun Route.arenaRoutes() {
             call.response.status(HttpStatusCode.Created)
             call.respond(createdDeltaker)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -79,6 +84,7 @@ fun Route.arenaRoutes() {
         }.onSuccess { updatedDeltaker ->
             call.respond(updatedDeltaker)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText("Kunne ikke oppdatere deltaker", status = HttpStatusCode.InternalServerError)
         }
     }
@@ -90,6 +96,7 @@ fun Route.arenaRoutes() {
         }.onSuccess {
             call.respond(it)
         }.onFailure {
+            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText(
                 "Kunne ikke oppdatere tiltaksgjennomføring med sak: ${it.stackTraceToString()}",
                 status = HttpStatusCode.InternalServerError
