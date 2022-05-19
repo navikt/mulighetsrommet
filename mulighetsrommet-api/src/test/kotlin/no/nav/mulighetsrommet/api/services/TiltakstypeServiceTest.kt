@@ -5,7 +5,6 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.test.extensions.DatabaseListener
 import org.slf4j.LoggerFactory
@@ -27,7 +26,7 @@ class TiltakstypeServiceTest : FunSpec({
                 Tiltakstype(
                     navn = "Arbeidstrening",
                     innsatsgruppe = 1,
-                    tiltakskode = Tiltakskode.ARBTREN,
+                    tiltakskode = "ARBTREN",
                     fraDato = LocalDateTime.now(),
                     tilDato = LocalDateTime.now().plusYears(1)
                 )
@@ -37,7 +36,7 @@ class TiltakstypeServiceTest : FunSpec({
                 Tiltakstype(
                     navn = "Oppfølging",
                     innsatsgruppe = 2,
-                    tiltakskode = Tiltakskode.INDOPPFOLG,
+                    tiltakskode = "INDOPPFOLG",
                     fraDato = LocalDateTime.now(),
                     tilDato = LocalDateTime.now().plusYears(1)
                 )
@@ -64,11 +63,11 @@ class TiltakstypeServiceTest : FunSpec({
 
         test("should update tiltakstype") {
             val tiltakstype = service.updateTiltakstype(
-                Tiltakskode.ARBTREN,
+                "ARBTREN",
                 Tiltakstype(
                     navn = "Abist",
                     innsatsgruppe = 1,
-                    tiltakskode = Tiltakskode.ABIST
+                    tiltakskode = "ABIST"
                 )
             )
 
@@ -76,7 +75,7 @@ class TiltakstypeServiceTest : FunSpec({
                 id = 1,
                 navn = "Abist",
                 innsatsgruppe = 1,
-                tiltakskode = Tiltakskode.ABIST
+                tiltakskode = "ABIST"
             )
         }
     }

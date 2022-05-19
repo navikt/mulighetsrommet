@@ -3,40 +3,39 @@ package no.nav.mulighetsrommet.api.services
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.slf4j.Logger
 
 class TiltakstypeService(private val db: Database, private val logger: Logger) {
 
-    fun getTiltakstypeByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype? {
+    fun getTiltakstypeByTiltakskode(tiltakskode: String): Tiltakstype? {
         val query = """
-            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode::text = ?
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        val queryResult = queryOf(query, tiltakskode).map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)
     }
 
     fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?::tiltakskode, ?, ?) returning *
+            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?, ?, ?) returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
             tiltakstype.navn,
             tiltakstype.innsatsgruppe,
             tiltakstype.sanityId,
-            tiltakstype.tiltakskode.name,
+            tiltakstype.tiltakskode,
             tiltakstype.fraDato,
             tiltakstype.tilDato
         ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
-    fun updateTiltakstype(tiltakskode: Tiltakskode, tiltakstype: Tiltakstype): Tiltakstype {
+    fun updateTiltakstype(tiltakskode: String, tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, tiltakskode = ?::tiltakskode, fra_dato = ?, til_dato = ?
-            where tiltakskode::text = ?
+            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, tiltakskode = ?, fra_dato = ?, til_dato = ?
+            where tiltakskode = ?
             returning *
         """.trimIndent()
         val queryResult = queryOf(
@@ -44,10 +43,10 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
             tiltakstype.navn,
             tiltakstype.innsatsgruppe,
             tiltakstype.sanityId,
-            tiltakstype.tiltakskode.name,
+            tiltakstype.tiltakskode,
             tiltakstype.fraDato,
             tiltakstype.tilDato,
-            tiltakskode.name
+            tiltakskode
         ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }

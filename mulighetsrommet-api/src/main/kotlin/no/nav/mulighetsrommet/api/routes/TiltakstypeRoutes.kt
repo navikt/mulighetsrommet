@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.koin.ktor.ext.inject
 
@@ -32,7 +31,7 @@ fun Route.tiltakstypeRoutes() {
     }
     get("/api/tiltakstyper/{tiltakskode}") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
         }.onSuccess { fetchedTiltakstype ->
             if (fetchedTiltakstype != null) {
@@ -46,7 +45,7 @@ fun Route.tiltakstypeRoutes() {
     }
     get("/api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakskode(tiltakskode)
         }.onSuccess { fetchedTiltaksgjennomforinger ->
             call.respond(fetchedTiltaksgjennomforinger)
@@ -65,7 +64,7 @@ fun Route.tiltakstypeRoutes() {
     }
     put("/api/tiltakstyper/{tiltakskode}") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             val tiltakstype = call.receive<Tiltakstype>()
             tiltakstypeService.updateTiltakstype(tiltakskode, tiltakstype)
         }.onSuccess { updatedTiltakstype ->

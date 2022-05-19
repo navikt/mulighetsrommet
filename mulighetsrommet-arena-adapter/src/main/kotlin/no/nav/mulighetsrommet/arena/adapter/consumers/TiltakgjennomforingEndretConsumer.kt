@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils.isInsertArenaOperation
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.slf4j.LoggerFactory
 
 class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiClient) {
@@ -36,7 +35,7 @@ class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiCl
 
     private fun JsonObject.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         navn = this["LOKALTNAVN"]!!.jsonPrimitive.content,
-        tiltakskode = Tiltakskode.valueOf(this["TILTAKSKODE"]!!.jsonPrimitive.content),
+        tiltakskode = this["TILTAKSKODE"]!!.jsonPrimitive.content,
         fraDato = ProcessingUtils.getArenaDateFromTo(this["DATO_FRA"]!!.jsonPrimitive.content),
         tilDato = ProcessingUtils.getArenaDateFromTo(this["DATO_TIL"]!!.jsonPrimitive.content),
         arrangorId = this["ARBGIV_ID_ARRANGOR"]!!.jsonPrimitive.content.toIntOrNull(),

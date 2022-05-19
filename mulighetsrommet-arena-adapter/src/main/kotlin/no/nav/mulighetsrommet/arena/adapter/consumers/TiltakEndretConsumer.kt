@@ -5,7 +5,6 @@ import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils.isInsertArenaOperation
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.slf4j.LoggerFactory
 
@@ -33,7 +32,7 @@ class TiltakEndretConsumer(private val client: MulighetsrommetApiClient) {
     private fun JsonObject.toTiltakstype() = Tiltakstype(
         navn = this["TILTAKSNAVN"]!!.jsonPrimitive.content,
         innsatsgruppe = 1,
-        tiltakskode = Tiltakskode.valueOf(this["TILTAKSKODE"]!!.jsonPrimitive.content),
+        tiltakskode = this["TILTAKSKODE"]!!.jsonPrimitive.content,
         fraDato = ProcessingUtils.getArenaDateFromTo(this["DATO_FRA"]!!.jsonPrimitive.content),
         tilDato = ProcessingUtils.getArenaDateFromTo(this["DATO_TIL"]!!.jsonPrimitive.content)
     )

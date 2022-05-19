@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.test.extensions.DatabaseListener
 import org.slf4j.LoggerFactory
@@ -27,14 +26,14 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             Tiltakstype(
                 navn = "Oppfølging",
                 innsatsgruppe = 1,
-                tiltakskode = Tiltakskode.INDOPPFOLG,
+                tiltakskode = "INDOPPFOLG",
             )
         )
         tiltakstypeService.createTiltakstype(
             Tiltakstype(
                 navn = "Arbeidstrening",
                 innsatsgruppe = 1,
-                tiltakskode = Tiltakskode.ARBTREN,
+                tiltakskode = "ARBTREN",
             )
         )
     }
@@ -46,7 +45,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             val gjennomforing0 = service.createTiltaksgjennomforing(
                 Tiltaksgjennomforing(
                     navn = "Oppfølging",
-                    tiltakskode = Tiltakskode.INDOPPFOLG,
+                    tiltakskode = "INDOPPFOLG",
                     tiltaksnummer = 111,
                     arenaId = 1000,
                     sakId = 1000,
@@ -56,7 +55,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             val gjennomforing1 = service.createTiltaksgjennomforing(
                 Tiltaksgjennomforing(
                     navn = "Arbeidstrening",
-                    tiltakskode = Tiltakskode.ARBTREN,
+                    tiltakskode = "ARBTREN",
                     tiltaksnummer = 222,
                     arenaId = 1001,
                     sakId = 1001,
@@ -73,7 +72,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforing shouldBe Tiltaksgjennomforing(
                 id = 1,
                 navn = "Oppfølging",
-                tiltakskode = Tiltakskode.INDOPPFOLG,
+                tiltakskode = "INDOPPFOLG",
                 tiltaksnummer = 111,
                 arenaId = 1000,
                 sakId = 1000,
@@ -85,7 +84,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("should get tiltaksgjennomføringer by tiltakskode") {
-            service.getTiltaksgjennomforingerByTiltakskode(Tiltakskode.ARBTREN) shouldHaveSize 1
+            service.getTiltaksgjennomforingerByTiltakskode("ARBTREN") shouldHaveSize 1
         }
 
         test("should update tiltaksgjennomføring") {
@@ -93,7 +92,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 1001,
                 Tiltaksgjennomforing(
                     navn = "Arbeidstrening",
-                    tiltakskode = Tiltakskode.ARBTREN,
+                    tiltakskode = "ARBTREN",
                     tiltaksnummer = 333,
                     arenaId = 1001,
                     sakId = 1001,
@@ -103,7 +102,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforing shouldBe Tiltaksgjennomforing(
                 id = 2,
                 navn = "Arbeidstrening",
-                tiltakskode = Tiltakskode.ARBTREN,
+                tiltakskode = "ARBTREN",
                 tiltaksnummer = 333,
                 arenaId = 1001,
                 sakId = 1001,

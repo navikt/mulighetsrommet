@@ -8,7 +8,6 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.domain.arena.ArenaSak
 import org.koin.ktor.ext.inject
@@ -30,7 +29,7 @@ fun Route.arenaRoutes() {
     }
     put("/api/arena/tiltakstyper/{tiltakskode}") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             val tiltakstype = call.receive<Tiltakstype>()
             arenaService.updateTiltakstype(tiltakskode, tiltakstype)
         }.onSuccess { updatedTiltakstype ->

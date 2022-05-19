@@ -11,7 +11,7 @@ object DatabaseMapper {
             navn = row.string("navn"),
             innsatsgruppe = row.int("innsatsgruppe_id"),
             sanityId = row.intOrNull("sanity_id"),
-            tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
+            tiltakskode = row.string("tiltakskode"),
             fraDato = row.localDateTimeOrNull("fra_dato"),
             tilDato = row.localDateTimeOrNull("til_dato"),
         )
@@ -22,7 +22,7 @@ object DatabaseMapper {
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
             arrangorId = row.intOrNull("arrangor_id"),
-            tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
+            tiltakskode = row.string("tiltakskode"),
             arenaId = row.int("arena_id"),
             sakId = row.int("sak_id"),
             sanityId = row.intOrNull("sanity_id"),
