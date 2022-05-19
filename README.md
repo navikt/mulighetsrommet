@@ -70,5 +70,5 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 For å gjøre noen rutineoppgaver enklere er det mulig å installere følgende git hooks på eget initiativ (ikke en komplett liste, blir oppdatert etter hvert som behovet oppstår):
 
 - Installasjon av pre-commit hook for å kjøre `ktlintFormat` på endrede filer: Kjør kommando `./gradlew addKtlintFormatGitPreCommitHook`
-- Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør kommando `./gradlew waddKtlintCheckGitPreCommitHook`
+- Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør kommando `./gradlew addKtlintCheckGitPreCommitHook`
 

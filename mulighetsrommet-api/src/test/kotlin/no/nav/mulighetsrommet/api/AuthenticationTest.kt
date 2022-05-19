@@ -41,7 +41,7 @@ class AuthenticationTest : FunSpec({
             withMulighetsrommetApp(oauth) {
 
                 val response = client.get("/api/innsatsgrupper") {
-                    header(HttpHeaders.Authorization, "Bearer ${oauth.issueToken(audience = "skatteetaten").serialize()}")
+                    header(HttpHeaders.Authorization, "Bearer ${oauth.issueToken(issuerId = "skatteetaten").serialize()}") // TODO Skulle denne vært issuerId istedenfor audience? Tester vel ellers det samme som metoden over
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
