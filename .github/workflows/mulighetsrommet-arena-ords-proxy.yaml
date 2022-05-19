@@ -36,3 +36,30 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
+          docker build -t ${IMAGE} .
+          docker push ${IMAGE}
+
+  deploy-dev:
+    name: Deploy (dev)
+    runs-on: ubuntu-latest
+    needs: [ build-and-test ]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: mulighetsrommet-arena-ords-proxy/.nais/nais.yaml
+          VAR: image=${{ env.IMAGE }}
+
+
