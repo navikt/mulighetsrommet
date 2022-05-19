@@ -3,10 +3,11 @@ plugins {
     jacoco
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("com.github.johnrengelman.shadow")
 }
 
 application {
-    mainClass.set("no.nav.mulighetsrommet.arena.adapter.ApplicationKt")
+    mainClass.set("no.nav.mulighetsrommet.arena.ords.proxy.ApplicationKt")
 }
 
 repositories {
