@@ -5,13 +5,8 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-group = "no.nav.mulighetsrommet"
-version = "0.0.1"
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    mainClass.set("no.nav.mulighetsrommet.arena.adapter.ApplicationKt")
 }
 
 repositories {
