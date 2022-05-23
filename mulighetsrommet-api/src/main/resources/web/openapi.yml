@@ -222,14 +222,11 @@ components:
       properties:
         id:
           type: number
-        tittel:
-          type: string
-        beskrivelse:
+        navn:
           type: string
       required:
         - id
-        - tittel
-        - beskrivelse
+        - navn
     Tiltakstype:
       type: object
       required:
