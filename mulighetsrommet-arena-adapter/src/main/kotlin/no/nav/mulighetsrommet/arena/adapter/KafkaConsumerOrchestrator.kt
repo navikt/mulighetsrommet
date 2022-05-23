@@ -52,22 +52,22 @@ class KafkaConsumerOrchestrator(
             .build()
     }
 
-    fun startTopicConsumption() {
+    fun enableTopicConsumption() {
         consumerClient.start()
         logger.debug("Started kafka consumer client")
     }
 
-    fun startFailedRecordProcessor() {
-        logger.debug("Started kafka consumer record processor")
+    fun enableFailedRecordProcessor() {
         consumerRecordProcessor.start()
+        logger.debug("Started kafka consumer record processor")
     }
 
-    fun stopTopicConsumption() {
+    fun disableTopicConsumption() {
         consumerClient.stop()
-        logger.debug("Stopped kafka clients")
+        logger.debug("Stopped kafka consumer client")
     }
 
-    fun stopFailedRecordProcessor() {
+    fun disableFailedRecordProcessor() {
         consumerRecordProcessor.close()
         logger.debug("Stopped kafka processors")
     }
