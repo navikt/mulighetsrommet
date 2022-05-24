@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './ViewTiltakstypeOversikt.less';
 import '../../layouts/MainView.less';
-import { Alert, Button, Loader } from '@navikt/ds-react';
+import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
 import { useAtom } from 'jotai';
@@ -11,9 +11,14 @@ import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import FilterTags from '../../components/tags/Filtertags';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
 import Show from '../../utils/Show';
+import Lenke from '../../components/lenke/Lenke';
+import { TiltakstypeI } from '../../sanity-data/TiltakstypeSlug';
+import { TiltaksgjennomforingI } from '../../sanity-data/TiltaksgjennomforingSlug';
+import { sanityClient } from '../../sanityClient';
 
-const ViewTiltakstypeOversikt = () => {
+const ViewTiltakstypeOversikt = (tiltakstype: TiltakstypeI, tiltaksgjennomforing: TiltaksgjennomforingI) => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const [gjennomforing, setGjennomforing] = useState(null);
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
@@ -26,6 +31,13 @@ const ViewTiltakstypeOversikt = () => {
       setFilter(tiltaksgjennomforingsfilter.init);
     }
   }, [filter.tiltakstyper, filter.innsatsgrupper]);
+
+  useEffect(() => {
+    sanityClient
+      .fetch(`*[_type == "tiltaksgjennomforing"]`)
+      .then(data => setGjennomforing(data))
+      .catch(console.error);
+  }, []);
 
   return (
     <>
@@ -68,10 +80,11 @@ const ViewTiltakstypeOversikt = () => {
                 </Button>
               </div>
             </Show>
+            <Lenke to={`/tiltakstyper/${tiltaksgjennomforing.slug}`}>Test</Lenke>
           </div>
           <div className="tiltakstype-oversikt__tiltak">
             {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
-            {data && <TiltakstypeTabell tiltaksgjennomforingsliste={data} />}
+            {data && <TiltakstypeTabell />}
             {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
           </div>
         </div>

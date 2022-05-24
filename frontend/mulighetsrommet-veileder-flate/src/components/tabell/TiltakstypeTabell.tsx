@@ -1,21 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pagination, Table, Alert, Heading } from '@navikt/ds-react';
 import './Tabell.less';
-import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
+import { sanityClient } from '../../sanityClient';
 
-export interface TiltakstypelisteProps {
-  tiltaksgjennomforingsliste: Array<Tiltaksgjennomforing>;
-}
-
-const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps) => {
+const TiltakstypeTabell = () => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
+
+  const [tiltaksgjennomforing, setTiltaksgjennomforing] = useState([]);
+  const [tiltakstype, setTiltakstype] = useState([]);
+
+  useEffect(() => {
+    sanityClient
+      .fetch(`*[_type == "tiltaksgjennomforing"]`)
+      .then(data => setTiltaksgjennomforing(data))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    sanityClient
+      .fetch(`*[_type == "tiltakstype"]`)
+      .then(data => setTiltakstype(data))
+      .catch(console.error);
+  }, []);
 
   const tilgjengelighetsstatus = (status: string) => {
     //TODO endre denne når vi får inn data fra Arena
@@ -90,14 +103,14 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltaksgjennomforingsliste.length === 0 ? (
+          {tiltaksgjennomforing.length === 0 ? (
             <Table.DataCell colSpan={5}>
               <Alert variant="info" className="tabell__alert">
                 Det finnes ingen tiltakstyper med dette søket.
               </Alert>
             </Table.DataCell>
           ) : (
-            tiltaksgjennomforingsliste
+            tiltaksgjennomforing
               .slice()
               .sort((a, b) => {
                 if (sort) {
@@ -117,22 +130,27 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
                 return 1;
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(({ id, tittel, tiltakskode, fraDato, tiltaksnummer }) => (
-                <Table.Row key={id}>
+              .map(({ _id, tiltaksnummer, title, oppstartsdato, leverandor, tiltakstype, lokasjon }) => (
+                <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`/tiltakstyper/${tiltakskode}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
-                      {tittel}
+                    <Lenke
+                      to={`/tiltakstyper/${tiltaksnummer}`}
+                      isInline
+                      data-testid="tabell_tiltakstyper_tiltaksnummer"
+                    >
+                      {title}
                     </Lenke>
-                    <div>{'Leverandør'}</div>
+                    <div>{leverandor}</div>
                   </Table.DataCell>
                   <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
                     {tiltaksnummer}
                     <Kopiknapp kopitekst={tiltaksnummer!} />
                   </Table.DataCell>
-                  <Table.DataCell>{tiltakskode}</Table.DataCell>
-                  <Table.DataCell>Lokasjon</Table.DataCell>
+                  {/*må hente tiltakstype fra reference*/}
+                  <Table.DataCell>---</Table.DataCell> {/* Tiltakstype */}
+                  <Table.DataCell>{lokasjon}</Table.DataCell>
                   <Table.DataCell>
-                    {fraDato ? new Intl.DateTimeFormat().format(new Date(fraDato)) : 'Mangler dato'}
+                    {oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Mangler dato'}
                   </Table.DataCell>
                   <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
                 </Table.Row>
@@ -142,13 +160,9 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {tiltaksgjennomforingsliste?.length} av {tiltaksgjennomforingsliste?.length} tiltak
+          Viser {tiltaksgjennomforing?.length} av {tiltaksgjennomforing?.length} tiltak
         </Heading>
-        <Pagination
-          page={page}
-          onPageChange={setPage}
-          count={Math.ceil(tiltaksgjennomforingsliste.length / rowsPerPage)}
-        />
+        <Pagination page={page} onPageChange={setPage} count={Math.ceil(tiltaksgjennomforing.length / rowsPerPage)} />
       </div>
     </div>
   );

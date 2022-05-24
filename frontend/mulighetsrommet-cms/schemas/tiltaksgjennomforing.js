@@ -1,7 +1,10 @@
+import { GrDocumentPerformance } from "react-icons/gr";
+
 export default {
   name: "tiltaksgjennomforing",
   title: "Tiltaksgjennomføring",
   type: "document",
+  icon: GrDocumentPerformance,
   fields: [
     {
       name: "tiltakstype",
@@ -16,17 +19,6 @@ export default {
       type: "string",
       validation: (Rule) => Rule.required(),
     },
-    //Kan hende denne er unødvendig
-    {
-      name: "slug",
-      type: "slug",
-      description: "Url til tiltaksgjennomforing",
-      options: {
-        source: "title",
-        maxLength: 40,
-      },
-      validation: (Rule) => Rule.required(),
-    },
     {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
@@ -36,6 +28,137 @@ export default {
       name: "leverandor",
       title: "Leverandør",
       type: "string",
+    },
+    {
+      name: "lokasjon",
+      title: "Lokasjon",
+      type: "string",
+    },
+    {
+      name: "enheter",
+      title: "Enheter",
+      description:
+        "Hvilke enheter skal ha tilgang til denne tiltaksgjennomføringen?",
+      type: "document",
+      fields: [
+        {
+          name: "fylke",
+          title: "Fylke",
+          type: "string",
+          options: {
+            layout: "dropdown",
+            list: [
+              { title: "Innlandet", value: "innlandet" },
+              { title: "Trøndelag", value: "trondelag" },
+              { title: "Vest-Viken", value: "vestviken" },
+              { title: "Øst-Viken", value: "ostviken" },
+            ],
+          },
+        },
+        //innlandet
+        {
+          name: "ringsaker",
+          title: "Ringsaker",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === "ostviken" ||
+            parent?.fylke === undefined,
+        },
+        //trøndelag
+        {
+          name: "trondheim",
+          title: "Trondheim",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === "ostviken" ||
+            parent?.fylke === undefined,
+        },
+        {
+          name: "steinkjer",
+          title: "Steinkjer",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === "ostviken" ||
+            parent?.fylke === undefined,
+        },
+        //vest-viken
+        {
+          name: "asker",
+          title: "Asker",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "ostviken" ||
+            parent?.fylke === undefined,
+        },
+        //øst-viken
+        {
+          name: "lillestrom",
+          title: "Lillestrøm",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === undefined,
+        },
+        {
+          name: "sarpsborg",
+          title: "Sarpsborg",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === undefined,
+        },
+        {
+          name: "fredrikstad",
+          title: "Fredrikstad",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === undefined,
+        },
+        {
+          name: "indreostfold",
+          title: "Indre Østfold",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === undefined,
+        },
+        {
+          name: "skiptvedtmarker",
+          title: "Skiptvedt/Marker",
+          type: "boolean",
+          initialValue: false,
+          hidden: ({ parent }) =>
+            parent?.fylke === "innlandet" ||
+            parent?.fylke === "trondelag" ||
+            parent?.fylke === "vestviken" ||
+            parent?.fylke === undefined,
+        },
+      ],
     },
     {
       //TODO denne skal være hidden om "løpende" oppstart på valgt på tiltakstype

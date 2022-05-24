@@ -1,7 +1,10 @@
+import { FaWpforms } from "react-icons/fa";
+
 export default {
   name: "tiltakstype",
   title: "Tiltakstype",
   type: "document",
+  icon: FaWpforms,
   fields: [
     {
       name: "title",

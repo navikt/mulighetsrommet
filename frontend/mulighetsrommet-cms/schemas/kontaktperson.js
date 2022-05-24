@@ -1,7 +1,10 @@
+import { GrUserWorker } from "react-icons/gr";
+
 export default {
   name: "navkontaktperson",
   title: "NAV kontaktperson",
   type: "document",
+  icon: GrUserWorker,
   fields: [
     {
       name: "title",

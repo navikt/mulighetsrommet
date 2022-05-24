@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import './App.less';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
@@ -19,9 +19,9 @@ function App() {
     <div className="app__container">
       <div className={APPLICATION_NAME}>
         <QueryClientProvider client={queryClient}>
-          <Router>
+          <BrowserRouter>
             <Routes />
-          </Router>
+          </BrowserRouter>
           <ToastContainer
             position="top-right"
             autoClose={5000}

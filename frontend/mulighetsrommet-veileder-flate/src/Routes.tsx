@@ -6,9 +6,8 @@ import ViewTiltakstypeOversikt from './views/tiltakstype-oversikt/ViewTiltakstyp
 const Routes = () => {
   return (
     <Switch>
-      <Route exact path="/tiltakstyper/:tiltakskode" component={ViewTiltakstypeDetaljer} />
-      //TODO må legge til riktig URL her, dette skal ikke være tiltakskode, men en ID for tiltaksgjennomføring
-      {/*<Route exact path="/tiltakstyper/:slug" component={ViewTiltakstypeDetaljer} />*/}
+      //TODO må legge til riktig URL her
+      <Route exact path="/tiltakstyper/:tiltaksnummer" component={ViewTiltakstypeDetaljer} />
       <Route path="/" exact component={ViewTiltakstypeOversikt} />
     </Switch>
   );
