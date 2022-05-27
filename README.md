@@ -16,8 +16,8 @@ Hensikten er å kunne gi begge parter lett tilgang til den samme kvalitetssikret
 
 |                  |                                                                                                      |
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
-| Kildekode        | <https://github.com/navikt/mulighetsrommet/tree/dev/frontend/mulighetsrommet-veileder-flate>           |
-| README           | <https://github.com/navikt/mulighetsrommet/blob/dev/frontend/mulighetsrommet-veileder-flate/README.md> |
+| Kildekode        | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
+| README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
 | Url (dev-miljø)  | <https://mulighetsrommet-veileder-flate.dev.intern.nav.no/>                                            |
 | Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/>                                                 |
 
@@ -26,17 +26,17 @@ Hensikten er å kunne gi begge parter lett tilgang til den samme kvalitetssikret
 Klient til frontend for å snakke med backend. Auto-generert med OpenAPI via `openapi.yml` i `mulighetsrommet-api`.
 | | |
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
-| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/dev/frontend/mulighetsrommet-api-client> |
-| README | <https://github.com/navikt/mulighetsrommet/blob/dev/frontend/mulighetsrommet-api-client/README.md> |
-| openapi.yml | <https://github.com/navikt/mulighetsrommet/tree/dev/mulighetsrommet-api/src/main/resources/web/openapi.yml> |
+| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-api-client> |
+| README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-api-client/README.md> |
+| openapi.yml | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api/src/main/resources/web/openapi.yml> |
 
 ### `mulighetsrommet-veileder-cms`
 
 Sanity Studio til forvaltning av informasjon for veiledere.
 | | |
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
-| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/dev/frontend/mulighetsrommet-veileder-flate> |
-| README | <https://github.com/navikt/mulighetsrommet/blob/dev/frontend/mulighetsrommet-veileder-flate/README.md> |
+| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate> |
+| README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
 | Url (dev-miljø) | <https://mulighetsrommet-veileder-flate.dev.intern.nav.no/> |
 | Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/> |
 
@@ -44,8 +44,8 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 
 |                 |                                                                                  |
 | --------------- | -------------------------------------------------------------------------------- |
-| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/dev/mulighetsrommet-api>           |
-| README          | <https://github.com/navikt/mulighetsrommet/blob/dev/mulighetsrommet-api/README.md> |
+| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api>           |
+| README          | <https://github.com/navikt/mulighetsrommet/blob/main/mulighetsrommet-api/README.md> |
 | Url (dev-miljø) | <https://mulighetsrommet-api.dev.intern.nav.no/>                                   |
 | API             | <https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui>                         |
 
