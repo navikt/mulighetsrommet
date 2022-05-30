@@ -36,7 +36,7 @@ const ViewTiltakstypeDetaljer = () => {
 
   return (
     <div className="tiltakstype-detaljer">
-      <Tilbakeknapp tilbakelenke="./" />
+      <Tilbakeknapp tilbakelenke="/" />
       <div className="tiltakstype-detaljer__info">
         <TiltaksgjennomforingsHeader title={navn} tiltakstype={navn} />
         <Statistikk
