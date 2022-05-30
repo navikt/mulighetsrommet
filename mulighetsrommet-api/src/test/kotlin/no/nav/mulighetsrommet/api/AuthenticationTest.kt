@@ -10,6 +10,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 class AuthenticationTest : FunSpec({
 
     val oauth = MockOAuth2Server()
+    val apiUrl = "/api/v1/innsatsgrupper"
 
     beforeSpec {
         oauth.start()
@@ -22,7 +23,7 @@ class AuthenticationTest : FunSpec({
     context("protected endpoints") {
         test("should respond with 401 when request is not authenticated") {
             withMulighetsrommetApp(oauth) {
-                val response = client.get("/api/innsatsgrupper")
+                val response = client.get(apiUrl)
 
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
@@ -30,7 +31,7 @@ class AuthenticationTest : FunSpec({
 
         test("should respond with 401 when the token has the wrong audience") {
             withMulighetsrommetApp(oauth) {
-                val response = client.get("/api/innsatsgrupper") {
+                val response = client.get(apiUrl) {
                     header(HttpHeaders.Authorization, "Bearer ${oauth.issueToken(audience = "skatteetaten").serialize()}")
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -40,7 +41,7 @@ class AuthenticationTest : FunSpec({
         test("should respond with 401 when the token has the wrong issuer") {
             withMulighetsrommetApp(oauth) {
 
-                val response = client.get("/api/innsatsgrupper") {
+                val response = client.get(apiUrl) {
                     header(HttpHeaders.Authorization, "Bearer ${oauth.issueToken(issuerId = "skatteetaten").serialize()}")
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -49,7 +50,7 @@ class AuthenticationTest : FunSpec({
 
         test("should respond with 200 when request is authenticated") {
             withMulighetsrommetApp(oauth) {
-                val response = client.get("/api/innsatsgrupper") {
+                val response = client.get(apiUrl) {
                     header(HttpHeaders.Authorization, "Bearer ${oauth.issueToken().serialize()}")
                 }
                 response.status shouldBe HttpStatusCode.OK

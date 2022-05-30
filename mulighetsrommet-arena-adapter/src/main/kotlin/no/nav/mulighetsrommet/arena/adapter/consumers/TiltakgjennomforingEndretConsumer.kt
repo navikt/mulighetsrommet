@@ -1,11 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils.isInsertArenaOperation
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory
 class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
-    private var resourceUri = "/api/arena/tiltaksgjennomforinger"
+    private var resourceUri = "/api/v1/arena/tiltaksgjennomforinger"
 
     fun process(payload: JsonElement) {
         if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 class TiltakdeltakerEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
-    private var resourceUri = "/api/arena/deltakere"
+    private var resourceUri = "/api/v1/arena/deltakere"
 
     fun process(payload: JsonElement) {
         if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)
