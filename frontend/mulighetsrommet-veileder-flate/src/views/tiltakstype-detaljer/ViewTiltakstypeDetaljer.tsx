@@ -15,7 +15,7 @@ interface RouteParams {
 }
 
 const ViewTiltakstypeDetaljer = () => {
-  const params = useParams<RouteParams>();
+  const params = useParams<'tiltakskode'>() as RouteParams;
 
   //TODO legg inn tiltaksgjennomføring når den er klar
   const tiltakstype = useTiltakstype(params.tiltakskode);

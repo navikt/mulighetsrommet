@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import ViewTiltakstypeDetaljer from './views/tiltakstype-detaljer/ViewTiltakstypeDetaljer';
 import ViewTiltakstypeOversikt from './views/tiltakstype-oversikt/ViewTiltakstypeOversikt';
 
@@ -8,6 +8,10 @@ const RoutesConfig = () => {
     <Routes>
       <Route path="/" element={<ViewTiltakstypeOversikt />} />
       <Route path="/tiltakstyper/:tiltakskode" element={<ViewTiltakstypeDetaljer />} />
+
+      <Route path="*" element={<Navigate to="/" />}>
+        {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}
+      </Route>
     </Routes>
   );
 };
