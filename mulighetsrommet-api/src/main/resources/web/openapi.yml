@@ -4,6 +4,9 @@ info:
   version: 1.0.0
   title: Mulighetsrommet API
 
+security:
+  - bearerAuth: []
+
 paths:
   /internal/ping:
     get:
@@ -200,6 +203,11 @@ paths:
               schema:
                 type: string
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
     ID:
       name: id
@@ -240,10 +248,10 @@ components:
         - tiltakskode
         - fraDato
         - tilDato
-#        - createdBy
-#        - createdAt
-#        - updatedBy
-#        - updatedAt
+      #        - createdBy
+      #        - createdAt
+      #        - updatedBy
+      #        - updatedAt
       properties:
         id:
           type: integer
@@ -263,18 +271,18 @@ components:
         tilDato:
           type: string
           nullable: true
-#        createdBy:
-#          type: string
-#          nullable: true
-#        createdAt:
-#          type: string
-#          nullable: true
-#        updatedBy:
-#          type: string
-#          nullable: true
-#        updatedAt:
-#          type: string
-#          nullable: true
+    #        createdBy:
+    #          type: string
+    #          nullable: true
+    #        createdAt:
+    #          type: string
+    #          nullable: true
+    #        updatedBy:
+    #          type: string
+    #          nullable: true
+    #        updatedAt:
+    #          type: string
+    #          nullable: true
     Tiltaksgjennomforing:
       type: object
       properties:
