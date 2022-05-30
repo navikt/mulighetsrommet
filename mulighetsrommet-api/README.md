@@ -39,7 +39,7 @@ bruke [sdkman](https://sdkman.io/install).
 
 ### Docker
 
-Vår database kjører i en docker container og da må `docker` og `docker-compose` være installert (Captian Obvious). For å
+Vår database kjører i en docker container og da må `docker` og `docker-compose` være installert (Captain Obvious). For å
 installere disse kan du følge oppskriften på [Dockers](https://www.docker.com/) offisielle side. For installering på Mac
 trykk [her](https://docs.docker.com/desktop/mac/install/) eller
 trykk [her](https://docs.docker.com/engine/install/ubuntu/) for Ubuntu.
