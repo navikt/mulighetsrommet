@@ -12,6 +12,9 @@ const TiltakstypeTabell = () => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
+  const pagination = (tiltaksgjennomforing: string[]) => {
+    return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
+  };
 
   const [tiltaksgjennomforing, setTiltaksgjennomforing] = useState([]);
   const [tiltakstype, setTiltakstype] = useState([]);
@@ -25,7 +28,7 @@ const TiltakstypeTabell = () => {
 
   useEffect(() => {
     sanityClient
-      .fetch(`*[_type == "tiltakstype"]`)
+      .fetch(`*[_type == "tiltakstype"]{_id, title}`)
       .then(data => setTiltakstype(data))
       .catch(console.error);
   }, []);
@@ -55,6 +58,17 @@ const TiltakstypeTabell = () => {
       );
     }
   };
+
+  const finnTiltakstype = (tiltaksgjennomforingTypeReferanse: any) => {
+    let tittel = '';
+    tiltakstype.map(({ _id, title }) => {
+      if (tiltaksgjennomforingTypeReferanse._ref === _id) {
+        tittel = title;
+      }
+    });
+    return tittel;
+  };
+
   return (
     <div className="w-full flex flex-col gap-4">
       <Table
@@ -78,23 +92,23 @@ const TiltakstypeTabell = () => {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader
-              sortKey="navn"
+              sortKey="title"
               sortable
               className="tabell__kolonne__tiltaksnavn"
               data-testid="tabellheader_tiltaksnavn"
             >
               Tiltaksnavn
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="id" sortable className="tabell__kolonne__tiltaksnummer">
+            <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltakskode" sortable className="tabell__kolonne__tiltakstype">
+            <Table.ColumnHeader sortKey="tiltakstype" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
               Lokasjon
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="fraDato" sortable className="tabell__kolonne__oppstart">
+            <Table.ColumnHeader sortKey="oppstartsdato" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
@@ -146,8 +160,7 @@ const TiltakstypeTabell = () => {
                     {tiltaksnummer}
                     <Kopiknapp kopitekst={tiltaksnummer!} />
                   </Table.DataCell>
-                  {/*må hente tiltakstype fra reference*/}
-                  <Table.DataCell>---</Table.DataCell> {/* Tiltakstype */}
+                  <Table.DataCell>{finnTiltakstype(tiltakstype)}</Table.DataCell>
                   <Table.DataCell>{lokasjon}</Table.DataCell>
                   <Table.DataCell>
                     {oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Mangler dato'}
@@ -162,7 +175,11 @@ const TiltakstypeTabell = () => {
         <Heading level="1" size="xsmall">
           Viser {tiltaksgjennomforing?.length} av {tiltaksgjennomforing?.length} tiltak
         </Heading>
-        <Pagination page={page} onPageChange={setPage} count={Math.ceil(tiltaksgjennomforing.length / rowsPerPage)} />
+        <Pagination
+          page={page}
+          onPageChange={setPage}
+          count={pagination(tiltaksgjennomforing) === 0 ? 1 : pagination(tiltaksgjennomforing)}
+        />
       </div>
     </div>
   );

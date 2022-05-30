@@ -11,12 +11,9 @@ import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import FilterTags from '../../components/tags/Filtertags';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
 import Show from '../../utils/Show';
-import Lenke from '../../components/lenke/Lenke';
-import { TiltakstypeI } from '../../sanity-data/TiltakstypeSlug';
-import { TiltaksgjennomforingI } from '../../sanity-data/TiltaksgjennomforingSlug';
 import { sanityClient } from '../../sanityClient';
 
-const ViewTiltakstypeOversikt = (tiltakstype: TiltakstypeI, tiltaksgjennomforing: TiltaksgjennomforingI) => {
+const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [gjennomforing, setGjennomforing] = useState(null);
 
@@ -80,7 +77,6 @@ const ViewTiltakstypeOversikt = (tiltakstype: TiltakstypeI, tiltaksgjennomforing
                 </Button>
               </div>
             </Show>
-            <Lenke to={`/tiltakstyper/${tiltaksgjennomforing.slug}`}>Test</Lenke>
           </div>
           <div className="tiltakstype-oversikt__tiltak">
             {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}

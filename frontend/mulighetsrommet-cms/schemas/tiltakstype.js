@@ -59,25 +59,25 @@ export default {
       type: "document",
       fields: [
         {
-          name: "forhvem",
+          name: "forHvem",
           title: "For hvem",
           type: "blockContent",
         },
         {
-          name: "detaljeroginnhold",
+          name: "detaljerOgInnhold",
           title: "Detaljer og innhold",
           type: "blockContent",
         },
         {
-          name: "pameldingogvarighet",
+          name: "pameldingOgVarighet",
           title: "Påmelding og varighet",
           type: "blockContent",
         },
         {
-          name: "kontaktinfofagansvarlig",
+          name: "kontaktinfoFagansvarlig",
           title: "Kontaktinfo fagansvarlig",
           type: "reference",
-          to: [{ type: "navkontaktperson" }],
+          to: [{ type: "navKontaktperson" }],
           validation: (Rule) => Rule.required(),
         },
       ],

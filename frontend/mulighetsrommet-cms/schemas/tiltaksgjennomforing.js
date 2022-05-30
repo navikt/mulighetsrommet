@@ -50,8 +50,8 @@ export default {
             list: [
               { title: "Innlandet", value: "innlandet" },
               { title: "Trøndelag", value: "trondelag" },
-              { title: "Vest-Viken", value: "vestviken" },
-              { title: "Øst-Viken", value: "ostviken" },
+              { title: "Vest-Viken", value: "vestViken" },
+              { title: "Øst-Viken", value: "ostViken" },
             ],
           },
         },
@@ -61,11 +61,7 @@ export default {
           title: "Ringsaker",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === "ostviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "innlandet",
         },
         //trøndelag
         {
@@ -73,22 +69,14 @@ export default {
           title: "Trondheim",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === "ostviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "trondelag",
         },
         {
           name: "steinkjer",
           title: "Steinkjer",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === "ostviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "trondelag",
         },
         //vest-viken
         {
@@ -96,11 +84,7 @@ export default {
           title: "Asker",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "ostviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "vestViken",
         },
         //øst-viken
         {
@@ -108,55 +92,35 @@ export default {
           title: "Lillestrøm",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "ostViken",
         },
         {
           name: "sarpsborg",
           title: "Sarpsborg",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "ostViken",
         },
         {
           name: "fredrikstad",
           title: "Fredrikstad",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "ostViken",
         },
         {
-          name: "indreostfold",
+          name: "indreOstfold",
           title: "Indre Østfold",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "ostViken",
         },
         {
-          name: "skiptvedtmarker",
+          name: "skiptvedtMarker",
           title: "Skiptvedt/Marker",
           type: "boolean",
           initialValue: false,
-          hidden: ({ parent }) =>
-            parent?.fylke === "innlandet" ||
-            parent?.fylke === "trondelag" ||
-            parent?.fylke === "vestviken" ||
-            parent?.fylke === undefined,
+          hidden: ({ parent }) => parent?.fylke !== "ostViken",
         },
       ],
     },
@@ -179,17 +143,17 @@ export default {
       type: "document",
       fields: [
         {
-          name: "forhvem",
+          name: "forHvem",
           title: "For hvem",
           type: "blockContent",
         },
         {
-          name: "detaljeroginnhold",
+          name: "detaljerOgInnhold",
           title: "Detaljer og innhold",
           type: "blockContent",
         },
         {
-          name: "pameldingogvarighet",
+          name: "pameldingOgVarighet",
           title: "Påmelding og varighet",
           type: "blockContent",
         },
@@ -199,17 +163,17 @@ export default {
           type: "document",
           fields: [
             {
-              name: "kontaktinfoleverandor",
+              name: "kontaktinfoLeverandor",
               title: "Leverandør",
               type: "reference",
               to: [{ type: "tiltaksarrangor" }],
               validation: (Rule) => Rule.required(),
             },
             {
-              name: "kontaktinfotiltaksansvarlig",
+              name: "kontaktinfoTiltaksansvarlig",
               title: "Tiltaksansvarlig",
               type: "reference",
-              to: [{ type: "navkontaktperson" }],
+              to: [{ type: "navKontaktperson" }],
               validation: (Rule) => Rule.required(),
             },
           ],
