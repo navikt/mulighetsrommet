@@ -1,7 +1,9 @@
 <h1 align="center">Mulighetsrommet 🎯</h1>
 
-[![Deploy (api)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-api.yaml/badge.svg)]([https://github.com/navikt/mulighetsrommet/actions/workflows/build-deploy-api.yaml](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-api.yaml/badge.svg))
-[![Deploy (frontend)]([https://github.com/navikt/mulighetsrommet/workflows/mulighetsrommet-veileder-flate.yaml/badge.svg](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-veileder-flate.yaml/badge.svg))]([https://github.com/navikt/mulighetsrommet/actions/workflows/build-deploy-frontend.yaml](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-veileder-flate.yaml/badge.svg))
+![Deploy (api)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-api.yaml/badge.svg)
+![Deploy (frontend)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-veileder-flate.yaml/badge.svg)
+
+
 
 ## Introduksjon
 
