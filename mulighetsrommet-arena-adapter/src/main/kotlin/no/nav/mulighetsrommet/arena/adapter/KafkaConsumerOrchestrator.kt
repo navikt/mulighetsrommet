@@ -76,13 +76,14 @@ class KafkaConsumerOrchestrator(
         return consumerTopics.map { topic ->
             KafkaConsumerClientBuilder.TopicConfig<String, String>()
                 .withStoreOnFailure(repository)
+                .withListener()
                 .withLogging()
                 .withConsumerConfig(
                     topic.value,
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> {
-                        db.persistKafkaEvent(it.topic(), it.key(), it.offset(), it.value())
+                        db.persistKafkaEvent(it.topic(), it.key(), it.partition(), it.offset(), it.value())
                         topicMapper(it.topic(), it.value())
                     }
                 )
