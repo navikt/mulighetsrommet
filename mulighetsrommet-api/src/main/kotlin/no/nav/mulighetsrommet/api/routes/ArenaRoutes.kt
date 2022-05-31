@@ -16,23 +16,10 @@ fun Route.arenaRoutes() {
 
     val arenaService: ArenaService by inject()
 
-    post("/api/arena/tiltakstyper") {
+    put("/api/arena/tiltakstyper") {
         runCatching {
             val tiltakstype = call.receive<Tiltakstype>()
-            arenaService.createTiltakstype(tiltakstype)
-        }.onSuccess { createdTiltakstype ->
-            call.response.status(HttpStatusCode.Created)
-            call.respond(createdTiltakstype)
-        }.onFailure {
-            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
-            call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
-        }
-    }
-    put("/api/arena/tiltakstyper/{tiltakskode}") {
-        runCatching {
-            val tiltakskode = call.parameters["tiltakskode"]!!
-            val tiltakstype = call.receive<Tiltakstype>()
-            arenaService.updateTiltakstype(tiltakskode, tiltakstype)
+            arenaService.upsertTiltakstype(tiltakstype)
         }.onSuccess { updatedTiltakstype ->
             call.respond(updatedTiltakstype)
         }.onFailure {
@@ -40,10 +27,11 @@ fun Route.arenaRoutes() {
             call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
         }
     }
-    post("/api/arena/tiltaksgjennomforinger") {
+
+    put("/api/arena/tiltaksgjennomforinger") {
         runCatching {
             val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-            arenaService.createTiltaksgjennomforing(tiltaksgjennomforing)
+            arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
         }.onSuccess { createdTiltaksgjennomforing ->
             call.response.status(HttpStatusCode.Created)
             call.respond(createdTiltaksgjennomforing)
@@ -52,22 +40,11 @@ fun Route.arenaRoutes() {
             call.respondText("Kunne ikke opprette tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
         }
     }
-    put("/api/arena/tiltaksgjennomforinger/{arenaId}") {
-        runCatching {
-            val arenaId = call.parameters["arenaId"]!!.toInt()
-            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-            arenaService.updateTiltaksgjennomforing(arenaId, tiltaksgjennomforing)
-        }.onSuccess { updatedTiltaksgjennomforing ->
-            call.respond(updatedTiltaksgjennomforing)
-        }.onFailure {
-            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
-            call.respondText("Kunne ikke oppdatere tiltaksgjennomføring", status = HttpStatusCode.InternalServerError)
-        }
-    }
-    post("/api/arena/deltakere") {
+
+    put("/api/arena/deltakere") {
         runCatching {
             val deltaker = call.receive<Deltaker>()
-            arenaService.createDeltaker(deltaker)
+            arenaService.upsertDeltaker(deltaker)
         }.onSuccess { createdDeltaker ->
             call.response.status(HttpStatusCode.Created)
             call.respond(createdDeltaker)
@@ -76,18 +53,7 @@ fun Route.arenaRoutes() {
             call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
         }
     }
-    put("/api/arena/deltakere/{arenaId}") {
-        runCatching {
-            val arenaId = call.parameters["arenaId"]!!.toInt()
-            val deltaker = call.receive<Deltaker>()
-            arenaService.updateDeltaker(arenaId, deltaker)
-        }.onSuccess { updatedDeltaker ->
-            call.respond(updatedDeltaker)
-        }.onFailure {
-            application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
-            call.respondText("Kunne ikke oppdatere deltaker", status = HttpStatusCode.InternalServerError)
-        }
-    }
+
     put("/api/arena/sak/{sakId}") {
         runCatching {
             val sakId = call.parameters["sakId"]!!.toInt()

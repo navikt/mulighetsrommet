@@ -55,7 +55,7 @@ spec:
       value: teamarenanais.aapen-arena-tiltakendret-v1-q2
     - name: MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET
       value: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2
-    - name: MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET
-      value: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
-    - name: MR_KAFKA_TOPIC_SAKENDRET
-      value: teamarenanais.aapen-arena-sakendret-v1-q2
+    # - name: MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET
+    #  value: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
+    # - name: MR_KAFKA_TOPIC_SAKENDRET
+    #  value: teamarenanais.aapen-arena-sakendret-v1-q2
