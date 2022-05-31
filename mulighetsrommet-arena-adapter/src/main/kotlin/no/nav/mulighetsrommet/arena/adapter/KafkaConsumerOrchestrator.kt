@@ -76,7 +76,6 @@ class KafkaConsumerOrchestrator(
         return consumerTopics.map { topic ->
             KafkaConsumerClientBuilder.TopicConfig<String, String>()
                 .withStoreOnFailure(repository)
-                .withListener()
                 .withLogging()
                 .withConsumerConfig(
                     topic.value,
