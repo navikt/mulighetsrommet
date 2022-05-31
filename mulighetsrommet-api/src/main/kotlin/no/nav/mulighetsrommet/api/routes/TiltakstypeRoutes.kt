@@ -36,8 +36,9 @@ fun Route.tiltakstypeRoutes() {
         }.onSuccess { fetchedTiltakstype ->
             if (fetchedTiltakstype != null) {
                 call.respond(fetchedTiltakstype)
+            } else {
+                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
             }
-            call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
         }.onFailure {
             call.application.environment.log.error(it.stackTraceToString())
             call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
