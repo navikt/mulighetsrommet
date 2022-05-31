@@ -32,8 +32,7 @@ object DatabaseMapper {
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
         id = row.int("id"),
-        tittel = row.string("tittel"),
-        beskrivelse = row.string("beskrivelse")
+        navn = row.string("navn"),
     )
 
     fun toDeltaker(row: Row): Deltaker = Deltaker(

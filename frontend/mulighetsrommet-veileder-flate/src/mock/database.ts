@@ -8,8 +8,7 @@ import { Tiltakstype } from '../../../mulighetsrommet-api-client';
 export const definition = {
   innsatsgruppe: {
     id: primaryKey(Number),
-    tittel: String,
-    beskrivelse: String,
+    navn: String,
   },
   tiltakstype: {
     id: idAutoIncrement(),
