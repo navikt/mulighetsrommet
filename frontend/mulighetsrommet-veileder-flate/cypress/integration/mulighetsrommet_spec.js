@@ -1,6 +1,6 @@
 describe('Tiltaksgjennomføring', () => {
   it('Sjekk at det er tiltaksgjennomføringer i listen', () => {
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 17);
+    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
     cy.checkPageA11y();
   });
 
