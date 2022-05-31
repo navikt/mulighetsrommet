@@ -8,6 +8,7 @@
     "build:mock": "eslint && tsc && cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite build",
     "clean": "rimraf build",
     "cy:run": "cypress run",
+    "cypress": "cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
     "serve": "vite preview",
