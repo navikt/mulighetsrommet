@@ -13,6 +13,7 @@ import org.slf4j.Logger
 class ArenaService(private val db: Database, private val logger: Logger) {
 
     fun upsertTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
+        @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato)
             values (?, ?, ?, ?, ?, ?)
@@ -35,11 +36,12 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltakstype.tiltakskode,
             tiltakstype.fraDato,
             tiltakstype.tilDato
-        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        ).map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
     fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
+        @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sanity_id, fra_dato, til_dato, sak_id)
             values (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -56,6 +58,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
                 sak_id = excluded.sak_id
             returning *
         """.trimIndent()
+
         val queryResult = queryOf(
             query,
             tiltaksgjennomforing.navn,
@@ -67,11 +70,12 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,
             tiltaksgjennomforing.sakId
-        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
+        ).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
     fun upsertDeltaker(deltaker: Deltaker): Deltaker {
+        @Language("PostgreSQL")
         val query = """
             insert into deltaker (arena_id, tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status)
             values (?, ?, ?, ?, ?, ?::deltakerstatus)
@@ -85,6 +89,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
                 status = excluded.status
             returning *
         """.trimIndent()
+
         val queryResult = queryOf(
             query,
             deltaker.arenaId,
@@ -93,7 +98,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             deltaker.fraDato,
             deltaker.tilDato,
             deltaker.status.name
-        ).asExecute.query.map { DatabaseMapper.toDeltaker(it) }.asSingle
+        ).map { DatabaseMapper.toDeltaker(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
