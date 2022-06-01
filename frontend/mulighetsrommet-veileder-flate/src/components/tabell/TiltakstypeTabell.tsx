@@ -61,7 +61,8 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
                               sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
                       }
               );
-              logEvent('mulighetsrommet.sortering', {sortKey})
+              const directionForLogging = sort ? (sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'neutral') : 'ascending';
+              logEvent('mulighetsrommet.sortering', {sortKey}, {direction: directionForLogging})
            }
         }
       >
