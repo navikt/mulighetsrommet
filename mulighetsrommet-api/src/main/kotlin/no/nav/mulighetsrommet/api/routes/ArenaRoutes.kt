@@ -54,13 +54,13 @@ fun Route.arenaRoutes() {
         }
     }
 
-    put("/api/arena/sak/{sakId}") {
+    put("/api/arena/sak") {
         runCatching {
-            val sakId = call.parameters["sakId"]!!.toInt()
             val sak = call.receive<ArenaSak>()
-            arenaService.updateTiltaksgjennomforingWithSak(sakId, sak)
+            arenaService.updateTiltaksgjennomforingWithSak(sak)
         }.onSuccess {
-            call.respond(it)
+            val response = it ?: HttpStatusCode.NotFound
+            call.respond(response)
         }.onFailure {
             application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
             call.respondText(

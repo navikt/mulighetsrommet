@@ -14,7 +14,7 @@ class SakEndretConsumer(private val client: MulighetsrommetApiClient) {
         val updatedSak = payload.jsonObject["after"]!!.jsonObject.toSak()
 
         if (updatedSak.sakskode == "TILT") {
-            client.sendRequest(HttpMethod.Put, "/api/arena/sak/${updatedSak.sakId}", updatedSak)
+            client.sendRequest(HttpMethod.Put, "/api/arena/sak", updatedSak)
             logger.debug("processed sak endret event")
         }
     }

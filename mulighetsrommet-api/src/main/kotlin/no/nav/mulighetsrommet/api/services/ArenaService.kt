@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 
 class ArenaService(private val db: Database, private val logger: Logger) {
@@ -96,16 +97,18 @@ class ArenaService(private val db: Database, private val logger: Logger) {
         return db.session.run(queryResult)!!
     }
 
-    fun updateTiltaksgjennomforingWithSak(sakId: Int, sak: ArenaSak): Tiltaksgjennomforing {
+    fun updateTiltaksgjennomforingWithSak(sak: ArenaSak): Tiltaksgjennomforing? {
+        @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing set tiltaksnummer = ?, aar = ? where sak_id = ? returning *
         """.trimIndent()
+
         val queryResult = queryOf(
             query,
             sak.lopenrsak,
             sak.aar,
-            sakId,
-        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)!!
+            sak.sakId,
+        ).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
+        return db.session.run(queryResult)
     }
 }
