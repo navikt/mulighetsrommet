@@ -52,22 +52,22 @@ class KafkaConsumerOrchestrator(
             .build()
     }
 
-    fun startTopicConsumption() {
+    fun enableTopicConsumption() {
         consumerClient.start()
         logger.debug("Started kafka consumer client")
     }
 
-    fun startFailedRecordProcessor() {
-        logger.debug("Started kafka consumer record processor")
+    fun enableFailedRecordProcessor() {
         consumerRecordProcessor.start()
+        logger.debug("Started kafka consumer record processor")
     }
 
-    fun stopTopicConsumption() {
+    fun disableTopicConsumption() {
         consumerClient.stop()
-        logger.debug("Stopped kafka clients")
+        logger.debug("Stopped kafka consumer client")
     }
 
-    fun stopFailedRecordProcessor() {
+    fun disableFailedRecordProcessor() {
         consumerRecordProcessor.close()
         logger.debug("Stopped kafka processors")
     }
@@ -82,7 +82,7 @@ class KafkaConsumerOrchestrator(
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> {
-                        db.persistKafkaEvent(it.topic(), it.key(), it.offset(), it.value())
+                        db.persistKafkaEvent(it.topic(), it.key(), it.partition(), it.offset(), it.value())
                         topicMapper(it.topic(), it.value())
                     }
                 )

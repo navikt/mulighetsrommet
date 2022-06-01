@@ -13,8 +13,8 @@ data class ServerConfig(
 )
 
 data class AppConfig(
-    val startKafkaTopicConsumption: Boolean,
-    val startFailedRecordProcessor: Boolean,
+    val enableKafkaTopicConsumption: Boolean,
+    val enableFailedRecordProcessor: Boolean,
     val services: ServiceConfig,
     val database: DatabaseConfig,
     val kafka: KafkaConfig

@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { MulighetsrommetService, Tiltaksgjennomforing, Tiltakstype } from 'mulighetsrommet-api-client';
+import { MulighetsrommetService, Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { Tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { QueryKeys } from '../../core/api/QueryKeys';
 
