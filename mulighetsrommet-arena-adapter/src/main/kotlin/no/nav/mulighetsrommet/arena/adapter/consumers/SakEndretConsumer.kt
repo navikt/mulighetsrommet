@@ -11,13 +11,16 @@ class SakEndretConsumer(private val client: MulighetsrommetApiClient) {
     private val logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
 
     fun process(payload: JsonElement) {
-        val updatedSak = payload.jsonObject["after"]!!.jsonObject.toSak()
+        val sak = payload.jsonObject["after"]!!.jsonObject.toSak()
 
-        if (updatedSak.sakskode == "TILT") {
-            client.sendRequest(HttpMethod.Put, "/api/arena/sak", updatedSak)
+        if (sakIsRelatedToTiltaksgjennomforing(sak)) {
+            client.sendRequest(HttpMethod.Put, "/api/arena/sak", sak)
             logger.debug("processed sak endret event")
         }
     }
+
+    private fun sakIsRelatedToTiltaksgjennomforing(updatedSak: ArenaSak) =
+        updatedSak.sakskode == "TILT"
 
     private fun JsonObject.toSak() = ArenaSak(
         sakId = this["SAK_ID"]!!.jsonPrimitive.content.toInt(),
