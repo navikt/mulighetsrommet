@@ -102,6 +102,7 @@ const TiltakstypeTabell = () => {
             <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
               Tiltaksnr.
             </Table.ColumnHeader>
+            {/*TODO fiks sortering*/}
             <Table.ColumnHeader sortKey="tiltakstype" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
@@ -111,6 +112,7 @@ const TiltakstypeTabell = () => {
             <Table.ColumnHeader sortKey="oppstartsdato" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
+            {/*TODO fiks sortering*/}
             <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
               Status
             </Table.ColumnHeader>
@@ -147,11 +149,7 @@ const TiltakstypeTabell = () => {
               .map(({ _id, tiltaksnummer, title, oppstartsdato, leverandor, tiltakstype, lokasjon }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke
-                      to={`/tiltakstyper/${tiltaksnummer}`}
-                      isInline
-                      data-testid="tabell_tiltakstyper_tiltaksnummer"
-                    >
+                    <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
                       {title}
                     </Lenke>
                     <div>{leverandor}</div>

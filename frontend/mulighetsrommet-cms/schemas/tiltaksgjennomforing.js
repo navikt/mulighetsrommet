@@ -166,7 +166,7 @@ export default {
               name: "kontaktinfoLeverandor",
               title: "Leverandør",
               type: "reference",
-              to: [{ type: "tiltaksarrangor" }],
+              to: [{ type: "leverandor" }],
               validation: (Rule) => Rule.required(),
             },
             {

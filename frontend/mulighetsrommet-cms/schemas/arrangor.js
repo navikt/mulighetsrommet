@@ -1,8 +1,8 @@
 import { BiBuildings } from "react-icons/bi";
 
 export default {
-  name: "tiltaksarrangor",
-  title: "Tiltaksarrangør",
+  name: "leverandor",
+  title: "Leverandor",
   type: "document",
   icon: BiBuildings,
   fields: [

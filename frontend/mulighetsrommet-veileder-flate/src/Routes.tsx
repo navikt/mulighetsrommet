@@ -6,8 +6,7 @@ import ViewTiltakstypeOversikt from './views/tiltakstype-oversikt/ViewTiltakstyp
 const Routes = () => {
   return (
     <Switch>
-      //TODO må legge til riktig URL her
-      <Route exact path="/tiltakstyper/:tiltaksnummer" component={ViewTiltakstypeDetaljer} />
+      <Route exact path="/:tiltaksnummer" component={ViewTiltakstypeDetaljer} />
       <Route path="/" exact component={ViewTiltakstypeOversikt} />
     </Switch>
   );
