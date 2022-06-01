@@ -1,9 +1,9 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import './App.less';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
-import Routes from './Routes';
+import RoutesConfig from './RoutesConfig';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Modal } from '@navikt/ds-react';
@@ -19,9 +19,9 @@ function App() {
     <div className="app__container">
       <div className={APPLICATION_NAME}>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <Routes />
-          </BrowserRouter>
+          <Router>
+            <RoutesConfig />
+          </Router>
           <ToastContainer
             position="top-right"
             autoClose={5000}

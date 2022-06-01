@@ -1,10 +1,11 @@
 package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.ktor.application.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.*
 import org.slf4j.LoggerFactory
@@ -35,6 +36,7 @@ fun initializeServer(config: Config) {
 
 fun Application.configure(config: AppConfig) {
     configureDependencyInjection(config)
+    configureAuthentication(config.auth)
     configureRouting()
     configureSecurity()
     configureHTTP()
@@ -45,9 +47,12 @@ fun Application.configure(config: AppConfig) {
     routing {
         internalRoutes()
         swaggerRoutes()
-        tiltakstypeRoutes()
-        tiltaksgjennomforingRoutes()
-        innsatsgruppeRoutes()
-        arenaRoutes()
+
+        authenticate {
+            tiltakstypeRoutes()
+            tiltaksgjennomforingRoutes()
+            innsatsgruppeRoutes()
+            arenaRoutes()
+        }
     }
 }

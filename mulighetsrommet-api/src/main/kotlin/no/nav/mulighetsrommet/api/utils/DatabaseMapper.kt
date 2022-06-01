@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.utils
 
 import kotliquery.Row
-import no.nav.mulighetsrommet.domain.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.*
 
 object DatabaseMapper {
 
@@ -14,9 +11,9 @@ object DatabaseMapper {
             navn = row.string("navn"),
             innsatsgruppe = row.int("innsatsgruppe_id"),
             sanityId = row.intOrNull("sanity_id"),
-            tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
-            fraDato = row.localDateTime("fra_dato"),
-            tilDato = row.localDateTime("til_dato"),
+            tiltakskode = row.string("tiltakskode"),
+            fraDato = row.localDateTimeOrNull("fra_dato"),
+            tilDato = row.localDateTimeOrNull("til_dato"),
         )
 
     fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
@@ -25,17 +22,26 @@ object DatabaseMapper {
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
             arrangorId = row.intOrNull("arrangor_id"),
-            tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
+            tiltakskode = row.string("tiltakskode"),
             arenaId = row.int("arena_id"),
+            sakId = row.int("sak_id"),
             sanityId = row.intOrNull("sanity_id"),
             fraDato = row.localDateTimeOrNull("fra_dato"),
             tilDato = row.localDateTimeOrNull("til_dato"),
-            sakId = row.int("sak_id")
         )
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
         id = row.int("id"),
-        tittel = row.string("tittel"),
-        beskrivelse = row.string("beskrivelse")
+        navn = row.string("navn"),
+    )
+
+    fun toDeltaker(row: Row): Deltaker = Deltaker(
+        id = row.int("id"),
+        arenaId = row.int("arena_id"),
+        tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
+        personId = row.int("person_id"),
+        fraDato = row.localDateTimeOrNull("fra_dato"),
+        tilDato = row.localDateTimeOrNull("til_dato"),
+        status = Deltakerstatus.valueOf(row.string("status"))
     )
 }

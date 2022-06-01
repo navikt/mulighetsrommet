@@ -14,12 +14,24 @@ data class ServerConfig(
 
 data class AppConfig(
     val database: DatabaseConfig,
+    val auth: AuthConfig
 )
 
 data class DatabaseConfig(
     val host: String,
     val port: Int,
     val name: String,
+    val schema: String?,
     val user: String,
     val password: Masked
+)
+
+data class AuthConfig(
+    val azure: AuthProvider
+)
+
+data class AuthProvider(
+    val issuer: String,
+    val jwksUri: String,
+    val audience: String
 )

@@ -8,7 +8,7 @@ data class Tiltaksgjennomforing(
     val id: Int? = null,
     val navn: String,
     val arrangorId: Int? = null,
-    val tiltakskode: Tiltakskode,
+    val tiltakskode: String,
     val tiltaksnummer: Int,
     val arenaId: Int,
     val sakId: Int,

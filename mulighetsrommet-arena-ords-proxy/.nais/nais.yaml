@@ -1,0 +1,42 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: mulighetsrommet-arena-ords-proxy
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: {{image}}
+  port: 8086
+  ingresses:
+    - https://mulighetsrommet-arena-ords-proxy.dev.intern.nav.no
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 75
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  azure:
+    application:
+      enabled: true
+  env:
+    - name: ARENA_ORDS_URL
+      value: https://arena-ords-q2.nais.preprod.local
+    - name: ARENA_ORDS_CLIENT_ID
+      value: clientid
+    - name: ARENA_ORDS_CLIENT_SECRET
+      value: secret

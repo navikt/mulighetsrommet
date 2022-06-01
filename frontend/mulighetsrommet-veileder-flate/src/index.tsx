@@ -6,9 +6,9 @@ import { OpenAPI } from 'mulighetsrommet-api-client';
 import Navspa from '@navikt/navspa';
 import { worker } from './mock/worker';
 import { APPLICATION_NAME } from './constants';
-import { headers } from './api/utils';
+import { headers, toRecord } from './api/headers';
 
-OpenAPI.HEADERS = headers;
+OpenAPI.HEADERS = toRecord(headers);
 
 OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
 

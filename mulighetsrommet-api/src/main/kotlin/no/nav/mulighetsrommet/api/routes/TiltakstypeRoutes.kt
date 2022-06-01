@@ -1,18 +1,13 @@
 package no.nav.mulighetsrommet.api.routes
 
-import io.ktor.application.call
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.put
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.koin.ktor.ext.inject
 
@@ -36,13 +31,14 @@ fun Route.tiltakstypeRoutes() {
     }
     get("/api/tiltakstyper/{tiltakskode}") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
         }.onSuccess { fetchedTiltakstype ->
             if (fetchedTiltakstype != null) {
                 call.respond(fetchedTiltakstype)
+            } else {
+                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
             }
-            call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
         }.onFailure {
             call.application.environment.log.error(it.stackTraceToString())
             call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
@@ -50,7 +46,7 @@ fun Route.tiltakstypeRoutes() {
     }
     get("/api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakskode(tiltakskode)
         }.onSuccess { fetchedTiltaksgjennomforinger ->
             call.respond(fetchedTiltaksgjennomforinger)
@@ -69,7 +65,7 @@ fun Route.tiltakstypeRoutes() {
     }
     put("/api/tiltakstyper/{tiltakskode}") {
         runCatching {
-            val tiltakskode = Tiltakskode.valueOf(call.parameters["tiltakskode"]!!)
+            val tiltakskode = call.parameters["tiltakskode"]!!
             val tiltakstype = call.receive<Tiltakstype>()
             tiltakstypeService.updateTiltakstype(tiltakskode, tiltakstype)
         }.onSuccess { updatedTiltakstype ->

@@ -3,64 +3,74 @@ package no.nav.mulighetsrommet.api.services
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.slf4j.Logger
 
 class TiltakstypeService(private val db: Database, private val logger: Logger) {
 
-    fun getTiltakstypeByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype? {
+    fun getTiltakstypeByTiltakskode(tiltakskode: String): Tiltakstype? {
         val query = """
-            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode::text = ?
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        val queryResult = queryOf(query, tiltakskode).map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)
     }
 
     fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?::tiltakskode, ?, ?) returning *
+            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?, ?, ?) returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
             tiltakstype.navn,
             tiltakstype.innsatsgruppe,
             tiltakstype.sanityId,
-            tiltakstype.tiltakskode.name,
+            tiltakstype.tiltakskode,
             tiltakstype.fraDato,
             tiltakstype.tilDato
         ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
-    fun updateTiltakstype(tiltakskode: Tiltakskode, tiltakstype: Tiltakstype): Tiltakstype {
+    fun updateTiltakstype(tiltakskode: String, tiltakstype: Tiltakstype): Tiltakstype {
         val query = """
-            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where tiltakskode::text = ? returning *
+            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, tiltakskode = ?, fra_dato = ?, til_dato = ?
+            where tiltakskode = ?
+            returning *
         """.trimIndent()
         val queryResult = queryOf(
             query,
             tiltakstype.navn,
             tiltakstype.innsatsgruppe,
             tiltakstype.sanityId,
+            tiltakstype.tiltakskode,
             tiltakstype.fraDato,
             tiltakstype.tilDato,
-            tiltakskode.name
+            tiltakskode
         ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
-    fun getTiltakstyper(innsatsgruppe: List<Int>?, searchQuery: String?): List<Tiltakstype> {
+    fun getTiltakstyper(innsatsgrupper: List<Int>? = null, search: String? = null): List<Tiltakstype> {
+        val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
+
+        val parameters = mapOf(
+            "innsatsgrupper" to innsatsgrupperQuery,
+            "navn" to "%$search%"
+        )
+
         val query = """
             select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype
         """
-            .where(innsatsgruppe, "(innsatsgruppe_id <= :innsatsgruppe_id)")
-            .andWhere(searchQuery, "(lower(navn) like lower(:navn))")
+            .where(innsatsgrupperQuery, "(innsatsgruppe_id = any(:innsatsgrupper))")
+            .andWhere(search, "(lower(navn) like lower(:navn))")
             .trimIndent()
-        val queryResult = queryOf(query, mapOf("innsatsgruppe_id" to innsatsgruppe, "navn" to "%$searchQuery%")).map {
-            DatabaseMapper.toTiltakstype(it)
-        }.asList
-        return db.session.run(queryResult)
+
+        val result = queryOf(query, parameters).map { DatabaseMapper.toTiltakstype(it) }.asList
+        return db.session.run(result)
     }
+
+    private fun List<Int>.toPostgresIntArray() = if (isNullOrEmpty()) null else db.session.createArrayOf("int4", this)
 
     private fun <T> String.where(v: T?, query: String): String = if (v != null) "$this where $query" else this
 

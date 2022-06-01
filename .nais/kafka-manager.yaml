@@ -6,7 +6,6 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  # image: docker.pkg.github.com/navikt/kafka-manager/kafka-manager:2.2021.05.31_08.41-622e72c02ee1 # See https://github.com/navikt/kafka-manager/packages
   image: ghcr.io/navikt/kafka-manager/kafka-manager:2.2022.01.13_14.52-999e3c414924
   port: 8080
   webproxy: true
@@ -32,6 +31,10 @@ spec:
     requests:
       cpu: 250m
       memory: 512Mi
+  secureLogs:
+    enabled: true
+  kafka: # Optional. Required for Aiven
+    pool: nav-dev
   azure: # Required
     application:
       enabled: true
@@ -39,10 +42,6 @@ spec:
       claims:
         groups:
           - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
-  secureLogs:
-    enabled: true
-  kafka: # Optional. Required for Aiven
-    pool: nav-dev
   env:
     - name: APP_CONFIG_JSON # Required
       value: >
@@ -74,6 +73,12 @@ spec:
             },
             {
               "name": "teamarenanais.aapen-arena-avtaleinfoendret-v1-q2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamarenanais.aapen-arena-sakendret-v1-q2",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

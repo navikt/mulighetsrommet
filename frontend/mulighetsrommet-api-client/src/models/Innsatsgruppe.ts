@@ -4,6 +4,5 @@
 
 export type Innsatsgruppe = {
     id: number;
-    tittel: string;
-    beskrivelse: string;
+    navn: string;
 };

@@ -1,7 +1,6 @@
-insert into innsatsgruppe (id, tittel, beskrivelse)
-values (1, 'Standardinnsats', 'Gode muligheter'),
-       (2, 'Situasjonsbestemt innsats', 'Trenger veiledning'),
-       (3, 'Spesielt tilpasset innsats', 'Trenger veiledning, nedsatt arbeidsevne'),
-       (4, 'Varig tilpasset innsats', 'Jobbe delvis eller liten mulighet til å jobbe')
-on conflict (id) do update set tittel      = excluded.tittel,
-                               beskrivelse = excluded.beskrivelse;
+insert into innsatsgruppe (id, navn)
+values (1, 'Standardinnsats'),
+       (2, 'Situasjonsbestemt innsats'),
+       (3, 'Spesielt tilpasset innsats'),
+       (4, 'Varig tilpasset innsats')
+on conflict (id) do update set navn      = excluded.navn;

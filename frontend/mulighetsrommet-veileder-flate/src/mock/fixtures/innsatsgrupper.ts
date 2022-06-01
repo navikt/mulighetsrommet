@@ -3,22 +3,18 @@ import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 export const innsatsgrupper: Innsatsgruppe[] = [
   {
     id: 1,
-    tittel: 'Standardinnsats',
-    beskrivelse: 'Gode muligheter',
+    navn: 'Standardinnsats',
   },
   {
     id: 2,
-    tittel: 'Situasjonsbestemt innsats',
-    beskrivelse: 'Trenger veiledning',
+    navn: 'Situasjonsbestemt innsats',
   },
   {
     id: 3,
-    tittel: 'Spesielt tilpasset innsats',
-    beskrivelse: 'Trenger veiledning, nedsatt arbeidsevne',
+    navn: 'Spesielt tilpasset innsats',
   },
   {
     id: 4,
-    tittel: 'Varig tilpasset innsats',
-    beskrivelse: 'Jobbe delvis eller liten mulighet til å jobbe',
+    navn: 'Varig tilpasset innsats',
   },
 ];
