@@ -19,13 +19,10 @@ function TiltaksgjennomforingsHeader({ tiltakstype, arrangor }: Tiltaksgjennomfo
       .catch(console.error);
   }, []);
 
-  // console.log('gjennomføring', gjennomforing);
-
   return (
     <div className="tiltaksgjennomforing__title">
       <Heading level="1" size="xlarge" data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltakstype)}`}>
         {tiltakstype}
-        {/*{gjennomforing ? gjennomforing.title : 'Teest'}*/}
       </Heading>
       <div className="tiltaksgjennomforing__subtitle-container">
         {arrangor && (
