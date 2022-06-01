@@ -7,6 +7,7 @@ import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
+import {logEvent} from "../../api/logger";
 
 export interface TiltakstypelisteProps {
   tiltaksgjennomforingsliste: Array<Tiltaksgjennomforing>;
@@ -50,16 +51,18 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
         sort={sort}
         data-testid="tabell_tiltakstyper"
         className="tabell"
-        onSortChange={sortKey =>
-          setSort(
-            sort && sortKey === sort.orderBy && sort.direction === 'descending'
-              ? undefined
-              : {
-                  orderBy: sortKey,
-                  direction:
-                    sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
-                }
-          )
+        onSortChange={sortKey => {
+              setSort(
+                  sort && sortKey === sort.orderBy && sort.direction === 'descending'
+                      ? undefined
+                      : {
+                          orderBy: sortKey,
+                          direction:
+                              sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
+                      }
+              );
+              logEvent('mulighetsrommet.sortering', {sortKey})
+           }
         }
       >
         <Table.Header>
