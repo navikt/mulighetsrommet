@@ -1,32 +1,23 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
-import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils.isInsertArenaOperation
 import no.nav.mulighetsrommet.domain.Deltaker
 import org.slf4j.LoggerFactory
 
 class TiltakdeltakerEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
-    private var resourceUri = "/api/arena/deltakere"
 
     fun process(payload: JsonElement) {
-        if (isInsertArenaOperation(payload.jsonObject)) handleInsert(payload.jsonObject) else handleUpdate(payload.jsonObject)
-    }
-
-    private fun handleInsert(payload: JsonObject) {
-        val newDeltaker = payload["after"]!!.jsonObject.toDeltaker()
-        client.sendRequest(HttpMethod.Post, resourceUri, newDeltaker)
-        logger.debug("processed deltaker endret insert")
-    }
-
-    private fun handleUpdate(payload: JsonObject) {
-        val updatedDeltaker = payload["after"]!!.jsonObject.toDeltaker()
-        client.sendRequest(HttpMethod.Put, "$resourceUri/${updatedDeltaker.arenaId}", updatedDeltaker)
-        logger.debug("processed tiltak endret update")
+        val updatedDeltaker = payload.jsonObject["after"]!!.jsonObject.toDeltaker()
+        client.sendRequest(HttpMethod.Put, "/api/arena/deltakere", updatedDeltaker)
+        logger.debug("processed tiltak endret event")
     }
 
     private fun JsonObject.toDeltaker() = Deltaker(
