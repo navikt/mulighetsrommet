@@ -50,12 +50,12 @@ spec:
     - name: ENABLE_KAFKA_TOPIC_CONSUMPTION
       value: "false"
     - name: ENABLE_FAILED_RECORD_PROCESSOR
-      value: "true"
+      value: "false"
     - name: MR_KAFKA_TOPIC_TILTAKENDRET
       value: teamarenanais.aapen-arena-tiltakendret-v1-q2
     - name: MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET
       value: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2
-    - name: MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET
-      value: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
-    - name: MR_KAFKA_TOPIC_SAKENDRET
-      value: teamarenanais.aapen-arena-sakendret-v1-q2
+    # - name: MR_KAFKA_TOPIC_TILTAKDELTAKERENDRET
+    #  value: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
+    # - name: MR_KAFKA_TOPIC_SAKENDRET
+    #  value: teamarenanais.aapen-arena-sakendret-v1-q2
