@@ -102,7 +102,7 @@ const TiltakstypeTabell = () => {
             <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
               Lokasjon
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="oppstartsdato" sortable className="tabell__kolonne__oppstart">
+            <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
             {/*TODO fiks sortering*/}
