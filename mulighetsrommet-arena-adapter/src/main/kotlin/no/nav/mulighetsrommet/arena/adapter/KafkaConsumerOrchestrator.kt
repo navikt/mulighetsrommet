@@ -80,8 +80,6 @@ class KafkaConsumerOrchestrator(
                             db.persistKafkaEvent(
                                 event.topic(),
                                 key,
-                                event.partition(),
-                                event.offset(),
                                 event.value()
                             )
 
