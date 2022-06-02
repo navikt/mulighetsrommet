@@ -10,14 +10,20 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.Deltaker
 import org.slf4j.LoggerFactory
 
-class TiltakdeltakerEndretConsumer(private val client: MulighetsrommetApiClient) {
+class TiltakdeltakerEndretConsumer(
+    override val topic: String,
+    private val client: MulighetsrommetApiClient
+) : TopicConsumer() {
 
     private val logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
-    private var resourceUri = "/api/v1/arena/deltakere"
 
-    fun process(payload: JsonElement) {
+    override fun resolveKey(payload: JsonElement): String {
+        return payload.jsonObject["after"]!!.jsonObject["TILTAKDELTAKER_ID"]!!.jsonPrimitive.content
+    }
+
+    override fun processEvent(payload: JsonElement) {
         val updatedDeltaker = payload.jsonObject["after"]!!.jsonObject.toDeltaker()
-        client.sendRequest(HttpMethod.Put, "/api/arena/deltakere", updatedDeltaker)
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/deltakere", updatedDeltaker)
         logger.debug("processed tiltak endret event")
     }
 
