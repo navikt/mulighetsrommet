@@ -48,9 +48,9 @@ spec:
     - name: MR_API_SCOPE
       value: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
     - name: ENABLE_KAFKA_TOPIC_CONSUMPTION
-      value: "true"
+      value: "false"
     - name: ENABLE_FAILED_RECORD_PROCESSOR
-      value: "true"
+      value: "false"
     - name: MR_KAFKA_TOPIC_TILTAKENDRET
       value: teamarenanais.aapen-arena-tiltakendret-v1-q2
     - name: MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET
