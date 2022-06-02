@@ -30,10 +30,7 @@ const ViewTiltakstypeOversikt = () => {
   }, [filter.tiltakstyper, filter.innsatsgrupper]);
 
   useEffect(() => {
-    sanityClient
-      .fetch(`*[_type == "tiltaksgjennomforing"]`)
-      .then(data => setGjennomforing(data))
-      .catch(console.error);
+    sanityClient.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
   }, []);
 
   return (

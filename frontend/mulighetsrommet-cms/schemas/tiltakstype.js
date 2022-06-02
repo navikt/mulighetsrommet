@@ -7,16 +7,21 @@ export default {
   icon: FaWpforms,
   fields: [
     {
-      name: "title",
+      name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
       type: "string",
       validation: (Rule) => Rule.required().min(2).max(200),
     },
     {
-      name: "ingress",
-      title: "Ingress",
+      name: "beskrivelse",
+      title: "Beskrivelse",
       type: "blockContent",
-      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: "overgangTilArbeid",
+      title: "Overgang til arbeid",
+      description: "Hentes fra Arena, usikker på hvordan denne skal vises her",
+      type: "blockContent",
     },
     //  Sammendrag/Infoboks
     {
@@ -35,23 +40,20 @@ export default {
       validation: (Rule) => Rule.required(),
     },
     {
-      name: "oppstart",
-      title: "Oppstart",
+      name: "varighet",
+      title: "Varighet",
       type: "string",
-      options: {
-        list: [
-          { title: "Dato", value: "dato" },
-          { title: "Løpende", value: "lopende" },
-        ],
-      },
-      validation: (Rule) => Rule.required(),
     },
     {
-      name: "beskrivelse",
-      title: "Beskrivelse/Kravspek/Lovdata",
+      name: "regelverkFil",
+      title: "Regelverk fil",
       type: "file",
     },
-
+    {
+      name: "regelverkLenke",
+      title: "Regelverk lenke",
+      type: "url",
+    },
     //Faneinnhold
     {
       name: "faneinnhold",
@@ -59,14 +61,37 @@ export default {
       type: "document",
       fields: [
         {
+          name: "forHvemInfoboks",
+          title: "For hvem - infoboks",
+          description:
+            "Hvis denne har innhold, vises det i en infoboks i fanen 'For hvem'",
+          type: "string",
+        },
+        {
           name: "forHvem",
           title: "For hvem",
           type: "blockContent",
+        },
+
+        {
+          name: "detaljerOgInnholdInfoboks",
+          title: "Detaljer og innhold - infoboks",
+          description:
+            "Hvis denne har innhold, vises det i en infoboks i fanen 'Detaljer og innhold'",
+          type: "string",
         },
         {
           name: "detaljerOgInnhold",
           title: "Detaljer og innhold",
           type: "blockContent",
+        },
+
+        {
+          name: "pameldingOgVarighetInfoboks",
+          title: "Påmelding og varighet - infoboks",
+          description:
+            "Hvis denne har innhold, vises det i en infoboks i fanen 'Påmelding og varighet'",
+          type: "string",
         },
         {
           name: "pameldingOgVarighet",
@@ -74,18 +99,18 @@ export default {
           type: "blockContent",
         },
         {
-          name: "kontaktinfoFagansvarlig",
-          title: "Kontaktinfo fagansvarlig",
-          type: "reference",
-          to: [{ type: "navKontaktperson" }],
-          validation: (Rule) => Rule.required(),
+          name: "innsikt",
+          title: "Innsikt",
+          description:
+            "Hentes fra Arena, usikker på hvordan denne skal vises her",
+          type: "blockContent",
         },
       ],
     },
   ],
   preview: {
     select: {
-      title: "title",
+      title: "tiltakstypeNavn",
     },
   },
 };

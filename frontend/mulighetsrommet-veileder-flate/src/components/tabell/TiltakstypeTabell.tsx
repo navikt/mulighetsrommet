@@ -16,21 +16,24 @@ const TiltakstypeTabell = () => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
 
-  const [tiltaksgjennomforing, setTiltaksgjennomforing] = useState([]);
-  const [tiltakstype, setTiltakstype] = useState([]);
+  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState([]);
 
   useEffect(() => {
     sanityClient
-      .fetch(`*[_type == "tiltaksgjennomforing"]`)
-      .then(data => setTiltaksgjennomforing(data))
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    sanityClient
-      .fetch(`*[_type == "tiltakstype"]{_id, title}`)
-      .then(data => setTiltakstype(data))
-      .catch(console.error);
+      .fetch(
+        `*[_type == "tiltaksgjennomforing"]{
+        _id,
+        tiltaksgjennomforingNavn,
+        enheter,
+        lokasjon,
+        oppstart,
+        oppstartsdato,
+        tiltaksnummer,
+        kontaktinfoArrangor->,
+        tiltakstype->
+        }`
+      )
+      .then(data => setTiltaksgjennomforinger(data));
   }, []);
 
   const tilgjengelighetsstatus = (status: string) => {
@@ -59,16 +62,6 @@ const TiltakstypeTabell = () => {
     }
   };
 
-  const finnTiltakstype = (tiltaksgjennomforingTypeReferanse: any) => {
-    let tittel = '';
-    tiltakstype.map(({ _id, title }) => {
-      if (tiltaksgjennomforingTypeReferanse._ref === _id) {
-        tittel = title;
-      }
-    });
-    return tittel;
-  };
-
   return (
     <div className="w-full flex flex-col gap-4">
       <Table
@@ -92,7 +85,7 @@ const TiltakstypeTabell = () => {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader
-              sortKey="title"
+              sortKey="tiltaksgjennomforingNavn"
               sortable
               className="tabell__kolonne__tiltaksnavn"
               data-testid="tabellheader_tiltaksnavn"
@@ -119,15 +112,14 @@ const TiltakstypeTabell = () => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltaksgjennomforing.length === 0 ? (
+          {tiltaksgjennomforinger.length === 0 ? (
             <Table.DataCell colSpan={5}>
               <Alert variant="info" className="tabell__alert">
                 Det finnes ingen tiltakstyper med dette søket.
               </Alert>
             </Table.DataCell>
           ) : (
-            tiltaksgjennomforing
-              .slice()
+            tiltaksgjennomforinger
               .sort((a, b) => {
                 if (sort) {
                   const comparator = (a: any, b: any, orderBy: string | number) => {
@@ -146,37 +138,48 @@ const TiltakstypeTabell = () => {
                 return 1;
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(({ _id, tiltaksnummer, title, oppstartsdato, leverandor, tiltakstype, lokasjon }) => (
-                <Table.Row key={_id}>
-                  <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
-                      {title}
-                    </Lenke>
-                    <div>{leverandor}</div>
-                  </Table.DataCell>
-                  <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
-                    {tiltaksnummer}
-                    <Kopiknapp kopitekst={tiltaksnummer!} />
-                  </Table.DataCell>
-                  <Table.DataCell>{finnTiltakstype(tiltakstype)}</Table.DataCell>
-                  <Table.DataCell>{lokasjon}</Table.DataCell>
-                  <Table.DataCell>
-                    {oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Mangler dato'}
-                  </Table.DataCell>
-                  <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
-                </Table.Row>
-              ))
+              .map(
+                ({
+                  _id,
+                  tiltaksnummer,
+                  tiltaksgjennomforingNavn,
+                  oppstart,
+                  oppstartsdato,
+                  lokasjon,
+                  tiltakstype: { tiltakstypeNavn },
+                  kontaktinfoArrangor: { selskapsnavn },
+                }) => (
+                  <Table.Row key={_id}>
+                    <Table.DataCell className="tabell__tiltaksnavn">
+                      <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
+                        {tiltaksgjennomforingNavn}
+                      </Lenke>
+                      <div>{selskapsnavn}</div>
+                    </Table.DataCell>
+                    <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
+                      {tiltaksnummer}
+                      <Kopiknapp kopitekst={tiltaksnummer!} />
+                    </Table.DataCell>
+                    <Table.DataCell>{tiltakstypeNavn}</Table.DataCell>
+                    <Table.DataCell>{lokasjon}</Table.DataCell>
+                    <Table.DataCell>
+                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende'}
+                    </Table.DataCell>
+                    <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
+                  </Table.Row>
+                )
+              )
           )}
         </Table.Body>
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {tiltaksgjennomforing?.length} av {tiltaksgjennomforing?.length} tiltak
+          Viser {tiltaksgjennomforinger?.length} av {tiltaksgjennomforinger?.length} tiltak
         </Heading>
         <Pagination
           page={page}
           onPageChange={setPage}
-          count={pagination(tiltaksgjennomforing) === 0 ? 1 : pagination(tiltaksgjennomforing)}
+          count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
         />
       </div>
     </div>

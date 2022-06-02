@@ -14,25 +14,34 @@ export default {
       validation: (Rule) => Rule.required(),
     },
     {
-      name: "title",
+      name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
       type: "string",
       validation: (Rule) => Rule.required(),
     },
     {
+      name: "beskrivelse",
+      title: "Beskrivelse",
+      type: "string",
+    },
+    {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       type: "number",
+      validation: (Rule) => Rule.required(),
     },
     {
-      name: "leverandor",
-      title: "Leverandør",
-      type: "string",
+      name: "kontaktinfoArrangor",
+      title: "Arrangør",
+      type: "reference",
+      to: [{ type: "arrangor" }],
+      validation: (Rule) => Rule.required(),
     },
     {
       name: "lokasjon",
       title: "Lokasjon",
       type: "string",
+      validation: (Rule) => Rule.required(),
     },
     {
       name: "enheter",
@@ -125,16 +134,23 @@ export default {
       ],
     },
     {
-      //TODO denne skal være hidden om "løpende" oppstart på valgt på tiltakstype
+      name: "oppstart",
+      title: "Oppstart",
+      type: "string",
+      options: {
+        list: [
+          { title: "Dato", value: "dato" },
+          { title: "Løpende", value: "lopende" },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: "oppstartsdato",
       title: "Oppstart dato",
       type: "date",
       options: { dateFormat: "DD/MM/YYYY" },
-      hidden: async ({ parent }) => {
-        const ref = parent.tiltakstype._ref;
-        const result = await groq(`*[_type == "tiltakstype" && _id == ${ref}]`);
-        return result.oppstart !== "dato";
-      },
+      hidden: ({ parent }) => parent?.oppstart !== "dato",
     },
     //Faneinnhold
     {
@@ -143,47 +159,56 @@ export default {
       type: "document",
       fields: [
         {
+          name: "forHvemInfoboks",
+          title: "For hvem - infoboks",
+          description:
+            "Hvis denne har innhold, vises det i en infoboks i fanen 'For hvem'",
+          type: "string",
+        },
+        {
           name: "forHvem",
           title: "For hvem",
           type: "blockContent",
+        },
+
+        {
+          name: "detaljerOgInnholdInfoboks",
+          title: "Detaljer og innhold - infoboks",
+          description:
+            "Hvis denne har innhold, vises det i en infoboks i fanen 'Detaljer og innhold'",
+          type: "string",
         },
         {
           name: "detaljerOgInnhold",
           title: "Detaljer og innhold",
           type: "blockContent",
         },
+
+        {
+          name: "pameldingOgVarighetInfoboks",
+          title: "Påmelding og varighet - infoboks",
+          description:
+            "Hvis denne har innhold, vises det i en infoboks i fanen 'Påmelding og varighet'",
+          type: "string",
+        },
         {
           name: "pameldingOgVarighet",
           title: "Påmelding og varighet",
           type: "blockContent",
         },
-        {
-          name: "kontaktinfo",
-          title: "Kontaktinfo",
-          type: "document",
-          fields: [
-            {
-              name: "kontaktinfoLeverandor",
-              title: "Leverandør",
-              type: "reference",
-              to: [{ type: "leverandor" }],
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: "kontaktinfoTiltaksansvarlig",
-              title: "Tiltaksansvarlig",
-              type: "reference",
-              to: [{ type: "navKontaktperson" }],
-              validation: (Rule) => Rule.required(),
-            },
-          ],
-        },
       ],
+    },
+    {
+      name: "kontaktinfoTiltaksansvarlig",
+      title: "Tiltaksansvarlig",
+      type: "reference",
+      to: [{ type: "navKontaktperson" }],
+      validation: (Rule) => Rule.required(),
     },
   ],
   preview: {
     select: {
-      title: "title",
+      title: "tiltaksgjennomforingNavn",
     },
   },
 };

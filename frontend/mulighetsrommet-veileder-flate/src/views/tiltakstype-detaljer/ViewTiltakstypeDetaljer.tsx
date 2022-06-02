@@ -51,7 +51,7 @@ const ViewTiltakstypeDetaljer = () => {
         tiltaksnummer={tiltakskode}
         tiltakstype={tiltakskode}
         innsatsgruppe={innsatsgruppe}
-        leverandor={'Leverandør'}
+        arrangor={'Arrangør'}
         oppstartsdato={fraDato}
         beskrivelse={'lorem ipsum'}
       />

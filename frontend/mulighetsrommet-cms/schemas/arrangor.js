@@ -1,21 +1,21 @@
 import { BiBuildings } from "react-icons/bi";
 
 export default {
-  name: "leverandor",
-  title: "Leverandor",
+  name: "arrangor",
+  title: "Arrangør",
   type: "document",
   icon: BiBuildings,
   fields: [
     {
-      name: "title",
-      title: "Navn på kontaktperson",
+      name: "selskapsnavn",
+      title: "Navn på selskap",
       type: "string",
       validation: (Rule) => Rule.required(),
     },
     {
       name: "telefonnummer",
       title: "Telefonnummer",
-      type: "number",
+      type: "string",
       validation: (Rule) => Rule.required(),
     },
     {
@@ -33,7 +33,7 @@ export default {
   ],
   preview: {
     select: {
-      title: "title",
+      title: "selskapsnavn",
     },
   },
 };

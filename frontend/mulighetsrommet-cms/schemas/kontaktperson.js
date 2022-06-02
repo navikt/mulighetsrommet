@@ -7,14 +7,8 @@ export default {
   icon: GrUserWorker,
   fields: [
     {
-      name: "title",
+      name: "navn",
       title: "Navn",
-      type: "string",
-      validation: (Rule) => Rule.required().min(2).max(200),
-    },
-    {
-      name: "ident",
-      title: "NAV-ident",
       type: "string",
       validation: (Rule) => Rule.required().min(2).max(200),
     },
@@ -39,7 +33,7 @@ export default {
   ],
   preview: {
     select: {
-      title: "title",
+      title: "navn",
     },
   },
 };
