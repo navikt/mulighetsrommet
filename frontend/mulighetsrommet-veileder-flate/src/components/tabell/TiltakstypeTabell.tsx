@@ -1,21 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pagination, Table, Alert, Heading } from '@navikt/ds-react';
 import './Tabell.less';
-import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
+import { sanityClient } from '../../sanityClient';
 
-export interface TiltakstypelisteProps {
-  tiltaksgjennomforingsliste: Array<Tiltaksgjennomforing>;
-}
-
-const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps) => {
+const TiltakstypeTabell = () => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
+  const pagination = (tiltaksgjennomforing: string[]) => {
+    return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
+  };
+
+  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState([]);
+
+  useEffect(() => {
+    sanityClient
+      .fetch(
+        `*[_type == "tiltaksgjennomforing"]{
+        _id,
+        tiltaksgjennomforingNavn,
+        enheter,
+        lokasjon,
+        oppstart,
+        oppstartsdato,
+        tiltaksnummer,
+        kontaktinfoArrangor->,
+        tiltakstype->
+        }`
+      )
+      .then(data => setTiltaksgjennomforinger(data));
+  }, []);
 
   const tilgjengelighetsstatus = (status: string) => {
     //TODO endre denne når vi får inn data fra Arena
@@ -42,6 +61,7 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
       );
     }
   };
+
   return (
     <div className="w-full flex flex-col gap-4">
       <Table
@@ -65,40 +85,41 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader
-              sortKey="navn"
+              sortKey="tiltaksgjennomforingNavn"
               sortable
               className="tabell__kolonne__tiltaksnavn"
               data-testid="tabellheader_tiltaksnavn"
             >
               Tiltaksnavn
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="id" sortable className="tabell__kolonne__tiltaksnummer">
+            <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltakskode" sortable className="tabell__kolonne__tiltakstype">
+            {/*TODO fiks sortering*/}
+            <Table.ColumnHeader sortKey="tiltakstype" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
               Lokasjon
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="fraDato" sortable className="tabell__kolonne__oppstart">
+            <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
+            {/*TODO fiks sortering*/}
             <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
               Status
             </Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltaksgjennomforingsliste.length === 0 ? (
+          {tiltaksgjennomforinger.length === 0 ? (
             <Table.DataCell colSpan={5}>
               <Alert variant="info" className="tabell__alert">
                 Det finnes ingen tiltakstyper med dette søket.
               </Alert>
             </Table.DataCell>
           ) : (
-            tiltaksgjennomforingsliste
-              .slice()
+            tiltaksgjennomforinger
               .sort((a, b) => {
                 if (sort) {
                   const comparator = (a: any, b: any, orderBy: string | number) => {
@@ -117,37 +138,48 @@ const TiltakstypeTabell = ({ tiltaksgjennomforingsliste }: TiltakstypelisteProps
                 return 1;
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(({ id, tittel, tiltakskode, fraDato, tiltaksnummer }) => (
-                <Table.Row key={id}>
-                  <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`/tiltakstyper/${tiltakskode}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
-                      {tittel}
-                    </Lenke>
-                    <div>{'Leverandør'}</div>
-                  </Table.DataCell>
-                  <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
-                    {tiltaksnummer}
-                    <Kopiknapp kopitekst={tiltaksnummer!} />
-                  </Table.DataCell>
-                  <Table.DataCell>{tiltakskode}</Table.DataCell>
-                  <Table.DataCell>Lokasjon</Table.DataCell>
-                  <Table.DataCell>
-                    {fraDato ? new Intl.DateTimeFormat().format(new Date(fraDato)) : 'Mangler dato'}
-                  </Table.DataCell>
-                  <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
-                </Table.Row>
-              ))
+              .map(
+                ({
+                  _id,
+                  tiltaksnummer,
+                  tiltaksgjennomforingNavn,
+                  oppstart,
+                  oppstartsdato,
+                  lokasjon,
+                  tiltakstype: { tiltakstypeNavn },
+                  kontaktinfoArrangor: { selskapsnavn },
+                }) => (
+                  <Table.Row key={_id}>
+                    <Table.DataCell className="tabell__tiltaksnavn">
+                      <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
+                        {tiltaksgjennomforingNavn}
+                      </Lenke>
+                      <div>{selskapsnavn}</div>
+                    </Table.DataCell>
+                    <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
+                      {tiltaksnummer}
+                      <Kopiknapp kopitekst={tiltaksnummer!} />
+                    </Table.DataCell>
+                    <Table.DataCell>{tiltakstypeNavn}</Table.DataCell>
+                    <Table.DataCell>{lokasjon}</Table.DataCell>
+                    <Table.DataCell>
+                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende'}
+                    </Table.DataCell>
+                    <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
+                  </Table.Row>
+                )
+              )
           )}
         </Table.Body>
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {tiltaksgjennomforingsliste?.length} av {tiltaksgjennomforingsliste?.length} tiltak
+          Viser {tiltaksgjennomforinger?.length} av {tiltaksgjennomforinger?.length} tiltak
         </Heading>
         <Pagination
           page={page}
           onPageChange={setPage}
-          count={Math.ceil(tiltaksgjennomforingsliste.length / rowsPerPage)}
+          count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
         />
       </div>
     </div>
