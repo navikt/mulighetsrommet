@@ -6,11 +6,16 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 
 # Innhold
 
-- [Teknologier](#teknologier)
-- [Kom i gang](#kom-i-gang)
-  - [Forutsetninger](#forutsetninger)
-  - [Steg for steg](#steg-for-steg)
-- [Integrasjoner](#integrasjoner)
+- [`mulighetsrommet-api`](#mulighetsrommet-api)
+- [Innhold](#innhold)
+- [<a name="teknologier"></a>Teknologier](#teknologier)
+- [<a name="kom-i-gang"></a>Kom i gang](#kom-i-gang)
+  - [<a name="forutsetninger"></a>Forutsetninger](#forutsetninger)
+    - [JDK 11](#jdk-11)
+    - [Docker](#docker)
+    - [Miljøvariabler](#miljøvariabler)
+  - [<a name="steg-for-steg"></a>Steg for steg](#steg-for-steg)
+    - [Autentisering](#autentisering)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -90,5 +95,5 @@ Følgende steg kan benyttes til å generere opp et token:
 
 Eksempel:
 ```sh
-$ curl localhost:8080/api/innsatsgrupper -H 'Authorization: Bearer <access_token>'
+$ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
 ```

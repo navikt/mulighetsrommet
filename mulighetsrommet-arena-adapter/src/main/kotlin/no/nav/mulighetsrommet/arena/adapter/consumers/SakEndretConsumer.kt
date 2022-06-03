@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 class SakEndretConsumer(private val client: MulighetsrommetApiClient) {
 
     private val logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
+    private var resourceUri = "/api/v1/arena/sak"
 
     fun process(payload: JsonElement) {
         val sak = payload.jsonObject["after"]!!.jsonObject.toSak()
