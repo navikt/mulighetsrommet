@@ -12,3 +12,4 @@ cypress/videos
 
 # build
 dist
+.env
