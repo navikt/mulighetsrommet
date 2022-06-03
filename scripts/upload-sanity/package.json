@@ -1,0 +1,41 @@
+{
+  "name": "upload-sanity",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "upload.ts",
+  "author": "Sindre Moldeklev <sndrem@gmail.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "echo 'Se readme for kjøring av prosjekt'"
+  },
+  "keywords": [
+    ""
+  ],
+  "dependencies": {
+    "@sanity/base": "^2.30.1",
+    "@sanity/client": "^3.3.1",
+    "@sanity/core": "^2.30.1",
+    "@sanity/default-layout": "^2.30.1",
+    "@sanity/default-login": "^2.30.1",
+    "@sanity/desk-tool": "^2.30.1",
+    "@sanity/eslint-config-studio": "^2.0.0",
+    "@sanity/vision": "^2.30.1",
+    "colors": "^1.4.0",
+    "eslint": "^8.6.0",
+    "prop-types": "^15.7",
+    "react": "^17.0",
+    "react-dom": "^17.0",
+    "react-icons": "^4.4.0",
+    "short-uuid": "^4.2.0",
+    "styled-components": "^5.2.0"
+  },
+  "devDependencies": {
+    "csv": "^6.1.0",
+    "dotenv": "^16.0.1",
+    "nodemon": "^2.0.16",
+    "prettier": "^2.6.2",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.2"
+  }
+}
