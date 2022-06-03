@@ -38,7 +38,7 @@ const ViewTiltakstypeDetaljer = () => {
     <div className="tiltakstype-detaljer">
       <Tilbakeknapp tilbakelenke="/" />
       <div className="tiltakstype-detaljer__info">
-        <TiltaksgjennomforingsHeader title={navn} tiltakstype={navn} />
+        <TiltaksgjennomforingsHeader tiltakstype={navn} />
         <Statistikk
           tittel="Overgang til arbeid"
           hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
@@ -51,7 +51,7 @@ const ViewTiltakstypeDetaljer = () => {
         tiltaksnummer={tiltakskode}
         tiltakstype={tiltakskode}
         innsatsgruppe={innsatsgruppe}
-        leverandor={'Leverandør'}
+        arrangor={'Arrangør'}
         oppstartsdato={fraDato}
         beskrivelse={'lorem ipsum'}
       />

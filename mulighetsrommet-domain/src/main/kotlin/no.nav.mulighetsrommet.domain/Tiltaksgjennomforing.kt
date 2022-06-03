@@ -7,11 +7,11 @@ import java.time.LocalDateTime
 data class Tiltaksgjennomforing(
     val id: Int? = null,
     val navn: String,
-    val arrangorId: Int? = null,
     val tiltakskode: String,
     val tiltaksnummer: Int,
     val arenaId: Int,
     val sakId: Int,
+    val arrangorId: Int? = null,
     val sanityId: Int? = null,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
