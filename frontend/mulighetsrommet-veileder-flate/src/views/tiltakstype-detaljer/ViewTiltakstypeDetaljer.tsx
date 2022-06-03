@@ -56,54 +56,63 @@ const ViewTiltakstypeDetaljer = () => {
       .then(data => setTiltaksgjennomforinger(data));
   }, []);
 
-  return tiltaksgjennomforinger.map(
-    ({
-      _id,
-      tiltaksgjennomforingNavn,
-      oppstart,
-      oppstartsdato,
-      beskrivelse,
-      tiltakstype: { tiltakstypeNavn, innsatsgruppe },
-      kontaktinfoArrangor: { selskapsnavn },
-      faneinnhold: {
-        forHvem,
-        detaljerOgInnhold,
-        pameldingOgVarighet,
-        kontaktinfo,
-        forHvemInfoboks,
-        detaljerOgInnholdInfoboks,
-        pameldingOgVarighetInfoboks,
-      },
-    }) => (
-      <div key={_id} className="tiltakstype-detaljer">
-        <Tilbakeknapp tilbakelenke="/" />
-        <div className="tiltakstype-detaljer__info">
-          <TiltaksgjennomforingsHeader tiltaksgjennomforingsnavn={tiltaksgjennomforingNavn} beskrivelse={beskrivelse} />
-          <Statistikk
-            tittel="Overgang til arbeid"
-            hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
-            statistikktekst="69%"
-          />
-          <TiltaksdetaljerFane
-            forHvemAlert={forHvemInfoboks}
-            detaljerOgInnholdAlert={detaljerOgInnholdInfoboks}
-            pameldingOgVarighetAlert={pameldingOgVarighetInfoboks}
-            forHvem={forHvem}
-            detaljerOgInnhold={detaljerOgInnhold}
-            pameldingOgVarighet={pameldingOgVarighet}
-            kontaktinfo={kontaktinfo}
-          />
-        </div>
-        <SidemenyDetaljer
-          tiltaksnummer={tiltaksnummer!}
-          tiltakstype={tiltakstypeNavn}
-          innsatsgruppe={innsatsgruppe}
-          arrangor={selskapsnavn}
-          oppstartsdato={oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende'}
-          beskrivelse={'beskrivelse'}
-        />
-      </div>
-    )
+  return (
+    <>
+      {tiltaksgjennomforinger.map(
+        ({
+          _id,
+          tiltaksgjennomforingNavn,
+          oppstart,
+          oppstartsdato,
+          beskrivelse,
+          tiltakstype: { tiltakstypeNavn, innsatsgruppe },
+          kontaktinfoArrangor: { selskapsnavn },
+          faneinnhold: {
+            forHvem,
+            detaljerOgInnhold,
+            pameldingOgVarighet,
+            kontaktinfo,
+            forHvemInfoboks,
+            detaljerOgInnholdInfoboks,
+            pameldingOgVarighetInfoboks,
+          },
+        }) => (
+          <div key={_id} className="tiltakstype-detaljer">
+            <Tilbakeknapp tilbakelenke="/" />
+            <div className="tiltakstype-detaljer__info">
+              <TiltaksgjennomforingsHeader
+                tiltaksgjennomforingsnavn={tiltaksgjennomforingNavn}
+                beskrivelse={beskrivelse}
+              />
+              <Statistikk
+                tittel="Overgang til arbeid"
+                hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
+                statistikktekst="69%"
+              />
+              <TiltaksdetaljerFane
+                forHvemAlert={forHvemInfoboks}
+                detaljerOgInnholdAlert={detaljerOgInnholdInfoboks}
+                pameldingOgVarighetAlert={pameldingOgVarighetInfoboks}
+                forHvem={forHvem}
+                detaljerOgInnhold={detaljerOgInnhold}
+                pameldingOgVarighet={pameldingOgVarighet}
+                kontaktinfo={kontaktinfo}
+              />
+            </div>
+            <SidemenyDetaljer
+              tiltaksnummer={tiltaksnummer!}
+              tiltakstype={tiltakstypeNavn}
+              innsatsgruppe={innsatsgruppe}
+              arrangor={selskapsnavn}
+              oppstartsdato={
+                oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende'
+              }
+              beskrivelse={'beskrivelse'}
+            />
+          </div>
+        )
+      )}
+    </>
   );
 };
 
