@@ -11,7 +11,7 @@ import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import FilterTags from '../../components/tags/Filtertags';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
 import Show from '../../utils/Show';
-import { sanityClient } from '../../sanityClient';
+import { client } from '../../sanityClient';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -30,7 +30,7 @@ const ViewTiltakstypeOversikt = () => {
   }, [filter.tiltakstyper, filter.innsatsgrupper]);
 
   useEffect(() => {
-    sanityClient.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
+    client.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
   }, []);
 
   return (

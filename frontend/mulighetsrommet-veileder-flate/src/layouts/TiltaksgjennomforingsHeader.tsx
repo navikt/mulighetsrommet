@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './MainView.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
-import { sanityClient } from '../sanityClient';
+import { client } from '../sanityClient';
 
 interface TiltaksgjennomforingsHeaderProps {
   tiltakstype: string;
@@ -13,7 +13,7 @@ function TiltaksgjennomforingsHeader({ tiltakstype, arrangor }: Tiltaksgjennomfo
   const [gjennomforing, setGjennomforing] = useState(null);
 
   useEffect(() => {
-    sanityClient.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
+    client.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
   }, []);
 
   return (
