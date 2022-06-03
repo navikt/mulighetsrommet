@@ -44,6 +44,44 @@ export interface SanityTiltaksgjennomforing {
   kontaktinfoTiltaksansvarlig: Reference;
 }
 
+export interface SanityTiltakstype {
+  _id: string;
+  _type: "tiltakstype";
+  beskrivelse: Block[];
+  faneinnhold: {
+    _type: "document";
+    detaljerOgInnhold: Block[];
+    detaljerOgInnholdInfoboks: string;
+    forHvem: Block[];
+    forHvemInfoboks: string;
+    innsikt: Block[];
+    pameldingOgVarighet: Block[];
+    pameldingOgVarighetInfoboks: string;
+  };
+  innsatsgruppe: Innsatsgruppe;
+  overgangTilArbeid: Block[];
+  tiltakstypeNavn: Tiltakstype;
+  varighet: string;
+}
+
+type Innsatsgruppe =
+  | "Standardinnsats"
+  | "Situasjonsbestemt innsats"
+  | "Spesielt tilpasset innsats"
+  | "Varig tilpasset innsats"
+  | "";
+
+export type Tiltakstype =
+  | "Oppfølging"
+  | "Avklaring"
+  | "Jobbklubb (uten om digital jobbklubb)"
+  | "Digital jobbklubb"
+  | "ARR"
+  | "AFT"
+  | "VTA"
+  | "Opplæring (Gruppe-AMO)"
+  | "Opplæring (AMO Forhåndsgodkjent avtale)";
+
 interface Reference {
   _ref: string;
   _type: "reference";
