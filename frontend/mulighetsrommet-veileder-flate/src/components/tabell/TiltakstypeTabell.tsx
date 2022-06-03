@@ -113,11 +113,13 @@ const TiltakstypeTabell = () => {
         </Table.Header>
         <Table.Body>
           {tiltaksgjennomforinger.length === 0 ? (
-            <Table.DataCell colSpan={5}>
-              <Alert variant="info" className="tabell__alert">
-                Det finnes ingen tiltakstyper med dette søket.
-              </Alert>
-            </Table.DataCell>
+            <Table.Row>
+              <Table.DataCell colSpan={5}>
+                <Alert variant="info" className="tabell__alert">
+                  Det finnes ingen tiltakstyper med dette søket.
+                </Alert>
+              </Table.DataCell>
+            </Table.Row>
           ) : (
             tiltaksgjennomforinger
               .sort((a, b) => {
