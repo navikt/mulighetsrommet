@@ -13,6 +13,7 @@ const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
 const skalLasteOpp = true;
 
+// Om man trenger å slette noe fra sanity
 // client.delete({
 //   query: `*[_type == "tiltaksgjennomforing"]`,
 // });

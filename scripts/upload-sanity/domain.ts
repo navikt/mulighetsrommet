@@ -17,19 +17,6 @@ export interface SanityArrangor {
   adresse: string;
 }
 
-export interface Block {
-  _type: "block";
-  _key: string;
-  children: {
-    _type: "span";
-    _key: string;
-    marks: [];
-    text: string;
-  }[];
-  markDefs: [];
-  style: "normal";
-}
-
 export interface SanityTiltaksgjennomforing {
   _id: string;
   _type: "tiltaksgjennomforing";
@@ -60,4 +47,17 @@ export interface SanityTiltaksgjennomforing {
 interface Reference {
   _ref: string;
   _type: "reference";
+}
+
+export interface Block {
+  _type: "block";
+  _key: string;
+  children: {
+    _type: "span";
+    _key: string;
+    marks: [];
+    text: string;
+  }[];
+  markDefs: [];
+  style: "normal";
 }
