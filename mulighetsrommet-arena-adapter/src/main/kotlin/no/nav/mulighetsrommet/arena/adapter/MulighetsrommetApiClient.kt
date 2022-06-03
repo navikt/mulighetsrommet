@@ -24,7 +24,9 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
             install(ContentNegotiation) {
                 json()
             }
-            install(Logging)
+            install(Logging) {
+                level = LogLevel.INFO
+            }
             defaultRequest {
                 contentType(ContentType.Application.Json)
 
@@ -45,7 +47,7 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
         }
 
         if (!response.status.isSuccess()) {
-            throw Exception("Request to mulighetsrommet-api failed")
+            throw Exception("Request to mulighetsrommet-api failed with ${response.status}")
         }
 
         logger.debug("sent request status ${response.status} (${response.request.url})")
