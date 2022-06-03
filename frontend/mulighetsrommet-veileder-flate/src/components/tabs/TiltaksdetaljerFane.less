@@ -9,7 +9,8 @@
       flex-direction: row;
       border-bottom: 1px solid var(--navds-semantic-color-border-muted);
       margin-bottom: 2rem;
-      gap: 1%;
+      gap: 5%;
+      justify-content: start;
 
       button {
         background-color: transparent;
@@ -23,13 +24,19 @@
       }
 
       .btn__tab {
-        width: 6rem;
+        width: fit-content;
       }
 
       button[data-state='active'] {
         font-weight: bold;
         border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
       }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .fane__liste {
+      justify-content: space-between;
     }
   }
 }

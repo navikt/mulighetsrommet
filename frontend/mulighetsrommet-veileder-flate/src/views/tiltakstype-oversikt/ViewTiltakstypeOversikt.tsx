@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './ViewTiltakstypeOversikt.less';
-import '../../layouts/MainView.less';
+import '../../layouts/TiltaksgjennomforingsHeader.less';
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';

@@ -2,15 +2,14 @@ import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { Tiltakskode } from '../../../../mulighetsrommet-api-client';
 
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;
-  tiltakstype: Tiltakskode;
+  tiltakstype: string;
+  beskrivelse?: string;
   arrangor: string;
-  innsatsgruppe: number | null;
-  oppstartsdato: string | null;
-  beskrivelse: string;
+  innsatsgruppe: string | null;
+  oppstartsdato?: string | null;
 }
 
 const SidemenyDetaljer = ({
@@ -25,35 +24,35 @@ const SidemenyDetaljer = ({
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">
         <div className="tiltakstype-detaljer__rad">
-          <span>Tiltaksnummer</span>
+          <strong>Tiltaksnummer</strong>
           <span>
             {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer} />
           </span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Tiltakstype</span>
+          <strong>Tiltakstype</strong>
           <span>{tiltakstype}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Arrangør</span>
+          <strong>Arrangør</strong>
           <span>{arrangor}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Innsatsgruppe</span>
+          <strong>Innsatsgruppe</strong>
           <span>{innsatsgruppe} </span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Oppstart</span>
+          <strong>Oppstart</strong>
           <span>{oppstartsdato} </span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Beskrivelse</span>
-          <span>{beskrivelse} </span>
+          <strong>Regelverk</strong>
+          <span>{beskrivelse}</span>
         </div>
       </Panel>
     </>

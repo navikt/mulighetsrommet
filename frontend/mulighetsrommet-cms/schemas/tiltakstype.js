@@ -23,7 +23,6 @@ export default {
       description: "Hentes fra Arena, usikker på hvordan denne skal vises her",
       type: "blockContent",
     },
-    //  Sammendrag/Infoboks
     {
       name: "innsatsgruppe",
       title: "Innsatsgruppe",
@@ -31,10 +30,19 @@ export default {
       options: {
         layout: "dropdown",
         list: [
-          { title: "Standardinnsats", value: "staninn" },
-          { title: "Situasjonsbestemt innsats", value: "sitinn" },
-          { title: "Spesielt tilpasset innsats", value: "speinn" },
-          { title: "Varig tilpasset innsats", value: "varinn" },
+          { title: "Standardinnsats", value: "Standardinnsats" },
+          {
+            title: "Situasjonsbestemt innsats",
+            value: "Situasjonsbestemt innsats",
+          },
+          {
+            title: "Spesielt tilpasset innsats",
+            value: "Spesielt tilpasset innsats",
+          },
+          {
+            title: "Varig tilpasset innsats",
+            value: "Varig tilpasset innsats",
+          },
         ],
       },
       validation: (Rule) => Rule.required(),
@@ -44,6 +52,7 @@ export default {
       title: "Varighet",
       type: "string",
     },
+    //TODO skal kunne legge til flere lenker og filer
     {
       name: "regelverkFil",
       title: "Regelverk fil",
@@ -72,7 +81,6 @@ export default {
           title: "For hvem",
           type: "blockContent",
         },
-
         {
           name: "detaljerOgInnholdInfoboks",
           title: "Detaljer og innhold - infoboks",
@@ -85,7 +93,6 @@ export default {
           title: "Detaljer og innhold",
           type: "blockContent",
         },
-
         {
           name: "pameldingOgVarighetInfoboks",
           title: "Påmelding og varighet - infoboks",
