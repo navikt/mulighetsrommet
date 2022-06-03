@@ -6,7 +6,7 @@ import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import { sanityClient } from '../../sanityClient';
+import { client } from '../../sanityClient';
 
 const TiltakstypeTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -19,7 +19,7 @@ const TiltakstypeTabell = () => {
   const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState([]);
 
   useEffect(() => {
-    sanityClient
+    client
       .fetch(
         `*[_type == "tiltaksgjennomforing"]{
         _id,
