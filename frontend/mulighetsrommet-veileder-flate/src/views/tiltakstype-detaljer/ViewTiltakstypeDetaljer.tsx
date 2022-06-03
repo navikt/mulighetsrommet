@@ -5,7 +5,7 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import Statistikk from '../../components/statistikk/Statistikk';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import { useParams } from 'react-router-dom';
-import { sanityClient } from '../../sanityClient';
+import { client } from '../../sanityClient';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 
 const ViewTiltakstypeDetaljer = () => {
@@ -19,7 +19,7 @@ const ViewTiltakstypeDetaljer = () => {
   const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState([]);
 
   useEffect(() => {
-    sanityClient
+    client
       .fetch(
         `*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${tiltaksnummer}]{ 
         _id,
