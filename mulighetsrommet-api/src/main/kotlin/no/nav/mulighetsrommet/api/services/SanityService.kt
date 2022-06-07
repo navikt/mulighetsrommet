@@ -39,8 +39,8 @@ class SanityService(sanity: SanityConfig) {
     suspend fun executeQuery(query: String, dataset: String): String {
         val response: HttpResponse = client.get("") {
             url {
-                appendPathSegments(dataset, "/")
-                parameters.append("query", query)
+                appendPathSegments(dataset)
+                encodedParameters.append("query", query)
             }
         }
         if (response.status == HttpStatusCode.OK) {

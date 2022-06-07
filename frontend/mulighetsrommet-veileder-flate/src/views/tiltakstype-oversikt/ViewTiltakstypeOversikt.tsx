@@ -12,10 +12,12 @@ import FilterTags from '../../components/tags/Filtertags';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
 import Show from '../../utils/Show';
 import { client } from '../../sanityClient';
+import { useSanity } from '../../hooks/useSanity';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [gjennomforing, setGjennomforing] = useState(null);
+  const { data: sanityData } = useSanity(`*[_type == "tiltaksgjennomforing"]`);
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];

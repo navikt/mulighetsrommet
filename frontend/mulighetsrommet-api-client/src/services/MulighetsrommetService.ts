@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Innsatsgruppe } from "../models/Innsatsgruppe";
+import type { SanityResponse } from "../models/SanityResponse";
 import type { Tiltaksgjennomforing } from "../models/Tiltaksgjennomforing";
 import type { Tiltakskode } from "../models/Tiltakskode";
 import type { Tiltakstype } from "../models/Tiltakstype";
@@ -174,6 +175,25 @@ export class MulighetsrommetService {
       },
       errors: {
         404: `The specified tiltaksgjennomføring was not found.`,
+      },
+    });
+  }
+
+  /**
+   * @returns SanityResponse The data returned from the Groq query
+   * @throws ApiError
+   */
+  public static getSanityQuery({
+    query,
+  }: {
+    /** Search for tiltaksgjennomforinger **/
+    query?: string;
+  }): CancelablePromise<SanityResponse> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/sanity",
+      query: {
+        query: query,
       },
     });
   }
