@@ -13,6 +13,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
         val query = """
             insert into failed_events (topic, partition, record_offset, key, value, headers_json, record_timestamp)
             values (?, ?, ?, ?, ?, ?, ?)
+            on conflict (topic, partition, record_offset) do nothing
         """.trimIndent()
         val queryResult = queryOf(
             query,
@@ -23,8 +24,8 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             record.value,
             record.headersJson,
             record.timestamp
-        ).asUpdateAndReturnGeneratedKey
-        return db.session.run(queryResult)!!
+        ).asUpdate
+        return db.session.run(queryResult).toLong()
     }
 
     override fun deleteRecords(ids: MutableList<Long>) {
