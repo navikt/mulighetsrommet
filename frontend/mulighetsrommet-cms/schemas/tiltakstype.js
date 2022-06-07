@@ -58,7 +58,7 @@ export default {
     {
       name: "faneinnhold",
       title: "Innhold faner",
-      type: "document",
+      type: "object",
       fields: [
         {
           name: "forHvemInfoboks",

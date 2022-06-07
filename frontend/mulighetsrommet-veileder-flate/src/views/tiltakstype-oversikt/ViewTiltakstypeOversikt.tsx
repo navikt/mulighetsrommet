@@ -1,23 +1,24 @@
+import { Alert, Button, Loader } from '@navikt/ds-react';
+import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
-import './ViewTiltakstypeOversikt.less';
-import '../../layouts/MainView.less';
-import { Alert, Button, Link, Loader } from '@navikt/ds-react';
+import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
-import { useAtom } from 'jotai';
+import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
-import FilterTags from '../../components/tags/Filtertags';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
-import Show from '../../utils/Show';
-import { client } from '../../sanityClient';
 import { useSanity } from '../../hooks/useSanity';
+import '../../layouts/MainView.less';
+import { client } from '../../sanityClient';
+import { SanityTiltaksgjennomforing } from '../../schema';
+import Show from '../../utils/Show';
+import './ViewTiltakstypeOversikt.less';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [gjennomforing, setGjennomforing] = useState(null);
-  const { data: sanityData } = useSanity(`*[_type == "tiltaksgjennomforing"]`);
+  const { data: sanityData } = useSanity<SanityTiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing"]`);
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
