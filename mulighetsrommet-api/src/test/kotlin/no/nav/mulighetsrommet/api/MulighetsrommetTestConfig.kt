@@ -20,6 +20,7 @@ fun <R> withMulighetsrommetApp(
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseConfig(),
     auth = createAuthConfig(oauth),
+    sanity = createSanityConfig()
 )
 
 fun createDatabaseConfig(
@@ -54,3 +55,10 @@ fun createAuthConfig(
         audience = audience
     )
 )
+
+fun createSanityConfig(): SanityConfig {
+    return SanityConfig(
+        projectId = "",
+        authToken = ""
+    )
+}

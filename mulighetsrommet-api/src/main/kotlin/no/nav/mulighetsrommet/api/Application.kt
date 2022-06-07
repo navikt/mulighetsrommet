@@ -9,10 +9,7 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
-import no.nav.mulighetsrommet.api.routes.v1.arenaRoutes
-import no.nav.mulighetsrommet.api.routes.v1.innsatsgruppeRoutes
-import no.nav.mulighetsrommet.api.routes.v1.tiltaksgjennomforingRoutes
-import no.nav.mulighetsrommet.api.routes.v1.tiltakstypeRoutes
+import no.nav.mulighetsrommet.api.routes.v1.*
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -58,6 +55,7 @@ fun Application.configure(config: AppConfig) {
             tiltaksgjennomforingRoutes()
             innsatsgruppeRoutes()
             arenaRoutes()
+            sanityRoutes()
         }
     }
 }
