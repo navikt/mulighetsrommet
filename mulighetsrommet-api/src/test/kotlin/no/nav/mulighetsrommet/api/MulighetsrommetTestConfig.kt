@@ -59,7 +59,6 @@ fun createAuthConfig(
 fun createSanityConfig(): SanityConfig {
     return SanityConfig(
         projectId = "",
-        authToken = "",
-        dataset = ""
+        authToken = ""
     )
 }

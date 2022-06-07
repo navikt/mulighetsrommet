@@ -34,7 +34,6 @@ data class AuthConfig(
 data class SanityConfig(
     val projectId: String,
     val authToken: String,
-    val dataset: String,
 )
 
 data class AuthProvider(
