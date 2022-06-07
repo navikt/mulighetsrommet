@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import com.sksamuel.hoplite.Masked
+import java.lang.RuntimeException
 
 data class Config(
     val server: ServerConfig,
@@ -42,6 +43,12 @@ data class KafkaConfig(
     val consumerGroupId: String,
     val topics: TopicsConfig
 )
+
+fun KafkaConfig.getTopic(key: String): String {
+    return topics.consumer.getOrElse(key) {
+        throw RuntimeException("No topic configured for key '$key'")
+    }
+}
 
 data class TopicsConfig(
     val consumer: Map<String, String>

@@ -30,15 +30,14 @@ fun main() {
 
     val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)
 
-    val kafka = KafkaConsumerOrchestrator(
-        app.kafka,
-        kafkaPreset,
-        Database(app.database),
-        TiltakEndretConsumer(api),
-        TiltakgjennomforingEndretConsumer(api),
-        TiltakdeltakerEndretConsumer(api),
-        SakEndretConsumer(api)
+    val consumers = listOf(
+        TiltakEndretConsumer(app.kafka.getTopic("tiltakendret"), api),
+        TiltakgjennomforingEndretConsumer(app.kafka.getTopic("tiltakgjennomforingendret"), api),
+        TiltakdeltakerEndretConsumer(app.kafka.getTopic("tiltakdeltakerendret"), api),
+        SakEndretConsumer(app.kafka.getTopic("sakendret"), api)
     )
+
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, Database(app.database), consumers)
 
     initializeServer(server) {
         configure(app, kafka)

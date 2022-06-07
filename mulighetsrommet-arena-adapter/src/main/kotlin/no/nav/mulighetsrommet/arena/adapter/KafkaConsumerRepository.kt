@@ -5,31 +5,30 @@ import kotliquery.queryOf
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import org.apache.kafka.common.TopicPartition
+import org.intellij.lang.annotations.Language
 
-class KafkaConsumerRepository(private val db: Database) :
-    KafkaConsumerRepository {
+class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepository {
     override fun storeRecord(record: StoredConsumerRecord): Long {
-        return try {
-            val query = """
-                insert into failed_events (topic, partition, record_offset, key, value, headers_json, record_timestamp) values (?, ?, ?, ?, ?, ?, ?)
-            """.trimIndent()
-            val queryResult = queryOf(
-                query,
-                record.topic,
-                record.partition,
-                record.offset,
-                record.key,
-                record.value,
-                record.headersJson,
-                record.timestamp
-            ).asUpdateAndReturnGeneratedKey
-            db.session.run(queryResult)!!
-        } catch (e: Exception) {
-            -1
-        }
+        @Language("PostgreSQL")
+        val query = """
+            insert into failed_events (topic, partition, record_offset, key, value, headers_json, record_timestamp)
+            values (?, ?, ?, ?, ?, ?, ?)
+        """.trimIndent()
+        val queryResult = queryOf(
+            query,
+            record.topic,
+            record.partition,
+            record.offset,
+            record.key,
+            record.value,
+            record.headersJson,
+            record.timestamp
+        ).asUpdateAndReturnGeneratedKey
+        return db.session.run(queryResult)!!
     }
 
     override fun deleteRecords(ids: MutableList<Long>) {
+        @Language("PostgreSQL")
         val query = """
             delete from failed_events where id = any(?)
         """.trimIndent()
@@ -42,18 +41,18 @@ class KafkaConsumerRepository(private val db: Database) :
     }
 
     override fun hasRecordWithKey(topic: String, partition: Int, key: ByteArray): Boolean {
-
+        @Language("PostgreSQL")
         val query = """
             select id from failed_events where topic = ? and partition = ? and key = ? limit 1
         """.trimIndent()
 
-        val queryResult = queryOf(query, topic, partition, key).map { it -> it.int("id") }.asSingle
+        val queryResult = queryOf(query, topic, partition, key).map { it.int("id") }.asSingle
 
         return db.session.run(queryResult) != null
     }
 
     override fun getRecords(topic: String, partition: Int, maxRecords: Int): MutableList<StoredConsumerRecord> {
-
+        @Language("PostgreSQL")
         val query = """
             select * from failed_events where topic = ? and partition = ? order by record_offset limit ?
         """.trimIndent()
@@ -64,7 +63,7 @@ class KafkaConsumerRepository(private val db: Database) :
     }
 
     override fun incrementRetries(id: Long) {
-
+        @Language("PostgreSQL")
         val query = """
             update failed_events set retries = retries + 1, last_retry = current_timestamp where id = ?
         """.trimIndent()
@@ -75,14 +74,16 @@ class KafkaConsumerRepository(private val db: Database) :
     }
 
     override fun getTopicPartitions(topics: MutableList<String>): MutableList<TopicPartition> {
-
+        @Language("PostgreSQL")
         val query = """
             select distinct topic, partition from failed_events where topic = any(?)
         """.trimIndent()
 
         val topicsArray = db.session.createArrayOf("varchar", topics)
 
-        val queryResult = queryOf(query, topicsArray).map { it -> TopicPartition(it.string("topic"), it.int("partition")) }.asList
+        val queryResult = queryOf(query, topicsArray)
+            .map { TopicPartition(it.string("topic"), it.int("partition")) }
+            .asList
 
         return db.session.run(queryResult).toMutableList()
     }

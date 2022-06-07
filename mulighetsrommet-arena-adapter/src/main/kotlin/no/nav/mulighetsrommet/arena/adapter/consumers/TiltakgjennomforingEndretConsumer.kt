@@ -10,14 +10,20 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import org.slf4j.LoggerFactory
 
-class TiltakgjennomforingEndretConsumer(private val client: MulighetsrommetApiClient) {
+class TiltakgjennomforingEndretConsumer(
+    override val topic: String,
+    private val client: MulighetsrommetApiClient
+) : TopicConsumer() {
 
     private val logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
-    private var resourceUri = "/api/v1/arena/tiltaksgjennomforinger"
 
-    fun process(payload: JsonElement) {
+    override fun resolveKey(payload: JsonElement): String {
+        return payload.jsonObject["after"]!!.jsonObject["TILTAKGJENNOMFORING_ID"]!!.jsonPrimitive.content
+    }
+
+    override fun processEvent(payload: JsonElement) {
         val updateTiltaksgjennomforing = payload.jsonObject["after"]!!.jsonObject.toTiltaksgjennomforing()
-        client.sendRequest(HttpMethod.Put, "/api/arena/tiltaksgjennomforinger", updateTiltaksgjennomforing)
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/tiltaksgjennomforinger", updateTiltaksgjennomforing)
         logger.debug("processed tiltakgjennomforing endret event")
     }
 
