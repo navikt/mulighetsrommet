@@ -31,6 +31,7 @@ export interface SanityTiltaksgjennomforing {
     fylke: string;
     [x: string]: string; // TODO Finn ut av denne
   };
+  oppstart: string;
   oppstartsdato: string;
   faneinnhold: {
     _type: "document";

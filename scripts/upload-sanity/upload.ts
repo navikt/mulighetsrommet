@@ -13,7 +13,7 @@ var colors = require("colors");
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
-const skalLasteOpp = true;
+const skalLasteOpp = false;
 
 // Om man trenger å slette noe fra sanity
 // client.delete({
@@ -167,7 +167,12 @@ function opprettTiltaksgjennomforing(row: Row): SanityTiltaksgjennomforing {
   const tiltaksgjennomforingsnavn = row[0];
   const tiltaksnummer = parseInt(row[2]);
   const tiltakstype = row[3] as Tiltakstype;
-  const oppstartsdato = new Date(row[4]).toISOString().substring(0, 10); // Hent ut dato på YYYY-MM-DD
+  const oppstart = row[4];
+  console.log({ oppstart });
+  const oppstartsdato =
+    oppstart !== "Løpende"
+      ? new Date(row[4]).toISOString().substring(0, 10)
+      : null; // Hent ut dato på YYYY-MM-DD
   const lokasjon = row[5];
   const forHvem = row[7];
   const detaljerOgInnhold = row[9];
@@ -180,11 +185,14 @@ function opprettTiltaksgjennomforing(row: Row): SanityTiltaksgjennomforing {
   const gjennomforing: SanityTiltaksgjennomforing = {
     _id: tiltaksnummer.toString(),
     _type: "tiltaksgjennomforing",
-    tiltakstype: {
-      _ref: tiltakstypeData._id,
-      _type: "reference",
-    },
+    tiltakstype: tiltakstypeData
+      ? {
+          _ref: tiltakstypeData?._id,
+          _type: "reference",
+        }
+      : null,
     tiltaksnummer: tiltaksnummer,
+    oppstart: oppstart,
     oppstartsdato: oppstartsdato,
     tiltaksgjennomforingNavn: tiltaksgjennomforingsnavn,
     faneinnhold: {
