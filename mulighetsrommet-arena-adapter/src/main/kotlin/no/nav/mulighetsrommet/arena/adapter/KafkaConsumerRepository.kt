@@ -94,9 +94,9 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             row.string("topic"),
             row.int("partition"),
             row.long("record_offset"),
-            row.bytes("key"),
-            row.bytes("value"),
-            row.string("headers_json"),
+            row.bytesOrNull("key"),
+            row.bytesOrNull("value"),
+            row.stringOrNull("headers_json"),
             row.int("retries"),
             row.sqlTimestampOrNull("last_retry"),
             row.long("record_timestamp")
