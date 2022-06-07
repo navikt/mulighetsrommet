@@ -9,16 +9,16 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.SanityConfig
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SanityService(appConfig: AppConfig) {
+class SanityService(sanity: SanityConfig) {
     private val logger = LoggerFactory.getLogger(SanityService::class.java)
     private val client: HttpClient
-    private val sanityToken = appConfig.sanity.authToken
-    private val projectId = appConfig.sanity.projectId
+    private val sanityToken = sanity.authToken
+    private val projectId = sanity.projectId
     private val apiVersion = SimpleDateFormat("yyyy-MM-dd").format(Date())
     private val sanityBaseUrl = "https://$projectId.apicdn.sanity.io/v$apiVersion/data/query/"
 
