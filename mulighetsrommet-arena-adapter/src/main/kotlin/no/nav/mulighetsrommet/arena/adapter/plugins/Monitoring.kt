@@ -11,7 +11,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import org.slf4j.event.Level
 
 fun Application.configureMonitoring() {
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
@@ -19,7 +18,8 @@ fun Application.configureMonitoring() {
         registry = appMicrometerRegistry
     }
     install(CallLogging) {
-        level = Level.INFO
+        disableDefaultColors()
+
         filter { call -> call.request.path().startsWith("/") }
     }
     routing {
