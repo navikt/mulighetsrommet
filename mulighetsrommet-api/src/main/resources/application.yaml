@@ -15,3 +15,7 @@ app:
       issuer: ${AZURE_OPENID_CONFIG_ISSUER:-http://localhost:8081/azure}
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI:-http://localhost:8081/azure/jwks}
       audience: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
+
+  sanity:
+    projectId: ${SANITY_PROJECTID}
+    authToken:  ${SANITY_AUTH_TOKEN}

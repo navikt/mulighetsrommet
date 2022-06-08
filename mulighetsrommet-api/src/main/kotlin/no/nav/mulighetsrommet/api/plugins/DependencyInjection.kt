@@ -4,10 +4,7 @@ import io.ktor.server.application.*
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.DatabaseConfig
 import no.nav.mulighetsrommet.api.database.Database
-import no.nav.mulighetsrommet.api.services.ArenaService
-import no.nav.mulighetsrommet.api.services.InnsatsgruppeService
-import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.api.services.*
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -17,7 +14,7 @@ import org.slf4j.Logger
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(Koin) {
         SLF4JLogger()
-        modules(db(appConfig.database), services(log))
+        modules(db(appConfig.database), services(log, appConfig))
     }
 }
 
@@ -27,9 +24,10 @@ private fun db(databaseConfig: DatabaseConfig): Module {
     }
 }
 
-private fun services(logger: Logger) = module {
+private fun services(logger: Logger, appConfig: AppConfig) = module {
     single { ArenaService(get(), logger) }
     single { TiltaksgjennomforingService(get(), logger) }
     single { TiltakstypeService(get(), logger) }
     single { InnsatsgruppeService(get(), logger) }
+    single { SanityService(appConfig.sanity) }
 }

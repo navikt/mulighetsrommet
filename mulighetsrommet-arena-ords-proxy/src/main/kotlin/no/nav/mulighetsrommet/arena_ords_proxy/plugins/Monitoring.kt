@@ -15,8 +15,10 @@ fun Application.configureMonitoring() {
         registry = appMicrometerRegistry
     }
     install(CallLogging) {
-        level = Level.INFO
+        disableDefaultColors()
+
         filter { call -> call.request.path().startsWith("/") }
+
         callIdMdc("call-id")
     }
     install(CallId) {

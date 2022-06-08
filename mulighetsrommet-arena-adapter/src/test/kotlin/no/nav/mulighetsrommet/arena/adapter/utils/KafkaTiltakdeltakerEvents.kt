@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-val deltakerInsert1 = """
+val deltaker0 = """
 {
   "table": "SIAMO.TILTAKDELTAKER",
   "op_type": "I",
@@ -10,7 +10,7 @@ val deltakerInsert1 = """
   "after": {
     "TILTAKDELTAKER_ID": 6414002,
     "PERSON_ID": 4884619,
-    "TILTAKGJENNOMFORING_ID": 3728231,
+    "TILTAKGJENNOMFORING_ID": 100,
     "DELTAKERSTATUSKODE": "AKTUELL",
     "DELTAKERTYPEKODE": "INNSOKT",
     "AARSAKVERDIKODE_STATUS": null,
@@ -43,8 +43,7 @@ val deltakerInsert1 = """
 }
 """.trimIndent()
 
-val deltakerInsert2 = """
-
+val deltaker1 = """
 {
   "table": "SIAMO.TILTAKDELTAKER",
   "op_type": "I",
@@ -54,7 +53,7 @@ val deltakerInsert2 = """
   "after": {
     "TILTAKDELTAKER_ID": 6414008,
     "PERSON_ID": 4884619,
-    "TILTAKGJENNOMFORING_ID": 3728231,
+    "TILTAKGJENNOMFORING_ID": 100,
     "DELTAKERSTATUSKODE": "NEITAKK",
     "DELTAKERTYPEKODE": "INNSOKT",
     "AARSAKVERDIKODE_STATUS": null,
@@ -87,7 +86,7 @@ val deltakerInsert2 = """
 }
 """.trimIndent()
 
-val deltakerUpdate1 = """
+val deltaker2 = """
 {
   "table": "SIAMO.TILTAKDELTAKER",
   "op_type": "U",
@@ -97,7 +96,7 @@ val deltakerUpdate1 = """
   "before": {
     "TILTAKDELTAKER_ID": 6414002,
     "PERSON_ID": 4884751,
-    "TILTAKGJENNOMFORING_ID": 3728231,
+    "TILTAKGJENNOMFORING_ID": 100,
     "DELTAKERSTATUSKODE": "GJENN",
     "DELTAKERTYPEKODE": "INNSOKT",
     "AARSAKVERDIKODE_STATUS": null,
@@ -130,7 +129,7 @@ val deltakerUpdate1 = """
   "after": {
     "TILTAKDELTAKER_ID": 6414002,
     "PERSON_ID": 4884751,
-    "TILTAKGJENNOMFORING_ID": 3728231,
+    "TILTAKGJENNOMFORING_ID": 100,
     "DELTAKERSTATUSKODE": "GJENN",
     "DELTAKERTYPEKODE": "INNSOKT",
     "AARSAKVERDIKODE_STATUS": null,
@@ -163,4 +162,4 @@ val deltakerUpdate1 = """
 }
 """.trimIndent()
 
-val tiltakdeltakerTopic = listOf(Pair("6414002", deltakerInsert1), Pair("6414008", deltakerInsert2), Pair("6414002", deltakerUpdate1))
+val tiltakdeltakerTopic = listOf(Pair("6414002", deltaker0), Pair("6414008", deltaker1), Pair("6414002", deltaker2))
