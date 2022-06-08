@@ -9,11 +9,11 @@ interface TiltaksgjennomforingsHeaderProps {
   beskrivelseTiltakstype?: string;
 }
 
-function TiltaksgjennomforingsHeader({
+const TiltaksgjennomforingsHeader = ({
   tiltaksgjennomforingsnavn,
   beskrivelseTiltaksgjennomforing,
   beskrivelseTiltakstype,
-}: TiltaksgjennomforingsHeaderProps) {
+}: TiltaksgjennomforingsHeaderProps) => {
   return (
     <div className="tiltaksgjennomforing__title">
       <Heading
@@ -29,6 +29,6 @@ function TiltaksgjennomforingsHeader({
       {beskrivelseTiltakstype && <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltakstype}</div>}
     </div>
   );
-}
+};
 
 export default TiltaksgjennomforingsHeader;
