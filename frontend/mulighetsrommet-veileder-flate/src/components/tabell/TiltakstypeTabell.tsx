@@ -82,7 +82,7 @@ const TiltakstypeTabell = () => {
                       }
               );
               const directionForLogging = sort ? (sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'neutral') : 'ascending';
-              logEvent('mulighetsrommet.sortering', {sortKey}, {direction: directionForLogging})
+              if (directionForLogging != 'neutral') logEvent('mulighetsrommet.sortering', {sortKey}, {direction: directionForLogging})
            }
         }
       >
