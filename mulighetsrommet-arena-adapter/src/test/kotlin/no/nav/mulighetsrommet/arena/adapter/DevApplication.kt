@@ -37,15 +37,14 @@ fun main() {
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
-    val kafka = KafkaConsumerOrchestrator(
-        app.kafka,
-        preset,
-        Database(app.database),
-        TiltakEndretConsumer(api),
-        TiltakgjennomforingEndretConsumer(api),
-        TiltakdeltakerEndretConsumer(api),
-        SakEndretConsumer(api)
+    val consumers = listOf(
+        TiltakEndretConsumer(app.kafka.getTopic("tiltakendret"), api),
+        TiltakgjennomforingEndretConsumer(app.kafka.getTopic("tiltakgjennomforingendret"), api),
+        TiltakdeltakerEndretConsumer(app.kafka.getTopic("tiltakdeltakerendret"), api),
+        SakEndretConsumer(app.kafka.getTopic("sakendret"), api)
     )
+
+    val kafka = KafkaConsumerOrchestrator(preset, Database(app.database), consumers)
 
     initializeServer(server) {
         configure(app, kafka)

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-val sakInsert = """
+val sak0 = """
     {
       "table": "SIAMO.SAK",
       "op_type": "I",
@@ -8,8 +8,8 @@ val sakInsert = """
       "current_ts": "2022-05-12 03:00:25.253000",
       "pos": "00000000340266991496",
       "after": {
-        "SAK_ID": 12345678,
-        "SAKSKODE": "AA",
+        "SAK_ID": 1000,
+        "SAKSKODE": "TILT",
         "REG_DATO": "2022-05-12 03:00:16",
         "REG_USER": "AKN1416",
         "MOD_DATO": "2022-05-12 03:00:16",
@@ -33,7 +33,7 @@ val sakInsert = """
     }
 """.trimIndent()
 
-val sakUpdate1 = """
+val sak1 = """
     {
       "table": "SIAMO.SAK",
       "op_type": "U",
@@ -41,8 +41,8 @@ val sakUpdate1 = """
       "current_ts": "2022-05-12 01:00:33.388001",
       "pos": "00000000340264525650",
       "before": {
-        "SAK_ID": 12345678,
-        "SAKSKODE": "AA",
+        "SAK_ID": 1001,
+        "SAKSKODE": "TILT",
         "REG_DATO": "2022-05-12 01:00:16",
         "REG_USER": "ESE0602",
         "MOD_DATO": "2022-05-12 01:00:16",
@@ -89,7 +89,7 @@ val sakUpdate1 = """
     }
 """.trimIndent()
 
-val sakUpdate2 = """
+val sak2 = """
         {
           "table": "SIAMO.SAK",
           "op_type": "U",
@@ -97,8 +97,8 @@ val sakUpdate2 = """
           "current_ts": "2022-05-12 01:00:33.388001",
           "pos": "00000000340264525650",
           "before": {
-            "SAK_ID": 12312312,
-            "SAKSKODE": "AA",
+            "SAK_ID": 1002,
+            "SAKSKODE": "TILT",
             "REG_DATO": "2022-05-12 01:00:16",
             "REG_USER": "ESE0602",
             "MOD_DATO": "2022-05-12 01:00:16",
@@ -145,4 +145,8 @@ val sakUpdate2 = """
         }
 """.trimIndent()
 
-val sakEndretTopic = listOf(Pair("12345678", sakInsert), Pair("12345678", sakUpdate1), Pair("12312312", sakUpdate2))
+val sakEndretTopic = listOf(
+    Pair("1000", sak0),
+    Pair("1001", sak1),
+    Pair("1002", sak2)
+)

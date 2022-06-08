@@ -14,7 +14,8 @@ data class ServerConfig(
 
 data class AppConfig(
     val database: DatabaseConfig,
-    val auth: AuthConfig
+    val auth: AuthConfig,
+    val sanity: SanityConfig
 )
 
 data class DatabaseConfig(
@@ -28,6 +29,11 @@ data class DatabaseConfig(
 
 data class AuthConfig(
     val azure: AuthProvider
+)
+
+data class SanityConfig(
+    val projectId: String,
+    val authToken: String,
 )
 
 data class AuthProvider(

@@ -13,6 +13,8 @@ import org.slf4j.Logger
 class ArenaService(private val db: Database, private val logger: Logger) {
 
     fun upsertTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
+        logger.info("Lagrer tiltakstype tiltakskode={} ", tiltakstype.tiltakskode)
+
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato)
@@ -41,6 +43,12 @@ class ArenaService(private val db: Database, private val logger: Logger) {
     }
 
     fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
+        logger.info(
+            "Lagrer tiltak tiltakskode={} sakId={}",
+            tiltaksgjennomforing.tiltakskode,
+            tiltaksgjennomforing.sakId
+        )
+
         @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sanity_id, fra_dato, til_dato, sak_id)
@@ -75,6 +83,8 @@ class ArenaService(private val db: Database, private val logger: Logger) {
     }
 
     fun upsertDeltaker(deltaker: Deltaker): Deltaker {
+        logger.info("Lagrer deltaker tiltak={}", deltaker.tiltaksgjennomforingId)
+
         @Language("PostgreSQL")
         val query = """
             insert into deltaker (arena_id, tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status)
@@ -103,6 +113,8 @@ class ArenaService(private val db: Database, private val logger: Logger) {
     }
 
     fun updateTiltaksgjennomforingWithSak(sak: ArenaSak): Tiltaksgjennomforing? {
+        logger.info("Oppdaterer tiltak med sak sakId={} tiltaksnummer={}", sak.sakId, sak.lopenrsak)
+
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing set tiltaksnummer = ?, aar = ? where sak_id = ? returning *
