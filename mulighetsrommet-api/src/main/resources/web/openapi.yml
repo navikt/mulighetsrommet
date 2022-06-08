@@ -202,24 +202,6 @@ paths:
             application/json:
               schema:
                 type: string
-  /api/v1/sanity:
-    get:
-      tags:
-        - mulighetsrommet
-      operationId: getSanityQuery
-      parameters:
-        - in: query
-          name: query
-          schema:
-            type: string
-          description: Search for tiltaksgjennomforinger
-      responses:
-        200:
-          description: The data returned from the Groq query
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SanityResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -439,9 +421,6 @@ components:
         - VIKARBLED
         - VV
         - YHEMMOFF
-    SanityResponse:
-      type: object
-
   examples:
     Tiltakstype:
       summary: "Tiltakstype eksempel"

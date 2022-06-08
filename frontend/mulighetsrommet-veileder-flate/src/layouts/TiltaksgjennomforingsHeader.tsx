@@ -13,7 +13,7 @@ function TiltaksgjennomforingsHeader({ tiltakstype, arrangor }: Tiltaksgjennomfo
   const [gjennomforing, setGjennomforing] = useState(null);
 
   useEffect(() => {
-    client.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
+    client.query(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
   }, []);
 
   return (

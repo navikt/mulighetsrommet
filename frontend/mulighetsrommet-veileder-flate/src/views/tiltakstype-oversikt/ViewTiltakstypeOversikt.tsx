@@ -1,6 +1,7 @@
 import { Alert, Button, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import React, { useEffect, useState } from 'react';
+import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import React, { useEffect } from 'react';
 import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
@@ -10,15 +11,12 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
 import { useSanity } from '../../hooks/useSanity';
 import '../../layouts/MainView.less';
-import { client } from '../../sanityClient';
-import { SanityTiltaksgjennomforing } from '../../schema';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const [gjennomforing, setGjennomforing] = useState(null);
-  const { data: sanityData } = useSanity<SanityTiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing"]`);
+  const { data: sanityData } = useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing"]`);
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
@@ -31,10 +29,6 @@ const ViewTiltakstypeOversikt = () => {
       setFilter(tiltaksgjennomforingsfilter.init);
     }
   }, [filter.tiltakstyper, filter.innsatsgrupper]);
-
-  useEffect(() => {
-    client.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
-  }, []);
 
   return (
     <>

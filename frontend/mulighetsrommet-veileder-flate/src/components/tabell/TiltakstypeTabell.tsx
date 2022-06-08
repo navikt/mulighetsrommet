@@ -16,11 +16,11 @@ const TiltakstypeTabell = () => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
 
-  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState([]);
+  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState<any>([]); // TODO Se på typing her
 
   useEffect(() => {
     client
-      .fetch(
+      .query(
         `*[_type == "tiltaksgjennomforing"]{
         _id,
         tiltaksgjennomforingNavn,
@@ -33,7 +33,7 @@ const TiltakstypeTabell = () => {
         tiltakstype->
         }`
       )
-      .then(data => setTiltaksgjennomforinger(data));
+      .then(data => setTiltaksgjennomforinger(data.result));
   }, []);
 
   const tilgjengelighetsstatus = (status: string) => {

@@ -15,12 +15,6 @@ npm install
 npm run start
 ```
 
-### Generer typer til veileder-flate
-
-`npx sanity-codegen` Generer typer som blir tilgjengelig i veileder-flate for bruk med feks. `useSanity`-hooken.
-
-Config finner man i sanity-codegen.config.ts-filen. 
-
 ### Nye brukere
 
 Nye brukere som logger seg inn på Admin-panelet via NAV SSO vil automatisk få tildelt rollen `Viewer`.

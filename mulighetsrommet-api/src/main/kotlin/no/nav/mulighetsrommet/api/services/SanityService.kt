@@ -40,7 +40,7 @@ class SanityService(sanity: SanityConfig) {
         val response: HttpResponse = client.get("") {
             url {
                 appendPathSegments(dataset)
-                encodedParameters.append("query", query)
+                parameters.append("query", query)
             }
         }
         if (response.status == HttpStatusCode.OK) {
