@@ -15,7 +15,7 @@ export default {
     {
       name: "beskrivelse",
       title: "Beskrivelse",
-      type: "blockContent",
+      type: "string",
     },
     {
       name: "overgangTilArbeid",

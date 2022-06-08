@@ -5,10 +5,15 @@ import { kebabCase } from '../utils/Utils';
 
 interface TiltaksgjennomforingsHeaderProps {
   tiltaksgjennomforingsnavn: string;
-  beskrivelse: string;
+  beskrivelseTiltaksgjennomforing?: string;
+  beskrivelseTiltakstype?: string;
 }
 
-function TiltaksgjennomforingsHeader({ tiltaksgjennomforingsnavn, beskrivelse }: TiltaksgjennomforingsHeaderProps) {
+function TiltaksgjennomforingsHeader({
+  tiltaksgjennomforingsnavn,
+  beskrivelseTiltaksgjennomforing,
+  beskrivelseTiltakstype,
+}: TiltaksgjennomforingsHeaderProps) {
   return (
     <div className="tiltaksgjennomforing__title">
       <Heading
@@ -18,7 +23,10 @@ function TiltaksgjennomforingsHeader({ tiltaksgjennomforingsnavn, beskrivelse }:
       >
         {tiltaksgjennomforingsnavn}
       </Heading>
-      <div className="tiltaksgjennomforing__beskrivelse">{beskrivelse}</div>
+      {beskrivelseTiltaksgjennomforing && (
+        <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltaksgjennomforing}</div>
+      )}
+      {beskrivelseTiltakstype && <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltakstype}</div>}
     </div>
   );
 }

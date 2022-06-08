@@ -1,11 +1,11 @@
 import { useQuery } from 'react-query';
-import { MulighetsrommetService, Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { QueryKeys } from '../../core/api/QueryKeys';
-import { sanityClient } from '../../sanityClient';
+import { client } from '../../sanityClient';
 
-export default function useTiltaksgjennomforingDetaljer(id: number) {
-  return useQuery<Tiltaksgjennomforing>([QueryKeys.Tiltaksgjennomforinger, id], () =>
-    sanityClient.fetch(`*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${id}]{ 
+export default function useTiltaksgjennomforingById(id: number) {
+  return useQuery<Tiltaksgjennomforing[]>([QueryKeys.Tiltaksgjennomforinger, id], () =>
+    client.fetch(`*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${id}]{ 
         _id,
         tiltaksgjennomforingNavn,
         beskrivelse,

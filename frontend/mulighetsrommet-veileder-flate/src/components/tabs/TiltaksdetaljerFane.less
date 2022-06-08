@@ -1,7 +1,7 @@
 .mulighetsrommet-veileder-flate {
   .fane {
     &__root {
-      margin: 1rem 0;
+      margin: 1rem 0 2rem;
     }
 
     &__liste {
@@ -11,6 +11,10 @@
       margin-bottom: 2rem;
       gap: 5%;
       justify-content: start;
+
+      .navds-label {
+        font-weight: normal;
+      }
 
       button {
         background-color: transparent;
@@ -25,12 +29,21 @@
 
       .btn__tab {
         width: fit-content;
+        margin: 0 0.5rem;
       }
 
       button[data-state='active'] {
-        font-weight: bold;
+        .navds-label {
+          font-weight: bold;
+        }
         border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
       }
+    }
+  }
+
+  .navds-tabs__tabpanel {
+    .tiltaksdetaljer__alert {
+      margin-bottom: 1rem;
     }
   }
 

@@ -2,23 +2,22 @@ import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
+import { Tiltaksgjennomforing, Tiltakstype } from '../../../../mulighetsrommet-api-client';
 
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;
-  tiltakstype: string;
-  beskrivelse?: string;
+  regelverk?: string;
   arrangor: string;
-  innsatsgruppe: string | null;
   oppstartsdato?: string | null;
+  tiltakstype: Tiltakstype;
 }
 
 const SidemenyDetaljer = ({
   tiltaksnummer,
-  tiltakstype,
   arrangor,
-  innsatsgruppe,
   oppstartsdato,
-  beskrivelse,
+  regelverk,
+  tiltakstype,
 }: SidemenyDetaljerProps) => {
   return (
     <>
@@ -32,7 +31,7 @@ const SidemenyDetaljer = ({
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Tiltakstype</strong>
-          <span>{tiltakstype}</span>
+          <span>{tiltakstype.tiltakstypeNavn}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
@@ -42,17 +41,19 @@ const SidemenyDetaljer = ({
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Innsatsgruppe</strong>
-          <span>{innsatsgruppe} </span>
+          <span>{tiltakstype.innsatsgruppe} </span>
         </div>
 
-        <div className="tiltakstype-detaljer__rad">
-          <strong>Oppstart</strong>
-          <span>{oppstartsdato} </span>
-        </div>
+        {oppstartsdato && (
+          <div className="tiltakstype-detaljer__rad">
+            <strong>Oppstart</strong>
+            <span>{oppstartsdato} </span>
+          </div>
+        )}
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Regelverk</strong>
-          <span>{beskrivelse}</span>
+          <span>{regelverk}</span>
         </div>
       </Panel>
     </>

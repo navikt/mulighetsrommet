@@ -2,14 +2,28 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Tiltakskode } from './Tiltakskode';
+import { Tiltakstype } from "./Tiltakstype";
+import { Arrangor } from "./Arrangor";
+import { Tiltaksansvarlig } from "./Tiltaksansvarlig";
 
 export type Tiltaksgjennomforing = {
-    id: number;
-    tittel: string;
-    beskrivelse: string;
-    tiltakskode: Tiltakskode;
-    tiltaksnummer?: string;
-    fraDato: string | null;
-    tilDato: string | null;
+  _id: number;
+  tiltakstype: Tiltakstype;
+  tiltaksgjennomforingNavn: string;
+  beskrivelse?: string;
+  tiltaksnummer: number;
+  kontaktinfoArrangor: Arrangor;
+  lokasjon: string;
+  enheter: { fylke: string };
+  oppstart: string;
+  oppstartsdato?: Date;
+  faneinnhold?: {
+    forHvemInfoboks?: string;
+    forHvem?: object;
+    detaljerOgInnholdInfoboks?: string;
+    detaljerOgInnhold?: object;
+    pameldingOgVarighetInfoboks?: string;
+    pameldingOgVarighet?: object;
+  };
+  kontaktinfoTiltaksansvarlig: Tiltaksansvarlig;
 };
