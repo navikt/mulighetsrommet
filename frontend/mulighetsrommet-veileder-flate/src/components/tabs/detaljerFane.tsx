@@ -3,7 +3,7 @@ import { Alert } from '@navikt/ds-react';
 import { PortableText } from '@portabletext/react';
 import './TiltaksdetaljerFane.less';
 
-interface FaneMalProps {
+interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
   tiltakstypeAlert?: string;
   tiltaksgjennomforing?: any;
@@ -15,7 +15,7 @@ const DetaljerFane = ({
   tiltakstypeAlert,
   tiltaksgjennomforing,
   tiltakstype,
-}: FaneMalProps) => {
+}: DetaljerFaneProps) => {
   return (
     <>
       {tiltakstypeAlert && (

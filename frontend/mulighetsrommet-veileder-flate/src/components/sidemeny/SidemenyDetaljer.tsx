@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Panel } from '@navikt/ds-react';
+import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { Tiltaksgjennomforing, Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
 
 interface SidemenyDetaljerProps {
