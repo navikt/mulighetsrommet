@@ -11,14 +11,14 @@ interface TiltaksdetaljerFaneProps {
   tiltaksgjennomforingTiltaksansvarlig: Tiltaksansvarlig;
   tiltaksgjennomforingArrangorinfo: Arrangor;
   tiltakstype: Tiltakstype;
-  faneinnhold: any;
+  tiltaksgjennomforing: any;
 }
 
 const TiltaksdetaljerFane = ({
   tiltaksgjennomforingTiltaksansvarlig,
   tiltaksgjennomforingArrangorinfo,
   tiltakstype,
-  faneinnhold,
+  tiltaksgjennomforing,
 }: TiltaksdetaljerFaneProps) => {
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
 
@@ -31,25 +31,25 @@ const TiltaksdetaljerFane = ({
       </Tabs.List>
       <Tabs.Panel value="tab1">
         <DetaljerFane
-          tiltaksgjennomforingAlert={faneinnhold.forHvemInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing.forHvemInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold!.forHvemInfoboks}
-          tiltaksgjennomforing={faneinnhold.forHvem}
+          tiltaksgjennomforing={tiltaksgjennomforing.forHvem}
           tiltakstype={tiltakstype.faneinnhold!.forHvem}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab2">
         <DetaljerFane
-          tiltaksgjennomforingAlert={faneinnhold.detaljerOgInnholdInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing.detaljerOgInnholdInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold!.detaljerOgInnholdInfoboks}
-          tiltaksgjennomforing={faneinnhold.detaljerOgInnhold}
+          tiltaksgjennomforing={tiltaksgjennomforing.detaljerOgInnhold}
           tiltakstype={tiltakstype.faneinnhold!.detaljerOgInnhold}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab3">
         <DetaljerFane
-          tiltaksgjennomforingAlert={faneinnhold.pameldingOgVarighetInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing.pameldingOgVarighetInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold!.pameldingOgVarighetInfoboks}
-          tiltaksgjennomforing={faneinnhold.pameldingOgVarighet}
+          tiltaksgjennomforing={tiltaksgjennomforing.pameldingOgVarighet}
           tiltakstype={tiltakstype.faneinnhold!.pameldingOgVarighet}
         />
       </Tabs.Panel>

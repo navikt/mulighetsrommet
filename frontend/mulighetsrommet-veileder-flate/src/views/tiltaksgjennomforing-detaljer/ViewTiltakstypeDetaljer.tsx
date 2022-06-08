@@ -51,7 +51,7 @@ const ViewTiltakstypeDetaljer = () => {
                   tiltaksgjennomforingTiltaksansvarlig={kontaktinfoTiltaksansvarlig}
                   tiltaksgjennomforingArrangorinfo={kontaktinfoArrangor}
                   tiltakstype={tiltakstype}
-                  faneinnhold={faneinnhold}
+                  tiltaksgjennomforing={faneinnhold}
                 />
               </div>
               <SidemenyDetaljer
