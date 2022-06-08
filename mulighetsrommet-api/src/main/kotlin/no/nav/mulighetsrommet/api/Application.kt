@@ -7,7 +7,9 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
-import no.nav.mulighetsrommet.api.routes.*
+import no.nav.mulighetsrommet.api.routes.internalRoutes
+import no.nav.mulighetsrommet.api.routes.swaggerRoutes
+import no.nav.mulighetsrommet.api.routes.v1.*
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -53,6 +55,7 @@ fun Application.configure(config: AppConfig) {
             tiltaksgjennomforingRoutes()
             innsatsgruppeRoutes()
             arenaRoutes()
+            sanityRoutes()
         }
     }
 }

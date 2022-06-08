@@ -7,7 +7,7 @@ import { Tiltakskode } from '../../../../mulighetsrommet-api-client';
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;
   tiltakstype: Tiltakskode;
-  leverandor: string;
+  arrangor: string;
   innsatsgruppe: number | null;
   oppstartsdato: string | null;
   beskrivelse: string;
@@ -16,7 +16,7 @@ interface SidemenyDetaljerProps {
 const SidemenyDetaljer = ({
   tiltaksnummer,
   tiltakstype,
-  leverandor,
+  arrangor,
   innsatsgruppe,
   oppstartsdato,
   beskrivelse,
@@ -37,8 +37,8 @@ const SidemenyDetaljer = ({
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Leverandør</span>
-          <span>{leverandor}</span>
+          <span>Arrangør</span>
+          <span>{arrangor}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">

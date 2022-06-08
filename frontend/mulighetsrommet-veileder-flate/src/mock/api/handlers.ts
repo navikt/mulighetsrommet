@@ -10,14 +10,14 @@ export const handlers: RestHandler[] = [
     return res(ctx.delay(500), ctx.json(mockFeatures));
   }),
 
-  rest.get('*/api/innsatsgrupper', () => {
+  rest.get('*/api/v1/innsatsgrupper', () => {
     return ok(db.innsatsgruppe.getAll());
   }),
 
-  rest.get('*/api/tiltakstyper', () => {
+  rest.get('*/api/v1/tiltakstyper', () => {
     return ok(db.tiltakstype.getAll().map(toTiltakstype));
   }),
-  rest.get('*/api/tiltakstyper/:tiltakskode', req => {
+  rest.get('*/api/v1/tiltakstyper/:tiltakskode', req => {
     const { tiltakskode } = req.params as any;
 
     if (!tiltakskode) {
@@ -34,7 +34,7 @@ export const handlers: RestHandler[] = [
 
     return ok(toTiltakstype(entity));
   }),
-  rest.get('*/api/tiltakstyper/:tiltakskode/tiltaksgjennomforinger', req => {
+  rest.get('*/api/v1/tiltakstyper/:tiltakskode/tiltaksgjennomforinger', req => {
     const { tiltakskode } = req.params as any;
 
     const items = db.tiltaksgjennomforing.findMany({
@@ -43,10 +43,10 @@ export const handlers: RestHandler[] = [
 
     return ok(items.map(toTiltaksgjennomforing));
   }),
-  rest.get('*/api/tiltaksgjennomforinger', req => {
+  rest.get('*/api/v1/tiltaksgjennomforinger', req => {
     return ok(db.tiltaksgjennomforing.getAll().map(toTiltaksgjennomforing));
   }),
-  rest.get('*/api/tiltaksgjennomforinger/:id', req => {
+  rest.get('*/api/v1/tiltaksgjennomforinger/:id', req => {
     const { id } = req.params;
 
     const entity = db.tiltaksgjennomforing.findFirst({

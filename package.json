@@ -1,8 +1,10 @@
 {
   "private": true,
-  "workspaces": ["frontend/*"],
+  "workspaces": [
+    "frontend/*"
+  ],
   "devDependencies": {
-    "turbo": "^1.2.5"
+    "turbo": "^1.2.15"
   },
   "packageManager": "npm@8.5.2"
 }

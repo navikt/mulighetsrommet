@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import org.flywaydb.core.Flyway
+import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
 class Database(databaseConfig: DatabaseConfig) {
@@ -35,11 +36,16 @@ class Database(databaseConfig: DatabaseConfig) {
         flyway.migrate()
     }
 
-    fun persistKafkaEvent(topic: String, key: String, offset: Long, payload: String) {
+    fun persistKafkaEvent(topic: String, key: String, payload: String) {
+        @Language("PostgreSQL")
         val query = """
-            insert into events(topic, key, record_offset, payload) values(?, ?, ?, ? ::jsonb) on conflict do nothing
+            insert into events(topic, key, payload)
+            values (?, ?, ?::jsonb)
+            on conflict (topic, key)
+            do update set
+                payload = excluded.payload
         """.trimIndent()
-        session.run(queryOf(query, topic, key, offset, payload).asUpdate)
-        logger.debug("Persisted kafka event: $topic:$key:$offset")
+        session.run(queryOf(query, topic, key, payload).asUpdate)
+        logger.debug("Persisted kafka event: $topic:$key")
     }
 }

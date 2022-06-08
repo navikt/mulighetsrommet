@@ -20,7 +20,7 @@ paths:
               schema:
                 type: string
                 enum: [PONG]
-  /api/innsatsgrupper:
+  /api/v1/innsatsgrupper:
     get:
       tags:
         - mulighetsrommet
@@ -34,7 +34,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Innsatsgruppe"
-  /api/tiltakstyper:
+  /api/v1/tiltakstyper:
     get:
       tags:
         - mulighetsrommet
@@ -83,7 +83,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
 
-  /api/tiltakstyper/{tiltakskode}:
+  /api/v1/tiltakstyper/{tiltakskode}:
     get:
       tags:
         - mulighetsrommet
@@ -124,7 +124,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
-  /api/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
+  /api/v1/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
     parameters:
       - $ref: "#/components/parameters/Tiltakskode"
     get:
@@ -146,7 +146,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /api/tiltaksgjennomforinger:
+  /api/v1/tiltaksgjennomforinger:
     get:
       tags:
         - mulighetsrommet
@@ -182,7 +182,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tiltaksgjennomforing"
-  /api/tiltaksgjennomforinger/{id}:
+  /api/v1/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:

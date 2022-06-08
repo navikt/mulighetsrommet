@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './MainView.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
+import { client } from '../sanityClient';
 
 interface TiltaksgjennomforingsHeaderProps {
-  title: string;
-  arrangor?: string;
   tiltakstype: string;
+  arrangor?: string;
 }
 
-function TiltaksgjennomforingsHeader({ title, arrangor, tiltakstype }: TiltaksgjennomforingsHeaderProps) {
+function TiltaksgjennomforingsHeader({ tiltakstype, arrangor }: TiltaksgjennomforingsHeaderProps) {
+  const [gjennomforing, setGjennomforing] = useState(null);
+
+  useEffect(() => {
+    client.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
+  }, []);
+
   return (
     <div className="tiltaksgjennomforing__title">
-      <Heading level="1" size="xlarge" data-testid={`tiltaksgjennomforing-header_${kebabCase(title)}`}>
-        {title}
+      <Heading level="1" size="xlarge" data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltakstype)}`}>
+        {tiltakstype}
       </Heading>
       <div className="tiltaksgjennomforing__subtitle-container">
         {arrangor && (

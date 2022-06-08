@@ -7,7 +7,7 @@ const RoutesConfig = () => {
   return (
     <Routes>
       <Route path="/" element={<ViewTiltakstypeOversikt />} />
-      <Route path="/tiltakstyper/:tiltakskode" element={<ViewTiltakstypeDetaljer />} />
+      <Route path="/:tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
 
       <Route path="*" element={<Navigate to="/" />}>
         {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}

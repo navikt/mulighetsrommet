@@ -5,6 +5,9 @@ import schemaTypes from "all:part:@sanity/base/schema-type";
 // We import object and document schemas
 import blockContent from "./blockContent";
 import tiltakstype from "./tiltakstype";
+import tiltaksgjennomforing from "./tiltaksgjennomforing";
+import arrangor from "./arrangor";
+import kontaktperson from "./kontaktperson";
 
 // Then we give our schema to the builder and provide the result to Sanity
 export default createSchema({
@@ -17,6 +20,9 @@ export default createSchema({
     // The following are document types which will appear
     // in the studio.
     tiltakstype,
+    tiltaksgjennomforing,
+    arrangor,
+    kontaktperson,
 
     // When added to this list, object types can be used as
     // { type: 'typename' } in other document schemas

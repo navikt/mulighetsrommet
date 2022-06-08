@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes
+package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -10,7 +10,9 @@ fun Route.innsatsgruppeRoutes() {
 
     val innsatsgruppeService: InnsatsgruppeService by inject()
 
-    get("/api/innsatsgrupper") {
-        call.respond(innsatsgruppeService.getInnsatsgrupper())
+    route("/api/v1/innsatsgrupper") {
+        get() {
+            call.respond(innsatsgruppeService.getInnsatsgrupper())
+        }
     }
 }

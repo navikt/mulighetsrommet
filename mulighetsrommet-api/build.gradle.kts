@@ -48,6 +48,8 @@ dependencies {
     implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     implementation("io.ktor:ktor-server-auto-head-response:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
     val hopliteVersion = "1.4.16"
@@ -61,9 +63,13 @@ dependencies {
     val kotestVersion = "5.3.0"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-
+    // Metrikker
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    // Logging
+    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    // Database
     implementation("org.flywaydb:flyway-core:8.5.5")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
