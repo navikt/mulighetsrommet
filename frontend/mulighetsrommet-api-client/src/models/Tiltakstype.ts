@@ -9,7 +9,9 @@ export type Tiltakstype = {
   innsatsgruppe: string;
   varighet?: string;
   regelverkFil?: string; //skal være fil
+  regelverkFilNavn?: string;
   regelverkLenke?: string;
+  regelverkLenkeNavn?: string;
   faneinnhold?: {
     forHvemInfoboks?: string;
     forHvem?: object;

@@ -15,13 +15,13 @@ const KontaktinfoFane = ({ tiltaksansvarligInfo, arrangorinfo }: KontaktinfoFane
   return (
     <div className="kontaktinfo">
       <div>
-        <Heading size="large" className="kontaktinfo__header">
+        <Heading size="large" level="2" className="kontaktinfo__header">
           Arrangør
         </Heading>
         <ArrangorInfo arrangorinfo={arrangorinfo} />
       </div>
       <div>
-        <Heading size="large" className="kontaktinfo__header">
+        <Heading size="large" level="2" className="kontaktinfo__header">
           Tiltaksansvarlig
         </Heading>
         <TiltaksansvarligInfo tiltaksansvarlig={tiltaksansvarligInfo} />

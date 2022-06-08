@@ -61,7 +61,6 @@ const ViewTiltakstypeDetaljer = () => {
                 oppstartsdato={
                   oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'
                 }
-                regelverk="Regelverk"
               />
             </div>
           )

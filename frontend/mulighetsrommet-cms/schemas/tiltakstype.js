@@ -59,9 +59,36 @@ export default {
       type: "file",
     },
     {
+      name: "regelverkFilNavn",
+      title: "Navn til fil",
+      description: "Hvilket navn skal vises til filen?",
+      type: "string",
+      validation: (Rule) =>
+        Rule.custom((field, context) =>
+          context.document.regelverkFil && field === undefined
+            ? "This field must not be empty."
+            : true
+        ),
+      hidden: ({ document }) => !document?.regelverkFil,
+    },
+    {
       name: "regelverkLenke",
       title: "Regelverk lenke",
       type: "url",
+      placeholder: "https://www...",
+    },
+    {
+      name: "regelverkLenkeNavn",
+      title: "Navn til lenke",
+      description: "Hvilket navn skal vises i lenken?",
+      type: "string",
+      validation: (Rule) =>
+        Rule.custom((field, context) =>
+          context.document.regelverkLenke && field === undefined
+            ? "This field must not be empty."
+            : true
+        ),
+      hidden: ({ document }) => !document?.regelverkLenke,
     },
     //Faneinnhold
     {

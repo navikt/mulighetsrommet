@@ -1,24 +1,18 @@
 import React from 'react';
-import { Panel } from '@navikt/ds-react';
+import { Button, Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import { Tiltaksgjennomforing, Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import Lenke from '../lenke/Lenke';
 
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;
-  regelverk?: string;
   arrangor: string;
   oppstartsdato?: string | null;
   tiltakstype: Tiltakstype;
 }
 
-const SidemenyDetaljer = ({
-  tiltaksnummer,
-  arrangor,
-  oppstartsdato,
-  regelverk,
-  tiltakstype,
-}: SidemenyDetaljerProps) => {
+const SidemenyDetaljer = ({ tiltaksnummer, arrangor, oppstartsdato, tiltakstype }: SidemenyDetaljerProps) => {
   return (
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">
@@ -51,10 +45,19 @@ const SidemenyDetaljer = ({
           </div>
         )}
 
-        <div className="tiltakstype-detaljer__rad">
-          <strong>Regelverk</strong>
-          <span>{regelverk}</span>
-        </div>
+        {(tiltakstype.regelverkFil || tiltakstype.regelverkLenke) && (
+          <div className="tiltakstype-detaljer__rad">
+            <strong>Regelverk</strong>
+            <div className="tiltakstype-detaljer__regelverk">
+              {tiltakstype.regelverkFil && <span>{tiltakstype.regelverkFilNavn}</span>}
+              {tiltakstype.regelverkLenke && (
+                <span>
+                  <Lenke to={tiltakstype.regelverkLenke}>{tiltakstype.regelverkLenkeNavn}</Lenke>
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </Panel>
     </>
   );

@@ -8,7 +8,7 @@ interface ArrangorProps {
 const ArrangorInfo = ({ arrangorinfo }: ArrangorProps) => {
   return (
     <>
-      <Heading size="small" className="kontaktinfo__navn">
+      <Heading size="small" level="3" className="kontaktinfo__navn">
         {arrangorinfo.selskapsnavn}
       </Heading>
       <div className="kontaktinfo__container">

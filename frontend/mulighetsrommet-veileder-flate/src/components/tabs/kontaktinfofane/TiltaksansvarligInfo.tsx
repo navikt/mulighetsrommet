@@ -11,7 +11,7 @@ const TiltaksansvarligInfo = ({ tiltaksansvarlig }: TiltaksansvarligProps) => {
   //TODO når det er mulig å ha flere tiltaksansvarlige i Sanity må det mappes her
   return (
     <>
-      <Heading size="small" className="kontaktinfo__navn">
+      <Heading size="small" level="3" className="kontaktinfo__navn">
         {tiltaksansvarlig.navn}
       </Heading>
       <div className="kontaktinfo__container">
