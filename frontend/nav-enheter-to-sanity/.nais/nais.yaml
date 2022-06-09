@@ -1,0 +1,20 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+
+metadata:
+  name: nav-enheter-to-sanity
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+
+spec:
+  image: {{image}}
+  schedule: "0 07 * * *" # Run every day at 07:00
+  #  schedule: "0/1 * * * *" # Run every minute (for testing)
+
+  accessPolicy:
+    outbound:
+      external:
+        - host: norg2.dev-fss-pub.nais.io
+  envFrom:
+    - secret: nav-enheter-to-sanity
