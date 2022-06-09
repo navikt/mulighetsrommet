@@ -11,18 +11,14 @@ import { Alert, Loader } from '@navikt/ds-react';
 
 const ViewTiltakstypeDetaljer = () => {
   const { tiltaksnummer } = useParams();
-  const hentTiltaksgjennomforing = useTiltaksgjennomforingById(parseInt(tiltaksnummer!));
-
-  const tiltaksgjennomforing = hentTiltaksgjennomforing.data;
-  const tiltaksgjennomforingLoading = hentTiltaksgjennomforing.isLoading;
-  const tiltaksgjennomforingError = hentTiltaksgjennomforing.isError;
+  const { data, isLoading, isError } = useTiltaksgjennomforingById(parseInt(tiltaksnummer!));
 
   return (
     <>
-      {tiltaksgjennomforingLoading && <Loader className="filter-loader" size="xlarge" />}
-      {tiltaksgjennomforingError && <Alert variant="error">Det har skjedd en feil</Alert>}
-      {tiltaksgjennomforing &&
-        tiltaksgjennomforing.map(
+      {isLoading && <Loader className="filter-loader" size="xlarge" />}
+      {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
+      {data &&
+        data.map(
           ({
             _id,
             tiltaksgjennomforingNavn,
