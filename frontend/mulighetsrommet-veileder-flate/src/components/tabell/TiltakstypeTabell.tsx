@@ -7,6 +7,7 @@ import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { client } from '../../sanityClient';
+import {logEvent} from "../../api/logger";
 
 const TiltakstypeTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -70,16 +71,19 @@ const TiltakstypeTabell = () => {
         sort={sort}
         data-testid="tabell_tiltakstyper"
         className="tabell"
-        onSortChange={sortKey =>
-          setSort(
-            sort && sortKey === sort.orderBy && sort.direction === 'descending'
-              ? undefined
-              : {
-                  orderBy: sortKey,
-                  direction:
-                    sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
-                }
-          )
+        onSortChange={sortKey => {
+              setSort(
+                  sort && sortKey === sort.orderBy && sort.direction === 'descending'
+                      ? undefined
+                      : {
+                          orderBy: sortKey,
+                          direction:
+                              sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
+                      }
+              );
+              const directionForLogging = sort ? (sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'neutral') : 'ascending';
+              if (directionForLogging != 'neutral') logEvent('mulighetsrommet.sortering', {sortKey}, {direction: directionForLogging})
+           }
         }
       >
         <Table.Header>
