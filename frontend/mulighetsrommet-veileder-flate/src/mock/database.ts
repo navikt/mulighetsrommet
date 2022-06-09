@@ -1,6 +1,6 @@
 import { nullable, oneOf, primaryKey } from '@mswjs/data';
 import faker from 'faker';
-import { innsatsgrupper } from './fixtures/innsatsgrupper';
+import { innsatsgrupperFixture } from './fixtures/innsatsgrupper';
 import { tiltakstyper } from './fixtures/tiltakstyper';
 import { createMockDatabase, idAutoIncrement } from './helpers';
 import { Tiltakstype } from '../../../mulighetsrommet-api-client';
@@ -12,32 +12,62 @@ export const definition = {
   },
   tiltakstype: {
     id: idAutoIncrement(),
-    innsatsgruppe: oneOf('innsatsgruppe', { nullable: true }),
-    sanityId: nullable(Number),
-    tiltakskode: String,
-    navn: String,
-    fraDato: nullable(String),
-    tilDato: nullable(String),
-    createdBy: nullable(String),
-    createdAt: nullable(String),
-    updatedBy: nullable(String),
-    updatedAt: nullable(String),
+    tiltakstypeNavn: String,
+    beskrivelse: String,
+    innsatsgruppe: String,
+    varighet: String,
+    regelverkFil: String, //skal være fil
+    regelverkFilNavn: String,
+    regelverkLenke: String,
+    regelverkLenkeNavn: String,
+    faneinnhold: {
+      forHvemInfoboks: String,
+      forHvem: Object,
+      detaljerOgInnholdInfoboks: String,
+      detaljerOgInnhold: Object,
+      pameldingOgVarighetInfoboks: String,
+      pameldingOgVarighet: Object,
+    },
   },
   tiltaksgjennomforing: {
     id: idAutoIncrement(),
-    tiltakskode: String,
-    tiltaksnummer: String,
-    tittel: String,
+    tiltakstype: Object,
+    tiltaksgjennomforingNavn: String,
     beskrivelse: String,
-    fraDato: Date,
-    tilDato: Date,
+    tiltaksnummer: Number,
+    kontaktinfoArrangor: {
+      id: Number,
+      selskapsnavn: String,
+      telefonnummer: String,
+      epost: String,
+      adresse: String,
+    },
+    lokasjon: String,
+    enheter: { fylke: String },
+    oppstart: String,
+    oppstartsdato: Date,
+    faneinnhold: {
+      forHvemInfoboks: String,
+      forHvem: Object,
+      detaljerOgInnholdInfoboks: String,
+      detaljerOgInnhold: Object,
+      pameldingOgVarighetInfoboks: String,
+      pameldingOgVarighet: Object,
+    },
+    kontaktinfoTiltaksansvarlig: {
+      id: Number,
+      navn: String,
+      enhet: String,
+      telefonnummer: String,
+      epost: String,
+    },
   },
 };
 
 export type DatabaseDictionary = typeof definition;
 
 export const db = createMockDatabase(definition, (db: any) => {
-  innsatsgrupper.forEach(db.innsatsgruppe.create);
+  innsatsgrupperFixture.forEach(db.innsatsgruppe.create);
 
   tiltakstyper.forEach(({ innsatsgruppe, ...data }) => {
     const relatedInnsatsgruppe = innsatsgruppe
@@ -53,7 +83,6 @@ export const db = createMockDatabase(definition, (db: any) => {
   db.tiltakstype.getAll().forEach((tiltakstype: Tiltakstype) => {
     for (let index = 0; index < faker.datatype.number({ min: 1, max: 5 }); index++) {
       db.tiltaksgjennomforing.create({
-        tiltakskode: tiltakstype.tiltakskode,
         tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
         tittel: `Kjøreopplæring av ${faker.vehicle.manufacturer()}`,
         beskrivelse: faker.lorem.paragraph(1),
