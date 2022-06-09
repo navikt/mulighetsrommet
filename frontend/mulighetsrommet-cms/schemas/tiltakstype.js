@@ -66,7 +66,7 @@ export default {
       validation: (Rule) =>
         Rule.custom((field, context) =>
           context.document.regelverkFil && field === undefined
-            ? "This field must not be empty."
+            ? "Dette feltet kan ikke være tomt."
             : true
         ),
       hidden: ({ document }) => !document?.regelverkFil,
@@ -85,7 +85,7 @@ export default {
       validation: (Rule) =>
         Rule.custom((field, context) =>
           context.document.regelverkLenke && field === undefined
-            ? "This field must not be empty."
+            ? "Dette feltet kan ikke være tomt."
             : true
         ),
       hidden: ({ document }) => !document?.regelverkLenke,

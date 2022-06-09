@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pagination, Table, Alert, Heading, Loader } from '@navikt/ds-react';
+import { Pagination, Table, Alert, Heading, Loader, SortState } from '@navikt/ds-react';
 import './Tabell.less';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
@@ -8,6 +8,7 @@ import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
+import { SortDirection } from '@mswjs/data/lib/query/queryTypes';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -17,11 +18,7 @@ const TiltaksgjennomforingsTabell = () => {
     return Math.ceil(tiltaksgjennomforing!.length / rowsPerPage);
   };
 
-  const hentTiltaksgjennomforinger = useTiltaksgjennomforing();
-
-  const tiltaksgjennomforingerLoading = hentTiltaksgjennomforinger.isLoading;
-  const tiltaksgjennomforingerError = hentTiltaksgjennomforinger.isError;
-  const tiltaksgjennomforinger = hentTiltaksgjennomforinger.data;
+  const { data, isLoading, isError } = useTiltaksgjennomforing();
 
   const tilgjengelighetsstatus = (status: string) => {
     //TODO endre denne når vi får inn data fra Arena
@@ -51,9 +48,9 @@ const TiltaksgjennomforingsTabell = () => {
 
   return (
     <>
-      {tiltaksgjennomforingerLoading && <Loader className="filter-loader" size="xlarge" />}
-      {tiltaksgjennomforingerError && <Alert variant="error">Det har skjedd en feil</Alert>}
-      {tiltaksgjennomforinger && (
+      {isLoading && <Loader className="filter-loader" size="xlarge" />}
+      {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
+      {data && (
         <div className="w-full flex flex-col gap-4">
           <Table
             zebraStripes
@@ -102,14 +99,14 @@ const TiltaksgjennomforingsTabell = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {tiltaksgjennomforinger!.length === 0 ? (
+              {data!.length === 0 ? (
                 <Table.DataCell colSpan={5}>
                   <Alert variant="info" className="tabell__alert">
                     Det finnes ingen tiltakstyper med dette søket.
                   </Alert>
                 </Table.DataCell>
               ) : (
-                tiltaksgjennomforinger!
+                data!
                   .sort((a, b) => {
                     if (sort) {
                       const comparator = (a: any, b: any, orderBy: string | number) => {
@@ -164,13 +161,9 @@ const TiltaksgjennomforingsTabell = () => {
           </Table>
           <div className="under-tabell">
             <Heading level="1" size="xsmall">
-              Viser {tiltaksgjennomforinger?.length} av {tiltaksgjennomforinger?.length} tiltak
+              Viser {data?.length} av {data?.length} tiltak
             </Heading>
-            <Pagination
-              page={page}
-              onPageChange={setPage}
-              count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
-            />
+            <Pagination page={page} onPageChange={setPage} count={pagination(data) === 0 ? 1 : pagination(data)} />
           </div>
         </div>
       )}
