@@ -3,23 +3,23 @@ import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
-import { Tiltakstype } from '../../api/models';
+import { Tiltaksgjennomforing } from '../../api/models';
 
 interface SidemenyDetaljerProps {
-  tiltaksnummer: string;
-  arrangor: string;
-  oppstartsdato?: string | null;
-  tiltakstype: Tiltakstype;
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-const SidemenyDetaljer = ({ tiltaksnummer, arrangor, oppstartsdato, tiltakstype }: SidemenyDetaljerProps) => {
+const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
+  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = tiltaksgjennomforing;
+  const oppstart = resolveOppstart(tiltaksgjennomforing)
+
   return (
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">
         <div className="tiltakstype-detaljer__rad">
           <strong>Tiltaksnummer</strong>
           <span>
-            {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer} />
+            {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} />
           </span>
         </div>
 
@@ -30,7 +30,7 @@ const SidemenyDetaljer = ({ tiltaksnummer, arrangor, oppstartsdato, tiltakstype 
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Arrangør</strong>
-          <span>{arrangor}</span>
+          <span>{kontaktinfoArrangor.selskapsnavn}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
@@ -38,12 +38,10 @@ const SidemenyDetaljer = ({ tiltaksnummer, arrangor, oppstartsdato, tiltakstype 
           <span>{tiltakstype.innsatsgruppe} </span>
         </div>
 
-        {oppstartsdato && (
-          <div className="tiltakstype-detaljer__rad">
-            <strong>Oppstart</strong>
-            <span>{oppstartsdato} </span>
-          </div>
-        )}
+        <div className="tiltakstype-detaljer__rad">
+          <strong>Oppstart</strong>
+          <span>{oppstart}</span>
+        </div>
 
         {(tiltakstype.regelverkFil || tiltakstype.regelverkLenke) && (
           <div className="tiltakstype-detaljer__rad">
@@ -62,5 +60,11 @@ const SidemenyDetaljer = ({ tiltaksnummer, arrangor, oppstartsdato, tiltakstype 
     </>
   );
 };
+
+function resolveOppstart({oppstart, oppstartsdato}: Tiltaksgjennomforing) {
+  return oppstart === 'dato' && oppstartsdato
+      ? new Intl.DateTimeFormat().format(new Date(oppstartsdato))
+      : 'Løpende';
+}
 
 export default SidemenyDetaljer;
