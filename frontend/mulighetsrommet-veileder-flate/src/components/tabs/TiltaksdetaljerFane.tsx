@@ -12,7 +12,7 @@ interface TiltaksdetaljerFaneProps {
   tiltaksgjennomforingTiltaksansvarlig: Tiltaksansvarlig;
   tiltaksgjennomforingArrangorinfo: Arrangor;
   tiltakstype: Tiltakstype;
-  tiltaksgjennomforing: any;
+  tiltaksgjennomforing: any; // TODO Type opp denne
 }
 
 const TiltaksdetaljerFane = ({
@@ -38,25 +38,25 @@ const TiltaksdetaljerFane = ({
       </Tabs.List>
       <Tabs.Panel value="tab1">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing.forHvemInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing?.forHvemInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold!.forHvemInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing.forHvem}
+          tiltaksgjennomforing={tiltaksgjennomforing?.forHvem}
           tiltakstype={tiltakstype.faneinnhold!.forHvem}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab2">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing.detaljerOgInnholdInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing?.detaljerOgInnholdInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold!.detaljerOgInnholdInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing.detaljerOgInnhold}
+          tiltaksgjennomforing={tiltaksgjennomforing?.detaljerOgInnhold}
           tiltakstype={tiltakstype.faneinnhold!.detaljerOgInnhold}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab3">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing.pameldingOgVarighetInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing?.pameldingOgVarighetInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold!.pameldingOgVarighetInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing.pameldingOgVarighet}
+          tiltaksgjennomforing={tiltaksgjennomforing?.pameldingOgVarighet}
           tiltakstype={tiltakstype.faneinnhold!.pameldingOgVarighet}
         />
       </Tabs.Panel>
