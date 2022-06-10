@@ -46,6 +46,6 @@ class Client {
   }
 }
 
-const client = new Client(String(import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN ?? ''));
+const client = new Client(String(import.meta.env.VITE_SANITY_ACCESS_TOKEN ?? ''));
 
 export { client };
