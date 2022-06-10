@@ -2,7 +2,7 @@ import { Rule } from "@sanity/types";
 import { ConditionalPropertyCallbackContext } from "@sanity/types/src/schema/types";
 import { CustomValidatorResult } from "@sanity/types/src/validation/types";
 
-enum EnhetType {
+export enum EnhetType {
   Fylke = "Fylke",
   Lokal = "Lokal",
 }
