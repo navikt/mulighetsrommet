@@ -7,11 +7,15 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
 import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
 import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
+import { useSanity } from '../../hooks/useSanity';
+import { Tiltakstype } from 'mulighetsrommet-api-client';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const innsatsgrupper = useInnsatsgrupper();
-  const tiltakstyper = useTiltakstyper();
+  const { data, isLoading, isError } = useSanity<Tiltakstype[]>(`*[_type == "tiltakstype"]`);
+
+  const tiltakstyper = data?.result ?? [];
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">
@@ -40,15 +44,15 @@ const Filtermeny = () => {
         options={filter.tiltakstyper!}
         setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
         data={
-          tiltakstyper.data?.map(tiltakstype => {
+          tiltakstyper?.map(tiltakstype => {
             return {
               id: tiltakstype._id,
               tittel: tiltakstype.tiltakstypeNavn,
             };
           }) ?? []
         }
-        isLoading={tiltakstyper.isLoading}
-        isError={tiltakstyper.isError}
+        isLoading={isLoading}
+        isError={isError}
         sortert
       />
     </div>
