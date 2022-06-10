@@ -7,20 +7,22 @@ import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { client } from '../../sanityClient';
+import { logEvent } from '../../api/logger';
+import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
 const TiltakstypeTabell = () => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
-  const pagination = (tiltaksgjennomforing: string[]) => {
+  const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
 
-  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState<any>([]); // TODO Se på typing her
+  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState<Tiltaksgjennomforing[]>([]); // TODO Se på typing her
 
   useEffect(() => {
     client
-      .query(
+      .query<Tiltaksgjennomforing[]>(
         `*[_type == "tiltaksgjennomforing"]{
         _id,
         tiltaksgjennomforingNavn,
@@ -70,7 +72,7 @@ const TiltakstypeTabell = () => {
         sort={sort}
         data-testid="tabell_tiltakstyper"
         className="tabell"
-        onSortChange={sortKey =>
+        onSortChange={sortKey => {
           setSort(
             sort && sortKey === sort.orderBy && sort.direction === 'descending'
               ? undefined
@@ -79,8 +81,15 @@ const TiltakstypeTabell = () => {
                   direction:
                     sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
                 }
-          )
-        }
+          );
+          const directionForLogging = sort
+            ? sortKey === sort.orderBy && sort.direction === 'ascending'
+              ? 'descending'
+              : 'neutral'
+            : 'ascending';
+          if (directionForLogging !== 'neutral')
+            logEvent('mulighetsrommet.sortering', { sortKey }, { direction: directionForLogging });
+        }}
       >
         <Table.Header>
           <Table.Row>
@@ -122,7 +131,7 @@ const TiltakstypeTabell = () => {
             </Table.Row>
           ) : (
             tiltaksgjennomforinger
-              .sort((a, b) => {
+              .sort((a: any, b: any) => {
                 if (sort) {
                   const comparator = (a: any, b: any, orderBy: string | number) => {
                     if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
@@ -160,12 +169,12 @@ const TiltakstypeTabell = () => {
                     </Table.DataCell>
                     <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
                       {tiltaksnummer}
-                      <Kopiknapp kopitekst={tiltaksnummer!} />
+                      <Kopiknapp kopitekst={tiltaksnummer!.toString()} />
                     </Table.DataCell>
                     <Table.DataCell>{tiltakstypeNavn}</Table.DataCell>
                     <Table.DataCell>{lokasjon}</Table.DataCell>
                     <Table.DataCell>
-                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende'}
+                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
                     </Table.DataCell>
                     <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
                   </Table.Row>

@@ -4,7 +4,7 @@ type Dataset = 'production' | 'test' | 'dev';
 interface SanityHttpResponse<T> {
   ms: number;
   query: string;
-  result: T[];
+  result: T;
 }
 
 class Client {

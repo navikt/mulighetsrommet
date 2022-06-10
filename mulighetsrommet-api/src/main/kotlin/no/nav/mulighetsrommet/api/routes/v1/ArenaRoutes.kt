@@ -14,6 +14,8 @@ import org.koin.ktor.ext.inject
 
 fun Route.arenaRoutes() {
 
+    val logger = application.environment.log
+
     val arenaService: ArenaService by inject()
 
     route("/api/v1/arena/") {
@@ -24,7 +26,7 @@ fun Route.arenaRoutes() {
             }.onSuccess { updatedTiltakstype ->
                 call.respond(updatedTiltakstype)
             }.onFailure {
-                application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
                 call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -34,14 +36,10 @@ fun Route.arenaRoutes() {
                 val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
                 arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
             }.onSuccess { createdTiltaksgjennomforing ->
-                call.response.status(HttpStatusCode.Created)
                 call.respond(createdTiltaksgjennomforing)
             }.onFailure {
-                application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
-                call.respondText(
-                    "Kunne ikke opprette tiltaksgjennomføring",
-                    status = HttpStatusCode.InternalServerError
-                )
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                call.respondText("Kunne ikke opprette tiltak", status = HttpStatusCode.InternalServerError)
             }
         }
 
@@ -50,10 +48,9 @@ fun Route.arenaRoutes() {
                 val deltaker = call.receive<Deltaker>()
                 arenaService.upsertDeltaker(deltaker)
             }.onSuccess { createdDeltaker ->
-                call.response.status(HttpStatusCode.Created)
                 call.respond(createdDeltaker)
             }.onFailure {
-                application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
                 call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -66,11 +63,8 @@ fun Route.arenaRoutes() {
                 val response = it ?: HttpStatusCode.NotFound
                 call.respond(response)
             }.onFailure {
-                application.environment.log.debug("${this.context.request.path()} ${it.stackTraceToString()}")
-                call.respondText(
-                    "Kunne ikke oppdatere tiltaksgjennomføring med sak: ${it.stackTraceToString()}",
-                    status = HttpStatusCode.InternalServerError
-                )
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
             }
         }
     }

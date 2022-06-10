@@ -198,6 +198,7 @@ export default {
         },
       ],
     },
+    //TODO skal kunne legge til flere tiltaksansvarlige
     {
       name: "kontaktinfoTiltaksansvarlig",
       title: "Tiltaksansvarlig",

@@ -17,7 +17,7 @@ const Statistikk = ({ tittel, hjelpetekst, statistikktekst }: StatistikkProps) =
         </Heading>
         <HelpText title="Hva er dette?">{hjelpetekst}</HelpText>
       </div>
-      <BodyShort>{statistikktekst}</BodyShort>
+      <BodyShort className="statistikk__tekst">{statistikktekst}</BodyShort>
     </div>
   );
 };

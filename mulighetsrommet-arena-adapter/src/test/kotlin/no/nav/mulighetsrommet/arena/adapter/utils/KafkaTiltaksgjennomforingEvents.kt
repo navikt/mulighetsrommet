@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-val tiltaksgjennomforingMentorInsert = """
+val tiltaksgjennomforing0 = """
     {
       "table": "SIAMO.TILTAKGJENNOMFORING",
       "op_type": "I",
@@ -8,8 +8,8 @@ val tiltaksgjennomforingMentorInsert = """
       "current_ts": "2022-03-30 12:49:28.872000",
       "pos": "00000000120073317470",
       "after": {
-        "TILTAKGJENNOMFORING_ID": 3728231,
-        "SAK_ID": 12345678,
+        "TILTAKGJENNOMFORING_ID": 100,
+        "SAK_ID": 1000,
         "TILTAKSKODE": "MENTOR",
         "ANTALL_DELTAKERE": null,
         "ANTALL_VARIGHET": null,
@@ -52,7 +52,7 @@ val tiltaksgjennomforingMentorInsert = """
     }
 """.trimIndent()
 
-val tiltaksgjennomforingMentorInsert2 = """
+val tiltaksgjennomforing1 = """
     {
       "table": "SIAMO.TILTAKGJENNOMFORING",
       "op_type": "I",
@@ -60,8 +60,8 @@ val tiltaksgjennomforingMentorInsert2 = """
       "current_ts": "2022-03-30 12:49:28.872000",
       "pos": "00000000120073317470",
       "after": {
-        "TILTAKGJENNOMFORING_ID": 3799999,
-        "SAK_ID": 12312312,
+        "TILTAKGJENNOMFORING_ID": 101,
+        "SAK_ID": 1001,
         "TILTAKSKODE": "MENTOR",
         "ANTALL_DELTAKERE": null,
         "ANTALL_VARIGHET": null,
@@ -104,7 +104,7 @@ val tiltaksgjennomforingMentorInsert2 = """
     }
 """.trimIndent()
 
-val tiltaksgjennomforingMentorUpdate = """
+val tiltaksgjennomforing2 = """
    {
   "table": "SIAMO.TILTAKGJENNOMFORING",
   "op_type": "U",
@@ -112,8 +112,8 @@ val tiltaksgjennomforingMentorUpdate = """
   "current_ts": "2022-03-30 12:49:28.896000",
   "pos": "00000000120073318088",
   "before": {
-    "TILTAKGJENNOMFORING_ID": 3728231,
-    "SAK_ID": 13501601,
+    "TILTAKGJENNOMFORING_ID": 102,
+    "SAK_ID": 1002,
     "TILTAKSKODE": "MENTOR",
     "ANTALL_DELTAKERE": null,
     "ANTALL_VARIGHET": null,
@@ -153,8 +153,8 @@ val tiltaksgjennomforingMentorUpdate = """
     "MAALFORM_KRAVBREV": "NO"
   },
   "after": {
-    "TILTAKGJENNOMFORING_ID": 3728231,
-    "SAK_ID": 13501601,
+    "TILTAKGJENNOMFORING_ID": 102,
+    "SAK_ID": 1002,
     "TILTAKSKODE": "MENTOR",
     "ANTALL_DELTAKERE": null,
     "ANTALL_VARIGHET": null,
@@ -196,96 +196,8 @@ val tiltaksgjennomforingMentorUpdate = """
 } 
 """.trimIndent()
 
-val tiltaksgjennomforingMentorUpdate2 = """
-    {
-      "table": "SIAMO.TILTAKGJENNOMFORING",
-      "op_type": "U",
-      "op_ts": "2022-03-30 12:49:25.000000",
-      "current_ts": "2022-03-30 12:49:28.897000",
-      "pos": "00000000120073319232",
-      "before": {
-        "TILTAKGJENNOMFORING_ID": 3728231,
-        "SAK_ID": 13501601,
-        "TILTAKSKODE": "DIGIOPPARB",
-        "ANTALL_DELTAKERE": null,
-        "ANTALL_VARIGHET": null,
-        "DATO_FRA": null,
-        "DATO_TIL": null,
-        "FAGPLANKODE": null,
-        "MAALEENHET_VARIGHET": null,
-        "TEKST_FAGBESKRIVELSE": null,
-        "TEKST_KURSSTED": null,
-        "TEKST_MAALGRUPPE": null,
-        "STATUS_TREVERDIKODE_INNSOKNING": "J",
-        "REG_DATO": "2022-03-30 12:45:53",
-        "REG_USER": "JSZ0219",
-        "MOD_DATO": "2022-03-30 12:45:53",
-        "MOD_USER": "JSZ0219",
-        "LOKALTNAVN": null,
-        "TILTAKSTATUSKODE": "PLANLAGT",
-        "PROSENT_DELTID": 100,
-        "KOMMENTAR": null,
-        "ARBGIV_ID_ARRANGOR": null,
-        "PROFILELEMENT_ID_GEOGRAFI": null,
-        "KLOKKETID_FREMMOTE": null,
-        "DATO_FREMMOTE": null,
-        "BEGRUNNELSE_STATUS": null,
-        "AVTALE_ID": null,
-        "AKTIVITET_ID": null,
-        "DATO_INNSOKNINGSTART": null,
-        "GML_FRA_DATO": null,
-        "GML_TIL_DATO": null,
-        "AETAT_FREMMOTEREG": null,
-        "AETAT_KONTERINGSSTED": null,
-        "OPPLAERINGNIVAAKODE": null,
-        "TILTAKGJENNOMFORING_ID_REL": null,
-        "PROFILELEMENT_ID_OPPL_TILTAK": null,
-        "DATO_OPPFOLGING_OK": null,
-        "PARTISJON": null,
-        "MAALFORM_KRAVBREV": "NO"
-      },
-      "after": {
-        "TILTAKGJENNOMFORING_ID": 3728231,
-        "SAK_ID": 13501601,
-        "TILTAKSKODE": "DIGIOPPARB",
-        "ANTALL_DELTAKERE": 1,
-        "ANTALL_VARIGHET": null,
-        "DATO_FRA": "2022-01-01 00:00:00",
-        "DATO_TIL": "2024-01-01 00:00:00",
-        "FAGPLANKODE": null,
-        "MAALEENHET_VARIGHET": null,
-        "TEKST_FAGBESKRIVELSE": null,
-        "TEKST_KURSSTED": null,
-        "TEKST_MAALGRUPPE": null,
-        "STATUS_TREVERDIKODE_INNSOKNING": "J",
-        "REG_DATO": "2022-03-30 12:45:53",
-        "REG_USER": "JSZ0219",
-        "MOD_DATO": "2022-03-30 12:49:18",
-        "MOD_USER": "JSZ0219",
-        "LOKALTNAVN": "Tiltaksgjennomføring 1",
-        "TILTAKSTATUSKODE": "PLANLAGT",
-        "PROSENT_DELTID": 100,
-        "KOMMENTAR": null,
-        "ARBGIV_ID_ARRANGOR": null,
-        "PROFILELEMENT_ID_GEOGRAFI": null,
-        "KLOKKETID_FREMMOTE": null,
-        "DATO_FREMMOTE": null,
-        "BEGRUNNELSE_STATUS": null,
-        "AVTALE_ID": null,
-        "AKTIVITET_ID": null,
-        "DATO_INNSOKNINGSTART": null,
-        "GML_FRA_DATO": null,
-        "GML_TIL_DATO": null,
-        "AETAT_FREMMOTEREG": "0219",
-        "AETAT_KONTERINGSSTED": "0219",
-        "OPPLAERINGNIVAAKODE": null,
-        "TILTAKGJENNOMFORING_ID_REL": null,
-        "PROFILELEMENT_ID_OPPL_TILTAK": null,
-        "DATO_OPPFOLGING_OK": null,
-        "PARTISJON": null,
-        "MAALFORM_KRAVBREV": "NO"
-      }
-    }
-""".trimIndent()
-
-val tiltakgjennomforingEndretTopic = listOf(Pair("3728231", tiltaksgjennomforingMentorInsert), Pair("3728231", tiltaksgjennomforingMentorUpdate), Pair("3728231", tiltaksgjennomforingMentorUpdate2), Pair("3799999", tiltaksgjennomforingMentorInsert2))
+val tiltakgjennomforingEndretTopic = listOf(
+    Pair("100", tiltaksgjennomforing0),
+    Pair("101", tiltaksgjennomforing2),
+    Pair("102", tiltaksgjennomforing1)
+)

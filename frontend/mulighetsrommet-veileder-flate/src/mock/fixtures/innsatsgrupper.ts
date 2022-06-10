@@ -1,6 +1,6 @@
 import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 
-export const innsatsgrupper: Innsatsgruppe[] = [
+export const innsatsgrupperFixture: Innsatsgruppe[] = [
   {
     id: 1,
     navn: 'Standardinnsats',
