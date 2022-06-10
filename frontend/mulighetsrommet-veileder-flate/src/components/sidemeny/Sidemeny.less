@@ -1,9 +1,30 @@
 .mulighetsrommet-veileder-flate {
   .tiltakstype-detaljer {
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: auto 23rem;
+    grid-gap: 1rem;
+    margin: 0 1rem;
     &__rad {
       display: flex;
       justify-content: space-between;
       margin-bottom: 1rem;
+      column-gap: 1rem;
+    }
+    &__sidemeny {
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      height: fit-content;
+    }
+    &__regelverk {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    span {
+      text-align: end;
     }
   }
 }

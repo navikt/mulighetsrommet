@@ -1,9 +1,9 @@
 import { rest, RestHandler } from 'msw';
 import { db } from '../database';
-import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomføring';
+import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomforing';
 import { toTiltakstype } from '../entities/tiltakstype';
-import { badReq, notFound, ok } from './responses';
 import { mockFeatures } from './features';
+import { notFound, ok } from './responses';
 
 export const handlers: RestHandler[] = [
   rest.get('*/api/feature', (req, res, ctx) => {
@@ -17,32 +17,7 @@ export const handlers: RestHandler[] = [
   rest.get('*/api/v1/tiltakstyper', () => {
     return ok(db.tiltakstype.getAll().map(toTiltakstype));
   }),
-  rest.get('*/api/v1/tiltakstyper/:tiltakskode', req => {
-    const { tiltakskode } = req.params as any;
 
-    if (!tiltakskode) {
-      return badReq();
-    }
-
-    const entity = db.tiltakstype.findFirst({
-      where: { tiltakskode: { equals: tiltakskode } },
-    });
-
-    if (!entity) {
-      return notFound();
-    }
-
-    return ok(toTiltakstype(entity));
-  }),
-  rest.get('*/api/v1/tiltakstyper/:tiltakskode/tiltaksgjennomforinger', req => {
-    const { tiltakskode } = req.params as any;
-
-    const items = db.tiltaksgjennomforing.findMany({
-      where: { tiltakskode: { equals: tiltakskode } },
-    });
-
-    return ok(items.map(toTiltaksgjennomforing));
-  }),
   rest.get('*/api/v1/tiltaksgjennomforinger', req => {
     return ok(db.tiltaksgjennomforing.getAll().map(toTiltaksgjennomforing));
   }),

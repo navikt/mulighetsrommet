@@ -2,14 +2,22 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Tiltakskode } from './Tiltakskode';
-
 export type Tiltakstype = {
-    id: number;
-    innsatsgruppe: number | null;
-    sanityId: number | null;
-    navn: string;
-    tiltakskode: Tiltakskode;
-    fraDato: string | null;
-    tilDato: string | null;
+  _id: number;
+  tiltakstypeNavn: string;
+  beskrivelse?: string;
+  innsatsgruppe: string;
+  varighet?: string;
+  regelverkFil?: string; //skal være fil
+  regelverkFilNavn?: string;
+  regelverkLenke?: string;
+  regelverkLenkeNavn?: string;
+  faneinnhold?: {
+    forHvemInfoboks?: string;
+    forHvem?: object;
+    detaljerOgInnholdInfoboks?: string;
+    detaljerOgInnhold?: object;
+    pameldingOgVarighetInfoboks?: string;
+    pameldingOgVarighet?: object;
+  };
 };

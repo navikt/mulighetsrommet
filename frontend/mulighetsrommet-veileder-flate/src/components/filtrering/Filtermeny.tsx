@@ -42,8 +42,8 @@ const Filtermeny = () => {
         data={
           tiltakstyper.data?.map(tiltakstype => {
             return {
-              id: tiltakstype.id,
-              tittel: tiltakstype.navn,
+              id: tiltakstype._id,
+              tittel: tiltakstype.tiltakstypeNavn,
             };
           }) ?? []
         }
