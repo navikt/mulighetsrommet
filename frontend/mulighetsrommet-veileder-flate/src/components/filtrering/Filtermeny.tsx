@@ -5,8 +5,8 @@ import { useAtom } from 'jotai';
 import Searchfield from './Searchfield';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
-import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
-import { useSanity } from '../../hooks/useSanity';
+import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
+import { useSanity } from '../../api/useSanity';
 import { Tiltakstype } from 'mulighetsrommet-api-client';
 
 const Filtermeny = () => {

@@ -6,9 +6,9 @@ import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
+import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../api/logger';
+import { Tiltaksgjennomforing } from '../../api/models';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
