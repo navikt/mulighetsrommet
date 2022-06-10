@@ -1,22 +1,16 @@
-import { useQuery } from 'react-query';
 import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { QueryKeys } from '../../core/api/QueryKeys';
-import { client } from '../../sanityClient';
+import { useSanity } from '../useSanity';
 
 export default function useTiltaksgjennomforing() {
-  return useQuery<Tiltaksgjennomforing[]>([QueryKeys.Tiltaksgjennomforinger], () =>
-    client.fetch(
-      `*[_type == "tiltaksgjennomforing"]{
-              _id,
-              tiltaksgjennomforingNavn,
-              enheter,
-              lokasjon,
-              oppstart,
-              oppstartsdato,
-              tiltaksnummer,
-              kontaktinfoArrangor->,
-              tiltakstype->
-              }`
-    )
-  );
+  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing"]{
+    _id,
+    tiltaksgjennomforingNavn,
+    enheter,
+    lokasjon,
+    oppstart,
+    oppstartsdato,
+    tiltaksnummer,
+    kontaktinfoArrangor->,
+    tiltakstype->
+    }`);
 }

@@ -4,4 +4,5 @@ export const enum QueryKeys {
   Tiltaksgjennomforinger = 'tiltaksgjennomforinger',
   kontaktperson = 'kontaktperson',
   arrangor = 'arrangor',
+  SanityQuery = 'sanityQuery',
 }

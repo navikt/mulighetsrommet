@@ -48,7 +48,7 @@ export default {
       title: "Enheter",
       description:
         "Hvilke enheter skal ha tilgang til denne tiltaksgjennomføringen?",
-      type: "document",
+      type: "object",
       fields: [
         {
           name: "fylke",
@@ -156,7 +156,7 @@ export default {
     {
       name: "faneinnhold",
       title: "Innhold faner",
-      type: "document",
+      type: "object",
       fields: [
         {
           name: "forHvemInfoboks",

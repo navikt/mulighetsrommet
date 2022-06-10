@@ -49,7 +49,15 @@ VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
 # Setter Bearer token for HTTP-kall mot mulighetsrommet-api
 # Se egen dokumentasjon for hvordan man kan opprette et slikt token for lokal utvikling
 VITE_MULIGHETSROMMET_API_AUTH_TOKEN=...
+
+# Setter Bearer access token for HTTP-kall mot Sanity
+# Access token må ikke deles med noen, og man må legge tokenet i en egen .env-fil lokalt på maskinen
+# Se "Opprette Access Token i Sanity"
+VITE_VITE_SANITY_ACCESS_TOKEN=...
 ```
+
+### Opprette Access Token i Sanity
+Gå til siden her https://www.sanity.io/organizations/ojSsHMQGf/project/xegcworx/api og velg "Add API Token". Opprett et eget token med \<Navn\>s dev-token og velg "Developer" under "Permissions".
 
 Legg til disse enten i lokal `.env`-fil (denne skal ikke sjekkes inn git), eller sett disse i lokalt miljø slik du selv ønsker.
 

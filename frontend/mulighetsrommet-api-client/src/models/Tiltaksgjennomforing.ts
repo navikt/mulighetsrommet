@@ -16,7 +16,7 @@ export type Tiltaksgjennomforing = {
   lokasjon: string;
   enheter: { fylke: string };
   oppstart: string;
-  oppstartsdato?: Date;
+  oppstartsdato?: string;
   faneinnhold?: {
     forHvemInfoboks?: string;
     forHvem?: object;

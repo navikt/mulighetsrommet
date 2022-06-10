@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
-import './ViewTiltakstypeOversikt.less';
-import '../../layouts/TiltaksgjennomforingsHeader.less';
 import { Alert, Button } from '@navikt/ds-react';
-import Filtermeny from '../../components/filtrering/Filtermeny';
 import { useAtom } from 'jotai';
+import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
+import Filtermeny from '../../components/filtrering/Filtermeny';
+import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
+import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
-import FilterTags from '../../components/tags/Filtertags';
+import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
-import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
+import './ViewTiltakstypeOversikt.less';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);

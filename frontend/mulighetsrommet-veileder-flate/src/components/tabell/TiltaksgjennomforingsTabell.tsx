@@ -99,15 +99,15 @@ const TiltaksgjennomforingsTabell = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {data!.length === 0 ? (
+              {data?.result.length === 0 ? (
                 <Table.DataCell colSpan={5}>
                   <Alert variant="info" className="tabell__alert">
                     Det finnes ingen tiltakstyper med dette søket.
                   </Alert>
                 </Table.DataCell>
               ) : (
-                data!
-                  .sort((a, b) => {
+                data!.result
+                  ?.sort((a, b) => {
                     if (sort) {
                       const comparator = (a: any, b: any, orderBy: string | number) => {
                         if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
@@ -161,9 +161,13 @@ const TiltaksgjennomforingsTabell = () => {
           </Table>
           <div className="under-tabell">
             <Heading level="1" size="xsmall">
-              Viser {data?.length} av {data?.length} tiltak
+              Viser {data?.result.length} av {data?.result.length} tiltak
             </Heading>
-            <Pagination page={page} onPageChange={setPage} count={pagination(data) === 0 ? 1 : pagination(data)} />
+            <Pagination
+              page={page}
+              onPageChange={setPage}
+              count={pagination(data.result) === 0 ? 1 : pagination(data.result)}
+            />
           </div>
         </div>
       )}
