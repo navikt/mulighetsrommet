@@ -1,4 +1,4 @@
-import { headers } from './api/headers';
+import { headers } from './headers';
 type Dataset = 'production' | 'test' | 'dev';
 
 interface SanityHttpResponse<T> {
