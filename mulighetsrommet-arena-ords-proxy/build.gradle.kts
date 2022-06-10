@@ -37,7 +37,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:1.0.3")
 
-    val hopliteVersion = "1.4.16"
+    val hopliteVersion = "2.1.5"
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
 
@@ -51,12 +51,18 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.36")
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
 tasks.test {
     finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
 }
