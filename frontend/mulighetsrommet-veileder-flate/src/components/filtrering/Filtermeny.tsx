@@ -5,7 +5,6 @@ import { useAtom } from 'jotai';
 import Searchfield from './Searchfield';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
-import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
 import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
 import { useSanity } from '../../hooks/useSanity';
 import { Tiltakstype } from 'mulighetsrommet-api-client';

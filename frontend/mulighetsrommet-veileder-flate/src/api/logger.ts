@@ -18,11 +18,9 @@ export const logMetrikk = (metrikkNavn: string, fields?: {}, tags?: {}): void =>
 };
 
 export const logEvent = (logTag: string, fields?: {}, tags?: {}): void => {
-  const frontendlogger = (window as any).frontendlogger;
-
   if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
     console.log('Event', logTag, 'Fields:', fields, 'Tags:', tags); // tslint:disable-line
-  } else if (frontendlogger.event) {
-    frontendlogger.event(logTag, fields || {}, tags || {});
+  } else if (logger?.event) {
+    logger.event(logTag, fields || {}, tags || {});
   }
 };

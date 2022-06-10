@@ -6,7 +6,7 @@ import { Tiltaksansvarlig } from '../../../../mulighetsrommet-api-client/src/mod
 import { Arrangor } from '../../../../mulighetsrommet-api-client/src/models/Arrangor';
 import DetaljerFane from './detaljerFane';
 import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
-import {logEvent} from "../../api/logger";
+import { logEvent } from '../../api/logger';
 
 interface TiltaksdetaljerFaneProps {
   tiltaksgjennomforingTiltaksansvarlig: Tiltaksansvarlig;
@@ -24,7 +24,13 @@ const TiltaksdetaljerFane = ({
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
 
   return (
-    <Tabs defaultValue="tab1" size="medium" selectionFollowsFocus className="fane__root" onChange={value => logEvent('mulighetsrommet.faner', {value})}>
+    <Tabs
+      defaultValue="tab1"
+      size="medium"
+      selectionFollowsFocus
+      className="fane__root"
+      onChange={value => logEvent('mulighetsrommet.faner', { value })}
+    >
       <Tabs.List loop className="fane__liste">
         {faneoverskrifter.map((fane, index) => (
           <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className="btn__tab" />
