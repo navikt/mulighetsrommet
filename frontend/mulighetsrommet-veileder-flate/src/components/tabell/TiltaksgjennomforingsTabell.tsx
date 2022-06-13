@@ -9,6 +9,7 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
 import { SortDirection } from '@mswjs/data/lib/query/queryTypes';
+import {logEvent} from "../../api/logger";
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -58,16 +59,24 @@ const TiltaksgjennomforingsTabell = () => {
             sort={sort}
             data-testid="tabell_tiltakstyper"
             className="tabell"
-            onSortChange={sortKey =>
-              setSort(
-                sort && sortKey === sort.orderBy && sort.direction === 'descending'
-                  ? undefined
-                  : {
-                      orderBy: sortKey,
-                      direction:
-                        sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
-                    }
-              )
+            onSortChange={sortKey => {
+                setSort(
+                  sort && sortKey === sort.orderBy && sort.direction === 'descending'
+                    ? undefined
+                    : {
+                        orderBy: sortKey,
+                        direction:
+                          sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
+                      }
+                );
+                const directionForLogging = sort
+                ? sortKey === sort.orderBy && sort.direction === 'ascending'
+                ? 'descending'
+                : 'neutral'
+                : 'ascending';
+                if (directionForLogging !== 'neutral')
+                logEvent('mulighetsrommet.sortering', { sortKey }, { direction: directionForLogging });
+              }
             }
           >
             <Table.Header>
