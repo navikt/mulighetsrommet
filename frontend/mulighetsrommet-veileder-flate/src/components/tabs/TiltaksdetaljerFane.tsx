@@ -66,7 +66,7 @@ const TiltaksdetaljerFane = ({
           arrangorinfo={tiltaksgjennomforingArrangorinfo}
         />
       </Tabs.Panel>
-      <Tabs.Panel value="tab5">Innsikt</Tabs.Panel>
+      <Tabs.Panel value="tab5">Her kommer det grader og annet snacks - Innsikt</Tabs.Panel>
     </Tabs>
   );
 };

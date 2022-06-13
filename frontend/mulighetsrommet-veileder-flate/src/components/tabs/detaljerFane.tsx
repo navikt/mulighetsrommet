@@ -17,7 +17,7 @@ const DetaljerFane = ({
   tiltakstype,
 }: DetaljerFaneProps) => {
   return (
-    <>
+    <div style={{ maxWidth: '75ch' }}>
       {tiltakstypeAlert && (
         <Alert variant="info" className="tiltaksdetaljer__alert">
           {tiltakstypeAlert}
@@ -30,7 +30,7 @@ const DetaljerFane = ({
       )}
       <PortableText value={tiltakstype} />
       <PortableText value={tiltaksgjennomforing} />
-    </>
+    </div>
   );
 };
 
