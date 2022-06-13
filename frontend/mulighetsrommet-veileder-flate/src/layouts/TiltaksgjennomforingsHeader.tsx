@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import './TiltaksgjennomforingsHeader.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
@@ -7,7 +7,7 @@ import { PortableText } from '@portabletext/react';
 interface TiltaksgjennomforingsHeaderProps {
   tiltaksgjennomforingsnavn: string;
   beskrivelseTiltaksgjennomforing?: string;
-  beskrivelseTiltakstype?: ReactNode;
+  beskrivelseTiltakstype?: any;
 }
 
 const TiltaksgjennomforingsHeader = ({
