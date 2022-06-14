@@ -1,4 +1,4 @@
-import { useSanity } from '../useSanity';
+import { useSanity } from './useSanity';
 import { Tiltaksgjennomforing } from '../models';
 
 export default function useTiltaksgjennomforing() {

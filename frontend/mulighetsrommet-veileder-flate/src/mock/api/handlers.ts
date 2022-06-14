@@ -3,7 +3,15 @@ import { db } from '../database';
 import { toTiltaksgjennomforing } from '../entities/tiltaksgjennomforing';
 import { toTiltakstype } from '../entities/tiltakstype';
 import { mockFeatures } from './features';
-import { notFound, ok } from './responses';
+import { badReq, notFound, ok } from './responses';
+import SanityClient from '@sanity/client';
+
+const client = new SanityClient({
+  apiVersion: "2020-06-01",
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+  dataset: import.meta.env.VITE_SANITY_DATASET,
+  token: import.meta.env.VITE_SANITY_ACCESS_TOKEN,
+});
 
 export const handlers: RestHandler[] = [
   rest.get('*/api/feature', (req, res, ctx) => {
@@ -33,5 +41,21 @@ export const handlers: RestHandler[] = [
     }
 
     return ok(toTiltaksgjennomforing(entity));
+  }),
+
+  rest.get('*/api/v1/sanity', async req => {
+    const query = req.url.searchParams.get('query');
+
+    if (!(typeof query === 'string')) {
+      return badReq("'query' must be specified");
+    }
+
+    const result = await client.fetch(query);
+
+    return ok({
+      ms: 100,
+      query,
+      result,
+    });
   }),
 ];

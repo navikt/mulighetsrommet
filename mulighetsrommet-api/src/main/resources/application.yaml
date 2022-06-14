@@ -17,5 +17,5 @@ app:
       audience: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
 
   sanity:
-    projectId: ${SANITY_PROJECTID}
-    authToken:  ${SANITY_AUTH_TOKEN}
+    projectId: ${SANITY_PROJECT_ID}
+    authToken: ${SANITY_AUTH_TOKEN}

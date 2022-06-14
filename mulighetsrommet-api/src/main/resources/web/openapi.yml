@@ -20,6 +20,29 @@ paths:
               schema:
                 type: string
                 enum: [PONG]
+  /api/v1/sanity:
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: sanityQuery
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Sanity query
+        - in: query
+          name: dataset
+          schema:
+            type: string
+          description: Which dataset to use (default production)
+      responses:
+        200:
+          description: Sanity query result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SanityResponse"
   /api/v1/innsatsgrupper:
     get:
       tags:
@@ -225,6 +248,19 @@ components:
         $ref: "#/components/schemas/Tiltakskode"
 
   schemas:
+    SanityResponse:
+      type: object
+      properties:
+        ms:
+          type: integer
+        query:
+          type: string
+        # An empty object gets interpreted as `any`
+        result: {}
+      required:
+        - ms
+        - query
+        - result
     Innsatsgruppe:
       type: object
       properties:

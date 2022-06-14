@@ -40,23 +40,22 @@ Kjører man opp frontend med scriptene som ligger i `package.json` trenger man i
 Følgende miljøvariabler kan settes manuelt i `.env`:
 
 ```
+# Setter root url for alle HTTP-kall til mulighetsrommet-api.
+VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
+
+# Setter Bearer token for HTTP-kall mot mulighetsrommet-api.
+# Se egen dokumentasjon for hvordan man kan opprette et slikt token for lokal utvikling.
+VITE_MULIGHETSROMMET_API_AUTH_TOKEN=...
+
 # Toggle for å kjøre en in-memory mock av API'et sammen med applikasjonen.
 VITE_MULIGHETSROMMET_API_MOCK=true/false
 
-# Setter root url for alle HTTP-kall til mulighetsrommet-api
-VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
-
-# Setter Bearer token for HTTP-kall mot mulighetsrommet-api
-# Se egen dokumentasjon for hvordan man kan opprette et slikt token for lokal utvikling
-VITE_MULIGHETSROMMET_API_AUTH_TOKEN=...
-
-# I forbindelse med mock av API'et må url til Sanity settes manuelt i tillegg, da vil denne bli benyttet
-# i stedet for at sanity-spørringer blir proxyet via API'et.
-VITE_SANITY_API_URL=https://xegcworx.api.sanity.io/v2022-06-08
-
-# Setter Bearer access token for HTTP-kall mot Sanity
-# Access token må ikke deles med noen, og man må legge tokenet i en egen .env-fil lokalt på maskinen
-# Se "Opprette Access Token i Sanity"
+# I forbindelse med mock av API'et kan følgende variabler settes for å konfigurere tilgang direkte til
+# et Sanity-prosjekt for utvikling.
+# Husk at Access token ikke skal deles med noen, og man må legge tokenet i en egen .env-fil lokalt på maskinen.
+# Se "Opprette Access Token i Sanity".
+VITE_SANITY_PROJECT_ID=xegcworx
+VITE_SANITY_DATASET=development
 VITE_SANITY_ACCESS_TOKEN=...
 ```
 

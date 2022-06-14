@@ -7,6 +7,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Innsatsgruppe } from './models/Innsatsgruppe';
+export type { SanityResponse } from './models/SanityResponse';
 export type { Tiltaksgjennomforing } from './models/Tiltaksgjennomforing';
 export { Tiltakskode } from './models/Tiltakskode';
 export type { Tiltakstype } from './models/Tiltakstype';
