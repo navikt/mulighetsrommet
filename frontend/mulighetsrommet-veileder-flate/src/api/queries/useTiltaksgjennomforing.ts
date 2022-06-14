@@ -5,7 +5,6 @@ export default function useTiltaksgjennomforing() {
   return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing"]{
     _id,
     tiltaksgjennomforingNavn,
-    enheter,
     lokasjon,
     oppstart,
     oppstartsdato,

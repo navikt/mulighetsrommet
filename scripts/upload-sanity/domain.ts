@@ -26,11 +26,8 @@ export interface SanityTiltaksgjennomforing {
   tiltaksnummer: number;
   kontaktinfoArrangor: Reference;
   lokasjon: string;
-  enheter?: {
-    _type: "document";
-    fylke: string;
-    [x: string]: string; // TODO Finn ut av denne
-  };
+  // TODO Finn ut av denne
+  enheter?: unknown
   oppstartsdato: string;
   faneinnhold: {
     _type: "document";

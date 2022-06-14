@@ -43,7 +43,6 @@ export const definition = {
       adresse: String,
     },
     lokasjon: String,
-    enheter: { fylke: String },
     oppstart: String,
     oppstartsdato: Date,
     faneinnhold: {

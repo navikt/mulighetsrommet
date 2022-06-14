@@ -1,6 +1,6 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltaksgjennomforing, Tiltakstype } from 'mulighetsrommet-api-client';
 import { DatabaseDictionary } from '../database';
+import { Tiltaksgjennomforing, Tiltakstype } from '../../api/models';
 
 export type TiltaksgjennomforingEntity = Entity<DatabaseDictionary, 'tiltaksgjennomforing'>;
 
@@ -19,9 +19,6 @@ export function toTiltaksgjennomforing(entity: TiltaksgjennomforingEntity): Tilt
     },
     tiltakstype: entity.tiltakstype as Tiltakstype,
     lokasjon: entity.lokasjon,
-    enheter: {
-      fylke: entity.enheter.fylke!,
-    },
     oppstart: entity.oppstart,
     kontaktinfoTiltaksansvarlig: {
       _id: entity.kontaktinfoTiltaksansvarlig.id!,

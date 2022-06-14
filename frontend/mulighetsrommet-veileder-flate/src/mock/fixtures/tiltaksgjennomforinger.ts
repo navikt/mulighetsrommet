@@ -1,5 +1,6 @@
 import faker from 'faker';
-import { Tiltaksgjennomforing, Tiltakskode, Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import { Tiltaksgjennomforing } from '../../api/models';
+
 export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -20,9 +21,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       telefonnummer: '',
     },
     lokasjon: '',
-    enheter: {
-      fylke: '',
-    },
     oppstart: '',
     kontaktinfoTiltaksansvarlig: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -51,9 +49,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       telefonnummer: '',
     },
     lokasjon: '',
-    enheter: {
-      fylke: '',
-    },
     oppstart: '',
     kontaktinfoTiltaksansvarlig: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -82,9 +77,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       telefonnummer: '',
     },
     lokasjon: '',
-    enheter: {
-      fylke: '',
-    },
     oppstart: '',
     kontaktinfoTiltaksansvarlig: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -113,9 +105,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       telefonnummer: '',
     },
     lokasjon: '',
-    enheter: {
-      fylke: '',
-    },
     oppstart: '',
     kontaktinfoTiltaksansvarlig: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -144,9 +133,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       telefonnummer: '',
     },
     lokasjon: '',
-    enheter: {
-      fylke: '',
-    },
     oppstart: '',
     kontaktinfoTiltaksansvarlig: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
