@@ -1,6 +1,6 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltakstype } from 'mulighetsrommet-api-client';
 import { DatabaseDictionary } from '../database';
+import { Tiltakstype } from '../../api/models';
 
 export type TiltakstypeEntity = Entity<DatabaseDictionary, 'tiltakstype'>;
 

@@ -3,7 +3,7 @@ import faker from 'faker';
 import { innsatsgrupperFixture } from './fixtures/innsatsgrupper';
 import { tiltakstyper } from './fixtures/tiltakstyper';
 import { createMockDatabase, idAutoIncrement } from './helpers';
-import { Tiltakstype } from '../../../mulighetsrommet-api-client';
+import {Tiltakstype} from "../api/models";
 
 export const definition = {
   innsatsgruppe: {

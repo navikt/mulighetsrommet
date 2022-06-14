@@ -1,6 +1,6 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
 import React from 'react';
-import { Arrangor } from '../../../../../mulighetsrommet-api-client/src/models/Arrangor';
+import { Arrangor } from '../../../api/models';
 
 interface ArrangorProps {
   arrangorinfo: Arrangor;

@@ -7,7 +7,7 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
 import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
 import { useSanity } from '../../api/useSanity';
-import { Tiltakstype } from 'mulighetsrommet-api-client';
+import { Tiltakstype } from '../../api/models';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
