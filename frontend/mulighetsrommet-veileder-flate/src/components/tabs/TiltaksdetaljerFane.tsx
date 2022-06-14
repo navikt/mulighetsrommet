@@ -37,25 +37,25 @@ const TiltaksdetaljerFane = ({
       <Tabs.Panel value="tab1">
         <DetaljerFane
           tiltaksgjennomforingAlert={tiltaksgjennomforing?.forHvemInfoboks}
-          tiltakstypeAlert={tiltakstype.faneinnhold!.forHvemInfoboks}
+          tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
           tiltaksgjennomforing={tiltaksgjennomforing?.forHvem}
-          tiltakstype={tiltakstype.faneinnhold!.forHvem}
+          tiltakstype={tiltakstype.faneinnhold?.forHvem}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab2">
         <DetaljerFane
           tiltaksgjennomforingAlert={tiltaksgjennomforing?.detaljerOgInnholdInfoboks}
-          tiltakstypeAlert={tiltakstype.faneinnhold!.detaljerOgInnholdInfoboks}
+          tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
           tiltaksgjennomforing={tiltaksgjennomforing?.detaljerOgInnhold}
-          tiltakstype={tiltakstype.faneinnhold!.detaljerOgInnhold}
+          tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab3">
         <DetaljerFane
           tiltaksgjennomforingAlert={tiltaksgjennomforing?.pameldingOgVarighetInfoboks}
-          tiltakstypeAlert={tiltakstype.faneinnhold!.pameldingOgVarighetInfoboks}
+          tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
           tiltaksgjennomforing={tiltaksgjennomforing?.pameldingOgVarighet}
-          tiltakstype={tiltakstype.faneinnhold!.pameldingOgVarighet}
+          tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab4">
