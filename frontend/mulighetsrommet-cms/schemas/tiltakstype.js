@@ -45,7 +45,6 @@ export default {
           },
         ],
       },
-      validation: (Rule) => Rule.required(),
     },
     {
       name: "varighet",
