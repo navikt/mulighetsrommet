@@ -8,11 +8,14 @@ import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
-import { SortDirection } from '@mswjs/data/lib/query/queryTypes';
 import {logEvent} from "../../api/logger";
 
 const TiltaksgjennomforingsTabell = () => {
-  const [sort, setSort] = useState<any>();
+  const defaultSort = {
+    orderBy: 'tiltakstypeNavn',
+    direction: 'ascending',
+  };
+  const [sort, setSort] = useState<any>(defaultSort);
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[] | undefined) => {
@@ -62,7 +65,7 @@ const TiltaksgjennomforingsTabell = () => {
             onSortChange={sortKey => {
                 setSort(
                   sort && sortKey === sort.orderBy && sort.direction === 'descending'
-                    ? undefined
+                    ? defaultSort
                     : {
                         orderBy: sortKey,
                         direction:
@@ -119,13 +122,23 @@ const TiltaksgjennomforingsTabell = () => {
                   ?.sort((a, b) => {
                     if (sort) {
                       const comparator = (a: any, b: any, orderBy: string | number) => {
-                        if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
-                          return -1;
+                        if (orderBy === 'tiltakstypeNavn') {
+                          if (b['tiltakstype'][orderBy] < a['tiltakstype'][orderBy] || b['tiltakstype'][orderBy] === undefined) {
+                            return -1;
+                          }
+                          if (b['tiltakstype'][orderBy] > a['tiltakstype'][orderBy]) {
+                            return 1;
+                          }
+                          return 0;
+                        } else {
+                          if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
+                            return -1;
+                          }
+                          if (b[orderBy] > a[orderBy]) {
+                            return 1;
+                          }
+                          return 0;
                         }
-                        if (b[orderBy] > a[orderBy]) {
-                          return 1;
-                        }
-                        return 0;
                       };
                       return sort.direction === 'ascending'
                         ? comparator(b, a, sort.orderBy)
