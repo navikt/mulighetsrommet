@@ -1,5 +1,5 @@
-import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { useSanity } from '../useSanity';
+import { Tiltaksgjennomforing } from '../../api/models';
 
 export default function useTiltaksgjennomforing() {
   return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing"]{
@@ -12,5 +12,5 @@ export default function useTiltaksgjennomforing() {
     tiltaksnummer,
     kontaktinfoArrangor->,
     tiltakstype->
-    }`);
+  }`);
 }

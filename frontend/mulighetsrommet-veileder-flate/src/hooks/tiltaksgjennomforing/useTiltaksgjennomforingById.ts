@@ -1,5 +1,5 @@
-import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { useSanity } from '../useSanity';
+import { Tiltaksgjennomforing } from '../../api/models';
 
 export default function useTiltaksgjennomforingById(id: number) {
   return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${id}]{ 
