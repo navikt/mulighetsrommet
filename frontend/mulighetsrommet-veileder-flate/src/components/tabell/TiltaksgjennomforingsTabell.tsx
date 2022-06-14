@@ -11,11 +11,7 @@ import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaks
 import {logEvent} from "../../api/logger";
 
 const TiltaksgjennomforingsTabell = () => {
-  const defaultSort = {
-    orderBy: 'tiltakstypeNavn',
-    direction: 'ascending',
-  };
-  const [sort, setSort] = useState<any>(defaultSort);
+  const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[] | undefined) => {
@@ -65,7 +61,7 @@ const TiltaksgjennomforingsTabell = () => {
             onSortChange={sortKey => {
                 setSort(
                   sort && sortKey === sort.orderBy && sort.direction === 'descending'
-                    ? defaultSort
+                    ? undefined
                     : {
                         orderBy: sortKey,
                         direction:
@@ -120,13 +116,16 @@ const TiltaksgjennomforingsTabell = () => {
               ) : (
                 data!.result
                   ?.sort((a, b) => {
-                    if (sort) {
+                    const sortOrDefault = sort ? sort : {
+                      orderBy: 'tiltakstypeNavn',
+                      direction: 'ascending',
+                    };
                       const comparator = (a: any, b: any, orderBy: string | number) => {
                         if (orderBy === 'tiltakstypeNavn') {
-                          if (b['tiltakstype'][orderBy] < a['tiltakstype'][orderBy] || b['tiltakstype'][orderBy] === undefined) {
+                          if (b['tiltakstype']['tiltakstypeNavn'] < a['tiltakstype']['tiltakstypeNavn'] || b['tiltakstype']['tiltakstypeNavn'] === undefined) {
                             return -1;
                           }
-                          if (b['tiltakstype'][orderBy] > a['tiltakstype'][orderBy]) {
+                          if (b['tiltakstype']['tiltakstypeNavn'] > a['tiltakstype']['tiltakstypeNavn']) {
                             return 1;
                           }
                           return 0;
@@ -140,11 +139,9 @@ const TiltaksgjennomforingsTabell = () => {
                           return 0;
                         }
                       };
-                      return sort.direction === 'ascending'
-                        ? comparator(b, a, sort.orderBy)
-                        : comparator(a, b, sort.orderBy);
-                    }
-                    return 1;
+                      return sortOrDefault.direction === 'ascending'
+                        ? comparator(b, a, sortOrDefault.orderBy)
+                        : comparator(a, b, sortOrDefault.orderBy);
                   })
                   .slice((page - 1) * rowsPerPage, page * rowsPerPage)
                   .map(
