@@ -2,7 +2,6 @@ import React from 'react';
 import './TiltaksgjennomforingsHeader.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
-import { PortableText } from '@portabletext/react';
 
 interface TiltaksgjennomforingsHeaderProps {
   tiltaksgjennomforingsnavn: string;
@@ -27,9 +26,7 @@ const TiltaksgjennomforingsHeader = ({
       {beskrivelseTiltaksgjennomforing && (
         <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltaksgjennomforing}</div>
       )}
-      <div className="tiltaksgjennomforing__beskrivelse">
-        <PortableText value={beskrivelseTiltakstype} />
-      </div>
+      <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltakstype}</div>
     </div>
   );
 };
