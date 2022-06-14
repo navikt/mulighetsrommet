@@ -1,9 +1,8 @@
-import { nullable, oneOf, primaryKey } from '@mswjs/data';
+import { primaryKey } from '@mswjs/data';
 import faker from 'faker';
 import { innsatsgrupperFixture } from './fixtures/innsatsgrupper';
 import { tiltakstyper } from './fixtures/tiltakstyper';
 import { createMockDatabase, idAutoIncrement } from './helpers';
-import {Tiltakstype} from "../api/models";
 
 export const definition = {
   innsatsgruppe: {
@@ -79,7 +78,7 @@ export const db = createMockDatabase(definition, (db: any) => {
     });
   });
 
-  db.tiltakstype.getAll().forEach((tiltakstype: Tiltakstype) => {
+  db.tiltakstype.getAll().forEach(() => {
     for (let index = 0; index < faker.datatype.number({ min: 1, max: 5 }); index++) {
       db.tiltaksgjennomforing.create({
         tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }).toString(),

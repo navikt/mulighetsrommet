@@ -18,7 +18,7 @@ export const handlers: RestHandler[] = [
     return ok(db.tiltakstype.getAll().map(toTiltakstype));
   }),
 
-  rest.get('*/api/v1/tiltaksgjennomforinger', req => {
+  rest.get('*/api/v1/tiltaksgjennomforinger', () => {
     return ok(db.tiltaksgjennomforing.getAll().map(toTiltaksgjennomforing));
   }),
   rest.get('*/api/v1/tiltaksgjennomforinger/:id', req => {
