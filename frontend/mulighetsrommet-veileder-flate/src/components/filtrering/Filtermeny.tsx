@@ -6,14 +6,14 @@ import Searchfield from './Searchfield';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
 import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
-import { useSanity } from '../../api/useSanity';
-import { Tiltakstype } from '../../api/models';
+import { useTiltakstyper } from '../../api/queries/useTiltakstyper';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const innsatsgrupper = useInnsatsgrupper();
-  const { data, isLoading, isError } = useSanity<Tiltakstype[]>(`*[_type == "tiltakstype"]`);
 
+  const innsatsgrupper = useInnsatsgrupper();
+
+  const { data, isLoading, isError } = useTiltakstyper();
   const tiltakstyper = data?.result ?? [];
 
   return (
@@ -42,14 +42,12 @@ const Filtermeny = () => {
         accordionNavn="Tiltakstyper"
         options={filter.tiltakstyper!}
         setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
-        data={
-          tiltakstyper?.map(tiltakstype => {
-            return {
-              id: tiltakstype._id,
-              tittel: tiltakstype.tiltakstypeNavn,
-            };
-          }) ?? []
-        }
+        data={tiltakstyper.map(tiltakstype => {
+          return {
+            id: tiltakstype._id,
+            tittel: tiltakstype.tiltakstypeNavn,
+          };
+        })}
         isLoading={isLoading}
         isError={isError}
         sortert
