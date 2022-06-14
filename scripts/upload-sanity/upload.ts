@@ -118,7 +118,6 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
   const navn = row[17];
   const ident = row[18];
   const telefonnummer = row[19];
-  const epost = row[20];
   const enhet = row[21];
 
   const kontaktEksisterer = kontaktpersoner.find(
@@ -130,7 +129,6 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
     navn,
     ident,
     telefonnummer,
-    epost,
     enhet,
     _id: ident,
     _type: "navKontaktperson",

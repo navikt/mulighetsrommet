@@ -4,7 +4,7 @@ export interface SanityKontaktperson {
   navn: string;
   enhet: string;
   telefonnummer: string;
-  epost: string;
+  epost?: string; // TODO Skal fjernes
   ident?: string;
 }
 
