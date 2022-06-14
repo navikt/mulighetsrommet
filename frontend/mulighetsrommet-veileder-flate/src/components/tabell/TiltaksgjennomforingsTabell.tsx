@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { Pagination, Table, Alert, Heading, Loader, SortState } from '@navikt/ds-react';
+import { Alert, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
 import './Tabell.less';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
+import { Tiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
-import { SortDirection } from '@mswjs/data/lib/query/queryTypes';
-import {logEvent} from "../../api/logger";
+import { logEvent } from '../../api/logger';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -60,24 +59,23 @@ const TiltaksgjennomforingsTabell = () => {
             data-testid="tabell_tiltakstyper"
             className="tabell"
             onSortChange={sortKey => {
-                setSort(
-                  sort && sortKey === sort.orderBy && sort.direction === 'descending'
-                    ? undefined
-                    : {
-                        orderBy: sortKey,
-                        direction:
-                          sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
-                      }
-                );
-                const directionForLogging = sort
+              setSort(
+                sort && sortKey === sort.orderBy && sort.direction === 'descending'
+                  ? undefined
+                  : {
+                      orderBy: sortKey,
+                      direction:
+                        sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
+                    }
+              );
+              const directionForLogging = sort
                 ? sortKey === sort.orderBy && sort.direction === 'ascending'
-                ? 'descending'
-                : 'neutral'
+                  ? 'descending'
+                  : 'neutral'
                 : 'ascending';
-                if (directionForLogging !== 'neutral')
+              if (directionForLogging !== 'neutral')
                 logEvent('mulighetsrommet.sortering', { sortKey }, { direction: directionForLogging });
-              }
-            }
+            }}
           >
             <Table.Header>
               <Table.Row>
