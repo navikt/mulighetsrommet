@@ -23,10 +23,10 @@
     },
     {
       "name": "dev",
-      "title": "Dev",
+      "title": "Development",
       "api": {
         "projectId": "xegcworx",
-        "dataset": "dev"
+        "dataset": "development"
       }
     }
   ],
