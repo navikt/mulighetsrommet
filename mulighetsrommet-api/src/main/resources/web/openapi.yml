@@ -41,8 +41,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/SanityResponse"
+              schema: {}
   /api/v1/innsatsgrupper:
     get:
       tags:
@@ -248,19 +247,6 @@ components:
         $ref: "#/components/schemas/Tiltakskode"
 
   schemas:
-    SanityResponse:
-      type: object
-      properties:
-        ms:
-          type: integer
-        query:
-          type: string
-        # An empty object gets interpreted as `any`
-        result: {}
-      required:
-        - ms
-        - query
-        - result
     Innsatsgruppe:
       type: object
       properties:

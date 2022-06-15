@@ -51,11 +51,6 @@ export const handlers: RestHandler[] = [
     }
 
     const result = await client.fetch(query);
-
-    return ok({
-      ms: 100,
-      query,
-      result,
-    });
+    return ok(result)
   }),
 ];

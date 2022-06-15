@@ -13,8 +13,7 @@ const Filtermeny = () => {
 
   const innsatsgrupper = useInnsatsgrupper();
 
-  const { data, isLoading, isError } = useTiltakstyper();
-  const tiltakstyper = data?.result ?? [];
+  const { data: tiltakstyper = [], isLoading, isError } = useTiltakstyper();
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">

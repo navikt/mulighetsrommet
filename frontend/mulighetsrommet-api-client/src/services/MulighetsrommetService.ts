@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Innsatsgruppe } from '../models/Innsatsgruppe';
-import type { SanityResponse } from '../models/SanityResponse';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
 import type { Tiltakskode } from '../models/Tiltakskode';
 import type { Tiltakstype } from '../models/Tiltakstype';
@@ -14,7 +13,7 @@ import { request as __request } from '../core/request';
 export class MulighetsrommetService {
 
     /**
-     * @returns SanityResponse Sanity query result
+     * @returns any Sanity query result
      * @throws ApiError
      */
     public static sanityQuery({
@@ -25,7 +24,7 @@ export class MulighetsrommetService {
         query?: string,
         /** Which dataset to use (default production) **/
         dataset?: string,
-    }): CancelablePromise<SanityResponse> {
+    }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/sanity',
