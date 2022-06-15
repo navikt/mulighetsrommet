@@ -9,6 +9,7 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Tiltaksgjennomforing } from '../../../../mulighetsrommet-api-client';
 import useTiltaksgjennomforing from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforing';
 import {logEvent} from "../../api/logger";
+import {TiltaksgjennomforingsSorteringskode} from "../../../../mulighetsrommet-api-client/src/models/TiltaksgjennomforingsSorteringskode";
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -81,27 +82,27 @@ const TiltaksgjennomforingsTabell = () => {
             <Table.Header>
               <Table.Row>
                 <Table.ColumnHeader
-                  sortKey="tiltaksgjennomforingNavn"
+                  sortKey={TiltaksgjennomforingsSorteringskode.tiltaksNavn}
                   sortable
                   className="tabell__kolonne__tiltaksnavn"
                   data-testid="tabellheader_tiltaksnavn"
                 >
                   Tiltaksnavn
                 </Table.ColumnHeader>
-                <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
+                <Table.ColumnHeader sortKey={TiltaksgjennomforingsSorteringskode.tiltaksNummer} sortable className="tabell__kolonne__tiltaksnummer">
                   Tiltaksnr.
                 </Table.ColumnHeader>
-                <Table.ColumnHeader sortKey="tiltakstypeNavn" sortable className="tabell__kolonne__tiltakstype">
+                <Table.ColumnHeader sortKey={TiltaksgjennomforingsSorteringskode.tiltaksType} sortable className="tabell__kolonne__tiltakstype">
                   Tiltakstype
                 </Table.ColumnHeader>
-                <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
+                <Table.ColumnHeader sortKey={TiltaksgjennomforingsSorteringskode.lokasjon} sortable className="tabell__kolonne__oppstart">
                   Lokasjon
                 </Table.ColumnHeader>
-                <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
+                <Table.ColumnHeader sortKey={TiltaksgjennomforingsSorteringskode.oppstartsdato} sortable className="tabell__kolonne__oppstart">
                   Oppstartsdato
                 </Table.ColumnHeader>
                 {/*TODO fiks sortering*/}
-                <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
+                <Table.ColumnHeader sortKey={TiltaksgjennomforingsSorteringskode.status} sortable className="tabell__kolonne__plasser">
                   Status
                 </Table.ColumnHeader>
               </Table.Row>
@@ -117,15 +118,15 @@ const TiltaksgjennomforingsTabell = () => {
                 data!.result
                   ?.sort((a, b) => {
                     const sortOrDefault = sort ? sort : {
-                      orderBy: 'tiltakstypeNavn',
+                      orderBy: TiltaksgjennomforingsSorteringskode.tiltaksType,
                       direction: 'ascending',
                     };
                       const comparator = (a: any, b: any, orderBy: string | number) => {
-                        if (orderBy === 'tiltakstypeNavn') {
-                          if (b['tiltakstype']['tiltakstypeNavn'] < a['tiltakstype']['tiltakstypeNavn'] || b['tiltakstype']['tiltakstypeNavn'] === undefined) {
+                        if (orderBy === TiltaksgjennomforingsSorteringskode.tiltaksType) {
+                          if (b['tiltakstype'][orderBy] < a['tiltakstype'][orderBy] || b['tiltakstype'][orderBy] === undefined) {
                             return -1;
                           }
-                          if (b['tiltakstype']['tiltakstypeNavn'] > a['tiltakstype']['tiltakstypeNavn']) {
+                          if (b['tiltakstype'][orderBy] > a['tiltakstype'][orderBy]) {
                             return 1;
                           }
                           return 0;
