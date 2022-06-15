@@ -13,6 +13,29 @@ import { request as __request } from '../core/request';
 export class MulighetsrommetService {
 
     /**
+     * @returns any Sanity query result
+     * @throws ApiError
+     */
+    public static sanityQuery({
+        query,
+        dataset,
+    }: {
+        /** Sanity query **/
+        query?: string,
+        /** Which dataset to use (default production) **/
+        dataset?: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/sanity',
+            query: {
+                'query': query,
+                'dataset': dataset,
+            },
+        });
+    }
+
+    /**
      * @returns Innsatsgruppe Array of innsatsgrupper.
      * @throws ApiError
      */

@@ -27,7 +27,8 @@ fun Route.sanityRoutes() {
                 }"
             )
 
-            call.respondText(sanityService.executeQuery(query, dataset), ContentType.Application.Json)
+            val result = sanityService.executeQuery(query, dataset)
+            call.respondText(result.toString(), ContentType.Application.Json)
         }
     }
 }

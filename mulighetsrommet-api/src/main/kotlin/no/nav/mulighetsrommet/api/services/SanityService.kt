@@ -6,9 +6,10 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.SanityConfig
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
@@ -36,17 +37,15 @@ class SanityService(sanity: SanityConfig) {
         }
     }
 
-    suspend fun executeQuery(query: String, dataset: String): String {
-        val response: HttpResponse = client.get("") {
+    suspend fun executeQuery(query: String, dataset: String): JsonElement? {
+        client.get {
             url {
                 appendPathSegments(dataset)
                 parameters.append("query", query)
             }
+        }.let {
+            val response = it.body<JsonObject>()
+            return response["result"]
         }
-        if (response.status == HttpStatusCode.OK) {
-            return response.body()
-        }
-
-        return response.status.description
     }
 }

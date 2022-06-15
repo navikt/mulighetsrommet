@@ -20,6 +20,28 @@ paths:
               schema:
                 type: string
                 enum: [PONG]
+  /api/v1/sanity:
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: sanityQuery
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Sanity query
+        - in: query
+          name: dataset
+          schema:
+            type: string
+          description: Which dataset to use (default production)
+      responses:
+        200:
+          description: Sanity query result
+          content:
+            application/json:
+              schema: {}
   /api/v1/innsatsgrupper:
     get:
       tags:
