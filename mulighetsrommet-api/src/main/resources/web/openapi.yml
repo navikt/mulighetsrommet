@@ -30,12 +30,7 @@ paths:
           name: query
           schema:
             type: string
-          description: Sanity query
-        - in: query
-          name: dataset
-          schema:
-            type: string
-          description: Which dataset to use (default production)
+          description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
       responses:
         200:
           description: Sanity query result
