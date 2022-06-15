@@ -119,13 +119,15 @@ const TiltaksgjennomforingsTabell = () => {
           ) : (
             tiltaksgjennomforinger
               .sort((a, b) => {
-                const sortOrDefault = sort ? sort : {
-                  orderBy: 'tiltakstypeNavn',
-                  direction: 'ascending',
-                }
+                const sortOrDefault = sort
+                  ? sort
+                  : {
+                      orderBy: 'tiltakstypeNavn',
+                      direction: 'ascending',
+                    };
                 const comparator = (a: any, b: any, orderBy: string | number) => {
                   if (orderBy === 'tiltakstypeNavn') {
-                    const tiltakstype = 'tiltakstype'
+                    const tiltakstype = 'tiltakstype';
                     if (b[tiltakstype][orderBy] < a[tiltakstype][orderBy] || b[tiltakstype][orderBy] === undefined) {
                       return -1;
                     }
