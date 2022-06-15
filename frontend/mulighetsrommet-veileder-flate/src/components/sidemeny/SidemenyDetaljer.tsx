@@ -2,8 +2,8 @@ import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
 import Lenke from '../lenke/Lenke';
+import { Tiltakstype } from '../../api/models';
 
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;

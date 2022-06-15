@@ -3,8 +3,7 @@ import { Heading } from '@navikt/ds-react';
 import './KontaktinfoFane.less';
 import ArrangorInfo from './ArrangorInfo';
 import TiltaksansvarligInfo from './TiltaksansvarligInfo';
-import { Arrangor } from '../../../../../mulighetsrommet-api-client/src/models/Arrangor';
-import { Tiltaksansvarlig } from '../../../../../mulighetsrommet-api-client/src/models/Tiltaksansvarlig';
+import { Arrangor, Tiltaksansvarlig } from '../../../api/models';
 
 interface KontaktinfoFaneProps {
   tiltaksansvarligInfo: Tiltaksansvarlig;

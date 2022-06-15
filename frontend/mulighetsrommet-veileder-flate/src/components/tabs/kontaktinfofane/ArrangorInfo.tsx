@@ -1,6 +1,6 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
 import React from 'react';
-import { Arrangor } from '../../../../../mulighetsrommet-api-client/src/models/Arrangor';
+import { Arrangor } from '../../../api/models';
 
 interface ArrangorProps {
   arrangorinfo: Arrangor;
@@ -18,7 +18,7 @@ const ArrangorInfo = ({ arrangorinfo }: ArrangorProps) => {
           <BodyShort>{arrangorinfo.telefonnummer}</BodyShort>
         </div>
         <div className="kontaktinfo__rad">
-          '<Label size="small">Epost</Label>
+          <Label size="small">Epost</Label>
           <BodyShort>{arrangorinfo.epost}</BodyShort>
         </div>
         <div className="kontaktinfo__rad">

@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
-import { Innsatsgruppe, Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
+import { Tiltakstype } from '../../api/models';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;

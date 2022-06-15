@@ -1,7 +1,7 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
 import React from 'react';
-import { Tiltaksansvarlig } from '../../../../../mulighetsrommet-api-client/src/models/Tiltaksansvarlig';
 import './KontaktinfoFane.less';
+import { Tiltaksansvarlig } from '../../../api/models';
 
 interface TiltaksansvarligProps {
   tiltaksansvarlig: Tiltaksansvarlig;

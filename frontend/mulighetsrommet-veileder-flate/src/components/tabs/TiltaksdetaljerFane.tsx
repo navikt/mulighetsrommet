@@ -2,11 +2,9 @@ import React from 'react';
 import './TiltaksdetaljerFane.less';
 import { Tabs } from '@navikt/ds-react';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
-import { Tiltaksansvarlig } from '../../../../mulighetsrommet-api-client/src/models/Tiltaksansvarlig';
-import { Arrangor } from '../../../../mulighetsrommet-api-client/src/models/Arrangor';
 import DetaljerFane from './detaljerFane';
-import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
 import { logEvent } from '../../api/logger';
+import { Arrangor, Tiltaksansvarlig, Tiltakstype } from '../../api/models';
 
 interface TiltaksdetaljerFaneProps {
   tiltaksgjennomforingTiltaksansvarlig: Tiltaksansvarlig;

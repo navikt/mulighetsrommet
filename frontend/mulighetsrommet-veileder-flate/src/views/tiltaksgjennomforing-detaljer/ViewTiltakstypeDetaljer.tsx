@@ -6,7 +6,7 @@ import Statistikk from '../../components/statistikk/Statistikk';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import { useParams } from 'react-router-dom';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
-import useTiltaksgjennomforingById from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforingById';
+import useTiltaksgjennomforingById from '../../api/queries/useTiltaksgjennomforingById';
 import { Alert, Loader } from '@navikt/ds-react';
 
 const ViewTiltakstypeDetaljer = () => {

@@ -1,5 +1,6 @@
 import faker from 'faker';
-import { Tiltakstype } from '../../../../mulighetsrommet-api-client';
+import { Tiltakstype } from '../../api/models';
+
 export const tiltakstyper: Tiltakstype[] = [
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }),
