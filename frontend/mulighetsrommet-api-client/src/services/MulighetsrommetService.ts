@@ -18,19 +18,15 @@ export class MulighetsrommetService {
      */
     public static sanityQuery({
         query,
-        dataset,
     }: {
-        /** Sanity query **/
+        /** Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information. **/
         query?: string,
-        /** Which dataset to use (default production) **/
-        dataset?: string,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/sanity',
             query: {
                 'query': query,
-                'dataset': dataset,
             },
         });
     }

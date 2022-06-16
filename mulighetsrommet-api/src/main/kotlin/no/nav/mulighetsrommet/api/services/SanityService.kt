@@ -6,7 +6,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -20,8 +19,9 @@ class SanityService(sanity: SanityConfig) {
     private val client: HttpClient
     private val sanityToken = sanity.authToken
     private val projectId = sanity.projectId
+    private val dataset = sanity.dataset
     private val apiVersion = SimpleDateFormat("yyyy-MM-dd").format(Date())
-    private val sanityBaseUrl = "https://$projectId.apicdn.sanity.io/v$apiVersion/data/query/"
+    private val sanityBaseUrl = "https://$projectId.apicdn.sanity.io/v$apiVersion/data/query/$dataset"
 
     init {
         logger.debug("Init SanityHttpClient")
@@ -37,10 +37,9 @@ class SanityService(sanity: SanityConfig) {
         }
     }
 
-    suspend fun executeQuery(query: String, dataset: String): JsonElement? {
+    suspend fun executeQuery(query: String): JsonElement? {
         client.get {
             url {
-                appendPathSegments(dataset)
                 parameters.append("query", query)
             }
         }.let {

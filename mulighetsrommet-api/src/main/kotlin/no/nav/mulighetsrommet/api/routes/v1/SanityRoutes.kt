@@ -11,23 +11,13 @@ import org.koin.ktor.ext.inject
 fun Route.sanityRoutes() {
 
     val sanityService: SanityService by inject()
-    val validDatasets = listOf("production", "test", "dev")
 
     route("/api/v1/sanity") {
         get {
             val query = call.request.queryParameters["query"]
                 ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
-            val dataset = call.request.queryParameters["dataset"] ?: "production"
 
-            if (!validDatasets.contains(dataset)) throw BadRequestException(
-                "Dataset '$dataset' er ikke et gyldig datasett. Gyldige datasett er ${
-                validDatasets.joinToString(
-                    ", "
-                )
-                }"
-            )
-
-            val result = sanityService.executeQuery(query, dataset)
+            val result = sanityService.executeQuery(query)
             call.respondText(result.toString(), ContentType.Application.Json)
         }
     }
