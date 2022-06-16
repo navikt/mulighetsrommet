@@ -96,7 +96,7 @@ function toType(type?: string) {
     case "LOKAL":
       return capitalize(type);
     default:
-      throw new Error(`Unexped type '${type}'`);
+      throw new Error(`Unexpected type '${type}'`);
   }
 }
 
@@ -108,7 +108,7 @@ function toStatus(status?: string) {
     case "Under avvikling":
       return status;
     default:
-      throw new Error(`Unexped status '${status}'`);
+      throw new Error(`Unexpected status '${status}'`);
   }
 }
 
