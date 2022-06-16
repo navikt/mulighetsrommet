@@ -20,6 +20,23 @@ paths:
               schema:
                 type: string
                 enum: [PONG]
+  /api/v1/sanity:
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: sanityQuery
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
+      responses:
+        200:
+          description: Sanity query result
+          content:
+            application/json:
+              schema: {}
   /api/v1/innsatsgrupper:
     get:
       tags:

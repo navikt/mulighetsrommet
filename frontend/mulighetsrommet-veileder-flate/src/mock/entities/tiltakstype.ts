@@ -1,17 +1,13 @@
 import { Entity } from '@mswjs/data/lib/glossary';
-import { Tiltakskode, Tiltakstype } from 'mulighetsrommet-api-client';
 import { DatabaseDictionary } from '../database';
+import { Tiltakstype } from '../../api/models';
 
 export type TiltakstypeEntity = Entity<DatabaseDictionary, 'tiltakstype'>;
 
 export function toTiltakstype(entity: TiltakstypeEntity): Tiltakstype {
   return {
-    id: entity.id,
-    innsatsgruppe: entity.innsatsgruppe?.id ?? null,
-    sanityId: entity.sanityId,
-    navn: entity.navn,
-    tiltakskode: Tiltakskode[entity.tiltakskode as keyof typeof Tiltakskode],
-    fraDato: entity.fraDato,
-    tilDato: entity.tilDato,
+    _id: entity.id,
+    innsatsgruppe: entity.innsatsgruppe!!,
+    tiltakstypeNavn: entity.tiltakstypeNavn,
   };
 }

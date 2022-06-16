@@ -48,9 +48,11 @@ dependencies {
     implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     implementation("io.ktor:ktor-server-auto-head-response:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
-    val hopliteVersion = "1.4.16"
+    val hopliteVersion = "2.1.5"
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
 
@@ -77,6 +79,10 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
 }
 
 tasks.withType<Test> {

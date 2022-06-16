@@ -15,7 +15,7 @@ export default {
     {
       name: "beskrivelse",
       title: "Beskrivelse",
-      type: "blockContent",
+      type: "string",
     },
     {
       name: "overgangTilArbeid",
@@ -23,7 +23,6 @@ export default {
       description: "Hentes fra Arena, usikker på hvordan denne skal vises her",
       type: "blockContent",
     },
-    //  Sammendrag/Infoboks
     {
       name: "innsatsgruppe",
       title: "Innsatsgruppe",
@@ -31,34 +30,70 @@ export default {
       options: {
         layout: "dropdown",
         list: [
-          { title: "Standardinnsats", value: "staninn" },
-          { title: "Situasjonsbestemt innsats", value: "sitinn" },
-          { title: "Spesielt tilpasset innsats", value: "speinn" },
-          { title: "Varig tilpasset innsats", value: "varinn" },
+          { title: "Standardinnsats", value: "Standardinnsats" },
+          {
+            title: "Situasjonsbestemt innsats",
+            value: "Situasjonsbestemt innsats",
+          },
+          {
+            title: "Spesielt tilpasset innsats",
+            value: "Spesielt tilpasset innsats",
+          },
+          {
+            title: "Varig tilpasset innsats",
+            value: "Varig tilpasset innsats",
+          },
         ],
       },
-      validation: (Rule) => Rule.required(),
     },
     {
       name: "varighet",
       title: "Varighet",
       type: "string",
     },
+    //TODO skal kunne legge til flere lenker og filer
     {
       name: "regelverkFil",
       title: "Regelverk fil",
       type: "file",
     },
     {
+      name: "regelverkFilNavn",
+      title: "Navn til fil",
+      description: "Hvilket navn skal vises til filen?",
+      type: "string",
+      validation: (Rule) =>
+        Rule.custom((field, context) =>
+          context.document.regelverkFil && field === undefined
+            ? "Dette feltet kan ikke være tomt."
+            : true
+        ),
+      hidden: ({ document }) => !document?.regelverkFil,
+    },
+    {
       name: "regelverkLenke",
       title: "Regelverk lenke",
       type: "url",
+      placeholder: "https://www...",
+    },
+    {
+      name: "regelverkLenkeNavn",
+      title: "Navn til lenke",
+      description: "Hvilket navn skal vises i lenken?",
+      type: "string",
+      validation: (Rule) =>
+        Rule.custom((field, context) =>
+          context.document.regelverkLenke && field === undefined
+            ? "Dette feltet kan ikke være tomt."
+            : true
+        ),
+      hidden: ({ document }) => !document?.regelverkLenke,
     },
     //Faneinnhold
     {
       name: "faneinnhold",
       title: "Innhold faner",
-      type: "document",
+      type: "object",
       fields: [
         {
           name: "forHvemInfoboks",
@@ -72,7 +107,6 @@ export default {
           title: "For hvem",
           type: "blockContent",
         },
-
         {
           name: "detaljerOgInnholdInfoboks",
           title: "Detaljer og innhold - infoboks",
@@ -85,7 +119,6 @@ export default {
           title: "Detaljer og innhold",
           type: "blockContent",
         },
-
         {
           name: "pameldingOgVarighetInfoboks",
           title: "Påmelding og varighet - infoboks",

@@ -1,40 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Pagination, Table, Alert, Heading } from '@navikt/ds-react';
+import React, { useState } from 'react';
+import { Alert, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
 import './Tabell.less';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import { client } from '../../sanityClient';
+import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
+import { logEvent } from '../../api/logger';
+import { Tiltaksgjennomforing } from '../../api/models';
 
-const TiltakstypeTabell = () => {
+const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useState(1);
   const rowsPerPage = 15;
-  const pagination = (tiltaksgjennomforing: string[]) => {
+  const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
 
-  const [tiltaksgjennomforinger, setTiltaksgjennomforinger] = useState([]);
-
-  useEffect(() => {
-    client
-      .fetch(
-        `*[_type == "tiltaksgjennomforing"]{
-        _id,
-        tiltaksgjennomforingNavn,
-        enheter,
-        lokasjon,
-        oppstart,
-        oppstartsdato,
-        tiltaksnummer,
-        kontaktinfoArrangor->,
-        tiltakstype->
-        }`
-      )
-      .then(data => setTiltaksgjennomforinger(data));
-  }, []);
+  const { data: tiltaksgjennomforinger = [], isLoading, isError } = useTiltaksgjennomforing();
 
   const tilgjengelighetsstatus = (status: string) => {
     //TODO endre denne når vi får inn data fra Arena
@@ -62,6 +46,14 @@ const TiltakstypeTabell = () => {
     }
   };
 
+  if (isLoading) {
+    return <Loader className="filter-loader" size="xlarge" />;
+  }
+
+  if (isError) {
+    return <Alert variant="error">Det har skjedd en feil</Alert>;
+  }
+
   return (
     <div className="w-full flex flex-col gap-4">
       <Table
@@ -70,7 +62,7 @@ const TiltakstypeTabell = () => {
         sort={sort}
         data-testid="tabell_tiltakstyper"
         className="tabell"
-        onSortChange={sortKey =>
+        onSortChange={sortKey => {
           setSort(
             sort && sortKey === sort.orderBy && sort.direction === 'descending'
               ? undefined
@@ -79,8 +71,15 @@ const TiltakstypeTabell = () => {
                   direction:
                     sort && sortKey === sort.orderBy && sort.direction === 'ascending' ? 'descending' : 'ascending',
                 }
-          )
-        }
+          );
+          const directionForLogging = sort
+            ? sortKey === sort.orderBy && sort.direction === 'ascending'
+              ? 'descending'
+              : 'neutral'
+            : 'ascending';
+          if (directionForLogging !== 'neutral')
+            logEvent('mulighetsrommet.sortering', { sortKey }, { direction: directionForLogging });
+        }}
       >
         <Table.Header>
           <Table.Row>
@@ -95,8 +94,7 @@ const TiltakstypeTabell = () => {
             <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
               Tiltaksnr.
             </Table.ColumnHeader>
-            {/*TODO fiks sortering*/}
-            <Table.ColumnHeader sortKey="tiltakstype" sortable className="tabell__kolonne__tiltakstype">
+            <Table.ColumnHeader sortKey="tiltakstypeNavn" sortable className="tabell__kolonne__tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
@@ -113,13 +111,11 @@ const TiltakstypeTabell = () => {
         </Table.Header>
         <Table.Body>
           {tiltaksgjennomforinger.length === 0 ? (
-            <Table.Row>
-              <Table.DataCell colSpan={5}>
-                <Alert variant="info" className="tabell__alert">
-                  Det finnes ingen tiltakstyper med dette søket.
-                </Alert>
-              </Table.DataCell>
-            </Table.Row>
+            <Table.DataCell colSpan={5}>
+              <Alert variant="info" className="tabell__alert">
+                Det finnes ingen tiltakstyper med dette søket.
+              </Alert>
+            </Table.DataCell>
           ) : (
             tiltaksgjennomforinger
               .sort((a, b) => {
@@ -148,24 +144,24 @@ const TiltakstypeTabell = () => {
                   oppstart,
                   oppstartsdato,
                   lokasjon,
-                  tiltakstype: { tiltakstypeNavn },
-                  kontaktinfoArrangor: { selskapsnavn },
+                  tiltakstype,
+                  kontaktinfoArrangor,
                 }) => (
                   <Table.Row key={_id}>
                     <Table.DataCell className="tabell__tiltaksnavn">
                       <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
                         {tiltaksgjennomforingNavn}
                       </Lenke>
-                      <div>{selskapsnavn}</div>
+                      <div>{kontaktinfoArrangor.selskapsnavn}</div>
                     </Table.DataCell>
                     <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
                       {tiltaksnummer}
-                      <Kopiknapp kopitekst={tiltaksnummer!} />
+                      <Kopiknapp kopitekst={tiltaksnummer!.toString()} />
                     </Table.DataCell>
-                    <Table.DataCell>{tiltakstypeNavn}</Table.DataCell>
+                    <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                     <Table.DataCell>{lokasjon}</Table.DataCell>
                     <Table.DataCell>
-                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende'}
+                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
                     </Table.DataCell>
                     <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
                   </Table.Row>
@@ -176,7 +172,7 @@ const TiltakstypeTabell = () => {
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {tiltaksgjennomforinger?.length} av {tiltaksgjennomforinger?.length} tiltak
+          Viser {tiltaksgjennomforinger.length} av {tiltaksgjennomforinger.length} tiltak
         </Heading>
         <Pagination
           page={page}
@@ -188,4 +184,4 @@ const TiltakstypeTabell = () => {
   );
 };
 
-export default TiltakstypeTabell;
+export default TiltaksgjennomforingsTabell;

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../views/tiltakstype-oversikt/ViewTiltakstypeOversikt.less';
+import '../../views/tiltaksgjennomforing-oversikt/ViewTiltakstypeOversikt.less';
 import { TextField } from '@navikt/ds-react';
 
 interface SokeFilterProps {

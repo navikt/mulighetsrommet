@@ -2,59 +2,62 @@ import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { Tiltakskode } from '../../../../mulighetsrommet-api-client';
+import Lenke from '../lenke/Lenke';
+import { Tiltakstype } from '../../api/models';
 
 interface SidemenyDetaljerProps {
   tiltaksnummer: string;
-  tiltakstype: Tiltakskode;
   arrangor: string;
-  innsatsgruppe: number | null;
-  oppstartsdato: string | null;
-  beskrivelse: string;
+  oppstartsdato?: string | null;
+  tiltakstype: Tiltakstype;
 }
 
-const SidemenyDetaljer = ({
-  tiltaksnummer,
-  tiltakstype,
-  arrangor,
-  innsatsgruppe,
-  oppstartsdato,
-  beskrivelse,
-}: SidemenyDetaljerProps) => {
+const SidemenyDetaljer = ({ tiltaksnummer, arrangor, oppstartsdato, tiltakstype }: SidemenyDetaljerProps) => {
   return (
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">
         <div className="tiltakstype-detaljer__rad">
-          <span>Tiltaksnummer</span>
+          <strong>Tiltaksnummer</strong>
           <span>
             {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer} />
           </span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Tiltakstype</span>
-          <span>{tiltakstype}</span>
+          <strong>Tiltakstype</strong>
+          <span>{tiltakstype.tiltakstypeNavn}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Arrangør</span>
+          <strong>Arrangør</strong>
           <span>{arrangor}</span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
-          <span>Innsatsgruppe</span>
-          <span>{innsatsgruppe} </span>
+          <strong>Innsatsgruppe</strong>
+          <span>{tiltakstype.innsatsgruppe} </span>
         </div>
 
-        <div className="tiltakstype-detaljer__rad">
-          <span>Oppstart</span>
-          <span>{oppstartsdato} </span>
-        </div>
+        {oppstartsdato && (
+          <div className="tiltakstype-detaljer__rad">
+            <strong>Oppstart</strong>
+            <span>{oppstartsdato} </span>
+          </div>
+        )}
 
-        <div className="tiltakstype-detaljer__rad">
-          <span>Beskrivelse</span>
-          <span>{beskrivelse} </span>
-        </div>
+        {(tiltakstype.regelverkFil || tiltakstype.regelverkLenke) && (
+          <div className="tiltakstype-detaljer__rad">
+            <strong>Regelverk</strong>
+            <div className="tiltakstype-detaljer__regelverk">
+              {tiltakstype.regelverkFil && <span>{tiltakstype.regelverkFilNavn}</span>}
+              {tiltakstype.regelverkLenke && (
+                <span>
+                  <Lenke to={tiltakstype.regelverkLenke}>{tiltakstype.regelverkLenkeNavn}</Lenke>
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </Panel>
     </>
   );

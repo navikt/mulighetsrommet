@@ -3,6 +3,33 @@
   "project": {
     "name": "mulighetsrommet"
   },
+  "__experimental_spaces": [
+    {
+      "name": "production",
+      "title": "Prod",
+      "default": true,
+      "api": {
+        "projectId": "xegcworx",
+        "dataset": "production"
+      }
+    },
+    {
+      "name": "test",
+      "title": "Test",
+      "api": {
+        "projectId": "xegcworx",
+        "dataset": "test"
+      }
+    },
+    {
+      "name": "dev",
+      "title": "Development",
+      "api": {
+        "projectId": "xegcworx",
+        "dataset": "development"
+      }
+    }
+  ],
   "api": {
     "projectId": "xegcworx",
     "dataset": "production"

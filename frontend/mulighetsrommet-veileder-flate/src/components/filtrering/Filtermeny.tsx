@@ -5,13 +5,15 @@ import { useAtom } from 'jotai';
 import Searchfield from './Searchfield';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
-import useTiltakstyper from '../../hooks/tiltakstype/useTiltakstyper';
-import { useInnsatsgrupper } from '../../hooks/tiltakstype/useInnsatsgrupper';
+import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
+import { useTiltakstyper } from '../../api/queries/useTiltakstyper';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+
   const innsatsgrupper = useInnsatsgrupper();
-  const tiltakstyper = useTiltakstyper();
+
+  const { data: tiltakstyper = [], isLoading, isError } = useTiltakstyper();
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">
@@ -39,16 +41,14 @@ const Filtermeny = () => {
         accordionNavn="Tiltakstyper"
         options={filter.tiltakstyper!}
         setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
-        data={
-          tiltakstyper.data?.map(tiltakstype => {
-            return {
-              id: tiltakstype.id,
-              tittel: tiltakstype.navn,
-            };
-          }) ?? []
-        }
-        isLoading={tiltakstyper.isLoading}
-        isError={tiltakstyper.isError}
+        data={tiltakstyper.map(tiltakstype => {
+          return {
+            id: tiltakstype._id,
+            tittel: tiltakstype.tiltakstypeNavn,
+          };
+        })}
+        isLoading={isLoading}
+        isError={isError}
         sortert
       />
     </div>

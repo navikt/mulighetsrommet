@@ -1,26 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import './ViewTiltakstypeOversikt.less';
-import '../../layouts/MainView.less';
-import { Alert, Button, Link, Loader } from '@navikt/ds-react';
-import Filtermeny from '../../components/filtrering/Filtermeny';
-import TiltakstypeTabell from '../../components/tabell/TiltakstypeTabell';
+import React, { useEffect } from 'react';
+import { Alert, Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
+import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
+import Filtermeny from '../../components/filtrering/Filtermeny';
+import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
+import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
-import FilterTags from '../../components/tags/Filtertags';
-import useTiltaksgjennomforinger from '../../hooks/tiltaksgjennomforing/useTiltaksgjennomforinger';
+import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
-import { client } from '../../sanityClient';
+import './ViewTiltakstypeOversikt.less';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  const [gjennomforing, setGjennomforing] = useState(null);
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
-
-  const { data, isFetching, isError } = useTiltaksgjennomforinger(filter);
 
   //TODO fiks denne når vi får inn prefiltrering
   useEffect(() => {
@@ -28,10 +23,6 @@ const ViewTiltakstypeOversikt = () => {
       setFilter(tiltaksgjennomforingsfilter.init);
     }
   }, [filter.tiltakstyper, filter.innsatsgrupper]);
-
-  useEffect(() => {
-    client.fetch(`*[_type == "tiltaksgjennomforing"]`).then(data => setGjennomforing(data));
-  }, []);
 
   return (
     <>
@@ -56,7 +47,7 @@ const ViewTiltakstypeOversikt = () => {
                 handleClick={(id: number) =>
                   setFilter({
                     ...filter,
-                    tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
+                    tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype._id !== id),
                   })
                 }
               />
@@ -76,9 +67,7 @@ const ViewTiltakstypeOversikt = () => {
             </Show>
           </div>
           <div className="tiltakstype-oversikt__tiltak">
-            {isFetching && !data && <Loader variant="neutral" size="2xlarge" />}
-            {data && <TiltakstypeTabell />}
-            {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
+            <TiltaksgjennomforingsTabell />
           </div>
         </div>
       )}
