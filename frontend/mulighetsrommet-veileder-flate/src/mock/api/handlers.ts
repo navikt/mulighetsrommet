@@ -6,13 +6,6 @@ import { mockFeatures } from './features';
 import { badReq, notFound, ok } from './responses';
 import SanityClient from '@sanity/client';
 
-const client = new SanityClient({
-  apiVersion: "2020-06-01",
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
-  dataset: import.meta.env.VITE_SANITY_DATASET,
-  token: import.meta.env.VITE_SANITY_ACCESS_TOKEN,
-});
-
 export const handlers: RestHandler[] = [
   rest.get('*/api/feature', (req, res, ctx) => {
     return res(ctx.delay(500), ctx.json(mockFeatures));
@@ -50,7 +43,26 @@ export const handlers: RestHandler[] = [
       return badReq("'query' must be specified");
     }
 
+    const client = getSanityClient();
+
     const result = await client.fetch(query);
-    return ok(result)
+    return ok(result);
   }),
 ];
+
+let cachedClient: ReturnType<typeof SanityClient> | null = null;
+
+function getSanityClient() {
+  if (cachedClient) {
+    return cachedClient;
+  }
+
+  cachedClient = new SanityClient({
+    apiVersion: '2020-06-01',
+    projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+    dataset: import.meta.env.VITE_SANITY_DATASET,
+    token: import.meta.env.VITE_SANITY_ACCESS_TOKEN,
+  });
+
+  return cachedClient;
+}
