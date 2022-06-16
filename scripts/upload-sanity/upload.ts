@@ -20,53 +20,19 @@ const skalLasteOpp = false;
 //   query: `*[_type == "tiltaksgjennomforing"]`,
 // });
 
+// Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
+function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
+  console.log(colors.green("Henter tiltakstyper..."));
+  return client.fetch("*[_type == 'tiltakstype']");
+}
+
 type Row = {
   [index: number]: string;
 };
 
-const lagTiltakstype = (id: string, navn: Tiltakstype): SanityTiltakstype => ({
-  _id: id,
-  _type: "tiltakstype",
-  faneinnhold: {
-    _type: "document",
-    forHvem: addBlockContent(""),
-    forHvemInfoboks: "",
-    pameldingOgVarighet: addBlockContent(""),
-    pameldingOgVarighetInfoboks: "",
-    detaljerOgInnhold: addBlockContent(""),
-    detaljerOgInnholdInfoboks: "",
-    innsikt: addBlockContent(""),
-  },
-  innsatsgruppe: "",
-  tiltakstypeNavn: navn,
-  varighet: "",
-  overgangTilArbeid: addBlockContent(""),
-  beskrivelse: addBlockContent(""),
-});
-
 const kontaktpersoner: SanityKontaktperson[] = [];
 const arrangorer: SanityArrangor[] = [];
 const tiltaksgjennomforinger: Record<number, SanityTiltaksgjennomforing> = {};
-const tiltakstyper: Record<Tiltakstype, SanityTiltakstype> = {
-  Oppfølging: lagTiltakstype("oppfolging", "Oppfølging"),
-  Avklaring: lagTiltakstype("avklaring", "Avklaring"),
-  "Jobbklubb (uten om digital jobbklubb)": lagTiltakstype(
-    "jobbklubb_ikke_digital",
-    "Jobbklubb (uten om digital jobbklubb)"
-  ),
-  "Digital jobbklubb": lagTiltakstype("digital_jobbklubb", "Digital jobbklubb"),
-  ARR: lagTiltakstype("arr", "ARR"),
-  AFT: lagTiltakstype("aft", "AFT"),
-  VTA: lagTiltakstype("vta", "VTA"),
-  "Opplæring (Gruppe-AMO)": lagTiltakstype(
-    "opplaring_gruppe_amo",
-    "Opplæring (Gruppe-AMO)"
-  ),
-  "Opplæring (AMO Forhåndsgodkjent avtale)": lagTiltakstype(
-    "opplaring_amo_forhand",
-    "Opplæring (AMO Forhåndsgodkjent avtale)"
-  ),
-};
 
 console.log(colors.green(`Leser ${csvFil} og laster rader opp til Sanity...`));
 
@@ -75,11 +41,11 @@ fs.createReadStream(csvFil)
   .pipe(parse({ delimiter: ";", from_line: 2 }))
   .on("data", function (row: Row) {
     console.log(colors.green("✓ Leser rad fra csv-fil"));
-    opprettKontaktperson(row);
-    opprettArrangor(row);
-    // TODO Hardkode tiltakstyper og mappe de til korrekte string-verdier for
-    // automatisk kobling mellom tiltaksgjennomføringer og tiltakstyper
-    opprettTiltaksgjennomforing(row);
+    fetchTiltakstyperFraSanity().then((tiltakstyper: SanityTiltakstype[]) => {
+      opprettKontaktperson(row);
+      opprettArrangor(row);
+      opprettTiltaksgjennomforing(row, tiltakstyper);
+    });
   })
   .on("end", function () {
     console.log(
@@ -94,7 +60,6 @@ fs.createReadStream(csvFil)
     const merged = mergeDokumenttyper(
       kontaktpersoner.map(fjernBrukerident),
       arrangorer,
-      Object.values(tiltakstyper),
       Object.values(tiltaksgjennomforinger)
     );
 
@@ -107,7 +72,7 @@ fs.createReadStream(csvFil)
           "Toggle for opplasting er ikke skrudd på. Ingen dokumenter ble lastet opp. Sett variabelen skalLasteOpp til true."
         )
       );
-      console.log(`Ville ha lastet opp:\n ${JSON.stringify(merged, null, 2)}`);
+      // console.log(`Ville ha lastet opp:\n ${JSON.stringify(merged, null, 2)}`);
     }
   })
   .on("error", function (error: any) {
@@ -161,7 +126,10 @@ function opprettArrangor(row: Row): SanityArrangor {
   return arrangor;
 }
 
-function opprettTiltaksgjennomforing(row: Row): SanityTiltaksgjennomforing {
+function opprettTiltaksgjennomforing(
+  row: Row,
+  tiltakstyper: SanityTiltakstype[]
+): SanityTiltaksgjennomforing {
   const tiltaksgjennomforingsnavn = row[0];
   const tiltaksnummer = parseInt(row[2]);
   const tiltakstype = row[3] as Tiltakstype;
@@ -178,14 +146,22 @@ function opprettTiltaksgjennomforing(row: Row): SanityTiltaksgjennomforing {
 
   const arrangor = opprettArrangor(row);
   const kontaktinfoPerson = opprettKontaktperson(row);
-  const tiltakstypeData = tiltakstyper[tiltakstype];
+  const tiltakstypeId = tiltakstyper.find(
+    (type) => type.tiltakstypeNavn.toLowerCase() === tiltakstype.toLowerCase()
+  )?._id;
+
+  if (!tiltakstypeId) {
+    console.log(
+      colors.red(`Fant ingen tiltakstypId for tiltakstype: ${tiltakstype}`)
+    );
+  }
 
   const gjennomforing: SanityTiltaksgjennomforing = {
     _id: tiltaksnummer.toString(),
     _type: "tiltaksgjennomforing",
-    tiltakstype: tiltakstypeData
+    tiltakstype: tiltakstypeId
       ? {
-          _ref: tiltakstypeData?._id,
+          _ref: tiltakstypeId,
           _type: "reference",
         }
       : null,
@@ -239,15 +215,9 @@ function addBlockContent(tekst: string): Block[] {
 function mergeDokumenttyper(
   kontaktpersoner: SanityKontaktperson[],
   arrangorer: SanityArrangor[],
-  tiltakstyper: SanityTiltakstype[],
   tiltaksgjennomforinger: SanityTiltaksgjennomforing[]
 ): any[] {
-  return [
-    ...kontaktpersoner,
-    ...arrangorer,
-    ...tiltakstyper,
-    ...tiltaksgjennomforinger,
-  ];
+  return [...kontaktpersoner, ...arrangorer, ...tiltaksgjennomforinger];
 }
 
 function lastOppDokumenter(dokumenter: any[]) {
