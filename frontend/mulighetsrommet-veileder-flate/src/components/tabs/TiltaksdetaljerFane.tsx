@@ -4,21 +4,14 @@ import { Tabs } from '@navikt/ds-react';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import DetaljerFane from './detaljerFane';
 import { logEvent } from '../../api/logger';
-import { Arrangor, Tiltaksansvarlig, Tiltakstype } from '../../api/models';
+import { Tiltaksgjennomforing } from '../../api/models';
 
 interface TiltaksdetaljerFaneProps {
-  tiltaksgjennomforingTiltaksansvarlig: Tiltaksansvarlig;
-  tiltaksgjennomforingArrangorinfo: Arrangor;
-  tiltakstype: Tiltakstype;
-  tiltaksgjennomforing: any; // TODO Type opp denne
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-const TiltaksdetaljerFane = ({
-  tiltaksgjennomforingTiltaksansvarlig,
-  tiltaksgjennomforingArrangorinfo,
-  tiltakstype,
-  tiltaksgjennomforing,
-}: TiltaksdetaljerFaneProps) => {
+const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: TiltaksdetaljerFaneProps) => {
+  const { tiltakstype, kontaktinfoTiltaksansvarlig, kontaktinfoArrangor } = tiltaksgjennomforing;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
 
   return (
@@ -36,33 +29,30 @@ const TiltaksdetaljerFane = ({
       </Tabs.List>
       <Tabs.Panel value="tab1">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing?.forHvemInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.forHvemInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing?.forHvem}
+          tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.forHvem}
           tiltakstype={tiltakstype.faneinnhold?.forHvem}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab2">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing?.detaljerOgInnholdInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.detaljerOgInnholdInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing?.detaljerOgInnhold}
+          tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.detaljerOgInnhold}
           tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab3">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing?.pameldingOgVarighetInfoboks}
+          tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.pameldingOgVarighetInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing?.pameldingOgVarighet}
+          tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.pameldingOgVarighet}
           tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab4">
-        <KontaktinfoFane
-          tiltaksansvarligInfo={tiltaksgjennomforingTiltaksansvarlig}
-          arrangorinfo={tiltaksgjennomforingArrangorinfo}
-        />
+        <KontaktinfoFane tiltaksansvarligInfo={kontaktinfoTiltaksansvarlig} arrangorinfo={kontaktinfoArrangor} />
       </Tabs.Panel>
       <Tabs.Panel value="tab5">Her kommer det grader og annet snacks - Innsikt</Tabs.Panel>
     </Tabs>
