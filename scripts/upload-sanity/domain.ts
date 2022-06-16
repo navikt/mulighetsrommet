@@ -4,7 +4,6 @@ export interface SanityKontaktperson {
   navn: string;
   enhet: string;
   telefonnummer: string;
-  epost: string;
   ident?: string;
 }
 
@@ -26,8 +25,12 @@ export interface SanityTiltaksgjennomforing {
   tiltaksnummer: number;
   kontaktinfoArrangor: Reference;
   lokasjon: string;
-  // TODO Finn ut av denne
-  enheter?: unknown
+  enheter?: {
+    _type: "document";
+    fylke: string;
+    [x: string]: string; // TODO Finn ut av denne
+  };
+  oppstart: string;
   oppstartsdato: string;
   faneinnhold: {
     _type: "document";
