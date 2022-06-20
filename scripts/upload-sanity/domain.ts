@@ -5,6 +5,7 @@ export interface SanityKontaktperson {
   enhet: string;
   telefonnummer: string;
   ident?: string;
+  epost: string;
 }
 
 export interface SanityArrangor {
@@ -27,13 +28,13 @@ export interface SanityTiltaksgjennomforing {
   lokasjon: string;
   enheter?: {
     _type: "document";
-    fylke: string;
+    fylke: "innlandet" | "trondelag" | "vestViken" | "ostViken";
     [x: string]: string; // TODO Finn ut av denne
   };
   oppstart: string;
   oppstartsdato: string;
   faneinnhold: {
-    _type: "document";
+    _type: "object";
     forHvemInfoboks: string;
     forHvem: Block[];
     detaljerOgInnholdInfoboks: string;
@@ -49,7 +50,7 @@ export interface SanityTiltakstype {
   _type: "tiltakstype";
   beskrivelse: Block[];
   faneinnhold: {
-    _type: "document";
+    _type: "object";
     detaljerOgInnhold: Block[];
     detaljerOgInnholdInfoboks: string;
     forHvem: Block[];
