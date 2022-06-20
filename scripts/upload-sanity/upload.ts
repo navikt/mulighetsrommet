@@ -14,9 +14,17 @@ import { faker } from "@faker-js/faker";
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
-const fylke = "ostViken";
 const skalLasteOpp = true;
 const brukFakeData = true;
+
+type Row = {
+  [index: number]: string;
+};
+
+const kontaktpersoner: SanityKontaktperson[] = [];
+const arrangorer: SanityArrangor[] = [];
+const tiltaksgjennomforinger: Record<number, SanityTiltaksgjennomforing> = {};
+const rows: Row[] = [];
 
 //Om man trenger å slette noe fra sanity
 async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
@@ -27,7 +35,7 @@ async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
   process.exit(1);
 }
 
-//deleteTyper("tiltakstype");
+//deleteTyper("t");
 
 // Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
 async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
@@ -36,15 +44,6 @@ async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
   const data = await client.fetch("*[_type == 'tiltakstype']");
   return Promise.resolve(data);
 }
-
-type Row = {
-  [index: number]: string;
-};
-
-const kontaktpersoner: SanityKontaktperson[] = [];
-const arrangorer: SanityArrangor[] = [];
-const tiltaksgjennomforinger: Record<number, SanityTiltaksgjennomforing> = {};
-const rows: Row[] = [];
 
 console.log(colors.green(`Leser ${csvFil} og laster rader opp til Sanity...`));
 
@@ -89,7 +88,6 @@ fs.createReadStream(csvFil)
           "Toggle for opplasting er ikke skrudd på. Ingen dokumenter ble lastet opp. Sett variabelen skalLasteOpp til true."
         )
       );
-      //console.log(`Ville ha lastet opp:\n ${JSON.stringify(merged, null, 2)}`);
     }
   })
   .on("error", function (error: any) {
@@ -156,6 +154,7 @@ function opprettTiltaksgjennomforing(
   tiltakstyper: SanityTiltakstype[]
 ): SanityTiltaksgjennomforing {
   const tiltaksgjennomforingsnavn = row[0];
+  const beskrivelse = row[1];
   const tiltaksnummer = parseInt(row[2]);
   const tiltakstype = row[3] as Tiltakstype;
   const oppstart = row[4] !== "Løpende" ? "dato" : "lopende";
@@ -183,6 +182,7 @@ function opprettTiltaksgjennomforing(
   const gjennomforing: SanityTiltaksgjennomforing = {
     _id: tiltaksnummer.toString(),
     _type: "tiltaksgjennomforing",
+    beskrivelse,
     tiltakstype: tiltakstypeId
       ? {
           _ref: tiltakstypeId,
@@ -211,7 +211,6 @@ function opprettTiltaksgjennomforing(
       _type: "reference",
     },
     lokasjon: lokasjon,
-    beskrivelse: row[1],
   };
 
   const tiltakstypeEksisterer = tiltaksgjennomforinger[tiltaksnummer];

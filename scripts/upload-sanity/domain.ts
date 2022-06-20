@@ -26,11 +26,8 @@ export interface SanityTiltaksgjennomforing {
   tiltaksnummer: number;
   kontaktinfoArrangor: Reference;
   lokasjon: string;
-  enheter?: {
-    _type: "document";
-    fylke: "innlandet" | "trondelag" | "vestViken" | "ostViken";
-    [x: string]: string; // TODO Finn ut av denne
-  };
+  fylke?: Reference;
+  enheter?: Reference;
   oppstart: string;
   oppstartsdato: string;
   faneinnhold: {
