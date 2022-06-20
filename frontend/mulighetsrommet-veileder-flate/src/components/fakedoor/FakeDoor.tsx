@@ -20,6 +20,12 @@ const FakeDoor = () => {
           <Link target="_blank" className="fakedoor-link" href="https://navno.sharepoint.com/:b:/s/team-valp/EZrCwwYUh-ZGr7CbYn1Lt8UBW3pNcabIfUeuZeWeuEcmaQ?e=1RH9RW">Les mer om piloteringen</Link>
         </div>
       </div>
+      <div>
+        <img
+          src="../../../public/illustrasjon_fake_door.png"
+          id="fakedoor-bilde"
+        />
+      </div>
     </div>
   );
 };
