@@ -69,8 +69,8 @@ export default {
   ],
   preview: {
     select: {
-      title: 'navn',
-      subtitle: 'type'
-    }
-  }
+      title: "navn",
+      subtitle: "type",
+    },
+  },
 };

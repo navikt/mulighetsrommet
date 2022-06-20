@@ -9,22 +9,13 @@ import {
 import { client } from "./sanityConfig";
 const short = require("short-uuid");
 var colors = require("colors");
+import { faker } from "@faker-js/faker";
 
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
-const skalLasteOpp = false;
-
-// Om man trenger å slette noe fra sanity
-// client.delete({
-//   query: `*[_type == "tiltaksgjennomforing"]`,
-// });
-
-// Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
-function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
-  console.log(colors.green("Henter tiltakstyper..."));
-  return client.fetch("*[_type == 'tiltakstype']");
-}
+const skalLasteOpp = true;
+const brukFakeData = true;
 
 type Row = {
   [index: number]: string;
@@ -33,6 +24,26 @@ type Row = {
 const kontaktpersoner: SanityKontaktperson[] = [];
 const arrangorer: SanityArrangor[] = [];
 const tiltaksgjennomforinger: Record<number, SanityTiltaksgjennomforing> = {};
+const rows: Row[] = [];
+
+//Om man trenger å slette noe fra sanity
+async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
+  await client.delete({
+    query: `*[_type == "${type}"]`,
+  });
+  console.info("Slettet typer!");
+  process.exit(1);
+}
+
+//deleteTyper("t");
+
+// Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
+async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
+  // TODO Fiks så vi kan hente tiltakstyper fra Sanity - Trenger bare hente én gang. Nå henter vi for hver rad i excel...
+  console.log(colors.green("Henter tiltakstyper..."));
+  const data = await client.fetch("*[_type == 'tiltakstype']");
+  return Promise.resolve(data);
+}
 
 console.log(colors.green(`Leser ${csvFil} og laster rader opp til Sanity...`));
 
@@ -41,13 +52,17 @@ fs.createReadStream(csvFil)
   .pipe(parse({ delimiter: ";", from_line: 2 }))
   .on("data", function (row: Row) {
     console.log(colors.green("✓ Leser rad fra csv-fil"));
-    fetchTiltakstyperFraSanity().then((tiltakstyper: SanityTiltakstype[]) => {
+    rows.push(row);
+  })
+  .on("end", async function () {
+    console.log(colors.green(`Antall rader lest: ${rows.length}`));
+    const tiltakstyper = await fetchTiltakstyperFraSanity();
+    rows.forEach((row) => {
       opprettKontaktperson(row);
       opprettArrangor(row);
       opprettTiltaksgjennomforing(row, tiltakstyper);
     });
-  })
-  .on("end", function () {
+
     console.log(
       colors.green(
         `Alle rader lest inn. ${
@@ -57,6 +72,7 @@ fs.createReadStream(csvFil)
         } `
       )
     );
+
     const merged = mergeDokumenttyper(
       kontaktpersoner.map(fjernBrukerident),
       arrangorer,
@@ -72,7 +88,6 @@ fs.createReadStream(csvFil)
           "Toggle for opplasting er ikke skrudd på. Ingen dokumenter ble lastet opp. Sett variabelen skalLasteOpp til true."
         )
       );
-      // console.log(`Ville ha lastet opp:\n ${JSON.stringify(merged, null, 2)}`);
     }
   })
   .on("error", function (error: any) {
@@ -80,10 +95,15 @@ fs.createReadStream(csvFil)
   });
 
 function opprettKontaktperson(row: Row): SanityKontaktperson {
-  const navn = row[17];
-  const ident = row[18];
-  const telefonnummer = row[19];
-  const enhet = row[21];
+  const navn = brukFakeData ? faker.name.findName() : row[17];
+  const epost = brukFakeData ? faker.internet.email() : row[21];
+  const ident = brukFakeData
+    ? `${navn.substring(0, 2).toUpperCase()}${faker.random.numeric(6)}`
+    : row[18];
+  const telefonnummer = brukFakeData
+    ? faker.phone.phoneNumber("### ## ###")
+    : row[19];
+  const enhet = brukFakeData ? faker.random.words(2) : row[21];
 
   const kontaktEksisterer = kontaktpersoner.find(
     (person) => person.ident === ident
@@ -95,6 +115,7 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
     ident,
     telefonnummer,
     enhet,
+    epost,
     _id: ident,
     _type: "navKontaktperson",
   };
@@ -104,10 +125,12 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
 }
 
 function opprettArrangor(row: Row): SanityArrangor {
-  const navn = row[13];
-  const telefon = row[14];
-  const epost = row[15];
-  const postnr = row[16];
+  const navn = brukFakeData ? faker.name.findName() : row[13];
+  const telefon = brukFakeData
+    ? faker.phone.phoneNumber("### ## ###")
+    : row[14];
+  const epost = brukFakeData ? faker.internet.email() : row[15];
+  const postnr = brukFakeData ? faker.address.zipCode("####") : row[16];
 
   const arrangorEksisterer = arrangorer.find(
     (arrangor) => arrangor.epost === epost
@@ -131,14 +154,14 @@ function opprettTiltaksgjennomforing(
   tiltakstyper: SanityTiltakstype[]
 ): SanityTiltaksgjennomforing {
   const tiltaksgjennomforingsnavn = row[0];
+  const beskrivelse = row[1];
   const tiltaksnummer = parseInt(row[2]);
   const tiltakstype = row[3] as Tiltakstype;
-  const oppstart = row[4];
-  console.log({ oppstart });
+  const oppstart = row[4] !== "Løpende" ? "dato" : "lopende";
   const oppstartsdato =
-    oppstart !== "Løpende"
-      ? new Date(row[4]).toISOString().substring(0, 10)
-      : null; // Hent ut dato på YYYY-MM-DD
+    oppstart !== "lopende"
+      ? new Date(row[4]).toISOString().substring(0, 10) // Hent ut dato på YYYY-MM-DD
+      : undefined;
   const lokasjon = row[5];
   const forHvem = row[7];
   const detaljerOgInnhold = row[9];
@@ -159,6 +182,7 @@ function opprettTiltaksgjennomforing(
   const gjennomforing: SanityTiltaksgjennomforing = {
     _id: tiltaksnummer.toString(),
     _type: "tiltaksgjennomforing",
+    beskrivelse,
     tiltakstype: tiltakstypeId
       ? {
           _ref: tiltakstypeId,
@@ -170,7 +194,7 @@ function opprettTiltaksgjennomforing(
     oppstartsdato: oppstartsdato,
     tiltaksgjennomforingNavn: tiltaksgjennomforingsnavn,
     faneinnhold: {
-      _type: "document",
+      _type: "object",
       detaljerOgInnholdInfoboks: "",
       detaljerOgInnhold: addBlockContent(detaljerOgInnhold),
       forHvemInfoboks: "",
@@ -187,7 +211,6 @@ function opprettTiltaksgjennomforing(
       _type: "reference",
     },
     lokasjon: lokasjon,
-    beskrivelse: "",
   };
 
   const tiltakstypeEksisterer = tiltaksgjennomforinger[tiltaksnummer];

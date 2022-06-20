@@ -16,6 +16,6 @@
   "dependencies": {
     "@sanity/client": "^3.3.0",
     "dotenv": "^16.0.1",
-    "norg2-api-client": "*"
+    "norg2-api-client": "^1.0.0"
   }
 }
