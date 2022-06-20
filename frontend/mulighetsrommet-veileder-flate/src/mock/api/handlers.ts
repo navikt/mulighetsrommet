@@ -59,7 +59,7 @@ function getSanityClient() {
 
   cachedClient = new SanityClient({
     apiVersion: '2020-06-01',
-    projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+    projectId: import.meta.env.VITE_SANITY_PROJECT_ID ?? 'xegcworx',
     dataset: import.meta.env.VITE_SANITY_DATASET,
     token: import.meta.env.VITE_SANITY_ACCESS_TOKEN,
   });
