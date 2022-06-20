@@ -10,6 +10,7 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
+import FakeDoor from "../../components/fakedoor/FakeDoor";
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -26,8 +27,8 @@ const ViewTiltakstypeOversikt = () => {
 
   return (
     <>
-      {visFakeDoorFeature ? (
-        <Alert variant="info">Her kommer det noe spennende!</Alert>
+      {!visFakeDoorFeature ? (
+        <FakeDoor />
       ) : (
         <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
           <Filtermeny />
