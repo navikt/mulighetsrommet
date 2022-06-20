@@ -19,6 +19,7 @@
     "short-uuid": "^4.2.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.2.0",
     "csv": "^6.1.0",
     "dotenv": "^16.0.1",
     "nodemon": "^2.0.16",
