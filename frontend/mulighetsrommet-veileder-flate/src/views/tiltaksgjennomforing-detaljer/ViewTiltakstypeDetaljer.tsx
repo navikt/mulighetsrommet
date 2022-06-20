@@ -27,45 +27,19 @@ const ViewTiltakstypeDetaljer = () => {
     );
   }
 
-  const {
-    _id,
-    tiltaksgjennomforingNavn,
-    oppstart,
-    oppstartsdato,
-    beskrivelse,
-    tiltakstype,
-    kontaktinfoArrangor,
-    faneinnhold,
-    kontaktinfoTiltaksansvarlig,
-  } = tiltaksgjennomforing;
-
   return (
-    <div key={_id} className="tiltakstype-detaljer">
+    <div className="tiltakstype-detaljer">
       <Tilbakeknapp tilbakelenke="/" />
       <div className="tiltakstype-detaljer__info">
-        <TiltaksgjennomforingsHeader
-          tiltaksgjennomforingsnavn={tiltaksgjennomforingNavn}
-          beskrivelseTiltaksgjennomforing={beskrivelse}
-          beskrivelseTiltakstype={tiltakstype.beskrivelse}
-        />
+        <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
         <Statistikk
           tittel="Overgang til arbeid"
           hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
           statistikktekst="69%"
         />
-        <TiltaksdetaljerFane
-          tiltaksgjennomforingTiltaksansvarlig={kontaktinfoTiltaksansvarlig}
-          tiltaksgjennomforingArrangorinfo={kontaktinfoArrangor}
-          tiltakstype={tiltakstype}
-          tiltaksgjennomforing={faneinnhold}
-        />
+        <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
       </div>
-      <SidemenyDetaljer
-        tiltaksnummer={tiltaksnummer!}
-        tiltakstype={tiltakstype}
-        arrangor={kontaktinfoArrangor.selskapsnavn}
-        oppstartsdato={oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
-      />
+      <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
     </div>
   );
 };

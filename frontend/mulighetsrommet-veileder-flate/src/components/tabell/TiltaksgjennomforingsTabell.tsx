@@ -119,8 +119,23 @@ const TiltaksgjennomforingsTabell = () => {
           ) : (
             tiltaksgjennomforinger
               .sort((a, b) => {
-                if (sort) {
-                  const comparator = (a: any, b: any, orderBy: string | number) => {
+                const sortOrDefault = sort
+                  ? sort
+                  : {
+                      orderBy: 'tiltakstypeNavn',
+                      direction: 'ascending',
+                    };
+                const comparator = (a: any, b: any, orderBy: string | number) => {
+                  if (orderBy === 'tiltakstypeNavn') {
+                    const tiltakstype = 'tiltakstype';
+                    if (b[tiltakstype][orderBy] < a[tiltakstype][orderBy] || b[tiltakstype][orderBy] === undefined) {
+                      return -1;
+                    }
+                    if (b[tiltakstype][orderBy] > a[tiltakstype][orderBy]) {
+                      return 1;
+                    }
+                    return 0;
+                  } else {
                     if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
                       return -1;
                     }
@@ -128,12 +143,11 @@ const TiltaksgjennomforingsTabell = () => {
                       return 1;
                     }
                     return 0;
-                  };
-                  return sort.direction === 'ascending'
-                    ? comparator(b, a, sort.orderBy)
-                    : comparator(a, b, sort.orderBy);
-                }
-                return 1;
+                  }
+                };
+                return sortOrDefault.direction === 'ascending'
+                  ? comparator(b, a, sortOrDefault.orderBy)
+                  : comparator(a, b, sortOrDefault.orderBy);
               })
               .slice((page - 1) * rowsPerPage, page * rowsPerPage)
               .map(

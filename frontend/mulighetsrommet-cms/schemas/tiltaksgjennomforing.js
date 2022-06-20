@@ -1,4 +1,8 @@
 import { GrDocumentPerformance } from "react-icons/gr";
+import sanityClient from "part:@sanity/base/client";
+import { EnhetType } from "./enhet";
+
+const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
 export default {
   name: "tiltaksgjennomforing",
@@ -44,94 +48,65 @@ export default {
       validation: (Rule) => Rule.required(),
     },
     {
+      name: "fylke",
+      title: "Fylke",
+      description: "I hvilken region gjelder dette tiltaket?",
+      type: "reference",
+      to: [{ type: "enhet" }],
+      options: {
+        disableNew: true,
+        filter: "type == $type",
+        filterParams: {
+          type: EnhetType.Fylke,
+        },
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: "enheter",
       title: "Enheter",
       description:
-        "Hvilke enheter skal ha tilgang til denne tiltaksgjennomføringen?",
-      type: "object",
-      fields: [
+        "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette stå tomt.",
+      type: "array",
+      hidden: ({ document }) => {
+        return !document.fylke;
+      },
+      of: [
         {
-          name: "fylke",
-          title: "Fylke",
-          type: "string",
+          type: "reference",
+          to: [{ type: "enhet" }],
           options: {
-            layout: "dropdown",
-            list: [
-              { title: "Innlandet", value: "innlandet" },
-              { title: "Trøndelag", value: "trondelag" },
-              { title: "Vest-Viken", value: "vestViken" },
-              { title: "Øst-Viken", value: "ostViken" },
-            ],
+            disableNew: true,
+            filter: ({ document }) => {
+              return {
+                filter: `fylke._ref == $fylke`,
+                params: {
+                  fylke: document.fylke._ref,
+                },
+              };
+            },
           },
         },
-        //innlandet
-        {
-          name: "ringsaker",
-          title: "Ringsaker",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "innlandet",
-        },
-        //trøndelag
-        {
-          name: "trondheim",
-          title: "Trondheim",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "trondelag",
-        },
-        {
-          name: "steinkjer",
-          title: "Steinkjer",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "trondelag",
-        },
-        //vest-viken
-        {
-          name: "asker",
-          title: "Asker",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "vestViken",
-        },
-        //øst-viken
-        {
-          name: "lillestrom",
-          title: "Lillestrøm",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "ostViken",
-        },
-        {
-          name: "sarpsborg",
-          title: "Sarpsborg",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "ostViken",
-        },
-        {
-          name: "fredrikstad",
-          title: "Fredrikstad",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "ostViken",
-        },
-        {
-          name: "indreOstfold",
-          title: "Indre Østfold",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "ostViken",
-        },
-        {
-          name: "skiptvedtMarker",
-          title: "Skiptvedt/Marker",
-          type: "boolean",
-          initialValue: false,
-          hidden: ({ parent }) => parent?.fylke !== "ostViken",
-        },
       ],
+      validation: (Rule) =>
+        Rule.unique().custom(async (enheter, { document }) => {
+          if (!document.fylke) {
+            return true;
+          }
+
+          const validEnheter = await client.fetch(
+            "*[_type == 'enhet' && fylke._ref == $fylke]._id",
+            { fylke: document.fylke._ref }
+          );
+
+          const paths = enheter
+            .filter((enhet) => !validEnheter.includes(enhet._ref))
+            .map((enhet) => [{ _key: enhet._key }]);
+
+          return !paths.length
+            ? true
+            : { message: "Alle enheter må tilhøre valgt fylke", paths };
+        }),
     },
     {
       name: "oppstart",

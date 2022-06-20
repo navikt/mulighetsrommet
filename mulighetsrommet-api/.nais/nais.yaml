@@ -48,10 +48,5 @@ spec:
           namespace: pto
           cluster: dev-fss
         - application: mulighetsrommet-arena-adapter
-  env:
-    - name: KTOR_LOCAL_DEV
-      value: "false"
-    - name: SANITY_DATASET
-      value: "production"
-    - name: SANITY_PROJECT_ID
-      value: "xegcworx"
+  envFrom:
+    - secret: mulighetsrommet-api

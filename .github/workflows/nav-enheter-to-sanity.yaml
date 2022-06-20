@@ -1,12 +1,13 @@
-name: CI/CD (mulighetsrommet-api)
+name: CI/CD (nav-enheter-to-sanity)
 
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-api.yaml
-      - build.gradle.kts
-      - settings.gradle.kts
-      - mulighetsrommet-api/**
+      - .github/workflows/nav-enheter-to-sanity.yaml
+      - package.json
+      - package-lock.json
+      - turbo.json
+      - frontend/**
   workflow_dispatch:
     inputs:
       environment:
@@ -18,7 +19,7 @@ on:
           - dev
 
 env:
-  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api:${{ github.sha }}
+  IMAGE: ghcr.io/navikt/mulighetsrommet/nav-enheter-to-sanity:${{ github.sha }}
   CI: true
   TZ: Europe/Amsterdam
 
@@ -26,27 +27,15 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mulighetsrommet-api
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup backend
-        uses: ./.github/actions/setup-backend
-      - name: Build with Gradle
-        run: ./gradlew build
-      - name: Notify slack fail
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C026FHSRFEJ
-          status: FAILED
-          color: danger
-      - name: Build and push Docker image
+      - uses: actions/checkout@v3
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Build
+        run: npx turbo run build --filter=nav-enheter-to-sanity
+      - name: Build and publish Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        working-directory: frontend/nav-enheter-to-sanity
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -61,12 +50,10 @@ jobs:
     needs: [build-and-test]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Deploy
-        uses: nais/deploy/actions/deploy@v1
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-api/.nais/nais.yaml
+          RESOURCE: frontend/nav-enheter-to-sanity/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}

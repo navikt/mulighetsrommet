@@ -2,31 +2,25 @@ import React from 'react';
 import './TiltaksgjennomforingsHeader.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
+import { Tiltaksgjennomforing } from '../api/models';
 
 interface TiltaksgjennomforingsHeaderProps {
-  tiltaksgjennomforingsnavn: string;
-  beskrivelseTiltaksgjennomforing?: string;
-  beskrivelseTiltakstype?: any;
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-const TiltaksgjennomforingsHeader = ({
-  tiltaksgjennomforingsnavn,
-  beskrivelseTiltaksgjennomforing,
-  beskrivelseTiltakstype,
-}: TiltaksgjennomforingsHeaderProps) => {
+const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: TiltaksgjennomforingsHeaderProps) => {
+  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
   return (
     <div className="tiltaksgjennomforing__title">
       <Heading
         level="1"
         size="xlarge"
-        data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltaksgjennomforingsnavn)}`}
+        data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltaksgjennomforingNavn)}`}
       >
-        {tiltaksgjennomforingsnavn}
+        {tiltaksgjennomforingNavn}
       </Heading>
-      {beskrivelseTiltaksgjennomforing && (
-        <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltaksgjennomforing}</div>
-      )}
-      <div className="tiltaksgjennomforing__beskrivelse">{beskrivelseTiltakstype}</div>
+      {beskrivelse && <div className="tiltaksgjennomforing__beskrivelse">{beskrivelse}</div>}
+      {tiltakstype.beskrivelse && <div className="tiltaksgjennomforing__beskrivelse">{tiltakstype.beskrivelse}</div>}
     </div>
   );
 };
