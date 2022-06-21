@@ -10,7 +10,7 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
-import FakeDoor from "../../components/fakedoor/FakeDoor";
+import FakeDoor from '../../components/fakedoor/FakeDoor';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
