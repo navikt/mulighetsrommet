@@ -5,6 +5,7 @@ import {
   SanityTiltaksgjennomforing,
   Tiltakstype,
   SanityTiltakstype,
+  Lenke,
 } from "./domain";
 import { client } from "./sanityConfig";
 const short = require("short-uuid");
@@ -173,6 +174,19 @@ function opprettTiltaksgjennomforing(
     (type) => type.tiltakstypeNavn.toLowerCase() === tiltakstype.toLowerCase()
   )?._id;
 
+  const lenker: Lenke[] = [
+    {
+      _key: short.generate(),
+      lenke: row[10],
+      lenkenavn: "Kravspesifikasjon",
+    },
+    {
+      _key: short.generate(),
+      lenke: row[12],
+      lenkenavn: "Lenke til Arenaoppskrift",
+    },
+  ];
+
   if (!tiltakstypeId) {
     console.log(
       colors.red(`Fant ingen tiltakstypId for tiltakstype: ${tiltakstype}`)
@@ -211,6 +225,7 @@ function opprettTiltaksgjennomforing(
       _type: "reference",
     },
     lokasjon: lokasjon,
+    lenker,
   };
 
   const tiltakstypeEksisterer = tiltaksgjennomforinger[tiltaksnummer];
