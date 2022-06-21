@@ -2,6 +2,7 @@ import React from 'react';
 import './FakeDoor.less';
 import CountDown from './CountDown';
 import { Link } from '@navikt/ds-react';
+import imgUrl from '../../../public/illustrasjonfakedoor.png';
 
 const FakeDoor = () => {
   return (
@@ -22,8 +23,9 @@ const FakeDoor = () => {
       </div>
       <div className="fakedoor-image">
         <img
-          src="/illustrasjon_fake_door.png"
+          src={imgUrl}
           id="fakedoor-bilde"
+          alt="Illustrasjon av løsning"
         />
       </div>
     </div>
