@@ -2,7 +2,7 @@ import React from 'react';
 import './FakeDoor.less';
 import CountDown from './CountDown';
 import { Link } from '@navikt/ds-react';
-//import imgUrl from './illustrasjonfakedoor.png';
+import imgUrl from '../../illustrasjonfakedoor.png';
 
 const FakeDoor = () => {
   return (
@@ -28,7 +28,7 @@ const FakeDoor = () => {
         </div>
       </div>
       <div className="fakedoor-image">
-        <img src="/illustrasjonfakedoor.png" id="fakedoor-bilde" alt="Illustrasjon av løsning" />
+        <img src={imgUrl} id="fakedoor-bilde" alt="Illustrasjon av løsning" />
       </div>
     </div>
   );

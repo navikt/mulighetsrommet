@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Alert, Button } from '@navikt/ds-react';
+import { Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
@@ -27,7 +27,7 @@ const ViewTiltakstypeOversikt = () => {
 
   return (
     <>
-      {visFakeDoorFeature ? (
+      {!visFakeDoorFeature ? (
         <FakeDoor />
       ) : (
         <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
