@@ -125,24 +125,25 @@ const TiltaksgjennomforingsTabell = () => {
                       orderBy: 'tiltakstypeNavn',
                       direction: 'ascending',
                     };
+
                 const comparator = (a: any, b: any, orderBy: string | number) => {
-                  if (orderBy === 'tiltakstypeNavn') {
-                    const tiltakstype = 'tiltakstype';
-                    if (b[tiltakstype][orderBy] < a[tiltakstype][orderBy] || b[tiltakstype][orderBy] === undefined) {
+                  const compare = (item1: any, item2: any) => {
+                    if (item2 < item1 || item2 === undefined) {
                       return -1;
                     }
-                    if (b[tiltakstype][orderBy] > a[tiltakstype][orderBy]) {
+                    if (item2 > item1) {
                       return 1;
                     }
                     return 0;
+                  };
+                  if (orderBy === 'oppstart') {
+                    const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
+                    const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
+                    return compare(dateA, dateB);
+                  } else if (orderBy === 'tiltakstypeNavn') {
+                    return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
                   } else {
-                    if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
-                      return -1;
-                    }
-                    if (b[orderBy] > a[orderBy]) {
-                      return 1;
-                    }
-                    return 0;
+                    return compare(a[orderBy], b[orderBy]);
                   }
                 };
                 return sortOrDefault.direction === 'ascending'
