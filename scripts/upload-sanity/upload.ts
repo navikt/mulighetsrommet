@@ -35,7 +35,7 @@ async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
   process.exit(1);
 }
 
-//deleteTyper("t");
+//deleteTyper("tiltakstype");
 
 // Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
 async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
@@ -125,7 +125,7 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
 }
 
 function opprettArrangor(row: Row): SanityArrangor {
-  const navn = brukFakeData ? faker.name.findName() : row[13];
+  const navn = brukFakeData ? faker.company.companyName() : row[13];
   const telefon = brukFakeData
     ? faker.phone.phoneNumber("### ## ###")
     : row[14];
@@ -153,8 +153,10 @@ function opprettTiltaksgjennomforing(
   row: Row,
   tiltakstyper: SanityTiltakstype[]
 ): SanityTiltaksgjennomforing {
-  const tiltaksgjennomforingsnavn = row[0];
-  const beskrivelse = row[1];
+  const tiltaksgjennomforingsnavn = brukFakeData
+    ? faker.company.catchPhrase()
+    : row[0];
+  const beskrivelse = brukFakeData ? faker.lorem.paragraphs(2) : row[1];
   const tiltaksnummer = parseInt(row[2]);
   const tiltakstype = row[3] as Tiltakstype;
   const oppstart = row[4] !== "Løpende" ? "dato" : "lopende";
@@ -162,10 +164,12 @@ function opprettTiltaksgjennomforing(
     oppstart !== "lopende"
       ? new Date(row[4]).toISOString().substring(0, 10) // Hent ut dato på YYYY-MM-DD
       : undefined;
-  const lokasjon = row[5];
-  const forHvem = row[7];
-  const detaljerOgInnhold = row[9];
-  const pameldingOgVarighet = row[11];
+  const lokasjon = brukFakeData ? faker.address.street() : row[5];
+  const forHvem = brukFakeData ? faker.lorem.paragraphs(2) : row[7];
+  const detaljerOgInnhold = brukFakeData ? faker.lorem.paragraphs(2) : row[9];
+  const pameldingOgVarighet = brukFakeData
+    ? faker.lorem.paragraphs(2)
+    : row[11];
 
   const arrangor = opprettArrangor(row);
   const kontaktinfoPerson = opprettKontaktperson(row);
