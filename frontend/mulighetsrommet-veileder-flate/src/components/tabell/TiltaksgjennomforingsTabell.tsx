@@ -135,6 +135,25 @@ const TiltaksgjennomforingsTabell = () => {
                       return 1;
                     }
                     return 0;
+                  } else if (orderBy === 'oppstart') {
+                    if (b[orderBy] === 'lopende' && a[orderBy] === 'lopende') {
+                      return 0;
+                    } else if (b[orderBy] === 'lopende') {
+                      return -1;
+                    } else if (a[orderBy] === 'lopende') {
+                      return 1;
+                    } else if (a[orderBy] === 'dato' && b[orderBy] === 'dato') {
+                      const dateB = new Date(b['oppstartsdato'])
+                      const dateA = new Date(a['oppstartsdato'])
+                      if (dateB < dateA || dateB === undefined) {
+                        return -1;
+                      }
+                      if (dateB > dateA) {
+                        return 1;
+                      }
+                      return 0;
+                    }
+                    return 0;
                   } else {
                     if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
                       return -1;
