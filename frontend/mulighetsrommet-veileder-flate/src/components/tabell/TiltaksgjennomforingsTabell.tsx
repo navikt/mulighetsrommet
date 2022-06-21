@@ -136,12 +136,12 @@ const TiltaksgjennomforingsTabell = () => {
                     }
                     return 0;
                   };
-                  if (orderBy === 'tiltakstypeNavn') {
-                    return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
-                  } else if (orderBy === 'oppstart') {
+                  if (orderBy === 'oppstart') {
                     const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
                     const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
                     return compare(dateA, dateB);
+                  } else if (orderBy === 'tiltakstypeNavn') {
+                    return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
                   } else {
                     return compare(a[orderBy], b[orderBy]);
                   }
