@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@navikt/ds-css": "^0.15.12",
-    "@navikt/ds-icons": "^0.8.12",
-    "@navikt/ds-react": "^0.17.27",
+    "@navikt/ds-icons": "^0.8.17",
+    "@navikt/ds-react": "^0.19.14",
     "@navikt/frontendlogger": "^2.0.0",
     "@navikt/navspa": "^5.0.1",
     "@portabletext/react": "^1.0.6",

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Panel } from '@navikt/ds-react';
-import './Sidemeny.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import { Tiltaksgjennomforing } from '../../api/models';
@@ -11,7 +10,7 @@ interface SidemenyDetaljerProps {
 
 const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
   const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = tiltaksgjennomforing;
-  const oppstart = resolveOppstart(tiltaksgjennomforing)
+  const oppstart = resolveOppstart(tiltaksgjennomforing);
 
   return (
     <>
@@ -61,10 +60,8 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
   );
 };
 
-function resolveOppstart({oppstart, oppstartsdato}: Tiltaksgjennomforing) {
-  return oppstart === 'dato' && oppstartsdato
-      ? new Intl.DateTimeFormat().format(new Date(oppstartsdato))
-      : 'Løpende';
+function resolveOppstart({ oppstart, oppstartsdato }: Tiltaksgjennomforing) {
+  return oppstart === 'dato' && oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende';
 }
 
 export default SidemenyDetaljer;

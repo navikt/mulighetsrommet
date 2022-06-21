@@ -29,17 +29,17 @@ const ViewTiltakstypeDetaljer = () => {
 
   return (
     <div className="tiltakstype-detaljer">
-      <Tilbakeknapp tilbakelenke="/" />
       <div className="tiltakstype-detaljer__info">
+        <Tilbakeknapp tilbakelenke="/" />
         <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
         <Statistikk
           tittel="Overgang til arbeid"
           hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
           statistikktekst="69%"
         />
-        <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
       </div>
       <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
+      <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
     </div>
   );
 };
