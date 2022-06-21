@@ -27,7 +27,7 @@ const ViewTiltakstypeOversikt = () => {
 
   return (
     <>
-      {!visFakeDoorFeature ? (
+      {visFakeDoorFeature ? (
         <FakeDoor />
       ) : (
         <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
