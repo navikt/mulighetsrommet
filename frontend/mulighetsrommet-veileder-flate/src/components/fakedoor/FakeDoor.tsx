@@ -2,7 +2,7 @@ import React from 'react';
 import './FakeDoor.less';
 import CountDown from './CountDown';
 import { Link } from '@navikt/ds-react';
-import imgUrl from '../../../public/illustrasjonfakedoor.png';
+import imgUrl from '/illustrasjonfakedoor.png';
 
 const FakeDoor = () => {
   return (
