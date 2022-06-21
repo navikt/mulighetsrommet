@@ -3,7 +3,7 @@ name: CI/CD (mulighetsrommet-veileder-flate-preprod)
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-veileder-flate.yaml
+      - .github/workflows/mulighetsrommet-veileder-flate-preprod.yaml
       - package.json
       - package-lock.json
       - turbo.json
