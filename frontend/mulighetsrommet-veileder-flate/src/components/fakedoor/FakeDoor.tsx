@@ -2,7 +2,7 @@ import React from 'react';
 import './FakeDoor.less';
 import CountDown from './CountDown';
 import { Link } from '@navikt/ds-react';
-import imgUrl from '/illustrasjonfakedoor.png';
+import imgUrl from '../../illustrasjonfakedoor.png';
 
 const FakeDoor = () => {
   return (
@@ -18,15 +18,17 @@ const FakeDoor = () => {
           <br />
           <CountDown />
           <br />
-          <Link target="_blank" className="fakedoor-link" href="https://navno.sharepoint.com/:b:/s/team-valp/EZrCwwYUh-ZGr7CbYn1Lt8UBW3pNcabIfUeuZeWeuEcmaQ?e=1RH9RW">Les mer om piloteringen</Link>
+          <Link
+            target="_blank"
+            className="fakedoor-link"
+            href="https://navno.sharepoint.com/:b:/s/team-valp/EZrCwwYUh-ZGr7CbYn1Lt8UBW3pNcabIfUeuZeWeuEcmaQ?e=1RH9RW"
+          >
+            Les mer om piloteringen
+          </Link>
         </div>
       </div>
       <div className="fakedoor-image">
-        <img
-          src={imgUrl}
-          id="fakedoor-bilde"
-          alt="Illustrasjon av løsning"
-        />
+        <img src={imgUrl} id="fakedoor-bilde" alt="Illustrasjon av løsning" />
       </div>
     </div>
   );
