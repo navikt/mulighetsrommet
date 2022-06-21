@@ -127,47 +127,23 @@ const TiltaksgjennomforingsTabell = () => {
                     };
 
                 const comparator = (a: any, b: any, orderBy: string | number) => {
+                  const compare = (item1: any, item2: any) => {
+                    if (item2 < item1 || item2 === undefined) {
+                      return -1;
+                    }
+                    if (item2 > item1) {
+                      return 1;
+                    }
+                    return 0;
+                  };
                   if (orderBy === 'tiltakstypeNavn') {
-                    if (
-                      b.tiltakstype.tiltakstypeNavn < a.tiltakstype.tiltakstypeNavn ||
-                      b.tiltakstype.tiltakstypeNavn === undefined
-                    ) {
-                      return -1;
-                    }
-                    if (b.tiltakstype.tiltakstypeNavn > b.tiltakstype.tiltakstypeNavn) {
-                      return 1;
-                    }
-                    return 0;
+                    return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
                   } else if (orderBy === 'oppstart') {
-                    if (b.oppstart === 'lopende' && a.oppstart === 'lopende') {
-                      return 0;
-                    } else if (b.oppstart === 'lopende') {
-                      return -1;
-                    } else if (a.oppstart === 'lopende') {
-                      return 1;
-                    } else if (a.oppstart === 'dato' && b.oppstart === 'dato') {
-                      if (b.oppstartsdato === undefined || a.oppstartsdato === undefined) {
-                        return 0;
-                      }
-                      const dateB = new Date(b.oppstartsdato);
-                      const dateA = new Date(a.oppstartsdato);
-                      if (dateB < dateA || dateB === undefined) {
-                        return -1;
-                      }
-                      if (dateB > dateA) {
-                        return 1;
-                      }
-                      return 0;
-                    }
-                    return 0;
+                    const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
+                    const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
+                    return compare(dateA, dateB);
                   } else {
-                    if (b[orderBy] < a[orderBy] || b[orderBy] === undefined) {
-                      return -1;
-                    }
-                    if (b[orderBy] > a[orderBy]) {
-                      return 1;
-                    }
-                    return 0;
+                    return compare(a[orderBy], b[orderBy]);
                   }
                 };
                 return sortOrDefault.direction === 'ascending'
