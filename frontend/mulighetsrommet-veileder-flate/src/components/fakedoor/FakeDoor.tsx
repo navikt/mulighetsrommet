@@ -22,7 +22,7 @@ const FakeDoor = () => {
       </div>
       <div className="fakedoor-image">
         <img
-          src="../../../public/illustrasjon_fake_door.png"
+          src="/illustrasjon_fake_door.png"
           id="fakedoor-bilde"
         />
       </div>
