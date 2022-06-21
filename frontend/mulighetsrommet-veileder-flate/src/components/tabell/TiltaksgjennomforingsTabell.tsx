@@ -125,26 +125,32 @@ const TiltaksgjennomforingsTabell = () => {
                       orderBy: 'tiltakstypeNavn',
                       direction: 'ascending',
                     };
+
                 const comparator = (a: any, b: any, orderBy: string | number) => {
                   if (orderBy === 'tiltakstypeNavn') {
-                    const tiltakstype = 'tiltakstype';
-                    if (b[tiltakstype][orderBy] < a[tiltakstype][orderBy] || b[tiltakstype][orderBy] === undefined) {
+                    if (
+                      b.tiltakstype.tiltakstypeNavn < a.tiltakstype.tiltakstypeNavn ||
+                      b.tiltakstype.tiltakstypeNavn === undefined
+                    ) {
                       return -1;
                     }
-                    if (b[tiltakstype][orderBy] > a[tiltakstype][orderBy]) {
+                    if (b.tiltakstype.tiltakstypeNavn > b.tiltakstype.tiltakstypeNavn) {
                       return 1;
                     }
                     return 0;
                   } else if (orderBy === 'oppstart') {
-                    if (b[orderBy] === 'lopende' && a[orderBy] === 'lopende') {
+                    if (b.oppstart === 'lopende' && a.oppstart === 'lopende') {
                       return 0;
-                    } else if (b[orderBy] === 'lopende') {
+                    } else if (b.oppstart === 'lopende') {
                       return -1;
-                    } else if (a[orderBy] === 'lopende') {
+                    } else if (a.oppstart === 'lopende') {
                       return 1;
-                    } else if (a[orderBy] === 'dato' && b[orderBy] === 'dato') {
-                      const dateB = new Date(b['oppstartsdato'])
-                      const dateA = new Date(a['oppstartsdato'])
+                    } else if (a.oppstart === 'dato' && b.oppstart === 'dato') {
+                      if (b.oppstartsdato === undefined || a.oppstartsdato === undefined) {
+                        return 0;
+                      }
+                      const dateB = new Date(b.oppstartsdato);
+                      const dateA = new Date(a.oppstartsdato);
                       if (dateB < dateA || dateB === undefined) {
                         return -1;
                       }
