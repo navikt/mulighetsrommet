@@ -12,6 +12,9 @@
     "build:mock": {
       "dependsOn": ["^build"]
     },
+    "build:preprod": {
+      "dependsOn": ["^build"]
+    },
     "lint": {
       "outputs": []
     },
