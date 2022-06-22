@@ -59,23 +59,10 @@ export default {
       of: [{ type: "reference", to: [{ type: "regelverkfil" }] }]
     },
     {
-      name: "regelverkLenke",
-      title: "Regelverk lenke",
-      type: "url",
-      placeholder: "https://www...",
-    },
-    {
-      name: "regelverkLenkeNavn",
-      title: "Navn til lenke",
-      description: "Hvilket navn skal vises i lenken?",
-      type: "string",
-      validation: (Rule) =>
-        Rule.custom((field, context) =>
-          context.document.regelverkLenke && field === undefined
-            ? "Dette feltet kan ikke være tomt."
-            : true
-        ),
-      hidden: ({ document }) => !document?.regelverkLenke,
+      name: "regelverkLenker",
+      title: "Regelverk lenker",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }]
     },
     //Faneinnhold
     {

@@ -2,7 +2,7 @@ import { GrDocument } from "react-icons/gr";
 
 export default {
   name: "regelverkfil",
-  title: "Regelverkfil",
+  title: "Regelverk fil",
   type: "document",
   icon: GrDocument,
   fields: [
