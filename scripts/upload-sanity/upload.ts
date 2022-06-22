@@ -174,18 +174,11 @@ function opprettTiltaksgjennomforing(
     (type) => type.tiltakstypeNavn.toLowerCase() === tiltakstype.toLowerCase()
   )?._id;
 
+  // Les ut lenker + lenkenavn, men bare ta med lenker som starter med https
   const lenker: Lenke[] = [
-    {
-      _key: short.generate(),
-      lenke: row[10],
-      lenkenavn: "Kravspesifikasjon",
-    },
-    {
-      _key: short.generate(),
-      lenke: row[12],
-      lenkenavn: "Lenke til Arenaoppskrift",
-    },
-  ];
+    opprettLenke(row[10], row[22]),
+    opprettLenke(row[12], row[23]),
+  ].filter((lenke) => lenke.lenke.startsWith("https"));
 
   if (!tiltakstypeId) {
     console.log(
@@ -267,4 +260,25 @@ function lastOppDokumenter(dokumenter: any[]) {
 function fjernBrukerident(person: SanityKontaktperson): SanityKontaktperson {
   delete person.ident;
   return person;
+}
+
+function beholdLenkeHvisStarterMedHttps(
+  data: string,
+  fallback: string
+): string {
+  return data.startsWith("https") ? data : fallback;
+}
+
+function opprettLenke(url: string, lenkenavn: string) {
+  return {
+    _key: short.generate(),
+    lenke: brukFakeData
+      ? faker.internet.url()
+      : beholdLenkeHvisStarterMedHttps(url, ""),
+    lenkenavn: brukFakeData
+      ? faker.company.catchPhrase()
+      : lenkenavn?.trim().length > 0
+      ? lenkenavn
+      : beholdLenkeHvisStarterMedHttps(url, ""),
+  };
 }
