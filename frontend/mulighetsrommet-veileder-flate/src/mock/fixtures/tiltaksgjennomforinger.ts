@@ -52,13 +52,15 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     lokasjon: '',
     oppstart: '',
-    kontaktinfoTiltaksansvarlige: {
-      _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      enhet: '',
-      epost: '',
-      navn: '',
-      telefonnummer: '',
-    },
+    kontaktinfoTiltaksansvarlige: [
+      {
+        _id: faker.datatype.number({ min: 100000, max: 999999 }),
+        enhet: '',
+        epost: '',
+        navn: '',
+        telefonnummer: '',
+      },
+    ],
   },
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -80,13 +82,15 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     lokasjon: '',
     oppstart: '',
-    kontaktinfoTiltaksansvarlige: {
-      _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      enhet: '',
-      epost: '',
-      navn: '',
-      telefonnummer: '',
-    },
+    kontaktinfoTiltaksansvarlige: [
+      {
+        _id: faker.datatype.number({ min: 100000, max: 999999 }),
+        enhet: '',
+        epost: '',
+        navn: '',
+        telefonnummer: '',
+      },
+    ],
   },
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -108,13 +112,15 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     lokasjon: '',
     oppstart: '',
-    kontaktinfoTiltaksansvarlige: {
-      _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      enhet: '',
-      epost: '',
-      navn: '',
-      telefonnummer: '',
-    },
+    kontaktinfoTiltaksansvarlige: [
+      {
+        _id: faker.datatype.number({ min: 100000, max: 999999 }),
+        enhet: '',
+        epost: '',
+        navn: '',
+        telefonnummer: '',
+      },
+    ],
   },
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }),
@@ -136,12 +142,14 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     lokasjon: '',
     oppstart: '',
-    kontaktinfoTiltaksansvarlige: {
-      _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      enhet: '',
-      epost: '',
-      navn: '',
-      telefonnummer: '',
-    },
+    kontaktinfoTiltaksansvarlige: [
+      {
+        _id: faker.datatype.number({ min: 100000, max: 999999 }),
+        enhet: '',
+        epost: '',
+        navn: '',
+        telefonnummer: '',
+      },
+    ],
   },
 ];
