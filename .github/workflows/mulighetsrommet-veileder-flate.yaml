@@ -78,6 +78,7 @@ jobs:
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
+          BASE_URL: https://mulighetsrommet-veileder-flate.dev.intern.nav.no
 
   deploy-prod:
     name: Deploy (prod)
@@ -93,3 +94,4 @@ jobs:
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
+          BASE_URL: https://mulighetsrommet-veileder-flate.intern.nav.no
