@@ -31,6 +31,10 @@ const config = {
   useCdn: false, // `false` if you want to ensure fresh data
 };
 
+console.log(
+  `Setter opp Sanity-Client med følgende config\nProject-id: ${config.projectId}\nDataset: ${config.dataset}`
+);
+
 const client = sanityClient(config);
 
 export { client };

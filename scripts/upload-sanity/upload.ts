@@ -15,7 +15,7 @@ import { faker } from "@faker-js/faker";
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
-const skalLasteOpp = true;
+const skalLasteOpp = false;
 const brukFakeData = true;
 
 type Row = {
@@ -29,14 +29,14 @@ const rows: Row[] = [];
 
 //Om man trenger å slette noe fra sanity
 async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
-  await client.delete({
+  const res = await client.delete({
     query: `*[_type == "${type}"]`,
   });
-  console.info("Slettet typer!");
+  console.info("Slettet typer!", res);
   process.exit(1);
 }
 
-//deleteTyper("tiltakstype");
+//deleteTyper("tiltaksgjennomforing");
 
 // Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
 async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
@@ -52,7 +52,6 @@ console.log(colors.green(`Leser ${csvFil} og laster rader opp til Sanity...`));
 fs.createReadStream(csvFil)
   .pipe(parse({ delimiter: ";", from_line: 2 }))
   .on("data", function (row: Row) {
-    console.log(colors.green("✓ Leser rad fra csv-fil"));
     rows.push(row);
   })
   .on("end", async function () {
