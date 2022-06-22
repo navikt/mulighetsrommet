@@ -34,6 +34,8 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build --filter=mulighetsrommet-veileder-flate
+        env:
+          BASE_URL: https://mulighetsrommet-veileder-flate.dev.intern.nav.no
 #TODO skru på denne når tc-122 er good
 #      - name: Cypress run
 #        uses: cypress-io/github-action@v3
@@ -78,7 +80,6 @@ jobs:
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
-          BASE_URL: https://mulighetsrommet-veileder-flate.dev.intern.nav.no
 
   deploy-prod:
     name: Deploy (prod)
