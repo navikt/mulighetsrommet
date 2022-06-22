@@ -18,10 +18,6 @@ const ArrangorInfo = ({ arrangorinfo }: ArrangorProps) => {
           <BodyShort>{arrangorinfo.telefonnummer}</BodyShort>
         </div>
         <div className="kontaktinfo__rad">
-          <Label size="small">Epost</Label>
-          <BodyShort>{arrangorinfo.epost}</BodyShort>
-        </div>
-        <div className="kontaktinfo__rad">
           <Label size="small">Adresse</Label>
           <BodyShort>{arrangorinfo.adresse}</BodyShort>
         </div>

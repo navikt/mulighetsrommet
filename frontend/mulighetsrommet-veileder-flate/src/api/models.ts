@@ -36,7 +36,7 @@ export interface Tiltaksgjennomforing {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
-  kontaktinfoTiltaksansvarlig: Tiltaksansvarlig;
+  kontaktinfoTiltaksansvarlige: Tiltaksansvarlig[];
 }
 
 export interface Arrangor {

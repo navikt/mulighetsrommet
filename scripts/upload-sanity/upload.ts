@@ -142,7 +142,6 @@ function opprettArrangor(row: Row): SanityArrangor {
     _type: "arrangor",
     selskapsnavn: navn,
     telefonnummer: telefon,
-    epost: epost,
     adresse: postnr,
     _id: epost.replace("@", "_"), // Sanity liker ikke @ i id'ene sine
   };
@@ -213,10 +212,13 @@ function opprettTiltaksgjennomforing(
       pameldingOgVarighetInfoboks: "",
       pameldingOgVarighet: addBlockContent(pameldingOgVarighet),
     },
-    kontaktinfoTiltaksansvarlig: {
-      _type: "reference",
-      _ref: kontaktinfoPerson.ident,
-    },
+    kontaktinfoTiltaksansvarlige: [
+      {
+        _type: "reference",
+        _ref: kontaktinfoPerson.ident,
+        _key: short.generate(),
+      },
+    ],
     kontaktinfoArrangor: {
       _ref: arrangor._id,
       _type: "reference",

@@ -19,7 +19,7 @@ export default function useTiltaksgjennomforingById(id: number) {
       pameldingOgVarighet,
     },
     kontaktinfoArrangor->,
-    kontaktinfoTiltaksansvarlig->,
+    kontaktinfoTiltaksansvarlige[]->,
     tiltakstype->
   }[0]`);
 }

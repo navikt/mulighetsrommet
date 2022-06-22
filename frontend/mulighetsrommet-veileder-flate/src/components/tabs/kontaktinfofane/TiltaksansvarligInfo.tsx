@@ -4,13 +4,16 @@ import './KontaktinfoFane.less';
 import { Tiltaksansvarlig } from '../../../api/models';
 
 interface TiltaksansvarligProps {
-  tiltaksansvarlig: Tiltaksansvarlig;
+  tiltaksansvarlige: Tiltaksansvarlig[];
 }
 
-const TiltaksansvarligInfo = ({ tiltaksansvarlig }: TiltaksansvarligProps) => {
-  //TODO når det er mulig å ha flere tiltaksansvarlige i Sanity må det mappes her
+const TiltaksansvarligInfo = ({ tiltaksansvarlige }: TiltaksansvarligProps) => {
+  return <>{tiltaksansvarlige.map(tiltaksansvarligComponent)}</>;
+};
+
+function tiltaksansvarligComponent(tiltaksansvarlig: Tiltaksansvarlig) {
   return (
-    <>
+    <div className="kontaktinfo__header" key={tiltaksansvarlig._id}>
       <Heading size="small" level="3" className="kontaktinfo__navn">
         {tiltaksansvarlig.navn}
       </Heading>
@@ -21,14 +24,17 @@ const TiltaksansvarligInfo = ({ tiltaksansvarlig }: TiltaksansvarligProps) => {
         </div>
         <div className="kontaktinfo__rad">
           <Label size="small">Epost</Label>
-          <BodyShort>{tiltaksansvarlig.epost}</BodyShort>
+          <BodyShort>
+            <a href={`mailto:${tiltaksansvarlig.epost}`}>{tiltaksansvarlig.epost}</a>
+          </BodyShort>
         </div>
         <div className="kontaktinfo__rad">
           <Label size="small">Enhet</Label>
           <BodyShort>{tiltaksansvarlig.enhet}</BodyShort>
         </div>
       </div>
-    </>
+    </div>
   );
-};
+}
+
 export default TiltaksansvarligInfo;
