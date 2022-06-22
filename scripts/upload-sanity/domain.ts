@@ -13,7 +13,7 @@ export interface SanityArrangor {
   _id: string;
   selskapsnavn: string;
   telefonnummer: string;
-  epost: string;
+  epost?: string;
   adresse: string;
 }
 
@@ -39,7 +39,7 @@ export interface SanityTiltaksgjennomforing {
     pameldingOgVarighetInfoboks: string;
     pameldingOgVarighet: Block[];
   };
-  kontaktinfoTiltaksansvarlig: Reference;
+  kontaktinfoTiltaksansvarlige: Reference[];
   lenker?: Lenke[];
 }
 
@@ -90,6 +90,7 @@ export type Tiltakstype =
 interface Reference {
   _ref: string;
   _type: "reference";
+  _key?: string;
 }
 
 export interface Block {

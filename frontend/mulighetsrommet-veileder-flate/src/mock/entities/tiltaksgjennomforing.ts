@@ -20,12 +20,14 @@ export function toTiltaksgjennomforing(entity: TiltaksgjennomforingEntity): Tilt
     tiltakstype: entity.tiltakstype as Tiltakstype,
     lokasjon: entity.lokasjon,
     oppstart: entity.oppstart,
-    kontaktinfoTiltaksansvarlig: {
-      _id: entity.kontaktinfoTiltaksansvarlig.id!,
-      enhet: entity.kontaktinfoTiltaksansvarlig.enhet!,
-      epost: entity.kontaktinfoTiltaksansvarlig.epost!,
-      telefonnummer: entity.kontaktinfoTiltaksansvarlig.telefonnummer!,
-      navn: entity.kontaktinfoTiltaksansvarlig.navn!,
-    },
+    kontaktinfoTiltaksansvarlige: [
+      {
+        _id: entity.kontaktinfoTiltaksansvarlig.id!,
+        enhet: entity.kontaktinfoTiltaksansvarlig.enhet!,
+        epost: entity.kontaktinfoTiltaksansvarlig.epost!,
+        telefonnummer: entity.kontaktinfoTiltaksansvarlig.telefonnummer!,
+        navn: entity.kontaktinfoTiltaksansvarlig.navn!,
+      },
+    ],
   };
 }

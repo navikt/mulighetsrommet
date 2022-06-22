@@ -11,7 +11,7 @@ interface TiltaksdetaljerFaneProps {
 }
 
 const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: TiltaksdetaljerFaneProps) => {
-  const { tiltakstype, kontaktinfoTiltaksansvarlig, kontaktinfoArrangor } = tiltaksgjennomforing;
+  const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor } = tiltaksgjennomforing;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
 
   return (
@@ -52,7 +52,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: TiltaksdetaljerFaneProps)
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab4">
-        <KontaktinfoFane tiltaksansvarligInfo={kontaktinfoTiltaksansvarlig} arrangorinfo={kontaktinfoArrangor} />
+        <KontaktinfoFane tiltaksansvarlige={kontaktinfoTiltaksansvarlige} arrangorinfo={kontaktinfoArrangor} />
       </Tabs.Panel>
       <Tabs.Panel value="tab5">Her kommer det grader og annet snacks - Innsikt</Tabs.Panel>
     </Tabs>

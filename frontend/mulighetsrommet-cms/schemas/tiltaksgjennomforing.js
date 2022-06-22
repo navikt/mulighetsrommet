@@ -175,11 +175,11 @@ export default {
     },
     //TODO skal kunne legge til flere tiltaksansvarlige
     {
-      name: "kontaktinfoTiltaksansvarlig",
+      name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
-      type: "reference",
-      to: [{ type: "navKontaktperson" }],
-      validation: (Rule) => Rule.required(),
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
+      validation: (Rule) => Rule.required().min(1).unique(),
     },
     {
       name: "lenker",

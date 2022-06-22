@@ -6,11 +6,11 @@ import TiltaksansvarligInfo from './TiltaksansvarligInfo';
 import { Arrangor, Tiltaksansvarlig } from '../../../api/models';
 
 interface KontaktinfoFaneProps {
-  tiltaksansvarligInfo: Tiltaksansvarlig;
+  tiltaksansvarlige: Tiltaksansvarlig[];
   arrangorinfo: Arrangor;
 }
 
-const KontaktinfoFane = ({ tiltaksansvarligInfo, arrangorinfo }: KontaktinfoFaneProps) => {
+const KontaktinfoFane = ({ tiltaksansvarlige, arrangorinfo }: KontaktinfoFaneProps) => {
   return (
     <div className="kontaktinfo">
       <div>
@@ -23,7 +23,7 @@ const KontaktinfoFane = ({ tiltaksansvarligInfo, arrangorinfo }: KontaktinfoFane
         <Heading size="large" level="2" className="kontaktinfo__header">
           Tiltaksansvarlig
         </Heading>
-        <TiltaksansvarligInfo tiltaksansvarlig={tiltaksansvarligInfo} />
+        <TiltaksansvarligInfo tiltaksansvarlige={tiltaksansvarlige} />
       </div>
     </div>
   );
