@@ -181,6 +181,28 @@ export default {
       to: [{ type: "navKontaktperson" }],
       validation: (Rule) => Rule.required(),
     },
+    {
+      name: "lenker",
+      title: "Lenker",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            {
+              title: "Lenke",
+              name: "lenke",
+              type: "string",
+            },
+            {
+              title: "Lenkenavn",
+              name: "lenkenavn",
+              type: "string",
+            },
+          ],
+        },
+      ],
+    },
   ],
   preview: {
     select: {

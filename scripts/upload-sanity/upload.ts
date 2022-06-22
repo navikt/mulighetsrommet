@@ -5,6 +5,7 @@ import {
   SanityTiltaksgjennomforing,
   Tiltakstype,
   SanityTiltakstype,
+  Lenke,
 } from "./domain";
 import { client } from "./sanityConfig";
 const short = require("short-uuid");
@@ -177,6 +178,12 @@ function opprettTiltaksgjennomforing(
     (type) => type.tiltakstypeNavn.toLowerCase() === tiltakstype.toLowerCase()
   )?._id;
 
+  // Les ut lenker + lenkenavn, men bare ta med lenker som starter med https
+  const lenker: Lenke[] = [
+    opprettLenke(row[10], row[22]),
+    opprettLenke(row[12], row[23]),
+  ].filter((lenke) => lenke.lenke.startsWith("https"));
+
   if (!tiltakstypeId) {
     console.log(
       colors.red(`Fant ingen tiltakstypId for tiltakstype: ${tiltakstype}`)
@@ -215,6 +222,7 @@ function opprettTiltaksgjennomforing(
       _type: "reference",
     },
     lokasjon: lokasjon,
+    lenker,
   };
 
   const tiltakstypeEksisterer = tiltaksgjennomforinger[tiltaksnummer];
@@ -256,4 +264,25 @@ function lastOppDokumenter(dokumenter: any[]) {
 function fjernBrukerident(person: SanityKontaktperson): SanityKontaktperson {
   delete person.ident;
   return person;
+}
+
+function beholdLenkeHvisStarterMedHttps(
+  data: string,
+  fallback: string
+): string {
+  return data.startsWith("https") ? data : fallback;
+}
+
+function opprettLenke(url: string, lenkenavn: string) {
+  return {
+    _key: short.generate(),
+    lenke: brukFakeData
+      ? faker.internet.url()
+      : beholdLenkeHvisStarterMedHttps(url, ""),
+    lenkenavn: brukFakeData
+      ? faker.company.catchPhrase()
+      : lenkenavn?.trim().length > 0
+      ? lenkenavn
+      : beholdLenkeHvisStarterMedHttps(url, ""),
+  };
 }

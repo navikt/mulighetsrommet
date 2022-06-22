@@ -40,6 +40,13 @@ export interface SanityTiltaksgjennomforing {
     pameldingOgVarighet: Block[];
   };
   kontaktinfoTiltaksansvarlig: Reference;
+  lenker?: Lenke[];
+}
+
+export interface Lenke {
+  _key: string;
+  lenke: string;
+  lenkenavn: string;
 }
 
 export interface SanityTiltakstype {
