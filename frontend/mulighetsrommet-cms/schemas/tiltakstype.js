@@ -53,22 +53,10 @@ export default {
     },
     //TODO skal kunne legge til flere lenker og filer
     {
-      name: "regelverkFil",
-      title: "Regelverk fil",
-      type: "file",
-    },
-    {
-      name: "regelverkFilNavn",
-      title: "Navn til fil",
-      description: "Hvilket navn skal vises til filen?",
-      type: "string",
-      validation: (Rule) =>
-        Rule.custom((field, context) =>
-          context.document.regelverkFil && field === undefined
-            ? "Dette feltet kan ikke være tomt."
-            : true
-        ),
-      hidden: ({ document }) => !document?.regelverkFil,
+      name: "regelverkFiler",
+      title: "Regelverk filer",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }]
     },
     {
       name: "regelverkLenke",
