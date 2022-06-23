@@ -18,12 +18,14 @@ export default function useTiltaksgjennomforing() {
 }
 
 function byggInnsatsgruppeFilter(filter: Tiltaksgjennomforingsfilter): string {
-  if (filter.innsatsgrupper.length > 0) {
-    const query = `&& tiltakstype->innsatsgruppe->tittel in [${filter.innsatsgrupper
-      .map(gruppe => `"${gruppe.tittel}"`)
-      .join(', ')}]`;
-    return query;
-  }
-
-  return '';
+  return (
+    (filter.innsatsgrupper.length > 0
+      ? `&& tiltakstype->innsatsgruppe->tittel in [${filter.innsatsgrupper
+          .map(gruppe => `"${gruppe.tittel}"`)
+          .join(', ')}]`
+      : '') +
+    (filter.tiltakstyper.length > 0
+      ? `&& tiltakstype->_id in [${filter.tiltakstyper.map(type => `"${type.id}"`).join(', ')}]`
+      : '')
+  );
 }

@@ -5,7 +5,7 @@ import { Tiltakstype } from '../../api/models';
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
   innsatsgrupper: Innsatsgruppe[];
-  tiltakstyper?: Tiltakstype[];
+  tiltakstyper: Tiltakstype[];
 }
 
 export const tiltaksgjennomforingsfilter = atom<Tiltaksgjennomforingsfilter>({
