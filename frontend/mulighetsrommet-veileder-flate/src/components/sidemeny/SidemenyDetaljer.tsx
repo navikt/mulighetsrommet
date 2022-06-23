@@ -1,7 +1,6 @@
 import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import Lenke from '../lenke/Lenke';
 import { Tiltaksgjennomforing } from '../../api/models';
 import Regelverksinfo from './Regelverksinfo';
 
@@ -12,7 +11,7 @@ interface SidemenyDetaljerProps {
 const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
   const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = tiltaksgjennomforing;
   const oppstart = resolveOppstart(tiltaksgjennomforing);
-
+  console.log(tiltakstype)
   return (
     <>
       <Panel className="tiltakstype-detaljer__sidemeny">

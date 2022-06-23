@@ -20,6 +20,15 @@ export default function useTiltaksgjennomforingById(id: number) {
     },
     kontaktinfoArrangor->,
     kontaktinfoTiltaksansvarlige[]->,
-    tiltakstype->{..., regelverkFiler[]->, regelverkLenker[]->, innsatsgruppe->}
+    tiltakstype->{
+      ...,
+      regelverkFiler[]-> {
+        _id,
+        "regelverkFilUrl": regelverkFilOpplastning.asset->url,
+        regelverkFilNavn
+      },
+      regelverkLenker[]->,
+      innsatsgruppe->
+    }
   }[0]`);
 }

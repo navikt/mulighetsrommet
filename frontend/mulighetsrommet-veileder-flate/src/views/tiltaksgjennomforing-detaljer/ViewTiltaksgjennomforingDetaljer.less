@@ -19,8 +19,8 @@
       margin-top: 3rem;
     }
     &__regelverk {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      text-align: right;
       gap: 1rem;
     }
     span {
@@ -34,9 +34,13 @@
       &__sidemeny {
         grid-row: 2;
         margin-top: 0;
+        padding: 2rem;
       }
       &__rad:not(:last-child) {
         margin-bottom: 2rem;
+      }
+      &__regelverk {
+        gap: 2rem;
       }
       .fane__root {
         grid-row: 3;

@@ -62,7 +62,7 @@ export interface Innsatsgruppe {
 
 export interface RegelverkFil {
   _id: string;
-  regelverkFilOpplastning?: string; //skal være fil
+  regelverkFilUrl?: string; //skal være fil
   regelverkFilNavn?: string;
 }
 
