@@ -41,17 +41,17 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
           <strong>Oppstart</strong>
           <span>{oppstart}</span>
         </div>
-
-        {(tiltakstype.regelverkFil || tiltakstype.regelverkLenke) && (
+        {console.log(tiltakstype)}
+        {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className="tiltakstype-detaljer__rad">
             <strong>Regelverk</strong>
             <div className="tiltakstype-detaljer__regelverk">
-              {tiltakstype.regelverkFil && <span>{tiltakstype.regelverkFilNavn}</span>}
-              {tiltakstype.regelverkLenke && (
+              {tiltakstype.regelverkFiler.map(regelverkFil => regelverkFil.regelverkFil && <span>{regelverkFil.regelverkFilNavn}</span>) }
+              {tiltakstype.regelverkLenker.map(regelverkLenke => (regelverkLenke.regelverkurl &&
                 <span>
-                  <Lenke to={tiltakstype.regelverkLenke}>{tiltakstype.regelverkLenkeNavn}</Lenke>
+                  <Lenke to={regelverkLenke.regelverkurl}>{tiltakstype.regelverkLenkeNavn}</Lenke>
                 </span>
-              )}
+              ))}
             </div>
           </div>
         )}

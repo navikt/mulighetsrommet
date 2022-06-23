@@ -4,9 +4,8 @@ export interface Tiltakstype {
   beskrivelse?: string;
   innsatsgruppe: Innsatsgruppe;
   varighet?: string;
-  regelverkFil?: string; //skal være fil
-  regelverkFilNavn?: string;
-  regelverkLenke?: string;
+  regelverkFiler: RegelverkFil[];
+  regelverkLenker: RegelverkLenke[];
   regelverkLenkeNavn?: string;
   faneinnhold?: {
     forHvemInfoboks?: string;
@@ -59,4 +58,14 @@ export interface Innsatsgruppe {
   _id: string;
   beskrivelse: string;
   tittel: string;
+}
+
+export interface RegelverkFil {
+  regelverkFil?: string; //skal være fil
+  regelverkFilNavn?: string;
+}
+
+export interface RegelverkLenke {
+  regelverkurl?: string;
+  regelverkLenkeNavn?: string;
 }
