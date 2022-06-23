@@ -2,7 +2,7 @@ export interface Tiltakstype {
   _id: number;
   tiltakstypeNavn: string;
   beskrivelse?: string;
-  innsatsgruppe: string;
+  innsatsgruppe: Innsatsgruppe;
   varighet?: string;
   regelverkFil?: string; //skal være fil
   regelverkFilNavn?: string;
@@ -53,4 +53,10 @@ export interface Tiltaksansvarlig {
   enhet: string;
   telefonnummer: string;
   epost: string;
+}
+
+export interface Innsatsgruppe {
+  _id: string;
+  beskrivelse: string;
+  tittel: string;
 }

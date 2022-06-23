@@ -7,6 +7,7 @@ import tiltaksgjennomforing from "./tiltaksgjennomforing";
 import arrangor from "./arrangor";
 import kontaktperson from "./kontaktperson";
 import enhet from "./enhet";
+import innsatsgruppe from "./innsatsgruppe";
 
 export default createSchema({
   name: "default",
@@ -18,6 +19,7 @@ export default createSchema({
     arrangor,
     kontaktperson,
     enhet,
+    innsatsgruppe,
 
     // When added to this list, object types can be used as
     // { type: 'typename' } in other document schemas
