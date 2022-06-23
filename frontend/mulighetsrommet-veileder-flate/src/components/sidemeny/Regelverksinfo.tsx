@@ -1,7 +1,6 @@
 import React from 'react';
 import { RegelverkFil, RegelverkLenke } from '../../api/models';
 import {Link} from "@navikt/ds-react";
-import './Regelverksinfo.less';
 
 interface RegelverksinfoProps {
   regelverkFiler: RegelverkFil[];
@@ -11,8 +10,8 @@ interface RegelverksinfoProps {
 const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps) => {
   return (
     <div className="tiltakstype-detaljer__regelverk">
-      {regelverkFiler.map(regelverkFilComponent)}
-      {regelverkLenker.map(regelverkLenkeComponent)}
+      {regelverkFiler && regelverkFiler.map(regelverkFilComponent)}
+      {regelverkLenker && regelverkLenker.map(regelverkLenkeComponent)}
     </div>
   );
 };
@@ -24,7 +23,6 @@ function regelverkFilComponent(regelverkFil: RegelverkFil) {
       <div key={regelverkFil._id}>
         <Link
           target="_blank"
-          className="tiltakstype-detaljer__hei"
           href={`${regelverkFil.regelverkFilUrl}`}
         >
           {regelverkFil.regelverkFilNavn}
@@ -40,7 +38,6 @@ function regelverkLenkeComponent(regelverkLenke: RegelverkLenke) {
       <div key={regelverkLenke._id}>
         <Link
           target="_blank"
-          className="tiltakstype-detaljer__hei"
           href={regelverkLenke.regelverkurl}
         >
           {regelverkLenke.regelverkLenkeNavn}
