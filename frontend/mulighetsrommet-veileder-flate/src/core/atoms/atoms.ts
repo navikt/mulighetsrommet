@@ -4,8 +4,13 @@ import { Tiltakstype } from '../../api/models';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgrupper: Innsatsgruppe[];
-  tiltakstyper: Tiltakstype[];
+  innsatsgrupper: Tiltaksgjenomforingsfiltergruppe[];
+  tiltakstyper: Tiltaksgjenomforingsfiltergruppe[];
+}
+
+export interface Tiltaksgjenomforingsfiltergruppe {
+  id: string,
+  tittel: string
 }
 
 export const tiltaksgjennomforingsfilter = atom<Tiltaksgjennomforingsfilter>({
