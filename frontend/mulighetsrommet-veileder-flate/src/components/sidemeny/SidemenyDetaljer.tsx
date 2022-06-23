@@ -3,6 +3,7 @@ import { Panel } from '@navikt/ds-react';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import { Tiltaksgjennomforing } from '../../api/models';
+import Regelverksinfo from './Regelverksinfo';
 
 interface SidemenyDetaljerProps {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -41,7 +42,21 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
           <strong>Oppstart</strong>
           <span>{oppstart}</span>
         </div>
-        {console.log(tiltakstype)}
+
+        <div className="tiltakstype-detaljer__rad">
+          <strong>Regelverk</strong>
+          <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker} />
+        </div>
+      </Panel>
+    </>
+  );
+};
+
+function resolveOppstart({ oppstart, oppstartsdato }: Tiltaksgjennomforing) {
+  return oppstart === 'dato' && oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende';
+}
+
+/*        {console.log(tiltakstype)}
         {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className="tiltakstype-detaljer__rad">
             <strong>Regelverk</strong>
@@ -54,14 +69,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
               ))}
             </div>
           </div>
-        )}
-      </Panel>
-    </>
-  );
-};
-
-function resolveOppstart({ oppstart, oppstartsdato }: Tiltaksgjennomforing) {
-  return oppstart === 'dato' && oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende';
-}
+          
+ */
 
 export default SidemenyDetaljer;
