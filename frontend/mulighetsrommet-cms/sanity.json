@@ -20,14 +20,6 @@
         "projectId": "xegcworx",
         "dataset": "test"
       }
-    },
-    {
-      "name": "dev",
-      "title": "Development",
-      "api": {
-        "projectId": "xegcworx",
-        "dataset": "development"
-      }
     }
   ],
   "api": {
