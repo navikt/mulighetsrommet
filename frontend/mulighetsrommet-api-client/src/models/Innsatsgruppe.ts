@@ -3,6 +3,7 @@
 /* eslint-disable */
 
 export type Innsatsgruppe = {
-    id: number;
-    navn: string;
+    _id: number;
+    tittel?: string;
+    beskrivelse?: string;
 };

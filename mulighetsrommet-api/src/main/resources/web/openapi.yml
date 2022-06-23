@@ -245,17 +245,19 @@ components:
     Innsatsgruppe:
       type: object
       properties:
-        id:
+        _id:
           type: number
-        navn:
+        tittel:
           type: string
+        beskrivelse:
+          type: string  
       required:
-        - id
+        - _id
         - navn
     Tiltakstype:
       type: object
       required:
-        - id
+        - _id
         - innsatsgruppe
         - sanityId
         - navn
@@ -267,7 +269,7 @@ components:
       #        - updatedBy
       #        - updatedAt
       properties:
-        id:
+        _id:
           type: integer
         innsatsgruppe:
           type: number
@@ -300,7 +302,7 @@ components:
     Tiltaksgjennomforing:
       type: object
       properties:
-        id:
+        _id:
           type: integer
         tittel:
           type: string
@@ -324,11 +326,11 @@ components:
           format: date-time
           nullable: true
       required:
-        - id
+        - _id
         - tittel
         - beskrivelse
         - tiltakskode
-        - tilataksnummer
+        - tiltaksnummer
         - fraDato
         - tilDato
     Tiltakskode:

@@ -5,11 +5,11 @@
 import type { Tiltakskode } from './Tiltakskode';
 
 export type Tiltaksgjennomforing = {
-    id: number;
+    _id: number;
     tittel: string;
     beskrivelse: string;
     tiltakskode: Tiltakskode;
-    tiltaksnummer?: string;
+    tiltaksnummer: string;
     fraDato: string | null;
     tilDato: string | null;
 };
