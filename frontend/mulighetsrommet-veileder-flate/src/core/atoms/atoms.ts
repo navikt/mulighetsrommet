@@ -4,7 +4,7 @@ import { Tiltakstype } from '../../api/models';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgrupper?: Innsatsgruppe[];
+  innsatsgrupper: Innsatsgruppe[];
   tiltakstyper?: Tiltakstype[];
 }
 
