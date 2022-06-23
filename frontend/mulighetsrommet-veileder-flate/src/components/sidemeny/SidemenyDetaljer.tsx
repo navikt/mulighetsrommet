@@ -42,11 +42,12 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
           <strong>Oppstart</strong>
           <span>{oppstart}</span>
         </div>
-
-        <div className="tiltakstype-detaljer__rad">
-          <strong>Regelverk</strong>
-          <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker} />
-        </div>
+        {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
+          <div className="tiltakstype-detaljer__rad">
+            <strong>Regelverk</strong>
+            <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker}/>
+          </div>)
+        }
       </Panel>
     </>
   );
