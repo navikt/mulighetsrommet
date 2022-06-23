@@ -26,25 +26,11 @@ export default {
     {
       name: "innsatsgruppe",
       title: "Innsatsgruppe",
-      type: "string",
+      type: "reference",
       options: {
-        layout: "dropdown",
-        list: [
-          { title: "Standardinnsats", value: "Standardinnsats" },
-          {
-            title: "Situasjonsbestemt innsats",
-            value: "Situasjonsbestemt innsats",
-          },
-          {
-            title: "Spesielt tilpasset innsats",
-            value: "Spesielt tilpasset innsats",
-          },
-          {
-            title: "Varig tilpasset innsats",
-            value: "Varig tilpasset innsats",
-          },
-        ],
+        disableNew: true,
       },
+      to: [{ type: "innsatsgruppe" }],
     },
     {
       name: "varighet",
@@ -144,6 +130,7 @@ export default {
   preview: {
     select: {
       title: "tiltakstypeNavn",
+      subtitle: "innsatsgruppe.tittel",
     },
   },
 };

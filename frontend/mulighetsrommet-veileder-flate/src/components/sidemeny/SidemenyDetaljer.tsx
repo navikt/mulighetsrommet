@@ -34,7 +34,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Innsatsgruppe</strong>
-          <span>{tiltakstype.innsatsgruppe} </span>
+          <span>{tiltakstype.innsatsgruppe.beskrivelse} </span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
