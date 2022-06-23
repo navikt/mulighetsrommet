@@ -1,7 +1,6 @@
-import { useQuery } from 'react-query';
-import { Innsatsgruppe, MulighetsrommetService } from 'mulighetsrommet-api-client';
-import { QueryKeys } from '../../core/api/QueryKeys';
+import { Innsatsgruppe } from '../models';
+import { useSanity } from './useSanity';
 
 export function useInnsatsgrupper() {
-  return useQuery<Innsatsgruppe[]>(QueryKeys.Innsatsgrupper, MulighetsrommetService.getInnsatsgrupper);
+  return useSanity<Innsatsgruppe[]>('*[_type == "innsatsgruppe"]');
 }

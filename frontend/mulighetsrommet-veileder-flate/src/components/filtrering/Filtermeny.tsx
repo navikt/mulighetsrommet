@@ -28,8 +28,8 @@ const Filtermeny = () => {
         data={
           innsatsgrupper.data?.map(innsatsgruppe => {
             return {
-              id: innsatsgruppe.id,
-              tittel: innsatsgruppe.navn,
+              id: innsatsgruppe._id,
+              tittel: innsatsgruppe.tittel,
             };
           }) ?? []
         }

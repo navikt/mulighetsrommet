@@ -10,7 +10,11 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }),
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      innsatsgruppe: '',
+      innsatsgruppe: {
+        _id: '',
+        beskrivelse: '',
+        tittel: '',
+      },
       tiltakstypeNavn: '',
     },
     kontaktinfoArrangor: {
@@ -40,7 +44,11 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }),
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      innsatsgruppe: '',
+      innsatsgruppe: {
+        _id: '',
+        beskrivelse: '',
+        tittel: '',
+      },
       tiltakstypeNavn: '',
     },
     kontaktinfoArrangor: {
@@ -70,7 +78,11 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }),
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      innsatsgruppe: '',
+      innsatsgruppe: {
+        _id: '',
+        beskrivelse: '',
+        tittel: '',
+      },
       tiltakstypeNavn: '',
     },
     kontaktinfoArrangor: {
@@ -100,7 +112,11 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }),
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      innsatsgruppe: '',
+      innsatsgruppe: {
+        _id: '',
+        beskrivelse: '',
+        tittel: '',
+      },
       tiltakstypeNavn: '',
     },
     kontaktinfoArrangor: {
@@ -130,7 +146,11 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: faker.datatype.number({ min: 100000, max: 999999 }),
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }),
-      innsatsgruppe: '',
+      innsatsgruppe: {
+        _id: '',
+        beskrivelse: '',
+        tittel: '',
+      },
       tiltakstypeNavn: '',
     },
     kontaktinfoArrangor: {

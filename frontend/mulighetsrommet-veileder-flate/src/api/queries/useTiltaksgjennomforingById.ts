@@ -20,6 +20,6 @@ export default function useTiltaksgjennomforingById(id: number) {
     },
     kontaktinfoArrangor->,
     kontaktinfoTiltaksansvarlige[]->,
-    tiltakstype->
+    tiltakstype->{..., innsatsgruppe->}
   }[0]`);
 }
