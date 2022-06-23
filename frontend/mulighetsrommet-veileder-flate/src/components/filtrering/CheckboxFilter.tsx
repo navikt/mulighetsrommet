@@ -2,7 +2,7 @@ import React from 'react';
 import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from '@navikt/ds-react';
 import './Filtermeny.less';
 import { kebabCase } from '../../utils/Utils';
-import {logEvent} from "../../api/logger";
+import { logEvent } from '../../api/logger';
 
 interface CheckboxFilterProps {
   accordionNavn: string;
@@ -28,12 +28,12 @@ const CheckboxFilter = ({
   const valgteTypeIDer = options!.map((type: any) => type.id);
 
   const handleEndreFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
+    const value = e.target.value;
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
-      : valgteTypeIDer.filter((id: number) => id !== value);
+      : valgteTypeIDer.filter((id: string) => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
-    logEvent('mulighetsrommet.filtrering', {value})
+    logEvent('mulighetsrommet.filtrering', { value });
   };
 
   const checkbox = (filtertype: any, index: number) => {

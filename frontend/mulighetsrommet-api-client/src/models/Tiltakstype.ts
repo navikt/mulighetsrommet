@@ -5,7 +5,7 @@
 import type { Tiltakskode } from './Tiltakskode';
 
 export type Tiltakstype = {
-    id: number;
+    _id: number;
     innsatsgruppe: number | null;
     sanityId: number | null;
     navn: string;

@@ -13,14 +13,21 @@ interface FilterTagsProps {
 const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
   return (
     <>
-      {options.map(filtertype => (
-        <Tag key={filtertype.id} variant="info" size="small" data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}>
-          {filtertype.tittel}
-          <Ikonknapp handleClick={() => handleClick(filtertype.id)} ariaLabel="Lukkeknapp">
-            <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
-          </Ikonknapp>
-        </Tag>
-      ))}
+      {options.map(filtertype => {
+        return (
+          <Tag
+            key={filtertype.id}
+            variant="info"
+            size="small"
+            data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
+          >
+            {filtertype.tittel}
+            <Ikonknapp handleClick={() => handleClick(filtertype._id)} ariaLabel="Lukkeknapp">
+              <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
+            </Ikonknapp>
+          </Tag>
+        );
+      })}
     </>
   );
 };
