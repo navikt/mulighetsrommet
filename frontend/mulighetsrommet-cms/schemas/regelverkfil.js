@@ -18,7 +18,7 @@ export default {
       type: "string",
       validation: (Rule) =>
           Rule.custom((field, context) =>
-              context.document.regelverkFil && field === undefined
+              context.document.regelverkFilOpplastning && field === undefined
                   ? "Dette feltet kan ikke være tomt."
                   : true
           ),

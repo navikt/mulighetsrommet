@@ -19,7 +19,7 @@ export default {
             type: "string",
             validation: (Rule) =>
                 Rule.custom((field, context) =>
-                    context.document.regelverkLenke && field === undefined
+                    context.document.regelverkurl && field === undefined
                         ? "Dette feltet kan ikke være tomt."
                         : true
                 ),
