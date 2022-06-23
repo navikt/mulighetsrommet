@@ -1,5 +1,7 @@
 import React from 'react';
 import { RegelverkFil, RegelverkLenke } from '../../api/models';
+import {Link} from "@navikt/ds-react";
+import './Regelverksinfo.less'
 
 interface RegelverksinfoProps {
   regelverkFiler: RegelverkFil[];
@@ -8,10 +10,10 @@ interface RegelverksinfoProps {
 
 const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps) => {
   return (
-    <>
+    <div className="regelverksinfo">
       {regelverkFiler.map(regelverkFilComponent)}
       {regelverkLenker.map(regelverkLenkeComponent)}
-    </>
+    </div>
   );
 };
 
@@ -20,7 +22,19 @@ function regelverkFilComponent(regelverkFil: RegelverkFil) {
 }
 
 function regelverkLenkeComponent(regelverkLenke: RegelverkLenke) {
-  return <div key={regelverkLenke._id}>{regelverkLenke.regelverkLenkeNavn}</div>;
+  return (
+    regelverkLenke.regelverkurl && (
+      <div key={regelverkLenke._id}>
+        <Link
+          target="_blank"
+          className="regelver-link"
+          href={regelverkLenke.regelverkurl}
+        >
+          {regelverkLenke.regelverkLenkeNavn}
+        </Link>
+      </div>
+    )
+  );
 }
 
 /*
