@@ -68,6 +68,6 @@ export interface RegelverkFil {
 
 export interface RegelverkLenke {
   _id: string;
-  regelverkurl: string;
+  regelverkUrl: string;
   regelverkLenkeNavn: string;
 }

@@ -7,7 +7,7 @@ export default {
     icon: GrLink,
     fields: [
         {
-            name: "regelverkurl",
+            name: "regelverkUrl",
             title: "Regelverk URL",
             type: "url",
             placeholder: "https://www...",
@@ -19,11 +19,11 @@ export default {
             type: "string",
             validation: (Rule) =>
                 Rule.custom((field, context) =>
-                    context.document.regelverkurl && field === undefined
+                    context.document.regelverkUrl && field === undefined
                         ? "Dette feltet kan ikke være tomt."
                         : true
                 ),
-            hidden: ({ document }) => !document?.regelverkurl,
+            hidden: ({ document }) => !document?.regelverkUrl,
         },
     ],
     preview: {

@@ -33,11 +33,11 @@ function regelverkFilComponent(regelverkFil: RegelverkFil) {
 
 function regelverkLenkeComponent(regelverkLenke: RegelverkLenke) {
   return (
-    regelverkLenke.regelverkurl && (
+    regelverkLenke.regelverkUrl && (
       <div key={regelverkLenke._id}>
         <Link
           target="_blank"
-          href={regelverkLenke.regelverkurl}
+          href={regelverkLenke.regelverkUrl}
         >
           {regelverkLenke.regelverkLenkeNavn}
         </Link>
