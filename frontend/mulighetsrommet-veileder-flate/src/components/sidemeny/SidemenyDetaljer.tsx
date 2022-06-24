@@ -3,14 +3,14 @@ import { Panel } from '@navikt/ds-react';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import { Tiltaksgjennomforing } from '../../api/models';
 import Regelverksinfo from './Regelverksinfo';
+import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 
-interface SidemenyDetaljerProps {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
-}
+const SidemenyDetaljer = () => {
+  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  if (!data) return null;
 
-const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = tiltaksgjennomforing;
-  const oppstart = resolveOppstart(tiltaksgjennomforing);
+  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = data;
+  const oppstart = resolveOppstart(data);
 
   return (
     <>
@@ -34,7 +34,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Innsatsgruppe</strong>
-          <span>{tiltakstype.innsatsgruppe.beskrivelse} </span>
+          <span>{tiltakstype?.innsatsgruppe?.beskrivelse} </span>
         </div>
 
         <div className="tiltakstype-detaljer__rad">
@@ -44,9 +44,9 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
         {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className="tiltakstype-detaljer__rad">
             <strong>Regelverk</strong>
-            <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker}/>
-          </div>)
-        }
+            <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker} />
+          </div>
+        )}
       </Panel>
     </>
   );

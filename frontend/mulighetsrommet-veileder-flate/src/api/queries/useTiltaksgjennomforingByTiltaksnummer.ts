@@ -1,8 +1,10 @@
-import { useSanity } from './useSanity';
 import { Tiltaksgjennomforing } from '../models';
+import { useGetTiltaksnummerFraUrl } from './useGetTiltaksnummerFraUrl';
+import { useSanity } from './useSanity';
 
-export default function useTiltaksgjennomforingById(id: number) {
-  return useSanity<Tiltaksgjennomforing>(`*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${id}] {
+export default function useTiltaksgjennomforingByTiltaksnummer() {
+  const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  return useSanity<Tiltaksgjennomforing>(`*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${tiltaksnummer}] {
     _id,
     tiltaksgjennomforingNavn,
     beskrivelse,

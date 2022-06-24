@@ -4,14 +4,14 @@ import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import Statistikk from '../../components/statistikk/Statistikk';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
-import { useParams } from 'react-router-dom';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
-import useTiltaksgjennomforingById from '../../api/queries/useTiltaksgjennomforingById';
+import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { Alert, Loader } from '@navikt/ds-react';
+import { useGetTiltaksnummerFraUrl } from '../../api/queries/useGetTiltaksnummerFraUrl';
 
 const ViewTiltakstypeDetaljer = () => {
-  const { tiltaksnummer = '' } = useParams();
-  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById(parseInt(tiltaksnummer));
+  const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
 
   if (isLoading) {
     return <Loader className="filter-loader" size="xlarge" />;
@@ -31,15 +31,15 @@ const ViewTiltakstypeDetaljer = () => {
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
         <Tilbakeknapp tilbakelenke="/" />
-        <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
+        <TiltaksgjennomforingsHeader />
         <Statistikk
           tittel="Overgang til arbeid"
           hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
           statistikktekst="69%"
         />
       </div>
-      <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
-      <TiltaksdetaljerFane tiltaksgjennomforing={tiltaksgjennomforing} />
+      <SidemenyDetaljer />
+      <TiltaksdetaljerFane />
     </div>
   );
 };

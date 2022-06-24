@@ -4,14 +4,13 @@ import { Tabs } from '@navikt/ds-react';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import DetaljerFane from './detaljerFane';
 import { logEvent } from '../../api/logger';
-import { Tiltaksgjennomforing } from '../../api/models';
+import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 
-interface TiltaksdetaljerFaneProps {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
-}
+const TiltaksdetaljerFane = () => {
+  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  if (!data) return null;
 
-const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: TiltaksdetaljerFaneProps) => {
-  const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor } = tiltaksgjennomforing;
+  const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor, faneinnhold } = data;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
 
   return (
@@ -29,25 +28,25 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing }: TiltaksdetaljerFaneProps)
       </Tabs.List>
       <Tabs.Panel value="tab1">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.forHvemInfoboks}
+          tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.forHvem}
+          tiltaksgjennomforing={faneinnhold?.forHvem}
           tiltakstype={tiltakstype.faneinnhold?.forHvem}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab2">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.detaljerOgInnholdInfoboks}
+          tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.detaljerOgInnhold}
+          tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
           tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab3">
         <DetaljerFane
-          tiltaksgjennomforingAlert={tiltaksgjennomforing.faneinnhold?.pameldingOgVarighetInfoboks}
+          tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
           tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
-          tiltaksgjennomforing={tiltaksgjennomforing.faneinnhold?.pameldingOgVarighet}
+          tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
           tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
         />
       </Tabs.Panel>

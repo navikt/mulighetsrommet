@@ -2,14 +2,13 @@ import React from 'react';
 import './TiltaksgjennomforingsHeader.less';
 import { Heading } from '@navikt/ds-react';
 import { kebabCase } from '../utils/Utils';
-import { Tiltaksgjennomforing } from '../api/models';
+import useTiltaksgjennomforingByTiltaksnummer from '../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 
-interface TiltaksgjennomforingsHeaderProps {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
-}
+const TiltaksgjennomforingsHeader = () => {
+  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  if (!data) return null;
 
-const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: TiltaksgjennomforingsHeaderProps) => {
-  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
+  const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = data;
   return (
     <div className="tiltaksgjennomforing__title">
       <Heading
@@ -19,7 +18,10 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Tiltaksgjennomfor
       >
         {tiltaksgjennomforingNavn}
       </Heading>
-      {beskrivelse && <div className="tiltaksgjennomforing__beskrivelse">{beskrivelse}</div>}
+      {tiltakstype?.tiltakstypeNavn === 'Opplæring (Gruppe AMO)'
+        ? beskrivelse && <div className="tiltaksgjennomforing__beskrivelse">{beskrivelse}</div>
+        : null}
+
       {tiltakstype.beskrivelse && <div className="tiltaksgjennomforing__beskrivelse">{tiltakstype.beskrivelse}</div>}
     </div>
   );
