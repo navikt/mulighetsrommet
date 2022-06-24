@@ -70,3 +70,4 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
+          SANITY_DATASET: test
