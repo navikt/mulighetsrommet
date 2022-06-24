@@ -1,6 +1,16 @@
+type Tiltakstyper =
+  | 'Digital jobbklubb'
+  | 'AFT'
+  | 'Jobbklubb'
+  | 'ARR'
+  | 'Oppfølging'
+  | 'Avklaring'
+  | 'VTA'
+  | 'Opplæring (Gruppe AMO)';
+
 export interface Tiltakstype {
   _id: number;
-  tiltakstypeNavn: string;
+  tiltakstypeNavn: Tiltakstyper;
   beskrivelse?: string;
   innsatsgruppe: Innsatsgruppe;
   varighet?: string;
