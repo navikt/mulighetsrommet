@@ -679,6 +679,16 @@
   "resolved" "https://registry.npmjs.org/isobject/-/isobject-3.0.1.tgz"
   "version" "3.0.1"
 
+"js-md5@^0.7.3":
+  "integrity" "sha512-ZC41vPSTLKGwIRjqDh8DfXoCrdQIyBgspJVPXHBGu4nZlAEvG3nf+jO9avM9RmLiGakg7vz974ms99nEV0tmTQ=="
+  "resolved" "https://registry.npmjs.org/js-md5/-/js-md5-0.7.3.tgz"
+  "version" "0.7.3"
+
+"js-sha1@^0.6.0":
+  "integrity" "sha512-01gwBFreYydzmU9BmZxpVk6svJJHrVxEN3IOiGl6VO93bVKYETJ0sIth6DASI6mIFdt7NmfX9UiByRzsYHGU9w=="
+  "resolved" "https://registry.npmjs.org/js-sha1/-/js-sha1-0.6.0.tgz"
+  "version" "0.6.0"
+
 "js-tokens@^3.0.0 || ^4.0.0":
   "integrity" "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
   "resolved" "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz"
@@ -1210,6 +1220,14 @@
   "integrity" "sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8="
   "resolved" "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   "version" "1.0.2"
+
+"uuid-by-string@^3.0.7":
+  "integrity" "sha512-9xf+GAcwzLLGL2Z2Vb7hmi7jWIAKSiuaI5cLFsKw1IIlm7S5VpqvdJ5S7N36hqdy0v7DAwnnENJVAeev57/H1A=="
+  "resolved" "https://registry.npmjs.org/uuid-by-string/-/uuid-by-string-3.0.7.tgz"
+  "version" "3.0.7"
+  dependencies:
+    "js-md5" "^0.7.3"
+    "js-sha1" "^0.6.0"
 
 "uuid@^8.3.2":
   "integrity" "sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg=="

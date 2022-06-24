@@ -207,6 +207,14 @@ export default {
   preview: {
     select: {
       title: "tiltaksgjennomforingNavn",
+      tiltakstypeNavn: "tiltakstype.tiltakstypeNavn",
+    },
+    prepare: (selection) => {
+      const { title, tiltakstypeNavn } = selection;
+      return {
+        title,
+        subtitle: `Tiltakstype: ${tiltakstypeNavn}`,
+      };
     },
   },
 };

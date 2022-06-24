@@ -22,7 +22,6 @@ export default {
       name: "epost",
       title: "E-post",
       type: "string",
-      validation: (Rule) => Rule.required(),
     },
     {
       name: "adresse",
