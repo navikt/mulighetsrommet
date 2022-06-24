@@ -39,41 +39,16 @@ export default {
     },
     //TODO skal kunne legge til flere lenker og filer
     {
-      name: "regelverkFil",
-      title: "Regelverk fil",
-      type: "file",
+      name: "regelverkFiler",
+      title: "Regelverk filer",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }]
     },
     {
-      name: "regelverkFilNavn",
-      title: "Navn til fil",
-      description: "Hvilket navn skal vises til filen?",
-      type: "string",
-      validation: (Rule) =>
-        Rule.custom((field, context) =>
-          context.document.regelverkFil && field === undefined
-            ? "Dette feltet kan ikke være tomt."
-            : true
-        ),
-      hidden: ({ document }) => !document?.regelverkFil,
-    },
-    {
-      name: "regelverkLenke",
-      title: "Regelverk lenke",
-      type: "url",
-      placeholder: "https://www...",
-    },
-    {
-      name: "regelverkLenkeNavn",
-      title: "Navn til lenke",
-      description: "Hvilket navn skal vises i lenken?",
-      type: "string",
-      validation: (Rule) =>
-        Rule.custom((field, context) =>
-          context.document.regelverkLenke && field === undefined
-            ? "Dette feltet kan ikke være tomt."
-            : true
-        ),
-      hidden: ({ document }) => !document?.regelverkLenke,
+      name: "regelverkLenker",
+      title: "Regelverk lenker",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }]
     },
     //Faneinnhold
     {

@@ -11,11 +11,12 @@ import { client } from "./sanityConfig";
 const short = require("short-uuid");
 var colors = require("colors");
 import { faker } from "@faker-js/faker";
+const uuidByString = require("uuid-by-string");
 
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
-const skalLasteOpp = false;
+const skalLasteOpp = true;
 const brukFakeData = true;
 
 type Row = {
@@ -28,7 +29,9 @@ const tiltaksgjennomforinger: Record<number, SanityTiltaksgjennomforing> = {};
 const rows: Row[] = [];
 
 //Om man trenger å slette noe fra sanity
-async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
+async function deleteTyper(
+  type: "tiltaksgjennomforing" | "tiltakstype" | "arrangor" | "navKontaktperson"
+) {
   const res = await client.delete({
     query: `*[_type == "${type}"]`,
   });
@@ -36,7 +39,7 @@ async function deleteTyper(type: "tiltaksgjennomforing" | "tiltakstype") {
   process.exit(1);
 }
 
-//deleteTyper("tiltaksgjennomforing");
+// deleteTyper("navKontaktperson");
 
 // Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
 async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
@@ -96,7 +99,7 @@ fs.createReadStream(csvFil)
 
 function opprettKontaktperson(row: Row): SanityKontaktperson {
   const navn = brukFakeData ? faker.name.findName() : row[17];
-  const epost = brukFakeData ? faker.internet.email() : row[21];
+  const epost = brukFakeData ? faker.internet.email() : row[20];
   const ident = brukFakeData
     ? `${navn.substring(0, 2).toUpperCase()}${faker.random.numeric(6)}`
     : row[18];
@@ -142,7 +145,7 @@ function opprettArrangor(row: Row): SanityArrangor {
     selskapsnavn: navn,
     telefonnummer: telefon,
     adresse: postnr,
-    _id: epost.replace("@", "_"), // Sanity liker ikke @ i id'ene sine
+    _id: uuidByString(postnr),
   };
   arrangorer.push(arrangor);
   return arrangor;

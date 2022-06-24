@@ -1,8 +1,8 @@
 import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import Lenke from '../lenke/Lenke';
 import { Tiltaksgjennomforing } from '../../api/models';
+import Regelverksinfo from './Regelverksinfo';
 
 interface SidemenyDetaljerProps {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -41,20 +41,12 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: SidemenyDetaljerProps) => {
           <strong>Oppstart</strong>
           <span>{oppstart}</span>
         </div>
-
-        {(tiltakstype.regelverkFil || tiltakstype.regelverkLenke) && (
+        {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className="tiltakstype-detaljer__rad">
             <strong>Regelverk</strong>
-            <div className="tiltakstype-detaljer__regelverk">
-              {tiltakstype.regelverkFil && <span>{tiltakstype.regelverkFilNavn}</span>}
-              {tiltakstype.regelverkLenke && (
-                <span>
-                  <Lenke to={tiltakstype.regelverkLenke}>{tiltakstype.regelverkLenkeNavn}</Lenke>
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+            <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker}/>
+          </div>)
+        }
       </Panel>
     </>
   );
