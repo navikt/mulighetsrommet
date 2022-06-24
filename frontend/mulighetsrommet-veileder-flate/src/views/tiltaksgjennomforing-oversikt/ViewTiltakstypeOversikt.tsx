@@ -36,7 +36,7 @@ const ViewTiltakstypeOversikt = () => {
             <div className="filtertags" data-testid="filtertags">
               <FilterTags
                 options={filter.innsatsgrupper!}
-                handleClick={(id: number) =>
+                handleClick={(id: string) =>
                   setFilter({
                     ...filter,
                     innsatsgrupper: filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id),
@@ -45,7 +45,7 @@ const ViewTiltakstypeOversikt = () => {
               />
               <FilterTags
                 options={filter.tiltakstyper!}
-                handleClick={(id: number) =>
+                handleClick={(id: string) =>
                   setFilter({
                     ...filter,
                     tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
