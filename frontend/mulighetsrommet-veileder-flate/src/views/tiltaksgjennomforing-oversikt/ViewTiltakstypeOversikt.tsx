@@ -39,7 +39,7 @@ const ViewTiltakstypeOversikt = () => {
                 handleClick={(id: number) =>
                   setFilter({
                     ...filter,
-                    innsatsgrupper: filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe._id !== id),
+                    innsatsgrupper: filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id),
                   })
                 }
               />
@@ -48,7 +48,7 @@ const ViewTiltakstypeOversikt = () => {
                 handleClick={(id: number) =>
                   setFilter({
                     ...filter,
-                    tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype._id !== id),
+                    tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
                   })
                 }
               />
