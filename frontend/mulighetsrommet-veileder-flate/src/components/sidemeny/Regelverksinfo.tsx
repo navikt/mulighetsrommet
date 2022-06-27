@@ -1,6 +1,7 @@
 import React from 'react';
 import { RegelverkFil, RegelverkLenke } from '../../api/models';
-import {Link} from "@navikt/ds-react";
+import { Link } from '@navikt/ds-react';
+import { logEvent } from '../../api/logger';
 
 interface RegelverksinfoProps {
   regelverkFiler: RegelverkFil[];
@@ -16,14 +17,15 @@ const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps
   );
 };
 
+function loggTrykkPaRegelverk() {
+  logEvent('mulighetsrommet.regelverk');
+}
+
 function regelverkFilComponent(regelverkFil: RegelverkFil) {
   return (
     regelverkFil.regelverkFilUrl && (
       <div key={regelverkFil._id}>
-        <Link
-          target="_blank"
-          href={`${regelverkFil.regelverkFilUrl}`}
-        >
+        <Link target="_blank" href={`${regelverkFil.regelverkFilUrl}`} onClick={loggTrykkPaRegelverk}>
           {regelverkFil.regelverkFilNavn}
         </Link>
       </div>
@@ -35,10 +37,7 @@ function regelverkLenkeComponent(regelverkLenke: RegelverkLenke) {
   return (
     regelverkLenke.regelverkUrl && (
       <div key={regelverkLenke._id}>
-        <Link
-          target="_blank"
-          href={regelverkLenke.regelverkUrl}
-        >
+        <Link target="_blank" href={regelverkLenke.regelverkUrl} onClick={loggTrykkPaRegelverk}>
           {regelverkLenke.regelverkLenkeNavn}
         </Link>
       </div>
