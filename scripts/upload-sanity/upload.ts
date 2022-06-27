@@ -6,6 +6,8 @@ import {
   Tiltakstype,
   SanityTiltakstype,
   Lenke,
+  SanityEnhet,
+  Reference,
 } from "./domain";
 import { client } from "./sanityConfig";
 const short = require("short-uuid");
@@ -16,8 +18,8 @@ const uuidByString = require("uuid-by-string");
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
-const skalLasteOpp = true;
-const brukFakeData = true;
+const skalLasteOpp = false;
+const brukFakeData = process.env.SANITY_DATASET !== "production";
 
 type Row = {
   [index: number]: string;
@@ -49,6 +51,13 @@ async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
   return Promise.resolve(data);
 }
 
+// Fylker og enheter er definert i Sanity
+async function fetchFylkerOgEnheterFraSanity(): Promise<SanityEnhet[]> {
+  console.log(colors.green("Henter fylker og enheter fra Sanity..."));
+  const data = await client.fetch('*[_type == "enhet"]');
+  return Promise.resolve(data);
+}
+
 console.log(colors.green(`Leser ${csvFil} og laster rader opp til Sanity...`));
 
 // Les tiltaksgjennomføringer fra csv-fil
@@ -60,10 +69,13 @@ fs.createReadStream(csvFil)
   .on("end", async function () {
     console.log(colors.green(`Antall rader lest: ${rows.length}`));
     const tiltakstyper = await fetchTiltakstyperFraSanity();
+    const fylkerOgEnheter = await fetchFylkerOgEnheterFraSanity();
+    const fylker = fylkerOgEnheter.filter((fylke) => fylke.type === "Fylke");
+    const enheter = fylkerOgEnheter.filter((fylke) => fylke.type === "Lokal");
     rows.forEach((row) => {
       opprettKontaktperson(row);
       opprettArrangor(row);
-      opprettTiltaksgjennomforing(row, tiltakstyper);
+      opprettTiltaksgjennomforing(row, tiltakstyper, fylker, enheter);
     });
 
     console.log(
@@ -153,7 +165,9 @@ function opprettArrangor(row: Row): SanityArrangor {
 
 function opprettTiltaksgjennomforing(
   row: Row,
-  tiltakstyper: SanityTiltakstype[]
+  tiltakstyper: SanityTiltakstype[],
+  fylker: SanityEnhet[],
+  enheter: SanityEnhet[]
 ): SanityTiltaksgjennomforing {
   const tiltaksgjennomforingsnavn = brukFakeData
     ? faker.company.catchPhrase()
@@ -167,11 +181,15 @@ function opprettTiltaksgjennomforing(
       ? new Date(row[4]).toISOString().substring(0, 10) // Hent ut dato på YYYY-MM-DD
       : undefined;
   const lokasjon = brukFakeData ? faker.address.street() : row[5];
+  const navKontorer = brukFakeData
+    ? "lillestrøm"
+    : row[6]?.trim().toLowerCase();
   const forHvem = brukFakeData ? faker.lorem.paragraphs(2) : row[7];
   const detaljerOgInnhold = brukFakeData ? faker.lorem.paragraphs(2) : row[9];
   const pameldingOgVarighet = brukFakeData
     ? faker.lorem.paragraphs(2)
     : row[11];
+  const fylke = brukFakeData ? "Nav Øst-Viken" : row[21]?.trim().toLowerCase();
 
   const arrangor = opprettArrangor(row);
   const kontaktinfoPerson = opprettKontaktperson(row);
@@ -184,6 +202,47 @@ function opprettTiltaksgjennomforing(
     opprettLenke(row[10], row[22]),
     opprettLenke(row[12], row[23]),
   ].filter((lenke) => lenke.lenke.startsWith("https"));
+
+  const fylkeMatch = fylker.find((fylke) => fylke.navn === fylke.navn) ?? null;
+  if (!fylkeMatch) {
+    console.log(
+      colors.red(`Fant ingen match for fylke spesifisert i Excel: ${fylke}`)
+    );
+  } else {
+    console.log(colors.green(`Fant match for fylke: ${fylke}`));
+  }
+  const fylkeReference: Reference = {
+    _key: short.generate(),
+    _ref: fylkeMatch._id,
+    _type: "reference",
+  };
+
+  const enheterMatchet: Reference[] =
+    enheter
+      .filter((enhet) => {
+        return navKontorer
+          ?.trim()
+          .split(";")
+          .map(normaliserNavkontor)
+          .some((kontor) => {
+            return kontor === enhet.navn.toLowerCase();
+          });
+      })
+      .map((enhet) => ({
+        _type: "reference",
+        _ref: enhet._id,
+        _key: short.generate(),
+      })) ?? [];
+
+  if (enheterMatchet.length === 0) {
+    console.log(
+      colors.red(
+        `Klarte ikke finne Nav-kontorer fra streng: '${navKontorer}' som matchet med noen av enhetene fra Sanity`
+      )
+    );
+  } else {
+    console.log(colors.green(`Fant match for Nav-kontor: ${navKontorer}`));
+  }
 
   if (!tiltakstypeId) {
     console.log(
@@ -205,6 +264,8 @@ function opprettTiltaksgjennomforing(
     oppstart: oppstart,
     oppstartsdato: oppstartsdato,
     tiltaksgjennomforingNavn: tiltaksgjennomforingsnavn,
+    fylke: fylkeReference,
+    enheter: enheterMatchet?.length === 0 ? null : enheterMatchet,
     faneinnhold: {
       _type: "object",
       detaljerOgInnholdInfoboks: "",
@@ -289,4 +350,10 @@ function opprettLenke(url: string, lenkenavn: string) {
       ? lenkenavn
       : beholdLenkeHvisStarterMedHttps(url, ""),
   };
+}
+
+function normaliserNavkontor(kontornavn: string): string {
+  return kontornavn.startsWith("nav")
+    ? kontornavn.trim()
+    : `nav ${kontornavn}`.trim();
 }
