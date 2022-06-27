@@ -5,15 +5,13 @@ import { Close } from '@navikt/ds-icons';
 import Ikonknapp from '../knapper/Ikonknapp';
 import './Filtertags.less';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { RESET } from 'jotai/utils';
 
 const SearchFieldTag = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   const handleClickFjernFilter = () => {
-    setFilter({
-      ...filter,
-      search: '',
-    });
+    setFilter(RESET);
   };
 
   return (

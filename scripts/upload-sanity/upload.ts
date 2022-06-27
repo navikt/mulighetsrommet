@@ -16,15 +16,15 @@ import { faker } from "@faker-js/faker";
 const uuidByString = require("uuid-by-string");
 const fs = require("fs");
 const { parse } = require("csv-parse");
-const csvFil = "./tiltak.csv";
+const csvFil = "./vest-viken.csv";
 const skalLasteOpp = false;
 const brukFakeData = process.env.SANITY_DATASET !== "production";
 const FYLKE_FOR_OPPLASTING:
   | null
-  | "Nav Øst-Viken"
-  | "Nav Vest-Viken"
-  | "Nav Innlandet"
-  | "Nav Trøndelag" = null;
+  | "NAV Øst-Viken"
+  | "NAV Vest-Viken"
+  | "NAV Innlandet"
+  | "NAV Trøndelag" = "NAV Vest-Viken";
 
 if (!FYLKE_FOR_OPPLASTING) {
   throw new Error("Du må sette et fylke for opplasting");
@@ -198,7 +198,6 @@ function opprettTiltaksgjennomforing(
   const pameldingOgVarighet = brukFakeData
     ? faker.lorem.paragraphs(2)
     : row[11];
-  const fylke = brukFakeData ? "Nav Øst-Viken" : FYLKE_FOR_OPPLASTING;
 
   const arrangor = opprettArrangor(row);
   const kontaktinfoPerson = opprettKontaktperson(row);
@@ -212,13 +211,16 @@ function opprettTiltaksgjennomforing(
     opprettLenke(row[12], row[23]),
   ].filter((lenke) => lenke.lenke.startsWith("https"));
 
-  const fylkeMatch = fylker.find((fylke) => fylke.navn === fylke.navn) ?? null;
+  const fylkeMatch =
+    fylker.find((fylke) => fylke.navn === FYLKE_FOR_OPPLASTING) ?? null;
   if (!fylkeMatch) {
     console.log(
-      colors.red(`Fant ingen match for fylke spesifisert i Excel: ${fylke}`)
+      colors.red(
+        `Fant ingen match for fylke spesifisert i Excel: ${FYLKE_FOR_OPPLASTING}`
+      )
     );
   } else {
-    console.log(colors.green(`Fant match for fylke: ${fylke}`));
+    console.log(colors.green(`Fant match for fylke: ${FYLKE_FOR_OPPLASTING}`));
   }
   const fylkeReference: Reference = {
     _key: short.generate(),
