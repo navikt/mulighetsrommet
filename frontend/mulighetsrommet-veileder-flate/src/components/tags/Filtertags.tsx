@@ -7,7 +7,7 @@ import { kebabCase } from '../../utils/Utils';
 
 interface FilterTagsProps {
   options: any[];
-  handleClick: (id: number) => void;
+  handleClick: (id: string) => void;
 }
 
 const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
@@ -22,7 +22,7 @@ const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
           >
             {filtertype.tittel}
-            <Ikonknapp handleClick={() => handleClick(filtertype._id)} ariaLabel="Lukkeknapp">
+            <Ikonknapp handleClick={() => handleClick(filtertype.id)} ariaLabel="Lukkeknapp">
               <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
             </Ikonknapp>
           </Tag>

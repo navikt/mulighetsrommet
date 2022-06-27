@@ -1,11 +1,11 @@
 import { useAtom } from 'jotai';
-import { Tiltaksgjennomforingsfilter, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import {Tiltaksgjennomforingsfilter, tiltaksgjennomforingsfilter, Tiltaksgjenomforingsfiltergruppe} from '../../core/atoms/atoms';
 import { Tiltaksgjennomforing } from '../models';
 import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
-  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" ${byggInnsatsgruppeFilter(filter)}]{
+  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} ${byggTiltakstypeFilter(filter.tiltakstyper)}]{
     _id,
     tiltaksgjennomforingNavn,
     lokasjon,
@@ -17,13 +17,16 @@ export default function useTiltaksgjennomforing() {
   }`);
 }
 
-function byggInnsatsgruppeFilter(filter: Tiltaksgjennomforingsfilter): string {
-  if (filter.innsatsgrupper.length > 0) {
-    const query = `&& tiltakstype->innsatsgruppe->tittel in [${filter.innsatsgrupper
-      .map(gruppe => `"${gruppe.tittel}"`)
-      .join(', ')}]`;
-    return query;
-  }
+function byggInnsatsgruppeFilter(innsatsgrupper: Tiltaksgjenomforingsfiltergruppe[]): string {
+  return innsatsgrupper.length > 0
+      ? `&& tiltakstype->innsatsgruppe->tittel in [${innsatsgrupper
+          .map(gruppe => `"${gruppe.tittel}"`)
+          .join(', ')}]`
+      : '';
+}
 
-  return '';
+function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjenomforingsfiltergruppe[]): string {
+  return tiltakstyper.length > 0
+      ? `&& tiltakstype->_id in [${tiltakstyper.map(type => `"${type.id}"`).join(', ')}]`
+      : '';
 }
