@@ -14,12 +14,21 @@ const short = require("short-uuid");
 var colors = require("colors");
 import { faker } from "@faker-js/faker";
 const uuidByString = require("uuid-by-string");
-
 const fs = require("fs");
 const { parse } = require("csv-parse");
 const csvFil = "./tiltak.csv";
 const skalLasteOpp = false;
 const brukFakeData = process.env.SANITY_DATASET !== "production";
+const FYLKE_FOR_OPPLASTING:
+  | null
+  | "Nav Øst-Viken"
+  | "Nav Vest-Viken"
+  | "Nav Innlandet"
+  | "Nav Trøndelag" = null;
+
+if (!FYLKE_FOR_OPPLASTING) {
+  throw new Error("Du må sette et fylke for opplasting");
+}
 
 type Row = {
   [index: number]: string;
@@ -189,7 +198,7 @@ function opprettTiltaksgjennomforing(
   const pameldingOgVarighet = brukFakeData
     ? faker.lorem.paragraphs(2)
     : row[11];
-  const fylke = brukFakeData ? "Nav Øst-Viken" : row[21]?.trim().toLowerCase();
+  const fylke = brukFakeData ? "Nav Øst-Viken" : FYLKE_FOR_OPPLASTING;
 
   const arrangor = opprettArrangor(row);
   const kontaktinfoPerson = opprettKontaktperson(row);
