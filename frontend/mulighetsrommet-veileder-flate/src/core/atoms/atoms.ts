@@ -9,8 +9,8 @@ export interface Tiltaksgjennomforingsfilter {
 }
 
 export interface Tiltaksgjenomforingsfiltergruppe {
-  id: string,
-  tittel: string
+  id: string;
+  tittel: string;
 }
 
 export const tiltaksgjennomforingsfilter = atom<Tiltaksgjennomforingsfilter>({
