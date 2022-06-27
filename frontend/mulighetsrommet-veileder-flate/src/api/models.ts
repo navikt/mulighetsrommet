@@ -9,7 +9,7 @@ type Tiltakstyper =
   | 'Opplæring (Gruppe AMO)';
 
 export interface Tiltakstype {
-  _id: number;
+  _id: string;
   tiltakstypeNavn: Tiltakstyper;
   beskrivelse?: string;
   innsatsgruppe: Innsatsgruppe;
@@ -28,7 +28,7 @@ export interface Tiltakstype {
 }
 
 export interface Tiltaksgjennomforing {
-  _id: number;
+  _id: string;
   tiltakstype: Tiltakstype;
   tiltaksgjennomforingNavn: string;
   beskrivelse?: string;
@@ -49,7 +49,7 @@ export interface Tiltaksgjennomforing {
 }
 
 export interface Arrangor {
-  _id: number;
+  _id: string;
   selskapsnavn: string;
   telefonnummer: string;
   epost: string;
@@ -57,7 +57,7 @@ export interface Arrangor {
 }
 
 export interface Tiltaksansvarlig {
-  _id: number;
+  _id: string;
   navn: string;
   enhet: string;
   telefonnummer: string;

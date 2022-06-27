@@ -6,7 +6,7 @@ import './Filtertags.less';
 import { kebabCase } from '../../utils/Utils';
 
 interface FilterTagsProps {
-  options: any[];
+  options: { id: string; tittel: string }[];
   handleClick: (id: string) => void;
 }
 
