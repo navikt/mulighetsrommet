@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { tiltaksgjennomforingsfilter, Tiltaksgjenomforingsfiltergruppe } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
 import { Tiltaksgjennomforing } from '../models';
 import { useSanity } from './useSanity';
 
@@ -22,13 +22,13 @@ export default function useTiltaksgjennomforing() {
   }`);
 }
 
-function byggInnsatsgruppeFilter(innsatsgrupper: Tiltaksgjenomforingsfiltergruppe[]): string {
+function byggInnsatsgruppeFilter(innsatsgrupper: Tiltaksgjennomforingsfiltergruppe[]): string {
   return innsatsgrupper.length > 0
     ? `&& tiltakstype->innsatsgruppe->tittel in [${innsatsgrupper.map(gruppe => `"${gruppe.tittel}"`).join(', ')}]`
     : '';
 }
 
-function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjenomforingsfiltergruppe[]): string {
+function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjennomforingsfiltergruppe[]): string {
   return tiltakstyper.length > 0
     ? `&& tiltakstype->_id in [${tiltakstyper.map(type => `"${type.id}"`).join(', ')}]`
     : '';
