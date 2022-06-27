@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
+import { RESET } from 'jotai/utils';
 import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { initialTiltaksgjennomforingsfilter, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
@@ -20,10 +21,10 @@ const ViewTiltakstypeOversikt = () => {
 
   //TODO fiks denne når vi får inn prefiltrering
   useEffect(() => {
-    if (filter.tiltakstyper?.length === 0 && filter.innsatsgrupper?.length === 0) {
-      setFilter(tiltaksgjennomforingsfilter.init);
+    if (filter === initialTiltaksgjennomforingsfilter) {
+      setFilter(RESET);
     }
-  }, [filter.tiltakstyper, filter.innsatsgrupper]);
+  }, [filter]);
 
   return (
     <>
@@ -54,12 +55,12 @@ const ViewTiltakstypeOversikt = () => {
               />
               <SearchFieldTag />
             </div>
-            <Show if={filter !== tiltaksgjennomforingsfilter.init}>
+            <Show if={filter !== initialTiltaksgjennomforingsfilter}>
               <div className="tilbakestill-filter-knapp">
                 <Button
                   size="small"
                   variant="secondary"
-                  onClick={() => setFilter(tiltaksgjennomforingsfilter.init)}
+                  onClick={() => setFilter(RESET)}
                   data-testid="knapp_tilbakestill-filter"
                 >
                   Tilbakestill filter

@@ -4,18 +4,18 @@ import './Filtermeny.less';
 import { kebabCase } from '../../utils/Utils';
 import { logEvent } from '../../api/logger';
 
-interface CheckboxFilterProps {
+interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionNavn: string;
-  options: object[];
-  setOptions: (type: any[]) => void;
-  data: any[];
+  options: T[];
+  setOptions: (type: T[]) => void;
+  data: T[];
   isLoading: boolean;
   isError: boolean;
   defaultOpen?: boolean;
   sortert?: boolean;
 }
 
-const CheckboxFilter = ({
+const CheckboxFilter = <T extends { id: string; tittel: string }>({
   accordionNavn,
   options,
   setOptions,
@@ -24,22 +24,22 @@ const CheckboxFilter = ({
   isError,
   defaultOpen = false,
   sortert = false,
-}: CheckboxFilterProps) => {
-  const valgteTypeIDer = options!.map((type: any) => type.id);
+}: CheckboxFilterProps<T>) => {
+  const valgteTypeIDer = options!.map(type => type.id);
 
   const handleEndreFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
-      : valgteTypeIDer.filter((id: string) => id !== value);
+      : valgteTypeIDer.filter(id => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
     logEvent('mulighetsrommet.filtrering', { value });
   };
 
-  const checkbox = (filtertype: any, index: number) => {
+  const checkbox = (filtertype: T) => {
     return (
       <Checkbox
-        key={index}
+        key={`${filtertype.id}`}
         value={filtertype.id.toString()}
         onChange={handleEndreFilter}
         data-testid={`filter_checkbox_${kebabCase(filtertype.tittel)}`}
@@ -59,15 +59,7 @@ const CheckboxFilter = ({
           {isLoading && <Loader className="filter-loader" size="xlarge" />}
           {data && (
             <CheckboxGroup legend="" hideLegend size="small" value={valgteTypeIDer.map(String)}>
-              {sortert
-                ? data
-                    .sort(function (a: { tittel: number }, b: { tittel: number }) {
-                      if (a.tittel < b.tittel) return -1;
-                      else if (a.tittel > b.tittel) return 1;
-                      else return 0;
-                    })
-                    .map((filtertype, index) => checkbox(filtertype, index))
-                : data.map((filtertype, index) => checkbox(filtertype, index))}
+              {sortert ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox) : data.map(checkbox)}
             </CheckboxGroup>
           )}
           {isError && <Alert variant="error">Det har skjedd en feil</Alert>}

@@ -26,8 +26,8 @@ export interface SanityTiltaksgjennomforing {
   tiltaksnummer: number;
   kontaktinfoArrangor: Reference;
   lokasjon: string;
-  fylke?: Reference;
-  enheter?: Reference;
+  fylke: Reference;
+  enheter: Reference[];
   oppstart: string;
   oppstartsdato: string;
   faneinnhold: {
@@ -87,7 +87,7 @@ export type Tiltakstype =
   | "Opplæring (Gruppe-AMO)"
   | "Opplæring (AMO Forhåndsgodkjent avtale)";
 
-interface Reference {
+export interface Reference {
   _ref: string;
   _type: "reference";
   _key?: string;
@@ -104,4 +104,12 @@ export interface Block {
   }[];
   markDefs: [];
   style: "normal";
+}
+
+export interface SanityEnhet {
+  _id: string;
+  _type: "enhet";
+  navn: string;
+  status: "Aktiv" | "Nedlagt" | "Under utvikling" | "Under avvikling";
+  type: "Fylke" | "Lokal";
 }

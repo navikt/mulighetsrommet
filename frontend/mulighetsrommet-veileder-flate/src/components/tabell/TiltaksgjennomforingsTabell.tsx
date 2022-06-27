@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
 import './Tabell.less';
+import { useAtom } from 'jotai';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
@@ -9,16 +10,24 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../api/logger';
 import { Tiltaksgjennomforing } from '../../api/models';
+import { paginationAtom } from '../../core/atoms/atoms';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useAtom(paginationAtom);
   const rowsPerPage = 15;
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
 
-  const { data: tiltaksgjennomforinger = [], isLoading, isError } = useTiltaksgjennomforing();
+  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
+
+  useEffect(() => {
+    if (tiltaksgjennomforinger.length <= rowsPerPage && !isFetching) {
+      // Reset state
+      setPage(1);
+    }
+  }, [tiltaksgjennomforinger]);
 
   const tilgjengelighetsstatus = (status: string) => {
     //TODO endre denne når vi får inn data fra Arena
@@ -53,6 +62,39 @@ const TiltaksgjennomforingsTabell = () => {
   if (isError) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
+
+  const gjennomforingerForSide = tiltaksgjennomforinger
+    .sort((a, b) => {
+      const sortOrDefault = sort || {
+        orderBy: 'tiltakstypeNavn',
+        direction: 'ascending',
+      };
+
+      const comparator = (a: any, b: any, orderBy: string | number) => {
+        const compare = (item1: any, item2: any) => {
+          if (item2 < item1 || item2 === undefined) {
+            return -1;
+          }
+          if (item2 > item1) {
+            return 1;
+          }
+          return 0;
+        };
+        if (orderBy === 'oppstart') {
+          const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
+          const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
+          return compare(dateA, dateB);
+        } else if (orderBy === 'tiltakstypeNavn') {
+          return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
+        } else {
+          return compare(a[orderBy], b[orderBy]);
+        }
+      };
+      return sortOrDefault.direction === 'ascending'
+        ? comparator(b, a, sortOrDefault.orderBy)
+        : comparator(a, b, sortOrDefault.orderBy);
+    })
+    .slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -103,7 +145,6 @@ const TiltaksgjennomforingsTabell = () => {
             <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
               Oppstartsdato
             </Table.ColumnHeader>
-            {/*TODO fiks sortering*/}
             <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
               Status
             </Table.ColumnHeader>
@@ -117,77 +158,43 @@ const TiltaksgjennomforingsTabell = () => {
               </Alert>
             </Table.DataCell>
           ) : (
-            tiltaksgjennomforinger
-              .sort((a, b) => {
-                const sortOrDefault = sort
-                  ? sort
-                  : {
-                      orderBy: 'tiltakstypeNavn',
-                      direction: 'ascending',
-                    };
-
-                const comparator = (a: any, b: any, orderBy: string | number) => {
-                  const compare = (item1: any, item2: any) => {
-                    if (item2 < item1 || item2 === undefined) {
-                      return -1;
-                    }
-                    if (item2 > item1) {
-                      return 1;
-                    }
-                    return 0;
-                  };
-                  if (orderBy === 'oppstart') {
-                    const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
-                    const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
-                    return compare(dateA, dateB);
-                  } else if (orderBy === 'tiltakstypeNavn') {
-                    return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
-                  } else {
-                    return compare(a[orderBy], b[orderBy]);
-                  }
-                };
-                return sortOrDefault.direction === 'ascending'
-                  ? comparator(b, a, sortOrDefault.orderBy)
-                  : comparator(a, b, sortOrDefault.orderBy);
-              })
-              .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              .map(
-                ({
-                  _id,
-                  tiltaksnummer,
-                  tiltaksgjennomforingNavn,
-                  oppstart,
-                  oppstartsdato,
-                  lokasjon,
-                  tiltakstype,
-                  kontaktinfoArrangor,
-                }) => (
-                  <Table.Row key={_id}>
-                    <Table.DataCell className="tabell__tiltaksnavn">
-                      <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
-                        {tiltaksgjennomforingNavn}
-                      </Lenke>
-                      <div>{kontaktinfoArrangor.selskapsnavn}</div>
-                    </Table.DataCell>
-                    <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
-                      {tiltaksnummer}
-                      <Kopiknapp kopitekst={tiltaksnummer!.toString()} />
-                    </Table.DataCell>
-                    <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
-                    <Table.DataCell>{lokasjon}</Table.DataCell>
-                    <Table.DataCell>
-                      {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
-                    </Table.DataCell>
-                    <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
-                  </Table.Row>
-                )
+            gjennomforingerForSide.map(
+              ({
+                _id,
+                tiltaksnummer,
+                tiltaksgjennomforingNavn,
+                oppstart,
+                oppstartsdato,
+                lokasjon,
+                tiltakstype,
+                kontaktinfoArrangor,
+              }) => (
+                <Table.Row key={_id}>
+                  <Table.DataCell className="tabell__tiltaksnavn">
+                    <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
+                      {tiltaksgjennomforingNavn}
+                    </Lenke>
+                    <div>{kontaktinfoArrangor.selskapsnavn}</div>
+                  </Table.DataCell>
+                  <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
+                    {tiltaksnummer}
+                    <Kopiknapp kopitekst={tiltaksnummer!.toString()} />
+                  </Table.DataCell>
+                  <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
+                  <Table.DataCell>{lokasjon}</Table.DataCell>
+                  <Table.DataCell>
+                    {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
+                  </Table.DataCell>
+                  <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
+                </Table.Row>
               )
+            )
           )}
         </Table.Body>
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {tiltaksgjennomforinger.length} av {tiltaksgjennomforinger.length} tiltak
+          Viser {gjennomforingerForSide.length} av {tiltaksgjennomforinger.length} tiltak
         </Heading>
         <Pagination
           page={page}

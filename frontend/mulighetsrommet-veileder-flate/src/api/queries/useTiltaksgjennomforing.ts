@@ -1,9 +1,5 @@
 import { useAtom } from 'jotai';
-import {
-  Tiltaksgjennomforingsfilter,
-  tiltaksgjennomforingsfilter,
-  Tiltaksgjenomforingsfiltergruppe,
-} from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter, Tiltaksgjenomforingsfiltergruppe } from '../../core/atoms/atoms';
 import { Tiltaksgjennomforing } from '../models';
 import { useSanity } from './useSanity';
 

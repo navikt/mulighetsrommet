@@ -1,6 +1,4 @@
-import { atom } from 'jotai';
-import { Innsatsgruppe } from 'mulighetsrommet-api-client';
-import { Tiltakstype } from '../../api/models';
+import { atomWithHash } from 'jotai/utils';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
@@ -9,12 +7,19 @@ export interface Tiltaksgjennomforingsfilter {
 }
 
 export interface Tiltaksgjenomforingsfiltergruppe {
-  id: string,
-  tittel: string
+  id: string;
+  tittel: string;
 }
 
-export const tiltaksgjennomforingsfilter = atom<Tiltaksgjennomforingsfilter>({
+export const initialTiltaksgjennomforingsfilter = {
   search: '',
   innsatsgrupper: [],
   tiltakstyper: [],
-});
+};
+
+export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
+  'filter',
+  initialTiltaksgjennomforingsfilter
+);
+
+export const paginationAtom = atomWithHash('page', 1);
