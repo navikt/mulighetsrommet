@@ -12,7 +12,8 @@ export default function useTiltaksgjennomforing() {
   return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
-  ${byggSokefilter(filter.search ?? '')}
+  ${byggSokefilter(filter.search)}
+  ]
   {
     _id,
     tiltaksgjennomforingNavn,
@@ -38,13 +39,7 @@ function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjenomforingsfiltergruppe[])
 }
 
 function byggSokefilter(search: string | undefined) {
-  return search ? `&& [tiltaksgjennomforingNavn, tiltaksnummer, tiltakstype->tiltakstypeNavn, lokasjon] match "${search}*"
-  ]
-  | score(
-    tiltaksgjennomforingNavn match "${search}",
-    tiltaksnummer match "${search}",
-    lokasjon match "${search}",
-    tiltakstype.tiltakstypeNavn match "${search}",
-  )
-  | order(_score desc)` : ']';
+  return search
+    ? `&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
+    : '';
 }
