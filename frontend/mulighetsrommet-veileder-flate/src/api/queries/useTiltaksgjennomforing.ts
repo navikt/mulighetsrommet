@@ -5,9 +5,12 @@ import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
-  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" ${byggInnsatsgruppeFilter(
-    filter.innsatsgrupper
-  )} ${byggTiltakstypeFilter(filter.tiltakstyper)}]{
+  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" 
+  ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
+  ${byggTiltakstypeFilter(filter.tiltakstyper)}
+  ${byggSokefilter(filter.search)}
+  ]
+  {
     _id,
     tiltaksgjennomforingNavn,
     lokasjon,
@@ -28,5 +31,11 @@ function byggInnsatsgruppeFilter(innsatsgrupper: Tiltaksgjenomforingsfiltergrupp
 function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjenomforingsfiltergruppe[]): string {
   return tiltakstyper.length > 0
     ? `&& tiltakstype->_id in [${tiltakstyper.map(type => `"${type.id}"`).join(', ')}]`
+    : '';
+}
+
+function byggSokefilter(search: string | undefined) {
+  return search
+    ? `&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
     : '';
 }
