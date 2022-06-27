@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atomWithHash } from 'jotai/utils';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
@@ -11,8 +11,15 @@ export interface Tiltaksgjenomforingsfiltergruppe {
   tittel: string;
 }
 
-export const tiltaksgjennomforingsfilter = atom<Tiltaksgjennomforingsfilter>({
+export const initialTiltaksgjennomforingsfilter = {
   search: '',
   innsatsgrupper: [],
   tiltakstyper: [],
-});
+};
+
+export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
+  'filter',
+  initialTiltaksgjennomforingsfilter
+);
+
+export const paginationAtom = atomWithHash('page', 1);
