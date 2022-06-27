@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
 import './Tabell.less';
+import { useAtom } from 'jotai';
 import Lenke from '../lenke/Lenke';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
@@ -9,10 +10,11 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../api/logger';
 import { Tiltaksgjennomforing } from '../../api/models';
+import { paginationAtom } from '../../core/atoms/atoms';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useAtom(paginationAtom);
   const rowsPerPage = 15;
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
@@ -21,11 +23,11 @@ const TiltaksgjennomforingsTabell = () => {
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
 
   useEffect(() => {
-    if (isFetching) {
+    if (tiltaksgjennomforinger.length <= rowsPerPage && !isFetching) {
       // Reset state
       setPage(1);
     }
-  }, [isFetching]);
+  }, [tiltaksgjennomforinger]);
 
   const tilgjengelighetsstatus = (status: string) => {
     //TODO endre denne når vi får inn data fra Arena
