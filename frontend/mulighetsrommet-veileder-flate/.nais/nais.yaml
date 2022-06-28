@@ -18,6 +18,11 @@ spec:
     - {{this}}
     {{/each}}
   {{/if}}
+  accessPolicy:
+    inbound:
+      rules:
+        - application: veilarbpersonflatefs
+          namespace: poao
   liveness:
     path: /
     initialDelay: 10
