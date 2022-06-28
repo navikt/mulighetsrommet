@@ -8,9 +8,11 @@ import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { Alert, Loader } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../api/queries/useGetTiltaksnummerFraUrl';
+import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
 
   if (isLoading) {
@@ -30,7 +32,7 @@ const ViewTiltakstypeDetaljer = () => {
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
-        <Tilbakeknapp tilbakelenke="/oversikt" />
+        <Tilbakeknapp tilbakelenke={`/${fnr}`} />
         <TiltaksgjennomforingsHeader />
         <Statistikk
           tittel="Overgang til arbeid"
