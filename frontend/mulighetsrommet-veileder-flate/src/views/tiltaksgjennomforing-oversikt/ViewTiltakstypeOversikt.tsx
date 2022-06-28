@@ -21,7 +21,7 @@ const ViewTiltakstypeOversikt = () => {
 
   //TODO fiks denne når vi får inn prefiltrering
   useEffect(() => {
-    if (filter === initialTiltaksgjennomforingsfilter) {
+    if (filter.innsatsgrupper.length === 0 && filter.tiltakstyper.length === 0 && filter.search === '') {
       setFilter(RESET);
     }
   }, [filter]);

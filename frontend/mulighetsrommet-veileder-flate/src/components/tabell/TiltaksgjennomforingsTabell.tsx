@@ -218,8 +218,8 @@ const TiltaksgjennomforingsTabell = () => {
         </Table.Body>
       </Table>
       <div className="under-tabell">
-        <Heading level="1" size="xsmall" data-testid="antall-tiltak">
-          Viser {gjennomforingerForSide.length} av {tiltaksgjennomforinger.length} tiltak
+          <Heading level="1" size="xsmall" data-testid="antall-tiltak">
+          Viser {(page - 1) * rowsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * rowsPerPage} av {tiltaksgjennomforinger.length} tiltak
         </Heading>
         <Pagination
           page={page}

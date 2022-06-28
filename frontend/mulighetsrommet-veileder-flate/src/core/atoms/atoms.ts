@@ -2,11 +2,11 @@ import { atomWithHash } from 'jotai/utils';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgrupper: Tiltaksgjenomforingsfiltergruppe[];
-  tiltakstyper: Tiltaksgjenomforingsfiltergruppe[];
+  innsatsgrupper: Tiltaksgjennomforingsfiltergruppe[];
+  tiltakstyper: Tiltaksgjennomforingsfiltergruppe[];
 }
 
-export interface Tiltaksgjenomforingsfiltergruppe {
+export interface Tiltaksgjennomforingsfiltergruppe {
   id: string;
   tittel: string;
 }
