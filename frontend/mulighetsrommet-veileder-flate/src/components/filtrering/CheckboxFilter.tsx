@@ -27,14 +27,13 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
 }: CheckboxFilterProps<T>) => {
   const valgteTypeIDer = options!.map(type => type.id);
 
-  const handleEndreFilter = (filtertype: any, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEndreFilter = (filtertypeTittel: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const tittel = filtertype.tittel;
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
-        : valgteTypeIDer.filter((id: string) => id !== value);
+      : valgteTypeIDer.filter((id: string) => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
-    logEvent('mulighetsrommet.filtrering', { tittel });
+    logEvent('mulighetsrommet.filtrering', { filtertypeTittel });
   };
 
   const checkbox = (filtertype: T) => {
@@ -42,7 +41,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       <Checkbox
         key={`${filtertype.id}`}
         value={filtertype.id}
-        onChange={e => handleEndreFilter(filtertype, e)}
+        onChange={e => handleEndreFilter(filtertype.tittel, e)}
         data-testid={`filter_checkbox_${kebabCase(filtertype.tittel)}`}
       >
         {filtertype.tittel}
