@@ -6,7 +6,7 @@ runs:
   steps:
     - uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 17
         cache: npm
     - run: npm ci
       shell: bash
