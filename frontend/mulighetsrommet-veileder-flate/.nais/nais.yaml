@@ -21,7 +21,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: veilarbpersonflatefs
+        - application: veilarbpersonflate
           namespace: poao
   liveness:
     path: /
