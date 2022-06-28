@@ -171,7 +171,7 @@ const TiltaksgjennomforingsTabell = () => {
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
+                    <Lenke to={`${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
                       {tiltaksgjennomforingNavn}
                     </Lenke>
                     <div>{kontaktinfoArrangor.selskapsnavn}</div>
@@ -194,7 +194,8 @@ const TiltaksgjennomforingsTabell = () => {
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall">
-          Viser {(page - 1) * rowsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * rowsPerPage} av {tiltaksgjennomforinger.length} tiltak
+          Viser {(page - 1) * rowsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * rowsPerPage} av{' '}
+          {tiltaksgjennomforinger.length} tiltak
         </Heading>
         <Pagination
           page={page}
