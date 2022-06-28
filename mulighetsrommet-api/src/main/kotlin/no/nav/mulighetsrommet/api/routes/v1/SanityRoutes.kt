@@ -17,7 +17,7 @@ fun Route.sanityRoutes() {
         get {
             val query = call.request.queryParameters["query"]
                 ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
-            log.info("Query sanity with value: $query")
+            log.debug("Query sanity with value: $query")
 
             val result = sanityService.executeQuery(query)
             call.respondText(result.toString(), ContentType.Application.Json)
