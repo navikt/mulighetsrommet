@@ -219,8 +219,9 @@ const TiltaksgjennomforingsTabell = () => {
       </Table>
       <div className="under-tabell">
         <Heading level="1" size="xsmall" data-testid="antall-tiltak">
-            Viser {(page - 1) * rowsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * rowsPerPage} av{' '}
-            {tiltaksgjennomforinger.length} tiltak        </Heading>
+          Viser {(page - 1) * rowsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * rowsPerPage} av{' '}
+          {tiltaksgjennomforinger.length} tiltak{' '}
+        </Heading>
         <Pagination
           page={page}
           onPageChange={setPage}
