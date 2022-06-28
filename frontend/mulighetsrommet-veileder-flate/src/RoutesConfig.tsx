@@ -6,10 +6,10 @@ import ViewTiltakstypeOversikt from './views/tiltaksgjennomforing-oversikt/ViewT
 const RoutesConfig = () => {
   return (
     <Routes>
-      <Route path="/" element={<ViewTiltakstypeOversikt />} />
-      <Route path="/:tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
+      <Route path="oversikt" element={<ViewTiltakstypeOversikt />} />
+      <Route path="oversikt/:tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
 
-      <Route path="*" element={<Navigate to="/" />}>
+      <Route path="*" element={<Navigate to={`oversikt`} />}>
         {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}
       </Route>
     </Routes>

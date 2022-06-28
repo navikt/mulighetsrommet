@@ -30,7 +30,7 @@ const ViewTiltakstypeDetaljer = () => {
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
-        <Tilbakeknapp tilbakelenke="/" />
+        <Tilbakeknapp tilbakelenke="/oversikt" />
         <TiltaksgjennomforingsHeader />
         <Statistikk
           tittel="Overgang til arbeid"
