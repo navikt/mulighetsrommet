@@ -18,6 +18,14 @@ spec:
     - {{this}}
     {{/each}}
   {{/if}}
+  azure:
+    application:
+      enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: veilarbpersonflate
+          namespace: poao
   liveness:
     path: /
     initialDelay: 10
