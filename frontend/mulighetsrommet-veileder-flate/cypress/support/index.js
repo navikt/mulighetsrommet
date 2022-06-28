@@ -13,8 +13,8 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
-import './commands';
+// Import e2e.js using ES2015 syntax:
+import './e2e';
 import 'cypress-axe';
 
 // Alternatively you can use CommonJS syntax:
