@@ -33,17 +33,16 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build:preprod --filter=mulighetsrommet-veileder-flate
-      #TODO skru på denne når tc-122 er good
-      #      - name: Cypress run
-      #        uses: cypress-io/github-action@v3
-      #        with:
-      #          working-directory: frontend/mulighetsrommet-veileder-flate
-      #          browser: chrome
-      #          headless: true
-      #          wait-on: http://localhost:3000
-      #          start: npm start
-      #          install: false
+        run: npx turbo run build --filter=mulighetsrommet-veileder-flate
+      - name: Cypress run
+        uses: cypress-io/github-action@v3
+        with:
+          working-directory: frontend/mulighetsrommet-veileder-flate
+          browser: chrome
+          headless: true
+          wait-on: http://localhost:3000
+          start: npm start
+          install: false
       - name: Notify slack fail
         if: failure()
         env:
@@ -89,16 +88,15 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build --filter=mulighetsrommet-veileder-flate
-      #TODO skru på denne når tc-122 er good
-      #      - name: Cypress run
-      #        uses: cypress-io/github-action@v3
-      #        with:
-      #          working-directory: frontend/mulighetsrommet-veileder-flate
-      #          browser: chrome
-      #          headless: true
-      #          wait-on: http://localhost:3000
-      #          start: npm start
-      #          install: false
+      - name: Cypress run
+        uses: cypress-io/github-action@v3
+        with:
+          working-directory: frontend/mulighetsrommet-veileder-flate
+          browser: chrome
+          headless: true
+          wait-on: http://localhost:3000
+          start: npm start
+          install: false
       - name: Notify slack fail
         if: failure()
         env:

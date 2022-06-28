@@ -27,21 +27,22 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
 }: CheckboxFilterProps<T>) => {
   const valgteTypeIDer = options!.map(type => type.id);
 
-  const handleEndreFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEndreFilter = (filtertype: any, e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    const tittel = filtertype.tittel;
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
-      : valgteTypeIDer.filter(id => id !== value);
+        : valgteTypeIDer.filter((id: string) => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
-    logEvent('mulighetsrommet.filtrering', { value });
+    logEvent('mulighetsrommet.filtrering', { tittel });
   };
 
   const checkbox = (filtertype: T) => {
     return (
       <Checkbox
         key={`${filtertype.id}`}
-        value={filtertype.id.toString()}
-        onChange={handleEndreFilter}
+        value={filtertype.id}
+        onChange={e => handleEndreFilter(filtertype, e)}
         data-testid={`filter_checkbox_${kebabCase(filtertype.tittel)}`}
       >
         {filtertype.tittel}
@@ -50,12 +51,12 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   };
 
   return (
-    <Accordion>
+    <Accordion role="menu">
       <Accordion.Item defaultOpen={defaultOpen}>
         <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
           {accordionNavn}
         </Accordion.Header>
-        <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
+        <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
           {isLoading && <Loader className="filter-loader" size="xlarge" />}
           {data && (
             <CheckboxGroup legend="" hideLegend size="small" value={valgteTypeIDer.map(String)}>

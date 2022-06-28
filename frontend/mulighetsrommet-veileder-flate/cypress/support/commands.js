@@ -21,7 +21,7 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-before('Start server', () => {
+before('Start server and inject Axe', () => {
   cy.server();
   cy.visit('/');
   cy.url().should('include', '/');
@@ -34,6 +34,7 @@ before('Start server', () => {
     url: '/',
   });
   cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
+  cy.injectAxe();
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {
@@ -43,6 +44,15 @@ Cypress.Commands.add('getByTestId', (selector, ...args) => {
 Cypress.Commands.add('velgFilter', filternavn => {
   cy.getByTestId(`filter_checkbox_${filternavn}`).should('not.be.checked').click().should('be.checked');
   cy.getByTestId(`filtertag_${filternavn}`).should('exist');
+});
+
+Cypress.Commands.add('sortering', dataTestId => {
+  cy.getByTestId(dataTestId).should('have.attr', 'aria-sort', 'none');
+  cy.getByTestId(dataTestId).click();
+  cy.getByTestId(dataTestId).should('have.attr', 'aria-sort', 'ascending');
+  cy.getByTestId(dataTestId).click();
+  cy.getByTestId(dataTestId).should('have.attr', 'aria-sort', 'descending');
+  cy.getByTestId(dataTestId).click();
 });
 
 Cypress.Commands.add('apneLukketFilterAccordion', (filternavn, apne) => {

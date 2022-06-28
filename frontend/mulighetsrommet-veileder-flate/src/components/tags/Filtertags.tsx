@@ -22,8 +22,11 @@ const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
           >
             {filtertype.tittel}
-            <Ikonknapp handleClick={() => handleClick(filtertype.id)} ariaLabel="Lukkeknapp">
-              <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
+            <Ikonknapp
+                handleClick={() => handleClick(filtertype.id)}
+                ariaLabel="Lukke"
+                dataTestId={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}>
+              <Close className="filtertags__ikon" aria-label="Lukke" />
             </Ikonknapp>
           </Tag>
         );

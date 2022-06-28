@@ -17,18 +17,16 @@ const Kopiknapp = ({ kopitekst }: KopiknappProps) => {
     logEvent('mulighetsrommet.kopiknapp');
     navigator.clipboard.writeText(kopitekst);
     setShowTooltip(true);
-  };
 
-  useEffect(() => {
     let timeOutId = 0;
     if (showTooltip) {
       timeOutId = window.setTimeout(() => setShowTooltip(false), 1200);
     }
     return () => clearTimeout(timeOutId);
-  }, [showTooltip]);
+  };
 
   return (
-    <Tooltip placement="top" content="Kopiert" open={showTooltip}>
+    <Tooltip placement="top" content="Kopiert" open={showTooltip} role="tooltip">
       <Button
         size="xsmall"
         variant="tertiary"
@@ -40,7 +38,7 @@ const Kopiknapp = ({ kopitekst }: KopiknappProps) => {
         }}
         data-testid="knapp_kopier"
       >
-        {hover ? <CopyFilled aria-label="Kopiknapp" /> : <Copy aria-label="Kopiknapp" />}
+        {hover ? <CopyFilled aria-label="Kopier" /> : <Copy aria-label="Kopier" />}
       </Button>
     </Tooltip>
   );

@@ -1,25 +1,14 @@
-describe('Tiltaksgjennomføring', () => {
-  it('Sjekk at det er tiltaksgjennomføringer i listen', () => {
+describe('Tiltaksgjennomføringstabell', () => {
+  let antallTiltak;
+  it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
     cy.checkPageA11y();
   });
 
-  it('Gå inn på den første tiltaksgjennomføringen', () => {
-    cy.getByTestId('tabell_tiltakstyper_tiltaksnummer').first().click();
-    cy.url().should('include', '/tiltakstyper/ABIST');
-    cy.getByTestId('tiltaksgjennomforing-header_opplaering').should('be.visible');
-    cy.checkPageA11y();
-  });
-
-  it('Gå tilbake til tiltaksoversikten', () => {
-    cy.tilbakeTilListevisning();
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
-  });
-});
-
-describe('Filtrering', () => {
-  it('Sjekk at det er tiltaksgjennomføringer i listen, og at tilbakestill filter-knapp ikke er tilgjengelig', () => {
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+  it('Lagre antall tiltak uten filtrering', () => {
+    cy.getByTestId('antall-tiltak').then($navn => {
+      antallTiltak = $navn.text();
+    });
   });
 
   it('Filtrer på Innsatsgrupper', () => {
@@ -28,42 +17,67 @@ describe('Filtrering', () => {
     cy.velgFilter('standardinnsats');
 
     cy.getByTestId('filtertags').children().should('have.length', 1);
-
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
+
+    cy.wait(1000)
+      .getByTestId('antall-tiltak')
+      .then($navn => {
+        expect(antallTiltak).not.to.eq($navn.text());
+      });
+
+    cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
+    cy.getByTestId('filtertags').children().should('have.length', 0);
   });
 
   it('Filtrer på Tiltakstyper', () => {
     cy.apneLukketFilterAccordion('tiltakstyper', true);
+    cy.velgFilter('avklaring');
+    cy.velgFilter('oppfolging');
 
-    cy.velgFilter('arbeidsforberedende-trening');
-    cy.velgFilter('arbeidstrening');
+    cy.getByTestId('filtertags').children().should('have.length', 2);
 
-    cy.getByTestId('filtertags').children().should('have.length', 3);
-  });
+    cy.wait(1000)
+      .getByTestId('antall-tiltak')
+      .then($navn => {
+        expect(antallTiltak).not.to.eq($navn.text());
+      });
 
-  it('Tilbakestill filtre', () => {
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
 
-    cy.getByTestId('filter_checkbox_standardinnsats').should('not.be.checked');
-    cy.getByTestId('filter_checkbox_arbeidsforberedende-trening').should('not.be.checked');
-    cy.getByTestId('filter_checkbox_arbeidstrening').should('not.be.checked');
+    cy.getByTestId('filter_checkbox_avklaring').should('not.be.checked');
+    cy.getByTestId('filter_checkbox_oppfolging').should('not.be.checked');
 
     cy.getByTestId('filtertags').children().should('have.length', 0);
-
     cy.apneLukketFilterAccordion('tiltakstyper', false);
   });
-});
 
-describe('Kopiknapp og sortering', () => {
+  it('Filtrer på søkefelt', () => {
+    cy.getByTestId('filter_sokefelt').type('Digitalt');
+    cy.getByTestId('filtertags').children().should('have.length', 1);
+
+    cy.wait(1000)
+      .getByTestId('antall-tiltak')
+      .then($navn => {
+        expect(antallTiltak).not.to.eq($navn.text());
+      });
+  });
+
+  it('Sortering', () => {
+    //Tester på de forskjellige typene: string, number, date og status
+    cy.sortering('tabellheader_tiltaksnavn');
+    cy.sortering('tabellheader_tiltaksnummer');
+    cy.sortering('tabellheader_oppstartsdato');
+    cy.sortering('tabellheader_status');
+  });
+
   it('Kopiknapp', () => {
     const tiltaksnummer = cy
-      .getByTestId('tiltaksnummer')
-      .first()
+      .getByTestId('tabell_tiltaksnummer')
+      .last()
       .then($text => {
         return $text.text();
       });
-
-    cy.getByTestId('knapp_kopier').first().click();
+    cy.getByTestId('knapp_kopier').last().click();
 
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
@@ -71,15 +85,36 @@ describe('Kopiknapp og sortering', () => {
       });
     });
   });
-  it('Sortering', () => {
-    cy.getByTestId('tabellheader_tiltaksnavn').should('have.attr', 'aria-sort', 'none');
 
-    cy.getByTestId('tabellheader_tiltaksnavn').click();
-    cy.getByTestId('tabellheader_tiltaksnavn').should('have.attr', 'aria-sort', 'ascending');
+  it('Gå til siste tiltaksgjennomføring', () => {
+    cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
 
-    cy.getByTestId('tabellheader_tiltaksnavn').click();
-    cy.getByTestId('tabellheader_tiltaksnavn').should('have.attr', 'aria-sort', 'descending');
+    cy.getByTestId('knapp_kopier').click();
+    cy.window().then(win => {
+      win.navigator.clipboard.readText().then(text => {
+        cy.url().should('include', text);
+      });
+    });
+  });
+});
 
-    cy.getByTestId('tabellheader_tiltaksnavn').click();
+describe('Tiltaksgjennomføringstabell', () => {
+  it('Sjekk UU', () => {
+    cy.checkA11y({ exclude: ['.navds-tooltip'] });
+  });
+
+  it('Sjekk at fanene fungerer som de skal', () => {
+    cy.getByTestId('tab1').should('be.visible');
+    cy.getByTestId('tab2').should('not.be.visible');
+
+    cy.getByTestId('fane_detaljer-og-innhold').click();
+
+    cy.getByTestId('tab1').should('not.be.visible');
+    cy.getByTestId('tab2').should('be.visible');
+  });
+
+  it('Gå tilbake til tiltaksoversikten', () => {
+    cy.tilbakeTilListevisning();
+    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
 });
