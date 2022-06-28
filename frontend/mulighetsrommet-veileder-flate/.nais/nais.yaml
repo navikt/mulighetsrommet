@@ -18,6 +18,9 @@ spec:
     - {{this}}
     {{/each}}
   {{/if}}
+  azure:
+    application:
+      enabled: true
   accessPolicy:
     inbound:
       rules:
