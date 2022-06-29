@@ -2,6 +2,9 @@ describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+  });
+
+  it('Sjekk UU', () => {
     cy.checkPageA11y();
   });
 
@@ -98,6 +101,7 @@ describe('Tiltaksgjennomføringstabell', () => {
       });
     });
   });
+
   it('Sjekk UU', () => {
     cy.checkA11y({ exclude: ['.navds-tooltip'] });
   });
