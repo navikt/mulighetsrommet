@@ -88,6 +88,7 @@ describe('Tiltaksgjennomføringstabell', () => {
         });
       });
     cy.wait(1200); //må vente til kopiknapp-tooltip går bort for å få riktig document focus
+    cy.get('html').trigger('mousedown');
   });
 });
 
@@ -106,7 +107,6 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Sjekk UU', () => {
     cy.checkA11y({ exclude: ['.navds-tooltip'] });
-    cy.screenshot();
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
