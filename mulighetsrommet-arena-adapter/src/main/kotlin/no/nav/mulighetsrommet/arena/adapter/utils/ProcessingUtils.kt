@@ -28,14 +28,6 @@ object ProcessingUtils {
         }
     }
 
-    fun getArenaOperationType(json: JsonObject) = ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content]
-
-    fun isInsertArenaOperation(json: JsonObject) =
-        ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content] == ArenaEventOperationType.INSERT
-
-    fun isUpdateArenaOperation(json: JsonObject) =
-        ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content] == ArenaEventOperationType.UPDATE
-
     fun toDeltakerstatus(arenaStatus: String): Deltakerstatus = when (arenaStatus) {
         "AVSLAG", "IKKAKTUELL", "NEITAKK" -> Deltakerstatus.IKKE_AKTUELL
         "TILBUD", "JATAKK", "INFOMOETE", "AKTUELL", "VENTELISTE" -> Deltakerstatus.VENTER
