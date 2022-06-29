@@ -94,6 +94,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click({ force: true });
 
+    cy.wait(1000);
     cy.getByTestId('knapp_kopier').click();
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
