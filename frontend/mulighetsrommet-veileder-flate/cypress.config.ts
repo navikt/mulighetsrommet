@@ -8,9 +8,9 @@ export default defineConfig({
   retries: {
     //runMode: 2,
   },
+  video: true,
+  videoUploadOnPasses: true,
   e2e: {
-    video: true,
-    videoUploadOnPasses: true,
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
