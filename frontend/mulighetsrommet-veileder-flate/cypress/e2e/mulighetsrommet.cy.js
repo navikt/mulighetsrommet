@@ -76,7 +76,7 @@ describe('Tiltaksgjennomføringstabell', () => {
       .last()
       .then($text => {
         const tiltaksnummer = $text.text();
-        cy.getByTestId('knapp_kopier').last().click();
+        cy.getByTestId('tabell_knapp_kopier').last().click();
 
         cy.window().then(win => {
           win.navigator.clipboard.readText().then(text => {
@@ -84,15 +84,15 @@ describe('Tiltaksgjennomføringstabell', () => {
           });
         });
       });
+  });
 
-    it('Gå til siste tiltaksgjennomføring', () => {
-      cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
+  it('Gå til siste tiltaksgjennomføring', () => {
+    cy.getByTestId('tabell_tiltaksgjennomforing').last().click({ force: true });
 
-      cy.getByTestId('knapp_kopier').click();
-      cy.window().then(win => {
-        win.navigator.clipboard.readText().then(text => {
-          cy.url().should('include', text);
-        });
+    cy.getByTestId('knapp_kopier').click();
+    cy.window().then(win => {
+      win.navigator.clipboard.readText().then(text => {
+        cy.url().should('include', text);
       });
     });
   });
