@@ -85,7 +85,9 @@ describe('Tiltaksgjennomføringstabell', () => {
         });
       });
   });
+});
 
+describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click({ force: true });
 
@@ -96,9 +98,6 @@ describe('Tiltaksgjennomføringstabell', () => {
       });
     });
   });
-});
-
-describe('Tiltaksgjennomføringstabell', () => {
   it('Sjekk UU', () => {
     cy.checkA11y({ exclude: ['.navds-tooltip'] });
   });
