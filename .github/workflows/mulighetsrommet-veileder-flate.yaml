@@ -40,7 +40,7 @@ jobs:
           VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_CYPRESS_AUTH_TOKEN }}
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
-          browser: chromeF
+          browser: chrome
           headed: false
           wait-on: http://localhost:3000
           start: npm start
@@ -95,7 +95,7 @@ jobs:
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
-          headless: true
+          headed: false
           wait-on: http://localhost:3000
           start: npm start
           install: false
