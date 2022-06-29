@@ -1,7 +1,6 @@
 describe('Tiltaksgjennomføringstabell', () => {
   it('Skal bare virke', () => {
     console.log('Hello World');
-    cy.checkPageA11y();
   });
   //   let antallTiltak;
   //   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
