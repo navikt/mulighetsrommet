@@ -28,18 +28,18 @@ jobs:
   build-and-test-preprod:
     name: Build and test for preprod
     runs-on: ubuntu-latest
+    env:
+      VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+      VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+      VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_TEST_DATA_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build:preprod --filter=mulighetsrommet-veileder-flate
-        env:
-          VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_CYPRESS_AUTH_TOKEN }}
       - name: Cypress run
         uses: cypress-io/github-action@v4
-        env:
-          DEBUG: '@cypress/github-action'
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
