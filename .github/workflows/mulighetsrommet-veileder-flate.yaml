@@ -39,7 +39,7 @@ jobs:
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
-          headless: true
+          headed: true
           wait-on: http://localhost:3000
           start: npm start
           install: false
