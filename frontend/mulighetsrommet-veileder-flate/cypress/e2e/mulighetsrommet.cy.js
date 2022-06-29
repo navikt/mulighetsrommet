@@ -105,9 +105,11 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Sjekk UU', () => {
     cy.checkA11y({ exclude: ['.navds-tooltip'] });
+    cy.screenshot();
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
+    cy.screenshot();
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
