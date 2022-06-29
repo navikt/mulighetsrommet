@@ -18,7 +18,7 @@ const SidemenyDetaljer = () => {
         <div className="tiltakstype-detaljer__rad">
           <strong>Tiltaksnummer</strong>
           <span>
-            {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} />
+            {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
           </span>
         </div>
 

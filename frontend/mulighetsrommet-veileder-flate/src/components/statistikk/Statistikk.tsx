@@ -12,7 +12,7 @@ const Statistikk = ({ tittel, hjelpetekst, statistikktekst }: StatistikkProps) =
   return (
     <div className="statistikk">
       <div className="statistikk__heading">
-        <Heading size="xsmall" level="3">
+        <Heading size="xsmall" level="2">
           {tittel}
         </Heading>
         <HelpText title="Hva er dette?">{hjelpetekst}</HelpText>

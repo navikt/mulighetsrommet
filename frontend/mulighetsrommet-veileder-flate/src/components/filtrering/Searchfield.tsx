@@ -16,6 +16,7 @@ const Searchfield = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
       value={sokefilter}
       className="sokefelt-tiltakstype"
       aria-label="Søk etter tiltakstype"
+      data-testid="filter_sokefelt"
     />
   );
 };
