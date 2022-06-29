@@ -36,13 +36,13 @@ jobs:
         run: npx turbo run build:preprod --filter=mulighetsrommet-veileder-flate
       - name: Cypress run
         uses: cypress-io/github-action@v4
+        env:
+          VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_CYPRESS_AUTH_TOKEN }}
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
           headed: false
           wait-on: http://localhost:3000
-          env:
-            VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_CYPRESS_AUTH_TOKEN }}
           start: npm start
           install: false
       - name: Notify slack fail
