@@ -52,7 +52,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Filtrer på søkefelt', () => {
-    cy.getByTestId('filter_sokefelt').type('Digitalt');
+    cy.getByTestId('filter_sokefelt').type('AFT');
     cy.getByTestId('filtertags').children().should('have.length', 1);
 
     cy.wait(1000)
@@ -60,6 +60,7 @@ describe('Tiltaksgjennomføringstabell', () => {
       .then($navn => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
+    cy.getByTestId('filter_sokefelt').clear();
   });
 
   it('Sortering', () => {
@@ -71,28 +72,27 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Kopiknapp', () => {
-    const tiltaksnummer = cy
-      .getByTestId('tabell_tiltaksnummer')
+    cy.getByTestId('tabell_tiltaksnummer')
       .last()
       .then($text => {
-        return $text.text();
+        const tiltaksnummer = $text.text();
+        cy.getByTestId('knapp_kopier').last().click();
+
+        cy.window().then(win => {
+          win.navigator.clipboard.readText().then(text => {
+            expect(text).to.eq(tiltaksnummer);
+          });
+        });
       });
-    cy.getByTestId('knapp_kopier').last().click();
 
-    cy.window().then(win => {
-      win.navigator.clipboard.readText().then(text => {
-        expect(text).to.eq(tiltaksnummer);
-      });
-    });
-  });
+    it('Gå til siste tiltaksgjennomføring', () => {
+      cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
 
-  it('Gå til siste tiltaksgjennomføring', () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
-
-    cy.getByTestId('knapp_kopier').click();
-    cy.window().then(win => {
-      win.navigator.clipboard.readText().then(text => {
-        cy.url().should('include', text);
+      cy.getByTestId('knapp_kopier').click();
+      cy.window().then(win => {
+        win.navigator.clipboard.readText().then(text => {
+          cy.url().should('include', text);
+        });
       });
     });
   });
@@ -104,6 +104,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
+    cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
