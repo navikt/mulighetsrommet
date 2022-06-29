@@ -89,11 +89,11 @@ jobs:
       - name: Build
         run: npx turbo run build --filter=mulighetsrommet-veileder-flate
       - name: Cypress run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v4
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
-          headless: true
+          headed: true
           wait-on: http://localhost:3000
           start: npm start
           install: false
