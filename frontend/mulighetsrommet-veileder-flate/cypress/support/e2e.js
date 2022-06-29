@@ -1,3 +1,5 @@
+import 'cypress-axe';
+
 before('Start server and inject Axe', () => {
   cy.server();
   cy.visit('/');

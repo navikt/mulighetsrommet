@@ -2,7 +2,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
-    // cy.checkPageA11y();
+    cy.checkPageA11y();
   });
 
   it('Lagre antall tiltak uten filtrering', () => {
@@ -60,6 +60,7 @@ describe('Tiltaksgjennomføringstabell', () => {
       .then($navn => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
+    cy.getByTestId('filter_sokefelt').clear();
   });
 
   it('Sortering', () => {
@@ -71,28 +72,27 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Kopiknapp', () => {
-    const tiltaksnummer = cy
-      .getByTestId('tabell_tiltaksnummer')
+    cy.getByTestId('tabell_tiltaksnummer')
       .last()
       .then($text => {
-        return $text.text();
+        const tiltaksnummer = $text.text();
+        cy.getByTestId('knapp_kopier').last().click();
+
+        cy.window().then(win => {
+          win.navigator.clipboard.readText().then(text => {
+            expect(text).to.eq(tiltaksnummer);
+          });
+        });
       });
-    cy.getByTestId('tabell_knapp_kopier').last().click();
 
-    cy.window().then(win => {
-      win.navigator.clipboard.readText().then(text => {
-        expect(text).to.eq(tiltaksnummer);
-      });
-    });
-  });
+    it('Gå til siste tiltaksgjennomføring', () => {
+      cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
 
-  it('Gå til siste tiltaksgjennomføring', () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
-
-    cy.getByTestId('knapp_kopier').click();
-    cy.window().then(win => {
-      win.navigator.clipboard.readText().then(text => {
-        cy.url().should('include', text);
+      cy.getByTestId('knapp_kopier').click();
+      cy.window().then(win => {
+        win.navigator.clipboard.readText().then(text => {
+          cy.url().should('include', text);
+        });
       });
     });
   });
@@ -100,7 +100,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
 describe('Tiltaksgjennomføringstabell', () => {
   it('Sjekk UU', () => {
-    // cy.checkA11y({ exclude: ['.navds-tooltip'] });
+    cy.checkA11y({ exclude: ['.navds-tooltip'] });
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
