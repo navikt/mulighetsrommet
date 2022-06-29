@@ -5,6 +5,8 @@ import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import DetaljerFane from './detaljerFane';
 import { logEvent } from '../../api/logger';
 import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import BarChart from './innsikt/BarChart';
+import { ParentSize } from '@visx/responsive';
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
@@ -53,7 +55,16 @@ const TiltaksdetaljerFane = () => {
       <Tabs.Panel value="tab4">
         <KontaktinfoFane tiltaksansvarlige={kontaktinfoTiltaksansvarlige} arrangorinfo={kontaktinfoArrangor} />
       </Tabs.Panel>
-      <Tabs.Panel value="tab5">Her kommer det grader og annet snacks - Innsikt</Tabs.Panel>
+      <Tabs.Panel value="tab5">
+          <ParentSize>
+            {({ width, height }) => (
+              <BarChart
+                width={width}
+                height={300}
+              />
+            )}
+          </ParentSize>
+      </Tabs.Panel>
     </Tabs>
   );
 };
