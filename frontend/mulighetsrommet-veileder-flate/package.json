@@ -65,7 +65,7 @@
     "babel-polyfill": "^6.26.0",
     "browserslist": "^4.19.3",
     "cross-env": "^7.0.3",
-    "cypress": "^9.7.0",
+    "cypress": "^10.3.0",
     "cypress-axe": "^0.13.0",
     "esbuild": "^0.14.42",
     "eslint": "^7.32.0",
