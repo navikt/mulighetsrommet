@@ -18,13 +18,15 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
     logEvent('mulighetsrommet.kopiknapp');
     navigator.clipboard.writeText(kopitekst);
     setShowTooltip(true);
+  };
 
+  useEffect(() => {
     let timeOutId = 0;
     if (showTooltip) {
       timeOutId = window.setTimeout(() => setShowTooltip(false), 1200);
     }
     return () => clearTimeout(timeOutId);
-  };
+  }, [showTooltip]);
 
   return (
     <Tooltip placement="top" content="Kopiert" open={showTooltip} role="tooltip">

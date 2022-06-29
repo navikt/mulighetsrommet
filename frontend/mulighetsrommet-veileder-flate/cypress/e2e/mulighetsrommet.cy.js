@@ -87,12 +87,13 @@ describe('Tiltaksgjennomføringstabell', () => {
           });
         });
       });
+    cy.wait(1200); //må vente til kopiknapp-tooltip går bort for å få riktig document focus
   });
 });
 
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').last().click({ force: true });
+    cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
 
     cy.wait(1000);
     cy.getByTestId('knapp_kopier').click();
