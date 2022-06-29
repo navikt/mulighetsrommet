@@ -34,11 +34,12 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build:preprod --filter=mulighetsrommet-veileder-flate
+        env:
+          VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_CYPRESS_AUTH_TOKEN }}
       - name: Cypress run
         uses: cypress-io/github-action@v4
         env:
           DEBUG: '@cypress/github-action'
-          VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_CYPRESS_AUTH_TOKEN }}
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
