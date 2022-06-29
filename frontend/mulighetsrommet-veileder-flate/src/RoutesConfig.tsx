@@ -1,15 +1,18 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { useHentFnrFraUrl } from './hooks/useHentFnrFraUrl';
 import ViewTiltakstypeDetaljer from './views/tiltaksgjennomforing-detaljer/ViewTiltakstypeDetaljer';
 import ViewTiltakstypeOversikt from './views/tiltaksgjennomforing-oversikt/ViewTiltakstypeOversikt';
 
 const RoutesConfig = () => {
+  const fnr = useHentFnrFraUrl();
+
   return (
     <Routes>
-      <Route path="/" element={<ViewTiltakstypeOversikt />} />
-      <Route path="/:tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
+      <Route path=":fnr" element={<ViewTiltakstypeOversikt />} />
+      <Route path=":fnr/:tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
 
-      <Route path="*" element={<Navigate to="/" />}>
+      <Route path="*" element={<Navigate to={`${fnr}`} />}>
         {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}
       </Route>
     </Routes>

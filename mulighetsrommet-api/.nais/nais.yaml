@@ -48,5 +48,7 @@ spec:
           namespace: pto
           cluster: dev-fss
         - application: mulighetsrommet-arena-adapter
+        - application: veilarbpersonflate
+          namespace: poao
   envFrom:
     - secret: mulighetsrommet-api
