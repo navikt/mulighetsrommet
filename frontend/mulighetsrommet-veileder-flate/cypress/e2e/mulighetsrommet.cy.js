@@ -74,22 +74,22 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.sortering('tabellheader_status');
   });
 
-  it('Kopiknapp', () => {
-    cy.getByTestId('tabell_tiltaksnummer')
-      .last()
-      .then($text => {
-        const tiltaksnummer = $text.text();
-        cy.getByTestId('tabell_knapp_kopier').last().click();
-
-        cy.window().then(win => {
-          win.navigator.clipboard.readText().then(text => {
-            expect(text).to.eq(tiltaksnummer);
-          });
-        });
-      });
-    cy.wait(1200); //må vente til kopiknapp-tooltip går bort for å få riktig document focus
-    cy.get('html').trigger('mousedown');
-  });
+  // it('Kopiknapp', () => {
+  //   cy.getByTestId('tabell_tiltaksnummer')
+  //     .last()
+  //     .then($text => {
+  //       const tiltaksnummer = $text.text();
+  //       cy.getByTestId('tabell_knapp_kopier').last().click();
+  //
+  //       cy.window().then(win => {
+  //         win.navigator.clipboard.readText().then(text => {
+  //           expect(text).to.eq(tiltaksnummer);
+  //         });
+  //       });
+  //     });
+  //   cy.wait(1200); //må vente til kopiknapp-tooltip går bort for å få riktig document focus
+  //   cy.get('html').trigger('mousedown');
+  // });
 });
 
 describe('Tiltaksgjennomføringstabell', () => {
@@ -110,7 +110,6 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
-    cy.screenshot();
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
