@@ -8,7 +8,7 @@ export default defineConfig({
   retries: {
     runMode: 2,
   },
-  video: false,
+  video: true,
   videoUploadOnPasses: false,
   e2e: {
     // We've imported your old cypress plugins here.
