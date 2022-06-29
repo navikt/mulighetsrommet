@@ -6,9 +6,10 @@ import './Kopiknapp.less';
 
 interface KopiknappProps {
   kopitekst: string;
+  dataTestId?: string;
 }
 
-const Kopiknapp = ({ kopitekst }: KopiknappProps) => {
+const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [hover, setHover] = useState(false);
 
@@ -36,7 +37,7 @@ const Kopiknapp = ({ kopitekst }: KopiknappProps) => {
         onClick={e => {
           copyToClipboard(kopitekst, e);
         }}
-        data-testid="knapp_kopier"
+        data-testid={dataTestId}
       >
         {hover ? <CopyFilled aria-label="Kopier" /> : <Copy aria-label="Kopier" />}
       </Button>

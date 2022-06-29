@@ -196,14 +196,16 @@ const TiltaksgjennomforingsTabell = () => {
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`/${tiltaksnummer}`} isInline data-testid="tabell_tiltaksgjennomforing">
+                    <Lenke to={`${tiltaksnummer}`} isInline data-testid="tabell_tiltaksgjennomforing">
                       {tiltaksgjennomforingNavn}
                     </Lenke>
                     <div>{kontaktinfoArrangor.selskapsnavn}</div>
                   </Table.DataCell>
-                  <Table.DataCell className="tabell__tiltaksnummer" data-testid="tabell_tiltaksnummer">
-                    {tiltaksnummer}
-                    <Kopiknapp kopitekst={tiltaksnummer!.toString()} data-testid="knapp_kopier" />
+                  <Table.DataCell data-testid="tabell_tiltaksnummer">
+                    <div className="tabell__tiltaksnummer">
+                      {tiltaksnummer}
+                      <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
+                    </div>
                   </Table.DataCell>
                   <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                   <Table.DataCell>{lokasjon}</Table.DataCell>

@@ -7,7 +7,7 @@ module.exports = defineConfig({
     viewportWidth: 1800,
     requestTimeout: 10000,
     defaultCommandTimeout: 10000,
-
+    specPattern: 'cypress/e2e',
     retries: {
       runMode: 2,
     },

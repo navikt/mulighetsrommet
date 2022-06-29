@@ -11,7 +11,6 @@ before('Start server and inject Axe', () => {
     url: '/',
   });
   cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
-  cy.injectAxe();
 });
 
 Cypress.Commands.add('getByTestId', (selector, ...args) => {
