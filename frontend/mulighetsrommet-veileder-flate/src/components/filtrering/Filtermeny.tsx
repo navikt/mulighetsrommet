@@ -7,12 +7,14 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
 import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
 import { useTiltakstyper } from '../../api/queries/useTiltakstyper';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   const innsatsgrupper = useInnsatsgrupper();
   const tiltakstyper = useTiltakstyper();
+  usePrepopulerFilter();
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">

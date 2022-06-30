@@ -6,7 +6,8 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
-export type { Innsatsgruppe } from './models/Innsatsgruppe';
+export type { Bruker } from './models/Bruker';
+export { Innsatsgruppe } from './models/Innsatsgruppe';
 export type { Tiltaksgjennomforing } from './models/Tiltaksgjennomforing';
 export { Tiltakskode } from './models/Tiltakskode';
 export type { Tiltakstype } from './models/Tiltakstype';

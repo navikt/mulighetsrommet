@@ -5,4 +5,5 @@ export const enum QueryKeys {
   kontaktperson = 'kontaktperson',
   arrangor = 'arrangor',
   SanityQuery = 'sanityQuery',
+  Brukerdata = 'brukerdata',
 }

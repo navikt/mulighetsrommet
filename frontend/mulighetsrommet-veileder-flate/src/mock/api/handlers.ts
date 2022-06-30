@@ -8,6 +8,11 @@ export const handlers: RestHandler[] = [
     return res(ctx.delay(500), ctx.json(mockFeatures));
   }),
 
+  rest.get('*/api/v1/bruker/:fnr', (req, res, ctx) => {
+    const { fnr } = req.params;
+    return ok({ fnr, innsatsgruppe: 'Situasjonsbestemt innsats' });
+  }),
+
   rest.get('*/api/v1/sanity', async req => {
     const query = req.url.searchParams.get('query');
 

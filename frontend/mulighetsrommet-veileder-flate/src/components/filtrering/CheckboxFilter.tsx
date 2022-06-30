@@ -25,7 +25,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   defaultOpen = false,
   sortert = false,
 }: CheckboxFilterProps<T>) => {
-  const valgteTypeIDer = options!.map(type => type.id);
+  const valgteTypeIDer = options.map(type => type.id);
 
   const handleEndreFilter = (filtertypeTittel: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

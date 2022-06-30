@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Innsatsgruppe } from '../models/Innsatsgruppe';
+import type { Bruker } from '../models/Bruker';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
 import type { Tiltakskode } from '../models/Tiltakskode';
 import type { Tiltakstype } from '../models/Tiltakstype';
@@ -28,17 +28,6 @@ export class MulighetsrommetService {
             query: {
                 'query': query,
             },
-        });
-    }
-
-    /**
-     * @returns Innsatsgruppe Array of innsatsgrupper.
-     * @throws ApiError
-     */
-    public static getInnsatsgrupper(): CancelablePromise<Array<Innsatsgruppe>> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/v1/innsatsgrupper',
         });
     }
 
@@ -194,6 +183,28 @@ export class MulighetsrommetService {
             },
             errors: {
                 404: `The specified tiltaksgjennomføring was not found.`,
+            },
+        });
+    }
+
+    /**
+     * @returns Bruker Data about the 'bruker' in the context of 'veileder'
+     * @throws ApiError
+     */
+    public static getBrukerdata({
+        fnr,
+    }: {
+        /** Fødselsnummer **/
+        fnr: string,
+    }): CancelablePromise<Bruker> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/bruker/{fnr}',
+            path: {
+                'fnr': fnr,
+            },
+            errors: {
+                404: `Could not find data about 'bruker'`,
             },
         });
     }
