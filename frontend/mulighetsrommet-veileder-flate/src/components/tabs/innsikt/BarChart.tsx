@@ -4,18 +4,22 @@ import { SeriesPoint } from '@visx/shape/lib/types';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { Grid } from '@visx/grid';
-import cityTemperature, { CityTemperature } from '@visx/mock-data/lib/mocks/cityTemperature';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 import { LegendOrdinal } from '@visx/legend';
-import './BarChart.less';
+import datapunkt, {Datapunkt} from "./Datapunkt";
 
-type Status = 'ArbeidstakerMedYtelse' | 'KunArbeidstaker' | 'RegistrertHosNav' | 'Ukjent';
+type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
+
+function isOfType(value: any): value is Status {
+  return ['Arbeidstaker m. ytelse/oppf', 'Kun arbeidstaker' , 'Registrert hos Nav' , 'Ukjent'].includes(value);
+}
+
 
 type TooltipData = {
-  bar: SeriesPoint<CityTemperature>;
+  bar: SeriesPoint<Datapunkt>;
   key: Status;
   index: number;
   height: number;
@@ -32,15 +36,22 @@ export type BarStackHorizontalProps = {
   events?: boolean;
 };
 
-const purple1 = '#748CB2';
-const purple2 = '#9CC677';
-export const purple3 = '#EACF5E';
+const bla = '#748CB2';
+const gronn = '#9CC677';
+export const gul = '#EACF5E';
+const rod = '#F9AD79';
 export const background = '#F1F1F1';
 const black = '#000000'
 const defaultMargin = { top: 40, left: 50, right: 40, bottom: 100 };
 
-const data = cityTemperature.slice(0, 3);
-const keys = Object.keys(data[0]).filter((d) => d !== 'date') as Status[];
+const data = [{ tiltakstype: 'AFT', antallManeder: '3 mnd',
+  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
+  Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '6 mnd',
+  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
+  Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '12 mnd',
+  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
+  Ukjent: 25 }];
+const keys = Object.keys(data[0]).filter((d) => isOfType(d)) as Status[];
 
 const temperatureTotals = data.reduce((allTotals, currentDate) => {
   const totalTemperature = keys.reduce((dailyTotal, k) => {
@@ -51,25 +62,21 @@ const temperatureTotals = data.reduce((allTotals, currentDate) => {
   return allTotals;
 }, [] as number[]);
 
-const parseDate = timeParse('%Y-%m-%d');
-const format = timeFormat('%b %d');
-const formatDate = (date: string) => format(parseDate(date) as Date);
-
 // accessors
-const getDate = (d: CityTemperature) => d.date;
+const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
 // scales
 const temperatureScale = scaleLinear<number>({
   domain: [0, Math.max(...temperatureTotals)],
-  nice: true,
+  nice: false,
 });
 const dateScale = scaleBand<string>({
-  domain: data.map(getDate),
+  domain: data.map(getAntallManeder),
   padding: 0.2,
 });
 const colorScale = scaleOrdinal<Status, string>({
   domain: keys,
-  range: [purple1, purple2, purple3],
+  range: [bla, gronn, gul, rod],
 });
 
 export default withTooltip<BarStackHorizontalProps, TooltipData>(
@@ -86,6 +93,8 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
     temperatureScale.rangeRound([0, xMax]);
     dateScale.rangeRound([yMax, 0]);
 
+    console.log(temperatureScale.range())
+
     return width < 10 ? null : (
       <div>
         <svg width={width} height={height}>
@@ -95,18 +104,18 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
             left={margin.left}
             xScale={dateScale}
             yScale={temperatureScale}
+            numTicksRows={10}
+            numTicksColumns={10}
             width={xMax}
             height={yMax}
-            stroke="black"
-            strokeOpacity={0.1}
-            xOffset={0}
+            stroke="#8F8F8F"
           />
           <Group top={margin.top} left={margin.left}>
-            <BarStackHorizontal<CityTemperature, Status>
+            <BarStackHorizontal<Datapunkt, Status>
               data={data}
               keys={keys}
               height={yMax}
-              y={getDate}
+              y={getAntallManeder}
               xScale={temperatureScale}
               yScale={dateScale}
               color={colorScale}
@@ -119,7 +128,7 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
                       x={bar.x}
                       y={bar.y}
                       width={bar.width}
-                      height={25}
+                      height={10}
                       fill={bar.color}
                     />
                   )),
@@ -129,7 +138,6 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
             <AxisLeft
               hideTicks
               scale={dateScale}
-              tickFormat={formatDate}
               stroke={black}
               tickStroke={black}
               tickLabelProps={() => ({
@@ -147,7 +155,7 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
               tickStroke={black}
               tickLabelProps={() => ({
                 fill: black,
-                fontSize: 11,
+                fontSize: 14,
                 textAnchor: 'middle',
               })}
             />
@@ -155,16 +163,16 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
         </svg>
         <div
           style={{
-            position: 'absolute',
-            top: margin.top / 2 - 10,
             width: '100%',
             display: 'flex',
             justifyContent: 'center',
             fontSize: '14px',
+            marginTop: '-4rem',
           }}
         >
+          <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
         </div>
-        <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
+
       </div>
     );
   },
