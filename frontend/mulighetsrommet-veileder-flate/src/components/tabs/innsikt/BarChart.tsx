@@ -3,18 +3,20 @@ import { BarStackHorizontal } from '@visx/shape';
 import { SeriesPoint } from '@visx/shape/lib/types';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
+import { Grid } from '@visx/grid';
 import cityTemperature, { CityTemperature } from '@visx/mock-data/lib/mocks/cityTemperature';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 import { LegendOrdinal } from '@visx/legend';
+import './BarChart.less';
 
-type CityName = 'New York' | 'San Francisco' | 'Austin';
+type Status = 'ArbeidstakerMedYtelse' | 'KunArbeidstaker' | 'RegistrertHosNav' | 'Ukjent';
 
 type TooltipData = {
   bar: SeriesPoint<CityTemperature>;
-  key: CityName;
+  key: Status;
   index: number;
   height: number;
   width: number;
@@ -38,7 +40,7 @@ const black = '#000000'
 const defaultMargin = { top: 40, left: 50, right: 40, bottom: 100 };
 
 const data = cityTemperature.slice(0, 3);
-const keys = Object.keys(data[0]).filter((d) => d !== 'date') as CityName[];
+const keys = Object.keys(data[0]).filter((d) => d !== 'date') as Status[];
 
 const temperatureTotals = data.reduce((allTotals, currentDate) => {
   const totalTemperature = keys.reduce((dailyTotal, k) => {
@@ -65,7 +67,7 @@ const dateScale = scaleBand<string>({
   domain: data.map(getDate),
   padding: 0.2,
 });
-const colorScale = scaleOrdinal<CityName, string>({
+const colorScale = scaleOrdinal<Status, string>({
   domain: keys,
   range: [purple1, purple2, purple3],
 });
@@ -88,8 +90,19 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
       <div>
         <svg width={width} height={height}>
           <rect width={width} height={height} fill={background} rx={14} />
+          <Grid
+            top={margin.top}
+            left={margin.left}
+            xScale={dateScale}
+            yScale={temperatureScale}
+            width={xMax}
+            height={yMax}
+            stroke="black"
+            strokeOpacity={0.1}
+            xOffset={0}
+          />
           <Group top={margin.top} left={margin.left}>
-            <BarStackHorizontal<CityTemperature, CityName>
+            <BarStackHorizontal<CityTemperature, Status>
               data={data}
               keys={keys}
               height={yMax}
@@ -150,8 +163,8 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
             fontSize: '14px',
           }}
         >
-          <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
         </div>
+        <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
       </div>
     );
   },
