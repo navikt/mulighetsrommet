@@ -1,6 +1,5 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import { BarStackHorizontal } from '@visx/shape';
-import { SeriesPoint } from '@visx/shape/lib/types';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { GridColumns } from '@visx/grid';
@@ -93,7 +92,6 @@ export default function BarChart({ width, height, margin = defaultMargin }: BarS
 
   return width < 10 ? null : (
     <div>
-      <text style={{ fontSize: '16px', fontWeight: 'bold' }}>Status etter avgang</text>
       <svg width={width} height={height}>
         <rect width={width} height={height} fill={background} rx={14} />
         <GridColumns
@@ -157,7 +155,7 @@ export default function BarChart({ width, height, margin = defaultMargin }: BarS
       </svg>
       <div
         style={{
-          width: '100%',
+          width: `${width}px`,
           display: 'flex',
           justifyContent: 'center',
           fontSize: '14px',
