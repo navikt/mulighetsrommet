@@ -50,7 +50,7 @@ const ViewTiltakstypeOversikt = () => {
               />
               <SearchFieldTag />
             </div>
-            <Show if={filter !== initialTiltaksgjennomforingsfilter}>
+            <Show if={filter.innsatsgrupper.length > 1 || filter.tiltakstyper.length > 0 || filter.search !== ''}>
               <div className="tilbakestill-filter-knapp">
                 <Button
                   size="small"

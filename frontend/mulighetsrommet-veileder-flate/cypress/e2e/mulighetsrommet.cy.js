@@ -28,7 +28,6 @@ describe('Tiltaksgjennomføringstabell', () => {
 
     cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
     cy.getByTestId('filtertags').children().should('have.length', 1);
-    cy.getByTestId('knapp_tilbakestill-filter').click();
   });
 
   it('Filtrer på Tiltakstyper', () => {
