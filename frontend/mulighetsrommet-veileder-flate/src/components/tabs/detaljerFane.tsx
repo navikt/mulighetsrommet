@@ -17,7 +17,7 @@ const DetaljerFane = ({
   tiltakstype,
 }: DetaljerFaneProps) => {
   return (
-    <div>
+    <div className="tiltaksdetaljer__maksbredde">
       {tiltakstypeAlert && (
         <Alert variant="info" className="tiltaksdetaljer__alert">
           {tiltakstypeAlert}

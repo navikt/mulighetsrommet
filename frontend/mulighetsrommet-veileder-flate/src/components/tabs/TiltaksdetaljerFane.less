@@ -7,8 +7,6 @@
     &__liste {
       display: flex;
       flex-direction: row;
-      border-bottom: 1px solid var(--navds-semantic-color-border-muted);
-      margin-bottom: 2rem;
       gap: 5%;
       justify-content: start;
       width: inherit;
@@ -43,9 +41,16 @@
   }
 
   .navds-tabs__tabpanel {
-    .tiltaksdetaljer__alert {
-      margin-bottom: 1rem;
+    .tiltaksdetaljer {
+      &__alert {
+        margin-bottom: 1rem;
+      }
+
+      &__maksbredde {
+        max-width: 75ch;
+      }
     }
+
   }
 
   @media (max-width: 1200px) {
