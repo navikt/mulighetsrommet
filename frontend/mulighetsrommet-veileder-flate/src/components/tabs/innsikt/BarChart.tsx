@@ -9,7 +9,7 @@ import { Datapunkt } from './Datapunkt';
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
-function isOfType(value: any): value is Status {
+function isOfStatusType(value: any): value is Status {
   return ['Arbeidstaker m. ytelse/oppf', 'Kun arbeidstaker', 'Registrert hos Nav', 'Ukjent'].includes(value);
 }
 
@@ -55,7 +55,7 @@ const data = [
     Ukjent: 25,
   },
 ];
-const keys = Object.keys(data[0]).filter(d => isOfType(d)) as Status[];
+const keys = Object.keys(data[0]).filter(d => isOfStatusType(d)) as Status[];
 
 const temperatureTotals = data.reduce((allTotals, currentDate) => {
   const totalTemperature = keys.reduce((dailyTotal, k) => {
