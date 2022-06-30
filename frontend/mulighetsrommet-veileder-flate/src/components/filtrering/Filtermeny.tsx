@@ -12,8 +12,7 @@ const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   const innsatsgrupper = useInnsatsgrupper();
-
-  const { data: tiltakstyper = [], isLoading, isError } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
 
   return (
     <div className="tiltakstype-oversikt__filtermeny">
@@ -41,14 +40,16 @@ const Filtermeny = () => {
         accordionNavn="Tiltakstyper"
         options={filter.tiltakstyper!}
         setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
-        data={tiltakstyper.map(tiltakstype => {
-          return {
-            id: tiltakstype._id,
-            tittel: tiltakstype.tiltakstypeNavn,
-          };
-        })}
-        isLoading={isLoading}
-        isError={isError}
+        data={
+          tiltakstyper.data?.map(tiltakstype => {
+            return {
+              id: tiltakstype._id,
+              tittel: tiltakstype.tiltakstypeNavn,
+            };
+          }) ?? []
+        }
+        isLoading={tiltakstyper.isLoading}
+        isError={tiltakstyper.isError}
         sortert
       />
     </div>

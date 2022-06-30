@@ -11,6 +11,11 @@
         font-weight: bold;
       }
 
+      &__tiltaksnummer {
+        display: grid;
+        grid-template-columns: 10% auto;
+      }
+
       &__kolonne {
         &__tiltaksnavn {
           width: 25%;
@@ -45,5 +50,10 @@
   .navds-table__body,
   .navds-table__row:nth-of-type(even):not(:hover):not(.navds-table__row--selected) {
     background-color: var(--navds-semantic-color-canvas-background-light);
+  }
+  @media (max-width: 1200px) {
+    .navds-table .tabell__tiltaksnummer {
+      grid-template-columns: 40% auto;
+    }
   }
 }

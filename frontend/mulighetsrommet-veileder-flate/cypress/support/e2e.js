@@ -1,3 +1,25 @@
+// ***********************************************************
+// This example support/index.js is processed and
+// loaded automatically before your test files.
+//
+// This is a great place to put global configuration and
+// behavior that modifies Cypress.
+//
+// You can change the location of this file or turn off
+// automatically serving support files with the
+// 'supportFile' configuration option.
+//
+// You can read more here:
+// https://on.cypress.io/configuration
+// ***********************************************************
+
+// Import e2e.js using ES2015 syntax:
+import './e2e';
+import 'cypress-axe';
+
+// Alternatively you can use CommonJS syntax:
+// require('cypress-dark');
+
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -57,6 +79,18 @@ Cypress.Commands.add('apneLukketFilterAccordion', (filternavn, apne) => {
 
 Cypress.Commands.add('tilbakeTilListevisning', () => {
   cy.getByTestId('tilbakeknapp').contains('Tilbake').click();
+});
+
+Cypress.Commands.add('sortering', testId => {
+  cy.getByTestId(testId).should('have.attr', 'aria-sort', 'none');
+
+  cy.getByTestId(testId).click();
+  cy.getByTestId(testId).should('have.attr', 'aria-sort', 'ascending');
+
+  cy.getByTestId(testId).click();
+  cy.getByTestId(testId).should('have.attr', 'aria-sort', 'descending');
+
+  cy.getByTestId(testId).click();
 });
 
 //Cypress

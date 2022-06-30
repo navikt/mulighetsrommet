@@ -133,19 +133,44 @@ const TiltaksgjennomforingsTabell = () => {
             >
               Tiltaksnavn
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltaksnummer" sortable className="tabell__kolonne__tiltaksnummer">
+            <Table.ColumnHeader
+              sortKey="tiltaksnummer"
+              sortable
+              className="tabell__kolonne__tiltaksnummer"
+              data-testid="tabellheader_tiltaksnummer"
+            >
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltakstypeNavn" sortable className="tabell__kolonne__tiltakstype">
+            <Table.ColumnHeader
+              sortKey="tiltakstypeNavn"
+              sortable
+              className="tabell__kolonne__tiltakstype"
+              data-testid="tabellheader_tiltakstype"
+            >
               Tiltakstype
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="lokasjon" sortable className="tabell__kolonne__oppstart">
+            <Table.ColumnHeader
+              sortKey="lokasjon"
+              sortable
+              className="tabell__kolonne__oppstart"
+              data-testid="tabellheader_lokasjon"
+            >
               Lokasjon
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="oppstart" sortable className="tabell__kolonne__oppstart">
+            <Table.ColumnHeader
+              sortKey="oppstart"
+              sortable
+              className="tabell__kolonne__oppstart"
+              data-testid="tabellheader_oppstartsdato"
+            >
               Oppstartsdato
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="status" sortable className="tabell__kolonne__plasser">
+            <Table.ColumnHeader
+              sortKey="status"
+              sortable
+              className="tabell__kolonne__plasser"
+              data-testid="tabellheader_status"
+            >
               Status
             </Table.ColumnHeader>
           </Table.Row>
@@ -171,14 +196,16 @@ const TiltaksgjennomforingsTabell = () => {
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`${tiltaksnummer}`} isInline data-testid="tabell_tiltakstyper_tiltaksnummer">
+                    <Lenke to={`${tiltaksnummer}`} isInline data-testid="tabell_tiltaksgjennomforing">
                       {tiltaksgjennomforingNavn}
                     </Lenke>
                     <div>{kontaktinfoArrangor.selskapsnavn}</div>
                   </Table.DataCell>
-                  <Table.DataCell className="tabell__tiltaksnummer" data-testid="tiltaksnummer">
-                    {tiltaksnummer}
-                    <Kopiknapp kopitekst={tiltaksnummer!.toString()} />
+                  <Table.DataCell data-testid="tabell_tiltaksnummer">
+                    <div className="tabell__tiltaksnummer">
+                      {tiltaksnummer}
+                      <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
+                    </div>
                   </Table.DataCell>
                   <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                   <Table.DataCell>{lokasjon}</Table.DataCell>
@@ -193,9 +220,9 @@ const TiltaksgjennomforingsTabell = () => {
         </Table.Body>
       </Table>
       <div className="under-tabell">
-        <Heading level="1" size="xsmall">
+        <Heading level="1" size="xsmall" data-testid="antall-tiltak">
           Viser {(page - 1) * rowsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * rowsPerPage} av{' '}
-          {tiltaksgjennomforinger.length} tiltak
+          {tiltaksgjennomforinger.length} tiltak{' '}
         </Heading>
         <Pagination
           page={page}

@@ -28,22 +28,25 @@ jobs:
   build-and-test-preprod:
     name: Build and test for preprod
     runs-on: ubuntu-latest
+    env:
+      VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+      VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+      VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_TEST_DATA_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build:preprod --filter=mulighetsrommet-veileder-flate
-      #TODO skru på denne når tc-122 er good
-      #      - name: Cypress run
-      #        uses: cypress-io/github-action@v3
-      #        with:
-      #          working-directory: frontend/mulighetsrommet-veileder-flate
-      #          browser: chrome
-      #          headless: true
-      #          wait-on: http://localhost:3000
-      #          start: npm start
-      #          install: false
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          working-directory: frontend/mulighetsrommet-veileder-flate
+          browser: chrome
+          headed: false
+          wait-on: http://localhost:3000
+          start: npm start
+          install: false
       - name: Notify slack fail
         if: failure()
         env:
@@ -89,16 +92,15 @@ jobs:
         uses: ./.github/actions/setup-frontend
       - name: Build
         run: npx turbo run build --filter=mulighetsrommet-veileder-flate
-      #TODO skru på denne når tc-122 er good
-      #      - name: Cypress run
-      #        uses: cypress-io/github-action@v3
-      #        with:
-      #          working-directory: frontend/mulighetsrommet-veileder-flate
-      #          browser: chrome
-      #          headless: true
-      #          wait-on: http://localhost:3000
-      #          start: npm start
-      #          install: false
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          working-directory: frontend/mulighetsrommet-veileder-flate
+          browser: chrome
+          headed: false
+          wait-on: http://localhost:3000
+          start: npm start
+          install: false
       - name: Notify slack fail
         if: failure()
         env:
