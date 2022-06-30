@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import { BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
@@ -22,10 +22,11 @@ export type BarStackHorizontalProps = {
 
 const bla = '#748CB2';
 const gronn = '#9CC677';
-export const gul = '#EACF5E';
+const gul = '#EACF5E';
 const rod = '#F9AD79';
-export const background = '#F1F1F1';
+const background = '#F1F1F1';
 const black = '#000000';
+const grey = '#8F8F8F';
 const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
 
 const data = [
@@ -100,7 +101,7 @@ export default function BarChart({ width, height, margin = defaultMargin }: BarS
           scale={percentageScale}
           width={xMax}
           height={yMax}
-          stroke="#8F8F8F"
+          stroke={grey}
         />
         <Group top={margin.top} left={margin.left}>
           <BarStackHorizontal<Datapunkt, Status>
@@ -130,8 +131,7 @@ export default function BarChart({ width, height, margin = defaultMargin }: BarS
           <AxisLeft
             hideTicks
             scale={monthScale}
-            stroke={black}
-            tickStroke={black}
+            stroke={grey}
             tickLabelProps={() => ({
               fill: black,
               fontSize: 14,
@@ -143,8 +143,7 @@ export default function BarChart({ width, height, margin = defaultMargin }: BarS
             hideTicks
             top={yMax}
             scale={percentageScale}
-            stroke={black}
-            tickStroke={black}
+            stroke={grey}
             tickLabelProps={() => ({
               fill: black,
               fontSize: 14,
