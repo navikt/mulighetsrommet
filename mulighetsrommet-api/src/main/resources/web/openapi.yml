@@ -37,20 +37,6 @@ paths:
           content:
             application/json:
               schema: {}
-  /api/v1/innsatsgrupper:
-    get:
-      tags:
-        - mulighetsrommet
-      operationId: getInnsatsgrupper
-      responses:
-        200:
-          description: Array of innsatsgrupper.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Innsatsgruppe"
   /api/v1/tiltakstyper:
     get:
       tags:
@@ -219,6 +205,26 @@ paths:
             application/json:
               schema:
                 type: string
+  /api/v1/bruker/{fnr}:
+    parameters:
+      - $ref: "#/components/parameters/Fnr"
+    get:
+      tags:
+        - mulighetsrommet
+      operationId: getBrukerdata
+      responses:
+        200:
+          description: Data about the 'bruker' in the context of 'veileder'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bruker"
+        404:
+          description: "Could not find data about 'bruker'"
+          content:
+            application/json:
+              schema:
+                type: string
 components:
   securitySchemes:
     bearerAuth:
@@ -240,20 +246,15 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/Tiltakskode"
+    Fnr:
+      name: fnr
+      in: path
+      description: Fødselsnummer
+      required: true
+      schema:
+        type: string
 
   schemas:
-    Innsatsgruppe:
-      type: object
-      properties:
-        _id:
-          type: number
-        tittel:
-          type: string
-        beskrivelse:
-          type: string  
-      required:
-        - _id
-        - navn
     Tiltakstype:
       type: object
       required:
@@ -264,10 +265,6 @@ components:
         - tiltakskode
         - fraDato
         - tilDato
-      #        - createdBy
-      #        - createdAt
-      #        - updatedBy
-      #        - updatedAt
       properties:
         _id:
           type: integer
@@ -440,6 +437,24 @@ components:
         - VIKARBLED
         - VV
         - YHEMMOFF
+    Bruker:
+      type: object
+      properties:
+        fnr:
+          type: string
+        innsatsgruppe:
+          $ref: "#/components/schemas/Innsatsgruppe"
+      required:
+        - fnr
+        - innsatsgruppe
+    Innsatsgruppe:
+      type: string
+      enum:
+        - Standardinnsats
+        - Situasjonsbestemt innsats
+        - Spesielt tilpasset innsats
+        - Varig tilpasset innsats
+      
   examples:
     Tiltakstype:
       summary: "Tiltakstype eksempel"
