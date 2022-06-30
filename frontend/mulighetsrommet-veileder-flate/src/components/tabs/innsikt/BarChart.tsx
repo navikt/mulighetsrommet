@@ -45,11 +45,11 @@ const black = '#000000'
 const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
 
 const data = [{ tiltakstype: 'AFT', antallManeder: '12 mnd',
-  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
-  Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '6 mnd',
-  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
-  Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '3 mnd',
-  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
+  'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 30, 'Registrert hos Nav': 30,
+  Ukjent: 15 }, { tiltakstype: 'AFT', antallManeder: '6 mnd',
+  'Arbeidstaker m. ytelse/oppf': 30, 'Kun arbeidstaker': 35, 'Registrert hos Nav': 20,
+  Ukjent: 15 }, { tiltakstype: 'AFT', antallManeder: '3 mnd',
+  'Arbeidstaker m. ytelse/oppf': 35, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 15,
   Ukjent: 25 }];
 const keys = Object.keys(data[0]).filter((d) => isOfType(d)) as Status[];
 
@@ -72,7 +72,7 @@ const percentageScale = scaleLinear<number>({
 });
 const monthScale = scaleBand<string>({
   domain: data.map(getAntallManeder),
-  padding: 0.2,
+  padding: 0.8,
 });
 const colorScale = scaleOrdinal<Status, string>({
   domain: keys,
@@ -122,9 +122,9 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
                     <rect
                       key={`barstack-horizontal-${barStack.index}-${bar.index}`}
                       x={bar.x}
-                      y={bar.y + bar.height/4}
+                      y={bar.y}
                       width={bar.width}
-                      height={bar.height/4}
+                      height={bar.height}
                       fill={bar.color}
                     />
                   )),
@@ -140,7 +140,7 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
                 fill: black,
                 fontSize: 14,
                 textAnchor: 'end',
-                //dy: '0.33em',
+                dy: '0.25em',
               })}
             />
             <AxisBottom
