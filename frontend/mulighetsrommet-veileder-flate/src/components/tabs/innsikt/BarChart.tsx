@@ -3,7 +3,7 @@ import { BarStackHorizontal } from '@visx/shape';
 import { SeriesPoint } from '@visx/shape/lib/types';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
-import { Grid } from '@visx/grid';
+import {Grid, GridColumns} from '@visx/grid';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
@@ -42,13 +42,13 @@ export const gul = '#EACF5E';
 const rod = '#F9AD79';
 export const background = '#F1F1F1';
 const black = '#000000'
-const defaultMargin = { top: 40, left: 50, right: 40, bottom: 100 };
+const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
 
-const data = [{ tiltakstype: 'AFT', antallManeder: '3 mnd',
+const data = [{ tiltakstype: 'AFT', antallManeder: '12 mnd',
   'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
   Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '6 mnd',
   'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
-  Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '12 mnd',
+  Ukjent: 25 }, { tiltakstype: 'AFT', antallManeder: '3 mnd',
   'Arbeidstaker m. ytelse/oppf': 25, 'Kun arbeidstaker': 25, 'Registrert hos Nav': 25,
   Ukjent: 25 }];
 const keys = Object.keys(data[0]).filter((d) => isOfType(d)) as Status[];
@@ -66,11 +66,11 @@ const temperatureTotals = data.reduce((allTotals, currentDate) => {
 const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
 // scales
-const temperatureScale = scaleLinear<number>({
+const percentageScale = scaleLinear<number>({
   domain: [0, Math.max(...temperatureTotals)],
   nice: false,
 });
-const dateScale = scaleBand<string>({
+const monthScale = scaleBand<string>({
   domain: data.map(getAntallManeder),
   padding: 0.2,
 });
@@ -90,22 +90,18 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
     const xMax = width - margin.left - margin.right;
     const yMax = height - margin.top - margin.bottom;
 
-    temperatureScale.rangeRound([0, xMax]);
-    dateScale.rangeRound([yMax, 0]);
-
-    console.log(temperatureScale.range())
+    percentageScale.rangeRound([0, xMax]);
+    monthScale.rangeRound([yMax, 0]);
 
     return width < 10 ? null : (
       <div>
+        <text style={{fontSize: '16px', fontWeight: 'bold'}}>Status etter avgang</text>
         <svg width={width} height={height}>
           <rect width={width} height={height} fill={background} rx={14} />
-          <Grid
+          <GridColumns
             top={margin.top}
             left={margin.left}
-            xScale={dateScale}
-            yScale={temperatureScale}
-            numTicksRows={10}
-            numTicksColumns={10}
+            scale={percentageScale}
             width={xMax}
             height={yMax}
             stroke="#8F8F8F"
@@ -116,8 +112,8 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
               keys={keys}
               height={yMax}
               y={getAntallManeder}
-              xScale={temperatureScale}
-              yScale={dateScale}
+              xScale={percentageScale}
+              yScale={monthScale}
               color={colorScale}
             >
               {(barStacks) =>
@@ -126,9 +122,9 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
                     <rect
                       key={`barstack-horizontal-${barStack.index}-${bar.index}`}
                       x={bar.x}
-                      y={bar.y}
+                      y={bar.y + bar.height/4}
                       width={bar.width}
-                      height={10}
+                      height={bar.height/4}
                       fill={bar.color}
                     />
                   )),
@@ -137,20 +133,20 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
             </BarStackHorizontal>
             <AxisLeft
               hideTicks
-              scale={dateScale}
+              scale={monthScale}
               stroke={black}
               tickStroke={black}
               tickLabelProps={() => ({
                 fill: black,
-                fontSize: 11,
+                fontSize: 14,
                 textAnchor: 'end',
-                dy: '0.33em',
+                //dy: '0.33em',
               })}
             />
             <AxisBottom
               hideTicks
               top={yMax}
-              scale={temperatureScale}
+              scale={percentageScale}
               stroke={black}
               tickStroke={black}
               tickLabelProps={() => ({
@@ -170,7 +166,7 @@ export default withTooltip<BarStackHorizontalProps, TooltipData>(
             marginTop: '-4rem',
           }}
         >
-          <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
+          <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" shapeHeight="8px" shapeWidth="8px"/>
         </div>
 
       </div>
