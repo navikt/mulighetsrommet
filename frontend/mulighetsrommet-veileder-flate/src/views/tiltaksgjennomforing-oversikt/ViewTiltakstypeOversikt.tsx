@@ -7,16 +7,18 @@ import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
-import { initialTiltaksgjennomforingsfilter, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
 import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
+import { useHentBrukerdata } from '../../api/queries/useHentBrukerdata';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
+  const brukerdata = useHentBrukerdata();
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
@@ -50,7 +52,13 @@ const ViewTiltakstypeOversikt = () => {
               />
               <SearchFieldTag />
             </div>
-            <Show if={filter.innsatsgrupper.length > 1 || filter.tiltakstyper.length > 0 || filter.search !== ''}>
+            <Show
+              if={
+                filter.innsatsgrupper.some(gruppe => gruppe.tittel !== brukerdata?.data?.innsatsgruppe) ||
+                filter.search !== '' ||
+                filter.tiltakstyper.length > 0
+              }
+            >
               <div className="tilbakestill-filter-knapp">
                 <Button
                   size="small"
