@@ -15,11 +15,9 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Filtrer på Innsatsgrupper', () => {
-    cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
-
     cy.velgFilter('standardinnsats');
 
-    cy.getByTestId('filtertags').children().should('have.length', 1);
+    cy.getByTestId('filtertags').children().should('have.length', 2);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
     cy.wait(1000)
@@ -29,7 +27,7 @@ describe('Tiltaksgjennomføringstabell', () => {
       });
 
     cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
-    cy.getByTestId('filtertags').children().should('have.length', 0);
+    cy.getByTestId('filtertags').children().should('have.length', 1);
   });
 
   it('Filtrer på Tiltakstyper', () => {
@@ -37,7 +35,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.velgFilter('avklaring');
     cy.velgFilter('oppfolging');
 
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.getByTestId('filtertags').children().should('have.length', 3);
 
     cy.wait(1000)
       .getByTestId('antall-tiltak')
@@ -50,13 +48,13 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filter_checkbox_avklaring').should('not.be.checked');
     cy.getByTestId('filter_checkbox_oppfolging').should('not.be.checked');
 
-    cy.getByTestId('filtertags').children().should('have.length', 0);
+    cy.getByTestId('filtertags').children().should('have.length', 1);
     cy.apneLukketFilterAccordion('tiltakstyper', false);
   });
 
   it('Filtrer på søkefelt', () => {
     cy.getByTestId('filter_sokefelt').type('Digitalt');
-    cy.getByTestId('filtertags').children().should('have.length', 1);
+    cy.getByTestId('filtertags').children().should('have.length', 2);
 
     cy.wait(1000)
       .getByTestId('antall-tiltak')

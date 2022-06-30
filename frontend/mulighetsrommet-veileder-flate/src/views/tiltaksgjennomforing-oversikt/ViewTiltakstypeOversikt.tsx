@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
@@ -12,19 +12,14 @@ import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
 import FakeDoor from '../../components/fakedoor/FakeDoor';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const { forcePrepopulerFilter } = usePrepopulerFilter();
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
-
-  //TODO fiks denne når vi får inn prefiltrering
-  useEffect(() => {
-    if (filter === initialTiltaksgjennomforingsfilter) {
-      setFilter(RESET);
-    }
-  }, [filter]);
 
   return (
     <>
@@ -55,12 +50,15 @@ const ViewTiltakstypeOversikt = () => {
               />
               <SearchFieldTag />
             </div>
-            <Show if={filter !== initialTiltaksgjennomforingsfilter}>
+            <Show if={filter.innsatsgrupper.length > 1 || filter.tiltakstyper.length > 0 || filter.search !== ''}>
               <div className="tilbakestill-filter-knapp">
                 <Button
                   size="small"
                   variant="secondary"
-                  onClick={() => setFilter(RESET)}
+                  onClick={() => {
+                    setFilter(RESET);
+                    forcePrepopulerFilter(true);
+                  }}
                   data-testid="knapp_tilbakestill-filter"
                 >
                   Tilbakestill filter
