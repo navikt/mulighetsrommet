@@ -7,7 +7,6 @@ import { logEvent } from '../../api/logger';
 import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { kebabCase } from '../../utils/Utils';
 import BarChart from './innsikt/BarChart';
-import { ParentSize } from '@visx/responsive';
 import { useAtom } from 'jotai';
 import { faneAtom } from '../../core/atoms/atoms';
 import AutoSizer from 'react-virtualized-auto-sizer';
