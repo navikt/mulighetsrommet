@@ -7,5 +7,3 @@ export interface Datapunkt {
     'Registrert hos Nav': number;
     Ukjent: number;
 }
-declare const datapunkt: Datapunkt[];
-export default datapunkt;
