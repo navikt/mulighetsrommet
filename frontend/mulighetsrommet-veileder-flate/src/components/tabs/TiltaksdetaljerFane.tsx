@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import './TiltaksdetaljerFane.less';
 import { Tabs } from '@navikt/ds-react';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
@@ -6,9 +6,14 @@ import DetaljerFane from './detaljerFane';
 import { logEvent } from '../../api/logger';
 import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { kebabCase } from '../../utils/Utils';
+import BarChart from './innsikt/BarChart';
+import { useAtom } from 'jotai';
+import { faneAtom } from '../../core/atoms/atoms';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  const [fane, setFane] = useAtom(faneAtom);
   if (!data) return null;
 
   const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor, faneinnhold } = data;
@@ -16,11 +21,14 @@ const TiltaksdetaljerFane = () => {
 
   return (
     <Tabs
-      defaultValue="tab1"
+      defaultValue={fane}
       size="medium"
       selectionFollowsFocus
       className="fane__root"
-      onChange={value => logEvent('mulighetsrommet.faner', { value })}
+      onChange={value => {
+        logEvent('mulighetsrommet.faner', { value });
+        setFane(value);
+      }}
     >
       <Tabs.List loop className="fane__liste">
         {faneoverskrifter.map((fane, index) => (
@@ -61,7 +69,10 @@ const TiltaksdetaljerFane = () => {
         <KontaktinfoFane tiltaksansvarlige={kontaktinfoTiltaksansvarlige} arrangorinfo={kontaktinfoArrangor} />
       </Tabs.Panel>
       <Tabs.Panel value="tab5" data-testid="tab5">
-        Her kommer det grader og annet snacks - Innsikt
+        <div className={"tiltaksdetaljer__maksbredde"}>
+          <div className={"tiltaksdetaljer__innsiktheader"}>Status etter avgang: OBS! Ikke reelle data</div>
+          <AutoSizer disableHeight>{({ width }) => <BarChart width={width} height={300} />}</AutoSizer>
+        </div>
       </Tabs.Panel>
     </Tabs>
   );
