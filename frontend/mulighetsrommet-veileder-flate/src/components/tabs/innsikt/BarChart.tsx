@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
@@ -84,6 +84,18 @@ const colorScale = scaleOrdinal<Status, string>({
 });
 
 export default function BarChart({ width, height, margin = defaultMargin }: BarStackHorizontalProps) {
+  const [ text, setText ] = useState<string>();
+
+  const load = function(){
+    fetch( '/Statusetteravgang.csv' )
+      .then( response => response.text() )
+      .then( responseText => {
+        setText( responseText );
+      })
+  };
+
+  load()
+  console.log(text);
   // bounds
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
