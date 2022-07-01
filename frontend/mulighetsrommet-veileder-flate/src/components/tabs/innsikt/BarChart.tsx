@@ -57,12 +57,12 @@ const data = [
 ];
 const keys = Object.keys(data[0]).filter(d => isOfStatusType(d)) as Status[];
 
-const temperatureTotals = data.reduce((allTotals, currentDate) => {
-  const totalTemperature = keys.reduce((dailyTotal, k) => {
-    dailyTotal += Number(currentDate[k]);
-    return dailyTotal;
+const percentageTotals = data.reduce((allTotals, currentMonth) => {
+  const totalPercentage = keys.reduce((monthlyTotal, k) => {
+    monthlyTotal += Number(currentMonth[k]);
+    return monthlyTotal;
   }, 0);
-  allTotals.push(totalTemperature);
+  allTotals.push(totalPercentage);
   return allTotals;
 }, [] as number[]);
 
@@ -71,7 +71,7 @@ const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
 // scales
 const percentageScale = scaleLinear<number>({
-  domain: [0, Math.max(...temperatureTotals)],
+  domain: [0, Math.max(...percentageTotals)],
   nice: false,
 });
 const monthScale = scaleBand<string>({
