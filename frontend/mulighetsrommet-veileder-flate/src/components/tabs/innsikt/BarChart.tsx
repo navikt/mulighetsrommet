@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
@@ -6,6 +6,7 @@ import { GridColumns } from '@visx/grid';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { LegendOrdinal } from '@visx/legend';
 import { Datapunkt } from './Datapunkt';
+import useHentStatistikkFraFil from "../../../hooks/useHentStatistikkFraFil";
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
@@ -84,18 +85,8 @@ const colorScale = scaleOrdinal<Status, string>({
 });
 
 export default function BarChart({ width, height, margin = defaultMargin }: BarStackHorizontalProps) {
-  const [ text, setText ] = useState<string>();
-
-  const load = function(){
-    fetch( '/Statusetteravgang.csv' )
-      .then( response => response.text() )
-      .then( responseText => {
-        setText( responseText );
-      })
-  };
-
-  load()
-  console.log(text);
+  const datatatat = useHentStatistikkFraFil();
+  console.log(datatatat)
   // bounds
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
