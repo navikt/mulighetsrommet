@@ -4,7 +4,7 @@ import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforingByTiltaksnummer() {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
-  return useSanity<Tiltaksgjennomforing>(`*[_type == "tiltaksgjennomforing" && tiltaksnummer == ${tiltaksnummer}] {
+  return useSanity<Tiltaksgjennomforing>(`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) && tiltaksnummer == ${tiltaksnummer}] {
     _id,
     tiltaksgjennomforingNavn,
     beskrivelse,
