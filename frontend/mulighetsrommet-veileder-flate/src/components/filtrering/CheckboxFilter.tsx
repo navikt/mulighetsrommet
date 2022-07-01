@@ -41,7 +41,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       <Checkbox
         key={`${filtertype.id}`}
         value={filtertype.id}
-        onChange={e => handleEndreFilter(filtertype.tittel, e)}
+        onChange={e => handleEndreFilter(kebabCase(filtertype.tittel), e)}
         data-testid={`filter_checkbox_${kebabCase(filtertype.tittel)}`}
       >
         {filtertype.tittel}
