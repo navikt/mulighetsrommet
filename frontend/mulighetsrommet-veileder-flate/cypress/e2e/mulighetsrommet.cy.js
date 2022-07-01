@@ -20,7 +20,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filtertags').children().should('have.length', 2);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
-    cy.w(1000)
+    cy.wait(1000)
       .getByTestId('antall-tiltak')
       .then($navn => {
         expect(antallTiltak).not.to.eq($navn.text());
