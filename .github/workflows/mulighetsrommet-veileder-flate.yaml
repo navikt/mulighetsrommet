@@ -85,6 +85,10 @@ jobs:
   build-and-test:
     name: Build and test for production
     runs-on: ubuntu-latest
+    env:
+      VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+      VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+      VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_TEST_DATA_AUTH_TOKEN }}
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - uses: actions/checkout@v3
