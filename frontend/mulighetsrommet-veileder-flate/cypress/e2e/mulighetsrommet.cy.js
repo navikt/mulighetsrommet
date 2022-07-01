@@ -104,4 +104,15 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.tilbakeTilListevisning();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
+
+  it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
+    // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
+    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
+    cy.getByTestId('filtertags').children().should('have.length', 1);
+    cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
+
+    cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
+      expect($value.text()).to.eq('Situasjonsbestemt innsats');
+    });
+  });
 });
