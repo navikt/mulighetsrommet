@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import useSisteStatistikkFil from '../api/queries/useSisteStatistikkFil';
-import { stat } from 'fs';
 
 export default function useHentStatistikkFraFil() {
   const [text, setText] = useState<string>();

@@ -8,7 +8,6 @@ import { LegendOrdinal } from '@visx/legend';
 import { Datapunkt } from './Datapunkt';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 import '../TiltaksdetaljerFane.less';
-import useSisteStatistikkFil from '../../../api/queries/useSisteStatistikkFil';
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
