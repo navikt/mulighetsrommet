@@ -8,7 +8,7 @@ import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaks
 import { kebabCase } from '../../utils/Utils';
 import { useAtom } from 'jotai';
 import { faneAtom } from '../../core/atoms/atoms';
-import InnsiktsFane from "./innsikt/InnsiktsFane";
+import InnsiktsFane from './innsikt/InnsiktsFane';
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();

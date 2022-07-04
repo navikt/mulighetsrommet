@@ -1,6 +1,6 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import BarChart from "./BarChart";
+import BarChart from './BarChart';
 import '../TiltaksdetaljerFane.less';
 
 export type InnsiktsFaneProps = {
