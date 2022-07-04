@@ -1,8 +1,8 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from 'react';
 
 export default function useHentStatistikkFraFil() {
   const [text, setText] = useState<string>();
-  const [array1, setArray] = useState([]);
+  const [array, setArray] = useState<any[]>([]);
   useEffect(() => {
     const load = function () {
       fetch('/Statusetteravgang.csv')
@@ -12,7 +12,7 @@ export default function useHentStatistikkFraFil() {
         });
     };
     load();
-  },[])
+  }, []);
 
   const csvFileToArray = (string: string) => {
     const csvHeader = string.slice(0, string.indexOf('\n')).split(',');
@@ -20,11 +20,10 @@ export default function useHentStatistikkFraFil() {
 
     const array = csvRows.map(i => {
       const values = i.split(',');
-      const obj = csvHeader.reduce((object, header, index) => {
+      return csvHeader.reduce((object: any, header, index) => {
         object[header.trim()] = values[index].trim();
         return object;
       }, {});
-      return obj;
     });
     setArray(array);
   };
@@ -33,7 +32,7 @@ export default function useHentStatistikkFraFil() {
     if (text) {
       csvFileToArray(text);
     }
-  }, [text])
+  }, [text]);
 
-  return array1
-};
+  return array;
+}

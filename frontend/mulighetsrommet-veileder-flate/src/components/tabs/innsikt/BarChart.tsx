@@ -15,17 +15,19 @@ function isOfStatusType(value: any): value is Status {
   return ['Arbeidstaker m. ytelse/oppf', 'Kun arbeidstaker', 'Registrert hos Nav', 'Ukjent'].includes(value);
 }
 
-function csvObjectTilDatapunktArray(array: any[]): Datapunkt[] {
-  return array.map(item => {
-    return {
-      tiltakstype: item['Tiltakstype'],
-      'Arbeidstaker m. ytelse/oppf': item['Arbeidstaker m. ytelse/oppf'],
-      'Kun arbeidstaker': item['Kun arbeidstaker'],
-      'Registrert hos Nav': item['Registrert hos Nav'],
-      Ukjent: item['Ukjent'],
-      antallManeder: item['Antall Måneder'] + ' mnd',
-    };
-  });
+function csvObjectArrayTilDatapunktArray(array: any[]): Datapunkt[] {
+  return array
+    .sort((item1, item2) => item2['Antall Måneder'] - item1['Antall Måneder'])
+    .map(item => {
+      return {
+        tiltakstype: item['Tiltakstype'],
+        'Arbeidstaker m. ytelse/oppf': item['Arbeidstaker m. ytelse/oppf'],
+        'Kun arbeidstaker': item['Kun arbeidstaker'],
+        'Registrert hos Nav': item['Registrert hos Nav'],
+        Ukjent: item['Ukjent'],
+        antallManeder: item['Antall Måneder'] + ' mnd',
+      };
+    });
 }
 
 export type BarStackHorizontalProps = {
@@ -44,44 +46,16 @@ const background = '#F1F1F1';
 const black = '#000000';
 const grey = '#8F8F8F';
 const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
-/*
-const data = [
-  {
-    tiltakstype: 'AFT',
-    antallManeder: '12 mnd',
-    'Arbeidstaker m. ytelse/oppf': 25,
-    'Kun arbeidstaker': 30,
-    'Registrert hos Nav': 30,
-    Ukjent: 15,
-  },
-  {
-    tiltakstype: 'AFT',
-    antallManeder: '6 mnd',
-    'Arbeidstaker m. ytelse/oppf': 30,
-    'Kun arbeidstaker': 35,
-    'Registrert hos Nav': 20,
-    Ukjent: 15,
-  },
-  {
-    tiltakstype: 'AFT',
-    antallManeder: '3 mnd',
-    'Arbeidstaker m. ytelse/oppf': 35,
-    'Kun arbeidstaker': 25,
-    'Registrert hos Nav': 15,
-    Ukjent: 25,
-  },
-];
-*/
 
 // accessors
 const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
 export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
-  const datatatat = useHentStatistikkFraFil();
-  if (!datatatat || datatatat.length === 0) {
+  const csvData = useHentStatistikkFraFil();
+  if (!csvData || csvData.length === 0) {
     return null;
   }
-  const data = csvObjectTilDatapunktArray(datatatat).filter(item => item.tiltakstype === tiltakstype);
+  const data = csvObjectArrayTilDatapunktArray(csvData).filter(item => item.tiltakstype === tiltakstype);
 
   if (!data || data.length === 0) {
     return null;
@@ -122,7 +96,9 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
 
   return width < 10 ? null : (
     <div>
-      <div style={{width: width}} className={'tiltaksdetaljer__innsiktheader'}>Status etter avgang: OBS! Ikke reelle data</div>
+      <div style={{ width: width }} className={'tiltaksdetaljer__innsiktheader'}>
+        Status etter avgang: OBS! Ikke reelle data
+      </div>
       <svg width={width} height={height}>
         <rect width={width} height={height} fill={background} rx={14} />
         <GridColumns
