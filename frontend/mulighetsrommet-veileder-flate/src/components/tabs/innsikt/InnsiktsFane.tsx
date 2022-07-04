@@ -13,11 +13,9 @@ const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   return (
     <div className={'tiltaksdetaljer__maksbredde'}>
       {tiltakstyperMedStatstikk.includes(tiltakstype) && (
-        <>
           <AutoSizer disableHeight>
             {({ width }) => <BarChart tiltakstype={tiltakstype} width={width} height={300} />}
           </AutoSizer>
-        </>
       )}
     </div>
   );
