@@ -6,7 +6,7 @@ import { GridColumns } from '@visx/grid';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { LegendOrdinal } from '@visx/legend';
 import { Datapunkt } from './Datapunkt';
-import useHentStatistikkFraFil from "../../../hooks/useHentStatistikkFraFil";
+import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
@@ -18,16 +18,17 @@ function csvObjectTilDatapunktArray(array: any[]): Datapunkt[] {
   return array.map(item => {
     return {
       tiltakstype: item['Tiltakstype'],
-      'Arbeidstaker m. ytelse/oppf':item['Arbeidstaker m. ytelse/oppf'],
+      'Arbeidstaker m. ytelse/oppf': item['Arbeidstaker m. ytelse/oppf'],
       'Kun arbeidstaker': item['Kun arbeidstaker'],
       'Registrert hos Nav': item['Registrert hos Nav'],
       Ukjent: item['Ukjent'],
-      antallManeder: item['Antall Måneder'] + ' mnd'
-    }
-  })
+      antallManeder: item['Antall Måneder'] + ' mnd',
+    };
+  });
 }
 
 export type BarStackHorizontalProps = {
+  tiltakstype: string;
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
@@ -71,23 +72,20 @@ const data = [
 ];
 */
 
-
-
 // accessors
 const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
-
-
-
-
-export default function BarChart({ width, height, margin = defaultMargin }: BarStackHorizontalProps) {
+export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
   const datatatat = useHentStatistikkFraFil();
   if (!datatatat || datatatat.length === 0) {
-    return null
+    return null;
   }
-  console.log(datatatat)
-  const data = csvObjectTilDatapunktArray(datatatat)
-  console.log(data)
+  const data = csvObjectTilDatapunktArray(datatatat).filter(item => item.tiltakstype === tiltakstype);
+
+  if (!data || data.length === 0) {
+    return null;
+  }
+
   //prep data
   const keys = Object.keys(data[0]).filter(d => isOfStatusType(d)) as Status[];
 

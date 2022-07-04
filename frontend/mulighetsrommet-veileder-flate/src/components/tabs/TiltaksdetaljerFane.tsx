@@ -69,9 +69,11 @@ const TiltaksdetaljerFane = () => {
         <KontaktinfoFane tiltaksansvarlige={kontaktinfoTiltaksansvarlige} arrangorinfo={kontaktinfoArrangor} />
       </Tabs.Panel>
       <Tabs.Panel value="tab5" data-testid="tab5">
-        <div className={"tiltaksdetaljer__maksbredde"}>
-          <div className={"tiltaksdetaljer__innsiktheader"}>Status etter avgang: OBS! Ikke reelle data</div>
-          <AutoSizer disableHeight>{({ width }) => <BarChart width={width} height={300} />}</AutoSizer>
+        <div className={'tiltaksdetaljer__maksbredde'}>
+          <div className={'tiltaksdetaljer__innsiktheader'}>Status etter avgang: OBS! Ikke reelle data</div>
+          <AutoSizer disableHeight>
+            {({ width }) => <BarChart tiltakstype={tiltakstype.tiltakstypeNavn} width={width} height={300} />}
+          </AutoSizer>
         </div>
       </Tabs.Panel>
     </Tabs>
