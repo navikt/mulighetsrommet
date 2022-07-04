@@ -14,7 +14,7 @@ const InnsiktsFane = ({tiltakstype}: InnsiktsFaneProps) => {
     <div className={'tiltaksdetaljer__maksbredde'}>
       {tiltakstyperMedStatstikk.includes(tiltakstype) && (
         <>
-        <div className={'tiltaksdetaljer__innsiktheader'}>Status etter avgang: OBS! Ikke reelle data</div>
+
         <AutoSizer disableHeight>
       {({width}) => <BarChart tiltakstype={tiltakstype} width={width} height={300} />}
         </AutoSizer>

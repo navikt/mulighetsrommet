@@ -7,6 +7,7 @@ import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { LegendOrdinal } from '@visx/legend';
 import { Datapunkt } from './Datapunkt';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
+import '../TiltaksdetaljerFane.less';
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
@@ -121,6 +122,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
 
   return width < 10 ? null : (
     <div>
+      <div style={{width: width}} className={'tiltaksdetaljer__innsiktheader'}>Status etter avgang: OBS! Ikke reelle data</div>
       <svg width={width} height={height}>
         <rect width={width} height={height} fill={background} rx={14} />
         <GridColumns

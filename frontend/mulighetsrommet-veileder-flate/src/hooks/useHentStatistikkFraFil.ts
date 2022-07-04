@@ -1,4 +1,3 @@
-import {array} from "prop-types";
 import {useEffect, useState} from "react";
 
 export default function useHentStatistikkFraFil() {
