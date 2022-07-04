@@ -81,3 +81,8 @@ export interface RegelverkLenke {
   regelverkUrl: string;
   regelverkLenkeNavn: string;
 }
+
+export interface StatistikkFil {
+  _id: string;
+  statistikkFilUrl: string;
+}
