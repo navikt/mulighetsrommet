@@ -5,7 +5,7 @@ import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
-  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" 
+  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
