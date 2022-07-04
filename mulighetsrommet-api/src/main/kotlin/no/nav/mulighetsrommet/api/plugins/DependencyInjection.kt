@@ -30,4 +30,5 @@ private fun services(logger: Logger, appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), logger) }
     single { InnsatsgruppeService(get(), logger) }
     single { SanityService(appConfig.sanity) }
+    single { BrukerService() }
 }
