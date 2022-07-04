@@ -22,7 +22,7 @@ export default function useHentStatistikkFraFil() {
     const array = csvRows.map(i => {
       const values = i.split(',');
       const obj = csvHeader.reduce((object, header, index) => {
-        object[header] = values[index].trim();
+        object[header.trim()] = values[index].trim();
         return object;
       }, {});
       return obj;
