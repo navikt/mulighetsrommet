@@ -6,10 +6,9 @@ import DetaljerFane from './detaljerFane';
 import { logEvent } from '../../api/logger';
 import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { kebabCase } from '../../utils/Utils';
-import BarChart from './innsikt/BarChart';
 import { useAtom } from 'jotai';
 import { faneAtom } from '../../core/atoms/atoms';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import InnsiktsFane from "./innsikt/InnsiktsFane";
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
@@ -69,12 +68,7 @@ const TiltaksdetaljerFane = () => {
         <KontaktinfoFane tiltaksansvarlige={kontaktinfoTiltaksansvarlige} arrangorinfo={kontaktinfoArrangor} />
       </Tabs.Panel>
       <Tabs.Panel value="tab5" data-testid="tab5">
-        <div className={'tiltaksdetaljer__maksbredde'}>
-          <div className={'tiltaksdetaljer__innsiktheader'}>Status etter avgang: OBS! Ikke reelle data</div>
-          <AutoSizer disableHeight>
-            {({ width }) => <BarChart tiltakstype={tiltakstype.tiltakstypeNavn} width={width} height={300} />}
-          </AutoSizer>
-        </div>
+        <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
       </Tabs.Panel>
     </Tabs>
   );

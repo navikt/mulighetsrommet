@@ -1,27 +1,28 @@
-import {Alert} from "@navikt/ds-react";
-import {PortableText} from "@portabletext/react";
-import React from "react";
+import React from 'react';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import BarChart from "./BarChart";
+import '../TiltaksdetaljerFane.less';
 
-const DetaljerFane = ({
-                        tiltaksgjennomforingAlert,
-                        tiltakstypeAlert,
-                        tiltaksgjennomforing,
-                        tiltakstype,
-                      }: DetaljerFaneProps) => {
+export type InnsiktsFaneProps = {
+  tiltakstype: string;
+};
+
+const tiltakstyperMedStatstikk = ['Oppfølging', 'Digital Oppfølging', 'Avklaring', 'ARR', 'AFT', 'Jobbklubb']
+
+const InnsiktsFane = ({tiltakstype}: InnsiktsFaneProps) => {
   return (
-    <div className="tiltaksdetaljer__maksbredde">
-      {tiltakstypeAlert && (
-        <Alert variant="info" className="tiltaksdetaljer__alert">
-          {tiltakstypeAlert}
-        </Alert>
-      )}
-      {tiltaksgjennomforingAlert && (
-        <Alert variant="info" className="tiltaksdetaljer__alert">
-          {tiltaksgjennomforingAlert}
-        </Alert>
-      )}
-      <PortableText value={tiltakstype} />
-      <PortableText value={tiltaksgjennomforing} />
+    <div className={'tiltaksdetaljer__maksbredde'}>
+      {tiltakstyperMedStatstikk.includes(tiltakstype) && (
+        <>
+        <div className={'tiltaksdetaljer__innsiktheader'}>Status etter avgang: OBS! Ikke reelle data</div>
+        <AutoSizer disableHeight>
+      {({width}) => <BarChart tiltakstype={tiltakstype} width={width} height={300} />}
+        </AutoSizer>
+        </>
+        )
+      }
     </div>
   );
 };
+
+export default InnsiktsFane;
