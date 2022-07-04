@@ -28,6 +28,21 @@ object ProcessingUtils {
         }
     }
 
+    /**
+     * 1 - Standard innsats
+     * 2 - Situasjonsbestemt innsats
+     * 3 - Spesiell tilpasset innsats
+     * 4 - Varig tilpasset innsats
+     * Inntil videre setter vi alle andre tiltakstyper vi ikke har kartlagt til standard innsats
+     */
+    fun toInnsatsgruppe(tiltakskode: String): Int = when (tiltakskode) {
+        "JOBBK", "DIGIOPPARB" -> 1
+        "AVKLARAG", "ARBTREN", "MIDLONTIL", "MENTOR", "INDOPPFAG", "INKLUTILS", "ENKFAGYRKE", "ENKELAMO" -> 2
+        "HOYEREUTD", "ARBFORB" -> 3
+        "VASV", "VATIAROR", "VARLONTIL" -> 4
+        else -> 1
+    }
+
     fun toDeltakerstatus(arenaStatus: String): Deltakerstatus = when (arenaStatus) {
         "AVSLAG", "IKKAKTUELL", "NEITAKK" -> Deltakerstatus.IKKE_AKTUELL
         "TILBUD", "JATAKK", "INFOMOETE", "AKTUELL", "VENTELISTE" -> Deltakerstatus.VENTER
