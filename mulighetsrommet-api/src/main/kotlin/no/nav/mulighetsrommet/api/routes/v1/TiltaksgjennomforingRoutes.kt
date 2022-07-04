@@ -28,27 +28,5 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
             call.respond(tiltaksgjennomforing)
         }
-        post() {
-            runCatching {
-                val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-                tiltaksgjennomforingService.createTiltaksgjennomforing(tiltaksgjennomforing)
-            }.onSuccess { createdTiltakstype ->
-                call.response.status(HttpStatusCode.Created)
-                call.respond(createdTiltakstype)
-            }.onFailure {
-                call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
-        }
-        put("{id}") {
-            runCatching {
-                val arenaId = call.parameters["id"]!!.toInt()
-                val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-                tiltaksgjennomforingService.updateTiltaksgjennomforing(arenaId, tiltaksgjennomforing)
-            }.onSuccess { updatedTiltakstype ->
-                call.respond(updatedTiltakstype)
-            }.onFailure {
-                call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
-        }
     }
 }
