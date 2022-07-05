@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.domain.Deltakerstatus
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -28,13 +26,20 @@ object ProcessingUtils {
         }
     }
 
-    fun getArenaOperationType(json: JsonObject) = ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content]
-
-    fun isInsertArenaOperation(json: JsonObject) =
-        ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content] == ArenaEventOperationType.INSERT
-
-    fun isUpdateArenaOperation(json: JsonObject) =
-        ArenaEventOperationType[json["op_type"]!!.jsonPrimitive.content] == ArenaEventOperationType.UPDATE
+    /**
+     * 1 - Standard innsats
+     * 2 - Situasjonsbestemt innsats
+     * 3 - Spesiell tilpasset innsats
+     * 4 - Varig tilpasset innsats
+     * Inntil videre setter vi alle andre tiltakstyper vi ikke har kartlagt til standard innsats
+     */
+    fun toInnsatsgruppe(tiltakskode: String): Int = when (tiltakskode) {
+        "JOBBK", "DIGIOPPARB" -> 1
+        "AVKLARAG", "ARBTREN", "MIDLONTIL", "MENTOR", "INDOPPFAG", "INKLUTILS", "ENKFAGYRKE", "ENKELAMO" -> 2
+        "HOYEREUTD", "ARBFORB" -> 3
+        "VASV", "VATIAROR", "VARLONTIL" -> 4
+        else -> 1
+    }
 
     fun toDeltakerstatus(arenaStatus: String): Deltakerstatus = when (arenaStatus) {
         "AVSLAG", "IKKAKTUELL", "NEITAKK" -> Deltakerstatus.IKKE_AKTUELL
