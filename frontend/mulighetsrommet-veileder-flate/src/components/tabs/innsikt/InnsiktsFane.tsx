@@ -7,12 +7,12 @@ export type InnsiktsFaneProps = {
   tiltakstype: string;
 };
 
-const tiltakstyperMedStatstikk = ['Oppfølging', 'Digital Oppfølging', 'Avklaring', 'ARR', 'AFT', 'Jobbklubb'];
+const tiltakstyperMedStatistikk = ['Oppfølging', 'Digital Oppfølging', 'Avklaring', 'ARR', 'AFT', 'Jobbklubb'];
 
 const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   return (
     <div className={'tiltaksdetaljer__maksbredde'}>
-      {tiltakstyperMedStatstikk.includes(tiltakstype) && (
+      {tiltakstyperMedStatistikk.includes(tiltakstype) && (
           <AutoSizer disableHeight>
             {({ width }) => <BarChart tiltakstype={tiltakstype} width={width} height={300} />}
           </AutoSizer>

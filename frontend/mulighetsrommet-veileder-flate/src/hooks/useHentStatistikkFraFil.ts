@@ -7,14 +7,10 @@ export default function useHentStatistikkFraFil() {
   const { data: statistikkFil } = useSisteStatistikkFil();
 
   useEffect(() => {
-    const load = function (url :string) {
-      fetch(url)
-        .then(response => {
-          return response.text();
-        })
-        .then(responseText => {
-          setText(responseText);
-        });
+    const load = async (url: string) => {
+      const response = await fetch(url);
+      const data = await response.text();
+      setText(data);
     };
     if (statistikkFil?.statistikkFilUrl) {
       load(statistikkFil?.statistikkFilUrl);
