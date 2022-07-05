@@ -93,17 +93,17 @@ function JsonPreview({ document }) {
     if (el.listItem === "bullet") {
       const list = (
         <ul>
-          {el.children.map((ch) => {
-            return <li>{ch.text}</li>;
+          {el.children?.map((ch, index) => {
+            return <li key={index}>{ch.text}</li>;
           })}
         </ul>
       );
       return list;
     }
 
-    return el.children.map((ch) => {
+    return el.children?.map((ch, index) => {
       return (
-        <span>
+        <span key={index}>
           {ch.text}
           <br />
         </span>
@@ -114,7 +114,6 @@ function JsonPreview({ document }) {
   if (!tiltaksdata) return "Laster tiltaksdata...";
 
   const { displayed } = document;
-  console.log({ tiltaksdata });
   return (
     <div style={{ padding: "20px" }}>
       <h1>{displayed.tiltaksgjennomforingNavn}</h1>
@@ -133,7 +132,7 @@ function JsonPreview({ document }) {
           </MinHeight>
           <MinHeight>
             <h3>For hvem fra tiltakstype</h3>
-            <p>{tiltaksdata.faneinnhold.forHvem.map(tilListe)}</p>
+            <p>{tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}</p>
           </MinHeight>
           <MinHeight>
             <h3>Detaljer og innhold fra tiltakstype</h3>
@@ -145,7 +144,7 @@ function JsonPreview({ document }) {
           </MinHeight>
           <MinHeight>
             <h3>Påmelding og varighet fra tiltakstype</h3>
-            <p>{tiltaksdata.faneinnhold.pameldingOgVarighet.map(tilListe)}</p>
+            <p>{tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}</p>
           </MinHeight>
         </div>
         <div>
@@ -155,15 +154,15 @@ function JsonPreview({ document }) {
           </MinHeight>
           <MinHeight>
             <h3>For hvem fra gjennomføring</h3>
-            <p>{displayed.faneinnhold.forHvem.map(tilListe)}</p>
+            <p>{displayed.faneinnhold?.forHvem?.map(tilListe)}</p>
           </MinHeight>
           <MinHeight>
             <h3>Detaljer og innhold fra gjennomføring</h3>
-            <p>{displayed.faneinnhold.detaljerOgInnhold.map(tilListe)}</p>
+            <p>{displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}</p>
           </MinHeight>
           <MinHeight>
             <h3>Påmelding og varighet fra gjennomføring</h3>
-            <p>{displayed.faneinnhold.pameldingOgVarighet.map(tilListe)}</p>
+            <p>{displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}</p>
           </MinHeight>
         </div>
       </div>
