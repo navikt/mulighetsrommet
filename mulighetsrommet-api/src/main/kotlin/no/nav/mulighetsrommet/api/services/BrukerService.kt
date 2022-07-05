@@ -10,23 +10,10 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
-
-/**
- * Hente innsatsgruppe
- * Lokal utvikling - mock?
- * Access policies for dev og prod
- *  - Trenger kanskje ikke noe ekstra token så lenge det er azure?
- *  -
- *
- *  For testing i dev må man velge en bruker som har et vedtak og dermed en innsatsgruppe
- *
- *  Sjekk ut Dolly - dolly.ekstern.dev.navn.no
- *
- *  Hente brukers oppfølgingsenhet - veilarboppfolging/api/person/11856897348/oppfolgingsstatus
- *
- */
+import org.slf4j.LoggerFactory
 
 class BrukerService {
+    private val log = LoggerFactory.getLogger(this.javaClass)
     private val client: HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
@@ -60,7 +47,9 @@ class BrukerService {
         val response = client.get("person/$fnr/oppfolgingsstatus")
         if (response.status == HttpStatusCode.OK) {
             response.let {
-                return it.body()
+                val data = it.body<Innsatsgruppe>()
+                log.info("Hentet oppfølgingsstatus: {}", data)
+                return data
             }
         }
         throw NotFoundException(message = "Fant ikke oppfølgingsstatus for bruker med fnr: $fnr")
@@ -70,7 +59,9 @@ class BrukerService {
         val response = oppfolgingClient.get("siste-14a-vedtak?fnr=$fnr")
         if (response.status == HttpStatusCode.OK) {
             response.let {
-                return it.body()
+                val data = it.body<Oppfolgingsenhet>()
+                log.info("Hentet siste 14a-vedtak: {}", data)
+                return data
             }
         }
         throw NotFoundException(message = "Fant ikke siste 14a-vedtak for bruker med fnr: $fnr")
