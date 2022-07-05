@@ -1,4 +1,8 @@
 import S from "@sanity/desk-tool/structure-builder";
+import sanityClient from "part:@sanity/base/client";
+import React, { useEffect, useState } from "react";
+
+const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
 export default () =>
   S.list()
@@ -57,3 +61,40 @@ export default () =>
         (listItem) => !["tiltaksgjennomforing"].includes(listItem.getId())
       ),
     ]);
+
+export const getDefaultDocumentNode = () => {
+  return S.document().views([
+    S.view.form(),
+    S.view.component(JsonPreview).title("Gjennomføring med tiltakstype"),
+  ]);
+};
+
+function JsonPreview({ document }) {
+  const [tiltaksdata, setTiltaksdata] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await client.fetch(
+        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->}[0]`
+      );
+      setTiltaksdata(data);
+    };
+
+    fetchData();
+  }, [document]);
+
+  return (
+    <div style={{ padding: "10px" }}>
+      <h1>Visning av tiltaksgjennomføring med tiltakstype</h1>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}>
+        <div>
+          <h3>Beskrivelse fra tiltakstype</h3>
+          <p>{tiltaksdata?.beskrivelse}</p>
+        </div>
+        <div>
+          <h3>beskrivelse fra gjennomføring</h3>
+        </div>
+      </div>
+    </div>
+  );
+}
