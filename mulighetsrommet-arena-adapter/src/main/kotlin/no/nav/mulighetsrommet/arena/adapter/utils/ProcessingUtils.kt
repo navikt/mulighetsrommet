@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.domain.Deltakerstatus
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
