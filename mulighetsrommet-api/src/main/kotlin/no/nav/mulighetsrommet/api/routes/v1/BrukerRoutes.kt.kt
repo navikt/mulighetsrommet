@@ -6,8 +6,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.BrukerService
 import org.koin.ktor.ext.inject
+import org.slf4j.LoggerFactory
 
 fun Route.brukerRoutes() {
+    val log = LoggerFactory.getLogger(this.javaClass)
     val brukerService: BrukerService by inject()
 
     route("/api/v1/bruker") {
@@ -16,6 +18,7 @@ fun Route.brukerRoutes() {
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest
             )
+            log.info("Henter brukerdata for bruker med fnr: $fnr")
             call.respond(brukerService.hentBrukerdata(fnr))
         }
     }
