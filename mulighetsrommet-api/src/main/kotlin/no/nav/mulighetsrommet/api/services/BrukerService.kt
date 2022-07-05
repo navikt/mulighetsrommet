@@ -52,7 +52,7 @@ class BrukerService {
                 return data
             }
         }
-        log.debug("Fant ikke oppfølgingsstatus for bruker med fnr: $fnr")
+        log.info("Fant ikke oppfølgingsstatus for bruker med fnr: $fnr")
         throw NotFoundException()
     }
 
@@ -65,7 +65,7 @@ class BrukerService {
                 return data
             }
         }
-        log.debug("Fant ikke siste 14a-vedtak for bruker med fnr: $fnr")
+        log.info("Fant ikke siste 14a-vedtak for bruker med fnr: $fnr")
         throw NotFoundException(message = "Fant ikke siste 14a-vedtak for bruker med fnr: $fnr")
     }
 }
