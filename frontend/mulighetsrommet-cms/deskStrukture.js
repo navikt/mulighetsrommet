@@ -62,12 +62,18 @@ export default () =>
       ),
     ]);
 
-export const getDefaultDocumentNode = () => {
-  return S.document().views([
-    S.view.form(),
-    S.view.component(JsonPreview).title("Gjennomføring med tiltakstype"),
-  ]);
+export const getDefaultDocumentNode = ({ schemaType }) => {
+  if (schemaType === "tiltaksgjennomforing") {
+    return S.document().views([
+      S.view.form(),
+      S.view.component(JsonPreview).title("Gjennomføring med tiltakstype"),
+    ]);
+  }
 };
+
+function MinHeight({ children }) {
+  return <div style={{ minHeight: "550px" }}>{children}</div>;
+}
 
 function JsonPreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
@@ -83,16 +89,82 @@ function JsonPreview({ document }) {
     fetchData();
   }, [document]);
 
+  function tilListe(el) {
+    if (el.listItem === "bullet") {
+      const list = (
+        <ul>
+          {el.children.map((ch) => {
+            return <li>{ch.text}</li>;
+          })}
+        </ul>
+      );
+      return list;
+    }
+
+    return el.children.map((ch) => {
+      return (
+        <span>
+          {ch.text}
+          <br />
+        </span>
+      );
+    });
+  }
+
+  if (!tiltaksdata) return "Laster tiltaksdata...";
+
+  const { displayed } = document;
+  console.log({ tiltaksdata });
   return (
-    <div style={{ padding: "10px" }}>
-      <h1>Visning av tiltaksgjennomføring med tiltakstype</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}>
+    <div style={{ padding: "20px" }}>
+      <h1>{displayed.tiltaksgjennomforingNavn}</h1>
+      <small>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
+      <div
+        style={{
+          display: "grid",
+          gap: "20px",
+          gridTemplateColumns: "repeat(2, 1fr)",
+        }}
+      >
         <div>
-          <h3>Beskrivelse fra tiltakstype</h3>
-          <p>{tiltaksdata?.beskrivelse}</p>
+          <MinHeight>
+            <h3>Beskrivelse fra tiltakstype</h3>
+            <p>{tiltaksdata?.beskrivelse}</p>
+          </MinHeight>
+          <MinHeight>
+            <h3>For hvem fra tiltakstype</h3>
+            <p>{tiltaksdata.faneinnhold.forHvem.map(tilListe)}</p>
+          </MinHeight>
+          <MinHeight>
+            <h3>Detaljer og innhold fra tiltakstype</h3>
+            <p>
+              {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
+                return tilListe(el);
+              })}
+            </p>
+          </MinHeight>
+          <MinHeight>
+            <h3>Påmelding og varighet fra tiltakstype</h3>
+            <p>{tiltaksdata.faneinnhold.pameldingOgVarighet.map(tilListe)}</p>
+          </MinHeight>
         </div>
         <div>
-          <h3>beskrivelse fra gjennomføring</h3>
+          <MinHeight>
+            <h3>Beskrivelse fra gjennomføring</h3>
+            <p>{displayed.beskrivelse}</p>
+          </MinHeight>
+          <MinHeight>
+            <h3>For hvem fra gjennomføring</h3>
+            <p>{displayed.faneinnhold.forHvem.map(tilListe)}</p>
+          </MinHeight>
+          <MinHeight>
+            <h3>Detaljer og innhold fra gjennomføring</h3>
+            <p>{displayed.faneinnhold.detaljerOgInnhold.map(tilListe)}</p>
+          </MinHeight>
+          <MinHeight>
+            <h3>Påmelding og varighet fra gjennomføring</h3>
+            <p>{displayed.faneinnhold.pameldingOgVarighet.map(tilListe)}</p>
+          </MinHeight>
         </div>
       </div>
     </div>
