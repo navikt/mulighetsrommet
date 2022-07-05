@@ -29,7 +29,7 @@ class TiltakEndretConsumer(
 
     private fun JsonObject.toTiltakstype() = Tiltakstype(
         navn = this["TILTAKSNAVN"]!!.jsonPrimitive.content,
-        innsatsgruppe = 1,
+        innsatsgruppe = ProcessingUtils.toInnsatsgruppe(this["TILTAKSKODE"]!!.jsonPrimitive.content),
         tiltakskode = this["TILTAKSKODE"]!!.jsonPrimitive.content,
         fraDato = ProcessingUtils.getArenaDateFromTo(this["DATO_FRA"]!!.jsonPrimitive.content),
         tilDato = ProcessingUtils.getArenaDateFromTo(this["DATO_TIL"]!!.jsonPrimitive.content)
