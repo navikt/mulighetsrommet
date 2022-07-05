@@ -7,18 +7,44 @@ export default () =>
       S.listItem()
         .title("Filtrerte tiltaksgjennomføringer")
         .child(
-          S.documentTypeList("enhet")
-            .title("Per fylke")
-            .filter('type == "Fylke"')
-            .child((enhet) =>
-              S.documentList()
-                .title("Tiltaksgjennomføringer")
-                .filter(
-                  '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref || $enhet in enheter[]._ref)'
-                )
-                .params({ enhet })
-            )
+          S.list()
+            .title("Filter")
+            .items([
+              S.listItem()
+                .title("Per fylke")
+                .child(
+                  S.documentTypeList("enhet")
+                    .title("Per fylke")
+                    .filter('type == "Fylke"')
+                    .defaultOrdering([{ field: "navn", direction: "asc" }])
+                    .child((enhet) =>
+                      S.documentList()
+                        .title("Tiltaksgjennomføringer")
+                        .filter(
+                          '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref)'
+                        )
+                        .params({ enhet })
+                    )
+                ),
+              S.listItem()
+                .title("Per kontor")
+                .child(
+                  S.documentTypeList("enhet")
+                    .title("Per kontor")
+                    .filter('type == "Lokal"')
+                    .defaultOrdering([{ field: "navn", direction: "asc" }])
+                    .child((enhet) =>
+                      S.documentList()
+                        .title("Tiltaksgjennomføringer")
+                        .filter(
+                          '_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref'
+                        )
+                        .params({ enhet })
+                    )
+                ),
+            ])
         ),
+
       S.listItem()
         .title("Alle tiltaksgjennomføringer")
         .child(
