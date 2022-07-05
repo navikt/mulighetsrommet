@@ -90,7 +90,7 @@ export default {
       ],
       validation: (Rule) =>
         Rule.unique().custom(async (enheter, { document }) => {
-          if (!document.fylke) {
+          if (!document.fylke || !enheter) {
             return true;
           }
 
@@ -100,8 +100,8 @@ export default {
           );
 
           const paths = enheter
-            .filter((enhet) => !validEnheter.includes(enhet._ref))
-            .map((enhet) => [{ _key: enhet._key }]);
+            ?.filter((enhet) => !validEnheter.includes(enhet._ref))
+            ?.map((enhet) => [{ _key: enhet._key }]);
 
           return !paths.length
             ? true
@@ -208,7 +208,7 @@ export default {
     select: {
       title: "tiltaksgjennomforingNavn",
       tiltakstypeNavn: "tiltakstype.tiltakstypeNavn",
-      fylke: "enheter.0.fylke.navn",
+      fylke: "fylke.navn",
     },
     prepare: (selection) => {
       const { title, tiltakstypeNavn, fylke } = selection;
