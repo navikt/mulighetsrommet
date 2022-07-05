@@ -8,16 +8,26 @@ export default () =>
         .title("Filtrerte tiltaksgjennomføringer")
         .child(
           S.documentTypeList("enhet")
-            .title("Tiltaksgjennomføringer per region")
-            .child((enhet) => {
-              console.log(enhet);
-              return S.documentList()
+            .title("Per fylke")
+            .filter('type == "Fylke"')
+            .child((enhet) =>
+              S.documentList()
                 .title("Tiltaksgjennomføringer")
                 .filter(
                   '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref || $enhet in enheter[]._ref)'
                 )
-                .params({ enhet });
-            })
+                .params({ enhet })
+            )
         ),
-      ...S.documentTypeListItems(),
+      S.listItem()
+        .title("Alle tiltaksgjennomføringer")
+        .child(
+          S.documentList()
+            .title("Alle tiltaksgjennomføringer")
+            .filter('_type == "tiltaksgjennomforing"')
+        ),
+      S.divider(),
+      ...S.documentTypeListItems().filter(
+        (listItem) => !["tiltaksgjennomforing"].includes(listItem.getId())
+      ),
     ]);
