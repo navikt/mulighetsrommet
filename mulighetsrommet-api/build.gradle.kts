@@ -60,6 +60,10 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
+    val navCommonModules = "2.2022.05.05_06.41-84855089824b"
+    implementation("no.nav.common:kafka:$navCommonModules")
+    implementation("no.nav.common:token-client:$navCommonModules")
+
     val kotestVersion = "5.3.0"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")

@@ -10,10 +10,15 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import org.slf4j.LoggerFactory
 
 class BrukerService {
     private val log = LoggerFactory.getLogger(this.javaClass)
+    val tokenClient = AzureAdTokenClientBuilder.builder()
+        .withNaisDefaults()
+        .buildOnBehalfOfTokenClient()
+
     private val client: HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
@@ -43,7 +48,7 @@ class BrukerService {
         )
     }
 
-    suspend fun hentSiste14aVedtak(fnr: String): Innsatsgruppe {
+    private suspend fun hentSiste14aVedtak(fnr: String): Innsatsgruppe {
         val response = client.get("person/$fnr/oppfolgingsstatus")
         if (response.status == HttpStatusCode.OK) {
             response.let {
@@ -56,7 +61,7 @@ class BrukerService {
         throw NotFoundException()
     }
 
-    suspend fun hentOppfolgingsenhet(fnr: String): Oppfolgingsenhet {
+    private suspend fun hentOppfolgingsenhet(fnr: String): Oppfolgingsenhet {
         val response = oppfolgingClient.get("siste-14a-vedtak?fnr=$fnr")
         if (response.status == HttpStatusCode.OK) {
             response.let {
