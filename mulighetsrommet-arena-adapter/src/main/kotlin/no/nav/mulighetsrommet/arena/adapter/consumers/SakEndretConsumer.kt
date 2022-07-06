@@ -1,44 +1,39 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.domain.adapter.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.AdapterSak
+import no.nav.mulighetsrommet.domain.arena.ArenaSak
 import org.slf4j.LoggerFactory
 
 class SakEndretConsumer(
     override val topic: String,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer() {
+) : TopicConsumer<ArenaSak>() {
 
     private val logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
 
-    override fun shouldProcessEvent(payload: JsonElement): Boolean {
+    override fun shouldProcessEvent(payload: ArenaSak): Boolean {
         return sakIsRelatedToTiltaksgjennomforing(payload)
     }
 
-    override fun resolveKey(payload: JsonElement): String {
-        return payload.jsonObject["after"]!!.jsonObject["SAK_ID"]!!.jsonPrimitive.content
+    override fun resolveKey(payload: ArenaSak): String {
+        return payload.SAK_ID.toString()
     }
 
-    override fun processEvent(payload: JsonElement) {
-        val sak = payload.jsonObject["after"]!!.jsonObject.toSak()
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/sak", sak)
+    override fun processEvent(payload: ArenaSak) {
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/sak", payload.toSak())
         logger.debug("processed sak endret event")
     }
 
-    private fun sakIsRelatedToTiltaksgjennomforing(payload: JsonElement): Boolean {
-        val sakskode = payload.jsonObject["after"]!!.jsonObject["SAKSKODE"]!!.jsonPrimitive.content
-        return sakskode == "TILT"
-    }
+    private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSTATUSKODE == "TILT"
 
-    private fun JsonObject.toSak() = ArenaSak(
-        sakId = this["SAK_ID"]!!.jsonPrimitive.content.toInt(),
-        aar = this["AAR"]!!.jsonPrimitive.content.toInt(),
-        lopenrsak = this["LOPENRSAK"]!!.jsonPrimitive.content.toInt(),
-        sakskode = this["SAKSKODE"]!!.jsonPrimitive.content
+    private fun ArenaSak.toSak() = AdapterSak(
+        sakId = this.SAK_ID,
+        aar = this.AAR,
+        lopenrsak = this.LOPENRSAK,
+        sakskode = this.SAKSKODE
     )
 }

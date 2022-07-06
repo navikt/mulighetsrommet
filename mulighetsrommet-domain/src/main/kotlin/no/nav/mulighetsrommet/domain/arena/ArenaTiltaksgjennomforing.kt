@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ArenaTiltaksgjennomforing (
-    val TILTAKGJENNOMFORING_ID: Int?,
-    val SAK_ID: Int?,
-    val TILTAKSKODE: String?,
+    val TILTAKGJENNOMFORING_ID: Int,
+    val SAK_ID: Int,
+    val TILTAKSKODE: String,
     val ANTALL_DELTAKERE: Int?,
     val ANTALL_VARIGHET: Int?,
     val DATO_FRA: String?,
@@ -30,7 +30,7 @@ data class ArenaTiltaksgjennomforing (
     val KLOKKETID_FREMMOTE: Int?,
     val DATO_FREMMOTE: String?,
     val BEGRUNNELSE_STATUS: String?,
-    val AVTALE_ID: Int?,
+    val AVTALE_ID: Int,
     val AKTIVITET_ID: Int?,
     val DATO_INNSOKNINGSTART: String?,
     val GML_FRA_DATO: String?,

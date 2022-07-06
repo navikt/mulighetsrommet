@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakstype
-import no.nav.mulighetsrommet.domain.adapter.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 
@@ -112,7 +112,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
         return db.session.run(queryResult)!!
     }
 
-    fun updateTiltaksgjennomforingWithSak(sak: ArenaSak): Tiltaksgjennomforing? {
+    fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): Tiltaksgjennomforing? {
         logger.info("Oppdaterer tiltak med sak sakId={} tiltaksnummer={}", sak.sakId, sak.lopenrsak)
 
         @Language("PostgreSQL")

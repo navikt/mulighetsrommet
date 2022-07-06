@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakstype
-import no.nav.mulighetsrommet.domain.adapter.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import org.koin.ktor.ext.inject
 
 fun Route.arenaRoutes() {
@@ -57,7 +57,7 @@ fun Route.arenaRoutes() {
 
         put("sak") {
             runCatching {
-                val sak = call.receive<ArenaSak>()
+                val sak = call.receive<AdapterSak>()
                 arenaService.updateTiltaksgjennomforingWithSak(sak)
             }.onSuccess {
                 val response = it ?: HttpStatusCode.NotFound
