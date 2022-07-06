@@ -24,16 +24,15 @@ class SakEndretConsumer(
     }
 
     override fun processEvent(payload: ArenaSak) {
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/sak", payload.toSak())
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/sak", payload.toAdapterSak())
         logger.debug("processed sak endret event")
     }
 
-    private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSTATUSKODE == "TILT"
+    private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
 
-    private fun ArenaSak.toSak() = AdapterSak(
-        sakId = this.SAK_ID,
+    private fun ArenaSak.toAdapterSak() = AdapterSak(
+        id = this.SAK_ID,
         aar = this.AAR,
-        lopenrsak = this.LOPENRSAK,
-        sakskode = this.SAKSKODE
+        lopenummer = this.LOPENRSAK,
     )
 }

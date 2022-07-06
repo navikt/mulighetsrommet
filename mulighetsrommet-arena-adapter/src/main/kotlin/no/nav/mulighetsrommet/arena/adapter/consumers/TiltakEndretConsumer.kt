@@ -8,6 +8,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.Tiltakstype
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.arena.ArenaTiltak
 import org.slf4j.LoggerFactory
 
@@ -23,11 +24,11 @@ class TiltakEndretConsumer(
     }
 
     override fun processEvent(payload: ArenaTiltak) {
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/tiltakstyper", payload.toTiltakstype())
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/tiltakstyper", payload.toAdapterTiltak())
         logger.debug("processed tiltak endret event")
     }
 
-    private fun ArenaTiltak.toTiltakstype() = Tiltakstype(
+    private fun ArenaTiltak.toAdapterTiltak() = AdapterTiltak(
         navn = this.TILTAKSNAVN,
         innsatsgruppe = ProcessingUtils.toInnsatsgruppe(this.TILTAKSKODE),
         tiltakskode = this.TILTAKSKODE,
