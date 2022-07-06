@@ -5,7 +5,6 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
 
@@ -24,7 +23,7 @@ class VeilarboppfolgingClientImpl(
                     header(HttpHeaders.Authorization, "Bearer ${veilarboppfolgingTokenProvider(accessToken)}")
                     header("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
-            val data = response.body<JsonObject>()
+            val data = response.body<Oppfolgingsstatus>()
             log.info(
                 "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
                 data
