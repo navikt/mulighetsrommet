@@ -9,7 +9,6 @@ export default function useTiltaksgjennomforing() {
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
-  
   ]
   {
     _id,
@@ -40,7 +39,3 @@ function byggSokefilter(search: string | undefined) {
     ? `&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
     : '';
 }
-
-//function
-
-//"0600" == fylke->nummer.current 0231
