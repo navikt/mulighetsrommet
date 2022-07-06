@@ -25,6 +25,7 @@ class VeilarboppfolgingClientImpl(
                 }
             log.info("Status: {}", response.status)
             log.info(response.toString())
+            log.info(response.body())
             val data = response.body<Oppfolgingsstatus>()
             log.info(
                 "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
