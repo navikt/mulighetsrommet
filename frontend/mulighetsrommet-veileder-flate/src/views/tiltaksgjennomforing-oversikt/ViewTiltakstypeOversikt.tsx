@@ -34,7 +34,7 @@ const ViewTiltakstypeOversikt = () => {
           <div className="filtercontainer">
             <div className="filtertags" data-testid="filtertags">
               {brukerdata?.data && (
-                <Tag className={"nav-enhet-tag"} key={'navenhet'} variant="info" size="small" data-testid={`filtertag_${kebabCase('navenhet')}`}>
+                <Tag className={"nav-enhet-tag"} key={'navenhet'} variant="info" size="small" data-testid={`${kebabCase('filtertag_navenhet')}`}>
                   {brukerdata?.data?.oppfolgingsenhet}
                 </Tag>
               )}
