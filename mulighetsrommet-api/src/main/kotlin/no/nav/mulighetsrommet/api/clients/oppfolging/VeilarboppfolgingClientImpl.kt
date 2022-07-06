@@ -18,6 +18,7 @@ class VeilarboppfolgingClientImpl(
         val response =
             client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                 header(HttpHeaders.Authorization, "Bearer ${veilarboppfolgingTokenProvider(accessToken)}")
+                header("Nav-Consumer-Id", "mulighetsrommet-api")
             }
         log.info("Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status}")
         TODO("Hent oppfølging av status er ikke implementert enda")

@@ -47,7 +47,7 @@ fun Application.configure(config: AppConfig) {
     val tokenProviders = TokenProviders(azureAdClient, config)
 
     val veilarboppfolgingClientImpl: VeilarboppfolgingClientImpl = VeilarboppfolgingClientImpl(
-        baseUrl = "https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api/", // TODO Hent base-url basert på miljø
+        baseUrl = "https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api", // TODO Hent base-url basert på miljø
         tokenProviders.veilarboppfolgingTokenProvider,
         client = baseClient()
     )
