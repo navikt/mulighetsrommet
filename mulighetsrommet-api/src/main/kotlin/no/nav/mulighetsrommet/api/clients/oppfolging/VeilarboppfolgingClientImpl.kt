@@ -25,6 +25,5 @@ class VeilarboppfolgingClientImpl(
         } catch (exe: Exception) {
             log.error("Klarte ikke hente oppfølgingsstatus: {}", exe)
         }
-        TODO("Hent oppfølging av status er ikke implementert enda")
     }
 }
