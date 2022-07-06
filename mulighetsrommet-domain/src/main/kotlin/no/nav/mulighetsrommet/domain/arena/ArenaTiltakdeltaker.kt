@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ArenaTiltakdeltaker (
-    val TILTAKDELTAKER_ID: Int?,
-    val PERSON_ID: Int?,
-    val TILTAKGJENNOMFORING_ID: Int?,
-    val DELTAKERSTATUSKODE: String?,
+    val TILTAKDELTAKER_ID: Int,
+    val PERSON_ID: Int,
+    val TILTAKGJENNOMFORING_ID: Int,
+    val DELTAKERSTATUSKODE: String,
     val DELTAKERTYPEKODE: String?,
     val AARSAKVERDIKODE_STATUS: String?,
     val OPPMOTETYPEKODE: String?,
@@ -19,8 +19,8 @@ data class ArenaTiltakdeltaker (
     val MOD_DATO: String?,
     val MOD_USER: String?,
     val DATO_SVARFRIST: String?,
-    val DATO_FRA: String?,
-    val DATO_TIL: String?,
+    val DATO_FRA: String,
+    val DATO_TIL: String,
     val BEGRUNNELSE_STATUS: String?,
     val PROSENT_DELTID: Int?,
     val BRUKERID_STATUSENDRING: String?,

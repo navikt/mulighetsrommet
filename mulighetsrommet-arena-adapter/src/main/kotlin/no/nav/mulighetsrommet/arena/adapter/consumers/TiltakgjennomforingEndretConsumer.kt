@@ -8,6 +8,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.arena.ArenaTiltaksgjennomforing
 import org.slf4j.LoggerFactory
 
@@ -23,18 +24,18 @@ class TiltakgjennomforingEndretConsumer(
     }
 
     override fun processEvent(payload: ArenaTiltaksgjennomforing) {
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/tiltaksgjennomforinger", payload.toTiltaksgjennomforing())
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/tiltaksgjennomforinger", payload.toAdapterTiltaksgjennomforing())
         logger.debug("processed tiltakgjennomforing endret event")
     }
 
-    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing() = Tiltaksgjennomforing(
+    private fun ArenaTiltaksgjennomforing.toAdapterTiltaksgjennomforing() = AdapterTiltaksgjennomforing(
+        id = this.TILTAKGJENNOMFORING_ID,
         navn = this.LOKALTNAVN,
         tiltakskode = this.TILTAKSKODE,
         fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL),
         arrangorId = this.ARBGIV_ID_ARRANGOR,
-        arenaId = this.TILTAKGJENNOMFORING_ID,
         tiltaksnummer = 0,
-        sakId = this.SAK_ID
+        sakId = this.SAK_ID,
     )
 }

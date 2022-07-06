@@ -8,6 +8,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.Deltaker
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.arena.ArenaTiltakdeltaker
 import org.slf4j.LoggerFactory
 
@@ -23,12 +24,12 @@ class TiltakdeltakerEndretConsumer(
     }
 
     override fun processEvent(payload: ArenaTiltakdeltaker) {
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/deltakere", payload.toDeltaker())
+        client.sendRequest(HttpMethod.Put, "/api/v1/arena/deltakere", payload.toAdapterTiltakdeltaker())
         logger.debug("processed tiltak endret event")
     }
 
-    private fun ArenaTiltakdeltaker.toDeltaker() = Deltaker(
-        arenaId = this.TILTAKDELTAKER_ID,
+    private fun ArenaTiltakdeltaker.toAdapterTiltakdeltaker() = AdapterTiltakdeltaker(
+        id = this.TILTAKDELTAKER_ID,
         tiltaksgjennomforingId = this.TILTAKGJENNOMFORING_ID,
         personId = this.PERSON_ID,
         fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
