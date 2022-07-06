@@ -23,6 +23,8 @@ class VeilarboppfolgingClientImpl(
                     header(HttpHeaders.Authorization, "Bearer ${veilarboppfolgingTokenProvider(accessToken)}")
                     header("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
+            log.info("Status: {}", response.status)
+            log.info(response.toString())
             val data = response.body<Oppfolgingsstatus>()
             log.info(
                 "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
