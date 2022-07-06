@@ -10,9 +10,8 @@ import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 
-fun Route.brukerRoutes() {
+fun Route.brukerRoutes(brukerService: BrukerService) {
     val log = LoggerFactory.getLogger(this.javaClass)
-    val brukerService: BrukerService by inject()
 
     route("/api/v1/bruker") {
         get("{fnr}") {

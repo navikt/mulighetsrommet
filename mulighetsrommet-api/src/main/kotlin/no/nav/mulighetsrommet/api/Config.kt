@@ -49,10 +49,6 @@ data class AuthProvider(
     val azureAd: AzureAd
 )
 
-data class TokenConfig(
-    val authenticationScope: String
-)
-
 data class VeilarboppfolgingConfig(
     val url: String,
     val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarboppfolging/.default",

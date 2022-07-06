@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
+import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAdClient
 import no.nav.mulighetsrommet.api.utils.TokenProviders
@@ -41,7 +42,7 @@ fun initializeServer(config: Config) {
 }
 
 fun Application.configure(config: AppConfig) {
-    val azureAdClient = AzureAdClient(config.auth)
+    val azureAdClient = AzureAdClient(config.auth.azure.azureAd)
 
     val tokenProviders = TokenProviders(azureAdClient, config)
 
@@ -50,6 +51,8 @@ fun Application.configure(config: AppConfig) {
         tokenProviders.veilarboppfolgingTokenProvider,
         client = baseClient()
     )
+
+    val brukerService: BrukerService = BrukerService(veilarboppfolgingClientImpl)
 
     configureDependencyInjection(config)
     configureAuthentication(config.auth)
@@ -70,7 +73,7 @@ fun Application.configure(config: AppConfig) {
             innsatsgruppeRoutes()
             arenaRoutes()
             sanityRoutes()
-            brukerRoutes()
+            brukerRoutes(brukerService = brukerService)
         }
     }
 }

@@ -10,21 +10,20 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.AuthConfig
-import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger(AzureAdClient::class.java)
 
 class AzureAdClient(
-    private val config: AuthConfig,
-    private val httpClient: HttpClient = baseClient()
+    private val config: AzureAd,
+    private val httpClient: HttpClient = defaultHttpClient
 ) {
 
     private suspend inline fun fetchAccessToken(formParameters: Parameters): Result<AccessToken, ThrowableErrorMessage> =
         runCatching {
             httpClient.submitForm(
-                url = config.azure.azureAd.openIdConfiguration.tokenEndpoint,
+                url = config.openIdConfiguration.tokenEndpoint,
                 formParameters = formParameters
             ).body() as AccessToken
         }.fold(
@@ -46,8 +45,8 @@ class AzureAdClient(
     suspend fun getAccessTokenForResource(scopes: List<String>): Result<AccessToken, ThrowableErrorMessage> =
         fetchAccessToken(
             Parameters.build {
-                append("client_id", config.azure.audience)
-                append("client_secret", config.azure.azureAd.clientSecret)
+                append("client_id", config.clientId)
+                append("client_secret", config.clientSecret)
                 append("scope", scopes.joinToString(separator = " "))
                 append("grant_type", "client_credentials")
             }
@@ -57,8 +56,8 @@ class AzureAdClient(
     suspend fun getOnBehalfOfAccessTokenForResource(scopes: List<String>, accessToken: String): Result<AccessToken, ThrowableErrorMessage> =
         fetchAccessToken(
             Parameters.build {
-                append("client_id", config.azure.audience)
-                append("client_secret", config.azure.azureAd.clientSecret)
+                append("client_id", config.clientId)
+                append("client_secret", config.clientSecret)
                 append("scope", scopes.joinToString(separator = " "))
                 append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                 append("requested_token_use", "on_behalf_of")

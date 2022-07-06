@@ -18,7 +18,7 @@ app:
       azureAd:
         clientId: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
         clientSecret: ${AZURE_APP_CLIENT_SECRET:-"clientSecret"}
-        wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-"wellKnownUrl}
+        wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration}
 
   veilarboppfolgingConfig:
     url: "https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api/"
