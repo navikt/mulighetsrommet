@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import kotlinx.serialization.json.JsonElement
-
 abstract class TopicConsumer<T> {
     abstract val topic: String
 

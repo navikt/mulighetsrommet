@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.arena.ArenaSak
