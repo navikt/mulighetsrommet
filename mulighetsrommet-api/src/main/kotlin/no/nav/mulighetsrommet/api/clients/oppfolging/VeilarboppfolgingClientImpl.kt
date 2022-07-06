@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
@@ -36,6 +37,7 @@ class VeilarboppfolgingClientImpl(
     }
 }
 
+@Serializable
 data class Oppfolgingsstatus(
     val oppfolgingsenhet: Oppfolgingsenhet,
     val veilederId: String,
@@ -44,6 +46,7 @@ data class Oppfolgingsstatus(
     val hovedmaalkode: String
 )
 
+@Serializable
 data class Oppfolgingsenhet(
     val navn: String,
     val enhetId: String
