@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
 
-class VeilarboppfolgingClientImpl (
+class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
     private val veilarboppfolgingTokenProvider: suspend (String?) -> String?,
     private val client: HttpClient = baseClient()
-        ) : VeilarboppfolgingClient {
+) : VeilarboppfolgingClient {
 
     override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?) {
         val response =
