@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.Masked
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.server.testing.*
-import io.mockk.InternalPlatformDsl.toStr
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
@@ -62,7 +61,7 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default"
-) : AuthConfig {
+): AuthConfig {
     val wellKnownUrl = oauth.wellKnownUrl(issuer).toString()
     return AuthConfig(
         azure = AuthProvider(
