@@ -33,7 +33,7 @@ class VeilarboppfolgingClientImpl(
             )
             return null
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente oppfølgingsstatus: {}", exe)
+            log.error("Klarte ikke hente oppfølgingsstatus: {}", exe.message, exe)
             return null
         }
     }
