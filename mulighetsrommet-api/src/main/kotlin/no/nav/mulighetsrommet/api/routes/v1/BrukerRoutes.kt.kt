@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.BrukerService
+import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 
@@ -15,13 +16,13 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/bruker") {
         get("{fnr}") {
-            // TODO hent ut autorization token, oversett til nytt format og send med til backend for api'ene vi kaller hos OBO
             val fnr = call.parameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest
             )
             log.info("Henter brukerdata for bruker med fnr: $fnr")
-            call.respond(brukerService.hentBrukerdata(fnr))
+            val accessToken = call.getAccessToken()
+            call.respond(brukerService.hentBrukerdata(fnr, accessToken))
         }
     }
 }

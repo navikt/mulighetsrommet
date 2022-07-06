@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
+import io.ktor.client.*
+import no.nav.mulighetsrommet.api.setup.Cluster
+import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 
 data class Config(
@@ -17,8 +20,7 @@ data class AppConfig(
     val database: DatabaseConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
-    val veilarbvedtaksstotteTokenConfig: TokenConfig,
-    val veilarboppfolgingConfig: TokenConfig
+    val veilarboppfolgingConfig: VeilarboppfolgingConfig
 )
 
 data class DatabaseConfig(
@@ -44,9 +46,15 @@ data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
     val audience: String,
-    val azureAd: AzureAd?
+    val azureAd: AzureAd
 )
 
 data class TokenConfig(
     val authenticationScope: String
+)
+
+data class VeilarboppfolgingConfig(
+    val url: String,
+    val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarboppfolging/.default",
+    val httpClient: HttpClient = baseClient()
 )

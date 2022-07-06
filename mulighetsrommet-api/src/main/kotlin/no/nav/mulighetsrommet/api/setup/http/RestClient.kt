@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.http.*
 import io.ktor.serialization.jackson.*
+
+val HttpHeaders.DownstreamAuthorization: String
+    get() = "Downstream-Authorization"
 
 internal val defaultHttpClient = HttpClient(CIO) {
     expectSuccess = false

@@ -1,76 +1,28 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 
 /**
- * TODO Ta i mot client for hhv. veilarbvedtaksstotte og veilarboppfolging som argumenter til BrukerService
+ * TODO Ta i mot client for hhv. veilarbvedtaksstotte som argumenter til BrukerService
  */
-class BrukerService {
-    private val log = LoggerFactory.getLogger(this.javaClass)
+class BrukerService(private val veilarboppfolgingClient: VeilarboppfolgingClient) {
 
-    private val client: HttpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-        defaultRequest {
-            url("https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api/") // TODO Må være basert på miljø (hente fra property-fil?)
-        }
-    }
-
-    private val oppfolgingClient: HttpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-        defaultRequest {
-            url("https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api/") // TODO Må være basert på miljø (hente fra property-fil?)
-        }
-    }
-
-    suspend fun hentBrukerdata(fnr: String): Brukerdata {
-        val innsatsgruppe = hentSiste14aVedtak(fnr)
-        val oppfolgingsenhet = hentOppfolgingsenhet(fnr)
+    suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
+        val oppfolgingsenhet = hentOppfolgingsenhet(fnr, accessToken)
 
         return Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = oppfolgingsenhet,
-            innsatsgruppe = innsatsgruppe
+            oppfolgingsenhet = Oppfolgingsenhet( // TODO Ikke hardekode verdien for oppfølgingsenhet
+                enhetId = "123",
+                navn = "Nav Oslo"
+            ),
+            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS // TODO Ikke hardkode verdien for innsatsgruppe
         )
     }
 
-    private suspend fun hentSiste14aVedtak(fnr: String): Innsatsgruppe {
-        val response = oppfolgingClient.get("person/$fnr/oppfolgingsstatus")
-        if (response.status == HttpStatusCode.OK) {
-            response.let {
-                val data = it.body<Innsatsgruppe>()
-                log.info("Hentet oppfølgingsstatus: {}", data)
-                return data
-            }
-        }
-        log.info("Fant ikke oppfølgingsstatus for bruker med fnr: $fnr - Response status: {}", response.status)
-        throw NotFoundException()
-    }
-
-    private suspend fun hentOppfolgingsenhet(fnr: String): Oppfolgingsenhet {
-        val response = client.get("siste-14a-vedtak?fnr=$fnr")
-        if (response.status == HttpStatusCode.OK) {
-            response.let {
-                val data = it.body<Oppfolgingsenhet>()
-                log.info("Hentet siste 14a-vedtak: {}", data)
-                return data
-            }
-        }
-        log.info("Fant ikke siste 14a-vedtak for bruker med fnr: $fnr - Response status: {}", response.status)
-        throw NotFoundException(message = "Fant ikke siste 14a-vedtak for bruker med fnr: $fnr")
+    private suspend fun hentOppfolgingsenhet(fnr: String, accessToken: String?) {
+        veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
     }
 }
 

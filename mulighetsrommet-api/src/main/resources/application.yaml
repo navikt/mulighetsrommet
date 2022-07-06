@@ -16,8 +16,12 @@ app:
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI:-http://localhost:8081/azure/jwks}
       audience: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
       azureAd:
+        clientId: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
         clientSecret: ${AZURE_APP_CLIENT_SECRET:-"clientSecret"}
         wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-"wellKnownUrl}
+
+  veilarboppfolgingConfig:
+    url: "https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api/"
 
 
   sanity:
