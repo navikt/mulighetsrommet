@@ -22,9 +22,26 @@ class VeilarboppfolgingClientImpl(
                     header(HttpHeaders.Authorization, "Bearer ${veilarboppfolgingTokenProvider(accessToken)}")
                     header("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
-            log.info("Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}", response.body())
+            val data = response.body<Oppfolgingsstatus>()
+            log.info(
+                "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
+                data
+            )
         } catch (exe: Exception) {
             log.error("Klarte ikke hente oppfølgingsstatus: {}", exe)
         }
     }
 }
+
+data class Oppfolgingsstatus(
+    val oppfolgingsenhet: Oppfolgingsenhet,
+    val veilederId: String,
+    val formidlingsgruppe: String,
+    val servicegruppe: String,
+    val hovedmaalkode: String
+)
+
+data class Oppfolgingsenhet(
+    val navn: String,
+    val enhetId: String
+)
