@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 class BrukerService(private val veilarboppfolgingClient: VeilarboppfolgingClient) {
 
     suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
-        val oppfolgingsenhet = hentOppfolgingsenhet(fnr, accessToken)
+        hentOppfolgingsenhet(fnr, accessToken)
 
         return Brukerdata(
             fnr = fnr,

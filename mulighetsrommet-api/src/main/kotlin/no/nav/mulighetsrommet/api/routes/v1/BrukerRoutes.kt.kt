@@ -19,6 +19,7 @@ fun Route.brukerRoutes(brukerService: BrukerService) {
             )
             log.info("Henter brukerdata for bruker med fnr: $fnr")
             val accessToken = call.getAccessToken()
+            log.info("Klarte å hente accessToken. Printer en substreng av access token [0-10]: {}", accessToken?.substring(0, 10))
             call.respond(brukerService.hentBrukerdata(fnr, accessToken))
         }
     }
