@@ -15,7 +15,7 @@ export const handlers: RestHandler[] = [
       innsatsgruppe: 'Situasjonsbestemt innsats',
       oppfolgingsenhet: {
         navn: 'NAV Fredrikstad',
-        enhetId: '0106',
+        enhetId: '0231',
         fylkeId: '0400',
       },
     });
