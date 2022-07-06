@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsstatus
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 
 /**
@@ -9,17 +10,17 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 class BrukerService(private val veilarboppfolgingClient: VeilarboppfolgingClient) {
 
     suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
-        hentOppfolgingsenhet(fnr, accessToken)
+        val oppfolgingsenhet = hentOppfolgingsenhet(fnr, accessToken)
 
         return Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = "Nav Oslo", // TODO Ikke hardkode verdi for oppfølgingsenhet
+            oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet?.navn ?: "Oppfølgingsenhet ikke satt",
             innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS // TODO Ikke hardkode verdien for innsatsgruppe
         )
     }
 
-    private suspend fun hentOppfolgingsenhet(fnr: String, accessToken: String?) {
-        veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
+    private suspend fun hentOppfolgingsenhet(fnr: String, accessToken: String?): Oppfolgingsstatus? {
+        return veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
     }
 }
 

@@ -15,7 +15,7 @@ class VeilarboppfolgingClientImpl(
     private val client: HttpClient = baseClient()
 ) : VeilarboppfolgingClient {
 
-    override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?) {
+    override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?): Oppfolgingsstatus? {
         try {
             val response =
                 client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
@@ -27,8 +27,10 @@ class VeilarboppfolgingClientImpl(
                 "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
                 data
             )
+            return data
         } catch (exe: Exception) {
             log.error("Klarte ikke hente oppfølgingsstatus: {}", exe)
+            return null
         }
     }
 }
