@@ -2,9 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Innsatsgruppe } from './Innsatsgruppe';
+import type { Innsatsgruppe } from  './Innsatsgruppe';
+import { Enhet } from './Enhet';
 
 export type Bruker = {
-    fnr: string;
-    innsatsgruppe: Innsatsgruppe;
+  fnr: string;
+  innsatsgruppe: Innsatsgruppe;
+  oppfolgingsenhet: Enhet;
 };
