@@ -52,7 +52,7 @@ fun Application.configure(config: AppConfig) {
         client = baseClient()
     )
 
-    val brukerService: BrukerService = BrukerService(veilarboppfolgingClientImpl)
+    val brukerService = BrukerService(veilarboppfolgingClientImpl)
 
     configureDependencyInjection(config)
     configureAuthentication(config.auth)
