@@ -13,10 +13,7 @@ class BrukerService(private val veilarboppfolgingClient: VeilarboppfolgingClient
 
         return Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = Oppfolgingsenhet( // TODO Ikke hardekode verdien for oppfølgingsenhet
-                enhetId = "123",
-                navn = "Nav Oslo"
-            ),
+            oppfolgingsenhet = "Nav Oslo", // TODO Ikke hardkode verdi for oppfølgingsenhet
             innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS // TODO Ikke hardkode verdien for innsatsgruppe
         )
     }
@@ -30,15 +27,9 @@ class BrukerService(private val veilarboppfolgingClient: VeilarboppfolgingClient
 data class Brukerdata(
     val fnr: String,
     val innsatsgruppe: Innsatsgruppe,
-    val oppfolgingsenhet: Oppfolgingsenhet
+    val oppfolgingsenhet: String
 )
 
 enum class Innsatsgruppe {
     STANDARD_INNSATS, SITUASJONSBESTEMT_INNSATS, SPESIELT_TILPASSET_INNSATS, GRADERT_VARIG_TILPASSET_INNSATS, VARIG_TILPASSET_INNSATS
 }
-
-@Serializable
-data class Oppfolgingsenhet(
-    val enhetId: String,
-    val navn: String
-)
