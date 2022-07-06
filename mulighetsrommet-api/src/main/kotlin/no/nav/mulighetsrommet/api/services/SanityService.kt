@@ -40,7 +40,7 @@ class SanityService(sanity: SanityConfig) {
     suspend fun executeQuery(query: String): JsonElement? {
         client.get {
             url {
-                parameters.append("query", query)
+                parameters.append("query", query.replace("%ENHET%", ""))
             }
         }.let {
             val response = it.body<JsonObject>()
