@@ -8,8 +8,8 @@ export default function useTiltaksgjennomforing() {
   return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
-  ${byggSokefilter(filter.search)}
-  
+  ${byggSokefilter(filter.search)} 
+  %ENHET%
   ]
   {
     _id,
@@ -40,7 +40,3 @@ function byggSokefilter(search: string | undefined) {
     ? `&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
     : '';
 }
-
-//function
-
-//"0600" == fylke->nummer.current 0231

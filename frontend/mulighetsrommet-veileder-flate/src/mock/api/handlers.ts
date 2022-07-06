@@ -15,7 +15,7 @@ export const handlers: RestHandler[] = [
       innsatsgruppe: 'Situasjonsbestemt innsats',
       oppfolgingsenhet: {
         navn: 'NAV Fredrikstad',
-        enhetId: '0106',
+        enhetId: '0231',
         fylkeId: '0400',
       },
     });
@@ -30,7 +30,9 @@ export const handlers: RestHandler[] = [
 
     const client = getSanityClient();
 
-    const result = await client.fetch(query);
+    const newQuery = query.replace("%ENHET%", "")
+
+    const result = await client.fetch(newQuery);
     return ok(result);
   }),
 ];
