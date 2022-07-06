@@ -65,7 +65,7 @@ fun createAuthConfig(
         azureAd = AzureAd(
             clientId = audience,
             clientSecret = "clientSecret",
-            wellKnownConfigurationUrl = "https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration"
+            wellKnownConfigurationUrl = oauth.wellKnownUrl(issuer).toString() // "https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration"
         )
     )
 )
