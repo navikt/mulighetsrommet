@@ -1,7 +1,12 @@
 package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.server.testing.*
+import io.mockk.InternalPlatformDsl.toStr
+import kotlinx.coroutines.runBlocking
+import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -57,18 +62,22 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default"
-) = AuthConfig(
-    azure = AuthProvider(
-        issuer = oauth.issuerUrl(issuer).toString(),
-        jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
-        audience = audience,
-        azureAd = AzureAd(
-            clientId = audience,
-            clientSecret = "clientSecret",
-            wellKnownConfigurationUrl = "https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration"
+) : AuthConfig {
+    val wellKnownUrl = oauth.wellKnownUrl(issuer).toString()
+    return AuthConfig(
+        azure = AuthProvider(
+            issuer = oauth.issuerUrl(issuer).toString(),
+            jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
+            audience = audience,
+            azureAd = AzureAd(
+                clientId = audience,
+                clientSecret = "clientSecret",
+                wellKnownConfigurationUrl = wellKnownUrl,
+                openIdConfiguration = runBlocking { defaultHttpClient.get(wellKnownUrl).body() }
+            )
         )
     )
-)
+}
 
 fun createSanityConfig(): SanityConfig {
     return SanityConfig(
