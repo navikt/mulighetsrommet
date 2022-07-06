@@ -15,6 +15,10 @@ app:
       issuer: ${AZURE_OPENID_CONFIG_ISSUER:-http://localhost:8081/azure}
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI:-http://localhost:8081/azure/jwks}
       audience: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
+      azureAd:
+        clientSecret: ${AZURE_APP_CLIENT_SECRET:-"clientSecret"}
+        wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-"wellKnownUrl}
+
 
   sanity:
     dataset: ${SANITY_DATASET:-test}

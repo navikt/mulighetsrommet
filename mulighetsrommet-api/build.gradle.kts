@@ -1,3 +1,5 @@
+val token_support_version = "2.1.1"
+
 plugins {
     application
     kotlin("jvm")
@@ -63,6 +65,11 @@ dependencies {
     val navCommonModules = "2.2022.05.05_06.41-84855089824b"
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
+    implementation("no.nav.security:token-validation-ktor:$token_support_version")
+    implementation("no.nav.security:token-client-core:$token_support_version")
+
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
+    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
 
     val kotestVersion = "5.3.0"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
+import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 
 data class Config(
     val server: ServerConfig,
@@ -15,7 +16,9 @@ data class ServerConfig(
 data class AppConfig(
     val database: DatabaseConfig,
     val auth: AuthConfig,
-    val sanity: SanityConfig
+    val sanity: SanityConfig,
+    val veilarbvedtaksstotteTokenConfig: TokenConfig,
+    val veilarboppfolgingConfig: TokenConfig
 )
 
 data class DatabaseConfig(
@@ -40,5 +43,10 @@ data class SanityConfig(
 data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
-    val audience: String
+    val audience: String,
+    val azureAd: AzureAd?
+)
+
+data class TokenConfig(
+    val authenticationScope: String
 )

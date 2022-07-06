@@ -52,7 +52,8 @@ fun createAuthConfig(
     azure = AuthProvider(
         issuer = oauth.issuerUrl(issuer).toString(),
         jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
-        audience = audience
+        audience = audience,
+        azureAd = null
     )
 )
 

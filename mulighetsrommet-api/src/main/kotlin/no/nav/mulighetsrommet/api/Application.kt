@@ -10,6 +10,8 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
+import no.nav.mulighetsrommet.api.setup.oauth.AzureAdClient
+import no.nav.mulighetsrommet.api.utils.TokenProviders
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -37,6 +39,10 @@ fun initializeServer(config: Config) {
 }
 
 fun Application.configure(config: AppConfig) {
+    val azureAdClient = AzureAdClient(config.auth)
+
+    val tokenProviders = TokenProviders(azureAdClient, config)
+
     configureDependencyInjection(config)
     configureAuthentication(config.auth)
     configureRouting()
