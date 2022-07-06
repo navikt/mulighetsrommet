@@ -10,7 +10,11 @@ export const handlers: RestHandler[] = [
 
   rest.get('*/api/v1/bruker/:fnr', (req, res, ctx) => {
     const { fnr } = req.params;
-    return ok({ fnr, innsatsgruppe: 'Situasjonsbestemt innsats' });
+    return ok({
+      fnr,
+      innsatsgruppe: 'Situasjonsbestemt innsats',
+      oppfolgingsenhet: 'NAV Fredrikstad',
+    });
   }),
 
   rest.get('*/api/v1/sanity', async req => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@navikt/ds-react';
+import { Tag, Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
@@ -14,6 +14,7 @@ import './ViewTiltakstypeOversikt.less';
 import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../api/queries/useHentBrukerdata';
+import { kebabCase } from '../../utils/Utils';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -32,6 +33,11 @@ const ViewTiltakstypeOversikt = () => {
           <Filtermeny />
           <div className="filtercontainer">
             <div className="filtertags" data-testid="filtertags">
+              {brukerdata?.data && (
+                <Tag className={"nav-enhet-tag"} key={'navenhet'} variant="info" size="small" data-testid={`${kebabCase('filtertag_navenhet')}`}>
+                  {brukerdata?.data?.oppfolgingsenhet}
+                </Tag>
+              )}
               <FilterTags
                 options={filter.innsatsgrupper!}
                 handleClick={(id: string) =>

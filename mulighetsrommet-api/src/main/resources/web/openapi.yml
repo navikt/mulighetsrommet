@@ -444,9 +444,12 @@ components:
           type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
+        oppfolgingsenhet:
+          type: string
       required:
         - fnr
         - innsatsgruppe
+        - oppfolgingsenhet
     Innsatsgruppe:
       type: string
       enum:
