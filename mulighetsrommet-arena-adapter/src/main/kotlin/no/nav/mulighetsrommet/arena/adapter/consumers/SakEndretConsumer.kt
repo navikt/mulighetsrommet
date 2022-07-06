@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.ArenaSak
 import org.slf4j.LoggerFactory
 
 class SakEndretConsumer(

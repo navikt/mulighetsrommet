@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakstype
-import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.ArenaSak
 import org.koin.ktor.ext.inject
 
 fun Route.arenaRoutes() {

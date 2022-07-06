@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.domain.Deltaker
 import no.nav.mulighetsrommet.domain.Deltakerstatus
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.Tiltakstype
-import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.ArenaSak
 import no.nav.mulighetsrommet.test.extensions.DatabaseListener
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
