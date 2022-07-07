@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
 
+@Serializable
 data class AzureAd(
     val clientId: String,
     val clientSecret: String,
@@ -15,6 +17,7 @@ data class AzureAd(
     }
 )
 
+@Serializable
 data class AzureAdOpenIdConfiguration(
     @JsonProperty("jwks_uri")
     val jwksUri: String,
