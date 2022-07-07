@@ -15,7 +15,7 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 class VeilarbvedtaksstotteClientImpl(
     private val baseUrl: String,
     private val veilarbvedtaksstotteTokenProvider: suspend (String?) -> String?,
-    private val client: HttpClient = baseClient().config {
+    private val client: HttpClient = baseClient.config {
         install(HttpCache)
     }
 ) : VeilarbvedtaksstotteClient {
@@ -29,7 +29,7 @@ class VeilarbvedtaksstotteClientImpl(
                 }
             response.body<VedtakDTO>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente siste 14a-vedtak: {}", exe.message, exe)
+            log.error("Klarte ikke hente siste 14A-vedtak: {}", exe.message, exe)
             null
         }
     }

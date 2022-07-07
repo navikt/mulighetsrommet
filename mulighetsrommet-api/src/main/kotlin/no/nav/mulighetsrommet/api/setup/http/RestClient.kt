@@ -6,7 +6,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-fun baseClient() = HttpClient(CIO) {
+internal val baseClient = HttpClient(CIO) {
     expectSuccess = false
     install(ContentNegotiation) {
         json(

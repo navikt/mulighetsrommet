@@ -99,7 +99,7 @@ class AzureAdClientTest {
             clientId = clientId,
             clientSecret = "some-client-secret",
             wellKnownConfigurationUrl = wellKnownUrl,
-            openIdConfiguration = runBlocking { baseClient().get(wellKnownUrl).body() }
+            openIdConfiguration = runBlocking { baseClient.get(wellKnownUrl).body() }
         )
     }
 }

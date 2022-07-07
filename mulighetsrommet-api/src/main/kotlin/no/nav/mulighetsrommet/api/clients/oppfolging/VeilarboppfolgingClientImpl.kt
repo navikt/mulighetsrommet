@@ -14,7 +14,7 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
     private val veilarboppfolgingTokenProvider: suspend (String?) -> String?,
-    private val client: HttpClient = baseClient().config {
+    private val client: HttpClient = baseClient.config {
         install(HttpCache)
     }
 ) : VeilarboppfolgingClient {

@@ -53,11 +53,11 @@ data class AuthProvider(
 data class VeilarboppfolgingConfig(
     val url: String,
     val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarboppfolging/.default",
-    val httpClient: HttpClient = baseClient()
+    val httpClient: HttpClient = baseClient
 )
 
 data class VeilarbvedtaksstotteConfig(
     val url: String,
     val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarbvedtaksstotte/.default",
-    val httpClient: HttpClient = baseClient()
+    val httpClient: HttpClient = baseClient
 )

@@ -80,7 +80,7 @@ fun createAuthConfig(
                 clientId = audience,
                 clientSecret = "clientSecret",
                 wellKnownConfigurationUrl = wellKnownUrl,
-                openIdConfiguration = runBlocking { baseClient().get(wellKnownUrl).body() }
+                openIdConfiguration = runBlocking { baseClient.get(wellKnownUrl).body() }
             )
         )
     )

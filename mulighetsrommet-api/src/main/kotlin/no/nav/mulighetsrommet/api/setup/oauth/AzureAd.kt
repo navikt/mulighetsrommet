@@ -12,7 +12,7 @@ data class AzureAd(
     val clientSecret: String,
     val wellKnownConfigurationUrl: String,
     val openIdConfiguration: AzureAdOpenIdConfiguration = runBlocking {
-        baseClient().get(wellKnownConfigurationUrl).body()
+        baseClient.get(wellKnownConfigurationUrl).body()
     }
 )
 

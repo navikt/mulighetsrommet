@@ -50,13 +50,13 @@ fun Application.configure(config: AppConfig) {
     val veilarboppfolgingClientImpl = VeilarboppfolgingClientImpl(
         baseUrl = config.veilarboppfolgingConfig.url,
         tokenProviders.veilarboppfolgingTokenProvider,
-        client = baseClient()
+        client = baseClient
     )
 
     val veilarbvedtaksstotteClientImpl = VeilarbvedtaksstotteClientImpl(
         baseUrl = config.veilarbvedtaksstotteConfig.url,
         tokenProviders.veilarbvedtaksstotteTokenProvider,
-        client = baseClient()
+        client = baseClient
     )
 
     val brukerService = BrukerService(veilarboppfolgingClientImpl, veilarbvedtaksstotteClientImpl)

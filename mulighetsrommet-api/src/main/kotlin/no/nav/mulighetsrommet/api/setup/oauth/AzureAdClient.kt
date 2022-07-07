@@ -17,7 +17,7 @@ private val logger = LoggerFactory.getLogger(AzureAdClient::class.java)
 
 class AzureAdClient(
     private val config: AzureAd,
-    private val httpClient: HttpClient = baseClient()
+    private val httpClient: HttpClient = baseClient
 ) {
 
     private suspend inline fun fetchAccessToken(formParameters: Parameters): Result<AccessToken, ThrowableErrorMessage> =
