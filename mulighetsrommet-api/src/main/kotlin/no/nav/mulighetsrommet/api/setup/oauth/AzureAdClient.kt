@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.setup.oauth
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -10,6 +9,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
 import org.slf4j.LoggerFactory
 
@@ -67,11 +67,9 @@ class AzureAdClient(
         )
 }
 
+@Serializable
 data class AccessToken(
-    @JsonProperty("access_token")
-    val accessToken: String,
-    @JsonProperty("expires_in")
-    val expiresIn: Int,
-    @JsonProperty("token_type")
-    val tokenType: String
+    val access_token: String,
+    val expires_in: Int,
+    val token_type: String
 )

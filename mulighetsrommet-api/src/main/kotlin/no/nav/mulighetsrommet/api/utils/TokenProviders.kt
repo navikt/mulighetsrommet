@@ -14,7 +14,7 @@ class TokenProviders(
             azureAdClient.getOnBehalfOfAccessTokenForResource(
                 scopes = listOf(config.veilarbvedtaksstotteConfig.authenticationScope),
                 accessToken = it
-            ).get()?.accessToken
+            ).get()?.access_token
         }
     }
 
@@ -23,7 +23,7 @@ class TokenProviders(
             azureAdClient.getOnBehalfOfAccessTokenForResource(
                 scopes = listOf(config.veilarboppfolgingConfig.authenticationScope),
                 accessToken = it
-            ).get()?.accessToken
+            ).get()?.access_token
         }
     }
 }

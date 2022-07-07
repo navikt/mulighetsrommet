@@ -48,7 +48,7 @@ class AzureAdClientTest {
             runBlocking { azureAdClient.getAccessTokenForResource(scopes) }
                 .expect { "should return a valid access token" }
                 .let { accessTokenResponse ->
-                    with(SignedJWT.parse(accessTokenResponse.accessToken)) {
+                    with(SignedJWT.parse(accessTokenResponse.access_token)) {
                         assertEquals(listOf(resource), jwtClaimsSet.audience, "audience should only contain some-resource")
                         assertEquals(config.openIdConfiguration.issuer, jwtClaimsSet.issuer, "issuer should be some-issuer")
                         assertEquals(clientId, jwtClaimsSet.getStringClaim("azp"), "azp should be some-client-id")
@@ -84,7 +84,7 @@ class AzureAdClientTest {
                 azureAdClient.getOnBehalfOfAccessTokenForResource(scopes, originalAccessToken.serialize())
             }.expect { "should return a valid access token" }
                 .let { accessTokenResponse ->
-                    with(SignedJWT.parse(accessTokenResponse.accessToken)) {
+                    with(SignedJWT.parse(accessTokenResponse.access_token)) {
                         assertEquals(listOf(resource), jwtClaimsSet.audience, "audience should only contain some-resource")
                         assertEquals(config.openIdConfiguration.issuer, jwtClaimsSet.issuer, "issuer should be some-issuer")
                         assertEquals(clientId, jwtClaimsSet.getStringClaim("azp"), "azp should be some-client-id")
