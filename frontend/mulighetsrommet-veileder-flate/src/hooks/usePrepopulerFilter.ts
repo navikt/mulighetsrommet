@@ -17,7 +17,7 @@ export function usePrepopulerFilter() {
   }, [data, innsatsgrupper]);
 
   function forcePrepopulerFilter(resetFilterTilUtgangspunkt: boolean) {
-    const matchedInnsatsgruppe = innsatsgrupper?.find(gruppe => gruppe.tittel === brukerdata?.data?.innsatsgruppe);
+    const matchedInnsatsgruppe = innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe);
     if (matchedInnsatsgruppe) {
       const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;

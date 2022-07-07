@@ -448,15 +448,14 @@ components:
           type: string
       required:
         - fnr
-        - innsatsgruppe
         - oppfolgingsenhet
     Innsatsgruppe:
       type: string
       enum:
-        - Standardinnsats
-        - Situasjonsbestemt innsats
-        - Spesielt tilpasset innsats
-        - Varig tilpasset innsats
+        - STANDARD_INNSATS
+        - SITUASJONSBESTEMT_INNSATS
+        - SPESIELT_TILPASSET_INNSATS
+        - VARIG_TILPASSET_INNSATS
       
   examples:
     Tiltakstype:
