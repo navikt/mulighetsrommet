@@ -44,4 +44,6 @@ object DatabaseMapper {
         tilDato = row.localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(row.string("status"))
     )
+
+    fun toAdapterTiltak
 }
