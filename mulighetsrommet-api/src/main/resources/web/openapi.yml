@@ -82,7 +82,7 @@ paths:
           name: search
           schema:
             type: string
-          description: Search for tiltaksgjennomforinger
+          description: Search for tiltaksgjennomføringer
         - in: query
           name: innsatsgrupper
           schema:
