@@ -23,7 +23,7 @@ class AzureAdClient(
     private suspend inline fun fetchAccessToken(formParameters: Parameters): Result<AccessToken, ThrowableErrorMessage> =
         runCatching {
             httpClient.submitForm(
-                url = config.openIdConfiguration.tokenEndpoint,
+                url = config.openIdConfiguration.token_endpoint,
                 formParameters = formParameters
             ).body() as AccessToken
         }.fold(
