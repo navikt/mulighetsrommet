@@ -7,7 +7,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
+import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAdClient
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -99,7 +99,7 @@ class AzureAdClientTest {
             clientId = clientId,
             clientSecret = "some-client-secret",
             wellKnownConfigurationUrl = wellKnownUrl,
-            openIdConfiguration = runBlocking { defaultHttpClient.get(wellKnownUrl).body() }
+            openIdConfiguration = runBlocking { baseClient().get(wellKnownUrl).body() }
         )
     }
 }

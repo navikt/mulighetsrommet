@@ -5,7 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
+import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -27,7 +27,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     auth = createAuthConfig(oauth),
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
-    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig(),
+    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig()
 )
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
@@ -80,7 +80,7 @@ fun createAuthConfig(
                 clientId = audience,
                 clientSecret = "clientSecret",
                 wellKnownConfigurationUrl = wellKnownUrl,
-                openIdConfiguration = runBlocking { defaultHttpClient.get(wellKnownUrl).body() }
+                openIdConfiguration = runBlocking { baseClient().get(wellKnownUrl).body() }
             )
         )
     )

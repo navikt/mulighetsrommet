@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.clients.oppfolging
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsstatus
@@ -13,7 +14,9 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
     private val veilarboppfolgingTokenProvider: suspend (String?) -> String?,
-    private val client: HttpClient = baseClient()
+    private val client: HttpClient = baseClient().config {
+        install(HttpCache)
+    }
 ) : VeilarboppfolgingClient {
 
     override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?): Oppfolgingsstatus? {

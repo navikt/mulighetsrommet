@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.clients.vedtak
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
@@ -14,7 +15,9 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 class VeilarbvedtaksstotteClientImpl(
     private val baseUrl: String,
     private val veilarbvedtaksstotteTokenProvider: suspend (String?) -> String?,
-    private val client: HttpClient = baseClient()
+    private val client: HttpClient = baseClient().config {
+        install(HttpCache)
+    }
 ) : VeilarbvedtaksstotteClient {
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String?): VedtakDTO? {

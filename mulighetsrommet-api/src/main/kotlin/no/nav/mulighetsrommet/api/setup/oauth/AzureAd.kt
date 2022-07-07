@@ -4,7 +4,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
+import no.nav.mulighetsrommet.api.setup.http.baseClient
 
 @Serializable
 data class AzureAd(
@@ -12,7 +12,7 @@ data class AzureAd(
     val clientSecret: String,
     val wellKnownConfigurationUrl: String,
     val openIdConfiguration: AzureAdOpenIdConfiguration = runBlocking {
-        defaultHttpClient.get(wellKnownConfigurationUrl).body()
+        baseClient().get(wellKnownConfigurationUrl).body()
     }
 )
 

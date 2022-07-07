@@ -10,14 +10,14 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.setup.http.defaultHttpClient
+import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger(AzureAdClient::class.java)
 
 class AzureAdClient(
     private val config: AzureAd,
-    private val httpClient: HttpClient = defaultHttpClient
+    private val httpClient: HttpClient = baseClient()
 ) {
 
     private suspend inline fun fetchAccessToken(formParameters: Parameters): Result<AccessToken, ThrowableErrorMessage> =
@@ -53,7 +53,10 @@ class AzureAdClient(
         )
 
     // (on-behalf-of flow)
-    suspend fun getOnBehalfOfAccessTokenForResource(scopes: List<String>, accessToken: String): Result<AccessToken, ThrowableErrorMessage> =
+    suspend fun getOnBehalfOfAccessTokenForResource(
+        scopes: List<String>,
+        accessToken: String
+    ): Result<AccessToken, ThrowableErrorMessage> =
         fetchAccessToken(
             Parameters.build {
                 append("client_id", config.clientId)
