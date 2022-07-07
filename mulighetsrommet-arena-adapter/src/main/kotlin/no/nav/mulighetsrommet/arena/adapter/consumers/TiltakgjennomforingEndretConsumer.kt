@@ -40,5 +40,4 @@ class TiltakgjennomforingEndretConsumer(
         tiltaksnummer = 0,
         sakId = this.SAK_ID,
     )
-
 }

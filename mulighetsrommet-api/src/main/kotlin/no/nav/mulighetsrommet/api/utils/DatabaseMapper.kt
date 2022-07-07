@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utils
 
 import kotliquery.Row
 import no.nav.mulighetsrommet.domain.*
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
@@ -64,7 +63,7 @@ object DatabaseMapper {
         tiltakskode = row.string("tiltakskode"),
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),
-        arrangorId = row.string("arrangor_id"),
+        arrangorId = row.int("arrangor_id"),
         tiltaksnummer = row.int("tiltaksnummer"),
         sakId = row.int("sak_id")
     )

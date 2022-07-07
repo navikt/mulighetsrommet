@@ -41,7 +41,8 @@ fun main() {
         SakEndretConsumer(app.kafka.getTopic("sakendret"), api)
     )
 
-    val kafka = KafkaConsumerOrchestrator(preset, Database(app.database),
+    val kafka = KafkaConsumerOrchestrator(
+        preset, Database(app.database),
         consumers as List<TopicConsumer<out Any, in Any>>
     )
 

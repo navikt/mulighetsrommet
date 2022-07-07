@@ -6,9 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.ArenaService
-import no.nav.mulighetsrommet.domain.Deltaker
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker

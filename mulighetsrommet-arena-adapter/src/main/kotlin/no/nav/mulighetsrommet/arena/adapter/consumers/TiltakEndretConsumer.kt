@@ -37,5 +37,4 @@ class TiltakEndretConsumer(
         fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL)
     )
-
 }

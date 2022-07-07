@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-abstract class TopicConsumer<out T, in V>  {
+abstract class TopicConsumer<out T, in V> {
     abstract val topic: String
 
     open fun shouldProcessEvent(payload: V): Boolean = true
@@ -10,5 +10,4 @@ abstract class TopicConsumer<out T, in V>  {
     abstract fun processEvent(payload: V)
 
     abstract fun toDomain(payload: String): T
-
 }
