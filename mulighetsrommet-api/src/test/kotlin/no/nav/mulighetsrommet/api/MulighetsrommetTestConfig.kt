@@ -20,8 +20,24 @@ fun <R> withMulighetsrommetApp(
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseConfig(),
     auth = createAuthConfig(oauth),
-    sanity = createSanityConfig()
+    sanity = createSanityConfig(),
+    veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
+    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig()
 )
+
+fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
+    return VeilarboppfolgingConfig(
+        url = "",
+        scope = ""
+    )
+}
+
+fun createVeilarbvedsstotteConfig(): VeilarbvedtaksstotteConfig {
+    return VeilarbvedtaksstotteConfig(
+        url = "",
+        scope = ""
+    )
+}
 
 fun createDatabaseConfig(
     host: String = "localhost",
@@ -48,13 +64,16 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default"
-) = AuthConfig(
-    azure = AuthProvider(
-        issuer = oauth.issuerUrl(issuer).toString(),
-        jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
-        audience = audience
+): AuthConfig {
+    return AuthConfig(
+        azure = AuthProvider(
+            issuer = oauth.issuerUrl(issuer).toString(),
+            jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
+            audience = audience,
+            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString()
+        )
     )
-)
+}
 
 fun createSanityConfig(): SanityConfig {
     return SanityConfig(

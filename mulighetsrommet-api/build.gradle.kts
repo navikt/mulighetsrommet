@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation(project(":mulighetsrommet-domain"))
 
-    val ktorVersion = "2.0.1"
+    val ktorVersion = "2.0.3"
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
@@ -60,11 +60,20 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val kotestVersion = "5.3.0"
+    val navCommonModules = "2.2022.05.05_06.41-84855089824b"
+    implementation("no.nav.common:token-client:$navCommonModules")
+
+    val tokenSupportVersion = "2.1.1"
+    implementation("no.nav.security:token-validation-ktor:$tokenSupportVersion")
+    implementation("no.nav.security:token-client-core:$tokenSupportVersion")
+
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
+
+    val kotestVersion = "5.3.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     // Metrikker
-    implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.9.0")
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")

@@ -5,16 +5,19 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import no.nav.security.mock.oauth2.withMockOAuth2Server
 
 class ApplicationTest : FunSpec({
     context("ping") {
         test("should respond with pong") {
-            withMulighetsrommetApp {
+            withMockOAuth2Server {
+                withMulighetsrommetApp {
 
-                val response = client.get("/internal/ping")
+                    val response = client.get("/internal/ping")
 
-                response.status shouldBe HttpStatusCode.OK
-                response.bodyAsText() shouldBe "PONG"
+                    response.status shouldBe HttpStatusCode.OK
+                    response.bodyAsText() shouldBe "PONG"
+                }
             }
         }
     }

@@ -19,7 +19,7 @@ fun Route.internalRoutes() {
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/ping") {
-        call.respond("PONG")
+        call.respondText("PONG")
     }
     get("/internal/prometheus") {
         call.respond(appMicrometerRegistry.scrape())
