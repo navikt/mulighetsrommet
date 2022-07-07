@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type Oppfolgingsenhet = {
-    navn?: string;
-    enhetId?: string;
+    navn: string;
+    enhetId: string;
 };

@@ -463,6 +463,9 @@ components:
           type: string
         enhetId:
           type: string
+      required:
+        - navn
+        - enhetId
       
   examples:
     Tiltakstype:
