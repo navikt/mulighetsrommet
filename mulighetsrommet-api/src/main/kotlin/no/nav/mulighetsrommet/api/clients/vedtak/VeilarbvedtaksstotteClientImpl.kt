@@ -24,17 +24,15 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String?): VedtakDTO? {
         return try {
-            val response =
-                client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
-                    bearerAuth(
-                        veilarbvedtaksstotteTokenProvider.exchangeOnBehalfOfToken(
-                            config.veilarbvedtaksstotteConfig.authenticationScope,
-                            accessToken
-                        )
+            client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
+                bearerAuth(
+                    veilarbvedtaksstotteTokenProvider.exchangeOnBehalfOfToken(
+                        config.veilarbvedtaksstotteConfig.authenticationScope,
+                        accessToken
                     )
-                    header("Nav-Consumer-Id", "mulighetsrommet-api")
-                }
-            response.body<VedtakDTO>()
+                )
+                header("Nav-Consumer-Id", "mulighetsrommet-api")
+            }.body<VedtakDTO>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente siste 14A-vedtak: {}", exe.message, exe)
             null

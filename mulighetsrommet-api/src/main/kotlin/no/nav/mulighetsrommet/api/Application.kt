@@ -47,10 +47,6 @@ fun initializeServer(config: Config) {
 }
 
 fun Application.configure(config: AppConfig) {
-    // val azureAdClient = AzureAdClient(config.auth.azure.azureAd)
-
-    // val tokenProviders = TokenProviders(azureAdClient, config)
-
     val tokenClient = when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
