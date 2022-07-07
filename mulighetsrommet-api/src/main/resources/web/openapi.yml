@@ -445,7 +445,7 @@ components:
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
-          type: string
+          type: "#/components/schemas/Oppfolgingsenhet"
       required:
         - fnr
         - oppfolgingsenhet
@@ -456,6 +456,13 @@ components:
         - SITUASJONSBESTEMT_INNSATS
         - SPESIELT_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
+    Oppfolgingsenhet:
+      type: object
+      properties:
+        navn: 
+          type: string
+        enhetId:
+          type: string
       
   examples:
     Tiltakstype:
