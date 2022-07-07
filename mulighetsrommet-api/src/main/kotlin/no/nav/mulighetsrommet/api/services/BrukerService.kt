@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.domain.Innsatsgruppe
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient
-    ) {
+) {
 
     suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
         val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
@@ -28,5 +28,3 @@ data class Brukerdata(
     val innsatsgruppe: Innsatsgruppe?,
     val oppfolgingsenhet: String
 )
-
-

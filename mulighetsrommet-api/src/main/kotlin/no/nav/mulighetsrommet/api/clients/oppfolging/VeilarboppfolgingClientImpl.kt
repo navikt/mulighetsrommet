@@ -4,7 +4,6 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsstatus
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
@@ -31,5 +30,3 @@ class VeilarboppfolgingClientImpl(
         }
     }
 }
-
-

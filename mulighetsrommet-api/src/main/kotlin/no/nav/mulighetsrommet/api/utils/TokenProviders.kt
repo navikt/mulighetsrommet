@@ -10,13 +10,13 @@ class TokenProviders(
 ) {
 
     val veilarbvedtaksstotteTokenProvider: suspend (String?) -> String? = { accessToken ->
-         accessToken?.let {
-             azureAdClient.getOnBehalfOfAccessTokenForResource(
-                 scopes = listOf(config.veilarbvedtaksstotteConfig.authenticationScope),
-                 accessToken = it
-             ).get()?.accessToken
-         }
-     }
+        accessToken?.let {
+            azureAdClient.getOnBehalfOfAccessTokenForResource(
+                scopes = listOf(config.veilarbvedtaksstotteConfig.authenticationScope),
+                accessToken = it
+            ).get()?.accessToken
+        }
+    }
 
     val veilarboppfolgingTokenProvider: suspend (String?) -> String? = { accessToken ->
         accessToken?.let {
