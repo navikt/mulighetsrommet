@@ -6,6 +6,6 @@ import type { Innsatsgruppe } from './Innsatsgruppe';
 
 export type Bruker = {
     fnr: string;
-    innsatsgruppe: Innsatsgruppe;
+    innsatsgruppe?: Innsatsgruppe;
     oppfolgingsenhet: string;
 };
