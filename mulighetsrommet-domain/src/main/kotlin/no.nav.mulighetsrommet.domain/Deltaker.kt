@@ -13,12 +13,7 @@ enum class Deltakerstatus {
 @Serializable
 data class Deltaker(
     val id: Int? = null,
-    val arenaId: Int,
     val tiltaksgjennomforingId: Int,
     val personId: Int,
-    @Serializable(with = DateSerializer::class)
-    val fraDato: LocalDateTime? = null,
-    @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime? = null,
     val status: Deltakerstatus
 )

@@ -9,9 +9,4 @@ data class Tiltakstype(
     val navn: String,
     val innsatsgruppe: Int,
     val tiltakskode: String,
-    val sanityId: Int? = null,
-    @Serializable(with = DateSerializer::class)
-    val fraDato: LocalDateTime? = null,
-    @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime? = null,
 )
