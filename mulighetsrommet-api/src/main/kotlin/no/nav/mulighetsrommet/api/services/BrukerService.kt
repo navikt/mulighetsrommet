@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.Innsatsgruppe
+import no.nav.mulighetsrommet.api.domain.Oppfolgingsenhet
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -16,7 +17,7 @@ class BrukerService(
 
         return Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet?.navn ?: "Oppfølgingsenhet ikke satt",
+            oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet,
             innsatsgruppe = sisteVedtak?.innsatsgruppe
         )
     }
@@ -26,5 +27,5 @@ class BrukerService(
 data class Brukerdata(
     val fnr: String,
     val innsatsgruppe: Innsatsgruppe?,
-    val oppfolgingsenhet: String
+    val oppfolgingsenhet: Oppfolgingsenhet?
 )
