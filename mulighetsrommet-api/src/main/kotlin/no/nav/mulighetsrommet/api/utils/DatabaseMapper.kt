@@ -13,10 +13,7 @@ object DatabaseMapper {
             id = row.int("id"),
             navn = row.string("navn"),
             innsatsgruppe = row.int("innsatsgruppe_id"),
-            sanityId = row.intOrNull("sanity_id"),
             tiltakskode = row.string("tiltakskode"),
-            fraDato = row.localDateTimeOrNull("fra_dato"),
-            tilDato = row.localDateTimeOrNull("til_dato"),
         )
 
     fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
@@ -24,13 +21,8 @@ object DatabaseMapper {
             id = row.int("id"),
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
-            arrangorId = row.intOrNull("arrangor_id"),
             tiltakskode = row.string("tiltakskode"),
-            arenaId = row.int("arena_id"),
-            sakId = row.int("sak_id"),
-            sanityId = row.intOrNull("sanity_id"),
-            fraDato = row.localDateTimeOrNull("fra_dato"),
-            tilDato = row.localDateTimeOrNull("til_dato"),
+            aar = row.int("aar")
         )
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
@@ -40,11 +32,8 @@ object DatabaseMapper {
 
     fun toDeltaker(row: Row): Deltaker = Deltaker(
         id = row.int("id"),
-        arenaId = row.int("arena_id"),
         tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
         personId = row.int("person_id"),
-        fraDato = row.localDateTimeOrNull("fra_dato"),
-        tilDato = row.localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(row.string("status"))
     )
 

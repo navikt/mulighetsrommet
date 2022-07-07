@@ -16,41 +16,6 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
         return db.session.run(queryResult)
     }
 
-    fun createTiltakstype(tiltakstype: Tiltakstype): Tiltakstype {
-        val query = """
-            insert into tiltakstype (navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato) values (?, ?, ?, ?, ?, ?) returning *
-        """.trimIndent()
-        val queryResult = queryOf(
-            query,
-            tiltakstype.navn,
-            tiltakstype.innsatsgruppe,
-            tiltakstype.sanityId,
-            tiltakstype.tiltakskode,
-            tiltakstype.fraDato,
-            tiltakstype.tilDato
-        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
-        return db.session.run(queryResult)!!
-    }
-
-    fun updateTiltakstype(tiltakskode: String, tiltakstype: Tiltakstype): Tiltakstype {
-        val query = """
-            update tiltakstype set navn = ?, innsatsgruppe_id = ?, sanity_id = ?, tiltakskode = ?, fra_dato = ?, til_dato = ?
-            where tiltakskode = ?
-            returning *
-        """.trimIndent()
-        val queryResult = queryOf(
-            query,
-            tiltakstype.navn,
-            tiltakstype.innsatsgruppe,
-            tiltakstype.sanityId,
-            tiltakstype.tiltakskode,
-            tiltakstype.fraDato,
-            tiltakstype.tilDato,
-            tiltakskode
-        ).asExecute.query.map { DatabaseMapper.toTiltakstype(it) }.asSingle
-        return db.session.run(queryResult)!!
-    }
-
     fun getTiltakstyper(innsatsgrupper: List<Int>? = null, search: String? = null): List<Tiltakstype> {
         val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 

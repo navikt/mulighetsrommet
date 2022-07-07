@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.domain
 
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
 
 enum class Deltakerstatus {
     IKKE_AKTUELL,
