@@ -15,7 +15,7 @@ import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
-import {useInnsatsgrupper} from "../../api/queries/useInnsatsgrupper";
+import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -36,8 +36,14 @@ const ViewTiltakstypeOversikt = () => {
           <div className="filtercontainer">
             <div className="filtertags" data-testid="filtertags">
               {brukerdata?.data && (
-                <Tag className={"nav-enhet-tag"} key={'navenhet'} variant="info" size="small" data-testid={`${kebabCase('filtertag_navenhet')}`}>
-                  {brukerdata?.data?.oppfolgingsenhet}
+                <Tag
+                  className={'nav-enhet-tag'}
+                  key={'navenhet'}
+                  variant="info"
+                  size="small"
+                  data-testid={`${kebabCase('filtertag_navenhet')}`}
+                >
+                  {brukerdata?.data?.oppfolgingsenhet.navn}
                 </Tag>
               )}
               <FilterTags
@@ -62,7 +68,11 @@ const ViewTiltakstypeOversikt = () => {
             </div>
             <Show
               if={
-                filter.innsatsgrupper.some(gruppe => gruppe.tittel !== (innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe)?.tittel)) ||
+                filter.innsatsgrupper.some(
+                  gruppe =>
+                    gruppe.tittel !==
+                    innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe)?.tittel
+                ) ||
                 filter.search !== '' ||
                 filter.tiltakstyper.length > 0
               }
