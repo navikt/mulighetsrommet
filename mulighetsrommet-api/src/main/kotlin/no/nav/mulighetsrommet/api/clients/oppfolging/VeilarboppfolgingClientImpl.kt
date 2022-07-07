@@ -23,15 +23,12 @@ class VeilarboppfolgingClientImpl(
                     header(HttpHeaders.Authorization, "Bearer ${veilarboppfolgingTokenProvider(accessToken)}")
                     header("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
-            log.info("Status: {}", response.status)
-            log.info(response.toString())
-            log.info(response.body())
             val data = response.body<Oppfolgingsstatus>()
             log.info(
                 "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
                 data
             )
-            return null
+            return data
         } catch (exe: Exception) {
             log.error("Klarte ikke hente oppfølgingsstatus: {}", exe.message, exe)
             return null

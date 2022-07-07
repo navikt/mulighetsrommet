@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsstatus
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 
 /**
- * TODO Ta i mot client for hhv. veilarbvedtaksstotte som argumenter til BrukerService
+ * TODO Ta i mot client for hhv. veilarbvedtaksstotte som argument til BrukerService
  */
 class BrukerService(private val veilarboppfolgingClient: VeilarboppfolgingClient) {
 
