@@ -21,7 +21,11 @@ fun baseClient(): HttpClient {
     return HttpClient(CIO) {
         expectSuccess = false
         install(ContentNegotiation) {
-            json()
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                }
+            )
         }
     }
 }
