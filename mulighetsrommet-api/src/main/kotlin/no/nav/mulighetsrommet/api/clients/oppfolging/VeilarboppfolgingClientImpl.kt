@@ -26,7 +26,7 @@ class VeilarboppfolgingClientImpl(
             client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                 bearerAuth(
                     veilarboppfolgingTokenProvider.exchangeOnBehalfOfToken(
-                        config.veilarboppfolgingConfig.authenticationScope,
+                        config.veilarboppfolgingConfig.scope,
                         accessToken
                     )
                 )

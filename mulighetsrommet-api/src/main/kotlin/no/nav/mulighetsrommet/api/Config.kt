@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
 import io.ktor.client.*
-import no.nav.mulighetsrommet.api.setup.Cluster
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 
 data class Config(
@@ -51,12 +50,12 @@ data class AuthProvider(
 
 data class VeilarboppfolgingConfig(
     val url: String,
-    val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarboppfolging/.default",
+    val scope: String,
     val httpClient: HttpClient = baseClient
 )
 
 data class VeilarbvedtaksstotteConfig(
     val url: String,
-    val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarbvedtaksstotte/.default",
+    val scope: String,
     val httpClient: HttpClient = baseClient
 )

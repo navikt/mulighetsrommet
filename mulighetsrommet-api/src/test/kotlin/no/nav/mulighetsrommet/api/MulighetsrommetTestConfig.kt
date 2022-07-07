@@ -28,14 +28,14 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
     return VeilarboppfolgingConfig(
         url = "",
-        authenticationScope = ""
+        scope = ""
     )
 }
 
 fun createVeilarbvedsstotteConfig(): VeilarbvedtaksstotteConfig {
     return VeilarbvedtaksstotteConfig(
         url = "",
-        authenticationScope = ""
+        scope = ""
     )
 }
 

@@ -27,7 +27,7 @@ class VeilarbvedtaksstotteClientImpl(
             client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
                 bearerAuth(
                     veilarbvedtaksstotteTokenProvider.exchangeOnBehalfOfToken(
-                        config.veilarbvedtaksstotteConfig.authenticationScope,
+                        config.veilarbvedtaksstotteConfig.scope,
                         accessToken
                     )
                 )

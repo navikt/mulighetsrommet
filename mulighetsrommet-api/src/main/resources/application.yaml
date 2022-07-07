@@ -23,9 +23,11 @@ app:
 
   veilarbvedtaksstotteConfig:
     url: ${VEILARBVEDTAKSSTOTTE_URL:-https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api}
+    scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
 
   veilarboppfolgingConfig:
     url: ${VEILARBOPPFOLGING_URL:-https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api}
+    scope: api://dev-fss.pto.veilarboppfolging/.default
 
 
   sanity:
