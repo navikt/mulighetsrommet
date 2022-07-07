@@ -15,11 +15,13 @@ import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
+import {useInnsatsgrupper} from "../../api/queries/useInnsatsgrupper";
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
+  const { data: innsatsgrupper } = useInnsatsgrupper();
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
@@ -60,7 +62,7 @@ const ViewTiltakstypeOversikt = () => {
             </div>
             <Show
               if={
-                filter.innsatsgrupper.some(gruppe => gruppe.tittel !== brukerdata?.data?.innsatsgruppe) ||
+                filter.innsatsgrupper.some(gruppe => gruppe.tittel !== (innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe)?.tittel)) ||
                 filter.search !== '' ||
                 filter.tiltakstyper.length > 0
               }
