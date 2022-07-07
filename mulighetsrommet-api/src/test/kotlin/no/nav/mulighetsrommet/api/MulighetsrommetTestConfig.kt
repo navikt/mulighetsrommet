@@ -1,12 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
-import io.ktor.client.call.*
-import io.ktor.client.request.*
 import io.ktor.server.testing.*
-import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.setup.http.baseClient
-import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun <R> withMulighetsrommetApp(
@@ -70,18 +65,12 @@ fun createAuthConfig(
     issuer: String = "default",
     audience: String = "default"
 ): AuthConfig {
-    val wellKnownUrl = oauth.wellKnownUrl(issuer).toString()
     return AuthConfig(
         azure = AuthProvider(
             issuer = oauth.issuerUrl(issuer).toString(),
             jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
             audience = audience,
-            azureAd = AzureAd(
-                clientId = audience,
-                clientSecret = "clientSecret",
-                wellKnownConfigurationUrl = wellKnownUrl,
-                openIdConfiguration = runBlocking { baseClient.get(wellKnownUrl).body() }
-            )
+            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString()
         )
     )
 }

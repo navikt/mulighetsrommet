@@ -4,11 +4,10 @@ import com.sksamuel.hoplite.Masked
 import io.ktor.client.*
 import no.nav.mulighetsrommet.api.setup.Cluster
 import no.nav.mulighetsrommet.api.setup.http.baseClient
-import no.nav.mulighetsrommet.api.setup.oauth.AzureAd
 
 data class Config(
     val server: ServerConfig,
-    val app: AppConfig,
+    val app: AppConfig
 )
 
 data class ServerConfig(
@@ -40,14 +39,14 @@ data class AuthConfig(
 data class SanityConfig(
     val dataset: String,
     val projectId: String,
-    val authToken: String,
+    val authToken: String
 )
 
 data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
     val audience: String,
-    val azureAd: AzureAd
+    val tokenEndpointUrl: String
 )
 
 data class VeilarboppfolgingConfig(

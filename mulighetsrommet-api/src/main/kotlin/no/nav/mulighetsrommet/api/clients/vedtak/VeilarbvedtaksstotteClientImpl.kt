@@ -4,7 +4,8 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
-import io.ktor.http.*
+import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
+import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
 import no.nav.mulighetsrommet.api.setup.http.baseClient
@@ -14,7 +15,8 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 
 class VeilarbvedtaksstotteClientImpl(
     private val baseUrl: String,
-    private val veilarbvedtaksstotteTokenProvider: suspend (String?) -> String?,
+    private val veilarbvedtaksstotteTokenProvider: AzureAdOnBehalfOfTokenClient,
+    private val config: AppConfig,
     private val client: HttpClient = baseClient.config {
         install(HttpCache)
     }
@@ -24,7 +26,12 @@ class VeilarbvedtaksstotteClientImpl(
         return try {
             val response =
                 client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
-                    header(HttpHeaders.Authorization, "Bearer ${veilarbvedtaksstotteTokenProvider(accessToken)}")
+                    bearerAuth(
+                        veilarbvedtaksstotteTokenProvider.exchangeOnBehalfOfToken(
+                            config.veilarbvedtaksstotteConfig.authenticationScope,
+                            accessToken
+                        )
+                    )
                     header("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
             response.body<VedtakDTO>()
