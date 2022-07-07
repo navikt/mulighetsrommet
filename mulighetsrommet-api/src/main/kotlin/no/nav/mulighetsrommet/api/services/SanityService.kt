@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.SanityConfig
+import no.nav.mulighetsrommet.api.utils.replaceEnhetInQuery
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,7 +41,7 @@ class SanityService(sanity: SanityConfig) {
     suspend fun executeQuery(query: String): JsonElement? {
         client.get {
             url {
-                parameters.append("query", query.replace("%ENHET%", ""))
+                parameters.append("query", replaceEnhetInQuery(query, "0231", "0400"))
             }
         }.let {
             val response = it.body<JsonObject>()

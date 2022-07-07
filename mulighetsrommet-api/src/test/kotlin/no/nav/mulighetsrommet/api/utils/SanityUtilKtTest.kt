@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 internal class SanityUtilKtTest : FunSpec({
 
-    test("should get tiltaksgjennomføring by id") {
+    test("should replace token with enhet and fylke ID") {
         val originalQuery =
             """*[_type == \"tiltaksgjennomforing\" && !(_id in path(\"drafts.**\"))
                  && tiltakstype->innsatsgruppe->tittel in [\"Situasjonsbestemt innsats\", \"Spesielt tilpasset innsats\"]
