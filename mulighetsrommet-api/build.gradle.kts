@@ -63,10 +63,6 @@ dependencies {
     val navCommonModules = "2.2022.05.05_06.41-84855089824b"
     implementation("no.nav.common:token-client:$navCommonModules")
 
-    val tokenSupportVersion = "2.1.1"
-    implementation("no.nav.security:token-validation-ktor:$tokenSupportVersion")
-    implementation("no.nav.security:token-client-core:$tokenSupportVersion")
-
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
 
     val kotestVersion = "5.3.1"
