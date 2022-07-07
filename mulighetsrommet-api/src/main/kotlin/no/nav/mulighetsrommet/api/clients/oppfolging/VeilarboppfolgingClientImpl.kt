@@ -5,7 +5,6 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsstatus
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
@@ -15,7 +14,7 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
     private val veilarboppfolgingTokenProvider: AzureAdOnBehalfOfTokenClient,
-    private val config: AppConfig,
+    private val scope: String,
     private val client: HttpClient = baseClient.config {
         install(HttpCache)
     }
@@ -26,7 +25,7 @@ class VeilarboppfolgingClientImpl(
             client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                 bearerAuth(
                     veilarboppfolgingTokenProvider.exchangeOnBehalfOfToken(
-                        config.veilarboppfolgingConfig.scope,
+                        scope,
                         accessToken
                     )
                 )

@@ -50,7 +50,7 @@ fun Application.configure(config: AppConfig) {
     val tokenClient = when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createRSAKey("azure").toJSONString())
+            .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
             .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
             .buildOnBehalfOfTokenClient()
         false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
@@ -59,14 +59,14 @@ fun Application.configure(config: AppConfig) {
     val veilarboppfolgingClientImpl = VeilarboppfolgingClientImpl(
         baseUrl = config.veilarboppfolgingConfig.url,
         tokenClient,
-        config,
+        config.veilarboppfolgingConfig.scope,
         client = baseClient
     )
 
     val veilarbvedtaksstotteClientImpl = VeilarbvedtaksstotteClientImpl(
         baseUrl = config.veilarbvedtaksstotteConfig.url,
         tokenClient,
-        config,
+        config.veilarbvedtaksstotteConfig.scope,
         client = baseClient
     )
 
@@ -100,7 +100,7 @@ fun erLokalUtvikling(): Boolean {
     return System.getenv("NAIS_CLUSTER_NAME") == null
 }
 
-fun createRSAKey(keyID: String): RSAKey = KeyPairGenerator
+fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator
     .getInstance("RSA").let {
         it.initialize(2048)
         it.generateKeyPair()
