@@ -20,7 +20,8 @@ data class AppConfig(
     val database: DatabaseConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
-    val veilarboppfolgingConfig: VeilarboppfolgingConfig
+    val veilarboppfolgingConfig: VeilarboppfolgingConfig,
+    val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig
 )
 
 data class DatabaseConfig(
@@ -52,5 +53,11 @@ data class AuthProvider(
 data class VeilarboppfolgingConfig(
     val url: String,
     val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarboppfolging/.default",
+    val httpClient: HttpClient = baseClient()
+)
+
+data class VeilarbvedtaksstotteConfig(
+    val url: String,
+    val authenticationScope: String = "api://${Cluster.current.toOnPrem()}.pto.veilarbvedtaksstotte/.default",
     val httpClient: HttpClient = baseClient()
 )

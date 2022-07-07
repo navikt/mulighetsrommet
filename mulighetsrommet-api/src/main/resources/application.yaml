@@ -20,8 +20,11 @@ app:
         clientSecret: ${AZURE_APP_CLIENT_SECRET:-"clientSecret"}
         wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration}
 
+  veilarbvedtaksstotteConfig:
+    url: ${VEILARBVEDTAKSSTOTTE_URL:-https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api}
+
   veilarboppfolgingConfig:
-    url: "https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api/"
+    url: ${VEILARBOPPFOLGING_URL:-https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api}
 
 
   sanity:

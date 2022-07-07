@@ -27,10 +27,18 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     auth = createAuthConfig(oauth),
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
+    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig(),
 )
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
     return VeilarboppfolgingConfig(
+        url = "",
+        authenticationScope = ""
+    )
+}
+
+fun createVeilarbvedsstotteConfig(): VeilarbvedtaksstotteConfig {
+    return VeilarbvedtaksstotteConfig(
         url = "",
         authenticationScope = ""
     )

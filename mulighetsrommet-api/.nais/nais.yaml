@@ -50,13 +50,5 @@ spec:
         - application: mulighetsrommet-arena-adapter
         - application: veilarbpersonflate
           namespace: poao
-    outbound:
-      rules:
-        - application: veilarboppfolging
-          namespace: pto
-          cluster: dev-gcp
-        - application: veilarbvedtaksstotte
-          namespace: pto
-          cluster: dev-gcp
   envFrom:
     - secret: mulighetsrommet-api

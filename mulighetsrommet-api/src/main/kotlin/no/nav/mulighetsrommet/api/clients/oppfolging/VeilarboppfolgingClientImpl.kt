@@ -5,6 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.Oppfolgingsstatus
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
 
@@ -17,36 +18,18 @@ class VeilarboppfolgingClientImpl(
 ) : VeilarboppfolgingClient {
 
     override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?): Oppfolgingsstatus? {
-        try {
+        return try {
             val response =
                 client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                     header(HttpHeaders.Authorization, "Bearer ${veilarboppfolgingTokenProvider(accessToken)}")
                     header("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
-            val data = response.body<Oppfolgingsstatus>()
-            log.info(
-                "Hentet oppfølgingsstatus for fnr: $fnr - Status: ${response.status} - Response: {}",
-                data
-            )
-            return data
+            response.body<Oppfolgingsstatus>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente oppfølgingsstatus: {}", exe.message, exe)
-            return null
+            null
         }
     }
 }
 
-@Serializable
-data class Oppfolgingsstatus(
-    val oppfolgingsenhet: Oppfolgingsenhet?,
-    val veilederId: String?,
-    val formidlingsgruppe: String?,
-    val servicegruppe: String?,
-    val hovedmaalkode: String?
-)
 
-@Serializable
-data class Oppfolgingsenhet(
-    val navn: String?,
-    val enhetId: String?
-)

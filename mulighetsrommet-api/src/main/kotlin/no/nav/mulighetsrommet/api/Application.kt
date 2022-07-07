@@ -7,6 +7,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
+import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
@@ -46,13 +47,19 @@ fun Application.configure(config: AppConfig) {
 
     val tokenProviders = TokenProviders(azureAdClient, config)
 
-    val veilarboppfolgingClientImpl: VeilarboppfolgingClientImpl = VeilarboppfolgingClientImpl(
-        baseUrl = "https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api", // TODO Hent base-url basert på miljø
+    val veilarboppfolgingClientImpl = VeilarboppfolgingClientImpl(
+        baseUrl = config.veilarboppfolgingConfig.url,
         tokenProviders.veilarboppfolgingTokenProvider,
         client = baseClient()
     )
 
-    val brukerService = BrukerService(veilarboppfolgingClientImpl)
+    val veilarbvedtaksstotteClientImpl = VeilarbvedtaksstotteClientImpl(
+        baseUrl = config.veilarbvedtaksstotteConfig.url,
+        tokenProviders.veilarbvedtaksstotteTokenProvider,
+        client = baseClient()
+    )
+
+    val brukerService = BrukerService(veilarboppfolgingClientImpl, veilarbvedtaksstotteClientImpl)
 
     configureDependencyInjection(config)
     configureAuthentication(config.auth)

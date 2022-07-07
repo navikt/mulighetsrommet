@@ -69,7 +69,6 @@ dependencies {
     implementation("no.nav.security:token-client-core:$tokenSupportVersion")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
 
     val kotestVersion = "5.3.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
