@@ -65,16 +65,25 @@ dependencies {
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
 
+    // Test
     val kotestVersion = "5.3.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("org.assertj:assertj-db:2.0.2")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
+    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
+
     // Metrikker
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.0")
+
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+
     // Database
     implementation("org.flywaydb:flyway-core:8.5.5")
     implementation("com.zaxxer:HikariCP:5.0.1")
@@ -82,9 +91,6 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.6.2")
     implementation("no.nav.security:mock-oauth2-server:0.4.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
-    testImplementation("io.mockk:mockk:1.12.3")
-    testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
