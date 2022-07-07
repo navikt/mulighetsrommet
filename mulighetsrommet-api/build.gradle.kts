@@ -61,7 +61,6 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
     val navCommonModules = "2.2022.05.05_06.41-84855089824b"
-    implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
     val tokenSupportVersion = "2.1.1"
