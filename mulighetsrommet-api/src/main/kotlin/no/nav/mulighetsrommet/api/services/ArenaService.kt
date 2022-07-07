@@ -39,7 +39,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltakstype.tiltakskode,
             tiltakstype.fraDato,
             tiltakstype.tilDato
-        ).map { DatabaseMapper.toAdapterTiltakstype(it) }.asSingle
+        ).map { DatabaseMapper.toAdapterTiltak(it) }.asSingle
         return db.session.run(queryResult)!!
     }
 
