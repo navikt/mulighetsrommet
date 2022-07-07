@@ -1,11 +1,14 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-abstract class TopicConsumer<T> {
+abstract class TopicConsumer<out T, in V>  {
     abstract val topic: String
 
-    open fun shouldProcessEvent(payload: T): Boolean = true
+    open fun shouldProcessEvent(payload: V): Boolean = true
 
-    abstract fun resolveKey(payload: T): String
+    abstract fun resolveKey(payload: V): String
 
-    abstract fun processEvent(payload: T)
+    abstract fun processEvent(payload: V)
+
+    abstract fun toDomain(payload: String): T
+
 }

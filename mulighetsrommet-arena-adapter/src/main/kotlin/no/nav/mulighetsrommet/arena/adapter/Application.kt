@@ -7,10 +7,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.*
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
@@ -37,7 +34,9 @@ fun main() {
         SakEndretConsumer(app.kafka.getTopic("sakendret"), api)
     )
 
-    val kafka = KafkaConsumerOrchestrator(kafkaPreset, Database(app.database), consumers)
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, Database(app.database),
+        consumers as List<TopicConsumer<out Any, in Any>>
+    )
 
     initializeServer(server) {
         configure(app, kafka)

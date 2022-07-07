@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.arena.ArenaSak
@@ -9,9 +11,13 @@ import org.slf4j.LoggerFactory
 class SakEndretConsumer(
     override val topic: String,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaSak>() {
+) : TopicConsumer<ArenaSak, ArenaSak>() {
 
     private val logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
+
+    override fun toDomain(payload: String): ArenaSak {
+        return Json.decodeFromJsonElement(Json.parseToJsonElement(payload).jsonObject["after"]!!)
+    }
 
     override fun shouldProcessEvent(payload: ArenaSak): Boolean {
         return sakIsRelatedToTiltaksgjennomforing(payload)

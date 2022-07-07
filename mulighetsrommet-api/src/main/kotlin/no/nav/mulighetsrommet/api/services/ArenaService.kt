@@ -113,7 +113,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
     }
 
     fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): Tiltaksgjennomforing? {
-        logger.info("Oppdaterer tiltak med sak sakId={} tiltaksnummer={}", sak.sakId, sak.lopenrsak)
+        logger.info("Oppdaterer tiltak med sak sakId={} tiltaksnummer={}", sak.id, sak.lopenummer)
 
         @Language("PostgreSQL")
         val query = """
@@ -122,9 +122,9 @@ class ArenaService(private val db: Database, private val logger: Logger) {
 
         val queryResult = queryOf(
             query,
-            sak.lopenrsak,
+            sak.lopenummer,
             sak.aar,
-            sak.sakId,
+            sak.id,
         ).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.session.run(queryResult)
     }

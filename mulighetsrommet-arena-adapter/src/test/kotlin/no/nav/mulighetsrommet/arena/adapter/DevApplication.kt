@@ -5,10 +5,7 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.sksamuel.hoplite.ConfigLoader
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.*
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -44,7 +41,9 @@ fun main() {
         SakEndretConsumer(app.kafka.getTopic("sakendret"), api)
     )
 
-    val kafka = KafkaConsumerOrchestrator(preset, Database(app.database), consumers)
+    val kafka = KafkaConsumerOrchestrator(preset, Database(app.database),
+        consumers as List<TopicConsumer<out Any, in Any>>
+    )
 
     initializeServer(server) {
         configure(app, kafka)
