@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation(project(":mulighetsrommet-domain"))
 
-    val ktorVersion = "2.0.1"
+    val ktorVersion = "2.0.3"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
