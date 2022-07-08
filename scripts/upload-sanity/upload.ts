@@ -142,7 +142,7 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
     telefonnummer,
     enhet,
     epost,
-    _id: ident ?? short.generate(),
+    _id: ident.replace(/\"\\n/g, "").trim() ?? short.generate(),
     _type: "navKontaktperson",
   };
 
@@ -172,7 +172,7 @@ function opprettArrangor(row: Row): SanityArrangor {
     selskapsnavn: navn,
     telefonnummer: telefon,
     adresse: postnr,
-    _id: uuidByString(postnr),
+    _id: uuidByString(postnr.replace(/\"\\n/g, "").trim()),
   };
   arrangorer.push(arrangor);
   return arrangor;
@@ -204,7 +204,7 @@ function opprettTiltaksgjennomforing(
         .trim()
         .split(/\n/g)
         .map((line) => line.trim())
-        ?.join(";");
+        .join(";");
   const forHvem = brukFakeData ? faker.lorem.paragraphs(2) : row[7];
   const detaljerOgInnhold = brukFakeData ? faker.lorem.paragraphs(2) : row[9];
   const pameldingOgVarighet = brukFakeData
@@ -225,18 +225,18 @@ function opprettTiltaksgjennomforing(
 
   const fylkeMatch =
     fylker.find((fylke) => fylke.navn === FYLKE_FOR_OPPLASTING) ?? null;
-  if (!fylkeMatch) {
-    console.log(
-      colors.red(
-        `Fant ingen match for fylke spesifisert i Excel: ${FYLKE_FOR_OPPLASTING}`
-      )
-    );
-  } else {
-    console.log(colors.green(`Fant match for fylke: ${FYLKE_FOR_OPPLASTING}`));
-  }
+  // if (!fylkeMatch) {
+  //   console.log(
+  //     colors.red(
+  //       `Fant ingen match for fylke spesifisert i Excel: ${FYLKE_FOR_OPPLASTING}`
+  //     )
+  //   );
+  // } else {
+  //   console.log(colors.green(`Fant match for fylke: ${FYLKE_FOR_OPPLASTING}`));
+  // }
   const fylkeReference: Reference = {
     _key: short.generate(),
-    _ref: fylkeMatch._id,
+    _ref: fylkeMatch._id.replace(/\"\\n/g, "").trim(),
     _type: "reference",
   };
 
@@ -253,18 +253,18 @@ function opprettTiltaksgjennomforing(
       })
       .map((enhet) => ({
         _type: "reference",
-        _ref: enhet._id,
+        _ref: enhet._id.replace(/\"\\n/g, "").trim(),
         _key: short.generate(),
       })) ?? [];
 
   if (enheterMatchet.length === 0) {
-    console.log(
-      colors.red(
-        `Klarte ikke finne Nav-kontorer fra streng: '${navKontorer}' som matchet med noen av enhetene fra Sanity`
-      )
-    );
+    // console.log(
+    //   colors.red(
+    //     `Klarte ikke finne Nav-kontorer fra streng: '${navKontorer}' som matchet med noen av enhetene fra Sanity`
+    //   )
+    // );
   } else {
-    console.log(colors.green(`Fant match for Nav-kontor: ${navKontorer}`));
+    //console.log(colors.green(`Fant match for Nav-kontor: ${navKontorer}`));
   }
 
   if (!tiltakstypeId) {
@@ -273,13 +273,19 @@ function opprettTiltaksgjennomforing(
     );
   }
 
+  if (!kontaktinfoPerson.ident) {
+    console.log(
+      "Ref for kontaktinfotiltaksansvarlige",
+      kontaktinfoPerson.ident
+    );
+  }
   const gjennomforing: SanityTiltaksgjennomforing = {
     _id: tiltaksnummer.toString(),
     _type: "tiltaksgjennomforing",
     beskrivelse,
     tiltakstype: tiltakstypeId
       ? {
-          _ref: tiltakstypeId,
+          _ref: tiltakstypeId.replace(/\"\\n/g, "").trim(),
           _type: "reference",
         }
       : null,
@@ -301,12 +307,12 @@ function opprettTiltaksgjennomforing(
     kontaktinfoTiltaksansvarlige: [
       {
         _type: "reference",
-        _ref: kontaktinfoPerson.ident,
+        _ref: kontaktinfoPerson.ident.replace(/\"\\n/g, "").trim(),
         _key: short.generate(),
       },
     ],
     kontaktinfoArrangor: {
-      _ref: arrangor._id,
+      _ref: arrangor._id.replace(/\"\\n/g, "").trim(),
       _type: "reference",
     },
     lokasjon: lokasjon,
@@ -346,7 +352,11 @@ function mergeDokumenttyper(
 function lastOppDokumenter(dokumenter: any[]) {
   const transaction = client.transaction();
   dokumenter.forEach((person) => transaction.createOrReplace(person));
-  transaction.commit();
+  try {
+    transaction.commit();
+  } catch (error) {
+    console.log(colors.red("Klarte ikke commite data til Sanity", error));
+  }
 }
 
 function fjernBrukerident(person: SanityKontaktperson): SanityKontaktperson {
