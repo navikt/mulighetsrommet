@@ -16,7 +16,7 @@ import { faker } from "@faker-js/faker";
 const uuidByString = require("uuid-by-string");
 const fs = require("fs");
 const { parse } = require("csv-parse");
-const csvFil = "./vest-viken.csv";
+const csvFil = "./trondelag.csv";
 const skalLasteOpp = false;
 const brukFakeData = process.env.SANITY_DATASET !== "production";
 const FYLKE_FOR_OPPLASTING:
@@ -24,7 +24,7 @@ const FYLKE_FOR_OPPLASTING:
   | "NAV Øst-Viken"
   | "NAV Vest-Viken"
   | "NAV Innlandet"
-  | "NAV Trøndelag" = "NAV Vest-Viken";
+  | "NAV Trøndelag" = "NAV Trøndelag";
 
 if (!FYLKE_FOR_OPPLASTING) {
   throw new Error("Du må sette et fylke for opplasting");
@@ -127,7 +127,9 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
   const telefonnummer = brukFakeData
     ? faker.phone.phoneNumber("### ## ###")
     : row[19];
-  const enhet = brukFakeData ? faker.random.words(2) : row[21];
+  const enhet = brukFakeData
+    ? faker.random.words(2)
+    : row[21].replace(/\d/g, "")?.trim();
 
   const kontaktEksisterer = kontaktpersoner.find(
     (person) => person.ident === ident
@@ -140,9 +142,13 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
     telefonnummer,
     enhet,
     epost,
-    _id: ident,
+    _id: ident.replace(/\"\\n/g, "").trim() ?? short.generate(),
     _type: "navKontaktperson",
   };
+
+  if (person.navn === "" && person.epost === "" && person.ident === "") {
+    return person;
+  }
 
   kontaktpersoner.push(person);
   return person;
@@ -166,7 +172,7 @@ function opprettArrangor(row: Row): SanityArrangor {
     selskapsnavn: navn,
     telefonnummer: telefon,
     adresse: postnr,
-    _id: uuidByString(postnr),
+    _id: uuidByString(postnr.replace(/\"\\n/g, "").trim()),
   };
   arrangorer.push(arrangor);
   return arrangor;
@@ -182,7 +188,7 @@ function opprettTiltaksgjennomforing(
     ? faker.company.catchPhrase()
     : row[0];
   const beskrivelse = brukFakeData ? faker.lorem.paragraphs(2) : row[1];
-  const tiltaksnummer = parseInt(row[2]);
+  const tiltaksnummer = parseInt(row[2].replace(/0{1,2}/g, ""));
   const tiltakstype = row[3] as Tiltakstype;
   const oppstart = row[4] !== "Løpende" ? "dato" : "lopende";
   const oppstartsdato =
@@ -192,7 +198,13 @@ function opprettTiltaksgjennomforing(
   const lokasjon = brukFakeData ? faker.address.street() : row[5];
   const navKontorer = brukFakeData
     ? "lillestrøm"
-    : row[6]?.trim().toLowerCase();
+    : row[6]
+        ?.toLowerCase()
+        .replace(/\d/g, "")
+        .trim()
+        .split(/\n/g)
+        .map((line) => line.trim())
+        .join(";");
   const forHvem = brukFakeData ? faker.lorem.paragraphs(2) : row[7];
   const detaljerOgInnhold = brukFakeData ? faker.lorem.paragraphs(2) : row[9];
   const pameldingOgVarighet = brukFakeData
@@ -213,18 +225,18 @@ function opprettTiltaksgjennomforing(
 
   const fylkeMatch =
     fylker.find((fylke) => fylke.navn === FYLKE_FOR_OPPLASTING) ?? null;
-  if (!fylkeMatch) {
-    console.log(
-      colors.red(
-        `Fant ingen match for fylke spesifisert i Excel: ${FYLKE_FOR_OPPLASTING}`
-      )
-    );
-  } else {
-    console.log(colors.green(`Fant match for fylke: ${FYLKE_FOR_OPPLASTING}`));
-  }
+  // if (!fylkeMatch) {
+  //   console.log(
+  //     colors.red(
+  //       `Fant ingen match for fylke spesifisert i Excel: ${FYLKE_FOR_OPPLASTING}`
+  //     )
+  //   );
+  // } else {
+  //   console.log(colors.green(`Fant match for fylke: ${FYLKE_FOR_OPPLASTING}`));
+  // }
   const fylkeReference: Reference = {
     _key: short.generate(),
-    _ref: fylkeMatch._id,
+    _ref: fylkeMatch._id.replace(/\"\\n/g, "").trim(),
     _type: "reference",
   };
 
@@ -241,18 +253,18 @@ function opprettTiltaksgjennomforing(
       })
       .map((enhet) => ({
         _type: "reference",
-        _ref: enhet._id,
+        _ref: enhet._id.replace(/\"\\n/g, "").trim(),
         _key: short.generate(),
       })) ?? [];
 
   if (enheterMatchet.length === 0) {
-    console.log(
-      colors.red(
-        `Klarte ikke finne Nav-kontorer fra streng: '${navKontorer}' som matchet med noen av enhetene fra Sanity`
-      )
-    );
+    // console.log(
+    //   colors.red(
+    //     `Klarte ikke finne Nav-kontorer fra streng: '${navKontorer}' som matchet med noen av enhetene fra Sanity`
+    //   )
+    // );
   } else {
-    console.log(colors.green(`Fant match for Nav-kontor: ${navKontorer}`));
+    //console.log(colors.green(`Fant match for Nav-kontor: ${navKontorer}`));
   }
 
   if (!tiltakstypeId) {
@@ -261,13 +273,19 @@ function opprettTiltaksgjennomforing(
     );
   }
 
+  if (!kontaktinfoPerson.ident) {
+    console.log(
+      "Ref for kontaktinfotiltaksansvarlige",
+      kontaktinfoPerson.ident
+    );
+  }
   const gjennomforing: SanityTiltaksgjennomforing = {
     _id: tiltaksnummer.toString(),
     _type: "tiltaksgjennomforing",
     beskrivelse,
     tiltakstype: tiltakstypeId
       ? {
-          _ref: tiltakstypeId,
+          _ref: tiltakstypeId.replace(/\"\\n/g, "").trim(),
           _type: "reference",
         }
       : null,
@@ -289,12 +307,12 @@ function opprettTiltaksgjennomforing(
     kontaktinfoTiltaksansvarlige: [
       {
         _type: "reference",
-        _ref: kontaktinfoPerson.ident,
+        _ref: kontaktinfoPerson.ident.replace(/\"\\n/g, "").trim(),
         _key: short.generate(),
       },
     ],
     kontaktinfoArrangor: {
-      _ref: arrangor._id,
+      _ref: arrangor._id.replace(/\"\\n/g, "").trim(),
       _type: "reference",
     },
     lokasjon: lokasjon,
@@ -334,7 +352,11 @@ function mergeDokumenttyper(
 function lastOppDokumenter(dokumenter: any[]) {
   const transaction = client.transaction();
   dokumenter.forEach((person) => transaction.createOrReplace(person));
-  transaction.commit();
+  try {
+    transaction.commit();
+  } catch (error) {
+    console.log(colors.red("Klarte ikke commite data til Sanity", error));
+  }
 }
 
 function fjernBrukerident(person: SanityKontaktperson): SanityKontaktperson {
