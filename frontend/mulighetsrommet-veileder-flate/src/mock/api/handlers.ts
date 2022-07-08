@@ -29,7 +29,9 @@ export const handlers: RestHandler[] = [
 
     const client = getSanityClient();
 
-    const result = await client.fetch(query);
+    const newQuery = query.replace("%ENHET%", "")
+
+    const result = await client.fetch(newQuery);
     return ok(result);
   }),
 ];

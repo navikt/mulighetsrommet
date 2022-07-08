@@ -8,7 +8,8 @@ export default function useTiltaksgjennomforing() {
   return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
-  ${byggSokefilter(filter.search)}
+  ${byggSokefilter(filter.search)} 
+  %ENHET%
   ]
   {
     _id,
