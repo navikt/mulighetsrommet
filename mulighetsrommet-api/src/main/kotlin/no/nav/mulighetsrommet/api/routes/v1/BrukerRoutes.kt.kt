@@ -6,8 +6,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
+import org.koin.ktor.ext.inject
 
-fun Route.brukerRoutes(brukerService: BrukerService) {
+fun Route.brukerRoutes() {
+    val brukerService: BrukerService by inject()
+
     route("/api/v1/bruker") {
         get("{fnr}") {
             val fnr = call.parameters["fnr"] ?: return@get call.respondText(
