@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /internal/ping:
@@ -19,7 +19,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                enum: [PONG]
+                enum: [ PONG ]
   /api/v1/sanity:
     get:
       tags:
@@ -36,7 +36,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
   /api/v1/tiltakstyper:
     get:
       tags:
@@ -221,6 +221,29 @@ paths:
                 $ref: "#/components/schemas/Bruker"
         404:
           description: "Could not find data about 'bruker'"
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/v1/logger/event:
+    post:
+      tags:
+        - mulighetsrommet
+      operationId: logFrontendEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FrontendEvent"
+      responses:
+        201:
+          description: "Logged frontend event"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FrontendEvent"
+        500:
+          description: "Logging to frontend failed"
           content:
             application/json:
               schema:
@@ -457,7 +480,20 @@ components:
         - Situasjonsbestemt innsats
         - Spesielt tilpasset innsats
         - Varig tilpasset innsats
-      
+    FrontendEvent:
+      type: object
+      properties:
+        name:
+          type: string
+        fields:
+          type: object
+          additionalProperties: true
+        tags:
+          type: object
+          additionalProperties: true
+      required:
+        - name
+
   examples:
     Tiltakstype:
       summary: "Tiltakstype eksempel"

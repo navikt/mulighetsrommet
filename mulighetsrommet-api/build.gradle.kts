@@ -79,6 +79,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
+
+    val navCommonModules = "2.2022.05.05_06.41-84855089824b"
+    implementation("no.nav.common:metrics:$navCommonModules")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

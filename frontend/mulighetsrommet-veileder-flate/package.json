@@ -28,7 +28,6 @@
     "@navikt/ds-css": "^0.18.24",
     "@navikt/ds-icons": "^0.8.18",
     "@navikt/ds-react": "^0.19.18",
-    "@navikt/frontendlogger": "^2.0.0",
     "@navikt/navspa": "^5.0.1",
     "@portabletext/react": "^1.0.6",
     "@sanity/client": "^3.3.2",

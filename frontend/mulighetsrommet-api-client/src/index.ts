@@ -7,6 +7,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Bruker } from './models/Bruker';
+export type { FrontendEvent } from './models/FrontendEvent';
 export { Innsatsgruppe } from './models/Innsatsgruppe';
 export type { Tiltaksgjennomforing } from './models/Tiltaksgjennomforing';
 export { Tiltakskode } from './models/Tiltakskode';

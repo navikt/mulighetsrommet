@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Bruker } from '../models/Bruker';
+import type { FrontendEvent } from '../models/FrontendEvent';
 import type { Tiltaksgjennomforing } from '../models/Tiltaksgjennomforing';
 import type { Tiltakskode } from '../models/Tiltakskode';
 import type { Tiltakstype } from '../models/Tiltakstype';
@@ -205,6 +206,26 @@ export class MulighetsrommetService {
             },
             errors: {
                 404: `Could not find data about 'bruker'`,
+            },
+        });
+    }
+
+    /**
+     * @returns FrontendEvent Logged frontend event
+     * @throws ApiError
+     */
+    public static logFrontendEvent({
+        requestBody,
+    }: {
+        requestBody?: FrontendEvent,
+    }): CancelablePromise<FrontendEvent> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/logger/event',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                500: `Logging to frontend failed`,
             },
         });
     }

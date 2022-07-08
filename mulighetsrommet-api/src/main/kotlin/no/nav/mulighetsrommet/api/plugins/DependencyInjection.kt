@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import io.ktor.server.application.*
+import no.nav.common.metrics.InfluxClient
+import no.nav.common.metrics.MetricsClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.DatabaseConfig
 import no.nav.mulighetsrommet.api.database.Database
@@ -30,4 +32,5 @@ private fun services(logger: Logger, appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), logger) }
     single { InnsatsgruppeService(get(), logger) }
     single { SanityService(appConfig.sanity) }
+    single { InfluxClient() as MetricsClient }
 }
