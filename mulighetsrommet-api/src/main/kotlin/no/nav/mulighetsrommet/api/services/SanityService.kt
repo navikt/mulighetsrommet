@@ -14,14 +14,17 @@ import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SanityService(sanity: SanityConfig) {
+private val log = LoggerFactory.getLogger(SanityService::class.java)
+
+class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
     private val logger = LoggerFactory.getLogger(SanityService::class.java)
     private val client: HttpClient
-    private val sanityToken = sanity.authToken
-    private val projectId = sanity.projectId
-    private val dataset = sanity.dataset
+    private val sanityToken = sanityConfig.authToken
+    private val projectId = sanityConfig.projectId
+    private val dataset = sanityConfig.dataset
     private val apiVersion = SimpleDateFormat("yyyy-MM-dd").format(Date())
     private val sanityBaseUrl = "https://$projectId.apicdn.sanity.io/v$apiVersion/data/query/$dataset"
+    private val brukerService = brukerService
 
     init {
         logger.debug("Init SanityHttpClient")
@@ -37,7 +40,12 @@ class SanityService(sanity: SanityConfig) {
         }
     }
 
-    suspend fun executeQuery(query: String): JsonElement? {
+    suspend fun executeQuery(query: String, fnr: String?, accessToken: String?): JsonElement? {
+        var brukerData: Brukerdata?
+        if (fnr !== null) {
+            // TODO Bruk brukerData til å filtrere - Kommer via Signes branch senere
+            brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+        }
         client.get {
             url {
                 parameters.append("query", query)

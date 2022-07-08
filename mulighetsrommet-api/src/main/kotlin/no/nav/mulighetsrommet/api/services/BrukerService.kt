@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -16,13 +15,9 @@ class BrukerService(
         val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
         val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
 
-        if (oppfolgingsenhet?.oppfolgingsenhet == null) {
-            throw NotFoundException("Fant ikke oppfølgingsenhet")
-        }
-
         return Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = oppfolgingsenhet.oppfolgingsenhet,
+            oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet,
             innsatsgruppe = sisteVedtak?.innsatsgruppe
         )
     }
