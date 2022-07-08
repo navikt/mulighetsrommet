@@ -43,7 +43,7 @@ const ViewTiltakstypeOversikt = () => {
                   size="small"
                   data-testid={`${kebabCase('filtertag_navenhet')}`}
                 >
-                  {brukerdata?.data?.oppfolgingsenhet.navn}
+                  {brukerdata?.data?.oppfolgingsenhet?.navn}
                 </Tag>
               )}
               <FilterTags
