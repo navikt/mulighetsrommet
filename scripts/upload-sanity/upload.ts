@@ -16,7 +16,7 @@ import { faker } from "@faker-js/faker";
 const uuidByString = require("uuid-by-string");
 const fs = require("fs");
 const { parse } = require("csv-parse");
-const csvFil = "./vest-viken.csv";
+const csvFil = "./trondelag.csv";
 const skalLasteOpp = false;
 const brukFakeData = process.env.SANITY_DATASET !== "production";
 const FYLKE_FOR_OPPLASTING:
@@ -24,7 +24,7 @@ const FYLKE_FOR_OPPLASTING:
   | "NAV Øst-Viken"
   | "NAV Vest-Viken"
   | "NAV Innlandet"
-  | "NAV Trøndelag" = "NAV Vest-Viken";
+  | "NAV Trøndelag" = "NAV Trøndelag";
 
 if (!FYLKE_FOR_OPPLASTING) {
   throw new Error("Du må sette et fylke for opplasting");
@@ -127,7 +127,9 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
   const telefonnummer = brukFakeData
     ? faker.phone.phoneNumber("### ## ###")
     : row[19];
-  const enhet = brukFakeData ? faker.random.words(2) : row[21];
+  const enhet = brukFakeData
+    ? faker.random.words(2)
+    : row[21].replace(/\d/g, "")?.trim();
 
   const kontaktEksisterer = kontaktpersoner.find(
     (person) => person.ident === ident
@@ -140,9 +142,13 @@ function opprettKontaktperson(row: Row): SanityKontaktperson {
     telefonnummer,
     enhet,
     epost,
-    _id: ident,
+    _id: ident ?? short.generate(),
     _type: "navKontaktperson",
   };
+
+  if (person.navn === "" && person.epost === "" && person.ident === "") {
+    return person;
+  }
 
   kontaktpersoner.push(person);
   return person;
@@ -182,7 +188,7 @@ function opprettTiltaksgjennomforing(
     ? faker.company.catchPhrase()
     : row[0];
   const beskrivelse = brukFakeData ? faker.lorem.paragraphs(2) : row[1];
-  const tiltaksnummer = parseInt(row[2]);
+  const tiltaksnummer = parseInt(row[2].replace(/0{1,2}/g, ""));
   const tiltakstype = row[3] as Tiltakstype;
   const oppstart = row[4] !== "Løpende" ? "dato" : "lopende";
   const oppstartsdato =
@@ -192,7 +198,13 @@ function opprettTiltaksgjennomforing(
   const lokasjon = brukFakeData ? faker.address.street() : row[5];
   const navKontorer = brukFakeData
     ? "lillestrøm"
-    : row[6]?.trim().toLowerCase();
+    : row[6]
+        ?.toLowerCase()
+        .replace(/\d/g, "")
+        .trim()
+        .split(/\n/g)
+        .map((line) => line.trim())
+        ?.join(";");
   const forHvem = brukFakeData ? faker.lorem.paragraphs(2) : row[7];
   const detaljerOgInnhold = brukFakeData ? faker.lorem.paragraphs(2) : row[9];
   const pameldingOgVarighet = brukFakeData
