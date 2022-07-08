@@ -5,7 +5,10 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.SanityConfig
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.api.utils.replaceEnhetInQuery
@@ -72,12 +75,14 @@ class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
         val response =
             get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
 
-        if (response == null || !response?.jsonNull.isString) {
-            return ""
-        }
+        log.info("Hentet data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 
-        val fylkeResponse = response.let { jsonDecoder.decodeFromJsonElement<FylkeResponse>(it) }
-        return fylkeResponse.fylke.nummer.current
+        return try {
+            val fylkeResponse = response?.let { jsonDecoder.decodeFromJsonElement<FylkeResponse>(it) }
+            fylkeResponse?.fylke?.nummer?.current ?: ""
+        } catch (exception: Exception) {
+            ""
+        }
     }
 }
 
