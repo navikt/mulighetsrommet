@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
