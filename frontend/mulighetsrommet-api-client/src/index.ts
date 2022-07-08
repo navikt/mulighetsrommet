@@ -8,6 +8,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Bruker } from './models/Bruker';
 export { Innsatsgruppe } from './models/Innsatsgruppe';
+export type { Oppfolgingsenhet } from './models/Oppfolgingsenhet';
 export type { Tiltaksgjennomforing } from './models/Tiltaksgjennomforing';
 export { Tiltakskode } from './models/Tiltakskode';
 export type { Tiltakstype } from './models/Tiltakstype';

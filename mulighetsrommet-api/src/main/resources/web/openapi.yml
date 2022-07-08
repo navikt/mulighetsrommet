@@ -445,18 +445,27 @@ components:
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
-          type: string
+          type: "#/components/schemas/Oppfolgingsenhet"
       required:
         - fnr
-        - innsatsgruppe
         - oppfolgingsenhet
     Innsatsgruppe:
       type: string
       enum:
-        - Standardinnsats
-        - Situasjonsbestemt innsats
-        - Spesielt tilpasset innsats
-        - Varig tilpasset innsats
+        - STANDARD_INNSATS
+        - SITUASJONSBESTEMT_INNSATS
+        - SPESIELT_TILPASSET_INNSATS
+        - VARIG_TILPASSET_INNSATS
+    Oppfolgingsenhet:
+      type: object
+      properties:
+        navn: 
+          type: string
+        enhetId:
+          type: string
+      required:
+        - navn
+        - enhetId
       
   examples:
     Tiltakstype:
