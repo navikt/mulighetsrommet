@@ -17,11 +17,11 @@ export default {
       description: "Hvilket navn skal vises til filen?",
       type: "string",
       validation: (Rule) =>
-          Rule.custom((field, context) =>
-              context.document.regelverkFilOpplastning && field === undefined
-                  ? "Dette feltet kan ikke være tomt."
-                  : true
-          ),
+        Rule.custom((field, context) =>
+          context.document.regelverkFilOpplastning && field === undefined
+            ? "Dette feltet kan ikke være tomt."
+            : true
+        ),
       hidden: ({ document }) => !document?.regelverkFilOpplastning,
     },
   ],

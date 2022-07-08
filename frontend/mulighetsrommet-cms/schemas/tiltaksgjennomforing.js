@@ -1,8 +1,10 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import sanityClient from "part:@sanity/base/client";
+// import sanityClient from "part:@sanity/base/client";
 import { EnhetType } from "./enhet";
 
-const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
+const client = { withConfig: () => {} }.withConfig({
+  apiVersion: "2021-10-21",
+});
 
 export default {
   name: "tiltaksgjennomforing",

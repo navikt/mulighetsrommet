@@ -1,6 +1,7 @@
+import { defineType } from "sanity";
 import { FaWpforms } from "react-icons/fa";
 
-export default {
+export default defineType({
   name: "tiltakstype",
   title: "Tiltakstype",
   type: "document",
@@ -42,13 +43,13 @@ export default {
       name: "regelverkFiler",
       title: "Regelverk filer",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }]
+      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }],
     },
     {
       name: "regelverkLenker",
       title: "Regelverk lenker",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }]
+      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }],
     },
     //Faneinnhold
     {
@@ -108,4 +109,4 @@ export default {
       subtitle: "innsatsgruppe.tittel",
     },
   },
-};
+});

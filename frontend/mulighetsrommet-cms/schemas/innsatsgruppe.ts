@@ -1,27 +1,27 @@
-import { Rule } from "@sanity/types";
+import { defineField, defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "innsatsgruppe",
   title: "Innsatsgruppe",
   type: "document",
   fields: [
-    {
+    defineField({
       name: "tittel",
       title: "Tittel",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: "order",
       title: "Rekkefølge",
       type: "number",
-    },
+    }),
   ],
   preview: {
     select: {
@@ -29,11 +29,11 @@ export default {
       order: "order",
     },
     prepare: (selection) => {
-      const { title, order } = selection;
+      const { title, order } = selection as Record<string, string>;
       return {
         title,
         subtitle: `Sorteringsrekkefølge = ${order}`,
       };
     },
   },
-};
+});

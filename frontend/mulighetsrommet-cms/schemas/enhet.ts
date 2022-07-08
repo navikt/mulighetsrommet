@@ -1,6 +1,9 @@
-import { Rule } from "@sanity/types";
-import { ConditionalPropertyCallbackContext } from "@sanity/types/src/schema/types";
-import { CustomValidatorResult } from "@sanity/types/src/validation/types";
+import {
+  ConditionalPropertyCallbackContext,
+  CustomValidatorResult,
+  defineField,
+  Rule,
+} from "sanity";
 
 export enum EnhetType {
   Fylke = "Fylke",
@@ -19,7 +22,7 @@ export default {
       type: "string",
       validation: (rule: Rule) => rule.required(),
     },
-    {
+    defineField({
       name: "nummer",
       title: "Enhetsnummer",
       type: "slug",
@@ -28,11 +31,11 @@ export default {
           .required()
           .custom<{ current?: string }>((value): CustomValidatorResult => {
             return (
-              /[0-9]{4}/.test(value.current) ||
+              /[0-9]{4}/.test(value.current ?? "") ||
               "Enhetsnummer is not formatted correctly."
             );
           }),
-    },
+    }),
     {
       name: "type",
       title: "Type",
@@ -63,7 +66,7 @@ export default {
         },
       },
       hidden: ({ document }: ConditionalPropertyCallbackContext) => {
-        return document.type !== EnhetType.Lokal;
+        return document?.type !== EnhetType.Lokal;
       },
     },
   ],
