@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val log = LoggerFactory.getLogger(SanityService::class.java)
+
 class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
     private val logger = LoggerFactory.getLogger(SanityService::class.java)
     private val client: HttpClient
@@ -38,7 +40,17 @@ class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
         }
     }
 
-    suspend fun executeQuery(query: String): JsonElement? {
+    suspend fun executeQuery(query: String, fnr: String?, accessToken: String?): JsonElement? {
+        var brukerData: Brukerdata?
+        if (fnr !== null) {
+            // TODO Bruk brukerData til å filtrere - Kommer via Signes branch senere
+            brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+            log.info(
+                "Hentet brukerdata som trengs for videre filtrering mot Sanity.\nInnsatsgruppe: {}\nOppfølgingsstatus: {}",
+                brukerData.innsatsgruppe,
+                brukerData.oppfolgingsenhet
+            )
+        }
         client.get {
             url {
                 parameters.append("query", query)
