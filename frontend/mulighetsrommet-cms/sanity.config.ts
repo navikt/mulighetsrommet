@@ -1,11 +1,15 @@
 import { createConfig, createPlugin } from "sanity";
 import { deskTool } from "sanity/desk";
 import { schemaTypes } from "./schemas";
+import { structure, defaultDocumentNode } from "./desk/structure";
 
 const mulighetsrommetConfig = createPlugin({
   name: "mulighetsrommet",
   plugins: [
-    deskTool(),
+    deskTool({
+      defaultDocumentNode,
+      structure,
+    }),
   ],
   schema: {
     types: schemaTypes,
