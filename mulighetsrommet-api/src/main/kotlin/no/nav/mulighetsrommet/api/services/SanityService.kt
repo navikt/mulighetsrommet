@@ -45,11 +45,6 @@ class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
         if (fnr !== null) {
             // TODO Bruk brukerData til å filtrere - Kommer via Signes branch senere
             brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-            log.info(
-                "Hentet brukerdata som trengs for videre filtrering mot Sanity.\nInnsatsgruppe: {}\nOppfølgingsstatus: {}",
-                brukerData.innsatsgruppe,
-                brukerData.oppfolgingsenhet
-            )
         }
         client.get {
             url {
