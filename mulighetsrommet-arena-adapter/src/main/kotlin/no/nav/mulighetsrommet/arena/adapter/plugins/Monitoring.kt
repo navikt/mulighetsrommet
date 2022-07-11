@@ -5,7 +5,7 @@ import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.plugins.callloging.*
-import io.ktor.server.request.path
+import io.ktor.server.request.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -19,8 +19,13 @@ fun Application.configureMonitoring() {
     }
     install(CallLogging) {
         disableDefaultColors()
-
         filter { call -> call.request.path().startsWith("/") }
+        mdc("status") {
+            it.response.status().toString()
+        }
+        mdc("method") {
+            it.request.httpMethod.value
+        }
     }
     routing {
         get("/metrics-micrometer") {
