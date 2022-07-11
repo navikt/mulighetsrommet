@@ -19,15 +19,19 @@ export class MulighetsrommetService {
      */
     public static sanityQuery({
         query,
+        fnr,
     }: {
         /** Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information. **/
-        query?: string,
+        query: string,
+        /** SSN for the user which will be used to filter based on the users 'oppfølgingsenhet' **/
+        fnr?: string,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/sanity',
             query: {
                 'query': query,
+                'fnr': fnr,
             },
         });
     }

@@ -56,6 +56,7 @@ fun Application.configure(config: AppConfig) {
             innsatsgruppeRoutes()
             arenaRoutes()
             sanityRoutes()
+            brukerRoutes()
             frontendLoggerRoutes()
         }
     }

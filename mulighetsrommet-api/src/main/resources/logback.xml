@@ -1,9 +1,4 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <!-- https://doc.nais.io/observability/logs/examples/#issues-with-long-log-messages -->
@@ -18,13 +13,10 @@
             </throwableConverter>
         </encoder>
     </appender>
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT"/>
-    </root>
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
     </root>
-    <logger name="no.nav.mulighetsrommet" level="INFO"/>
+    <logger name="no.nav.mulighetsrommet" level="DEBUG"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
 </configuration>

@@ -15,7 +15,6 @@ fun Application.configureMonitoring() {
     }
     install(CallLogging) {
         disableDefaultColors()
-
         filter { call -> call.request.path().startsWith("/") }
     }
 }

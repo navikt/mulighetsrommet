@@ -15,6 +15,20 @@ app:
       issuer: ${AZURE_OPENID_CONFIG_ISSUER:-http://localhost:8081/azure}
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI:-http://localhost:8081/azure/jwks}
       audience: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
+      tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT:-http://localhost:8081/azure/token}
+      azureAd:
+        clientId: ${AZURE_APP_CLIENT_ID:-mulighetsrommet-api}
+        clientSecret: ${AZURE_APP_CLIENT_SECRET:-"clientSecret"}
+        wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration}
+
+  veilarbvedtaksstotteConfig:
+    url: ${VEILARBVEDTAKSSTOTTE_URL:-https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api}
+    scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
+
+  veilarboppfolgingConfig:
+    url: ${VEILARBOPPFOLGING_URL:-https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api}
+    scope: api://dev-fss.pto.veilarboppfolging/.default
+
 
   sanity:
     dataset: ${SANITY_DATASET:-test}

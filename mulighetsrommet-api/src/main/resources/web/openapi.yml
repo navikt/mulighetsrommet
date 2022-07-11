@@ -31,6 +31,12 @@ paths:
           schema:
             type: string
           description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
+          required: true
+        - in: query
+          name: fnr
+          schema:
+            type: string
+          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
       responses:
         200:
           description: Sanity query result
@@ -468,18 +474,27 @@ components:
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
-          type: string
+          type: "#/components/schemas/Oppfolgingsenhet"
       required:
         - fnr
-        - innsatsgruppe
         - oppfolgingsenhet
     Innsatsgruppe:
       type: string
       enum:
-        - Standardinnsats
-        - Situasjonsbestemt innsats
-        - Spesielt tilpasset innsats
-        - Varig tilpasset innsats
+        - STANDARD_INNSATS
+        - SITUASJONSBESTEMT_INNSATS
+        - SPESIELT_TILPASSET_INNSATS
+        - VARIG_TILPASSET_INNSATS
+    Oppfolgingsenhet:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetId:
+          type: string
+      required:
+        - navn
+        - enhetId
     FrontendEvent:
       type: object
       properties:
@@ -493,7 +508,7 @@ components:
           additionalProperties: true
       required:
         - name
-
+      
   examples:
     Tiltakstype:
       summary: "Tiltakstype eksempel"

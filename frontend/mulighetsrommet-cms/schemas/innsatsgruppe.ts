@@ -22,6 +22,12 @@ export default {
       title: "Rekkefølge",
       type: "number",
     },
+    {
+      name: "nokkel",
+      title: "Nøkkel",
+      type: "string",
+      validation: (Rule: Rule) => Rule.required(),
+    },
   ],
   preview: {
     select: {

@@ -68,6 +68,7 @@ export interface Innsatsgruppe {
   _id: string;
   beskrivelse: string;
   tittel: string;
+  nokkel: string;
 }
 
 export interface RegelverkFil {

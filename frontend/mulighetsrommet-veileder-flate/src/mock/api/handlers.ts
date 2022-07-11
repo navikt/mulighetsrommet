@@ -12,8 +12,11 @@ export const handlers: RestHandler[] = [
     const { fnr } = req.params;
     return ok({
       fnr,
-      innsatsgruppe: 'Situasjonsbestemt innsats',
-      oppfolgingsenhet: 'NAV Fredrikstad',
+      innsatsgruppe: 'SITUASJONSBESTEMT_INNSATS',
+      oppfolgingsenhet: {
+        navn: 'NAV Fredrikstad',
+        enhetId: '0106',
+      },
     });
   }),
 
@@ -26,7 +29,9 @@ export const handlers: RestHandler[] = [
 
     const client = getSanityClient();
 
-    const result = await client.fetch(query);
+    const newQuery = query.replace("%ENHET%", "")
+
+    const result = await client.fetch(newQuery);
     return ok(result);
   }),
 ];
