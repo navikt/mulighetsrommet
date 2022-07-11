@@ -7,12 +7,17 @@ import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.consumers.*
+import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
+import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -40,7 +45,7 @@ fun main() {
     val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
 
     initializeServer(server) {
-        configure(app, kafka, db)
+        configure(app, db, kafka)
     }
 }
 
@@ -61,13 +66,16 @@ fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     server.start(true)
 }
 
-fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, db: Database) {
+fun Application.configure(config: AppConfig, db: Database, kafka: KafkaConsumerOrchestrator) {
     configureSerialization()
     configureMonitoring()
     configureHTTP()
 
+    val topicService = TopicService(db)
+
     routing {
         internalRoutes(db)
+        apiRoutes(topicService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {

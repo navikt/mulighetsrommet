@@ -5,7 +5,10 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.sksamuel.hoplite.ConfigLoader
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.consumers.*
+import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
@@ -47,7 +50,7 @@ fun main() {
     val kafka = KafkaConsumerOrchestrator(preset, db, consumers)
 
     initializeServer(server) {
-        configure(app, kafka, db)
+        configure(app, db, kafka)
     }
 }
 
