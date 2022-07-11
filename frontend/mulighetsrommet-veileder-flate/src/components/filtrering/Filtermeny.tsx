@@ -31,6 +31,7 @@ const Filtermeny = () => {
             return {
               id: innsatsgruppe._id,
               tittel: innsatsgruppe.tittel,
+              nokkel: innsatsgruppe.nokkel,
             };
           }) ?? []
         }
