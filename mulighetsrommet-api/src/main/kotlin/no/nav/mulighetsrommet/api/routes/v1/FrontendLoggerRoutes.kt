@@ -8,7 +8,6 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.common.metrics.Event
 import no.nav.common.metrics.MetricsClient
-import no.nav.common.utils.EnvironmentUtils
 import org.koin.ktor.ext.inject
 
 fun Route.frontendLoggerRoutes() {
@@ -22,7 +21,7 @@ fun Route.frontendLoggerRoutes() {
                 val toInflux = Event(event.name + ".event")
                 event.tags.forEach(toInflux::addTagToReport)
                 event.fields.forEach(toInflux::addFieldToReport)
-                EnvironmentUtils.setProperty(
+                /*EnvironmentUtils.setProperty(
                     EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME,
                     "mulighetsrommet-api",
                     EnvironmentUtils.Type.PUBLIC
@@ -36,25 +35,21 @@ fun Route.frontendLoggerRoutes() {
                     EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME,
                     "team-mulighetsrommet",
                     EnvironmentUtils.Type.PUBLIC
-                )
-                // toInflux.tags["environment"] = if (EnvironmentUtils.isProduction().orElse(false)) "p" else "q1"
-                println()
-                println("Event: ")
-                println(toInflux.eventToString(event.name))
-                // println(EnvironmentUtils.isProduction())
-                println()
+                )*/
+                logger.info(event.eventToString())
                 metricsClient.report(toInflux)
-                call.respond(toInflux.eventToString(event.name))
-            }.onSuccess {
+                event
+            }.onSuccess { event ->
+                call.respond(event.eventToString())
             }.onFailure {
                 logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
-                call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
+                call.respondText("Fikk ikke sendt log event til influx", status = HttpStatusCode.InternalServerError)
             }
         }
     }
 }
 
-fun Event.eventToString(name: String): String {
+fun FrontendEvent.eventToString(): String {
     return (
         "name: " + name + ".event, fields: " + (fields?.entries ?: "[]") +
             ", tags: " + (tags?.entries ?: "[]")
