@@ -7,7 +7,7 @@ import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
@@ -15,16 +15,16 @@ import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
-import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
-  const { data: innsatsgrupper } = useInnsatsgrupper();
 
   const features = useFeatureToggles();
   const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
+  const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
+    gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
 
   return (
     <>
@@ -37,8 +37,8 @@ const ViewTiltakstypeOversikt = () => {
             <div className="filtertags" data-testid="filtertags">
               {brukerdata?.data && (
                 <Tag
-                  className={'nav-enhet-tag'}
-                  key={'navenhet'}
+                  className="nav-enhet-tag"
+                  key="navenhet"
                   variant="info"
                   size="small"
                   data-testid={`${kebabCase('filtertag_navenhet')}`}
@@ -68,11 +68,8 @@ const ViewTiltakstypeOversikt = () => {
             </div>
             <Show
               if={
-                filter.innsatsgrupper.some(
-                  gruppe =>
-                    gruppe.tittel !==
-                    innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe)?.tittel
-                ) ||
+                filter.innsatsgrupper.length === 0 ||
+                filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
                 filter.search !== '' ||
                 filter.tiltakstyper.length > 0
               }

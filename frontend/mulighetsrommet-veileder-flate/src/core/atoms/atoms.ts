@@ -9,6 +9,7 @@ export interface Tiltaksgjennomforingsfilter {
 export interface Tiltaksgjennomforingsfiltergruppe {
   id: string;
   tittel: string;
+  nokkel?: string;
 }
 
 export const initialTiltaksgjennomforingsfilter = {
