@@ -18,7 +18,12 @@ fun Application.configureMonitoring() {
         disableDefaultColors()
 
         filter { call -> call.request.path().startsWith("/") }
-
+        mdc("status") {
+            it.response.status().toString()
+        }
+        mdc("method") {
+            it.request.httpMethod.value
+        }
         callIdMdc("call-id")
     }
     install(CallId) {
