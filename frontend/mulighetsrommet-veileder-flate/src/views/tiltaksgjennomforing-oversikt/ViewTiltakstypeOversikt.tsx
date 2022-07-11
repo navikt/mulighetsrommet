@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, Button } from '@navikt/ds-react';
+import { Tag, Button, Alert } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
@@ -26,6 +26,7 @@ const ViewTiltakstypeOversikt = () => {
   const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
     gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
 
+  const brukersOppfolgingsenhet = brukerdata?.data?.oppfolgingsenhet?.navn;
   return (
     <>
       {visFakeDoorFeature ? (
@@ -35,16 +36,20 @@ const ViewTiltakstypeOversikt = () => {
           <Filtermeny />
           <div className="filtercontainer">
             <div className="filtertags" data-testid="filtertags">
-              {brukerdata?.data && (
+              {brukersOppfolgingsenhet ? (
                 <Tag
-                  className="nav-enhet-tag"
-                  key="navenhet"
-                  variant="info"
+                  className={'nav-enhet-tag'}
+                  key={'navenhet'}
+                  variant={brukersOppfolgingsenhet ? 'info' : 'error'}
                   size="small"
                   data-testid={`${kebabCase('filtertag_navenhet')}`}
                 >
-                  {brukerdata?.data?.oppfolgingsenhet?.navn}
+                  {brukersOppfolgingsenhet}
                 </Tag>
+              ) : (
+                <Alert key="alert-navenhet" data-testid="alert-navenhet" size="small" variant="error">
+                  Klarte ikke hente brukers oppfølgingsenhet
+                </Alert>
               )}
               <FilterTags
                 options={filter.innsatsgrupper!}
