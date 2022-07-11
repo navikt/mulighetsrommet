@@ -1,6 +1,7 @@
 import { GrUserWorker } from "react-icons/gr";
+import { defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "navKontaktperson",
   title: "NAV kontaktperson",
   type: "document",
@@ -36,4 +37,4 @@ export default {
       title: "navn",
     },
   },
-};
+});

@@ -1,12 +1,8 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-// import sanityClient from "part:@sanity/base/client";
+import { defineType } from "sanity";
 import { EnhetType } from "./enhet";
 
-const client = { withConfig: () => {} }.withConfig({
-  apiVersion: "2021-10-21",
-});
-
-export default {
+export default defineType({
   name: "tiltaksgjennomforing",
   title: "Tiltaksgjennomføring",
   type: "document",
@@ -71,7 +67,7 @@ export default {
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette stå tomt.",
       type: "array",
       hidden: ({ document }) => {
-        return !document.fylke;
+        return !document?.fylke;
       },
       of: [
         {
@@ -83,7 +79,7 @@ export default {
               return {
                 filter: `fylke._ref == $fylke`,
                 params: {
-                  fylke: document.fylke._ref,
+                  fylke: (document.fylke as any)._ref,
                 },
               };
             },
@@ -91,14 +87,14 @@ export default {
         },
       ],
       validation: (Rule) =>
-        Rule.unique().custom(async (enheter, { document }) => {
-          if (!document.fylke || !enheter) {
+        Rule.unique().custom(async (enheter: any[], { document, client }) => {
+          if (!document || !document.fylke || !enheter) {
             return true;
           }
 
           const validEnheter = await client.fetch(
             "*[_type == 'enhet' && fylke._ref == $fylke]._id",
-            { fylke: document.fylke._ref }
+            { fylke: (document.fylke as any)._ref }
           );
 
           const paths = enheter
@@ -213,11 +209,11 @@ export default {
       fylke: "fylke.navn",
     },
     prepare: (selection) => {
-      const { title, tiltakstypeNavn, fylke } = selection;
+      const { title, tiltakstypeNavn, fylke } = selection as any;
       return {
         title,
         subtitle: `${fylke} - ${tiltakstypeNavn}`,
       };
     },
   },
-};
+});

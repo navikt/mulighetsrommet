@@ -1,27 +1,27 @@
-import { defineField, defineType } from "sanity";
+import { defineType } from "sanity";
 
 export default defineType({
   name: "innsatsgruppe",
   title: "Innsatsgruppe",
   type: "document",
   fields: [
-    defineField({
+    {
       name: "tittel",
       title: "Tittel",
       type: "string",
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
+    },
+    {
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "string",
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
+    },
+    {
       name: "order",
       title: "Rekkefølge",
       type: "number",
-    }),
+    },
   ],
   preview: {
     select: {

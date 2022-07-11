@@ -1,6 +1,7 @@
 import { BiBuildings } from "react-icons/bi";
+import { defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "arrangor",
   title: "Arrangør",
   type: "document",
@@ -35,4 +36,4 @@ export default {
       title: "selskapsnavn",
     },
   },
-};
+});

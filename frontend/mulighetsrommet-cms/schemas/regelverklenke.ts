@@ -1,6 +1,7 @@
 import { GrLink } from "react-icons/gr";
+import { defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "regelverklenke",
   title: "Regelverk lenke",
   type: "document",
@@ -10,7 +11,9 @@ export default {
       name: "regelverkUrl",
       title: "Regelverk URL",
       type: "url",
-      placeholder: "https://www...",
+      options: {
+        placeholder: "https://www...",
+      },
     },
     {
       name: "regelverkLenkeNavn",
@@ -18,8 +21,8 @@ export default {
       description: "Hvilket navn skal vises i lenken?",
       type: "string",
       validation: (Rule) =>
-        Rule.custom((field, context) =>
-          context.document.regelverkUrl && field === undefined
+        Rule.custom((field, { document }) =>
+          document?.regelverkUrl && field === undefined
             ? "Dette feltet kan ikke være tomt."
             : true
         ),
@@ -31,4 +34,4 @@ export default {
       title: "regelverkLenkeNavn",
     },
   },
-};
+});
