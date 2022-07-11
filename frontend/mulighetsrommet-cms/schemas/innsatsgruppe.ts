@@ -1,6 +1,6 @@
-import { Rule } from "@sanity/types";
+import { defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "innsatsgruppe",
   title: "Innsatsgruppe",
   type: "document",
@@ -9,13 +9,13 @@ export default {
       name: "tittel",
       title: "Tittel",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (Rule) => Rule.required(),
     },
     {
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (Rule) => Rule.required(),
     },
     {
       name: "order",
@@ -35,11 +35,11 @@ export default {
       order: "order",
     },
     prepare: (selection) => {
-      const { title, order } = selection;
+      const { title, order } = selection as Record<string, string>;
       return {
         title,
         subtitle: `Sorteringsrekkefølge = ${order}`,
       };
     },
   },
-};
+});

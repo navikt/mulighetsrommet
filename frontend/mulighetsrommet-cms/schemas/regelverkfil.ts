@@ -1,6 +1,7 @@
 import { GrDocument } from "react-icons/gr";
+import { defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "regelverkfil",
   title: "Regelverk fil",
   type: "document",
@@ -17,11 +18,11 @@ export default {
       description: "Hvilket navn skal vises til filen?",
       type: "string",
       validation: (Rule) =>
-          Rule.custom((field, context) =>
-              context.document.regelverkFilOpplastning && field === undefined
-                  ? "Dette feltet kan ikke være tomt."
-                  : true
-          ),
+        Rule.custom((field, { document }) =>
+          document?.regelverkFilOpplastning && field === undefined
+            ? "Dette feltet kan ikke være tomt."
+            : true
+        ),
       hidden: ({ document }) => !document?.regelverkFilOpplastning,
     },
   ],
@@ -30,4 +31,4 @@ export default {
       title: "regelverkFilNavn",
     },
   },
-};
+});

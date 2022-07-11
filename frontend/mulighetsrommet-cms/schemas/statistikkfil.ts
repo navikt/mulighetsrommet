@@ -1,6 +1,7 @@
 import { GrDocument } from "react-icons/gr";
+import { defineType } from "sanity";
 
-export default {
+export default defineType({
   name: "statistikkfil",
   title: "Statistikkfil",
   type: "document",
@@ -12,4 +13,4 @@ export default {
       type: "file",
     },
   ],
-};
+});
