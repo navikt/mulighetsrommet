@@ -26,6 +26,21 @@ export default createConfig([
     basePath: "/prod",
 
     plugins: [mulighetsrommetConfig()],
+
+    // auth: createAuthStore({
+    //   projectId: "xegcworx",
+    //   dataset: "production",
+    //   redirectOnSingle: false,
+    //   mode: "replace",
+    //   providers: [
+    //     {
+    //       name: "saml",
+    //       title: "NAV SSO",
+    //       url: "https://api.sanity.io/v2021-10-01/auth/saml/login/f3270b37",
+    //       logo: "/static/navlogo.svg",
+    //     },
+    //   ],
+    // }),
   },
   {
     name: "dev",
@@ -36,5 +51,20 @@ export default createConfig([
     basePath: "/dev",
 
     plugins: [mulighetsrommetConfig()],
+
+    // auth: createAuthStore({
+    //   projectId: "xegcworx",
+    //   dataset: "production",
+    //   redirectOnSingle: false,
+    //   mode: "replace",
+    //   providers: [
+    //     {
+    //       name: "saml",
+    //       title: "NAV SSO",
+    //       url: "https://api.sanity.io/v2021-10-01/auth/saml/login/f3270b37",
+    //       logo: "/static/navlogo.svg",
+    //     },
+    //   ],
+    // }),
   },
 ]);
