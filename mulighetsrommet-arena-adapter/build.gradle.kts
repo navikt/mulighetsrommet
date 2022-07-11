@@ -1,3 +1,4 @@
+
 plugins {
     application
     kotlin("jvm")
@@ -6,6 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
     id("com.adarshr.test-logger")
+    id("com.github.node-gradle.node") version "3.4.0"
 }
 
 application {
@@ -86,6 +88,14 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+node {
+    version.set("16.16.0")
+    download.set(false)
+    workDir.set(File("src/main/resources/web"))
+    npmWorkDir.set(File("src/main/resources/web"))
+    nodeProjectDir.set(File("src/main/resources/web"))
 }
 
 flyway {
