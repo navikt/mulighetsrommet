@@ -51,10 +51,7 @@ before('Start server', () => {
     console.log(err);
     return false;
   });
-  cy.route({
-    method: 'GET',
-    url: '/',
-  });
+
   cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
 });
 
