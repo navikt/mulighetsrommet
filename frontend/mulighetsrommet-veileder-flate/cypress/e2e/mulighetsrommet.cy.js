@@ -119,7 +119,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
 describe('Feilmelding når vi ikke kan hente brukers oppfølgingsenhet', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/api/v1/bruker/*', 'lol').as('getBrukerdata');
+    cy.intercept('GET', '**/api/v1/bruker/*', {}).as('getBrukerdata');
     cy.visit('/');
   });
   it('Skal vise feilmelding dersom oppfølgingsenhet ikke kan vises', () => {
