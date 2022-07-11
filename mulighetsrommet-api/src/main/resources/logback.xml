@@ -16,7 +16,7 @@
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
     </root>
-    <logger name="no.nav.mulighetsrommet" level="DEBUG"/>
+    <logger name="no.nav.mulighetsrommet" level="INFO"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
 </configuration>
