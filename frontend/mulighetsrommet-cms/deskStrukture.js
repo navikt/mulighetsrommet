@@ -46,6 +46,23 @@ export default () =>
                         .params({ enhet })
                     )
                 ),
+              S.listItem()
+                .title("Per tiltakstype")
+                .child(
+                  S.documentTypeList("tiltakstype")
+                    .title("Per tiltakstype")
+                    .defaultOrdering([
+                      { field: "tiltakstypeNavn", direction: "asc" },
+                    ])
+                    .child((tiltakstype) =>
+                      S.documentList()
+                        .title("Tiltaksgjennomføringer")
+                        .filter(
+                          '_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref'
+                        )
+                        .params({ tiltakstype })
+                    )
+                ),
             ])
         ),
 
