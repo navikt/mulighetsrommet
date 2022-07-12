@@ -17,6 +17,13 @@ const TiltaksdetaljerFane = () => {
 
   const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor, faneinnhold } = data;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
+  const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
+    'tab1': faneoverskrifter[0],
+    'tab2': faneoverskrifter[1],
+    'tab3': faneoverskrifter[2],
+    'tab4': faneoverskrifter[3],
+    'tab5': faneoverskrifter[4],
+  }
 
   return (
     <Tabs
@@ -25,7 +32,7 @@ const TiltaksdetaljerFane = () => {
       selectionFollowsFocus
       className="fane__root"
       onChange={value => {
-        logEvent('mulighetsrommet.faner', { value });
+        logEvent('mulighetsrommet.faner', { value: tabValueTilFaneoverSkrifter[value] ?? value });
         setFane(value);
       }}
     >

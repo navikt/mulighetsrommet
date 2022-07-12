@@ -33,7 +33,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       ? valgteTypeIDer.concat(value)
       : valgteTypeIDer.filter((id: string) => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
-    logEvent('mulighetsrommet.filtrering', { filtertypeTittel });
+    logEvent(`mulighetsrommet.filtrering.${accordionNavn.toLowerCase()}`, { filtertypeTittel });
   };
 
   const checkbox = (filtertype: T) => {
