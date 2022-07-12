@@ -35,6 +35,6 @@ fun Route.frontendLoggerRoutes() {
 @Serializable
 data class FrontendEvent(
     var name: String,
-    var fields: Map<String, String>,
-    var tags: Map<String, String>
+    var fields: Map<String, String> = emptyMap(),
+    var tags: Map<String, String> = emptyMap()
 )
