@@ -1,53 +1,121 @@
 import {
   Box,
-  Container,
-  FormControl,
-  FormLabel,
+  Button,
+  Center,
+  Flex,
   Heading,
-  LinkBox,
-  LinkOverlay,
-  SimpleGrid,
-  Stack,
+  Spinner,
   Switch,
-  Text,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  VStack,
 } from "@chakra-ui/react";
 import type React from "react";
-import { Fragment } from "react";
+import { useEffect, useState } from "react";
+import { getTopics } from "./api";
+import { Layout } from "./components/Layout";
+import { Topic } from "./domain";
 
-const Layout = ({ children }: React.PropsWithChildren) => (
-  <Box as="main" w="100%">
-    <Container mt="8" maxW="container.lg">
-      <LinkBox mb="8">
-        <LinkOverlay href="https://youtu.be/RJHctyXPmkg?t=5">
-          <Heading size="4xl">MAAM</Heading>
-        </LinkOverlay>
-        <Heading size="xs">mulighetsrommet-arena-adapter-manager</Heading>
-      </LinkBox>
-      {children}
-    </Container>
-  </Box>
-);
+function useTopics() {
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const fetchedTopics = async () => {
+      const t = await getTopics();
+      setTopics(t);
+      setIsLoading(false);
+    };
+    fetchedTopics();
+  }, []);
+  return { topics, isLoading, setTopics };
+}
+
+function saveRunningState(topics: Topic[]) {
+  fetch("http://localhost:8084/manager/topics", {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(topics),
+  }).then((response) => {
+    if (response.ok) {
+      useTopics();
+    }
+  });
+}
 
 function TopicEnableDisable() {
-  // TODO: Bytt ut med fetch
-  const topics = [
-    "teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2",
-    "teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2",
-    "teamarenanais.aapen-arena-tiltakendret-v1-q2",
-    "teamarenanais.aapen-arena-sakendret-v1-q2",
-  ];
+  const { topics, isLoading, setTopics } = useTopics();
+
+  const setRunningState = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const changedTopics = [...topics];
+    changedTopics[
+      changedTopics.map((t) => t.topic).indexOf(event.currentTarget.name)
+    ].running = event.currentTarget.checked;
+    setTopics(changedTopics);
+  };
+
   return (
     <Box>
-      <Heading mb="4">Topic control</Heading>
+      <Heading mb="4" size="lg">
+        Topic overview
+      </Heading>
       <Box boxShadow="sm" p="5" borderWidth="1px" rounded="md">
-        <FormControl as={SimpleGrid} columns={{ base: 0, lg: 2 }} spacing={2}>
-          {topics.map((topic) => (
-            <Fragment key={topic}>
-              <FormLabel>{topic}</FormLabel>
-              <Switch size="lg" />
-            </Fragment>
-          ))}
-        </FormControl>
+        {isLoading ? (
+          <Box w="100%" minH="15rem">
+            <Center h="15rem">
+              <VStack>
+                <Spinner thickness="4px" color="pink.500" size="xl" my="2" />
+                <Heading size="sm">Fetching topics...</Heading>
+              </VStack>
+            </Center>
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Type</Th>
+                  <Th>Topic</Th>
+                  <Th>Running</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {topics.map((topic) => (
+                  <Tr key={topic.id}>
+                    <Td>{topic.name}</Td>
+                    <Td>{topic.type}</Td>
+                    <Td>
+                      <strong>{topic.topic}</strong>
+                    </Td>
+                    <Td>
+                      <Switch
+                        colorScheme="pink"
+                        name={topic.topic}
+                        defaultChecked={topic.running}
+                        onChange={setRunningState}
+                        size="lg"
+                      />
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        )}
+        <Box mt="6">
+          <Flex justifyContent="end">
+            <Button colorScheme="pink" onClick={() => saveRunningState(topics)}>
+              Save
+            </Button>
+          </Flex>
+        </Box>
       </Box>
     </Box>
   );

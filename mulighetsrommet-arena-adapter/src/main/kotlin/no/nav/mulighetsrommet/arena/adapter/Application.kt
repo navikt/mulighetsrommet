@@ -13,7 +13,8 @@ import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
-import no.nav.mulighetsrommet.arena.adapter.routes.managementRoutes
+import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -67,9 +68,11 @@ fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, d
     configureMonitoring()
     configureHTTP()
 
+    val topicService = TopicService(db)
+
     routing {
         internalRoutes(db)
-        managementRoutes()
+        managerRoutes(topicService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {

@@ -15,8 +15,8 @@ app:
     user: ${DB_USERNAME:-valp}
     password: ${DB_PASSWORD:-valp}
 
-  enableKafkaTopicConsumption: ${ENABLE_KAFKA_TOPIC_CONSUMPTION:-true}
-  enableFailedRecordProcessor: ${ENABLE_FAILED_RECORD_PROCESSOR:-true}
+  enableKafkaTopicConsumption: ${ENABLE_KAFKA_TOPIC_CONSUMPTION:-false}
+  enableFailedRecordProcessor: ${ENABLE_FAILED_RECORD_PROCESSOR:-false}
 
   kafka:
     brokers: ${KAFKA_BROKERS:-localhost:29092}
