@@ -24,7 +24,7 @@ export default function useTiltaksgjennomforing() {
     kontaktinfoArrangor->,
     tiltakstype->
   }`,
-    brukerdata?.data
+    !!brukerdata?.data
   );
 }
 
