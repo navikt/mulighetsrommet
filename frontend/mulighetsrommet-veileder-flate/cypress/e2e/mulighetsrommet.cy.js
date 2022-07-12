@@ -53,8 +53,9 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Filtrer på søkefelt', () => {
-    cy.getByTestId('filter_sokefelt').type('Digitalt');
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.fjernFilter('situasjonsbestemt-innsats');
+    cy.getByTestId('filter_sokefelt').type('AFT');
+    cy.getByTestId('filtertags').children().should('have.length', 2);
 
     cy.wait(1000)
       .getByTestId('antall-tiltak')
@@ -70,6 +71,13 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.sortering('tabellheader_tiltaksnummer');
     cy.sortering('tabellheader_oppstartsdato');
     cy.sortering('tabellheader_status');
+  });
+
+  it('Skal vise tilbakestill filter-knapp når filter utenfor normalen', () => {
+    cy.velgFilter('situasjonsbestemt-innsats');
+    cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
+    cy.fjernFilter('situasjonsbestemt-innsats');
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist');
   });
 });
 

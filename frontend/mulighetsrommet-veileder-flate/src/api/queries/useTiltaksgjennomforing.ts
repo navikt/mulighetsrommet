@@ -1,11 +1,14 @@
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
 import { Tiltaksgjennomforing } from '../models';
+import { useHentBrukerdata } from './useHentBrukerdata';
 import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
-  return useSanity<Tiltaksgjennomforing[]>(`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
+  const brukerdata = useHentBrukerdata();
+  return useSanity<Tiltaksgjennomforing[]>(
+    `*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)} 
@@ -20,7 +23,9 @@ export default function useTiltaksgjennomforing() {
     tiltaksnummer,
     kontaktinfoArrangor->,
     tiltakstype->
-  }`);
+  }`,
+    !!brukerdata?.data
+  );
 }
 
 function byggInnsatsgruppeFilter(innsatsgrupper: Tiltaksgjennomforingsfiltergruppe[]): string {
