@@ -79,6 +79,12 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.fjernFilter('situasjonsbestemt-innsats');
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
   });
+
+  it('Skal kunne navigere mellom sider via paginering', () => {
+    cy.getByTestId('paginering').should('exist');
+    cy.get('nav[data-testid=paginering] ul li').eq(2).children().eq(0).should('not.have.attr', 'aria-current');
+    cy.get('nav[data-testid=paginering] ul li').eq(3).click().children().eq(0).should('have.attr', 'aria-current');
+  });
 });
 
 describe('Tiltaksgjennomføringstabell', () => {
