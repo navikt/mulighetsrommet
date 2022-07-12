@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.plugins
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
-import no.nav.common.metrics.InfluxClient
-import no.nav.common.metrics.MetricsClient
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
@@ -79,7 +77,6 @@ private fun services(
     single { TiltaksgjennomforingService(get(), logger) }
     single { TiltakstypeService(get(), logger) }
     single { InnsatsgruppeService(get(), logger) }
-    single { InfluxClient() as MetricsClient }
     single { SanityService(appConfig.sanity, get()) }
     single {
         BrukerService(

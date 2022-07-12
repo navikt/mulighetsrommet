@@ -62,7 +62,6 @@ dependencies {
 
     val navCommonModules = "2.2022.05.05_06.41-84855089824b"
     implementation("no.nav.common:token-client:$navCommonModules")
-    implementation("no.nav.common:metrics:$navCommonModules")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
 
