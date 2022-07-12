@@ -6,5 +6,6 @@ export default defineConfig({
   base: './',
   build: {
     manifest: 'asset-manifest.json',
+    chunkSizeWarningLimit: 1400,
   },
 });
