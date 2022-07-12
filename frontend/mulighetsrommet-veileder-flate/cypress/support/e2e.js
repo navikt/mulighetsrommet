@@ -64,6 +64,11 @@ Cypress.Commands.add('velgFilter', filternavn => {
   cy.getByTestId(`filtertag_${filternavn}`).should('exist');
 });
 
+Cypress.Commands.add('fjernFilter', filternavn => {
+  cy.getByTestId(`filter_checkbox_${filternavn}`).should('be.checked').click().should('not.be.checked');
+  cy.getByTestId(`filtertag_${filternavn}`).should('not.exist');
+});
+
 Cypress.Commands.add('apneLukketFilterAccordion', (filternavn, apne) => {
   if (apne) {
     cy.getByTestId(`filter_accordionheader_${filternavn}`).click();

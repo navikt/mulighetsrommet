@@ -197,7 +197,7 @@ function opprettTiltaksgjennomforing(
       : undefined;
   const lokasjon = brukFakeData ? faker.address.street() : row[5];
   const navKontorer = brukFakeData
-    ? "lillestrøm"
+    ? null
     : row[6]
         ?.toLowerCase()
         .replace(/\d/g, "")
@@ -294,7 +294,7 @@ function opprettTiltaksgjennomforing(
     oppstartsdato: oppstartsdato,
     tiltaksgjennomforingNavn: tiltaksgjennomforingsnavn,
     fylke: fylkeReference,
-    enheter: enheterMatchet?.length === 0 ? null : enheterMatchet,
+    enheter: enheterMatchet?.length === 0 ? undefined : enheterMatchet,
     faneinnhold: {
       _type: "object",
       detaljerOgInnholdInfoboks: "",
