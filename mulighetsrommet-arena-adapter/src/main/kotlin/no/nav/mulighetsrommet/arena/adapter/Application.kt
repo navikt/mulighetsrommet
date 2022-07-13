@@ -71,7 +71,7 @@ fun Application.configure(config: AppConfig, db: Database, kafka: KafkaConsumerO
     configureMonitoring()
     configureHTTP()
 
-    val topicService = TopicService(db)
+    val topicService = TopicService(db, kafka.consumers)
 
     routing {
         internalRoutes(db)

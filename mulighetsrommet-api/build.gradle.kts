@@ -90,6 +90,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.github.seratch:kotliquery:1.6.2")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+
     implementation("no.nav.security:mock-oauth2-server:0.4.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
 

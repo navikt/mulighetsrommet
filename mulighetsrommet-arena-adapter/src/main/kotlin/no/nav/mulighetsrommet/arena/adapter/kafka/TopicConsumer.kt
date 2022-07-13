@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter.kafka
 import kotlinx.serialization.json.JsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.Database
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 
@@ -11,8 +10,7 @@ abstract class TopicConsumer<T>(private val db: Database) {
     abstract val logger: Logger
     abstract val topic: String
 
-    fun processEvent(event: ConsumerRecord<String, JsonElement>) {
-        val payload = event.value()
+    fun processEvent(payload: JsonElement) {
         val parsedPayload = toDomain(payload)
         if (shouldProcessEvent(parsedPayload)) {
             val key = resolveKey(parsedPayload)
@@ -22,6 +20,16 @@ abstract class TopicConsumer<T>(private val db: Database) {
 
             logger.debug("Handling event: topic=$topic, key=$key")
             handleEvent(parsedPayload)
+        }
+    }
+
+    fun replayEvent(payload: JsonElement) {
+        val parsedEvent = toDomain(payload)
+        if (shouldProcessEvent(parsedEvent)) {
+            val key = resolveKey(parsedEvent)
+
+            logger.debug("Replaying event: topic=$topic, key=$key")
+            handleEvent(parsedEvent)
         }
     }
 

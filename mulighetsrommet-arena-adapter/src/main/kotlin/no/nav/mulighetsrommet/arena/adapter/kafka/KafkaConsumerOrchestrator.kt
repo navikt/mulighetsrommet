@@ -16,7 +16,7 @@ import java.util.function.Consumer
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     db: Database,
-    private val consumers: List<TopicConsumer<*>>
+    val consumers: List<TopicConsumer<*>>
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
@@ -73,7 +73,7 @@ class KafkaConsumerOrchestrator(
                     stringDeserializer(),
                     JsonElementDeserializer(),
                     Consumer { event ->
-                        consumer.processEvent(event)
+                        consumer.processEvent(event.value())
                     }
                 )
         }
