@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/person/([\\d\\D]*)/oppfolgingsstatus"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "oppfolgingsenhet": {
+        "navn": "NAV Fredrikstad",
+        "enhetId": "0106"
+      },
+      "veilederId": null,
+      "formidlingsgruppe": "ARBS",
+      "servicegruppe": "BATT",
+      "hovedmaalkode": "SKAFFEA"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

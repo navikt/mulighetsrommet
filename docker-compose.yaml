@@ -123,6 +123,7 @@ services:
     volumes:
       - ./mulighetsrommet-arena-adapter/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-arena-adapter
       - ./mulighetsrommet-arena-ords-proxy/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-arena-ords-proxy
+      - ./mulighetsrommet-api/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-api
 
 volumes:
   mulighetsrommet-api:
