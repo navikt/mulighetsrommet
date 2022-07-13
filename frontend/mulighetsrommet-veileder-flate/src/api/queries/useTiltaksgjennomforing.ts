@@ -1,3 +1,4 @@
+import groq from 'groq';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
 import { Tiltaksgjennomforing } from '../models';
@@ -8,7 +9,7 @@ export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
   return useSanity<Tiltaksgjennomforing[]>(
-    `*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
+    groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)} 
