@@ -1,7 +1,6 @@
-import React from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import BarChart from './BarChart';
+import useResizeObserver from 'use-resize-observer';
 import '../TiltaksdetaljerFane.less';
+import BarChart from './BarChart';
 
 export type InnsiktsFaneProps = {
   tiltakstype: string;
@@ -10,12 +9,13 @@ export type InnsiktsFaneProps = {
 const tiltakstyperMedStatistikk = ['Oppfølging', 'Digital Oppfølging', 'Avklaring', 'ARR', 'AFT', 'Jobbklubb'];
 
 const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
+  const { ref, width = 500 } = useResizeObserver<HTMLDivElement>({});
   return (
     <div className={'tiltaksdetaljer__maksbredde'}>
       {tiltakstyperMedStatistikk.includes(tiltakstype) && (
-          <AutoSizer disableHeight>
-            {({ width }) => <BarChart tiltakstype={tiltakstype} width={width} height={300} />}
-          </AutoSizer>
+        <div ref={ref}>
+          <BarChart tiltakstype={tiltakstype} width={width} height={300} />
+        </div>
       )}
     </div>
   );

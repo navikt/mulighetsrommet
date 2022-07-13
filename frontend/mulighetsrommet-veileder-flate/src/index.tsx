@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import React from 'react';
 import App from './App';
 import '@navikt/ds-css';
@@ -19,8 +19,10 @@ if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
 Navspa.eksporter(APPLICATION_NAME, App);
 
 // Only mount the application when the root node is available
-const root = document.getElementById(APPLICATION_NAME);
-if (root) {
+const container = document.getElementById(APPLICATION_NAME);
+if (container) {
+  const root = createRoot(container);
   const MulighetsrommetVeilederFlate = Navspa.importer(APPLICATION_NAME);
-  ReactDOM.render(React.createElement(MulighetsrommetVeilederFlate), root);
+
+  root.render(<MulighetsrommetVeilederFlate />);
 }
