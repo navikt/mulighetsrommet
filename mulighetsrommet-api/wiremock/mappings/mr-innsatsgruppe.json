@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/siste-14a-vedtak",
+    "queryParameters": {
+      "fnr": {
+        "matches": "[\\d\\D]*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "innsatsgruppe": "SITUASJONSBESTEMT_INNSATS"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

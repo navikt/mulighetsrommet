@@ -22,13 +22,12 @@ app:
         wellKnownConfigurationUrl: ${AZURE_APP_WELL_KNOWN_URL:-https://fakedings.dev-gcp.nais.io/fake/.well-known/openid-configuration}
 
   veilarbvedtaksstotteConfig:
-    url: ${VEILARBVEDTAKSSTOTTE_URL:-https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api}
-    scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
+    url: ${VEILARBVEDTAKSSTOTTE_URL:-http://localhost:8090}
+    scope: ${VEILARBVEDTAKSSTOTTE_SCOPE:-default}
 
   veilarboppfolgingConfig:
-    url: ${VEILARBOPPFOLGING_URL:-https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api}
-    scope: api://dev-fss.pto.veilarboppfolging/.default
-
+    url: ${VEILARBOPPFOLGING_URL:-http://localhost:8090}
+    scope: ${VEILARBOPPFOLGING_SCOPE:-default}
 
   sanity:
     dataset: ${SANITY_DATASET:-test}
