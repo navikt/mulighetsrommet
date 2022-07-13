@@ -37,18 +37,17 @@ export default {
       title: "Varighet",
       type: "string",
     },
-    //TODO skal kunne legge til flere lenker og filer
     {
       name: "regelverkFiler",
       title: "Regelverk filer",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }]
+      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }],
     },
     {
       name: "regelverkLenker",
       title: "Regelverk lenker",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }]
+      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }],
     },
     //Faneinnhold
     {

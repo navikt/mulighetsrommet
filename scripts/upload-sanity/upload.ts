@@ -54,7 +54,6 @@ async function deleteTyper(
 
 // Tiltakstypene er allerede definert i Sanity, så de kan vi hente før vi starter populering av csv-fil.
 async function fetchTiltakstyperFraSanity(): Promise<SanityTiltakstype[]> {
-  // TODO Fiks så vi kan hente tiltakstyper fra Sanity - Trenger bare hente én gang. Nå henter vi for hver rad i excel...
   console.log(colors.green("Henter tiltakstyper..."));
   const data = await client.fetch("*[_type == 'tiltakstype']");
   return Promise.resolve(data);
