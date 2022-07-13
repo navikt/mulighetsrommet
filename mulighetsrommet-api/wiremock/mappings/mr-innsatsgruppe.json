@@ -11,37 +11,7 @@
   "response": {
     "status": 200,
     "jsonBody": {
-      "fnr": "12118323058",
-      "aktorId": "1190915074395",
-      "veilederId": null,
-      "reservasjonKRR": false,
-      "kanVarsles": false,
-      "manuell": false,
-      "underOppfolging": true,
-      "underKvp": false,
-      "oppfolgingUtgang": null,
-      "kanStarteOppfolging": false,
-      "avslutningStatus": null,
-      "oppfolgingsPerioder": [
-        {
-          "uuid": "abdc3bad-a719-415a-a791-92f65657f9a2",
-          "aktorId": "1190915074395",
-          "veileder": null,
-          "startDato": "2022-07-05T13:23:08.251279+02:00",
-          "sluttDato": null,
-          "begrunnelse": null,
-          "kvpPerioder": []
-        }
-      ],
-      "harSkriveTilgang": true,
-      "inaktivIArena": false,
-      "kanReaktiveres": null,
-      "inaktiveringsdato": null,
-      "erSykmeldtMedArbeidsgiver": false,
-      "servicegruppe": "BATT",
-      "formidlingsgruppe": "ARBS",
-      "rettighetsgruppe": "IYT",
-      "erIkkeArbeidssokerUtenOppfolging": false
+      "innsatsgruppe": "SITUASJONSBESTEMT_INNSATS"
     },
     "headers": {
       "Content-Type": "application/json"

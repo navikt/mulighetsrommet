@@ -9,11 +9,7 @@
       "oppfolgingsenhet": {
         "navn": "NAV Fredrikstad",
         "enhetId": "0106"
-      },
-      "veilederId": null,
-      "formidlingsgruppe": "ARBS",
-      "servicegruppe": "BATT",
-      "hovedmaalkode": "SKAFFEA"
+      }
     },
     "headers": {
       "Content-Type": "application/json"
