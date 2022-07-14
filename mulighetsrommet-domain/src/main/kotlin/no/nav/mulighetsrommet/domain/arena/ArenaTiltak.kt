@@ -28,7 +28,7 @@ data class ArenaTiltak (
     val OPPLAERINGSGRUPPE: String?,
     val HANDLINGSPLAN: String?,
     val STATUS_SLUTTDATO: String?,
-    val MAKS_PERIODE: String?,
+    val MAKS_PERIODE: Int?,
     val STATUS_MELDEPLIKT: String?,
     val STATUS_VEDTAK: String?,
     val STATUS_IA_AVTALE: String?,
