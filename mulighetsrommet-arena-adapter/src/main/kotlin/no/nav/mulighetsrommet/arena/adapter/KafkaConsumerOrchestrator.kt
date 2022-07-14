@@ -15,8 +15,8 @@ import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
-    private val db: Database,
-    private val consumers: List<TopicConsumer<out Any, in Any>>
+    db: Database,
+    private val consumers: List<TopicConsumer<*>>
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
@@ -73,17 +73,7 @@ class KafkaConsumerOrchestrator(
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> { event ->
-                        val payload = consumer.toDomain(event.value())
-                        val key = consumer.resolveKey(payload)
-                        if (consumer.shouldProcessEvent(payload)) {
-                            db.persistKafkaEvent(
-                                event.topic(),
-                                key,
-                                event.value()
-                            )
-
-                            consumer.processEvent(payload)
-                        }
+                        consumer.processEvent(event)
                     }
                 )
         }

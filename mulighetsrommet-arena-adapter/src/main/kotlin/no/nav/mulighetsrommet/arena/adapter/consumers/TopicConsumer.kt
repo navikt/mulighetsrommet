@@ -1,13 +1,33 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-abstract class TopicConsumer<out T, in V> {
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import no.nav.mulighetsrommet.arena.adapter.Database
+import org.apache.kafka.clients.consumer.ConsumerRecord
+
+abstract class TopicConsumer<T>(private val db: Database) {
     abstract val topic: String
 
-    open fun shouldProcessEvent(payload: V): Boolean = true
+    fun processEvent(event: ConsumerRecord<String, String>) {
+        val eventPayload = Json.parseToJsonElement(event.value())
+        val decodedPayload = toDomain(eventPayload)
+        if (shouldProcessEvent(decodedPayload)) {
+            val key = resolveKey(decodedPayload)
+            db.persistKafkaEvent(
+                event.topic(),
+                key,
+                event.value()
+            )
 
-    abstract fun resolveKey(payload: V): String
+            handleEvent(decodedPayload)
+        }
+    }
 
-    abstract fun processEvent(payload: V)
+    protected abstract fun toDomain(payload: JsonElement): T
 
-    abstract fun toDomain(payload: String): T
+    protected open fun shouldProcessEvent(payload: T): Boolean = true
+
+    protected abstract fun resolveKey(payload: T): String
+
+    protected abstract fun handleEvent(payload: T)
 }
