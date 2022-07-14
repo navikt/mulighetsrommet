@@ -7,6 +7,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
+import no.nav.mulighetsrommet.domain.DateSerializer
+import java.time.LocalDateTime
 
 fun Route.apiRoutes(
     topicService: TopicService
@@ -19,7 +21,7 @@ fun Route.apiRoutes(
     put("api/topics") {
         val request = call.receive<ReplayTopicEventsRequest>()
 
-        topicService.replayEvents(topic = request.topic)
+        topicService.replayEvents(topic = request.topic, since = request.since)
 
         call.respond(HttpStatusCode.Created)
     }
@@ -28,6 +30,6 @@ fun Route.apiRoutes(
 @Serializable
 data class ReplayTopicEventsRequest(
     val topic: String,
-    val offset: Int? = null,
-    val key: String? = null,
+    @Serializable(DateSerializer::class)
+    val since: LocalDateTime? = null,
 )

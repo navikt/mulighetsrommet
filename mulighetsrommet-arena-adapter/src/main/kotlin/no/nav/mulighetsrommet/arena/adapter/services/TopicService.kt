@@ -37,21 +37,21 @@ class TopicService(
             .let { db.run(it) }
     }
 
-    suspend fun replayEvents(topic: String) = coroutineScope {
+    suspend fun replayEvents(topic: String, since: LocalDateTime?) = coroutineScope {
         logger.info("Replaying events from topic '{}'", topic)
 
         val relevantConsumers = consumers.filter { it.topic == topic }
 
         val events = produce(capacity = capacity) {
-            var prevEvent: Event? = null
+            var prevEventTime: LocalDateTime? = since
             do {
-                getEvents(topic, amount = capacity, since = prevEvent?.createdAt)
-                    .also { prevEvent = it.lastOrNull() }
+                getEvents(topic, amount = capacity, since = prevEventTime)
+                    .also { prevEventTime = it.lastOrNull()?.createdAt }
                     .forEach {
                         logger.info("Sending event {}", it.id)
                         send(it)
                     }
-            } while (isActive && prevEvent != null)
+            } while (isActive && prevEventTime != null)
 
             logger.info("All events produced, closing channel...")
             close()
@@ -71,7 +71,7 @@ class TopicService(
             .awaitAll()
     }
 
-    private fun getEvents(topic: String, amount: Int, since: LocalDateTime? = null): List<Event> {
+    private fun getEvents(topic: String, amount: Int, since: LocalDateTime?): List<Event> {
         logger.info("Getting events topic={}, amount={}, since={}", topic, amount, since)
 
         @Language("PostgreSQL")
