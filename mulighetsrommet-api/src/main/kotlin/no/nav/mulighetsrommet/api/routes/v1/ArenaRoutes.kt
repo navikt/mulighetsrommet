@@ -6,10 +6,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.ArenaService
-import no.nav.mulighetsrommet.domain.Deltaker
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltakstype
-import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import no.nav.mulighetsrommet.domain.adapter.AdapterSak
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import org.koin.ktor.ext.inject
 
 fun Route.arenaRoutes() {
@@ -21,7 +21,7 @@ fun Route.arenaRoutes() {
     route("/api/v1/arena/") {
         put("tiltakstyper") {
             runCatching {
-                val tiltakstype = call.receive<Tiltakstype>()
+                val tiltakstype = call.receive<AdapterTiltak>()
                 arenaService.upsertTiltakstype(tiltakstype)
             }.onSuccess { updatedTiltakstype ->
                 call.respond(updatedTiltakstype)
@@ -33,7 +33,7 @@ fun Route.arenaRoutes() {
 
         put("tiltaksgjennomforinger") {
             runCatching {
-                val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
+                val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
                 arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
             }.onSuccess { createdTiltaksgjennomforing ->
                 call.respond(createdTiltaksgjennomforing)
@@ -45,7 +45,7 @@ fun Route.arenaRoutes() {
 
         put("deltakere") {
             runCatching {
-                val deltaker = call.receive<Deltaker>()
+                val deltaker = call.receive<AdapterTiltakdeltaker>()
                 arenaService.upsertDeltaker(deltaker)
             }.onSuccess { createdDeltaker ->
                 call.respond(createdDeltaker)
@@ -57,7 +57,7 @@ fun Route.arenaRoutes() {
 
         put("sak") {
             runCatching {
-                val sak = call.receive<ArenaSak>()
+                val sak = call.receive<AdapterSak>()
                 arenaService.updateTiltaksgjennomforingWithSak(sak)
             }.onSuccess {
                 val response = it ?: HttpStatusCode.NotFound

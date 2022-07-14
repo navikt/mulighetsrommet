@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import kotlinx.serialization.json.JsonElement
-
-abstract class TopicConsumer {
+abstract class TopicConsumer<out T, in V> {
     abstract val topic: String
 
-    open fun shouldProcessEvent(payload: JsonElement): Boolean = true
+    open fun shouldProcessEvent(payload: V): Boolean = true
 
-    abstract fun resolveKey(payload: JsonElement): String
+    abstract fun resolveKey(payload: V): String
 
-    abstract fun processEvent(payload: JsonElement)
+    abstract fun processEvent(payload: V)
+
+    abstract fun toDomain(payload: String): T
 }

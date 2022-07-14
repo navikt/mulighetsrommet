@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import kotlinx.serialization.json.Json
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
@@ -17,7 +16,7 @@ import java.util.function.Consumer
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     private val db: Database,
-    private val consumers: List<TopicConsumer>
+    private val consumers: List<TopicConsumer<out Any, in Any>>
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
@@ -74,7 +73,7 @@ class KafkaConsumerOrchestrator(
                     stringDeserializer(),
                     stringDeserializer(),
                     Consumer<ConsumerRecord<String, String>> { event ->
-                        val payload = Json.parseToJsonElement(event.value())
+                        val payload = consumer.toDomain(event.value())
                         val key = consumer.resolveKey(payload)
                         if (consumer.shouldProcessEvent(payload)) {
                             db.persistKafkaEvent(

@@ -9,7 +9,7 @@ import org.flywaydb.core.Flyway
 
 class Database(databaseConfig: DatabaseConfig) {
 
-    private var db: HikariDataSource
+    var dataSource: HikariDataSource
     var flyway: Flyway
     var session: Session
 
@@ -35,9 +35,9 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.maximumPoolSize = 3
         hikariConfig.validate()
 
-        db = HikariDataSource(hikariConfig)
+        dataSource = HikariDataSource(hikariConfig)
 
-        session = sessionOf(db)
+        session = sessionOf(dataSource)
     }
 
     fun clean() {
