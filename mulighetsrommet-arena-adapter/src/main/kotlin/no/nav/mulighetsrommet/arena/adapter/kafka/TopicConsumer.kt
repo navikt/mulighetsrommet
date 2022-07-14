@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.Database
@@ -12,21 +11,17 @@ abstract class TopicConsumer<T>(private val db: Database) {
     abstract val logger: Logger
     abstract val topic: String
 
-    fun processEvent(event: ConsumerRecord<String, String>) {
-        val eventPayload = Json.parseToJsonElement(event.value())
-        val decodedPayload = toDomain(eventPayload)
-        if (shouldProcessEvent(decodedPayload)) {
-            val key = resolveKey(decodedPayload)
+    fun processEvent(event: ConsumerRecord<String, JsonElement>) {
+        val payload = event.value()
+        val parsedPayload = toDomain(payload)
+        if (shouldProcessEvent(parsedPayload)) {
+            val key = resolveKey(parsedPayload)
 
             logger.debug("Persisting event: topic=$topic, key=$key")
-            persistEvent(
-                event.topic(),
-                key,
-                event.value()
-            )
+            persistEvent(topic, key, payload.toString())
 
             logger.debug("Handling event: topic=$topic, key=$key")
-            handleEvent(decodedPayload)
+            handleEvent(parsedPayload)
         }
     }
 
