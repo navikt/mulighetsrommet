@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.ConfigLoader
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.mulighetsrommet.arena.adapter.consumers.*
+import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey

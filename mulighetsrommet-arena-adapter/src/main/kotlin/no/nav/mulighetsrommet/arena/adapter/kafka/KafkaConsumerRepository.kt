@@ -1,9 +1,10 @@
-package no.nav.mulighetsrommet.arena.adapter
+package no.nav.mulighetsrommet.arena.adapter.kafka
 
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
+import no.nav.mulighetsrommet.arena.adapter.Database
 import org.apache.kafka.common.TopicPartition
 import org.intellij.lang.annotations.Language
 
