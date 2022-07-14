@@ -55,7 +55,7 @@ dependencies {
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
-    val kotestVersion = "5.2.2"
+    val kotestVersion = "5.3.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 

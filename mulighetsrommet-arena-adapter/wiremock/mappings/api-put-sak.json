@@ -1,10 +1,10 @@
 {
   "request": {
-    "method": "POST",
-    "url": "/api/v1/tiltaksgjennomforinger"
+    "method": "PUT",
+    "urlPattern": "/api/v1/arena/sak"
   },
   "response": {
-    "status": 201,
+    "status": 200,
     "headers": {
       "Content-Type": "application/json"
     }

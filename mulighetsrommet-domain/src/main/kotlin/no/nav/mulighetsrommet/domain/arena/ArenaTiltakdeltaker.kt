@@ -22,7 +22,7 @@ data class ArenaTiltakdeltaker (
     val DATO_FRA: String,
     val DATO_TIL: String,
     val BEGRUNNELSE_STATUS: String?,
-    val PROSENT_DELTID: Int?,
+    val PROSENT_DELTID: Double?,
     val BRUKERID_STATUSENDRING: String?,
     val DATO_STATUSENDRING: String?,
     val AKTIVITET_ID: Int?,
