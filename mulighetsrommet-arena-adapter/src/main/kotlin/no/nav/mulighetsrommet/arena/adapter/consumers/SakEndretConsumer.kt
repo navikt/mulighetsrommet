@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.arena.adapter.Database
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class SakEndretConsumer(
@@ -17,7 +18,7 @@ class SakEndretConsumer(
     private val client: MulighetsrommetApiClient
 ) : TopicConsumer<ArenaSak>(db) {
 
-    private val logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
+    override val logger: Logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
 
     override fun toDomain(payload: JsonElement): ArenaSak {
         return Json.decodeFromJsonElement(payload.jsonObject["after"]!!)

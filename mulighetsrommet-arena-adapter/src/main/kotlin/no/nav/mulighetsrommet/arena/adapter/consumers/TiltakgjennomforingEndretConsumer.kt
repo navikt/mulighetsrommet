@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.arena.ArenaTiltaksgjennomforing
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakgjennomforingEndretConsumer(
@@ -18,7 +19,7 @@ class TiltakgjennomforingEndretConsumer(
     private val client: MulighetsrommetApiClient
 ) : TopicConsumer<ArenaTiltaksgjennomforing>(db) {
 
-    private val logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
+    override val logger: Logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
 
     override fun toDomain(payload: JsonElement): ArenaTiltaksgjennomforing {
         return Json.decodeFromJsonElement(payload.jsonObject["after"]!!)
