@@ -4,168 +4,85 @@ info:
   version: 1.0.0
   title: Mulighetsrommet API
 
+servers:
+  - url: /api/v1
+
 security:
   - bearerAuth: [ ]
 
 paths:
-  /internal/ping:
+
+  /bruker/{fnr}:
+    parameters:
+      - $ref: "#/components/parameters/Fnr"
     get:
       tags:
-        - internal
+        - Bruker
+      operationId: getBrukerdata
       responses:
         200:
-          description: API is online and responding
-          content:
-            text/plain:
-              schema:
-                type: string
-                enum: [ PONG ]
-  /api/v1/sanity:
-    get:
-      tags:
-        - mulighetsrommet
-      operationId: sanityQuery
-      parameters:
-        - in: query
-          name: query
-          schema:
-            type: string
-          description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
-          required: true
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
-      responses:
-        200:
-          description: Sanity query result
+          description: Data about the 'bruker' in the context of 'veileder'
           content:
             application/json:
-              schema: { }
-  /api/v1/tiltakstyper:
+              schema:
+                $ref: "#/components/schemas/Bruker"
+        404:
+          description: "Could not find data about 'bruker'"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /innsatsgrupper:
     get:
       tags:
-        - mulighetsrommet
-      operationId: getTiltakstyper
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for tiltakstyper
-        - in: query
-          name: innsatsgrupper
-          schema:
-            type: array
-            items:
-              type: number
-          description: Innsatsgruppefilter
-          style: form
-          explode: false
+        - Innsatsgrupper
+      operationId: getInnsatsgrupper
       responses:
         200:
-          description: Array of tiltakstyper.
+          description: An array of innsatsgrupper
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Tiltakstype"
+                  $ref: "#/components/schemas/Innsatsgruppe"
+
+  /logger/event:
     post:
       tags:
         - mulighetsrommet
-      operationId: createTiltakstype
+      operationId: logFrontendEvent
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Tiltakstype"
-            examples:
-              Tiltakstype:
-                $ref: "#/components/examples/Tiltakstype"
+              $ref: "#/components/schemas/FrontendEvent"
       responses:
         201:
-          description: "Created tiltakstype"
+          description: "Logged frontend event"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltakstype"
+                $ref: "#/components/schemas/FrontendEvent"
+        500:
+          description: "Logging to frontend failed"
+          content:
+            application/json:
+              schema:
+                type: string
 
-  /api/v1/tiltakstyper/{tiltakskode}:
+  /tiltaksgjennomforinger:
     get:
       tags:
-        - mulighetsrommet
-      operationId: getTiltakstype
-      parameters:
-        - $ref: "#/components/parameters/Tiltakskode"
-      responses:
-        200:
-          description: the specified tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
-        404:
-          description: The specified tiltakstype was not found.
-          content:
-            text/plain:
-              schema:
-                type: string
-    put:
-      tags:
-        - mulighetsrommet
-      operationId: updateTiltakstype
-      parameters:
-        - $ref: "#/components/parameters/Tiltakskode"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Tiltakstype"
-            examples:
-              Tiltakstype:
-                $ref: "#/components/examples/Tiltakstype"
-      responses:
-        200:
-          description: "Updated tiltakstype"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
-  /api/v1/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
-    parameters:
-      - $ref: "#/components/parameters/Tiltakskode"
-    get:
-      tags:
-        - mulighetsrommet
-      operationId: getTiltaksgjennomforingerByTiltakskode
-      responses:
-        200:
-          description: An array of tiltaksgjennomføringer for specified tiltakskode.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
-        404:
-          description: the specified tiltakstype was not found.
-          content:
-            text/plain:
-              schema:
-                type: string
-  /api/v1/tiltaksgjennomforinger:
-    get:
-      tags:
-        - mulighetsrommet
+        - Tiltaksgjennomføringer
       operationId: getTiltaksgjennomforinger
       parameters:
         - in: query
           name: search
           schema:
             type: string
-          description: Search for tiltaksgjennomforinger
+          description: Search for tiltaksgjennomføringer
         - in: query
           name: innsatsgrupper
           schema:
@@ -191,12 +108,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tiltaksgjennomforing"
-  /api/v1/tiltaksgjennomforinger/{id}:
+
+  /tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - mulighetsrommet
+        - Tiltaksgjennomføringer
       operationId: getTiltaksgjennomforing
       responses:
         200:
@@ -211,49 +129,106 @@ paths:
             application/json:
               schema:
                 type: string
-  /api/v1/bruker/{fnr}:
+
+  /tiltakstyper:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getTiltakstyper
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for tiltakstyper
+        - in: query
+          name: innsatsgrupper
+          schema:
+            type: array
+            items:
+              type: number
+          description: Innsatsgruppefilter
+          style: form
+          explode: false
+      responses:
+        200:
+          description: Array of tiltakstyper.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltakstype"
+
+  /tiltakstyper/{tiltakskode}:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getTiltakstype
+      parameters:
+        - $ref: "#/components/parameters/Tiltakskode"
+      responses:
+        200:
+          description: the specified tiltakstype.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltakstype"
+        404:
+          description: The specified tiltakstype was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
     parameters:
-      - $ref: "#/components/parameters/Fnr"
+      - $ref: "#/components/parameters/Tiltakskode"
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getTiltaksgjennomforingerByTiltakskode
+      responses:
+        200:
+          description: An array of tiltaksgjennomføringer for specified tiltakskode.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksgjennomforing"
+        404:
+          description: the specified tiltakstype was not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /sanity:
     get:
       tags:
         - mulighetsrommet
-      operationId: getBrukerdata
+      operationId: sanityQuery
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Sanity query as a Groq-string. See https://www.sanity.io/docs/groq for more information.
+          required: true
+        - in: query
+          name: fnr
+          schema:
+            type: string
+          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
       responses:
         200:
-          description: Data about the 'bruker' in the context of 'veileder'
+          description: Sanity query result
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Bruker"
-        404:
-          description: "Could not find data about 'bruker'"
-          content:
-            application/json:
-              schema:
-                type: string
-  /api/v1/logger/event:
-    post:
-      tags:
-        - mulighetsrommet
-      operationId: logFrontendEvent
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FrontendEvent"
-      responses:
-        201:
-          description: "Logged frontend event"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FrontendEvent"
-        500:
-          description: "Logging to frontend failed"
-          content:
-            application/json:
-              schema:
-                type: string
+              schema: { }
+
+
 components:
   securitySchemes:
     bearerAuth:
@@ -289,76 +264,39 @@ components:
       required:
         - _id
         - innsatsgruppe
-        - sanityId
         - navn
         - tiltakskode
-        - fraDato
-        - tilDato
       properties:
         _id:
           type: integer
         innsatsgruppe:
           type: number
           nullable: true
-        sanityId:
-          type: number
-          nullable: true
         navn:
           type: string
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
-        fraDato:
-          type: string
-          nullable: true
-        tilDato:
-          type: string
-          nullable: true
-    #        createdBy:
-    #          type: string
-    #          nullable: true
-    #        createdAt:
-    #          type: string
-    #          nullable: true
-    #        updatedBy:
-    #          type: string
-    #          nullable: true
-    #        updatedAt:
-    #          type: string
-    #          nullable: true
+
     Tiltaksgjennomforing:
       type: object
       properties:
         _id:
           type: integer
-        tittel:
-          type: string
-        beskrivelse:
+        navn:
           type: string
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         tiltaksnummer:
-          type: string
-        fraDato:
-          # TODO: Update definition when swagger-ui supports OAS 3.1
-          # oneOf:
-          #   - type: "null"
-          #   - type: string
-          #     format: date-time
-          type: string
-          format: date-time
-          nullable: true
-        tilDato:
-          type: string
-          format: date-time
-          nullable: true
+          type: integer
+        aar:
+          type: integer
       required:
         - _id
-        - tittel
-        - beskrivelse
+        - navn
         - tiltakskode
         - tiltaksnummer
-        - fraDato
-        - tilDato
+        - aar
+
     Tiltakskode:
       type: string
       enum:
@@ -466,6 +404,7 @@ components:
         - VIKARBLED
         - VV
         - YHEMMOFF
+
     Bruker:
       type: object
       properties:
@@ -508,7 +447,7 @@ components:
           additionalProperties: true
       required:
         - name
-      
+
   examples:
     Tiltakstype:
       summary: "Tiltakstype eksempel"

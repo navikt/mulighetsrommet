@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.domain.Tiltakstype
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
@@ -51,26 +50,6 @@ fun Route.tiltakstypeRoutes() {
             }.onSuccess { fetchedTiltaksgjennomforinger ->
                 call.respond(fetchedTiltaksgjennomforinger)
             }.onFailure { call.respondText("Fant ikke tiltakstype", status = HttpStatusCode.NotFound) }
-        }
-        post() {
-            runCatching {
-                val tiltakstype = call.receive<Tiltakstype>()
-                tiltakstypeService.createTiltakstype(tiltakstype)
-            }.onSuccess { createdTiltakstype ->
-                call.response.status(HttpStatusCode.Created)
-                call.respond(createdTiltakstype)
-            }.onFailure {
-                call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
-        }
-        put("{tiltakskode}") {
-            runCatching {
-                val tiltakskode = call.parameters["tiltakskode"]!!
-                val tiltakstype = call.receive<Tiltakstype>()
-                tiltakstypeService.updateTiltakstype(tiltakskode, tiltakstype)
-            }.onSuccess { updatedTiltakstype ->
-                call.respond(updatedTiltakstype)
-            }
         }
     }
 }

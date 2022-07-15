@@ -10,7 +10,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: String): List<Tiltaksgjennomforing> {
         val query = """
-            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            select id, navn, tiltaksnummer, tiltakskode, aar
             from tiltaksgjennomforing
             where tiltakskode = ?
         """.trimIndent()
@@ -20,7 +20,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
         val query = """
-            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            select id, navn, tiltaksnummer, tiltakskode, aar
             from tiltaksgjennomforing
             where id = ?
         """.trimIndent()
@@ -30,48 +30,10 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
         val query = """
-            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            select id, navn, tiltaksnummer, tiltakskode, aar
             from tiltaksgjennomforing
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
         return db.session.run(queryResult)
-    }
-
-    fun createTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
-        val query = """
-            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, sak_id, sanity_id, fra_dato, til_dato) values (?, ?, ?, ?, ?, ?, ?, ?, ?) returning *
-        """.trimIndent()
-        val queryResult = queryOf(
-            query,
-            tiltaksgjennomforing.navn,
-            tiltaksgjennomforing.arrangorId,
-            tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.tiltaksnummer,
-            tiltaksgjennomforing.arenaId,
-            tiltaksgjennomforing.sakId,
-            tiltaksgjennomforing.sanityId,
-            tiltaksgjennomforing.fraDato,
-            tiltaksgjennomforing.tilDato,
-        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)!!
-    }
-
-    fun updateTiltaksgjennomforing(arenaId: Int, tiltaksgjennomforing: Tiltaksgjennomforing): Tiltaksgjennomforing {
-        val query = """
-            update tiltaksgjennomforing set navn = ?, arrangor_id = ?, tiltakskode = ?, tiltaksnummer = ?, sak_id = ?, sanity_id = ?, fra_dato = ?, til_dato = ? where arena_id = ? returning *
-        """.trimIndent()
-        val queryResult = queryOf(
-            query,
-            tiltaksgjennomforing.navn,
-            tiltaksgjennomforing.arrangorId,
-            tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.tiltaksnummer,
-            tiltaksgjennomforing.sakId,
-            tiltaksgjennomforing.sanityId,
-            tiltaksgjennomforing.fraDato,
-            tiltaksgjennomforing.tilDato,
-            arenaId
-        ).asExecute.query.map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)!!
     }
 }

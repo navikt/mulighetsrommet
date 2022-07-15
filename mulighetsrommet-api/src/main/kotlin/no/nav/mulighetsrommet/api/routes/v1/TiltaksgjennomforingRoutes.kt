@@ -6,7 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import org.koin.ktor.ext.inject
 
 fun Route.tiltaksgjennomforingRoutes() {
@@ -27,28 +26,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                 status = HttpStatusCode.NotFound
             )
             call.respond(tiltaksgjennomforing)
-        }
-        post() {
-            runCatching {
-                val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-                tiltaksgjennomforingService.createTiltaksgjennomforing(tiltaksgjennomforing)
-            }.onSuccess { createdTiltakstype ->
-                call.response.status(HttpStatusCode.Created)
-                call.respond(createdTiltakstype)
-            }.onFailure {
-                call.respondText("Kunne ikke opprette tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
-        }
-        put("{id}") {
-            runCatching {
-                val arenaId = call.parameters["id"]!!.toInt()
-                val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-                tiltaksgjennomforingService.updateTiltaksgjennomforing(arenaId, tiltaksgjennomforing)
-            }.onSuccess { updatedTiltakstype ->
-                call.respond(updatedTiltakstype)
-            }.onFailure {
-                call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
         }
     }
 }
