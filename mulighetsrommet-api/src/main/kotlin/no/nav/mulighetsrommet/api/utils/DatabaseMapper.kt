@@ -22,7 +22,7 @@ object DatabaseMapper {
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
             tiltakskode = row.string("tiltakskode"),
-            aar = row.intOrNull("aar")
+            aar = row.int("aar")
         )
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
@@ -53,7 +53,6 @@ object DatabaseMapper {
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),
         arrangorId = row.int("arrangor_id"),
-        tiltaksnummer = row.int("tiltaksnummer"),
         sakId = row.int("sak_id")
     )
 

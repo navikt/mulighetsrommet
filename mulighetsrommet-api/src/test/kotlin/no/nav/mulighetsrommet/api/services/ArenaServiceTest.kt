@@ -39,7 +39,6 @@ class ArenaServiceTest : FunSpec({
             navn = "Arbeidstrening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
-            tiltaksnummer = 1,
             id = 123,
             sakId = 123,
         )
@@ -72,11 +71,11 @@ class ArenaServiceTest : FunSpec({
             val table = Table(listener.db.dataSource, "tiltaksgjennomforing")
 
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(tiltaksnummer = 2))
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(1)
-                .column("tiltaksnummer").value().isEqualTo(2)
+                .column("navn").value().isEqualTo("Oppdatert arbeidstrening")
         }
 
         test("upsert deltaker") {

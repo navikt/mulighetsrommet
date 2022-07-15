@@ -49,14 +49,13 @@ class ArenaService(private val db: Database, private val logger: Logger) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, tiltaksnummer, arena_id, fra_dato, til_dato, sak_id)
-            values (?, ?, ?, ?, ?, ?, ?, ?)
+            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, arena_id, fra_dato, til_dato, sak_id)
+            values (?, ?, ?, ?, ?, ?, ?)
             on conflict (arena_id)
             do update set
                 navn = excluded.navn,
                 arrangor_id = excluded.arrangor_id,
                 tiltakskode = excluded.tiltakskode,
-                tiltaksnummer = excluded.tiltaksnummer,
                 arena_id = excluded.arena_id,
                 fra_dato = excluded.fra_dato,
                 til_dato = excluded.til_dato,
@@ -69,7 +68,6 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltaksgjennomforing.navn,
             tiltaksgjennomforing.arrangorId,
             tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.tiltaksnummer,
             tiltaksgjennomforing.id,
             tiltaksgjennomforing.fraDato,
             tiltaksgjennomforing.tilDato,

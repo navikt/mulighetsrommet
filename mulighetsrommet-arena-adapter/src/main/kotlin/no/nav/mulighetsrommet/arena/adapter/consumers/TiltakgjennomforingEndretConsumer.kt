@@ -46,7 +46,6 @@ class TiltakgjennomforingEndretConsumer(
         fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL),
         arrangorId = this.ARBGIV_ID_ARRANGOR,
-        tiltaksnummer = 0,
         sakId = this.SAK_ID,
     )
 }
