@@ -3,9 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
-import no.nav.mulighetsrommet.domain.Tiltakstype
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.test.extensions.DatabaseListener
 import org.slf4j.LoggerFactory
