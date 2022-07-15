@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Tiltaksgjennomforing(
-    val id: Int? = null,
+    val id: Int,
     val navn: String,
     val tiltakskode: String,
     val tiltaksnummer: Int,
-    val aar: Int?
+    val aar: Int,
 )

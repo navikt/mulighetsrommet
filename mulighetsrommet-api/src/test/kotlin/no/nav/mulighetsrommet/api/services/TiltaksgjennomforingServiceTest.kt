@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import no.nav.mulighetsrommet.test.extensions.DatabaseListener
@@ -43,7 +44,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             navn = "Oppfølging",
             arrangorId = 1,
             tiltakskode = "INDOPPFOLG",
-            tiltaksnummer = 123,
             id = 1,
             sakId = 1,
         )
@@ -52,7 +52,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             navn = "Trening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
-            tiltaksnummer = 321,
             id = 2,
             sakId = 2,
         )
@@ -61,6 +60,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         arenaService.upsertTiltakstype(tiltakstype2)
         arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
         arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing2)
+        arenaService.updateTiltaksgjennomforingWithSak(
+            AdapterSak(id = 1, lopenummer = 11, aar = 2022)
+        )
+        arenaService.updateTiltaksgjennomforingWithSak(
+            AdapterSak(id = 2, lopenummer = 22, aar = 2022)
+        )
     }
 
     context("CRUD") {
@@ -73,8 +78,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 id = 1,
                 navn = "Oppfølging",
                 tiltakskode = "INDOPPFOLG",
-                tiltaksnummer = 123,
-                aar = null
+                tiltaksnummer = 11,
+                aar = 2022
             )
         }
 
