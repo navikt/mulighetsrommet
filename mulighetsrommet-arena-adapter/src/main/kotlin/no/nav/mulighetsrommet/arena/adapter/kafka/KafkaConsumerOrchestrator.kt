@@ -1,5 +1,6 @@
-package no.nav.mulighetsrommet.arena.adapter
+package no.nav.mulighetsrommet.arena.adapter.kafka
 
+import kotlinx.serialization.json.JsonElement
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
@@ -7,16 +8,15 @@ import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProce
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TopicConsumer
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import no.nav.mulighetsrommet.arena.adapter.Database
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
-    private val db: Database,
-    private val consumers: List<TopicConsumer<out Any, in Any>>
+    db: Database,
+    private val consumers: List<TopicConsumer<*>>
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
@@ -63,27 +63,17 @@ class KafkaConsumerOrchestrator(
         logger.debug("Stopped kafka processors")
     }
 
-    private fun configureConsumersTopics(repository: KafkaConsumerRepository): List<KafkaConsumerClientBuilder.TopicConfig<String, String>> {
+    private fun configureConsumersTopics(repository: KafkaConsumerRepository): List<KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>> {
         return consumers.map { consumer ->
-            KafkaConsumerClientBuilder.TopicConfig<String, String>()
+            KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>()
                 .withStoreOnFailure(repository)
                 .withLogging()
                 .withConsumerConfig(
                     consumer.topic,
                     stringDeserializer(),
-                    stringDeserializer(),
-                    Consumer<ConsumerRecord<String, String>> { event ->
-                        val payload = consumer.toDomain(event.value())
-                        val key = consumer.resolveKey(payload)
-                        if (consumer.shouldProcessEvent(payload)) {
-                            db.persistKafkaEvent(
-                                event.topic(),
-                                key,
-                                event.value()
-                            )
-
-                            consumer.processEvent(payload)
-                        }
+                    JsonElementDeserializer(),
+                    Consumer { event ->
+                        consumer.processEvent(event)
                     }
                 )
         }

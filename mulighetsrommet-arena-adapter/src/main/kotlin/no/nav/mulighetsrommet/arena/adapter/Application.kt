@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.mulighetsrommet.arena.adapter.consumers.*
+import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
@@ -27,17 +28,16 @@ fun main() {
 
     val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)
 
+    val db = Database(app.database)
+
     val consumers = listOf(
-        TiltakEndretConsumer(app.kafka.getTopic("tiltakendret"), api),
-        TiltakgjennomforingEndretConsumer(app.kafka.getTopic("tiltakgjennomforingendret"), api),
-        TiltakdeltakerEndretConsumer(app.kafka.getTopic("tiltakdeltakerendret"), api),
-        SakEndretConsumer(app.kafka.getTopic("sakendret"), api)
+        TiltakEndretConsumer(db, app.kafka.getTopic("tiltakendret"), api),
+        TiltakgjennomforingEndretConsumer(db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
+        TiltakdeltakerEndretConsumer(db, app.kafka.getTopic("tiltakdeltakerendret"), api),
+        SakEndretConsumer(db, app.kafka.getTopic("sakendret"), api)
     )
 
-    val kafka = KafkaConsumerOrchestrator(
-        kafkaPreset, Database(app.database),
-        consumers as List<TopicConsumer<out Any, in Any>>
-    )
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
 
     initializeServer(server) {
         configure(app, kafka)
