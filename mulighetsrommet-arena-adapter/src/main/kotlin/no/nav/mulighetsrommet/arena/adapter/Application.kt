@@ -31,18 +31,21 @@ fun main() {
     val kafkaPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(app.kafka.consumerGroupId)
 
     val db = Database(app.database)
+    val topicService = TopicService(db)
 
     val consumers = listOf(
-        TiltakEndretConsumer(db, app.kafka.getTopic("tiltakendret"), api),
-        TiltakgjennomforingEndretConsumer(db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
-        TiltakdeltakerEndretConsumer(db, app.kafka.getTopic("tiltakdeltakerendret"), api),
-        SakEndretConsumer(db, app.kafka.getTopic("sakendret"), api)
+        TiltakEndretConsumer("tiltakendret", db, app.kafka.getTopic("tiltakendret"), api),
+        TiltakgjennomforingEndretConsumer("tiltakgjennomforingendret", db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
+        TiltakdeltakerEndretConsumer("tiltakdeltakerendret", db, app.kafka.getTopic("tiltakdeltakerendret"), api),
+        SakEndretConsumer("sakendret", db, app.kafka.getTopic("sakendret"), api)
     )
 
-    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
+    topicService.upsertConsumerTopics(consumers)
+
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, topicService, consumers)
 
     initializeServer(server) {
-        configure(app, kafka, db)
+        configure(app, kafka, db, topicService)
     }
 }
 
@@ -63,12 +66,10 @@ fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     server.start(true)
 }
 
-fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, db: Database) {
+fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, db: Database, topicService: TopicService) {
     configureSerialization()
     configureMonitoring()
     configureHTTP()
-
-    val topicService = TopicService(db)
 
     routing {
         internalRoutes(db)
@@ -76,16 +77,12 @@ fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, d
     }
 
     environment.monitor.subscribe(ApplicationStarted) {
-        if (config.enableKafkaTopicConsumption) {
-            kafka.enableTopicConsumption()
-        }
         if (config.enableFailedRecordProcessor) {
             kafka.enableFailedRecordProcessor()
         }
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
-        kafka.disableTopicConsumption()
         kafka.disableFailedRecordProcessor()
     }
 }

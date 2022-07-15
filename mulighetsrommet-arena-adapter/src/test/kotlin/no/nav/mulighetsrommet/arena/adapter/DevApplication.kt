@@ -7,6 +7,7 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.mulighetsrommet.arena.adapter.consumers.*
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -36,18 +37,21 @@ fun main() {
         .build()
 
     val db = Database(app.database)
+    val topicService = TopicService(db)
 
     val consumers = listOf(
-        TiltakEndretConsumer(db, app.kafka.getTopic("tiltakendret"), api),
-        TiltakgjennomforingEndretConsumer(db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
-        TiltakdeltakerEndretConsumer(db, app.kafka.getTopic("tiltakdeltakerendret"), api),
-        SakEndretConsumer(db, app.kafka.getTopic("sakendret"), api)
+        TiltakEndretConsumer("tiltakendret", db, app.kafka.getTopic("tiltakendret"), api),
+        TiltakgjennomforingEndretConsumer("tiltakgjennomforingendret", db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
+        TiltakdeltakerEndretConsumer("tiltakdeltakerendret", db, app.kafka.getTopic("tiltakdeltakerendret"), api),
+        SakEndretConsumer("sakendret", db, app.kafka.getTopic("sakendret"), api)
     )
 
-    val kafka = KafkaConsumerOrchestrator(preset, db, consumers)
+    topicService.upsertConsumerTopics(consumers)
+
+    val kafka = KafkaConsumerOrchestrator(preset, db, topicService, consumers)
 
     initializeServer(server) {
-        configure(app, kafka, db)
+        configure(app, kafka, db, topicService)
     }
 }
 

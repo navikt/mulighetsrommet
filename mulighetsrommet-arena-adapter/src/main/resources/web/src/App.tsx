@@ -23,7 +23,7 @@ import { Topic } from "./domain";
 
 function useTopics() {
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isTopicsLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const fetchedTopics = async () => {
       const t = await getTopics();
@@ -32,25 +32,22 @@ function useTopics() {
     };
     fetchedTopics();
   }, []);
-  return { topics, isLoading, setTopics };
+  return { topics, isTopicsLoading, setTopics };
 }
 
-function saveRunningState(topics: Topic[]) {
-  fetch("http://localhost:8084/manager/topics", {
+function putTopicRunningState(topics: Topic[]) {
+  return fetch("http://localhost:8084/manager/topics", {
     method: "PUT",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify(topics),
-  }).then((response) => {
-    if (response.ok) {
-      useTopics();
-    }
   });
 }
 
 function TopicEnableDisable() {
-  const { topics, isLoading, setTopics } = useTopics();
+  const { topics, isTopicsLoading, setTopics } = useTopics();
+  const [isSaveLoading, setIsSaveLoading] = useState(false);
 
   const setRunningState = (event: React.ChangeEvent<HTMLInputElement>) => {
     const changedTopics = [...topics];
@@ -60,13 +57,19 @@ function TopicEnableDisable() {
     setTopics(changedTopics);
   };
 
+  const saveRunningState = async () => {
+    setIsSaveLoading(true);
+    await putTopicRunningState(topics).then();
+    setIsSaveLoading(false);
+  };
+
   return (
     <Box>
       <Heading mb="4" size="lg">
         Topic overview
       </Heading>
       <Box boxShadow="sm" p="5" borderWidth="1px" rounded="md">
-        {isLoading ? (
+        {isTopicsLoading ? (
           <Box w="100%" minH="15rem">
             <Center h="15rem">
               <VStack>
@@ -80,7 +83,7 @@ function TopicEnableDisable() {
             <Table>
               <Thead>
                 <Tr>
-                  <Th>Name</Th>
+                  <Th>Key</Th>
                   <Th>Type</Th>
                   <Th>Topic</Th>
                   <Th>Running</Th>
@@ -89,7 +92,7 @@ function TopicEnableDisable() {
               <Tbody>
                 {topics.map((topic) => (
                   <Tr key={topic.id}>
-                    <Td>{topic.name}</Td>
+                    <Td>{topic.key}</Td>
                     <Td>{topic.type}</Td>
                     <Td>
                       <strong>{topic.topic}</strong>
@@ -111,7 +114,11 @@ function TopicEnableDisable() {
         )}
         <Box mt="6">
           <Flex justifyContent="end">
-            <Button colorScheme="pink" onClick={() => saveRunningState(topics)}>
+            <Button
+              isLoading={isSaveLoading}
+              colorScheme="pink"
+              onClick={saveRunningState}
+            >
               Save
             </Button>
           </Flex>

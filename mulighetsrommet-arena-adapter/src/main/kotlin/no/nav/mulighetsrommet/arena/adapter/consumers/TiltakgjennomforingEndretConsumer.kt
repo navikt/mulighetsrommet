@@ -13,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakgjennomforingEndretConsumer(
+    override val key: String,
     db: Database,
     override val topic: String,
     private val client: MulighetsrommetApiClient

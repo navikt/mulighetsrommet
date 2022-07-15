@@ -1,6 +1,5 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.arena.adapter
 
-import kotlinx.serialization.json.JsonElement
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
@@ -8,7 +7,8 @@ import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProce
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.arena.adapter.consumers.TopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
@@ -16,11 +16,12 @@ import java.util.function.Consumer
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     db: Database,
-    private val consumers: List<TopicConsumer<*>>
+    private val consumers: List<TopicConsumer<*>>,
+    private val topicService: TopicService,
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
-    private val consumerClient: KafkaConsumerClient
+    private val consumerClients: Map<String, KafkaConsumerClient>
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
 
     init {
@@ -30,10 +31,14 @@ class KafkaConsumerOrchestrator(
         val consumerTopicsConfig = configureConsumersTopics(kafkaConsumerRepository)
         val lockProvider = JdbcLockProvider(db.dataSource)
 
-        consumerClient = KafkaConsumerClientBuilder.builder()
-            .withProperties(consumerPreset)
-            .withTopicConfigs(consumerTopicsConfig)
-            .build()
+        consumerClients = mutableMapOf()
+        consumerTopicsConfig.forEach {
+            val client = KafkaConsumerClientBuilder.builder()
+                .withProperties(consumerPreset)
+                .withTopicConfig(it)
+                .build()
+            consumerClients.put(it.consumerConfig.topic, client)
+        }
 
         consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
             .builder()
@@ -41,11 +46,14 @@ class KafkaConsumerOrchestrator(
             .withKafkaConsumerRepository(kafkaConsumerRepository)
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(consumerTopicsConfig))
             .build()
+
+        startConsumerClients()
     }
 
-    fun enableTopicConsumption() {
-        consumerClient.start()
-        logger.debug("Started kafka consumer client")
+    private fun startConsumerClients() {
+        val topics = topicService.getTopics().filter{it.running}.map{it.topic}
+        val clients = consumerClients.filterKeys { it in topics }.values
+        clients.forEach { it.start() }
     }
 
     fun enableFailedRecordProcessor() {
@@ -53,14 +61,15 @@ class KafkaConsumerOrchestrator(
         logger.debug("Started kafka consumer record processor")
     }
 
-    fun disableTopicConsumption() {
-        consumerClient.stop()
-        logger.debug("Stopped kafka consumer client")
-    }
-
     fun disableFailedRecordProcessor() {
         consumerRecordProcessor.close()
         logger.debug("Stopped kafka processors")
+    }
+
+    fun setRunning(topic: String, value: Boolean) {
+        val client = consumerClients[topic]
+        if (client != null) {
+        }
     }
 
     private fun configureConsumersTopics(repository: KafkaConsumerRepository): List<KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>> {
