@@ -10,7 +10,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: String): List<Tiltaksgjennomforing> {
         val query = """
-            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            select id, navn, tiltaksnummer, tiltakskode, aar
             from tiltaksgjennomforing
             where tiltakskode = ?
         """.trimIndent()
@@ -20,7 +20,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
         val query = """
-            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            select id, navn, tiltaksnummer, tiltakskode, aar
             from tiltaksgjennomforing
             where id = ?
         """.trimIndent()
@@ -30,7 +30,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
 
     fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
         val query = """
-            select id, navn, tiltaksnummer, arrangor_id, tiltakskode, arena_id, sak_id, sanity_id, fra_dato, til_dato
+            select id, navn, tiltaksnummer, tiltakskode, aar
             from tiltaksgjennomforing
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList

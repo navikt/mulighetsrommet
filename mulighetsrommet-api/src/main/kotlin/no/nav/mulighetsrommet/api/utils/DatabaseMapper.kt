@@ -22,7 +22,7 @@ object DatabaseMapper {
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
             tiltakskode = row.string("tiltakskode"),
-            aar = row.int("aar")
+            aar = row.intOrNull("aar")
         )
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(

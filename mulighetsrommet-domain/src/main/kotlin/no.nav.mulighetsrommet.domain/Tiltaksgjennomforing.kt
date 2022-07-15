@@ -8,5 +8,5 @@ data class Tiltaksgjennomforing(
     val navn: String,
     val tiltakskode: String,
     val tiltaksnummer: Int,
-    val aar: Int
+    val aar: Int?
 )
