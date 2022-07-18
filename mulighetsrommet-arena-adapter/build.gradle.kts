@@ -81,6 +81,9 @@ dependencies {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    // Needed to use the `@OptIn` annotation for exeprimental features
+    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+
     kotlinOptions.jvmTarget = "11"
 }
 

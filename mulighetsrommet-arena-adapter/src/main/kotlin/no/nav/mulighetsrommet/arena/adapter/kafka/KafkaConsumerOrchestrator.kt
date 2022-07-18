@@ -16,7 +16,7 @@ import java.util.function.Consumer
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     db: Database,
-    val consumers: List<TopicConsumer<*>>
+    private val consumers: List<TopicConsumer<*>>
 ) {
 
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)

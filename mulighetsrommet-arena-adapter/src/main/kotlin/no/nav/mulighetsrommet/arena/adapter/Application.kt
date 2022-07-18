@@ -15,10 +15,12 @@ import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
+import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import org.slf4j.LoggerFactory
+import java.util.*
 
 fun main() {
     val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
@@ -35,17 +37,8 @@ fun main() {
 
     val db = Database(app.database)
 
-    val consumers = listOf(
-        TiltakEndretConsumer(db, app.kafka.getTopic("tiltakendret"), api),
-        TiltakgjennomforingEndretConsumer(db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
-        TiltakdeltakerEndretConsumer(db, app.kafka.getTopic("tiltakdeltakerendret"), api),
-        SakEndretConsumer(db, app.kafka.getTopic("sakendret"), api)
-    )
-
-    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
-
     initializeServer(server) {
-        configure(app, db, kafka)
+        configure(app, kafkaPreset, db, api)
     }
 }
 
@@ -66,16 +59,27 @@ fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     server.start(true)
 }
 
-fun Application.configure(config: AppConfig, db: Database, kafka: KafkaConsumerOrchestrator) {
+fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Database, api: MulighetsrommetApiClient) {
+    val events = EventRepository(db)
+
+    val consumers = listOf(
+        TiltakEndretConsumer(config.kafka.getTopic("tiltakendret"), events, api),
+        TiltakgjennomforingEndretConsumer(config.kafka.getTopic("tiltakgjennomforingendret"), events, api),
+        TiltakdeltakerEndretConsumer(config.kafka.getTopic("tiltakdeltakerendret"), events, api),
+        SakEndretConsumer(config.kafka.getTopic("sakendret"), events, api),
+    )
+
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
+
+    val topicService = TopicService(events, consumers)
+
     configureSerialization()
     configureMonitoring()
     configureHTTP()
 
-    val topicService = TopicService(db, kafka.consumers)
-
     routing {
         internalRoutes(db)
-        apiRoutes(topicService)
+        apiRoutes(events, topicService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {
