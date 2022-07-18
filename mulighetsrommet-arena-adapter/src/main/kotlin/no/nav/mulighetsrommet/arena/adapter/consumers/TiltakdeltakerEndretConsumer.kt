@@ -13,7 +13,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakdeltakerEndretConsumer(
-    override val key: String,
     db: Database,
     override val key: String,
     override val topic: String,

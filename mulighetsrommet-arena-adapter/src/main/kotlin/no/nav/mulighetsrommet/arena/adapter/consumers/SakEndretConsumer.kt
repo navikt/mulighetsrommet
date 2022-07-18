@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.Database
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
@@ -12,7 +13,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class SakEndretConsumer(
-    override val key: String,
     db: Database,
     override val key: String,
     override val topic: String,
