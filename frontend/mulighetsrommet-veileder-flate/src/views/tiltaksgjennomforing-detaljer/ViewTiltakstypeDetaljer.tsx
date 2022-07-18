@@ -28,17 +28,12 @@ const ViewTiltakstypeDetaljer = () => {
       <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med tiltaksnummer "${tiltaksnummer}"`}</Alert>
     );
   }
-
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
         <Tilbakeknapp tilbakelenke={`/${fnr}`} />
         <TiltaksgjennomforingsHeader />
-        <Statistikk
-          tittel="Overgang til arbeid"
-          hjelpetekst="Her skal det stå litt om hva denne statistikken viser oss"
-          statistikktekst="69%"
-        />
+        <Statistikk statistikkKomponent={tiltaksgjennomforing.tiltakstype.statistikkKomponent} />
       </div>
       <SidemenyDetaljer />
       <TiltaksdetaljerFane />

@@ -1,23 +1,28 @@
 import React from 'react';
 import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
 import './Statistikk.less';
+import { StatistikkKomponent } from '../../api/models';
 
 interface StatistikkProps {
-  tittel: string;
-  hjelpetekst: string;
-  statistikktekst: any;
+  statistikkKomponent: StatistikkKomponent[];
 }
 
-const Statistikk = ({ tittel, hjelpetekst, statistikktekst }: StatistikkProps) => {
+const Statistikk = ({ statistikkKomponent }: StatistikkProps) => {
   return (
     <div className="statistikk">
-      <div className="statistikk__heading">
-        <Heading size="xsmall" level="2">
-          {tittel}
-        </Heading>
-        <HelpText title="Hva er dette?">{hjelpetekst}</HelpText>
-      </div>
-      <BodyShort className="statistikk__tekst">{statistikktekst}</BodyShort>
+      {statistikkKomponent.map((statistikk: any, index: number) => {
+        return (
+          <div className="statistikk__wrapper" key={index}>
+            <div className="statistikk__heading">
+              <Heading size="xsmall" level="2">
+                {statistikk.statistikkOverskrift}
+              </Heading>
+              {statistikk.statistikkHjelpetekst && <HelpText>{statistikk.statistikkHjelpetekst}</HelpText>}
+            </div>
+            <BodyShort className="statistikk__tekst">{statistikk.statistikkInnhold}</BodyShort>
+          </div>
+        );
+      })}
     </div>
   );
 };
