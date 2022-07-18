@@ -13,8 +13,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakEndretConsumer(
-    override val key: String,
     db: Database,
+    override val key: String,
     override val topic: String,
     private val client: MulighetsrommetApiClient
 ) : TopicConsumer<ArenaTiltak>(db) {

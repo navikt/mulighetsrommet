@@ -34,15 +34,15 @@ fun main() {
     val topicService = TopicService(db)
 
     val consumers = listOf(
-        TiltakEndretConsumer("tiltakendret", db, app.kafka.getTopic("tiltakendret"), api),
-        TiltakgjennomforingEndretConsumer("tiltakgjennomforingendret", db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
-        TiltakdeltakerEndretConsumer("tiltakdeltakerendret", db, app.kafka.getTopic("tiltakdeltakerendret"), api),
-        SakEndretConsumer("sakendret", db, app.kafka.getTopic("sakendret"), api)
+        TiltakEndretConsumer(db, "tiltakendret", app.kafka.getTopic("tiltakendret"), api),
+        TiltakgjennomforingEndretConsumer(db, "tiltakgjennomforingendret", app.kafka.getTopic("tiltakgjennomforingendret"), api),
+        TiltakdeltakerEndretConsumer(db, "tiltakdeltakerendret", app.kafka.getTopic("tiltakdeltakerendret"), api),
+        SakEndretConsumer(db, "sakendret", app.kafka.getTopic("sakendret"), api)
     )
 
     topicService.upsertConsumerTopics(consumers)
 
-    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, topicService, consumers)
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers, topicService)
 
     initializeServer(server) {
         configure(app, kafka, db, topicService)

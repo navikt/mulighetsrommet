@@ -1,5 +1,6 @@
-package no.nav.mulighetsrommet.arena.adapter
+package no.nav.mulighetsrommet.arena.adapter.kafka
 
+import kotlinx.serialization.json.JsonElement
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
@@ -7,7 +8,7 @@ import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProce
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.Database
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import org.slf4j.LoggerFactory
 import java.util.*

@@ -8,6 +8,7 @@ import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 
 abstract class TopicConsumer<T>(private val db: Database) {
+    abstract val key: String
     abstract val logger: Logger
     abstract val topic: String
 

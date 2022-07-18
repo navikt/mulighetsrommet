@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.Database
-import no.nav.mulighetsrommet.arena.adapter.consumers.TopicConsumer
 import org.intellij.lang.annotations.Language
 
 enum class TopicType {
