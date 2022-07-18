@@ -18,7 +18,7 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger(SanityService::class.java)
 
-class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
+class SanityService(sanityConfig: SanityConfig, private val brukerService: BrukerService) {
     private val logger = LoggerFactory.getLogger(SanityService::class.java)
     private val client: HttpClient
     private val sanityToken = sanityConfig.authToken
@@ -26,7 +26,6 @@ class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
     private val dataset = sanityConfig.dataset
     private val apiVersion = SimpleDateFormat("yyyy-MM-dd").format(Date())
     private val sanityBaseUrl = "https://$projectId.apicdn.sanity.io/v$apiVersion/data/query/$dataset"
-    private val brukerService = brukerService
     private val jsonDecoder = Json {
         ignoreUnknownKeys = true
     }
@@ -54,7 +53,7 @@ class SanityService(sanityConfig: SanityConfig, brukerService: BrukerService) {
         return get(
             replaceEnhetInQuery(
                 query = query,
-                enhetsId = brukerData?.oppfolgingsenhet?.enhetId ?: "",
+                enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: "",
                 fylkeId = fylkesId
             )
         )
