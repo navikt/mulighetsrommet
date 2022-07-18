@@ -6,9 +6,10 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 
-fun Route.managerRoutes(topicService: TopicService) {
+fun Route.managerRoutes(topicService: TopicService, kafka: KafkaConsumerOrchestrator) {
     singlePageApplication {
         applicationRoute = "manager"
         useResources = true
@@ -23,7 +24,11 @@ fun Route.managerRoutes(topicService: TopicService) {
     }
     put("/manager/topics") {
         val topics = call.receive<List<TopicService.Topic>>()
-        topicService.updateRunningStateByTopics(topics)
+        val updatedTopics = topicService.updateRunningStateByTopics(topics)
+        updatedTopics.forEach { kafka.setRunning(it.topic, it.running) }
         call.respond(HttpStatusCode.OK, "Alt gikk faen meg fint")
+    }
+    get("/manager/test") {
+        call.respond(kafka.isRunning())
     }
 }

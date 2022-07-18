@@ -73,7 +73,7 @@ fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, d
 
     routing {
         internalRoutes(db)
-        managerRoutes(topicService)
+        managerRoutes(topicService, kafka)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {

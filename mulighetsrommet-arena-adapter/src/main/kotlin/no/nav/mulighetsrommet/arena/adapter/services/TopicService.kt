@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import org.intellij.lang.annotations.Language
 
 enum class TopicType {
@@ -14,29 +15,28 @@ class TopicService(private val db: Database) {
 
     fun getTopics(): List<Topic> {
         val query = """
-            select id, key, topic, type, running from topics
+            select id, key, topic, type, running from topics order by id
         """.trimIndent()
         val queryResult = queryOf(query).map { toTopic(it) }.asList
         return db.session.run(queryResult)
     }
 
+    // TODO: https://github.com/seratch/kotliquery/issues/54 - Bug med at den ikke returnerer rader
+    // For nå så gjør vi det litt tungvint med å manuelt sjekke om ting har endret seg.
     fun updateRunningStateByTopics(topics: List<Topic>): List<Topic> {
-        val updatedTopics = mutableListOf<Topic>()
         @Language("PostgreSQL")
         val query = """
-            update topics set running = ? where id = ? and running not like ? returning *
+            update topics set running = ? where id = ? and running != ? returning *
         """.trimIndent()
         db.session.transaction { tx ->
             topics.forEach {
-                val updatedTopic = tx.run(queryOf(query, it.running, it.id, it.running).map { toTopic(it) }.asSingle)
-                if (updatedTopic != null) {
-                    updatedTopics.add(updatedTopic)
-                }
+                tx.run(queryOf(query, it.running, it.id, it.running).asExecute)
             }
         }
+        return getTopics().filter { it.running == topics[it.id - 1].running }
     }
 
-    fun upsertConsumerTopics(consumers: List<TopicConsumer>): List<Topic> {
+    fun upsertConsumerTopics(consumers: List<TopicConsumer<*>>) {
         @Language("PostgreSQL")
         val query = """
            insert into topics (key, topic, type)
