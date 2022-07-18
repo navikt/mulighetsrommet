@@ -93,6 +93,7 @@ Cypress.Commands.add('sortering', testId => {
   cy.getByTestId(testId).should('have.attr', 'aria-sort', 'descending');
 
   cy.getByTestId(testId).click();
+  cy.getByTestId(testId).should('have.attr', 'aria-sort', 'none');
 });
 
 //Cypress
