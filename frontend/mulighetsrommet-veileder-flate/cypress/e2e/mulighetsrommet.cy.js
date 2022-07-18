@@ -63,6 +63,7 @@ describe('Tiltaksgjennomføringstabell', () => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
     cy.getByTestId('filter_sokefelt').clear();
+    cy.getByTestId('filtertags').children().should('have.length', 1);
   });
 
   it('Sortering', () => {
