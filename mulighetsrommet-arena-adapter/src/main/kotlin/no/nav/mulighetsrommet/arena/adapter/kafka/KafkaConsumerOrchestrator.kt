@@ -67,6 +67,10 @@ class KafkaConsumerOrchestrator(
         logger.debug("Stopped kafka processors")
     }
 
+    fun isRunning(): List<Boolean> {
+        return consumerClients.map { it.value.isRunning }
+    }
+
     fun setRunning(topic: String, value: Boolean) {
         val client = consumerClients[topic]
         if (client != null) {

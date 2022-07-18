@@ -28,4 +28,7 @@ fun Route.managerRoutes(topicService: TopicService, kafka: KafkaConsumerOrchestr
         updatedTopics.forEach { kafka.setRunning(it.topic, it.running) }
         call.respond(HttpStatusCode.OK, "Alt gikk faen meg fint")
     }
+    get("/manager/test") {
+        call.respond(kafka.isRunning())
+    }
 }

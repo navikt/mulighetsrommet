@@ -45,7 +45,7 @@ fun main() {
     val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers, topicService)
 
     initializeServer(server) {
-        configure(app, kafka, topicService)
+        configure(app, kafka, db, topicService)
     }
 }
 
@@ -66,7 +66,7 @@ fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
     server.start(true)
 }
 
-fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, topicService: TopicService) {
+fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator, db: Database, topicService: TopicService) {
     configureSerialization()
     configureMonitoring()
     configureHTTP()
