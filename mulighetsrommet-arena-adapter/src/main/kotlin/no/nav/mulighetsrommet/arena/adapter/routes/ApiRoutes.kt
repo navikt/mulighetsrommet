@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.arena.adapter.jobs.JobRunners
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.domain.DateSerializer
@@ -23,7 +24,9 @@ fun Route.apiRoutes(
     put("api/topics") {
         val request = call.receive<ReplayTopicEventsRequest>()
 
-        topicService.replayEvents(topic = request.topic, since = request.since)
+        JobRunners.executeBackgroundJob {
+            topicService.replayEvents(topic = request.topic, since = request.since)
+        }
 
         call.respond(HttpStatusCode.Created)
     }
