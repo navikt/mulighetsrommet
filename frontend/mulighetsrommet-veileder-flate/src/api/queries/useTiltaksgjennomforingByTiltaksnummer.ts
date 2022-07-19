@@ -32,7 +32,7 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
       },
       regelverkLenker[]->,
       innsatsgruppe->,
-      statistikkKomponent[]->
+      statistikkKomponenter[]->
     }
   }[0]`);
 }

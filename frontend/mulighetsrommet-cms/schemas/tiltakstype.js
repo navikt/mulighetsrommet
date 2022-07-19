@@ -18,7 +18,7 @@ export default {
       type: "string",
     },
     {
-      name: "statistikkKomponent",
+      name: "statistikkKomponenter",
       title: "Statistikk",
       type: "array",
       of: [{ type: "reference", to: [{ type: "statistikk" }] }],

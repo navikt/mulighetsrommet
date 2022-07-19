@@ -33,7 +33,7 @@ const ViewTiltakstypeDetaljer = () => {
       <div className="tiltakstype-detaljer__info">
         <Tilbakeknapp tilbakelenke={`/${fnr}`} />
         <TiltaksgjennomforingsHeader />
-        <Statistikk statistikkKomponent={tiltaksgjennomforing.tiltakstype.statistikkKomponent} />
+        <Statistikk statistikkKomponenter={tiltaksgjennomforing.tiltakstype.statistikkKomponenter} />
       </div>
       <SidemenyDetaljer />
       <TiltaksdetaljerFane />

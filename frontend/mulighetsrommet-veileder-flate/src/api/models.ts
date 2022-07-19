@@ -25,7 +25,7 @@ export interface Tiltakstype {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
-  statistikkKomponent: StatistikkKomponent[];
+  statistikkKomponenter: StatistikkKomponenter[];
 }
 
 export interface Tiltaksgjennomforing {
@@ -89,9 +89,9 @@ export interface StatistikkFil {
   statistikkFilUrl: string;
 }
 
-export interface StatistikkKomponent {
+export interface StatistikkKomponenter {
   _id: string;
-  statistikkOverskrift: string;
-  statistikkInnhold: string;
-  statistikkHjelpetekst: string;
+  overskrift: string;
+  innhold: string;
+  hjelpetekst: string;
 }

@@ -7,36 +7,36 @@ export default {
   icon: ImStatsDots,
   fields: [
     {
-      name: "statistikkOverskrift",
+      name: "overskrift",
       title: "Statistikk overskrift",
       type: "string",
       validation: (Rule) =>
         Rule.custom((field, context) =>
-          context.document.statistikkOverskrift && field === undefined
+          context.document.overskrift && field === undefined
             ? "Dette feltet kan ikke være tomt."
             : true
         ),
     },
     {
-      name: "statistikkInnhold",
+      name: "innhold",
       title: "Innhold statistikk",
       type: "string",
       validation: (Rule) =>
         Rule.custom((field, context) =>
-          context.document.statistikkInnhold && field === undefined
+          context.document.innhold && field === undefined
             ? "Dette feltet kan ikke være tomt."
             : true
         ),
     },
     {
-      name: "statistikkHjelpetekst",
+      name: "hjelpetekst",
       title: "Hjelpetekst til statistikk",
       type: "string",
     },
   ],
   preview: {
     select: {
-      title: "statistikkOverskrift",
+      title: "overskrift",
     },
   },
 };
