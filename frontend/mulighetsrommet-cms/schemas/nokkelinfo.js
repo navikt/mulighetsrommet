@@ -1,14 +1,14 @@
 import { ImStatsDots } from "react-icons/im";
 
 export default {
-  name: "statistikk",
-  title: "Statistikk",
+  name: "nokkelinfo",
+  title: "Nøkkelinfo",
   type: "document",
   icon: ImStatsDots,
   fields: [
     {
       name: "overskrift",
-      title: "Statistikk overskrift",
+      title: "Nøkkelinfo overskrift",
       type: "string",
       validation: (Rule) =>
         Rule.custom((field, context) =>
@@ -19,7 +19,7 @@ export default {
     },
     {
       name: "innhold",
-      title: "Innhold statistikk",
+      title: "Innhold nokkelinfo",
       type: "string",
       validation: (Rule) =>
         Rule.custom((field, context) =>
@@ -30,7 +30,7 @@ export default {
     },
     {
       name: "hjelpetekst",
-      title: "Hjelpetekst til statistikk",
+      title: "Hjelpetekst til nokkelinfo",
       type: "string",
     },
   ],

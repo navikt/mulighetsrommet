@@ -18,10 +18,10 @@ export default {
       type: "string",
     },
     {
-      name: "statistikkKomponenter",
-      title: "Statistikk",
+      name: "nokkelinfoKomponenter",
+      title: "Nøkkelinfo",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "statistikk" }] }],
+      of: [{ type: "reference", to: [{ type: "nokkelinfo" }] }],
     },
     {
       name: "innsatsgruppe",

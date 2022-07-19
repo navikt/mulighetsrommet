@@ -2,7 +2,7 @@ import React from 'react';
 import './ViewTiltaksgjennomforingDetaljer.less';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
-import Statistikk from '../../components/statistikk/Statistikk';
+import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
@@ -28,12 +28,14 @@ const ViewTiltakstypeDetaljer = () => {
       <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med tiltaksnummer "${tiltaksnummer}"`}</Alert>
     );
   }
+
+  console.log(tiltaksgjennomforing);
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
         <Tilbakeknapp tilbakelenke={`/${fnr}`} />
         <TiltaksgjennomforingsHeader />
-        <Statistikk statistikkKomponenter={tiltaksgjennomforing.tiltakstype.statistikkKomponenter} />
+        <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
       </div>
       <SidemenyDetaljer />
       <TiltaksdetaljerFane />
