@@ -12,7 +12,6 @@ plugins {
 
 application {
     mainClass.set("no.nav.mulighetsrommet.arena.adapter.ApplicationKt")
-
 }
 
 ktlint {
@@ -104,10 +103,6 @@ tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
     npmCommand.set(listOf("run", "build"))
     args.set(listOf("--", "--out-dir", "$buildDir/npm-output"))
     outputs.dir("$buildDir/npm-output")
-}
-
-tasks.named("build") {
-    dependsOn(tasks.npmInstall, "npmBuild")
 }
 
 flyway {
