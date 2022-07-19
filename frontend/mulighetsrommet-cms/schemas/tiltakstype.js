@@ -21,7 +21,7 @@ export default {
       name: "nokkelinfoKomponenter",
       title: "Nøkkelinfo",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "nokkelinfo" }] }],
+      of: [{ type: "nokkelinfo" }],
     },
     {
       name: "innsatsgruppe",

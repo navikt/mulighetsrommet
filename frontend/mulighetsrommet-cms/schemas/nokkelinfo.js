@@ -1,10 +1,10 @@
-import { ImStatsDots } from "react-icons/im";
+import { FiKey } from "react-icons/fi";
 
 export default {
   name: "nokkelinfo",
   title: "Nøkkelinfo",
-  type: "document",
-  icon: ImStatsDots,
+  type: "object",
+  icon: FiKey,
   fields: [
     {
       name: "overskrift",
