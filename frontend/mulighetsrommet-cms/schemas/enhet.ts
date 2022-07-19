@@ -1,6 +1,7 @@
 import { Rule } from "@sanity/types";
 import { ConditionalPropertyCallbackContext } from "@sanity/types/src/schema/types";
 import { CustomValidatorResult } from "@sanity/types/src/validation/types";
+import { ImOffice } from "react-icons/im";
 
 export enum EnhetType {
   Fylke = "Fylke",
@@ -11,6 +12,7 @@ export default {
   name: "enhet",
   title: "Enhet",
   type: "document",
+  icon: ImOffice,
   readOnly: true,
   fields: [
     {

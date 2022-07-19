@@ -18,10 +18,10 @@ export default {
       type: "string",
     },
     {
-      name: "overgangTilArbeid",
-      title: "Overgang til arbeid",
-      description: "Hentes fra Arena, usikker på hvordan denne skal vises her",
-      type: "blockContent",
+      name: "statistikkKomponent",
+      title: "Statistikk",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "statistikk" }] }],
     },
     {
       name: "innsatsgruppe",

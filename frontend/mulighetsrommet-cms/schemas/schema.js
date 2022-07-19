@@ -11,6 +11,7 @@ import regelverksfil from "./regelverkfil";
 import regelverklenke from "./regelverklenke";
 import innsatsgruppe from "./innsatsgruppe";
 import statistikkfil from "./statistikkfil";
+import statistikk from "./statistikk";
 
 export default createSchema({
   name: "default",
@@ -26,6 +27,7 @@ export default createSchema({
     regelverklenke,
     innsatsgruppe,
     statistikkfil,
+    statistikk,
 
     // When added to this list, object types can be used as
     // { type: 'typename' } in other document schemas
