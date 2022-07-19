@@ -93,7 +93,9 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
 
     cy.wait(1000);
+
     cy.getByTestId('knapp_kopier').click();
+
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
         cy.url().should('include', text);
