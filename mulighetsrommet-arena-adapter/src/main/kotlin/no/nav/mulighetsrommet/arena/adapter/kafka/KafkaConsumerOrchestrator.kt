@@ -52,7 +52,7 @@ class KafkaConsumerOrchestrator(
     }
 
     private fun startConsumerClients() {
-        val topics = topicService.getTopics().filter{it.running}.map{it.topic}
+        val topics = topicService.getTopics().filter { it.running }.map { it.topic }
         val clients = consumerClients.filterKeys { it in topics }.values
         clients.forEach { it.start() }
     }
