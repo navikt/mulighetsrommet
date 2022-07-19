@@ -28,7 +28,6 @@ const ViewTiltakstypeDetaljer = () => {
       <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med tiltaksnummer "${tiltaksnummer}"`}</Alert>
     );
   }
-  console.log(tiltaksgjennomforing);
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
