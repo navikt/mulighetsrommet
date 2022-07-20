@@ -12,12 +12,13 @@ import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.mulighetsrommet.api.DatabaseConfig
 import org.flywaydb.core.Flyway
+import java.sql.Array
 
 class Database(databaseConfig: DatabaseConfig) {
 
     val dataSource: HikariDataSource
     val flyway: Flyway
-    val session: Session
+    private val session: Session
         get() = sessionOf(dataSource)
 
     init {
@@ -48,6 +49,12 @@ class Database(databaseConfig: DatabaseConfig) {
 
     fun clean() {
         flyway.clean()
+    }
+
+    fun createArrayOf(list: List<Int>): Array {
+        return using(session) {
+            it.createArrayOf("int4", list)
+        }
     }
 
     fun <T> run(query: NullableResultQueryAction<T>): T? {
