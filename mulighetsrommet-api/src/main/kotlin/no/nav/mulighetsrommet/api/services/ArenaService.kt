@@ -37,7 +37,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltakstype.fraDato,
             tiltakstype.tilDato
         ).map { DatabaseMapper.toAdapterTiltak(it) }.asSingle
-        return db.session.run(queryResult)!!
+        return db.run(queryResult)!!
     }
 
     fun upsertTiltaksgjennomforing(tiltaksgjennomforing: AdapterTiltaksgjennomforing): AdapterTiltaksgjennomforing {
@@ -73,7 +73,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             tiltaksgjennomforing.tilDato,
             tiltaksgjennomforing.sakId
         ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)!!
+        return db.run(queryResult)!!
     }
 
     fun upsertDeltaker(deltaker: AdapterTiltakdeltaker): AdapterTiltakdeltaker {
@@ -103,7 +103,7 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             deltaker.tilDato,
             deltaker.status.name
         ).map { DatabaseMapper.toAdapterTiltakdeltaker(it) }.asSingle
-        return db.session.run(queryResult)!!
+        return db.run(queryResult)!!
     }
 
     fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): AdapterTiltaksgjennomforing? {
@@ -120,6 +120,6 @@ class ArenaService(private val db: Database, private val logger: Logger) {
             sak.aar,
             sak.id,
         ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 }

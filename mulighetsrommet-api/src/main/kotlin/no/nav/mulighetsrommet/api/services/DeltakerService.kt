@@ -13,6 +13,6 @@ class DeltakerService(private val db: Database, private val logger: Logger) {
             select id, tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status from deltaker
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toDeltaker(it) }.asList
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 }

@@ -43,6 +43,6 @@ abstract class TopicConsumer<T>(private val db: Database) {
                 payload = excluded.payload
         """.trimIndent()
 
-        db.session.run(queryOf(query, topic, key, payload).asUpdate)
+        db.run(queryOf(query, topic, key, payload).asUpdate)
     }
 }
