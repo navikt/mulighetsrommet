@@ -9,6 +9,7 @@ app:
     name: ${DB_DATABASE:-mulighetsrommet-api-db}
     user: ${DB_USERNAME:-valp}
     password: ${DB_PASSWORD:-valp}
+    maximumPoolSize: 10
 
   auth:
     azure:

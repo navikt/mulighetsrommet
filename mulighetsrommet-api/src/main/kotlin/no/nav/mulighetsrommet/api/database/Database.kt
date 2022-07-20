@@ -41,9 +41,8 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.driverClassName = "org.postgresql.Driver"
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
-        hikariConfig.maximumPoolSize = 3
+        hikariConfig.maximumPoolSize = databaseConfig.maximumPoolSize
         hikariConfig.healthCheckRegistry = HealthCheckRegistry()
-
         hikariConfig.validate()
 
         dataSource = HikariDataSource(hikariConfig)
@@ -54,7 +53,9 @@ class Database(databaseConfig: DatabaseConfig) {
     }
 
     fun runHealthChecks(): Boolean {
-        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()?.all { it.value.isHealthy }
+        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)
+            ?.runHealthChecks()
+            ?.all { it.value.isHealthy }
             ?: false
     }
 
