@@ -79,7 +79,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
 
     routing {
         internalRoutes(db)
-        apiRoutes(events, topicService)
+        apiRoutes(topicService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {

@@ -27,18 +27,6 @@ class EventRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTopics(): List<String> {
-        @Language("PostgreSQL")
-        val query = """
-            select topic from events group by topic
-        """.trimIndent()
-
-        return queryOf(query)
-            .map { it.toTopic() }
-            .asList
-            .let { db.run(it) }
-    }
-
     fun getEvents(topic: String, amount: Int, createdAfter: LocalDateTime? = null): List<Event> {
         logger.info("Getting events topic=$topic, amount=$amount, since=$createdAfter")
 
@@ -64,10 +52,6 @@ class EventRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
     }
-}
-
-private fun Row.toTopic(): String {
-    return string("topic")
 }
 
 private fun Row.toEvent(): Event {

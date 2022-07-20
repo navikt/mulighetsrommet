@@ -7,21 +7,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.jobs.JobRunners
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.domain.DateSerializer
 import java.time.LocalDateTime
 
-fun Route.apiRoutes(
-    events: EventRepository,
-    topicService: TopicService
-) {
-    get("api/topics") {
-        val topics = events.getTopics()
-        call.respond(topics)
-    }
-
-    put("api/topics") {
+fun Route.apiRoutes(topicService: TopicService) {
+    put("api/topics/replay") {
         val request = call.receive<ReplayTopicEventsRequest>()
 
         JobRunners.executeBackgroundJob {
