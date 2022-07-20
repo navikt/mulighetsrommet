@@ -5,6 +5,7 @@ export default defineConfig({
   viewportWidth: 1800,
   requestTimeout: 10000,
   defaultCommandTimeout: 10000,
+  screenshotOnRunFailure: true;
   retries: {
     runMode: 2,
   },
@@ -13,7 +14,6 @@ export default defineConfig({
       return require('./cypress/plugins/index.js')(on, config);
     },
     baseUrl: 'http://localhost:3000',
-    videoUploadOnPasses: false,
   },
   // component: {
   //   setupNodeEvents(on, config) {},

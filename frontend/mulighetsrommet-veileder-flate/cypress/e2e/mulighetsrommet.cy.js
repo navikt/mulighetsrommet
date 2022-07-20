@@ -89,6 +89,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
+    cy.screenshot();
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
   });
 
