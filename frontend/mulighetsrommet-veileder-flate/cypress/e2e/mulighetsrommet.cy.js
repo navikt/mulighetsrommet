@@ -90,12 +90,16 @@ describe('Tiltaksgjennomføringstabell', () => {
 
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
+    cy.screenshot();
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
 
+    cy.screenshot();
     cy.wait(1000);
 
+    cy.screenshot();
     cy.getByTestId('knapp_kopier').click();
 
+    cy.screenshot();
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
         cy.url().should('include', text);
