@@ -36,7 +36,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build:mock --filter=mulighetsrommet-veileder-flate
+        run: npx turbo run cypress run --record build:mock --filter=mulighetsrommet-veileder-flate
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
