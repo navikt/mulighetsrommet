@@ -89,11 +89,11 @@ describe('Tiltaksgjennomføringstabell', () => {
 
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
-    cy.screenshot();
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
   });
 
   it('Sjekk at tiltaksnummer tilsvarer med url', () => {
+    cy.screenshot();
     cy.getByTestId('knapp_kopier').click();
 
     cy.window().then(win => {
