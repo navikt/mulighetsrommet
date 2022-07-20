@@ -13,6 +13,6 @@ class InnsatsgruppeService(private val db: Database, private val logger: Logger)
             select id, navn from innsatsgruppe
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toInnsatsgruppe(it) }.asList
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 }
