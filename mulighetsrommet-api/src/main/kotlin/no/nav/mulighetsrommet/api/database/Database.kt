@@ -41,7 +41,6 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
         hikariConfig.maximumPoolSize = 3
-        hikariConfig.maxLifetime = 30000
         hikariConfig.validate()
 
         dataSource = HikariDataSource(hikariConfig)
