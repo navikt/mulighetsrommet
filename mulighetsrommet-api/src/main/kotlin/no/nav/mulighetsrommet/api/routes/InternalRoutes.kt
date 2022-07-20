@@ -16,6 +16,7 @@ fun Route.internalRoutes() {
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/readiness") {
+        println(db.runHealthChecks())
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/ping") {

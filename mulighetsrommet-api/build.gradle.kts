@@ -92,6 +92,10 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.6.2")
     implementation("no.nav.security:mock-oauth2-server:0.4.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
+
+    // Health Check
+    implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
+    implementation("io.dropwizard.metrics:metrics-core:3.2.1")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
