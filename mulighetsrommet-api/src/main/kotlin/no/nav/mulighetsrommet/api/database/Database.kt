@@ -54,7 +54,6 @@ class Database(databaseConfig: DatabaseConfig) {
     }
 
     fun runHealthChecks(): Boolean {
-        println((dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks())
         return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()?.all { it.value.isHealthy }
             ?: false
     }

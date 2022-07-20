@@ -74,6 +74,13 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
+
+    // Health Check
+    implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
+    implementation("io.dropwizard.metrics:metrics-core:3.2.1")
+
+    val koinVersion = "3.2.0"
+    implementation("io.insert-koin:koin-ktor:$koinVersion")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
