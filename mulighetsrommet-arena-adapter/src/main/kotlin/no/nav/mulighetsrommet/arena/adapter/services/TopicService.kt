@@ -29,10 +29,7 @@ class TopicService(
             do {
                 events.getEvents(topic, limit = channelCapacity, createdAfter = prevEventTime)
                     .also { prevEventTime = it.lastOrNull()?.createdAt }
-                    .forEach {
-                        logger.info("Sending event {}", it.id)
-                        send(it)
-                    }
+                    .forEach { send(it) }
             } while (isActive && prevEventTime != null)
 
             logger.info("All events produced, closing channel...")
@@ -48,7 +45,12 @@ class TopicService(
                     events.consumeEach { event ->
                         val payload = Json.parseToJsonElement(event.payload)
                         relevantConsumers.forEach { consumer ->
-                            consumer.replayEvent(payload)
+                            runCatching {
+                                consumer.replayEvent(payload)
+                            }.onFailure {
+                                logger.warn("Failed to replay event ${event.id}")
+                                throw it
+                            }
                         }
                     }
                 }
