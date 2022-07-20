@@ -72,9 +72,8 @@ dependencies {
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
-    testImplementation("org.assertj:assertj-db:1.1.1")
 
     // Metrikker
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.0")

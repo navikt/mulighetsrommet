@@ -8,27 +8,26 @@ import kotliquery.Row
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.Event
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class TopicService(
     private val events: EventRepository,
     private val consumers: List<TopicConsumer<*>>,
-    private val capacity: Int = 200,
-    private val numConsumers: Int = 20,
+    private val channelCapacity: Int = 200,
+    private val numChannelConsumers: Int = 20
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(TopicService::class.java)
+    private val logger = LoggerFactory.getLogger(TopicService::class.java)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun replayEvents(topic: String, since: LocalDateTime?) = coroutineScope {
+    suspend fun replayEvents(topic: String, since: LocalDateTime? = null) = coroutineScope {
         logger.info("Replaying events from topic '{}'", topic)
 
         // Produce events in a separate coroutine
-        val events = produce(capacity = capacity) {
+        val events = produce(capacity = channelCapacity) {
             var prevEventTime: LocalDateTime? = since
             do {
-                events.getEvents(topic, amount = capacity, createdAfter = prevEventTime)
+                events.getEvents(topic, amount = channelCapacity, createdAfter = prevEventTime)
                     .also { prevEventTime = it.lastOrNull()?.createdAt }
                     .forEach {
                         logger.info("Sending event {}", it.id)
@@ -43,7 +42,7 @@ class TopicService(
         val relevantConsumers = consumers.filter { it.topic == topic }
 
         // Create `numConsumers` coroutines to process the events simultaneously
-        (0..numConsumers)
+        (0..numChannelConsumers)
             .map {
                 async {
                     events.consumeEach { event ->
