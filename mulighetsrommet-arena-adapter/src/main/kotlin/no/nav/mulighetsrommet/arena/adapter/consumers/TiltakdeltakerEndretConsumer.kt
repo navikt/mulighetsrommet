@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.arena.adapter.Database
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
@@ -22,9 +20,7 @@ class TiltakdeltakerEndretConsumer(
 
     override val logger: Logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
 
-    override fun toDomain(payload: JsonElement): ArenaTiltakdeltaker {
-        return Json.decodeFromJsonElement(payload.jsonObject["after"]!!)
-    }
+    override fun toDomain(payload: JsonElement): ArenaTiltakdeltaker = ArenaEventHelpers.decodeAfter(payload)
 
     override fun resolveKey(payload: ArenaTiltakdeltaker): String {
         return payload.TILTAKDELTAKER_ID.toString()
