@@ -16,7 +16,7 @@ fun Route.apiRoutes(topicService: TopicService) {
         val request = call.receive<ReplayTopicEventsRequest>()
 
         JobRunners.executeBackgroundJob {
-            topicService.replayEvents(topic = request.topic, since = request.since)
+            topicService.replayEvents(topic = request.topic, createdAfter = request.createdAfter)
         }
 
         call.respond(HttpStatusCode.Created)
@@ -27,5 +27,5 @@ fun Route.apiRoutes(topicService: TopicService) {
 data class ReplayTopicEventsRequest(
     val topic: String,
     @Serializable(DateSerializer::class)
-    val since: LocalDateTime? = null,
+    val createdAfter: LocalDateTime? = null,
 )

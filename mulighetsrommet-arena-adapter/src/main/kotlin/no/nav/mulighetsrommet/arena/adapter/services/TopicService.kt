@@ -20,14 +20,14 @@ class TopicService(
     private val logger = LoggerFactory.getLogger(TopicService::class.java)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun replayEvents(topic: String, since: LocalDateTime? = null) = coroutineScope {
+    suspend fun replayEvents(topic: String, createdAfter: LocalDateTime? = null) = coroutineScope {
         logger.info("Replaying events from topic '{}'", topic)
 
         // Produce events in a separate coroutine
         val events = produce(capacity = channelCapacity) {
-            var prevEventTime: LocalDateTime? = since
+            var prevEventTime: LocalDateTime? = createdAfter
             do {
-                events.getEvents(topic, amount = channelCapacity, createdAfter = prevEventTime)
+                events.getEvents(topic, limit = channelCapacity, createdAfter = prevEventTime)
                     .also { prevEventTime = it.lastOrNull()?.createdAt }
                     .forEach {
                         logger.info("Sending event {}", it.id)
