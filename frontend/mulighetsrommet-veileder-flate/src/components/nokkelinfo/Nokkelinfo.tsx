@@ -10,7 +10,7 @@ interface NokkelinfoProps {
 const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
   return (
     <div className="nokkelinfo">
-      {nokkelinfoKomponenter.map((nokkelinfo: any, index: number) => {
+      {nokkelinfoKomponenter.map((nokkelinfo: NokkelinfoKomponenter, index: number) => {
         return (
           <div className="nokkelinfo__wrapper" key={index}>
             <div className="nokkelinfo__heading">

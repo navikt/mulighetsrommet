@@ -7,8 +7,8 @@ node_modules
 # testing
 coverage
 *.iml
-cypress/screenshots
-cypress/videos
+#cypress/screenshots
+#cypress/videos
 
 # build
 dist

@@ -1,7 +1,7 @@
 describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+    cy.getByTestId('tabell_tiltakstyper').children().should('have.length.greaterThan', 1);
   });
 
   it('Sjekk UU', () => {
@@ -20,11 +20,10 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
-    cy.wait(1000)
-      .getByTestId('antall-tiltak')
-      .then($navn => {
-        expect(antallTiltak).not.to.eq($navn.text());
-      });
+    cy.wait(1000);
+    cy.getByTestId('antall-tiltak').then($navn => {
+      expect(antallTiltak).not.to.eq($navn.text());
+    });
 
     cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
     cy.getByTestId('filtertags').children().should('have.length', 2);
@@ -90,19 +89,15 @@ describe('Tiltaksgjennomføringstabell', () => {
 
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
-    cy.screenshot();
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
+  });
 
-    cy.screenshot();
-    cy.wait(1000);
-
-    cy.screenshot();
+  it('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.getByTestId('knapp_kopier').click();
 
-    cy.screenshot();
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
-        cy.url().should('include', text);
+        cy.request(`undefined/${text}`);
       });
     });
   });
