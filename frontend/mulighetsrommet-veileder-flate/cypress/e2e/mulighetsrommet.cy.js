@@ -93,6 +93,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Sjekk at tiltaksnummer tilsvarer med url', () => {
+    cy.wait(1000);
     cy.screenshot();
     cy.getByTestId('knapp_kopier').click();
 
