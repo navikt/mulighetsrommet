@@ -26,7 +26,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             record.headersJson,
             record.timestamp
         ).asUpdate
-        return db.session.run(queryResult).toLong()
+        return db.run(queryResult).toLong()
     }
 
     override fun deleteRecords(ids: MutableList<Long>) {
@@ -39,7 +39,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, idArray).asExecute
 
-        db.session.run(queryResult)
+        db.run(queryResult)
     }
 
     override fun hasRecordWithKey(topic: String, partition: Int, key: ByteArray): Boolean {
@@ -50,7 +50,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, topic, partition, key).map { it.int("id") }.asSingle
 
-        return db.session.run(queryResult) != null
+        return db.run(queryResult) != null
     }
 
     override fun getRecords(topic: String, partition: Int, maxRecords: Int): MutableList<StoredConsumerRecord> {
@@ -61,7 +61,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, topic, partition, maxRecords).map { toStoredConsumerRecord(it) }.asList
 
-        return db.session.run(queryResult).toMutableList()
+        return db.run(queryResult).toMutableList()
     }
 
     override fun incrementRetries(id: Long) {
@@ -72,7 +72,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, id).asUpdate
 
-        db.session.run(queryResult)
+        db.run(queryResult)
     }
 
     override fun getTopicPartitions(topics: MutableList<String>): MutableList<TopicPartition> {
@@ -87,7 +87,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             .map { TopicPartition(it.string("topic"), it.int("partition")) }
             .asList
 
-        return db.session.run(queryResult).toMutableList()
+        return db.run(queryResult).toMutableList()
     }
 
     private fun toStoredConsumerRecord(row: Row): StoredConsumerRecord {

@@ -3,7 +3,13 @@ package no.nav.mulighetsrommet.arena.adapter
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.Session
+import kotliquery.action.ExecuteQueryAction
+import kotliquery.action.ListResultQueryAction
+import kotliquery.action.NullableResultQueryAction
+import kotliquery.action.UpdateAndReturnGeneratedKeyQueryAction
+import kotliquery.action.UpdateQueryAction
 import kotliquery.sessionOf
+import kotliquery.using
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
 
@@ -12,7 +18,8 @@ class Database(databaseConfig: DatabaseConfig) {
     private val logger = LoggerFactory.getLogger(Database::class.java)
     private var flyway: Flyway
     val dataSource: HikariDataSource
-    val session: Session
+    private val session: Session
+        get() = sessionOf(dataSource)
 
     init {
         val jdbcUrl = "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.name}"
@@ -24,13 +31,43 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
         hikariConfig.maximumPoolSize = 3
+        hikariConfig.maxLifetime = 30000
 
         hikariConfig.validate()
         dataSource = HikariDataSource(hikariConfig)
-        session = sessionOf(dataSource)
 
         logger.debug("Start flyway migrations")
         flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
         flyway.migrate()
+    }
+
+    fun <T> run(query: NullableResultQueryAction<T>): T? {
+        return using(session) {
+            it.run(query)
+        }
+    }
+
+    fun <T> run(query: ListResultQueryAction<T>): List<T> {
+        return using(session) {
+            it.run(query)
+        }
+    }
+
+    fun run(query: ExecuteQueryAction): Boolean {
+        return using(session) {
+            it.run(query)
+        }
+    }
+
+    fun run(query: UpdateQueryAction): Int {
+        return using(session) {
+            it.run(query)
+        }
+    }
+
+    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
+        return using(session) {
+            it.run(query)
+        }
     }
 }
