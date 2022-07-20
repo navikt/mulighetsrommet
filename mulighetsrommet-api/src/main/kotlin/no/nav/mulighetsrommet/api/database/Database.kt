@@ -51,9 +51,9 @@ class Database(databaseConfig: DatabaseConfig) {
         flyway.clean()
     }
 
-    fun createArrayOf(list: List<Int>): Array {
+    fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
         return using(session) {
-            it.createArrayOf("int4", list)
+            it.createArrayOf(arrayType, list)
         }
     }
 

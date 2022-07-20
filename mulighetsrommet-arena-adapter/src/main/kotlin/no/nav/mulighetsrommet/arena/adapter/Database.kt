@@ -12,6 +12,7 @@ import kotliquery.sessionOf
 import kotliquery.using
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
+import java.sql.Array
 
 class Database(databaseConfig: DatabaseConfig) {
 
@@ -39,6 +40,12 @@ class Database(databaseConfig: DatabaseConfig) {
         logger.debug("Start flyway migrations")
         flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
         flyway.migrate()
+    }
+
+    fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
+        return using(session) {
+            it.createArrayOf(arrayType, list)
+        }
     }
 
     fun <T> run(query: NullableResultQueryAction<T>): T? {

@@ -35,7 +35,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             delete from failed_events where id = any(?)
         """.trimIndent()
 
-        val idArray = db.session.createArrayOf("int8", ids)
+        val idArray = db.createArrayOf("int8", ids)
 
         val queryResult = queryOf(query, idArray).asExecute
 
@@ -81,7 +81,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             select distinct topic, partition from failed_events where topic = any(?)
         """.trimIndent()
 
-        val topicsArray = db.session.createArrayOf("varchar", topics)
+        val topicsArray = db.createArrayOf("varchar", topics)
 
         val queryResult = queryOf(query, topicsArray)
             .map { TopicPartition(it.string("topic"), it.int("partition")) }

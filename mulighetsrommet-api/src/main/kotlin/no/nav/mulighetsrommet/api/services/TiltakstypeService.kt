@@ -35,7 +35,7 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
         return db.run(result)
     }
 
-    private fun List<Int>.toPostgresIntArray() = if (isNullOrEmpty()) null else db.createArrayOf(this)
+    private fun List<Int>.toPostgresIntArray() = if (isNullOrEmpty()) null else db.createArrayOf("int4", this)
 
     private fun <T> String.where(v: T?, query: String): String = if (v != null) "$this where $query" else this
 
