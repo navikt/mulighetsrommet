@@ -5,7 +5,7 @@ export default defineConfig({
   viewportWidth: 1800,
   requestTimeout: 10000,
   defaultCommandTimeout: 10000,
-  screenshotOnRunFailure: true;
+  screenshotOnRunFailure: true,
   retries: {
     runMode: 2,
   },
