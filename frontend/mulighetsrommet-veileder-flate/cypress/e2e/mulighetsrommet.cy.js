@@ -94,12 +94,11 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.wait(1000);
-    cy.screenshot();
     cy.getByTestId('knapp_kopier').click();
 
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
-        cy.request(`undefined/${text}`);
+        cy.url().should('include', text);
       });
     });
   });
