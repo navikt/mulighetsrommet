@@ -18,8 +18,8 @@ object ProcessingUtils {
 
     fun getArenaDateFormat(): DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-    fun getArenaDateFromTo(value: String): LocalDateTime? {
-        return if (value != "null") {
+    fun getArenaDateFromTo(value: String?): LocalDateTime? {
+        return if (value != null && value != "null") {
             LocalDateTime.parse(value, getArenaDateFormat())
         } else {
             null
