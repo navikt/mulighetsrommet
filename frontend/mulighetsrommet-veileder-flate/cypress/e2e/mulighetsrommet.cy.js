@@ -1,4 +1,4 @@
-describe('Tiltaksgjennomføringstabell', () => {
+xdescribe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltakstyper').children().should('have.length.greaterThan', 1);
@@ -90,14 +90,16 @@ describe('Tiltaksgjennomføringstabell', () => {
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
+    // cy.wait(1000);
+    cy.getByTestId('tilbakeknapp').should('contain', 'Tilbake');
   });
 
   it('Sjekk at tiltaksnummer tilsvarer med url', () => {
-    cy.wait(1000);
     cy.getByTestId('knapp_kopier').click();
 
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
+        // cy.request(`/undefined/${text}`);
         cy.url().should('include', text);
       });
     });
