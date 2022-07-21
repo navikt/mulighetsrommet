@@ -29,7 +29,7 @@ class SakEndretConsumer(
         return payload.SAK_ID.toString()
     }
 
-    override fun handleEvent(payload: ArenaSak) {
+    override suspend fun handleEvent(payload: ArenaSak) {
         client.sendRequest(HttpMethod.Put, "/api/v1/arena/sak", payload.toAdapterSak())
         logger.debug("processed sak endret event")
     }

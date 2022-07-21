@@ -26,7 +26,7 @@ class TiltakEndretConsumer(
         return payload.TILTAKSKODE
     }
 
-    override fun handleEvent(payload: ArenaTiltak) {
+    override suspend fun handleEvent(payload: ArenaTiltak) {
         client.sendRequest(HttpMethod.Put, "/api/v1/arena/tiltakstyper", payload.toAdapterTiltak())
         logger.debug("processed tiltak endret event")
     }

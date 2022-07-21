@@ -24,7 +24,7 @@ class TopicServiceTest : FunSpec({
 
         beforeEach {
             every { consumer.topic } answers { topic }
-            every { consumer.replayEvent(any()) } just runs
+            coEvery { consumer.replayEvent(any()) } just runs
         }
 
         afterEach {
@@ -36,7 +36,7 @@ class TopicServiceTest : FunSpec({
 
             service.replayEvents(topic)
 
-            verify(exactly = 0) {
+            coVerify(exactly = 0) {
                 consumer.replayEvent(any())
             }
         }
@@ -54,7 +54,7 @@ class TopicServiceTest : FunSpec({
 
             service.replayEvents(topic)
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 consumer.replayEvent(fooEventPayload)
             }
         }
@@ -78,7 +78,7 @@ class TopicServiceTest : FunSpec({
 
             service.replayEvents(topic)
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 consumer.replayEvent(fooEventPayload)
                 consumer.replayEvent(barEventPayload)
             }
@@ -103,11 +103,11 @@ class TopicServiceTest : FunSpec({
 
             service.replayEvents(topic, firstEventCreatedAt)
 
-            verify(exactly = 0) {
+            coVerify(exactly = 0) {
                 consumer.replayEvent(fooEventPayload)
             }
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 consumer.replayEvent(barEventPayload)
             }
         }

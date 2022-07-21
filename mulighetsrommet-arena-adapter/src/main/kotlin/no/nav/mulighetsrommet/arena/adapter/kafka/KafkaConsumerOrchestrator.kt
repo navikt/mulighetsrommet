@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonElement
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
@@ -73,7 +74,9 @@ class KafkaConsumerOrchestrator(
                     stringDeserializer(),
                     JsonElementDeserializer(),
                     Consumer { event ->
-                        consumer.processEvent(event.value())
+                        runBlocking {
+                            consumer.processEvent(event.value())
+                        }
                     }
                 )
         }

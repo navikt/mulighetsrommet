@@ -26,7 +26,7 @@ class TiltakgjennomforingEndretConsumer(
         return payload.TILTAKGJENNOMFORING_ID.toString()
     }
 
-    override fun handleEvent(payload: ArenaTiltaksgjennomforing) {
+    override suspend fun handleEvent(payload: ArenaTiltaksgjennomforing) {
         client.sendRequest(
             HttpMethod.Put,
             "/api/v1/arena/tiltaksgjennomforinger",
