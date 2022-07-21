@@ -4,6 +4,7 @@ import com.codahale.metrics.health.HealthCheckRegistry
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.action.ExecuteQueryAction
 import kotliquery.action.ListResultQueryAction
 import kotliquery.action.NullableResultQueryAction
@@ -81,6 +82,12 @@ class Database(databaseConfig: DatabaseConfig) {
     fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
         return using(session) {
             it.run(query)
+        }
+    }
+
+    fun <T> transaction(operation: (TransactionalSession) -> T): T {
+        return using(session) {
+            it.transaction(operation)
         }
     }
 }

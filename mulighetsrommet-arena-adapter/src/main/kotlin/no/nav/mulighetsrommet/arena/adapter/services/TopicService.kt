@@ -18,7 +18,7 @@ class TopicService(private val db: Database) {
             select id, key, topic, type, running from topics order by id
         """.trimIndent()
         val queryResult = queryOf(query).map { toTopic(it) }.asList
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 
     // TODO: https://github.com/seratch/kotliquery/issues/54 - Bug med at den ikke returnerer rader
@@ -28,7 +28,7 @@ class TopicService(private val db: Database) {
         val query = """
             update topics set running = ? where id = ? and running != ? returning *
         """.trimIndent()
-        db.session.transaction { tx ->
+        db.transaction { tx ->
             topics.forEach {
                 tx.run(queryOf(query, it.running, it.id, it.running).asExecute)
             }
@@ -47,7 +47,7 @@ class TopicService(private val db: Database) {
                 topic = excluded.topic
             returning * 
         """.trimIndent()
-        db.session.transaction { tx ->
+        db.transaction { tx ->
             consumers.forEach {
                 tx.run(queryOf(query, it.key, it.topic, TopicType.CONSUMER.toString()).asExecute)
             }
