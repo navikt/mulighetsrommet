@@ -33,6 +33,7 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
         hikariConfig.maximumPoolSize = 3
+        hikariConfig.healthCheckRegistry = HealthCheckRegistry()
 
         hikariConfig.validate()
         dataSource = HikariDataSource(hikariConfig)

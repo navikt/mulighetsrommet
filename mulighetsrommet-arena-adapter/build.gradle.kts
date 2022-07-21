@@ -78,9 +78,6 @@ dependencies {
     // Health Check
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
-
-    val koinVersion = "3.2.0"
-    implementation("io.insert-koin:koin-ktor:$koinVersion")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

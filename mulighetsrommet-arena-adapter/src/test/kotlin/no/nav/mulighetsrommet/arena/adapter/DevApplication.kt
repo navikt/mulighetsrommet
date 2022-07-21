@@ -47,7 +47,7 @@ fun main() {
     val kafka = KafkaConsumerOrchestrator(preset, db, consumers)
 
     initializeServer(server) {
-        configure(app, kafka)
+        configure(app, kafka, db)
     }
 }
 
