@@ -90,7 +90,7 @@ xdescribe('Tiltaksgjennomføringstabell', () => {
 describe('Tiltaksgjennomføringstabell', () => {
   it('Gå til siste tiltaksgjennomføring', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
-    // cy.wait(1000);
+    cy.wait(1000);
     cy.getByTestId('tilbakeknapp').should('contain', 'Tilbake');
   });
 
