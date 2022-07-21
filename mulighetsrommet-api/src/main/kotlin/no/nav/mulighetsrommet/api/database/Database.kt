@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.database
 
+import com.codahale.metrics.health.HealthCheckRegistry
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.Session
@@ -41,6 +42,8 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
         hikariConfig.maximumPoolSize = 3
+        hikariConfig.healthCheckRegistry = HealthCheckRegistry()
+
         hikariConfig.validate()
 
         dataSource = HikariDataSource(hikariConfig)
@@ -48,6 +51,11 @@ class Database(databaseConfig: DatabaseConfig) {
 
     fun clean() {
         flyway.clean()
+    }
+
+    fun runHealthChecks(): Boolean {
+        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()?.all { it.value.isHealthy }
+            ?: false
     }
 
     fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
