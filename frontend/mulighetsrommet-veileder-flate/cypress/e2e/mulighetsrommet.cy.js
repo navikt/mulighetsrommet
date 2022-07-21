@@ -1,7 +1,7 @@
 describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
-    cy.getByTestId('tabell_tiltakstyper').children().should('have.length.greaterThan', 1);
+    cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
   });
 
   it('Sjekk UU', () => {
@@ -87,8 +87,8 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 });
 
-describe('Tiltaksgjennomføringstabell', () => {
-  it('Gå til siste tiltaksgjennomføring', () => {
+describe('Tiltaksgjennomføringsdetaljer', () => {
+  it('Gå til en tiltaksgjennomføring', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
 
     cy.wait(1000);
@@ -96,7 +96,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('tilbakeknapp').should('contain', 'Tilbake');
   });
 
-  xit('Sjekk at tiltaksnummer tilsvarer med url', () => {
+  it('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.getByTestId('knapp_kopier').click();
 
     cy.window().then(win => {
@@ -108,8 +108,8 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Sjekk UU', () => {
-    // cy.checkA11y({ exclude: ['.navds-tooltip'] });
-    cy.checkPageA11y();
+    cy.checkA11y({ exclude: ['.navds-tooltip'] });
+    // cy.checkPageA11y();
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
