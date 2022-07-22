@@ -17,7 +17,7 @@ fun Route.internalRoutes(
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/readiness") {
-        if (db.runHealthChecks()) {
+        if (db.isHealthy()) {
             call.respond(HttpStatusCode.OK)
         } else {
             call.respond(HttpStatusCode.InternalServerError)

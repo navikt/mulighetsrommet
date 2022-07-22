@@ -34,8 +34,10 @@ data class DatabaseConfig(
     val host: String,
     val port: Int,
     val name: String,
+    val schema: String?,
     val user: String,
-    val password: Masked
+    val password: Masked,
+    val maximumPoolSize: Int,
 )
 
 data class KafkaConfig(

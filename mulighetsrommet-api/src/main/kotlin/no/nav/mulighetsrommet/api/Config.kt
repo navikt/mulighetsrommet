@@ -29,7 +29,7 @@ data class DatabaseConfig(
     val schema: String?,
     val user: String,
     val password: Masked,
-    val maximumPoolSize: Int
+    val maximumPoolSize: Int,
 )
 
 data class AuthConfig(
