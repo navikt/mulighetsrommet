@@ -22,18 +22,19 @@ class TopicService(private val db: Database) {
     }
 
     // TODO: https://github.com/seratch/kotliquery/issues/54 - Bug med at den ikke returnerer rader
-    // For nå så gjør vi det litt tungvint med å manuelt sjekke om ting har endret seg.
+    // For nå så gjør vi det litt tungvint med å manuelt sjekke om ting har endret seg med en ekstra transaksjon.
     fun updateRunningStateByTopics(topics: List<Topic>): List<Topic> {
+        val updateableTopics = getUpdateableTopics(topics, getTopics())
         @Language("PostgreSQL")
         val query = """
             update topics set running = ? where id = ? and running != ? returning *
         """.trimIndent()
         db.transaction { tx ->
-            topics.forEach {
+            updateableTopics.forEach {
                 tx.run(queryOf(query, it.running, it.id, it.running).asExecute)
             }
         }
-        return getTopics().filter { it.running == topics[it.id - 1].running }
+        return updateableTopics
     }
 
     fun upsertConsumerTopics(consumers: List<TopicConsumer<*>>) {
@@ -52,6 +53,10 @@ class TopicService(private val db: Database) {
                 tx.run(queryOf(query, it.key, it.topic, TopicType.CONSUMER.toString()).asExecute)
             }
         }
+    }
+
+    private fun getUpdateableTopics(updated: List<Topic>, current: List<Topic>): List<Topic> {
+        return updated.filter { x -> current.any { y -> x.id == y.id && y.running != x.running } }
     }
 
     private fun toTopic(row: Row) = Topic(

@@ -47,7 +47,6 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
     val hopliteVersion = "2.1.5"
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
@@ -57,10 +56,6 @@ dependencies {
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
-    val kotestVersion = "5.3.1"
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
@@ -69,13 +64,20 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.8.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
-    testImplementation("io.mockk:mockk:1.12.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("org.flywaydb:flyway-core:8.5.5")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
+
+    // Test
+    val kotestVersion = "5.3.1"
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("org.assertj:assertj-db:1.1.1")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
+    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
     // Health Check
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")

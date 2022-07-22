@@ -93,4 +93,5 @@ class Database(databaseConfig: DatabaseConfig) {
             it.run(query)
         }
     }
+
 }

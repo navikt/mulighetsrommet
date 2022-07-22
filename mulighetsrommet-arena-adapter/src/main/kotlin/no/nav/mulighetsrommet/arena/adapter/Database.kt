@@ -27,9 +27,19 @@ class Database(databaseConfig: DatabaseConfig) {
     init {
         val jdbcUrl = "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.name}"
 
-        logger.debug("Initializing Database")
+        flyway = Flyway
+            .configure()
+            .dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value)
+            .apply {
+                databaseConfig.schema?.let { schemas(it) }
+            }
+            .load()
+
+        flyway.migrate()
+
         val hikariConfig = HikariConfig()
         hikariConfig.jdbcUrl = jdbcUrl
+        databaseConfig.schema?.let { hikariConfig.schema = databaseConfig.schema }
         hikariConfig.driverClassName = "org.postgresql.Driver"
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
@@ -37,15 +47,17 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.healthCheckRegistry = HealthCheckRegistry()
 
         hikariConfig.validate()
-        dataSource = HikariDataSource(hikariConfig)
 
-        logger.debug("Start flyway migrations")
-        flyway = Flyway.configure().dataSource(jdbcUrl, databaseConfig.user, databaseConfig.password.value).load()
-        flyway.migrate()
+        dataSource = HikariDataSource(hikariConfig)
+    }
+
+    fun clean() {
+        flyway.clean()
     }
 
     fun runHealthChecks(): Boolean {
-        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()?.all { it.value.isHealthy }
+        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()
+            ?.all { it.value.isHealthy }
             ?: false
     }
 
