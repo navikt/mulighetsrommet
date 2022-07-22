@@ -52,7 +52,7 @@ object DatabaseMapper {
         tiltakskode = row.string("tiltakskode"),
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),
-        arrangorId = row.int("arrangor_id"),
+        arrangorId = row.intOrNull("arrangor_id"),
         sakId = row.int("sak_id")
     )
 
