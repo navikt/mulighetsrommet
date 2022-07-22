@@ -43,6 +43,10 @@ class Database(databaseConfig: DatabaseConfig) {
         flyway.migrate()
     }
 
+    fun clean() {
+        flyway.clean()
+    }
+
     fun runHealthChecks(): Boolean {
         return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()?.all { it.value.isHealthy }
             ?: false
