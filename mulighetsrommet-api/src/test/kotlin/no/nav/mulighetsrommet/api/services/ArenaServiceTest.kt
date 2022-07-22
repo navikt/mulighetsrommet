@@ -4,15 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
 import no.nav.mulighetsrommet.domain.Deltakerstatus
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.test.extensions.DatabaseListener
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class ArenaServiceTest : FunSpec({
@@ -25,7 +24,7 @@ class ArenaServiceTest : FunSpec({
 
     context("ArenaService") {
 
-        val service = ArenaService(listener.db, LoggerFactory.getLogger("ArenaService"))
+        val service = ArenaService(listener.db)
 
         val tiltakstype = AdapterTiltak(
             navn = "Arbeidstrening",

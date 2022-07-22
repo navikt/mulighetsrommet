@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
 import io.ktor.server.testing.*
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun <R> withMulighetsrommetApp(

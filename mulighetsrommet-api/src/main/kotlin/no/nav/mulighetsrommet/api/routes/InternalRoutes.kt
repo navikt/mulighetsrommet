@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.mulighetsrommet.api.database.Database
+import no.nav.mulighetsrommet.database.Database
 import org.koin.ktor.ext.inject
 
 fun Route.internalRoutes() {

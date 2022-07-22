@@ -1,10 +1,10 @@
-package no.nav.mulighetsrommet.test.extensions
+package no.nav.mulighetsrommet.database.kotest.extensions
 
 import io.kotest.core.listeners.AfterSpecListener
 import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
-import no.nav.mulighetsrommet.api.DatabaseConfig
-import no.nav.mulighetsrommet.api.database.Database
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.DatabaseConfig
 
 class DatabaseListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null

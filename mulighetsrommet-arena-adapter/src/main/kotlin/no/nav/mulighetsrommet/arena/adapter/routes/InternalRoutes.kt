@@ -6,11 +6,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.database.Database
 
-fun Route.internalRoutes(
-    db: Database,
-) {
+fun Route.internalRoutes(db: Database) {
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     get("/internal/liveness") {

@@ -42,6 +42,8 @@ repositories {
 dependencies {
     implementation(project(":mulighetsrommet-domain"))
     implementation(project(":common:ktor"))
+    implementation(project(":common:database"))
+    testImplementation(testFixtures(project(":common:database")))
 
     val ktorVersion = "2.0.1"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")

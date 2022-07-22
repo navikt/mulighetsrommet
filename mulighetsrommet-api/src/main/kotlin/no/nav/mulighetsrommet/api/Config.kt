@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api
 
-import com.sksamuel.hoplite.Masked
 import io.ktor.client.*
 import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -16,16 +16,6 @@ data class AppConfig(
     val sanity: SanityConfig,
     val veilarboppfolgingConfig: VeilarboppfolgingConfig,
     val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig
-)
-
-data class DatabaseConfig(
-    val host: String,
-    val port: Int,
-    val name: String,
-    val schema: String?,
-    val user: String,
-    val password: Masked,
-    val maximumPoolSize: Int,
 )
 
 data class AuthConfig(

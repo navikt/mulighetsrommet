@@ -6,18 +6,17 @@ import io.ktor.server.application.*
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.DatabaseConfig
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
-import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.SLF4JLogger
-import org.slf4j.Logger
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
@@ -27,7 +26,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
-            services(log, appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig))
+            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig))
         )
     }
 }
@@ -68,15 +67,14 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
 }
 
 private fun services(
-    logger: Logger,
     appConfig: AppConfig,
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient
 ) = module {
-    single { ArenaService(get(), logger) }
-    single { TiltaksgjennomforingService(get(), logger) }
-    single { TiltakstypeService(get(), logger) }
-    single { InnsatsgruppeService(get(), logger) }
+    single { ArenaService(get()) }
+    single { TiltaksgjennomforingService(get()) }
+    single { TiltakstypeService(get()) }
+    single { InnsatsgruppeService(get()) }
     single { SanityService(appConfig.sanity, get()) }
     single {
         BrukerService(
