@@ -52,7 +52,7 @@
     "react-router-dom": "^6.3.0",
     "react-toastify": "^9.0.7",
     "use-resize-observer": "^9.0.2",
-    "vite": "^3.0.2",
+    "vite": "^2.9.14",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-svgr": "^2.2.1",
     "yargs-parser": "^21.0.1"
