@@ -33,7 +33,7 @@ fun main() {
     hikariConfig.driverClassName = "org.postgresql.Driver"
     hikariConfig.username = databaseConfig.user
     hikariConfig.password = databaseConfig.password.value
-    hikariConfig.maximumPoolSize = databaseConfig.maximumPoolSize
+    hikariConfig.maximumPoolSize = 1
     hikariConfig.healthCheckRegistry = HealthCheckRegistry()
     hikariConfig.validate()
 
