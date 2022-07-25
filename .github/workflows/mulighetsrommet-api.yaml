@@ -69,7 +69,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
+          RESOURCE: mulighetsrommet-api/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
           SANITY_DATASET: test
 
