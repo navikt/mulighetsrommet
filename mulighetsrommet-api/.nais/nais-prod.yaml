@@ -44,9 +44,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: poao-openam-proxy
-          namespace: pto
-          cluster: prod-fss
         - application: mulighetsrommet-arena-adapter
         - application: veilarbpersonflate
           namespace: poao
