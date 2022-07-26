@@ -32,7 +32,7 @@ spec:
       memory: 512Mi
   gcp:
     sqlInstances:
-      - type: POSTGRES_12
+      - type: POSTGRES_14
         databases:
           - name: mulighetsrommet-db
             envVarPrefix: DB
@@ -44,9 +44,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: poao-openam-proxy
-          namespace: pto
-          cluster: dev-fss
         - application: mulighetsrommet-arena-adapter
         - application: veilarbpersonflate
           namespace: poao
