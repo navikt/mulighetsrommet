@@ -52,21 +52,11 @@ jobs:
         with:
           name: cypress-screenshots
           path: frontend/mulighetsrommet-veileder-flate/cypress/screenshots
-      # Test run video was always captured, so this action uses "always()" condition
       - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: cypress-videos
           path: frontend/mulighetsrommet-veileder-flate/cypress/videos
-      - name: Notify slack fail
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C026FHSRFEJ
-          status: FAILED
-          color: danger
       - name: Build and publish Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         working-directory: frontend/mulighetsrommet-veileder-flate
