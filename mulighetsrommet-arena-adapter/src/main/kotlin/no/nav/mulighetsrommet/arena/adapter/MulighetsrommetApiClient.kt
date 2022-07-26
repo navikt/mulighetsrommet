@@ -9,7 +9,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> String) {
@@ -39,7 +38,7 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
         }
     }
 
-    internal inline fun <reified T> sendRequest(method: HttpMethod, requestUri: String, payload: T) = runBlocking {
+    internal suspend inline fun <reified T> sendRequest(method: HttpMethod, requestUri: String, payload: T) {
         val response: HttpResponse = client.request(requestUri) {
             bearerAuth(getToken())
             this.method = method

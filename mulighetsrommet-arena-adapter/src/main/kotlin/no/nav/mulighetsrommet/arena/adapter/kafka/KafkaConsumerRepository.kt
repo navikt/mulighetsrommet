@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.database.Database
 import org.apache.kafka.common.TopicPartition
 import org.intellij.lang.annotations.Language
 
@@ -26,7 +26,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             record.headersJson,
             record.timestamp
         ).asUpdate
-        return db.session.run(queryResult).toLong()
+        return db.run(queryResult).toLong()
     }
 
     override fun deleteRecords(ids: MutableList<Long>) {
@@ -35,11 +35,11 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             delete from failed_events where id = any(?)
         """.trimIndent()
 
-        val idArray = db.session.createArrayOf("int8", ids)
+        val idArray = db.createArrayOf("int8", ids)
 
         val queryResult = queryOf(query, idArray).asExecute
 
-        db.session.run(queryResult)
+        db.run(queryResult)
     }
 
     override fun hasRecordWithKey(topic: String, partition: Int, key: ByteArray): Boolean {
@@ -50,7 +50,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, topic, partition, key).map { it.int("id") }.asSingle
 
-        return db.session.run(queryResult) != null
+        return db.run(queryResult) != null
     }
 
     override fun getRecords(topic: String, partition: Int, maxRecords: Int): MutableList<StoredConsumerRecord> {
@@ -61,7 +61,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, topic, partition, maxRecords).map { toStoredConsumerRecord(it) }.asList
 
-        return db.session.run(queryResult).toMutableList()
+        return db.run(queryResult).toMutableList()
     }
 
     override fun incrementRetries(id: Long) {
@@ -72,7 +72,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
 
         val queryResult = queryOf(query, id).asUpdate
 
-        db.session.run(queryResult)
+        db.run(queryResult)
     }
 
     override fun getTopicPartitions(topics: MutableList<String>): MutableList<TopicPartition> {
@@ -81,13 +81,13 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             select distinct topic, partition from failed_events where topic = any(?)
         """.trimIndent()
 
-        val topicsArray = db.session.createArrayOf("varchar", topics)
+        val topicsArray = db.createArrayOf("varchar", topics)
 
         val queryResult = queryOf(query, topicsArray)
             .map { TopicPartition(it.string("topic"), it.int("partition")) }
             .asList
 
-        return db.session.run(queryResult).toMutableList()
+        return db.run(queryResult).toMutableList()
     }
 
     private fun toStoredConsumerRecord(row: Row): StoredConsumerRecord {

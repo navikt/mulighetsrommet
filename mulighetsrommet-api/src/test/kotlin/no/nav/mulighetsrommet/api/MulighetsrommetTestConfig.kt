@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import com.sksamuel.hoplite.Masked
 import io.ktor.server.testing.*
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun <R> withMulighetsrommetApp(
@@ -44,18 +45,20 @@ fun createDatabaseConfig(
     port: Int = 5442,
     name: String = "mulighetsrommet-api-db",
     user: String = "valp",
-    password: Masked = Masked("valp")
-) = DatabaseConfig(host, port, name, null, user, password)
+    password: Masked = Masked("valp"),
+    maximumPoolSize: Int = 1,
+) = DatabaseConfig(host, port, name, null, user, password, maximumPoolSize)
 
 fun createDatabaseConfigWithRandomSchema(
     host: String = "localhost",
     port: Int = 5442,
     name: String = "mulighetsrommet-api-db",
     user: String = "valp",
-    password: Masked = Masked("valp")
+    password: Masked = Masked("valp"),
+    maximumPoolSize: Int = 1,
 ): DatabaseConfig {
     val schema = "$name-${java.util.UUID.randomUUID()}"
-    return DatabaseConfig(host, port, name, schema, user, password)
+    return DatabaseConfig(host, port, name, schema, user, password, maximumPoolSize)
 }
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

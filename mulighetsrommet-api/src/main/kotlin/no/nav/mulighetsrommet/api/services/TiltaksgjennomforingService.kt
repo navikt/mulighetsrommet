@@ -1,12 +1,11 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import org.slf4j.Logger
 
-class TiltaksgjennomforingService(private val db: Database, private val logger: Logger) {
+class TiltaksgjennomforingService(private val db: Database) {
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: String): List<Tiltaksgjennomforing> {
         val query = """
@@ -15,7 +14,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             where tiltakskode = ?
         """.trimIndent()
         val queryResult = queryOf(query, tiltakskode).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 
     fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
@@ -25,7 +24,7 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             where id = ?
         """.trimIndent()
         val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 
     fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
@@ -34,6 +33,6 @@ class TiltaksgjennomforingService(private val db: Database, private val logger: 
             from tiltaksgjennomforing_valid
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 }

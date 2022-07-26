@@ -5,12 +5,11 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.test.extensions.DatabaseListener
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class TiltaksgjennomforingServiceTest : FunSpec({
@@ -22,7 +21,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     register(listener)
 
     beforeSpec {
-        val arenaService = ArenaService(listener.db, LoggerFactory.getLogger("ArenaService"))
+        val arenaService = ArenaService(listener.db)
 
         val tiltakstype = AdapterTiltak(
             navn = "Arbeidstrening",
@@ -69,7 +68,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     }
 
     context("CRUD") {
-        val service = TiltaksgjennomforingService(listener.db, LoggerFactory.getLogger("TiltaksgjennomforingService"))
+        val service = TiltaksgjennomforingService(listener.db)
 
         test("should get tiltaksgjennomføring by id") {
             val tiltaksgjennomforing = service.getTiltaksgjennomforingById(1)

@@ -1,27 +1,35 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
 import kotlinx.serialization.json.JsonElement
-import kotliquery.queryOf
-import no.nav.mulighetsrommet.arena.adapter.Database
-import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.intellij.lang.annotations.Language
+import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import org.slf4j.Logger
 
-abstract class TopicConsumer<T>(private val db: Database) {
+abstract class TopicConsumer<T>() {
     abstract val logger: Logger
-    abstract val topic: String
 
-    fun processEvent(event: ConsumerRecord<String, JsonElement>) {
-        val payload = event.value()
+    abstract val topic: String
+    abstract val events: EventRepository
+
+    suspend fun processEvent(payload: JsonElement) {
         val parsedPayload = toDomain(payload)
         if (shouldProcessEvent(parsedPayload)) {
             val key = resolveKey(parsedPayload)
 
             logger.debug("Persisting event: topic=$topic, key=$key")
-            persistEvent(topic, key, payload.toString())
+            events.saveEvent(topic, key, payload.toString())
 
             logger.debug("Handling event: topic=$topic, key=$key")
             handleEvent(parsedPayload)
+        }
+    }
+
+    suspend fun replayEvent(payload: JsonElement) {
+        val parsedEvent = toDomain(payload)
+        if (shouldProcessEvent(parsedEvent)) {
+            val key = resolveKey(parsedEvent)
+
+            logger.debug("Replaying event: topic=$topic, key=$key")
+            handleEvent(parsedEvent)
         }
     }
 
@@ -31,18 +39,5 @@ abstract class TopicConsumer<T>(private val db: Database) {
 
     protected abstract fun resolveKey(payload: T): String
 
-    protected abstract fun handleEvent(payload: T)
-
-    private fun persistEvent(topic: String, key: String, payload: String) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into events(topic, key, payload)
-            values (?, ?, ?::jsonb)
-            on conflict (topic, key)
-            do update set
-                payload = excluded.payload
-        """.trimIndent()
-
-        db.session.run(queryOf(query, topic, key, payload).asUpdate)
-    }
+    protected abstract suspend fun handleEvent(payload: T)
 }

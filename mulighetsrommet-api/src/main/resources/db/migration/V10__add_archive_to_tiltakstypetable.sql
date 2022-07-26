@@ -1,3 +1,0 @@
-ALTER TABLE tiltakstype
-ADD COLUMN archived BOOLEAN NOT NULL  DEFAULT 'false',
-ALTER COLUMN beskrivelse TYPE  TEXT

@@ -1,19 +1,18 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakstype
-import org.slf4j.Logger
 
-class TiltakstypeService(private val db: Database, private val logger: Logger) {
+class TiltakstypeService(private val db: Database) {
 
     fun getTiltakstypeByTiltakskode(tiltakskode: String): Tiltakstype? {
         val query = """
             select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
         """.trimIndent()
         val queryResult = queryOf(query, tiltakskode).map { DatabaseMapper.toTiltakstype(it) }.asSingle
-        return db.session.run(queryResult)
+        return db.run(queryResult)
     }
 
     fun getTiltakstyper(innsatsgrupper: List<Int>? = null, search: String? = null): List<Tiltakstype> {
@@ -32,10 +31,10 @@ class TiltakstypeService(private val db: Database, private val logger: Logger) {
             .trimIndent()
 
         val result = queryOf(query, parameters).map { DatabaseMapper.toTiltakstype(it) }.asList
-        return db.session.run(result)
+        return db.run(result)
     }
 
-    private fun List<Int>.toPostgresIntArray() = if (isNullOrEmpty()) null else db.session.createArrayOf("int4", this)
+    private fun List<Int>.toPostgresIntArray() = if (isNullOrEmpty()) null else db.createArrayOf("int4", this)
 
     private fun <T> String.where(v: T?, query: String): String = if (v != null) "$this where $query" else this
 

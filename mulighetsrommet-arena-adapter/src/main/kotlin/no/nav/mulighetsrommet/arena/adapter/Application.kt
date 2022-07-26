@@ -2,18 +2,24 @@ package no.nav.mulighetsrommet.arena.adapter
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.consumers.*
+import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
+import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.ktor.startKtorApplication
+import java.util.*
 
 fun main() {
     val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
@@ -30,44 +36,31 @@ fun main() {
 
     val db = Database(app.database)
 
+    startKtorApplication(server) {
+        configure(app, kafkaPreset, db, api)
+    }
+}
+
+fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Database, api: MulighetsrommetApiClient) {
+    val events = EventRepository(db)
+
     val consumers = listOf(
-        TiltakEndretConsumer(db, app.kafka.getTopic("tiltakendret"), api),
-        TiltakgjennomforingEndretConsumer(db, app.kafka.getTopic("tiltakgjennomforingendret"), api),
-        TiltakdeltakerEndretConsumer(db, app.kafka.getTopic("tiltakdeltakerendret"), api),
-        SakEndretConsumer(db, app.kafka.getTopic("sakendret"), api)
+        TiltakEndretConsumer(config.kafka.getTopic("tiltakendret"), events, api),
+        TiltakgjennomforingEndretConsumer(config.kafka.getTopic("tiltakgjennomforingendret"), events, api),
+        TiltakdeltakerEndretConsumer(config.kafka.getTopic("tiltakdeltakerendret"), events, api),
+        SakEndretConsumer(config.kafka.getTopic("sakendret"), events, api),
     )
 
     val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
 
-    initializeServer(server) {
-        configure(app, kafka)
-    }
-}
-
-fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
-    val server = embeddedServer(
-        Netty,
-        environment = applicationEngineEnvironment {
-            log = LoggerFactory.getLogger("ktor.application")
-
-            module(main)
-
-            connector {
-                port = config.port
-                host = config.host
-            }
-        }
-    )
-    server.start(true)
-}
-
-fun Application.configure(config: AppConfig, kafka: KafkaConsumerOrchestrator) {
+    val topicService = TopicService(events, consumers)
     configureSerialization()
     configureMonitoring()
     configureHTTP()
 
     routing {
-        internalRoutes()
+        internalRoutes(db)
+        apiRoutes(topicService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {
