@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.arena.adapter.repositories
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.arena.adapter.Database
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
+import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 
 enum class TopicType {
