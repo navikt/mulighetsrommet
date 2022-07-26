@@ -47,6 +47,17 @@ jobs:
           wait-on: http://localhost:3000
           start: npm start
           install: false
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: frontend/mulighetsrommet-veileder-flate/cypress/screenshots
+      # Test run video was always captured, so this action uses "always()" condition
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: cypress-videos
+          path: frontend/mulighetsrommet-veileder-flate/cypress/videos
       - name: Notify slack fail
         if: failure()
         env:
