@@ -9,7 +9,7 @@ import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProce
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer

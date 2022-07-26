@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.arena.adapter
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
@@ -19,7 +17,8 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.ktor.startKtorApplication
 import java.util.*
 
 fun main() {
@@ -37,26 +36,9 @@ fun main() {
 
     val db = Database(app.database)
 
-    initializeServer(server) {
+    startKtorApplication(server) {
         configure(app, kafkaPreset, db, api)
     }
-}
-
-fun initializeServer(config: ServerConfig, main: Application.() -> Unit) {
-    val server = embeddedServer(
-        Netty,
-        environment = applicationEngineEnvironment {
-            log = LoggerFactory.getLogger("ktor.application")
-
-            module(main)
-
-            connector {
-                port = config.port
-                host = config.host
-            }
-        }
-    )
-    server.start(true)
 }
 
 fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Database, api: MulighetsrommetApiClient) {
@@ -72,7 +54,6 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
     val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
 
     val topicService = TopicService(events, consumers)
-
     configureSerialization()
     configureMonitoring()
     configureHTTP()

@@ -4,9 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.test.extensions.DatabaseListener
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class TiltakstypeServiceTest : FunSpec({
@@ -18,7 +17,7 @@ class TiltakstypeServiceTest : FunSpec({
     register(listener)
 
     beforeSpec {
-        val arenaService = ArenaService(listener.db, LoggerFactory.getLogger("ArenaService"))
+        val arenaService = ArenaService(listener.db)
 
         val tiltakstype = AdapterTiltak(
             navn = "Arbeidstrening",
@@ -41,7 +40,7 @@ class TiltakstypeServiceTest : FunSpec({
     }
 
     context("CRUD") {
-        val service = TiltakstypeService(listener.db, LoggerFactory.getLogger("TiltakstypeService"))
+        val service = TiltakstypeService(listener.db)
 
         test("should read tiltakstyper") {
             service.getTiltakstyper() shouldHaveSize 2

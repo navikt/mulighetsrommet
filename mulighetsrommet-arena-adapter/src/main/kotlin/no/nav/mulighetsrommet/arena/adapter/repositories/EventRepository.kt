@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

@@ -5,6 +5,8 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.sksamuel.hoplite.ConfigLoader
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -35,7 +37,7 @@ fun main() {
 
     val db = Database(app.database)
 
-    initializeServer(server) {
+    startKtorApplication(server) {
         configure(app, kafkaPreset, db, api)
     }
 }

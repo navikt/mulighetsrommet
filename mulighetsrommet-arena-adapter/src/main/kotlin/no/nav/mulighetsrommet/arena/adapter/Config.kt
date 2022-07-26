@@ -1,16 +1,11 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import com.sksamuel.hoplite.Masked
-import java.lang.RuntimeException
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
     val server: ServerConfig,
     val app: AppConfig
-)
-
-data class ServerConfig(
-    val host: String,
-    val port: Int
 )
 
 data class AppConfig(
@@ -28,16 +23,6 @@ data class ServiceConfig(
 data class AuthenticatedService(
     val url: String,
     val scope: String
-)
-
-data class DatabaseConfig(
-    val host: String,
-    val port: Int,
-    val name: String,
-    val schema: String?,
-    val user: String,
-    val password: Masked,
-    val maximumPoolSize: Int,
 )
 
 data class KafkaConfig(

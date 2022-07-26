@@ -1,16 +1,17 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import org.intellij.lang.annotations.Language
-import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-class ArenaService(private val db: Database, private val logger: Logger) {
+class ArenaService(private val db: Database) {
+    private val logger = LoggerFactory.getLogger(ArenaService::class.java)
 
     fun upsertTiltakstype(tiltakstype: AdapterTiltak): AdapterTiltak {
         logger.info("Lagrer tiltakstype tiltakskode={} ", tiltakstype.tiltakskode)
