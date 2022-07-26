@@ -48,7 +48,7 @@ spec:
         - application: veilarbpersonflate
           namespace: poao
   envFrom:
-    - secret: mulighetsrommet-api-prod
+    - secret: mulighetsrommet-api
   env:
     - name: VEILARBVEDTAKSSTOTTE_URL
       value: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
