@@ -16,13 +16,13 @@ app:
     password: ${DB_PASSWORD:-valp}
     maximumPoolSize: 10
 
-  enableKafkaTopicConsumption: ${ENABLE_KAFKA_TOPIC_CONSUMPTION:-true}
-  enableFailedRecordProcessor: ${ENABLE_FAILED_RECORD_PROCESSOR:-true}
+  enableFailedRecordProcessor: ${ENABLE_FAILED_RECORD_PROCESSOR:-false}
 
   kafka:
     brokers: ${KAFKA_BROKERS:-localhost:29092}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
+      pollChangesDelayMs: 10000
       consumer:
         tiltakendret: ${MR_KAFKA_TOPIC_TILTAKENDRET:-tiltakendret}
         tiltakgjennomforingendret: ${MR_KAFKA_TOPIC_TILTAKGJENNOMFORINGENDRET:-tiltakgjennomforingendret}

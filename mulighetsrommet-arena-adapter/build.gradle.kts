@@ -5,6 +5,8 @@ plugins {
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
+    id("com.adarshr.test-logger")
+    id("com.github.node-gradle.node") version "3.4.0"
 }
 
 application {
@@ -26,6 +28,21 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
+node {
+    version.set("16.16.0")
+    download.set(false)
+    workDir.set(File("src/main/resources/web"))
+    npmWorkDir.set(File("src/main/resources/web"))
+    nodeProjectDir.set(File("src/main/resources/web"))
+}
+
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
+    dependsOn(tasks.npmInstall)
+    npmCommand.set(listOf("run", "build"))
+    args.set(listOf("--", "--out-dir", "$buildDir/npm-output"))
+    outputs.dir("$buildDir/npm-output")
+}
+
 repositories {
     maven {
         url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
@@ -45,7 +62,7 @@ dependencies {
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
 
-    val ktorVersion = "2.0.1"
+    val ktorVersion = "2.0.3"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
@@ -78,7 +95,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
 
-    implementation("com.github.seratch:kotliquery:1.6.2")
+    implementation("com.github.seratch:kotliquery:1.8.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
     testImplementation("io.mockk:mockk:1.12.3")

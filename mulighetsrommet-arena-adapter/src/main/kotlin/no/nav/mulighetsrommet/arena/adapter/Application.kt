@@ -14,8 +14,10 @@ import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
+import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.ktor.startKtorApplication
@@ -51,7 +53,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
         SakEndretConsumer(config.kafka.getTopic("sakendret"), events, api),
     )
 
-    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers)
+    val kafka = KafkaConsumerOrchestrator(kafkaPreset, db, consumers, TopicRepository(db), config.kafka.topics.pollChangesDelayMs)
 
     val topicService = TopicService(events, consumers)
     configureSerialization()
@@ -61,19 +63,16 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
     routing {
         internalRoutes(db)
         apiRoutes(topicService)
+        managerRoutes(kafka)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {
-        if (config.enableKafkaTopicConsumption) {
-            kafka.enableTopicConsumption()
-        }
         if (config.enableFailedRecordProcessor) {
             kafka.enableFailedRecordProcessor()
         }
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
-        kafka.disableTopicConsumption()
         kafka.disableFailedRecordProcessor()
     }
 }
