@@ -34,22 +34,21 @@ node {
     nodeProjectDir.set(File("src/web"))
 }
 
-tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
+val npmBuild = tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
     dependsOn(tasks.npmInstall)
     npmCommand.set(listOf("run", "build"))
-//    args.set(listOf("--", "--out-dir", "$buildDir/web/dist"))
     outputs.dir("src/web/dist")
 }
 
 tasks.withType<ProcessResources> {
-    dependsOn("npmBuild")
+    dependsOn(npmBuild)
     from("src/web/dist") {
         into("web")
     }
 }
 
 tasks.build {
-    dependsOn("npmBuild")
+    dependsOn(npmBuild)
 }
 
 repositories {
