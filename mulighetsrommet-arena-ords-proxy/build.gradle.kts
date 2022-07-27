@@ -45,10 +45,6 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
-    val hopliteVersion = "2.1.5"
-    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-
     val kotestVersion = "5.3.0"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")

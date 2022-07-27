@@ -49,12 +49,3 @@ spec:
           namespace: poao
   envFrom:
     - secret: mulighetsrommet-api
-  env:
-    - name: VEILARBVEDTAKSSTOTTE_URL
-      value: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api
-    - name: VEILARBVEDTAKSSTOTTE_SCOPE
-      value: api://dev-fss.pto.veilarbvedtaksstotte/.default
-    - name: VEILARBOPPFOLGING_URL
-      value: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
-    - name: VEILARBOPPFOLGING_SCOPE
-      value: api://dev-fss.pto.veilarboppfolging/.default
