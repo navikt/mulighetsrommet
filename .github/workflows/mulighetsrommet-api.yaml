@@ -82,8 +82,6 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ env.IMAGE }}
-          SANITY_DATASET: test
-          ENVIRONMENT: dev
 
   deploy-prod:
     name: Deploy (prod)
@@ -111,5 +109,3 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}
-          SANITY_DATASET: production
-          ENVIRONMENT: production
