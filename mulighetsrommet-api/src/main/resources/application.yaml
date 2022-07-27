@@ -3,6 +3,7 @@ server:
   host: 0.0.0.0
 
 app:
+  environment: ${ENVIRONMENT:-localhost}
   database:
     host: ${DB_HOST:-localhost}
     port: ${DB_PORT:-5442}
