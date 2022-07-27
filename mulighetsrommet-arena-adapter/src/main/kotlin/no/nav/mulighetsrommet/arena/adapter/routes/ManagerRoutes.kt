@@ -13,7 +13,7 @@ fun Route.managerRoutes(kafka: KafkaConsumerOrchestrator) {
     singlePageApplication {
         applicationRoute = "manager"
         useResources = true
-        react("web/dist")
+        react("web")
     }
     get("/assets/*") {
         call.respondRedirect("/manager" + call.request.uri)

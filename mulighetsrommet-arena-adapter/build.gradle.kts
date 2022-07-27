@@ -28,18 +28,28 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 node {
-    version.set("16.16.0")
     download.set(false)
-    workDir.set(File("src/main/resources/web"))
-    npmWorkDir.set(File("src/main/resources/web"))
-    nodeProjectDir.set(File("src/main/resources/web"))
+    workDir.set(File("src/web"))
+    npmWorkDir.set(File("src/web"))
+    nodeProjectDir.set(File("src/web"))
 }
 
 tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
     dependsOn(tasks.npmInstall)
     npmCommand.set(listOf("run", "build"))
-    args.set(listOf("--", "--out-dir", "$buildDir/npm-output"))
-    outputs.dir("$buildDir/npm-output")
+//    args.set(listOf("--", "--out-dir", "$buildDir/web/dist"))
+    outputs.dir("src/web/dist")
+}
+
+tasks.withType<ProcessResources> {
+    dependsOn("npmBuild")
+    from("src/web/dist") {
+        into("web")
+    }
+}
+
+tasks.build {
+    dependsOn("npmBuild")
 }
 
 repositories {
@@ -94,18 +104,10 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
 
-    implementation("com.github.seratch:kotliquery:1.8.0")
-    implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
     testImplementation("io.mockk:mockk:1.12.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    implementation("org.flywaydb:flyway-core:8.5.5")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
-    implementation("org.postgresql:postgresql:42.3.3")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
-
-    // Health Check
-    implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
-    implementation("io.dropwizard.metrics:metrics-core:3.2.1")
 }
