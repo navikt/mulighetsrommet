@@ -27,7 +27,7 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring()
     configureSerialization()
     configureWebjars()
-    configureSentry()
+    configureSentry(config.environment)
 
     routing {
         internalRoutes()

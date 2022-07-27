@@ -7,10 +7,11 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
     val server: ServerConfig,
-    val app: AppConfig,
+    val app: AppConfig
 )
 
 data class AppConfig(
+    val environment: String,
     val database: DatabaseConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
