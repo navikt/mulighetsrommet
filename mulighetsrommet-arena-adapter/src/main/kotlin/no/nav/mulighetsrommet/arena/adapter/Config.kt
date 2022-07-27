@@ -9,7 +9,6 @@ data class Config(
 )
 
 data class AppConfig(
-    val environment: String,
     val enableFailedRecordProcessor: Boolean,
     val services: ServiceConfig,
     val database: DatabaseConfig,

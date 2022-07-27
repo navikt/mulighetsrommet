@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import java.util.*
@@ -60,7 +61,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
     configureSerialization()
     configureMonitoring()
     configureHTTP()
-    configureSentry(config.environment)
+    configureSentry(NaisEnv.current())
 
     routing {
         internalRoutes(db)
