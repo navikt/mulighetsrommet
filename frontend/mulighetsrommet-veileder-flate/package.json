@@ -31,6 +31,8 @@
     "@navikt/navspa": "^6.0.1",
     "@portabletext/react": "^1.0.6",
     "@sanity/client": "^3.3.2",
+    "@sentry/react": "^7.7.0",
+    "@sentry/tracing": "^7.7.0",
     "@visx/axis": "^2.11.1",
     "@visx/grid": "^2.11.1",
     "@visx/legend": "^2.10.0",
