@@ -3,6 +3,7 @@ server:
   host: 0.0.0.0
 
 app:
+  environment: ${ENVIRONMENT:-localhost}
   services:
     mulighetsrommetApi:
       url: ${MR_API_URL:-http://localhost:8080}
