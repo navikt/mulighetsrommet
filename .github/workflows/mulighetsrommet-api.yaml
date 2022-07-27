@@ -64,6 +64,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
+          VAR: image=${{ env.IMAGE }}
       - name: Lag deployment i Sentry
         uses: getsentry/action-release@v1
         env:
@@ -72,16 +79,9 @@ jobs:
           SENTRY_ORG: nav
           SENTRY_PROJECT: mulighetsrommet-api
         with:
-          environment: dev
+          environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-      - name: Deploy
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
-          VAR: image=${{ env.IMAGE }}
 
   deploy-prod:
     name: Deploy (prod)
@@ -91,6 +91,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
+          VAR: image=${{ env.IMAGE }}
       - name: Lag deployment i Sentry
         uses: getsentry/action-release@v1
         env:
@@ -99,13 +106,6 @@ jobs:
           SENTRY_ORG: nav
           SENTRY_PROJECT: mulighetsrommet-api
         with:
-          environment: production
+          environment: prod-gcp
           version: ${{ github.sha }}
           set_commits: skip
-      - name: Deploy
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
-          VAR: image=${{ env.IMAGE }}
