@@ -23,7 +23,7 @@ class TopicServiceTest : FunSpec({
         val service = TopicService(events, listOf(consumer))
 
         beforeEach {
-            every { consumer.topic } answers { topic }
+            every { consumer.consumerConfig.topic } answers { topic }
             coEvery { consumer.replayEvent(any()) } just runs
         }
 

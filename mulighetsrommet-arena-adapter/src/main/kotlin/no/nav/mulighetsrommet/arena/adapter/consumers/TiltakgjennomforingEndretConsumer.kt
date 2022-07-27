@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
+import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
@@ -13,7 +14,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakgjennomforingEndretConsumer(
-    override val topic: String,
+    override val consumerConfig: ConsumerConfig,
     override val events: EventRepository,
     private val client: MulighetsrommetApiClient
 ) : TopicConsumer<ArenaTiltaksgjennomforing>() {
