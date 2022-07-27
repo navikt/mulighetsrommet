@@ -76,5 +76,6 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
+        kafka.stopPollingTopicChanges()
     }
 }
