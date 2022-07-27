@@ -150,6 +150,7 @@ jobs:
           VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
       - name: Lag deployment i Sentry
+        continue-on-error: true
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

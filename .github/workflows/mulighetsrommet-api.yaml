@@ -72,6 +72,7 @@ jobs:
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ env.IMAGE }}
       - name: Lag deployment i Sentry
+        continue-on-error: true
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -99,6 +100,7 @@ jobs:
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}
       - name: Lag deployment i Sentry
+        continue-on-error: true
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
