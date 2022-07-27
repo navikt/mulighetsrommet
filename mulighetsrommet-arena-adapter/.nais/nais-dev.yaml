@@ -32,7 +32,7 @@ spec:
       memory: 512Mi
   gcp:
     sqlInstances:
-      - type: POSTGRES_12
+      - type: POSTGRES_14
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
