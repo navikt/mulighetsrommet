@@ -8,7 +8,7 @@ users.txt
 .gradle
 build/
 !src/**/build/
-/**/dist/
+src/web/dist
 
 # Ignore Gradle GUI config
 gradle-app.setting
