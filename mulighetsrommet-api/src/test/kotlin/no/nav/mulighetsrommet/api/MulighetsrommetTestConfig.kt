@@ -23,7 +23,8 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     auth = createAuthConfig(oauth),
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
-    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig()
+    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig(),
+    environment = "localhost"
 )
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
