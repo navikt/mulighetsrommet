@@ -60,7 +60,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
     configureSerialization()
     configureMonitoring()
     configureHTTP()
-    configureSentry()
+    configureSentry(config.environment)
 
     routing {
         internalRoutes(db)
