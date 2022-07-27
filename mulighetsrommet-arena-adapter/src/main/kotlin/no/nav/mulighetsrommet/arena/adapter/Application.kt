@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretC
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
+import no.nav.mulighetsrommet.arena.adapter.plugins.configureSentry
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
@@ -59,6 +60,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
     configureSerialization()
     configureMonitoring()
     configureHTTP()
+    configureSentry()
 
     routing {
         internalRoutes(db)

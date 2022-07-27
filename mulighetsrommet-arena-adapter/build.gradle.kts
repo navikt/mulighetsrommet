@@ -103,6 +103,9 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
 
+    // Sentry error logging
+    implementation("io.sentry:sentry:6.1.0")
+
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
     testImplementation("io.mockk:mockk:1.12.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
