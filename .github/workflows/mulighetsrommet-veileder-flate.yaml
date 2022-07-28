@@ -51,7 +51,7 @@ jobs:
         run: |
           pwd
           ls -la
-          cd frontend
+          cd frontend/mulighetsrommet-veileder-flate
           pwd
           ls -la
       - name: Lag deployment i Sentry
