@@ -74,6 +74,13 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
+          VAR: image=${{ env.IMAGE }}
+          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
       - name: Lag deployment i Sentry
         uses: getsentry/action-release@v1
         env:
@@ -85,13 +92,6 @@ jobs:
           environment: dev
           version: ${{ github.sha }}
           set_commits: skip
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
 
   build-and-test:
     name: Build and test for production
@@ -135,8 +135,6 @@ jobs:
           docker build -t ${IMAGE} .
           docker push ${IMAGE}
 
-
-
   deploy-prod:
     name: Deploy (prod)
     runs-on: ubuntu-latest
@@ -144,7 +142,15 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
+          VAR: image=${{ env.IMAGE }}
+          VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
       - name: Lag deployment i Sentry
+        continue-on-error: true
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -155,11 +161,3 @@ jobs:
           environment: production
           version: ${{ github.sha }}
           set_commits: skip
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
-

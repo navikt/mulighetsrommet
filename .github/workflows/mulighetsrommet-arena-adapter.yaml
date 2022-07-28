@@ -64,17 +64,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Lag deployment i Sentry
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://sentry.gc.nav.no
-          SENTRY_ORG: nav
-          SENTRY_PROJECT: mulighetsrommet-arena-adapter
-        with:
-          environment: dev
-          version: ${{ github.sha }}
-          set_commits: skip
       - name: Deploy
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -82,6 +71,18 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-dev.yaml
           VAR: image=${{ env.IMAGE }}
+      - name: Lag deployment i Sentry
+        continue-on-error: true
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.gc.nav.no
+          SENTRY_ORG: nav
+          SENTRY_PROJECT: mulighetsrommet-arena-adapter
+        with:
+          environment: dev-gcp
+          version: ${{ github.sha }}
+          set_commits: skip
 
   deploy-prod:
     name: Deploy (prod)
@@ -98,3 +99,15 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}
+      - name: Lag deployment i Sentry
+        continue-on-error: true
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.gc.nav.no
+          SENTRY_ORG: nav
+          SENTRY_PROJECT: mulighetsrommet-arena-adapter
+        with:
+          environment: prod-gcp
+          version: ${{ github.sha }}
+          set_commits: skip

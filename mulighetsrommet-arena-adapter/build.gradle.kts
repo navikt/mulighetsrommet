@@ -85,10 +85,6 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
-    val hopliteVersion = "2.1.5"
-    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-
     val navCommonModules = "2.2022.05.05_06.41-84855089824b"
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
