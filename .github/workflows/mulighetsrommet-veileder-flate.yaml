@@ -47,12 +47,12 @@ jobs:
           wait-on: http://localhost:3000
           start: npm start
           install: false
-      - name: Print cwd
+      - name: Print pwd
         run: |
-          cwd
+          pwd
           ls -la
           cd frontend
-          cw
+          pwd
           ls -la
       - name: Lag deployment i Sentry
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' # Lag deployment hvis merge til main eller manuell trigger
