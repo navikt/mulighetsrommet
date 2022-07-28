@@ -51,7 +51,7 @@ jobs:
         run: |
           pwd
           ls -la
-          cd frontend/mulighetsrommet-veileder-flate
+          cd frontend/mulighetsrommet-veileder-flate/dist
           pwd
           ls -la
       - name: Lag deployment i Sentry
@@ -67,7 +67,7 @@ jobs:
           environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: /dist/assets
+          sourcemaps: ./assets
       - name: Notify slack fail
         if: failure()
         env:
