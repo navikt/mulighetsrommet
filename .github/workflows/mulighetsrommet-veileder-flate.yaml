@@ -89,10 +89,10 @@ jobs:
           SENTRY_ORG: nav
           SENTRY_PROJECT: mulighetsrommet-veileder-flate
         with:
-          environment: dev
+          environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: "/dist/assets"
+          sourcemaps: "dist/assets"
 
   build-and-test:
     name: Build and test for production
@@ -159,7 +159,7 @@ jobs:
           SENTRY_ORG: nav
           SENTRY_PROJECT: mulighetsrommet-veileder-flate
         with:
-          environment: production
+          environment: prod-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: "/dist/assets"
+          sourcemaps: "dist/assets"
