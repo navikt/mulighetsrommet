@@ -67,7 +67,7 @@ jobs:
           environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: ./dist/assets
+          sourcemaps: ./frontend/mulighetsrommet-veilder-flate/dist/assets
       - name: Notify slack fail
         if: failure()
         env:
@@ -139,7 +139,7 @@ jobs:
           environment: prod-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: ./dist/assets
+          sourcemaps: ./frontend/mulighetsrommet-veilder-flate/dist/assets
       - name: Notify slack fail
         if: failure()
         env:
