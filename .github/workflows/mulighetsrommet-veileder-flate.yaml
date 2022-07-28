@@ -92,6 +92,7 @@ jobs:
           environment: dev
           version: ${{ github.sha }}
           set_commits: skip
+          sourcemaps: "./dist/assets"
 
   build-and-test:
     name: Build and test for production
@@ -161,3 +162,4 @@ jobs:
           environment: production
           version: ${{ github.sha }}
           set_commits: skip
+          sourcemaps: "./dist/assets"
