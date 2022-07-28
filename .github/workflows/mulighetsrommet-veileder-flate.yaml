@@ -58,6 +58,10 @@ jobs:
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' # Lag deployment hvis merge til main eller manuell trigger
         continue-on-error: true
         uses: getsentry/action-release@v1
+        run: |
+          cd frontend/mulighetsrommet-veileder-flate
+          pwd
+          ls -la
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_URL: https://sentry.gc.nav.no
@@ -67,7 +71,7 @@ jobs:
           environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: /frontend/mulighetsrommet-veilder-flate/dist/assets
+          sourcemaps: /dist/assets
       - name: Notify slack fail
         if: failure()
         env:
