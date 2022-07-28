@@ -92,7 +92,7 @@ jobs:
           environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: "dist/assets"
+          sourcemaps: ${{GITHUB_WORKSPACE}}/mulighetsrommet-veileder-flate/dist/assets
 
   build-and-test:
     name: Build and test for production
@@ -162,4 +162,4 @@ jobs:
           environment: prod-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: "dist/assets"
+          sourcemaps: ${{GITHUB_WORKSPACE}}/mulighetsrommet-veileder-flate/dist/assets
