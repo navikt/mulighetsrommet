@@ -7,5 +7,6 @@ export default defineConfig({
   build: {
     manifest: 'asset-manifest.json',
     chunkSizeWarningLimit: 1400,
+    sourcemap: true,
   },
 });
