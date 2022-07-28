@@ -27,6 +27,7 @@ class KafkaConsumerOrchestrator(
     private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
     private val consumerClients: Map<String, KafkaConsumerClient>
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
+    private val topicPoller: Poller
 
     init {
         logger.debug("Initializing Kafka")
@@ -55,7 +56,7 @@ class KafkaConsumerOrchestrator(
 
         startConsumerClients()
 
-        val topicPoller = Poller(pollDelay) {
+        topicPoller = Poller(pollDelay) {
             updateClientRunningState()
         }
 
@@ -79,6 +80,8 @@ class KafkaConsumerOrchestrator(
         topicRepository.updateRunning(topics)
         return getUpdatedTopicsOnly(topics, current)
     }
+
+    fun stopPollingTopicChanges() = topicPoller.stop()
 
     private fun updateClientRunningState() {
         getTopics().forEach {
