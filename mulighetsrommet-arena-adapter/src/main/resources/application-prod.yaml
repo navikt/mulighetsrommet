@@ -28,3 +28,6 @@ app:
         tiltakgjennomforingendret: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-p
         tiltakdeltakerendret: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-p
         sakendret: teamarenanais.aapen-arena-sakendret-v1-p
+
+  sentry:
+    dsn: https://9b3945d6ab0542bf9ae41247dab65389@sentry.gc.nav.no/135

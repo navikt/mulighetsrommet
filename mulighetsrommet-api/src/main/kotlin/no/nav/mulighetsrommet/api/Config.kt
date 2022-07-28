@@ -4,6 +4,7 @@ import io.ktor.client.*
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
 
 data class Config(
     val server: ServerConfig,
@@ -14,6 +15,7 @@ data class AppConfig(
     val database: DatabaseConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
+    val sentry: SentryConfig? = null,
     val veilarboppfolgingConfig: VeilarboppfolgingConfig,
     val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig
 )

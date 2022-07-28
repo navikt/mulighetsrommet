@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretC
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
-import no.nav.mulighetsrommet.arena.adapter.plugins.configureSentry
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
@@ -20,8 +19,8 @@ import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.ktor.plugins.configureSentry
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import java.util.*
 
@@ -61,7 +60,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, db: Databa
     configureSerialization()
     configureMonitoring()
     configureHTTP()
-    configureSentry(NaisEnv.current())
+    configureSentry(config.sentry)
 
     routing {
         internalRoutes(db)
