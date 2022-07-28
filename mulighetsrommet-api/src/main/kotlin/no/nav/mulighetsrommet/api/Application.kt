@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.ktor.plugins.*
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 
 fun main() {
@@ -28,7 +28,7 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring()
     configureSerialization()
     configureWebjars()
-    configureSentry(NaisEnv.current())
+    configureSentry(config.sentry)
 
     routing {
         internalRoutes()

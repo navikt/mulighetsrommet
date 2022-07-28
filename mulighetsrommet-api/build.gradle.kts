@@ -98,9 +98,6 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
 
-    // Sentry error logging
-    implementation("io.sentry:sentry:6.1.0")
-
     // OpenAPI
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
 }
