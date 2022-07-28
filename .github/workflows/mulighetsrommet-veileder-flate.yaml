@@ -83,6 +83,8 @@ jobs:
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
       - name: Print cwd
         run: |
+          echo 'Navigerer til frontend'
+          cd frontend/mulighetsrommet-veileder-flate
           echo 'Printer cwd og innholdet'
           pwd
           ls -la
@@ -97,7 +99,7 @@ jobs:
           environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: /mulighetsrommet-veileder-flate/dist/assets
+          sourcemaps: ./frontend/mulighetsrommet-veileder-flate/dist/assets
 
   build-and-test:
     name: Build and test for production
@@ -167,4 +169,4 @@ jobs:
           environment: prod-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: /mulighetsrommet-veileder-flate/dist/assets
+          sourcemaps: ./frontend/mulighetsrommet-veileder-flate/dist/assets
