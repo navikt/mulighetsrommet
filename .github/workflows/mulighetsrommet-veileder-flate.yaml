@@ -81,6 +81,11 @@ jobs:
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
+      - name: Print cwd
+        uses: |
+          echo 'Printer cwd og innholdet'
+          pwd
+          ls -la
       - name: Lag deployment i Sentry
         uses: getsentry/action-release@v1
         env:
@@ -92,7 +97,7 @@ jobs:
           environment: dev-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: ${{ env.GITHUB_WORKSPACE }}/mulighetsrommet-veileder-flate/dist/assets
+          sourcemaps: /mulighetsrommet-veileder-flate/dist/assets
 
   build-and-test:
     name: Build and test for production
@@ -162,4 +167,4 @@ jobs:
           environment: prod-gcp
           version: ${{ github.sha }}
           set_commits: skip
-          sourcemaps: ${{ env.GITHUB_WORKSPACE }}/mulighetsrommet-veileder-flate/dist/assets
+          sourcemaps: /mulighetsrommet-veileder-flate/dist/assets
