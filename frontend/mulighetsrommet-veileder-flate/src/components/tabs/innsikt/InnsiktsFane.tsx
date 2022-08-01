@@ -10,6 +10,7 @@ const tiltakstyperMedStatistikk = ['Oppfølging', 'Digital Oppfølging', 'Avklar
 
 const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   const { ref, width = 500 } = useResizeObserver<HTMLDivElement>({});
+  console.log({ tiltakstype });
   return (
     <div className={'tiltaksdetaljer__maksbredde'}>
       {tiltakstyperMedStatistikk.includes(tiltakstype) && (

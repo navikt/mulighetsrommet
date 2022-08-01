@@ -67,10 +67,12 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
   const [chosenYear, setChosenYear] = useState(new Date().getFullYear().toString());
 
   if (!csvData || csvData.length === 0) {
+    console.log('Klarte ikke hente csvData :(');
     return null;
   }
   const data = csvObjectArrayTilDatapunktArray(csvData);
   const allYears = new Set(data.map(it => it.År).sort());
+
   const filteredData = data.filter(item => item.tiltakstype === tiltakstype && item['År'] === chosenYear);
   if (!data || data.length === 0) {
     return null;
