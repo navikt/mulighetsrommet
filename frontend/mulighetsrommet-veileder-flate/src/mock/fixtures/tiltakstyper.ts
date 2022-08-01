@@ -20,20 +20,4 @@ export const tiltakstyper: Tiltakstype[] = [
       nokkel: 'VARIG_TILPASSET_INNSATS',
     },
   },
-
-  // {
-  //   _id: faker.datatype.number({ min: 100000, max: 999999 }),
-  //   innsatsgruppe: '1',
-  //   tiltakstypeNavn: 'Funksjonsassistanse',
-  // },
-  // {
-  //   _id: faker.datatype.number({ min: 100000, max: 999999 }),
-  //   innsatsgruppe: '1',
-  //   tiltakstypeNavn: 'Utvidet oppfølging',
-  // },
-  // {
-  //   _id: faker.datatype.number({ min: 100000, max: 999999 }),
-  //   innsatsgruppe: '1',
-  //   tiltakstypeNavn: 'Avklaring',
-  // },
 ];

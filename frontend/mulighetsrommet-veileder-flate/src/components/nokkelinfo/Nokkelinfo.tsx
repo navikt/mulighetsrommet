@@ -12,7 +12,7 @@ const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
     <div className="nokkelinfo">
       {nokkelinfoKomponenter.map((nokkelinfo: NokkelinfoKomponenter, index: number) => {
         return (
-          <div className="nokkelinfo__wrapper" key={index}>
+          <div className="nokkelinfo__container" key={index}>
             <div className="nokkelinfo__heading">
               <Heading size="xsmall" level="2">
                 {nokkelinfo.tittel}

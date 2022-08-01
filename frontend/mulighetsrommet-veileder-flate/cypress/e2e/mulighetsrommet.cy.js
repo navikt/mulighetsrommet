@@ -101,7 +101,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
 
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
-        // cy.request(`/undefined/${text}`);
         cy.url().should('include', text);
       });
     });
