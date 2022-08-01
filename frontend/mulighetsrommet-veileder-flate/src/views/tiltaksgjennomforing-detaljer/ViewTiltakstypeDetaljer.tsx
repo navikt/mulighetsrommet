@@ -33,7 +33,9 @@ const ViewTiltakstypeDetaljer = () => {
       <div className="tiltakstype-detaljer__info">
         <Tilbakeknapp tilbakelenke={`/${fnr}`} />
         <TiltaksgjennomforingsHeader />
-        <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
+        {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
+          <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
+        )}
       </div>
       <SidemenyDetaljer />
       <TiltaksdetaljerFane />

@@ -12,7 +12,7 @@ const TiltaksansvarligInfo = ({ tiltaksansvarlige }: TiltaksansvarligProps) => {
     <>
       {tiltaksansvarlige.map(tiltaksansvarlig => {
         return (
-          <div className="kontaktinfo__header" key={tiltaksansvarlig._id}>
+          <div className="kontaktinfo__container" key={tiltaksansvarlig._id}>
             <Heading size="small" level="3" className="kontaktinfo__navn">
               {tiltaksansvarlig.navn}
             </Heading>

@@ -1,4 +1,4 @@
-xdescribe('Tiltaksgjennomføringstabell', () => {
+describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
@@ -82,8 +82,8 @@ xdescribe('Tiltaksgjennomføringstabell', () => {
 
   it('Skal kunne navigere mellom sider via paginering', () => {
     cy.getByTestId('paginering').should('exist');
-    cy.get('nav[data-testid=paginering] ul li').eq(2).children().eq(0).should('not.have.attr', 'aria-current');
-    cy.get('nav[data-testid=paginering] ul li').eq(3).click().children().eq(0).should('have.attr', 'aria-current');
+    cy.getByTestId('paginering').children().children().eq(2).should('not.have.attr', 'aria-current');
+    cy.getByTestId('paginering').children().children().eq(3).click().children().should('have.attr', 'aria-current');
   });
 });
 
@@ -109,7 +109,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
 
   it('Sjekk UU', () => {
     cy.checkA11y({ exclude: ['.navds-tooltip'] });
-    // cy.checkPageA11y();
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {

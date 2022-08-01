@@ -8,15 +8,22 @@ type Tiltakstyper =
   | 'VTA'
   | 'Opplæring (Gruppe AMO)';
 
+type Innsatsgrupper =
+  | 'Standard innsats'
+  | 'Situasjonsbestemt innsats'
+  | 'Spesielt tilpasset innsats'
+  | 'Varig tilpasset innsats';
+
 export interface Tiltakstype {
   _id: string;
   tiltakstypeNavn: Tiltakstyper;
   beskrivelse?: string;
   innsatsgruppe: Innsatsgruppe;
   varighet?: string;
-  regelverkFiler: RegelverkFil[];
-  regelverkLenker: RegelverkLenke[];
+  regelverkFiler?: RegelverkFil[];
+  regelverkLenker?: RegelverkLenke[];
   regelverkLenkeNavn?: string;
+  nokkelinfoKomponenter?: NokkelinfoKomponenter[];
   faneinnhold?: {
     forHvemInfoboks?: string;
     forHvem?: object;
@@ -25,7 +32,6 @@ export interface Tiltakstype {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
-  nokkelinfoKomponenter: NokkelinfoKomponenter[];
 }
 
 export interface Tiltaksgjennomforing {
@@ -68,7 +74,7 @@ export interface Tiltaksansvarlig {
 export interface Innsatsgruppe {
   _id: string;
   beskrivelse: string;
-  tittel: string;
+  tittel: Innsatsgrupper;
   nokkel: string;
 }
 
@@ -91,7 +97,7 @@ export interface StatistikkFil {
 
 export interface NokkelinfoKomponenter {
   _id: string;
-  overskrift: string;
+  tittel: string;
   innhold: string;
-  hjelpetekst: string;
+  hjelpetekst?: string;
 }

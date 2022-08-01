@@ -4,8 +4,8 @@ import { Link } from '@navikt/ds-react';
 import { logEvent } from '../../api/logger';
 
 interface RegelverksinfoProps {
-  regelverkFiler: RegelverkFil[];
-  regelverkLenker: RegelverkLenke[];
+  regelverkFiler?: RegelverkFil[];
+  regelverkLenker?: RegelverkLenke[];
 }
 
 const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps) => {

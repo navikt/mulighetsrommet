@@ -7,19 +7,19 @@ export default {
   icon: FiKey,
   fields: [
     {
-      name: "overskrift",
-      title: "Nøkkelinfo overskrift",
+      name: "tittel",
+      title: "Nøkkelinfo tittel",
       type: "string",
       validation: (Rule) =>
         Rule.custom((field, context) =>
-          context.document.overskrift && field === undefined
+          context.document.tittel && field === undefined
             ? "Dette feltet kan ikke være tomt."
             : true
         ),
     },
     {
       name: "innhold",
-      title: "Innhold nokkelinfo",
+      title: "Innhold nøkkelinfo",
       type: "string",
       validation: (Rule) =>
         Rule.custom((field, context) =>
@@ -30,13 +30,13 @@ export default {
     },
     {
       name: "hjelpetekst",
-      title: "Hjelpetekst til nokkelinfo",
+      title: "Hjelpetekst til nøkkelinfo",
       type: "string",
     },
   ],
   preview: {
     select: {
-      title: "overskrift",
+      title: "tittel",
     },
   },
 };

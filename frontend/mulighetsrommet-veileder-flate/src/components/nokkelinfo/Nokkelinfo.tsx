@@ -15,7 +15,7 @@ const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
           <div className="nokkelinfo__wrapper" key={index}>
             <div className="nokkelinfo__heading">
               <Heading size="xsmall" level="2">
-                {nokkelinfo.overskrift}
+                {nokkelinfo.tittel}
               </Heading>
               {nokkelinfo.hjelpetekst && <HelpText>{nokkelinfo.hjelpetekst}</HelpText>}
             </div>
