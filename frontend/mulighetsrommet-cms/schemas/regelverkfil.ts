@@ -1,11 +1,10 @@
-import { GrDocument } from "react-icons/gr";
+import { GoLaw } from "react-icons/go";
 import { Rule } from "@sanity/types";
-
 export default {
   name: "regelverkfil",
   title: "Regelverk fil",
   type: "document",
-  icon: GrDocument,
+  icon: GoLaw,
   fields: [
     {
       name: "regelverkFilOpplastning",

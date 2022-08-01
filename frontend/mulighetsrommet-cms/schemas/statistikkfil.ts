@@ -1,10 +1,10 @@
-import { GrDocument } from "react-icons/gr";
+import { ImStatsDots } from "react-icons/im";
 
 export default {
   name: "statistikkfil",
   title: "Statistikkfil",
   type: "document",
-  icon: GrDocument,
+  icon: ImStatsDots,
   fields: [
     {
       name: "statistikkfilopplastning",

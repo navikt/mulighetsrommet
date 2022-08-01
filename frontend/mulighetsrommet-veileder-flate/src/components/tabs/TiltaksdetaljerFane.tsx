@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import './TiltaksdetaljerFane.less';
 import { Tabs } from '@navikt/ds-react';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
@@ -18,12 +18,12 @@ const TiltaksdetaljerFane = () => {
   const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor, faneinnhold } = data;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
-    'tab1': faneoverskrifter[0],
-    'tab2': faneoverskrifter[1],
-    'tab3': faneoverskrifter[2],
-    'tab4': faneoverskrifter[3],
-    'tab5': faneoverskrifter[4],
-  }
+    tab1: faneoverskrifter[0],
+    tab2: faneoverskrifter[1],
+    tab3: faneoverskrifter[2],
+    tab4: faneoverskrifter[3],
+    tab5: faneoverskrifter[4],
+  };
 
   return (
     <Tabs
