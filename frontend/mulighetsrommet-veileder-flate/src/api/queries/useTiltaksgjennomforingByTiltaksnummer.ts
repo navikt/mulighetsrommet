@@ -21,6 +21,14 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
       pameldingOgVarighetInfoboks,
       pameldingOgVarighet,
     },
+    faneinnhold {
+      forHvemInfoboks,
+      forHvem,
+      detaljerOgInnholdInfoboks,
+      detaljerOgInnhold,
+      pameldingOgVarighetInfoboks,
+      pameldingOgVarighet,
+    },
     kontaktinfoArrangor->,
     kontaktinfoTiltaksansvarlige[]->,
     tiltakstype->{

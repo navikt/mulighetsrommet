@@ -32,6 +32,14 @@ export interface Tiltakstype {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
+  faneinnhold?: {
+    forHvemInfoboks?: string;
+    forHvem?: object;
+    detaljerOgInnholdInfoboks?: string;
+    detaljerOgInnhold?: object;
+    pameldingOgVarighetInfoboks?: string;
+    pameldingOgVarighet?: object;
+  };
 }
 
 export interface Tiltaksgjennomforing {
