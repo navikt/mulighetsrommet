@@ -1,5 +1,6 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import sanityClient from "part:@sanity/base/client";
+import { Rule } from "@sanity/types";
 import { EnhetType } from "./enhet";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
@@ -15,13 +16,13 @@ export default {
       title: "Tiltakstype",
       type: "reference",
       to: [{ type: "tiltakstype" }],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
       type: "string",
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "beskrivelse",
@@ -32,20 +33,20 @@ export default {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       type: "number",
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "kontaktinfoArrangor",
       title: "Arrangør",
       type: "reference",
       to: [{ type: "arrangor" }],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "lokasjon",
       title: "Lokasjon",
       type: "string",
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "fylke",
@@ -60,7 +61,7 @@ export default {
           type: EnhetType.Fylke,
         },
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "enheter",
@@ -88,7 +89,7 @@ export default {
           },
         },
       ],
-      validation: (Rule) =>
+      validation: (Rule: Rule) =>
         Rule.unique().custom(async (enheter, { document }) => {
           if (!document.fylke || !enheter) {
             return true;
@@ -118,7 +119,7 @@ export default {
           { title: "Løpende", value: "lopende" },
         ],
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "oppstartsdato",
@@ -178,7 +179,7 @@ export default {
       title: "Tiltaksansvarlig",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      validation: (Rule) => Rule.required().min(1).unique(),
+      validation: (Rule: Rule) => Rule.required().min(1).unique(),
     },
     {
       name: "lenker",
