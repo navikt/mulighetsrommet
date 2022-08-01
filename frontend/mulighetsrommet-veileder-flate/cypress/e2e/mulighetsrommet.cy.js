@@ -92,10 +92,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
 
-  it('Tilbakeknappen er synlig', () => {
-    cy.getByTestId('tilbakeknapp').should('contain', 'Tilbake');
-  });
-
   it('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.getByTestId('knapp_kopier').click();
 
