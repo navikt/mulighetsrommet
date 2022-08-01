@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
@@ -8,6 +7,8 @@ import { LegendOrdinal } from '@visx/legend';
 import { Datapunkt } from './Datapunkt';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 import '../TiltaksdetaljerFane.less';
+import React, { useState } from 'react';
+import { StatistikkFraCsvFil } from '../../../api/models';
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
@@ -15,19 +16,30 @@ function isOfStatusType(value: any): value is Status {
   return ['Arbeidstaker m. ytelse/oppf', 'Kun arbeidstaker', 'Registrert hos Nav', 'Ukjent'].includes(value);
 }
 
-function csvObjectArrayTilDatapunktArray(array: any[]): Datapunkt[] {
+function csvObjectArrayTilDatapunktArray(array: StatistikkFraCsvFil[]): Datapunkt[] {
   return array
-    .sort((item1, item2) => item2['Antall Måneder'] - item1['Antall Måneder'])
+    .sort((item1, item2) => parseInt(item2['Antall Måneder']) - parseInt(item1['Antall Måneder']))
     .map(item => {
       return {
-        tiltakstype: item['Tiltakstype'],
-        'Arbeidstaker m. ytelse/oppf': item['Arbeidstaker m. ytelse/oppf'],
-        'Kun arbeidstaker': item['Kun arbeidstaker'],
-        'Registrert hos Nav': item['Registrert hos Nav'],
-        Ukjent: item['Ukjent'],
+        År: item['År'],
+        tiltakstype: item.Tiltakstype,
+        'Arbeidstaker m. ytelse/oppf': parseFloat(replaceCommaWithPeriod(item['Arbeidstaker m. ytelse/oppf'])),
+        'Kun arbeidstaker': parseFloat(replaceCommaWithPeriod(item['Kun arbeidstaker'])),
+        'Registrert hos Nav': parseFloat(replaceCommaWithPeriod(item['Registrert hos Nav'])),
+        Ukjent: parseFloat(replaceCommaWithPeriod(item.Ukjent)),
         antallManeder: item['Antall Måneder'] + ' mnd',
       };
     });
+}
+
+/**
+ * Erstatter komma med punktum siden tall fra norsk Excel eksporterer tall med komma istedenfor punktum.
+ * parseFloat derimot, forventer punktum i flyttall.
+ * @param value verdi med komma i seg
+ * @returns verdi med punktum som har erstattet komma
+ */
+function replaceCommaWithPeriod(value: string): string {
+  return value.replace(',', '.');
 }
 
 export type BarStackHorizontalProps = {
@@ -52,34 +64,29 @@ const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
 export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
   const csvData = useHentStatistikkFraFil();
+  const [chosenYear, setChosenYear] = useState(new Date().getFullYear().toString());
+
   if (!csvData || csvData.length === 0) {
     return null;
   }
-  const data = csvObjectArrayTilDatapunktArray(csvData).filter(item => item.tiltakstype === tiltakstype);
-
+  const data = csvObjectArrayTilDatapunktArray(csvData);
+  const allYears = new Set(data.map(it => it.År).sort());
+  const filteredData = data.filter(item => item.tiltakstype === tiltakstype && item['År'] === chosenYear);
   if (!data || data.length === 0) {
     return null;
   }
 
   //prep data
-  const keys = Object.keys(data[0]).filter(d => isOfStatusType(d)) as Status[];
-
-  const percentageTotals = data.reduce((allTotals, currentMonth) => {
-    const totalPercentage = keys.reduce((monthlyTotal, k) => {
-      monthlyTotal += Number(currentMonth[k]);
-      return monthlyTotal;
-    }, 0);
-    allTotals.push(totalPercentage);
-    return allTotals;
-  }, [] as number[]);
+  const keys = Object.keys(filteredData[0]).filter(header => isOfStatusType(header)) as Status[];
 
   // scales
   const percentageScale = scaleLinear<number>({
-    domain: [0, Math.max(...percentageTotals)],
+    domain: [0, 100],
     nice: false,
   });
+
   const monthScale = scaleBand<string>({
-    domain: data.map(getAntallManeder),
+    domain: filteredData.map(getAntallManeder),
     padding: 0.8,
   });
   const colorScale = scaleOrdinal<Status, string>({
@@ -96,9 +103,23 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
 
   return width < 10 ? null : (
     <div>
-      <div style={{ width: width }} className={'tiltaksdetaljer__innsiktheader'}>
-        Status etter avgang: OBS! Ikke reelle data
+      <div style={{ width }} className={'tiltaksdetaljer__innsiktheader'}>
+        Status etter avgang{' '}
+        <select
+          defaultValue={chosenYear}
+          style={{ display: 'inline', border: 'none', borderBottom: '1px solid black' }}
+          onChange={e => setChosenYear(e.currentTarget.value)}
+          name="aar"
+          id="aar"
+        >
+          {[...allYears].map(year => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
       </div>
+
       <svg width={width} height={height}>
         <rect width={width} height={height} fill={background} rx={14} />
         <GridColumns
@@ -111,7 +132,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
         />
         <Group top={margin.top} left={margin.left}>
           <BarStackHorizontal<Datapunkt, Status>
-            data={data}
+            data={filteredData}
             keys={keys}
             height={yMax}
             y={getAntallManeder}
@@ -158,6 +179,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
           />
         </Group>
       </svg>
+
       <div
         style={{
           width: `${width}px`,
