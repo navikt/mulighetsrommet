@@ -1,24 +1,25 @@
-import { BarStackHorizontal } from '@visx/shape';
-import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { GridColumns } from '@visx/grid';
-import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
+import { Group } from '@visx/group';
 import { LegendOrdinal } from '@visx/legend';
-import { Datapunkt } from './Datapunkt';
+import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
+import { BarStackHorizontal } from '@visx/shape';
+import { StatistikkFraCsvFil } from '../../../api/models';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 import '../TiltaksdetaljerFane.less';
-import React, { useState } from 'react';
-import { StatistikkFraCsvFil } from '../../../api/models';
+import { Datapunkt } from './Datapunkt';
+
+const SISTE_AAR = 5;
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
-function isOfStatusType(value: any): value is Status {
+function isOfStatusType(value: string): value is Status {
   return ['Arbeidstaker m. ytelse/oppf', 'Kun arbeidstaker', 'Registrert hos Nav', 'Ukjent'].includes(value);
 }
 
 function csvObjectArrayTilDatapunktArray(array: StatistikkFraCsvFil[]): Datapunkt[] {
   return array
-    .sort((item1, item2) => parseInt(item2['Antall Måneder']) - parseInt(item1['Antall Måneder']))
+    .sort((a, b) => parseInt(b['Antall Måneder']) - parseInt(a['Antall Måneder']))
     .map(item => {
       return {
         År: item['År'],
@@ -30,6 +31,40 @@ function csvObjectArrayTilDatapunktArray(array: StatistikkFraCsvFil[]): Datapunk
         antallManeder: item['Antall Måneder'] + ' mnd',
       };
     });
+}
+
+function gjennomsnittForDatapunkterForSisteAar(
+  datapunkter: Datapunkt[],
+  antallAarTilbakeITid: number,
+  tiltakstype: string
+): Datapunkt[] {
+  const punkter = datapunkter.reverse().slice(0, antallAarTilbakeITid);
+
+  const punkterKronologisk = [...punkter.reverse()];
+  const aar = `${punkterKronologisk[0].År} - ${punkterKronologisk[punkterKronologisk.length - 1].År}`;
+
+  return punkter.reduce<Datapunkt[]>(
+    (all, next, _, { length }) => {
+      all[0]['Arbeidstaker m. ytelse/oppf'] += next['Arbeidstaker m. ytelse/oppf'] / length;
+      all[0]['Kun arbeidstaker'] += next['Kun arbeidstaker'] / length;
+      all[0]['Registrert hos Nav'] += next['Registrert hos Nav'] / length;
+      all[0].Ukjent += next.Ukjent / length;
+      all[0].tiltakstype = next.tiltakstype;
+      all[0].antallManeder = next.antallManeder;
+      return [...all];
+    },
+    [
+      {
+        'Arbeidstaker m. ytelse/oppf': 0,
+        'Kun arbeidstaker': 0,
+        'Registrert hos Nav': 0,
+        Ukjent: 0,
+        antallManeder: '',
+        tiltakstype,
+        År: aar,
+      },
+    ]
+  );
 }
 
 /**
@@ -63,23 +98,51 @@ const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
 const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
 export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
-  const csvData = useHentStatistikkFraFil();
-  const [chosenYear, setChosenYear] = useState(new Date().getFullYear().toString());
+  const csvDataFraFil = useHentStatistikkFraFil();
 
-  if (!csvData || csvData.length === 0) {
-    console.log('Klarte ikke hente csvData :(');
+  if (!csvDataFraFil || csvDataFraFil.length === 0) {
     return null;
   }
-  const data = csvObjectArrayTilDatapunktArray(csvData);
-  const allYears = new Set(data.map(it => it.År).sort());
+  const datapunkter = csvObjectArrayTilDatapunktArray(csvDataFraFil);
 
-  const filteredData = data.filter(item => item.tiltakstype === tiltakstype && item['År'] === chosenYear);
-  if (!data || data.length === 0) {
+  if (!datapunkter || datapunkter.length === 0) {
     return null;
   }
 
-  //prep data
-  const keys = Object.keys(filteredData[0]).filter(header => isOfStatusType(header)) as Status[];
+  // prep data
+  const datapunkterGrupperPerManed = datapunkter
+    .filter(item => item.tiltakstype === tiltakstype)
+    .reduce<{
+      '3 mnd': Datapunkt[];
+      '6 mnd': Datapunkt[];
+      '12 mnd': Datapunkt[];
+    }>(
+      (all: any, next) => {
+        all[next.antallManeder]?.push(next);
+        return all;
+      },
+      { '3 mnd': [], '6 mnd': [], '12 mnd': [] }
+    );
+
+  const statsFor3Mnd = gjennomsnittForDatapunkterForSisteAar(
+    datapunkterGrupperPerManed['3 mnd'],
+    SISTE_AAR,
+    tiltakstype
+  );
+  const statsFor6Mnd = gjennomsnittForDatapunkterForSisteAar(
+    datapunkterGrupperPerManed['6 mnd'],
+    SISTE_AAR,
+    tiltakstype
+  );
+  const statsFor12Mnd = gjennomsnittForDatapunkterForSisteAar(
+    datapunkterGrupperPerManed['12 mnd'],
+    SISTE_AAR,
+    tiltakstype
+  );
+
+  const dataForVisning: Datapunkt[] = [...statsFor3Mnd, ...statsFor6Mnd, ...statsFor12Mnd].reverse();
+
+  const keys = Object.keys(dataForVisning[0]).filter(isOfStatusType);
 
   // scales
   const percentageScale = scaleLinear<number>({
@@ -88,10 +151,10 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
   });
 
   const monthScale = scaleBand<string>({
-    domain: filteredData.map(getAntallManeder),
+    domain: dataForVisning.map(getAntallManeder),
     padding: 0.8,
   });
-  const colorScale = scaleOrdinal<Status, string>({
+  const colorScale = scaleOrdinal<string, string>({
     domain: keys,
     range: [bla, gronn, gul, rod],
   });
@@ -106,20 +169,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
   return width < 10 ? null : (
     <div>
       <div style={{ width }} className={'tiltaksdetaljer__innsiktheader'}>
-        Status etter avgang{' '}
-        <select
-          defaultValue={chosenYear}
-          style={{ display: 'inline', border: 'none', borderBottom: '1px solid black' }}
-          onChange={e => setChosenYear(e.currentTarget.value)}
-          name="aar"
-          id="aar"
-        >
-          {[...allYears].map(year => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+        Status etter avgang siste {SISTE_AAR} år ({dataForVisning[0].År})
       </div>
 
       <svg width={width} height={height}>
@@ -134,7 +184,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
         />
         <Group top={margin.top} left={margin.left}>
           <BarStackHorizontal<Datapunkt, Status>
-            data={filteredData}
+            data={dataForVisning}
             keys={keys}
             height={yMax}
             y={getAntallManeder}
