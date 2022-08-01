@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
 
 data class Config(
     val server: ServerConfig,
@@ -9,11 +10,11 @@ data class Config(
 )
 
 data class AppConfig(
-    val enableKafkaTopicConsumption: Boolean,
     val enableFailedRecordProcessor: Boolean,
     val services: ServiceConfig,
     val database: DatabaseConfig,
-    val kafka: KafkaConfig
+    val kafka: KafkaConfig,
+    val sentry: SentryConfig? = null,
 )
 
 data class ServiceConfig(
@@ -31,12 +32,19 @@ data class KafkaConfig(
     val topics: TopicsConfig
 )
 
-fun KafkaConfig.getTopic(key: String): String {
-    return topics.consumer.getOrElse(key) {
+fun KafkaConfig.getTopic(key: String): ConsumerConfig {
+    val topic = topics.consumer.getOrElse(key) {
         throw RuntimeException("No topic configured for key '$key'")
     }
+    return ConsumerConfig(key, topic)
 }
 
 data class TopicsConfig(
+    val pollChangesDelayMs: Long,
     val consumer: Map<String, String>
+)
+
+data class ConsumerConfig(
+    val key: String,
+    val topic: String
 )

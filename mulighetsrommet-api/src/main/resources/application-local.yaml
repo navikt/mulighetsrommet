@@ -1,0 +1,32 @@
+server:
+  port: 8080
+  host: 0.0.0.0
+
+app:
+  database:
+    host: localhost
+    port: 5442
+    name: mulighetsrommet-api-db
+    user: valp
+    password: valp
+    maximumPoolSize: 10
+
+  auth:
+    azure:
+      issuer: http://localhost:8081/azure
+      jwksUri: http://localhost:8081/azure/jwks
+      audience: mulighetsrommet-api
+      tokenEndpointUrl: http://localhost:8081/azure/token
+
+  veilarbvedtaksstotteConfig:
+    url: http://localhost:8090
+    scope: default
+
+  veilarboppfolgingConfig:
+    url: http://localhost:8090
+    scope: default
+
+  sanity:
+    dataset: test
+    projectId: ${SANITY_PROJECT_ID}
+    authToken: ${SANITY_AUTH_TOKEN}

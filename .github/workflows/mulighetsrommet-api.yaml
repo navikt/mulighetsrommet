@@ -71,7 +71,18 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ env.IMAGE }}
-          SANITY_DATASET: test
+      - name: Lag deployment i Sentry
+        continue-on-error: true
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.gc.nav.no
+          SENTRY_ORG: nav
+          SENTRY_PROJECT: mulighetsrommet-api
+        with:
+          environment: dev-gcp
+          version: ${{ github.sha }}
+          set_commits: skip
 
   deploy-prod:
     name: Deploy (prod)
@@ -88,4 +99,15 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}
-          SANITY_DATASET: production
+      - name: Lag deployment i Sentry
+        continue-on-error: true
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.gc.nav.no
+          SENTRY_ORG: nav
+          SENTRY_PROJECT: mulighetsrommet-api
+        with:
+          environment: prod-gcp
+          version: ${{ github.sha }}
+          set_commits: skip

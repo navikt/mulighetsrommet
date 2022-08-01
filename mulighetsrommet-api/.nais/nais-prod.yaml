@@ -20,8 +20,8 @@ spec:
     path: /internal/liveness
     initialDelay: 20
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 3
     cpuThresholdPercentage: 75
   resources:
     limits:
@@ -49,12 +49,3 @@ spec:
           namespace: poao
   envFrom:
     - secret: mulighetsrommet-api
-  env:
-    - name: VEILARBVEDTAKSSTOTTE_URL
-      value: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
-    - name: VEILARBVEDTAKSSTOTTE_SCOPE
-      value: api://prod-fss.pto.veilarbvedtaksstotte/.default
-    - name: VEILARBOPPFOLGING_URL
-      value: https://veilarboppfolging.prod-fss-pub.nais.io/veilarboppfolging/api
-    - name: VEILARBOPPFOLGING_SCOPE
-      value: api://prod-fss.pto.veilarboppfolging/.default

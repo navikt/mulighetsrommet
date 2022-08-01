@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api
 
-import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -8,10 +7,12 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
+import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.ktor.plugins.*
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 
 fun main() {
-    val (server, app) = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
+    val (server, app) = loadConfiguration<Config>()
 
     startKtorApplication(server) {
         configure(app)
@@ -27,6 +28,7 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring()
     configureSerialization()
     configureWebjars()
+    configureSentry(config.sentry)
 
     routing {
         internalRoutes()

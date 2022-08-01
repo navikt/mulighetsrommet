@@ -47,6 +47,20 @@ jobs:
           wait-on: http://localhost:3000
           start: npm start
           install: false
+      - name: Lag deployment i Sentry
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' # Lag deployment hvis merge til main eller manuell trigger
+        continue-on-error: true
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.gc.nav.no
+          SENTRY_ORG: nav
+          SENTRY_PROJECT: mulighetsrommet-veileder-flate
+        with:
+          environment: dev-gcp
+          version: ${{ github.sha }}
+          set_commits: skip
+          sourcemaps: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist/assets
       - name: Notify slack fail
         if: failure()
         env:
@@ -80,7 +94,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
           VAR: image=${{ env.IMAGE }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml
+          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml      
 
   build-and-test:
     name: Build and test for production
@@ -105,6 +119,20 @@ jobs:
           wait-on: http://localhost:3000
           start: npm start
           install: false
+      - name: Lag deployment i Sentry
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' # Lag deployment hvis merge til main eller manuell trigger
+        continue-on-error: true
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.gc.nav.no
+          SENTRY_ORG: nav
+          SENTRY_PROJECT: mulighetsrommet-veileder-flate
+        with:
+          environment: prod-gcp
+          version: ${{ github.sha }}
+          set_commits: skip
+          sourcemaps: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist/assets
       - name: Notify slack fail
         if: failure()
         env:

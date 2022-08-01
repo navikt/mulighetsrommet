@@ -17,9 +17,6 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
 
-    val hopliteVersion = "2.1.4"
-    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-
     // Test
     val kotestVersion = "5.3.1"
     testFixturesImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")

@@ -58,7 +58,7 @@ services:
 
   # Database for mulighetsrommet-arena-adapter.
   mulighetsrommet-arena-adapter-db:
-    image: "postgres:12.3-alpine"
+    image: "postgres:14.4-alpine"
     restart: "always"
     volumes:
       - "mulighetsrommet-arena-adapter:/var/lib/postgresql/data"

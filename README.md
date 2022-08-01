@@ -12,6 +12,11 @@ Brukere vil på sikt få en oversikt gjennom en egen åpen flate med sine muligh
 Veiledere vil også kunne få en samlet oversikt over all informasjon fra flere fagsystemer som Navet og Arena.
 Hensikten er å kunne gi begge parter lett tilgang til den samme kvalitetssikret tiltaksinformasjonen som vi har i NAV.
 
+## Overvåking av løsninger
+Vi bruker [Sentry](https://sentry.gc.nav.no/) for overvåkning av våre løsninger.
+
+Det finnes også to dashboards for løsningen hhv. [Her for API](https://logs.adeo.no/app/dashboards#/view/6927d260-00ed-11ed-9b1a-4723a5e7a9db?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))) og [her for metrikker fra frontend](https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now)))
+
 ## Moduler
 
 ### `mulighetsrommet-veileder-flate`

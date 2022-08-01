@@ -20,8 +20,8 @@ spec:
     path: /internal/liveness
     initialDelay: 20
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 3
     cpuThresholdPercentage: 75
   resources:
     limits:
@@ -33,10 +33,3 @@ spec:
   azure:
     application:
       enabled: true
-  env:
-    - name: ARENA_ORDS_URL
-      value: https://arena-ords-q2.nais.preprod.local
-    - name: ARENA_ORDS_CLIENT_ID
-      value: clientid
-    - name: ARENA_ORDS_CLIENT_SECRET
-      value: secret

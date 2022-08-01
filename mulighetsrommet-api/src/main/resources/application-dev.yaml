@@ -1,0 +1,35 @@
+server:
+  port: 8080
+  host: 0.0.0.0
+
+app:
+  database:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    name: ${DB_DATABASE}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    maximumPoolSize: 10
+
+  auth:
+    azure:
+      issuer: ${AZURE_OPENID_CONFIG_ISSUER}
+      jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+      audience: ${AZURE_APP_CLIENT_ID}
+      tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+
+  veilarbvedtaksstotteConfig:
+    url: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api
+    scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
+
+  veilarboppfolgingConfig:
+    url: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
+    scope: api://dev-fss.pto.veilarboppfolging/.default
+
+  sanity:
+    dataset: ${SANITY_DATASET}
+    projectId: ${SANITY_PROJECT_ID}
+    authToken: ${SANITY_AUTH_TOKEN}
+
+  sentry:
+    dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134

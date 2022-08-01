@@ -64,10 +64,6 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
-    val hopliteVersion = "2.1.5"
-    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")

@@ -36,7 +36,7 @@ class TopicService(
             close()
         }
 
-        val relevantConsumers = consumers.filter { it.topic == topic }
+        val relevantConsumers = consumers.filter { it.consumerConfig.topic == topic }
 
         // Create `numConsumers` coroutines to process the events simultaneously
         (0..numChannelConsumers)
