@@ -5,7 +5,6 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.sksamuel.hoplite.ConfigLoader
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import java.security.KeyPairGenerator
@@ -24,10 +23,6 @@ fun main() {
         .withTokenEndpointUrl("http://localhost:8081/azure/token")
         .buildMachineToMachineTokenClient()
 
-    val api = MulighetsrommetApiClient(app.services.mulighetsrommetApi.url) {
-        tokenClient.createMachineToMachineToken(app.services.mulighetsrommetApi.scope)
-    }
-
     val kafkaPreset = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(app.kafka.brokers)
         .withBaseProperties()
@@ -35,10 +30,8 @@ fun main() {
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
-    val db = Database(app.database)
-
     startKtorApplication(server) {
-        configure(app, kafkaPreset, db, api)
+        configure(app, kafkaPreset, tokenClient)
     }
 }
 
