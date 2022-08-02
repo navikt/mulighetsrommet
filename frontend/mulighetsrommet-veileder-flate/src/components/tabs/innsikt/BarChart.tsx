@@ -123,7 +123,6 @@ let tooltipTimeout: number;
 export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
   const csvDataFraFil = useHentStatistikkFraFil();
   const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip<TooltipData>();
-
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     // TooltipInPortal is rendered in a separate child of <body /> and positioned
     // with page coordinates which should be updated on scroll. consider using
@@ -135,6 +134,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
     return null;
   }
   const datapunkter = csvObjectArrayTilDatapunktArray(csvDataFraFil);
+  console.log(datapunkter);
 
   if (!datapunkter || datapunkter.length === 0) {
     return null;
@@ -197,6 +197,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
   percentageScale.rangeRound([0, xMax]);
   monthScale.rangeRound([yMax, 0]);
 
+  console.log(dataForVisning);
   return width < 10 ? null : (
     <div>
       <div style={{ width }} className={'tiltaksdetaljer__innsiktheader'}>
