@@ -55,7 +55,7 @@ const TiltaksgjennomforingsTabell = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <Loader className="filter-loader" size="xlarge" />;
   }
 
