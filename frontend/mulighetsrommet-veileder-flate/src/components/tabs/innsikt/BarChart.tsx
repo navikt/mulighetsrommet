@@ -4,10 +4,13 @@ import { Group } from '@visx/group';
 import { LegendOrdinal } from '@visx/legend';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { BarStackHorizontal } from '@visx/shape';
+import { SeriesPoint } from '@visx/shape/lib/types';
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { StatistikkFraCsvFil } from '../../../api/models';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 import '../TiltaksdetaljerFane.less';
 import { Datapunkt } from './Datapunkt';
+import { localPoint } from '@visx/event';
 
 const SISTE_AAR = 5;
 
@@ -41,7 +44,7 @@ function gjennomsnittForDatapunkterForSisteAar(
   const punkter = datapunkter.reverse().slice(0, antallAarTilbakeITid);
 
   const punkterKronologisk = [...punkter.reverse()];
-  const aar = `${punkterKronologisk[0].År} - ${punkterKronologisk[punkterKronologisk.length - 1].År}`;
+  const aar = `${punkterKronologisk[0]?.År} - ${punkterKronologisk[punkterKronologisk.length - 1]?.År}`;
 
   return punkter.reduce<Datapunkt[]>(
     (all, next, _, { length }) => {
@@ -94,11 +97,39 @@ const black = '#000000';
 const grey = '#8F8F8F';
 const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
 
+const tooltipStyles = {
+  ...defaultStyles,
+  minWidth: 60,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  color: 'white',
+};
+
 // accessors
 const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
+type TooltipData = {
+  bar: SeriesPoint<Datapunkt>;
+  key: Status;
+  index: number;
+  height: number;
+  width: number;
+  x: number;
+  y: number;
+  color: string;
+};
+
+let tooltipTimeout: number;
+
 export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
   const csvDataFraFil = useHentStatistikkFraFil();
+  const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip<TooltipData>();
+
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    // TooltipInPortal is rendered in a separate child of <body /> and positioned
+    // with page coordinates which should be updated on scroll. consider using
+    // Tooltip or TooltipWithBounds if you don't need to render inside a Portal
+    scroll: true,
+  });
 
   if (!csvDataFraFil || csvDataFraFil.length === 0) {
     return null;
@@ -172,7 +203,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
         Status etter avgang siste {SISTE_AAR} år ({dataForVisning[0].År})
       </div>
 
-      <svg width={width} height={height}>
+      <svg ref={containerRef} width={width} height={height}>
         <rect width={width} height={height} fill={background} rx={14} />
         <GridColumns
           top={margin.top}
@@ -202,6 +233,24 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
                     width={bar.width}
                     height={bar.height}
                     fill={bar.color}
+                    onMouseLeave={() => {
+                      tooltipTimeout = window.setTimeout(() => {
+                        hideTooltip();
+                      }, 300);
+                    }}
+                    onMouseMove={event => {
+                      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                      // TooltipInPortal expects coordinates to be relative to containerRef
+                      // localPoint returns coordinates relative to the nearest SVG, which
+                      // is what containerRef is set to in this example.
+                      const eventSvgCoords = localPoint(event);
+                      const left = bar.x + bar.width / 2;
+                      showTooltip({
+                        tooltipData: bar,
+                        tooltipTop: eventSvgCoords?.y,
+                        tooltipLeft: left,
+                      });
+                    }}
                   />
                 ))
               )
@@ -243,6 +292,14 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
       >
         <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" shapeHeight="8px" shapeWidth="8px" />
       </div>
+      {tooltipOpen && tooltipData && (
+        <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
+          <div style={{ color: colorScale(tooltipData.key) }}>
+            <strong>{tooltipData.key}</strong>
+          </div>
+          <div>{tooltipData.bar.data[tooltipData.key].toFixed(2)} %</div>
+        </TooltipInPortal>
+      )}
     </div>
   );
 }

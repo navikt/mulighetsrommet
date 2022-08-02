@@ -34,6 +34,7 @@
     "@sentry/react": "^7.7.0",
     "@sentry/tracing": "^7.7.0",
     "@visx/axis": "^2.11.1",
+    "@visx/event": "^2.6.0",
     "@visx/grid": "^2.11.1",
     "@visx/legend": "^2.10.0",
     "@visx/mock-data": "^2.1.2",
