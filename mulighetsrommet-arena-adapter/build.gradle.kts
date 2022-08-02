@@ -109,5 +109,4 @@ dependencies {
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
-    implementation("io.insert-koin:koin-core:3.2.0")
 }
