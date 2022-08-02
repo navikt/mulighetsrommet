@@ -7,8 +7,10 @@ import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.mulighetsrommet.database.Database
+import org.koin.ktor.ext.inject
 
-fun Route.internalRoutes(db: Database) {
+fun Route.internalRoutes() {
+    val db: Database by inject()
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     get("/internal/liveness") {

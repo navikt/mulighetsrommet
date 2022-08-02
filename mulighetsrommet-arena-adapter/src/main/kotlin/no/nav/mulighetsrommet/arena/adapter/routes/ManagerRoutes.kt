@@ -8,8 +8,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
+import org.koin.ktor.ext.inject
 
-fun Route.managerRoutes(kafka: KafkaConsumerOrchestrator) {
+fun Route.managerRoutes() {
+    val kafka: KafkaConsumerOrchestrator by inject()
     singlePageApplication {
         applicationRoute = "manager"
         useResources = true

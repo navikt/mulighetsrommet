@@ -19,7 +19,7 @@ import java.util.function.Consumer
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     db: Database,
-    private val consumers: List<TopicConsumer<*>>,
+    private val consumerSetup: ConsumerSetup,
     private val topicRepository: TopicRepository,
     pollDelay: Long
 ) {
@@ -32,7 +32,7 @@ class KafkaConsumerOrchestrator(
     init {
         logger.debug("Initializing Kafka")
 
-        updateTopics(consumers)
+        updateTopics(consumerSetup.consumers)
 
         val kafkaConsumerRepository = KafkaConsumerRepository(db)
         val consumerTopicsConfig = configureConsumersTopics(kafkaConsumerRepository)
@@ -110,7 +110,7 @@ class KafkaConsumerOrchestrator(
         updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
 
     private fun configureConsumersTopics(repository: KafkaConsumerRepository): List<KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>> {
-        return consumers.map { consumer ->
+        return consumerSetup.consumers.map { consumer ->
             KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>()
                 .withStoreOnFailure(repository)
                 .withLogging()

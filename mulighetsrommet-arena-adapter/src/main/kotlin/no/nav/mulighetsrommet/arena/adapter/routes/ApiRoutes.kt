@@ -9,9 +9,11 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.jobs.JobRunners
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.domain.DateSerializer
+import org.koin.ktor.ext.inject
 import java.time.LocalDateTime
 
-fun Route.apiRoutes(topicService: TopicService) {
+fun Route.apiRoutes() {
+    val topicService: TopicService by inject()
     put("api/topics/replay") {
         val request = call.receive<ReplayTopicEventsRequest>()
 
