@@ -13,8 +13,7 @@
     "lint": "eslint src --ext .js,.ts,.tsx",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
     "serve": "vite preview",
-    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite",
-    "bundle-stats": "rollup-plugin-visualizer"
+    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
   },
   "browserslist": [
     ">0.2%",
