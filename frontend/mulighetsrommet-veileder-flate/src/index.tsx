@@ -1,15 +1,14 @@
-import { createRoot } from 'react-dom/client';
-import React from 'react';
-import App from './App';
 import '@navikt/ds-css';
-import { OpenAPI } from 'mulighetsrommet-api-client';
 import Navspa from '@navikt/navspa';
-import { worker } from './mock/worker';
-import { APPLICATION_NAME } from './constants';
-import { headers, toRecord } from './api/headers';
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
-import { useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
+import { OpenAPI } from 'mulighetsrommet-api-client';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
+import { headers, toRecord } from './api/headers';
+import App from './App';
+import { APPLICATION_NAME } from './constants';
 
 if (import.meta.env.VITE_ENVIRONMENT !== 'localhost') {
   Sentry.init({
@@ -39,6 +38,7 @@ OpenAPI.HEADERS = toRecord(headers);
 OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
+  const worker = require('./mock/worker');
   worker.start();
 }
 
