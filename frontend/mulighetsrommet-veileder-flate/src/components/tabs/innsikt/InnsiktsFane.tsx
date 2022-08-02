@@ -7,7 +7,7 @@ export type InnsiktsFaneProps = {
   tiltakstype: string;
 };
 
-const tiltakstyperMedStatistikk = ['Oppfølging', 'Digital Oppfølging', 'Avklaring', 'ARR', 'AFT', 'Jobbklubb'];
+const tiltakstyperMedStatistikk = ['Oppfølging', 'Digital Oppfølging', 'ARR', 'AFT', 'Jobbklubb'];
 
 const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   const { ref, width = 500 } = useResizeObserver<HTMLDivElement>({});
