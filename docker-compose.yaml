@@ -42,7 +42,7 @@ services:
 
   # Database for mulighetsrommet-api.
   mulighetsrommet-api-db:
-    image: "postgres:12.3-alpine"
+    image: "postgres:14.4-alpine"
     restart: "always"
     volumes:
       - "mulighetsrommet-api:/var/lib/postgresql/data"
