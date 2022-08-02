@@ -101,3 +101,13 @@ export interface NokkelinfoKomponenter {
   innhold: string;
   hjelpetekst?: string;
 }
+
+export interface StatistikkFraCsvFil {
+  År: string;
+  'Antall Måneder': string;
+  'Arbeidstaker m. ytelse/oppf': string;
+  'Kun arbeidstaker': string;
+  'Registrert hos Nav': string;
+  Tiltakstype: string;
+  Ukjent: string;
+}

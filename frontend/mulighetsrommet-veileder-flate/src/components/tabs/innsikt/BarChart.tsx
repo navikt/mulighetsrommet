@@ -1,33 +1,83 @@
-import React, { useEffect, useState } from 'react';
-import { BarStackHorizontal } from '@visx/shape';
-import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { GridColumns } from '@visx/grid';
-import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
+import { Group } from '@visx/group';
 import { LegendOrdinal } from '@visx/legend';
-import { Datapunkt } from './Datapunkt';
+import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
+import { BarStackHorizontal } from '@visx/shape';
+import { SeriesPoint } from '@visx/shape/lib/types';
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
+import { StatistikkFraCsvFil } from '../../../api/models';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 import '../TiltaksdetaljerFane.less';
+import { Datapunkt } from './Datapunkt';
+import { localPoint } from '@visx/event';
+
+const SISTE_AAR = 5;
 
 type Status = 'Arbeidstaker m. ytelse/oppf' | 'Kun arbeidstaker' | 'Registrert hos Nav' | 'Ukjent';
 
-function isOfStatusType(value: any): value is Status {
+function isOfStatusType(value: string): value is Status {
   return ['Arbeidstaker m. ytelse/oppf', 'Kun arbeidstaker', 'Registrert hos Nav', 'Ukjent'].includes(value);
 }
 
-function csvObjectArrayTilDatapunktArray(array: any[]): Datapunkt[] {
+function csvObjectArrayTilDatapunktArray(array: StatistikkFraCsvFil[]): Datapunkt[] {
   return array
-    .sort((item1, item2) => item2['Antall Måneder'] - item1['Antall Måneder'])
+    .sort((a, b) => parseInt(b['Antall Måneder']) - parseInt(a['Antall Måneder']))
     .map(item => {
       return {
-        tiltakstype: item['Tiltakstype'],
-        'Arbeidstaker m. ytelse/oppf': item['Arbeidstaker m. ytelse/oppf'],
-        'Kun arbeidstaker': item['Kun arbeidstaker'],
-        'Registrert hos Nav': item['Registrert hos Nav'],
-        Ukjent: item['Ukjent'],
+        År: item['År'],
+        tiltakstype: item.Tiltakstype,
+        'Arbeidstaker m. ytelse/oppf': parseFloat(replaceCommaWithPeriod(item['Arbeidstaker m. ytelse/oppf'])),
+        'Kun arbeidstaker': parseFloat(replaceCommaWithPeriod(item['Kun arbeidstaker'])),
+        'Registrert hos Nav': parseFloat(replaceCommaWithPeriod(item['Registrert hos Nav'])),
+        Ukjent: parseFloat(replaceCommaWithPeriod(item.Ukjent)),
         antallManeder: item['Antall Måneder'] + ' mnd',
       };
     });
+}
+
+function gjennomsnittForDatapunkterForSisteAar(
+  datapunkter: Datapunkt[],
+  antallAarTilbakeITid: number,
+  tiltakstype: string
+): Datapunkt[] {
+  const punkter = datapunkter.reverse().slice(0, antallAarTilbakeITid);
+
+  const punkterKronologisk = [...punkter.reverse()];
+  const aar = `${punkterKronologisk[0]?.År} - ${punkterKronologisk[punkterKronologisk.length - 1]?.År}`;
+
+  return punkter.reduce<Datapunkt[]>(
+    (all, next, _, { length }) => {
+      all[0]['Arbeidstaker m. ytelse/oppf'] += next['Arbeidstaker m. ytelse/oppf'] / length;
+      all[0]['Kun arbeidstaker'] += next['Kun arbeidstaker'] / length;
+      all[0]['Registrert hos Nav'] += next['Registrert hos Nav'] / length;
+      all[0].Ukjent += next.Ukjent / length;
+      all[0].tiltakstype = next.tiltakstype;
+      all[0].antallManeder = next.antallManeder;
+      return [...all];
+    },
+    [
+      {
+        'Arbeidstaker m. ytelse/oppf': 0,
+        'Kun arbeidstaker': 0,
+        'Registrert hos Nav': 0,
+        Ukjent: 0,
+        antallManeder: '',
+        tiltakstype,
+        År: aar,
+      },
+    ]
+  );
+}
+
+/**
+ * Erstatter komma med punktum siden tall fra norsk Excel eksporterer tall med komma istedenfor punktum.
+ * parseFloat derimot, forventer punktum i flyttall.
+ * @param value verdi med komma i seg
+ * @returns verdi med punktum som har erstattet komma
+ */
+function replaceCommaWithPeriod(value: string): string {
+  return value.replace(',', '.');
 }
 
 export type BarStackHorizontalProps = {
@@ -47,42 +97,95 @@ const black = '#000000';
 const grey = '#8F8F8F';
 const defaultMargin = { top: 20, left: 50, right: 40, bottom: 100 };
 
+const tooltipStyles = {
+  ...defaultStyles,
+  minWidth: 60,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  color: 'white',
+};
+
 // accessors
 const getAntallManeder = (d: Datapunkt) => d.antallManeder;
 
+type TooltipData = {
+  bar: SeriesPoint<Datapunkt>;
+  key: Status;
+  index: number;
+  height: number;
+  width: number;
+  x: number;
+  y: number;
+  color: string;
+};
+
+let tooltipTimeout: number;
+
 export default function BarChart({ tiltakstype, width, height, margin = defaultMargin }: BarStackHorizontalProps) {
-  const csvData = useHentStatistikkFraFil();
-  if (!csvData || csvData.length === 0) {
+  const csvDataFraFil = useHentStatistikkFraFil();
+  const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip<TooltipData>();
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    // TooltipInPortal is rendered in a separate child of <body /> and positioned
+    // with page coordinates which should be updated on scroll. consider using
+    // Tooltip or TooltipWithBounds if you don't need to render inside a Portal
+    scroll: true,
+  });
+
+  if (!csvDataFraFil || csvDataFraFil.length === 0) {
     return null;
   }
-  const data = csvObjectArrayTilDatapunktArray(csvData).filter(item => item.tiltakstype === tiltakstype);
+  const datapunkter = csvObjectArrayTilDatapunktArray(csvDataFraFil);
+  console.log(datapunkter);
 
-  if (!data || data.length === 0) {
+  if (!datapunkter || datapunkter.length === 0) {
     return null;
   }
 
-  //prep data
-  const keys = Object.keys(data[0]).filter(d => isOfStatusType(d)) as Status[];
+  // prep data
+  const datapunkterGrupperPerManed = datapunkter
+    .filter(item => item.tiltakstype === tiltakstype)
+    .reduce<{
+      '3 mnd': Datapunkt[];
+      '6 mnd': Datapunkt[];
+      '12 mnd': Datapunkt[];
+    }>(
+      (all: any, next) => {
+        all[next.antallManeder]?.push(next);
+        return all;
+      },
+      { '3 mnd': [], '6 mnd': [], '12 mnd': [] }
+    );
 
-  const percentageTotals = data.reduce((allTotals, currentMonth) => {
-    const totalPercentage = keys.reduce((monthlyTotal, k) => {
-      monthlyTotal += Number(currentMonth[k]);
-      return monthlyTotal;
-    }, 0);
-    allTotals.push(totalPercentage);
-    return allTotals;
-  }, [] as number[]);
+  const statsFor3Mnd = gjennomsnittForDatapunkterForSisteAar(
+    datapunkterGrupperPerManed['3 mnd'],
+    SISTE_AAR,
+    tiltakstype
+  );
+  const statsFor6Mnd = gjennomsnittForDatapunkterForSisteAar(
+    datapunkterGrupperPerManed['6 mnd'],
+    SISTE_AAR,
+    tiltakstype
+  );
+  const statsFor12Mnd = gjennomsnittForDatapunkterForSisteAar(
+    datapunkterGrupperPerManed['12 mnd'],
+    SISTE_AAR,
+    tiltakstype
+  );
+
+  const dataForVisning: Datapunkt[] = [...statsFor3Mnd, ...statsFor6Mnd, ...statsFor12Mnd].reverse();
+
+  const keys = Object.keys(dataForVisning[0]).filter(isOfStatusType);
 
   // scales
   const percentageScale = scaleLinear<number>({
-    domain: [0, Math.max(...percentageTotals)],
+    domain: [0, 100],
     nice: false,
   });
+
   const monthScale = scaleBand<string>({
-    domain: data.map(getAntallManeder),
+    domain: dataForVisning.map(getAntallManeder),
     padding: 0.8,
   });
-  const colorScale = scaleOrdinal<Status, string>({
+  const colorScale = scaleOrdinal<string, string>({
     domain: keys,
     range: [bla, gronn, gul, rod],
   });
@@ -94,12 +197,14 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
   percentageScale.rangeRound([0, xMax]);
   monthScale.rangeRound([yMax, 0]);
 
+  console.log(dataForVisning);
   return width < 10 ? null : (
     <div>
-      <div style={{ width: width }} className={'tiltaksdetaljer__innsiktheader'}>
-        Status etter avgang: OBS! Ikke reelle data
+      <div style={{ width }} className={'tiltaksdetaljer__innsiktheader'}>
+        Status etter avgang siste {SISTE_AAR} år ({dataForVisning[0].År})
       </div>
-      <svg width={width} height={height}>
+
+      <svg ref={containerRef} width={width} height={height}>
         <rect width={width} height={height} fill={background} rx={14} />
         <GridColumns
           top={margin.top}
@@ -111,7 +216,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
         />
         <Group top={margin.top} left={margin.left}>
           <BarStackHorizontal<Datapunkt, Status>
-            data={data}
+            data={dataForVisning}
             keys={keys}
             height={yMax}
             y={getAntallManeder}
@@ -129,6 +234,24 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
                     width={bar.width}
                     height={bar.height}
                     fill={bar.color}
+                    onMouseLeave={() => {
+                      tooltipTimeout = window.setTimeout(() => {
+                        hideTooltip();
+                      }, 300);
+                    }}
+                    onMouseMove={event => {
+                      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                      // TooltipInPortal expects coordinates to be relative to containerRef
+                      // localPoint returns coordinates relative to the nearest SVG, which
+                      // is what containerRef is set to in this example.
+                      const eventSvgCoords = localPoint(event);
+                      const left = bar.x + bar.width / 2;
+                      showTooltip({
+                        tooltipData: bar,
+                        tooltipTop: eventSvgCoords?.y,
+                        tooltipLeft: left,
+                      });
+                    }}
                   />
                 ))
               )
@@ -158,6 +281,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
           />
         </Group>
       </svg>
+
       <div
         style={{
           width: `${width}px`,
@@ -169,6 +293,14 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
       >
         <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" shapeHeight="8px" shapeWidth="8px" />
       </div>
+      {tooltipOpen && tooltipData && (
+        <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
+          <div style={{ color: colorScale(tooltipData.key) }}>
+            <strong>{tooltipData.key}</strong>
+          </div>
+          <div>{tooltipData.bar.data[tooltipData.key].toFixed(2)} %</div>
+        </TooltipInPortal>
+      )}
     </div>
   );
 }
