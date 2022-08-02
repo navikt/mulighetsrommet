@@ -44,7 +44,9 @@ function gjennomsnittForDatapunkterForSisteAar(
   const punkter = datapunkter.reverse().slice(0, antallAarTilbakeITid);
 
   const punkterKronologisk = [...punkter.reverse()];
-  const aar = `${punkterKronologisk[0]?.År} - ${punkterKronologisk[punkterKronologisk.length - 1]?.År}`;
+  const aar = [punkterKronologisk[0]?.År, punkterKronologisk[punkterKronologisk.length - 1]?.År]
+    .filter(Boolean)
+    .join(' - ');
 
   return punkter.reduce<Datapunkt[]>(
     (all, next, _, { length }) => {
@@ -134,7 +136,6 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
     return null;
   }
   const datapunkter = csvObjectArrayTilDatapunktArray(csvDataFraFil);
-  console.log(datapunkter);
 
   if (!datapunkter || datapunkter.length === 0) {
     return null;
@@ -197,7 +198,6 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
   percentageScale.rangeRound([0, xMax]);
   monthScale.rangeRound([yMax, 0]);
 
-  console.log(dataForVisning);
   return width < 10 ? null : (
     <div>
       <div style={{ width }} className={'tiltaksdetaljer__innsiktheader'}>
