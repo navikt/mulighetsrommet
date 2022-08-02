@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import './TiltaksdetaljerFane.less';
 import { Tabs } from '@navikt/ds-react';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';

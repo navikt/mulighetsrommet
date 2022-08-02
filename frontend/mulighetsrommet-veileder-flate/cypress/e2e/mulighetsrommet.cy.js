@@ -1,7 +1,7 @@
 describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+    cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
   });
 
   it('Sjekk UU', () => {
@@ -20,11 +20,10 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
-    cy.wait(1000)
-      .getByTestId('antall-tiltak')
-      .then($navn => {
-        expect(antallTiltak).not.to.eq($navn.text());
-      });
+    cy.wait(1000);
+    cy.getByTestId('antall-tiltak').then($navn => {
+      expect(antallTiltak).not.to.eq($navn.text());
+    });
 
     cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
     cy.getByTestId('filtertags').children().should('have.length', 2);
@@ -83,17 +82,19 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Skal kunne navigere mellom sider via paginering', () => {
     cy.getByTestId('paginering').should('exist');
-    cy.get('nav[data-testid=paginering] ul li').eq(2).children().eq(0).should('not.have.attr', 'aria-current');
-    cy.get('nav[data-testid=paginering] ul li').eq(3).click().children().eq(0).should('have.attr', 'aria-current');
+    cy.getByTestId('paginering').children().children().eq(2).should('not.have.attr', 'aria-current');
+    cy.getByTestId('paginering').children().children().eq(3).click().children().should('have.attr', 'aria-current');
   });
 });
 
-describe('Tiltaksgjennomføringstabell', () => {
-  it('Gå til siste tiltaksgjennomføring', () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').last().click();
+describe('Tiltaksgjennomføringsdetaljer', () => {
+  it('Gå til en tiltaksgjennomføring', () => {
+    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
+  });
 
-    cy.wait(1000);
+  it('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.getByTestId('knapp_kopier').click();
+
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
         cy.url().should('include', text);
