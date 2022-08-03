@@ -23,3 +23,17 @@ SANITY_TOKEN=<Lim inn Access token opprettet i steg 3>
 1. `npm install`
 2. Dersom du ønsker å se opplastet data i Sanity studio må du endre dataset basert på hvor du laster opp. Du endrer dataset i `./frontend/mulighetsrommet-cms/sanity.json`.
 3. Åpne et nytt terminal-vindu/tab og kjør `npx nodemon ./upload.ts` - nodemon restarter prosessen ved hver endring i fil. Hack i vei!
+
+
+# Oppdatering av Sanity-data
+Dersom det skjer endringer i schema eller annet som gjør at man må oppdatere alle tiltaksgjennomføringer gjør man følgende:
+
+1. Eksporter Sanity-data
+   - Naviger til `frontend/mulighetsrommet-cms`
+   - Kjør i terminal: 
+     - Produksjonsdata: `sanity dataset export production ./production.tar.gz`
+     - Testdata: `sanity dataset export test ./test.tar.gz`
+
+[comment]: <Dersom noen tar denne oppgaven, jeg har kommet hit!>
+2. Gjør oppdateringer
+3. Importer Sanity-data
