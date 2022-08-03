@@ -4,12 +4,14 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
+import org.intellij.lang.annotations.Language
 
 class TiltaksgjennomforingService(private val db: Database) {
 
     fun getTiltaksgjennomforingerByTiltakskode(tiltakskode: String): List<Tiltaksgjennomforing> {
+        @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltaksnummer, tiltakskode, aar
+            select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet
             from tiltaksgjennomforing_valid
             where tiltakskode = ?
         """.trimIndent()
@@ -18,8 +20,9 @@ class TiltaksgjennomforingService(private val db: Database) {
     }
 
     fun getTiltaksgjennomforingById(id: Int): Tiltaksgjennomforing? {
+        @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltaksnummer, tiltakskode, aar
+            select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet
             from tiltaksgjennomforing_valid
             where id = ?
         """.trimIndent()
@@ -28,8 +31,9 @@ class TiltaksgjennomforingService(private val db: Database) {
     }
 
     fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
+        @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltaksnummer, tiltakskode, aar
+            select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet
             from tiltaksgjennomforing_valid
         """.trimIndent()
         val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList

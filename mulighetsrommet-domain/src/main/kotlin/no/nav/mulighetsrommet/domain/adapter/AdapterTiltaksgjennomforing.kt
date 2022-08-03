@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.domain.DateSerializer
 import java.time.LocalDateTime
 
 @Serializable
-data class AdapterTiltaksgjennomforing (
+data class AdapterTiltaksgjennomforing(
     val id: Int,
     val navn: String,
     val tiltakskode: String,
@@ -15,4 +15,6 @@ data class AdapterTiltaksgjennomforing (
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null,
+    val apentForInnsok: Boolean = true,
+    val antallPlasser: Int? = null,
 )
