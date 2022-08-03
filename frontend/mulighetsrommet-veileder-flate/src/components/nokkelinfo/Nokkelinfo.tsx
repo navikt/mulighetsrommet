@@ -17,7 +17,11 @@ const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
               <Heading size="xsmall" level="2">
                 {nokkelinfo.tittel}
               </Heading>
-              {nokkelinfo.hjelpetekst && <HelpText>{nokkelinfo.hjelpetekst}</HelpText>}
+              {nokkelinfo.hjelpetekst && (
+                <HelpText title="Se hvordan prosenten er regnet ut" placement="auto">
+                  {nokkelinfo.hjelpetekst}
+                </HelpText>
+              )}
             </div>
             <BodyShort className="nokkelinfo__tekst">{nokkelinfo.innhold}</BodyShort>
           </div>
