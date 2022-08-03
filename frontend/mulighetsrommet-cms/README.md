@@ -35,6 +35,17 @@ Når vi får tilsendt Excel-fil med overgangsstatistikk fra datavarehuset så m�
 5. Vent noen minutter og applikasjonen bør begynne å bruke den siste opplastede filen.
 6. Om man har mange statistikkfiler kan det være en idé å slette noen av de gamle etter hvert som de blir utdaterte.
 
+### 📊 Oppdatering av nøkkeltall for "Overgang til arbeid"
+Fra Excel-skjema tilsendt fra datavarehuset tar man og filtrer bort alt som ikke er 12 mnd og gjelder kategoriene **Kun arbeidstaker** og **Arbeidstaker med ytelse** 5 år tilbake i tid og regner ut gjennomsnittet for de to kategoriene.
+
+**Oppskrift:**
+"Kun arbeidstaker" + "Arbeidstaker med ytelse" per år
+Legg sammen alle årene og del på antall år
+
+Legg så inn i Sanity per tiltakstype.
+
+For de tiltakstypene vi ikke har statistikk for er det bare å ikke legge inn nøkkeltall. Da vil vi heller ikke vise noe i frontend.
+
 ### 🔗 Nyttige lenker
 
 - [Sanity Studio Docs](https://www.sanity.io/docs/sanity-studio)
