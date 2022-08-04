@@ -3,6 +3,10 @@ package no.nav.mulighetsrommet.arena.adapter.plugins
 import io.ktor.server.application.*
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
+import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerSetup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
@@ -15,7 +19,11 @@ import org.koin.ktor.plugin.Koin
 import org.koin.logger.SLF4JLogger
 import java.util.Properties
 
-fun Application.configureDependencyInjection(appConfig: AppConfig, kafkaPreset: Properties, tokenClient: AzureAdMachineToMachineTokenClient) {
+fun Application.configureDependencyInjection(
+    appConfig: AppConfig,
+    kafkaPreset: Properties,
+    tokenClient: AzureAdMachineToMachineTokenClient
+) {
 
     install(Koin) {
         SLF4JLogger()
@@ -31,7 +39,15 @@ fun Application.configureDependencyInjection(appConfig: AppConfig, kafkaPreset: 
 }
 
 private fun consumers(kafkaConfig: KafkaConfig) = module {
-    single { ConsumerSetup(kafkaConfig, get(), get()) }
+    single {
+        val consumers = listOf(
+            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get()),
+            TiltakgjennomforingEndretConsumer(kafkaConfig.getTopic("tiltakgjennomforingendret"), get(), get()),
+            TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get()),
+            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
+        )
+        ConsumerSetup(consumers)
+    }
 }
 
 private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {

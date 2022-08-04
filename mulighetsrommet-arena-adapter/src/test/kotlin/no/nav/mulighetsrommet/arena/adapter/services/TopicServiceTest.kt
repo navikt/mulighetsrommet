@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerSetup
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.Event
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
@@ -19,7 +20,7 @@ class TopicServiceTest : FunSpec({
         val events = mockk<EventRepository>()
         val consumer = mockk<TopicConsumer<Any>>()
 
-        val service = TopicService(events, listOf(consumer))
+        val service = TopicService(events, ConsumerSetup(listOf(consumer)))
 
         beforeEach {
             every { consumer.consumerConfig.topic } answers { topic }
