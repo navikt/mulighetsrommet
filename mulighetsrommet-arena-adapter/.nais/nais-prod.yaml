@@ -36,6 +36,9 @@ spec:
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
+        flags:
+          - name: max_connections
+            value: "200"
   kafka:
     pool: nav-prod
   azure:
