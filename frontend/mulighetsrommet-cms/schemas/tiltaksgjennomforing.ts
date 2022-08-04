@@ -131,48 +131,8 @@ export default {
     //Faneinnhold
     {
       name: "faneinnhold",
-      title: "Innhold faner",
-      type: "object",
-      fields: [
-        {
-          name: "forHvemInfoboks",
-          title: "For hvem - infoboks",
-          description:
-            "Hvis denne har innhold, vises det i en infoboks i fanen 'For hvem'",
-          type: "string",
-        },
-        {
-          name: "forHvem",
-          title: "For hvem",
-          type: "blockContent",
-        },
-
-        {
-          name: "detaljerOgInnholdInfoboks",
-          title: "Detaljer og innhold - infoboks",
-          description:
-            "Hvis denne har innhold, vises det i en infoboks i fanen 'Detaljer og innhold'",
-          type: "string",
-        },
-        {
-          name: "detaljerOgInnhold",
-          title: "Detaljer og innhold",
-          type: "blockContent",
-        },
-
-        {
-          name: "pameldingOgVarighetInfoboks",
-          title: "Påmelding og varighet - infoboks",
-          description:
-            "Hvis denne har innhold, vises det i en infoboks i fanen 'Påmelding og varighet'",
-          type: "string",
-        },
-        {
-          name: "pameldingOgVarighet",
-          title: "Påmelding og varighet",
-          type: "blockContent",
-        },
-      ],
+      title: "Faneinnhold",
+      type: "faneinnhold",
     },
     {
       name: "kontaktinfoTiltaksansvarlige",

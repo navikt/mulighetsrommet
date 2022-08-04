@@ -12,6 +12,7 @@ import regelverklenke from "./regelverklenke";
 import innsatsgruppe from "./innsatsgruppe";
 import statistikkfil from "./statistikkfil";
 import nokkelinfo from "./nokkelinfo";
+import faneinnhold from "./faneinnhold";
 
 export default createSchema({
   name: "default",
@@ -28,6 +29,7 @@ export default createSchema({
     innsatsgruppe,
     statistikkfil,
     nokkelinfo,
+    faneinnhold,
 
     // When added to this list, object types can be used as
     // { type: 'typename' } in other document schemas
