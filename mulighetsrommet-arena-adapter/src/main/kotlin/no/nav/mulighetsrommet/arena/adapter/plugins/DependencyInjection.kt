@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerSetup
+import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.SLF4JLogger
-import java.util.Properties
+import java.util.*
 
 fun Application.configureDependencyInjection(
     appConfig: AppConfig,
@@ -46,7 +46,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
             TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get()),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
         )
-        ConsumerSetup(consumers)
+        ConsumerGroup(consumers)
     }
 }
 

@@ -4,13 +4,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerSetup
+import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import org.slf4j.LoggerFactory
 
 class TopicService(
     private val events: EventRepository,
-    private val consumerSetup: ConsumerSetup,
+    private val group: ConsumerGroup,
     private val channelCapacity: Int = 200,
     private val numChannelConsumers: Int = 20
 ) {
@@ -33,7 +33,7 @@ class TopicService(
             close()
         }
 
-        val relevantConsumers = consumerSetup.consumers.filter { it.consumerConfig.topic == topic }
+        val relevantConsumers = group.consumers.filter { it.consumerConfig.topic == topic }
 
         // Create `numConsumers` coroutines to process the events simultaneously
         (0..numChannelConsumers)
