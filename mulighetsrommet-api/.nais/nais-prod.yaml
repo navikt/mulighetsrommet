@@ -33,9 +33,14 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_14
+        diskAutoresize: true
+        pointInTimeRecovery: true
         databases:
           - name: mulighetsrommet-db
             envVarPrefix: DB
+        flags:
+          - name: max_connections
+            value: "200"
   kafka:
     pool: nav-prod
   azure:
