@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.arena.ArenaTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.arena.JaNeiStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -44,5 +45,7 @@ class TiltakgjennomforingEndretConsumer(
         tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL),
         arrangorId = this.ARBGIV_ID_ARRANGOR,
         sakId = this.SAK_ID,
+        apentForInnsok = this.STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
+        antallPlasser = this.ANTALL_DELTAKERE,
     )
 }

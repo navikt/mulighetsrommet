@@ -19,7 +19,7 @@ fun <R> withMulighetsrommetApp(
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
-    database = createDatabaseConfig(),
+    database = createDatabaseConfigWithRandomSchema(),
     auth = createAuthConfig(oauth),
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
@@ -39,15 +39,6 @@ fun createVeilarbvedsstotteConfig(): VeilarbvedtaksstotteConfig {
         scope = ""
     )
 }
-
-fun createDatabaseConfig(
-    host: String = "localhost",
-    port: Int = 5442,
-    name: String = "mulighetsrommet-api-db",
-    user: String = "valp",
-    password: Password = Password("valp"),
-    maximumPoolSize: Int = 1,
-) = DatabaseConfig(host, port, name, null, user, password, maximumPoolSize)
 
 fun createDatabaseConfigWithRandomSchema(
     host: String = "localhost",

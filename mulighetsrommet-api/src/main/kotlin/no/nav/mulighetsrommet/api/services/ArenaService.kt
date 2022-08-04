@@ -41,38 +41,44 @@ class ArenaService(private val db: Database) {
         return db.run(queryResult)!!
     }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: AdapterTiltaksgjennomforing): AdapterTiltaksgjennomforing {
-        logger.info(
-            "Lagrer tiltak tiltakskode={} sakId={}",
-            tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.sakId
-        )
+    fun upsertTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): AdapterTiltaksgjennomforing {
+        logger.info("Lagrer tiltak tiltakskode=${tiltak.tiltakskode} sakId=${tiltak.sakId}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, arena_id, fra_dato, til_dato, sak_id)
-            values (?, ?, ?, ?, ?, ?, ?)
+            insert into tiltaksgjennomforing (navn,
+                                              arrangor_id,
+                                              tiltakskode,
+                                              arena_id,
+                                              fra_dato,
+                                              til_dato, sak_id,
+                                              apent_for_innsok,
+                                              antall_plasser)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?)
             on conflict (arena_id)
-            do update set
-                navn = excluded.navn,
-                arrangor_id = excluded.arrangor_id,
-                tiltakskode = excluded.tiltakskode,
-                arena_id = excluded.arena_id,
-                fra_dato = excluded.fra_dato,
-                til_dato = excluded.til_dato,
-                sak_id = excluded.sak_id
+                do update set navn             = excluded.navn,
+                              arrangor_id      = excluded.arrangor_id,
+                              tiltakskode      = excluded.tiltakskode,
+                              arena_id         = excluded.arena_id,
+                              fra_dato         = excluded.fra_dato,
+                              til_dato         = excluded.til_dato,
+                              sak_id           = excluded.sak_id,
+                              apent_for_innsok = excluded.apent_for_innsok,
+                              antall_plasser   = excluded.antall_plasser
             returning *
         """.trimIndent()
 
         val queryResult = queryOf(
             query,
-            tiltaksgjennomforing.navn,
-            tiltaksgjennomforing.arrangorId,
-            tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.id,
-            tiltaksgjennomforing.fraDato,
-            tiltaksgjennomforing.tilDato,
-            tiltaksgjennomforing.sakId
+            tiltak.navn,
+            tiltak.arrangorId,
+            tiltak.tiltakskode,
+            tiltak.id,
+            tiltak.fraDato,
+            tiltak.tilDato,
+            tiltak.sakId,
+            tiltak.apentForInnsok,
+            tiltak.antallPlasser,
         ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
         return db.run(queryResult)!!
     }

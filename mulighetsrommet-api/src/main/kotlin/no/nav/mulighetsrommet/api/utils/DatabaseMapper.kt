@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utils
 
 import kotliquery.Row
 import no.nav.mulighetsrommet.domain.*
+import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
@@ -22,7 +23,10 @@ object DatabaseMapper {
             navn = row.string("navn"),
             tiltaksnummer = row.int("tiltaksnummer"),
             tiltakskode = row.string("tiltakskode"),
-            aar = row.int("aar")
+            aar = row.int("aar"),
+            tilgjengelighet = Tilgjengelighetsstatus.valueOf(
+                row.string("tilgjengelighet")
+            )
         )
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
@@ -53,7 +57,9 @@ object DatabaseMapper {
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),
         arrangorId = row.intOrNull("arrangor_id"),
-        sakId = row.int("sak_id")
+        sakId = row.int("sak_id"),
+        apentForInnsok = row.boolean("apent_for_innsok"),
+        antallPlasser = row.intOrNull("antall_plasser"),
     )
 
     fun toAdapterTiltakdeltaker(row: Row): AdapterTiltakdeltaker = AdapterTiltakdeltaker(
