@@ -30,10 +30,9 @@ Dersom det skjer endringer i schema eller annet som gjør at man må oppdatere a
 
 1. Eksporter Sanity-data
    - Naviger til `frontend/mulighetsrommet-cms`
-   - Kjør i terminal: 
+   - Ta backup av test og produksjonsdatasett - Kjør i terminal: 
      - Produksjonsdata: `sanity dataset export production ./production.tar.gz`
      - Testdata: `sanity dataset export test ./test.tar.gz`
-
-[comment]: <Dersom noen tar denne oppgaven, jeg har kommet hit!>
-2. Gjør oppdateringer
-3. Importer Sanity-data
+   - Tweak dataene som ønskelig og import med 
+     - Produksjon: `sanity dataset import ./production.tar.gz production`
+     - Test: `sanity dataset import ./test.tar.gz test`
