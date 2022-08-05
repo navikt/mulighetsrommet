@@ -39,7 +39,7 @@ export interface Forskningsrapport {
   _id: string;
   tittel: string;
   beskrivelse: any;
-  lenker: Lenke[];
+  lenker?: Lenke[];
 }
 
 interface Lenke {
