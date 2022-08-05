@@ -32,6 +32,19 @@ export interface Tiltakstype {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
+  forskningsrapport?: Forskningsrapport[];
+}
+
+export interface Forskningsrapport {
+  _id: string;
+  tittel: string;
+  beskrivelse: any;
+  lenker: Lenke[];
+}
+
+interface Lenke {
+  lenke: string;
+  lenkenavn: string;
 }
 
 export interface Tiltaksgjennomforing {

@@ -2,6 +2,7 @@ import { GrDocumentPerformance } from "react-icons/gr";
 import sanityClient from "part:@sanity/base/client";
 import { Rule } from "@sanity/types";
 import { EnhetType } from "./enhet";
+import lenke from "./lenke";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
@@ -145,23 +146,7 @@ export default {
       name: "lenker",
       title: "Lenker",
       type: "array",
-      of: [
-        {
-          type: "object",
-          fields: [
-            {
-              title: "Lenke",
-              name: "lenke",
-              type: "string",
-            },
-            {
-              title: "Lenkenavn",
-              name: "lenkenavn",
-              type: "string",
-            },
-          ],
-        },
-      ],
+      of: [lenke],
     },
   ],
   preview: {
