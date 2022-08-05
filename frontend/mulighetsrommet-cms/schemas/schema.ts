@@ -13,6 +13,8 @@ import innsatsgruppe from "./innsatsgruppe";
 import statistikkfil from "./statistikkfil";
 import nokkelinfo from "./nokkelinfo";
 import faneinnhold from "./faneinnhold";
+import forskningsrapport from "./forskningsrapport";
+import lenke from "./lenke";
 
 export default createSchema({
   name: "default",
@@ -30,6 +32,8 @@ export default createSchema({
     statistikkfil,
     nokkelinfo,
     faneinnhold,
+    lenke,
+    forskningsrapport,
 
     // When added to this list, object types can be used as
     // { type: 'typename' } in other document schemas

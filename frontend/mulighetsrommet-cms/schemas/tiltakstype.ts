@@ -54,6 +54,14 @@ export default {
       title: "Faneinnhold",
       type: "faneinnhold",
     },
+    {
+      name: "forskningsrapport",
+      title: "Forskningsrapport",
+      description:
+        "Legg til en eller flere forskningsrapporter som gjelder for tiltakstypen. Disse vil bli vist under 'Innsikt'-fanen.",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
+    },
   ],
   preview: {
     select: {
