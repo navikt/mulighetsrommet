@@ -32,13 +32,13 @@ export interface Tiltakstype {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
-  forskningsrapport: Forskningsrapport[];
+  forskningsrapport?: Forskningsrapport[];
 }
 
 export interface Forskningsrapport {
   _id: string;
   tittel: string;
-  beskrivelse: object;
+  beskrivelse: any;
   lenker: Lenke[];
 }
 
