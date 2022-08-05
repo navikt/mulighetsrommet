@@ -45,7 +45,7 @@ class TopicService(
                             runCatching {
                                 consumer.replayEvent(payload)
                             }.onFailure {
-                                logger.warn("Failed to replay event ${event.id}")
+                                logger.warn("Failed to replay event ${event.id}: ${it.stackTraceToString()}")
                                 throw it
                             }
                         }
