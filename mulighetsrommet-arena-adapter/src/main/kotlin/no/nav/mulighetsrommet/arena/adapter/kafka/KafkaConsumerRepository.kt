@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.database.Database
 import org.apache.kafka.common.TopicPartition
 import org.intellij.lang.annotations.Language
 

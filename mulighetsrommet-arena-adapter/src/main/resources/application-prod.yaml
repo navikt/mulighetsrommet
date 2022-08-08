@@ -1,0 +1,36 @@
+server:
+  port: 8084
+  host: 0.0.0.0
+
+app:
+  services:
+    mulighetsrommetApi:
+      url: https://mulighetsrommet-api.intern.nav.no
+      scope: api://prod-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
+    topicService:
+      channelCapacity: 500
+      numChannelConsumers: 50
+
+  database:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    name: ${DB_DATABASE}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    maximumPoolSize: 10
+
+  enableFailedRecordProcessor: true
+
+  kafka:
+    brokers: ${KAFKA_BROKERS}
+    consumerGroupId: mulighetsrommet-kafka-consumer.v1
+    topics:
+      pollChangesDelayMs: 10000
+      consumer:
+        tiltakendret: teamarenanais.aapen-arena-tiltakendret-v1-p
+        tiltakgjennomforingendret: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-p
+        tiltakdeltakerendret: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-p
+        sakendret: teamarenanais.aapen-arena-sakendret-v1-p
+
+  sentry:
+    dsn: https://9b3945d6ab0542bf9ae41247dab65389@sentry.gc.nav.no/135

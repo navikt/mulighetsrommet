@@ -1,21 +1,22 @@
 package no.nav.mulighetsrommet.arena.adapter.routes
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.mulighetsrommet.arena.adapter.Database
+import no.nav.mulighetsrommet.database.Database
+import org.koin.ktor.ext.inject
 
-fun Route.internalRoutes(
-    db: Database,
-) {
+fun Route.internalRoutes() {
+    val db: Database by inject()
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
     get("/internal/liveness") {
         call.respond(HttpStatusCode.OK)
     }
+
     get("/internal/readiness") {
         if (db.isHealthy()) {
             call.respond(HttpStatusCode.OK)
@@ -23,9 +24,7 @@ fun Route.internalRoutes(
             call.respond(HttpStatusCode.InternalServerError)
         }
     }
-    get("/internal/ping") {
-        call.respond("PONG")
-    }
+
     get("/internal/prometheus") {
         call.respond(appMicrometerRegistry.scrape())
     }

@@ -26,6 +26,16 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
             install(Logging) {
                 level = LogLevel.INFO
             }
+            install(HttpRequestRetry) {
+                retryOnServerErrors(maxRetries = 5)
+                exponentialDelay()
+                modifyRequest {
+                    response?.let {
+                        logger.warn("Request failed with response status=${it.status}")
+                    }
+                    logger.info("Retrying request method=${request.method}, url=${request.url.buildString()}")
+                }
+            }
             defaultRequest {
                 contentType(ContentType.Application.Json)
 

@@ -1,43 +1,31 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import com.sksamuel.hoplite.Masked
-import java.lang.RuntimeException
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
 
 data class Config(
     val server: ServerConfig,
     val app: AppConfig
 )
 
-data class ServerConfig(
-    val host: String,
-    val port: Int
-)
-
 data class AppConfig(
-    val enableKafkaTopicConsumption: Boolean,
     val enableFailedRecordProcessor: Boolean,
     val services: ServiceConfig,
     val database: DatabaseConfig,
-    val kafka: KafkaConfig
+    val kafka: KafkaConfig,
+    val sentry: SentryConfig? = null,
 )
 
 data class ServiceConfig(
-    val mulighetsrommetApi: AuthenticatedService
+    val mulighetsrommetApi: AuthenticatedService,
+    val topicService: TopicService.Config,
 )
 
 data class AuthenticatedService(
     val url: String,
     val scope: String
-)
-
-data class DatabaseConfig(
-    val host: String,
-    val port: Int,
-    val name: String,
-    val schema: String?,
-    val user: String,
-    val password: Masked,
-    val maximumPoolSize: Int
 )
 
 data class KafkaConfig(
@@ -46,12 +34,19 @@ data class KafkaConfig(
     val topics: TopicsConfig
 )
 
-fun KafkaConfig.getTopic(key: String): String {
-    return topics.consumer.getOrElse(key) {
+fun KafkaConfig.getTopic(key: String): ConsumerConfig {
+    val topic = topics.consumer.getOrElse(key) {
         throw RuntimeException("No topic configured for key '$key'")
     }
+    return ConsumerConfig(key, topic)
 }
 
 data class TopicsConfig(
+    val pollChangesDelayMs: Long,
     val consumer: Map<String, String>
+)
+
+data class ConsumerConfig(
+    val key: String,
+    val topic: String
 )

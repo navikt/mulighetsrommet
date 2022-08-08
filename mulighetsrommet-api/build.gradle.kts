@@ -5,7 +5,6 @@ plugins {
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
-    id("com.adarshr.test-logger")
 }
 
 application {
@@ -14,6 +13,12 @@ application {
 
 ktlint {
     disabledRules.addAll("no-wildcard-imports")
+}
+
+flyway {
+    url = System.getenv("DB_URL")
+    user = System.getenv("DB_USERNAME")
+    password = System.getenv("DB_PASSWORD")
 }
 
 repositories {
@@ -31,6 +36,13 @@ repositories {
 
 dependencies {
     implementation(project(":mulighetsrommet-domain"))
+    implementation(project(":common:ktor"))
+    implementation(project(":common:database"))
+    testImplementation(testFixtures(project(":common:database")))
+
+    // Kotlin
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
 
     val ktorVersion = "2.0.3"
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
@@ -52,18 +64,12 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
-    val hopliteVersion = "2.1.5"
-    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
     val navCommonModules = "2.2022.05.05_06.41-84855089824b"
     implementation("no.nav.common:token-client:$navCommonModules")
-
-    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
 
     // Test
     val kotestVersion = "5.3.1"
@@ -89,39 +95,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.github.seratch:kotliquery:1.6.2")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
-
-    implementation("no.nav.security:mock-oauth2-server:0.4.3")
-    runtimeOnly("org.webjars:swagger-ui:4.1.2")
-
-    // Health Check
     implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
-}
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-tasks {
-    shadowJar {
-        manifest {
-            attributes(Pair("Main-Class", "no.nav.mulighetsrommet.api.ApplicationKt"))
-        }
-    }
-}
-
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-}
-
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USERNAME")
-    password = System.getenv("DB_PASSWORD")
+    // OpenAPI
+    runtimeOnly("org.webjars:swagger-ui:4.1.2")
 }

@@ -1,39 +1,22 @@
 package no.nav.mulighetsrommet.api
 
-import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.ktor.plugins.*
+import no.nav.mulighetsrommet.ktor.startKtorApplication
 
 fun main() {
-    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.yaml")
-    initializeServer(config)
-}
+    val (server, app) = loadConfiguration<Config>()
 
-fun initializeServer(config: Config) {
-    val server = embeddedServer(
-        Netty,
-        environment = applicationEngineEnvironment {
-            log = LoggerFactory.getLogger("ktor.application")
-
-            module {
-                configure(config.app)
-            }
-
-            connector {
-                port = config.server.port
-                host = config.server.host
-            }
-        }
-    )
-    server.start(true)
+    startKtorApplication(server) {
+        configure(app)
+    }
 }
 
 fun Application.configure(config: AppConfig) {
@@ -45,6 +28,7 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring()
     configureSerialization()
     configureWebjars()
+    configureSentry(config.sentry)
 
     routing {
         internalRoutes()

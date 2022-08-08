@@ -12,10 +12,15 @@ object JobRunners {
     fun executeBackgroundJob(job: Job = Job(), run: suspend CoroutineScope.() -> Unit): Job {
         return CoroutineScope(job).launch {
             logger.info("Running background job ${job.key}")
-            val time = measureTimeMillis {
-                run()
+            try {
+                val time = measureTimeMillis {
+                    run()
+                }
+                logger.info("Background job ${job.key} finished in ${time}ms")
+            } catch (e: Throwable) {
+                logger.warn("Background job was cancelled with exception: ${e.stackTraceToString()}")
+                throw e
             }
-            logger.info("Background job ${job.key} finished in ${time}ms")
         }
     }
 }

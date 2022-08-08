@@ -1,0 +1,48 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: mulighetsrommet-arena-adapter
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: {{image}}
+  port: 8084
+  ingresses:
+    - https://mulighetsrommet-arena-adapter.intern.nav.no
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  replicas:
+    min: 2
+    max: 3
+    cpuThresholdPercentage: 75
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_14
+        diskAutoresize: true
+        pointInTimeRecovery: true
+        databases:
+          - name: mulighetsrommet-arena-adapter-db
+            envVarPrefix: DB
+        flags:
+          - name: max_connections
+            value: "200"
+  kafka:
+    pool: nav-prod
+  azure:
+    application:
+      enabled: true

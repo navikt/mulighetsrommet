@@ -50,7 +50,7 @@
       }
 
       &__maksbredde {
-        max-width: 75ch;
+        max-width: 100ch;
       }
 
       &__innsiktheader {
@@ -65,6 +65,18 @@
   @media (max-width: 1200px) {
     .fane__liste {
       justify-content: space-between;
+    }
+  }
+
+  .forskningsrapport__lenkeliste {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    
+    li {
+      margin-right: 20px;
     }
   }
 }

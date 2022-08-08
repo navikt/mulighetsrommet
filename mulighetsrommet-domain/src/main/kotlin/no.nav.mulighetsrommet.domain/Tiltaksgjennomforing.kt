@@ -9,4 +9,12 @@ data class Tiltaksgjennomforing(
     val tiltakskode: String,
     val tiltaksnummer: Int,
     val aar: Int,
-)
+    val tilgjengelighet: Tilgjengelighetsstatus,
+) {
+    enum class Tilgjengelighetsstatus {
+        Ledig,
+        Venteliste,
+        Stengt,
+    }
+}
+

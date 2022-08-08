@@ -1,16 +1,17 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.database.Database
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import org.intellij.lang.annotations.Language
-import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-class ArenaService(private val db: Database, private val logger: Logger) {
+class ArenaService(private val db: Database) {
+    private val logger = LoggerFactory.getLogger(ArenaService::class.java)
 
     fun upsertTiltakstype(tiltakstype: AdapterTiltak): AdapterTiltak {
         logger.info("Lagrer tiltakstype tiltakskode={} ", tiltakstype.tiltakskode)
@@ -40,38 +41,44 @@ class ArenaService(private val db: Database, private val logger: Logger) {
         return db.run(queryResult)!!
     }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: AdapterTiltaksgjennomforing): AdapterTiltaksgjennomforing {
-        logger.info(
-            "Lagrer tiltak tiltakskode={} sakId={}",
-            tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.sakId
-        )
+    fun upsertTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): AdapterTiltaksgjennomforing {
+        logger.info("Lagrer tiltak tiltakskode=${tiltak.tiltakskode} sakId=${tiltak.sakId}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (navn, arrangor_id, tiltakskode, arena_id, fra_dato, til_dato, sak_id)
-            values (?, ?, ?, ?, ?, ?, ?)
+            insert into tiltaksgjennomforing (navn,
+                                              arrangor_id,
+                                              tiltakskode,
+                                              arena_id,
+                                              fra_dato,
+                                              til_dato, sak_id,
+                                              apent_for_innsok,
+                                              antall_plasser)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?)
             on conflict (arena_id)
-            do update set
-                navn = excluded.navn,
-                arrangor_id = excluded.arrangor_id,
-                tiltakskode = excluded.tiltakskode,
-                arena_id = excluded.arena_id,
-                fra_dato = excluded.fra_dato,
-                til_dato = excluded.til_dato,
-                sak_id = excluded.sak_id
+                do update set navn             = excluded.navn,
+                              arrangor_id      = excluded.arrangor_id,
+                              tiltakskode      = excluded.tiltakskode,
+                              arena_id         = excluded.arena_id,
+                              fra_dato         = excluded.fra_dato,
+                              til_dato         = excluded.til_dato,
+                              sak_id           = excluded.sak_id,
+                              apent_for_innsok = excluded.apent_for_innsok,
+                              antall_plasser   = excluded.antall_plasser
             returning *
         """.trimIndent()
 
         val queryResult = queryOf(
             query,
-            tiltaksgjennomforing.navn,
-            tiltaksgjennomforing.arrangorId,
-            tiltaksgjennomforing.tiltakskode,
-            tiltaksgjennomforing.id,
-            tiltaksgjennomforing.fraDato,
-            tiltaksgjennomforing.tilDato,
-            tiltaksgjennomforing.sakId
+            tiltak.navn,
+            tiltak.arrangorId,
+            tiltak.tiltakskode,
+            tiltak.id,
+            tiltak.fraDato,
+            tiltak.tilDato,
+            tiltak.sakId,
+            tiltak.apentForInnsok,
+            tiltak.antallPlasser,
         ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
         return db.run(queryResult)!!
     }

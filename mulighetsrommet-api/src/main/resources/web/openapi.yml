@@ -290,12 +290,19 @@ components:
           type: integer
         aar:
           type: integer
+        tilgjenglighet:
+          type: string
+          enum:
+            - ApentForInnsok
+            - Venteliste
+            - Stengt
       required:
         - _id
         - navn
         - tiltakskode
         - tiltaksnummer
         - aar
+        - tilgjengelighet
 
     Tiltakskode:
       type: string

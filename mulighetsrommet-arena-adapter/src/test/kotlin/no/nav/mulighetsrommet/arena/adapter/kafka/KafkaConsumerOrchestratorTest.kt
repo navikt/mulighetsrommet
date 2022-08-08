@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
-import com.sksamuel.hoplite.Masked
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
@@ -11,8 +10,14 @@ import kotlinx.coroutines.delay
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.mulighetsrommet.arena.adapter.DatabaseConfig
-import no.nav.mulighetsrommet.test.extensions.DatabaseListener
+import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
+import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.Password
+import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.admin.KafkaAdminClient
+import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
@@ -25,7 +30,7 @@ fun createDatabaseConfigWithRandomSchema(
     port: Int = 5443,
     name: String = "mulighetsrommet-arena-adapter-db",
     user: String = "valp",
-    password: Masked = Masked("valp")
+    password: Password = Password("valp")
 ): DatabaseConfig {
     val schema = "${UUID.randomUUID()}"
     return DatabaseConfig(host, port, name, schema, user, password, 1)
@@ -75,7 +80,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
                 ByteArrayDeserializer::class.java
             )
             .build()
-/*
+
         val admin =
             KafkaAdminClient.create(
                 mapOf(
@@ -97,20 +102,20 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         )
 
         admin.close()
-        */
     }
 
     test("consumer starts processing event from producer") {
-        val consumer: TopicConsumer<*> = mockk()
-        every { consumer.topic } answers { topicName }
-
+        val topicRepository: TopicRepository = mockk(relaxed = true)
+        every { topicRepository.selectAll() } answers { listOf(Topic(1, "key", topicName, mockk(), true)) }
+        val consumer: TopicConsumer<Any> = mockk()
+        every { consumer.consumerConfig.topic } answers { topicName }
         val kafka = KafkaConsumerOrchestrator(
             preset,
             listener.db,
-            listOf(consumer)
+            ConsumerGroup(listOf(consumer)),
+            topicRepository,
+            200
         )
-
-        kafka.enableTopicConsumption()
 
         producer.send(
             ProducerRecord(

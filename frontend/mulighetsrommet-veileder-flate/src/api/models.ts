@@ -8,15 +8,22 @@ type Tiltakstyper =
   | 'VTA'
   | 'Opplæring (Gruppe AMO)';
 
+type Innsatsgrupper =
+  | 'Standard innsats'
+  | 'Situasjonsbestemt innsats'
+  | 'Spesielt tilpasset innsats'
+  | 'Varig tilpasset innsats';
+
 export interface Tiltakstype {
   _id: string;
   tiltakstypeNavn: Tiltakstyper;
   beskrivelse?: string;
   innsatsgruppe: Innsatsgruppe;
   varighet?: string;
-  regelverkFiler: RegelverkFil[];
-  regelverkLenker: RegelverkLenke[];
+  regelverkFiler?: RegelverkFil[];
+  regelverkLenker?: RegelverkLenke[];
   regelverkLenkeNavn?: string;
+  nokkelinfoKomponenter?: NokkelinfoKomponenter[];
   faneinnhold?: {
     forHvemInfoboks?: string;
     forHvem?: object;
@@ -25,6 +32,19 @@ export interface Tiltakstype {
     pameldingOgVarighetInfoboks?: string;
     pameldingOgVarighet?: object;
   };
+  forskningsrapport?: Forskningsrapport[];
+}
+
+export interface Forskningsrapport {
+  _id: string;
+  tittel: string;
+  beskrivelse: any;
+  lenker?: Lenke[];
+}
+
+interface Lenke {
+  lenke: string;
+  lenkenavn: string;
 }
 
 export interface Tiltaksgjennomforing {
@@ -67,7 +87,7 @@ export interface Tiltaksansvarlig {
 export interface Innsatsgruppe {
   _id: string;
   beskrivelse: string;
-  tittel: string;
+  tittel: Innsatsgrupper;
   nokkel: string;
 }
 
@@ -86,4 +106,21 @@ export interface RegelverkLenke {
 export interface StatistikkFil {
   _id: string;
   statistikkFilUrl: string;
+}
+
+export interface NokkelinfoKomponenter {
+  _id: string;
+  tittel: string;
+  innhold: string;
+  hjelpetekst?: string;
+}
+
+export interface StatistikkFraCsvFil {
+  År: string;
+  'Antall Måneder': string;
+  'Arbeidstaker m. ytelse/oppf': string;
+  'Kun arbeidstaker': string;
+  'Registrert hos Nav': string;
+  Tiltakstype: string;
+  Ukjent: string;
 }

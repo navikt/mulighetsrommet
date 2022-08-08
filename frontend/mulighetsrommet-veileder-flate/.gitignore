@@ -13,3 +13,4 @@ cypress/videos
 # build
 dist
 .env
+bundle-stats.html
