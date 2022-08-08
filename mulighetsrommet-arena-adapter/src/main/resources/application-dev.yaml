@@ -7,6 +7,9 @@ app:
     mulighetsrommetApi:
       url: https://mulighetsrommet-api.dev.intern.nav.no
       scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
+    topicService:
+      channelCapacity: 500
+      numChannelConsumers: 50
 
   database:
     host: ${DB_HOST}
