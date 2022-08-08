@@ -11,20 +11,24 @@ import org.slf4j.LoggerFactory
 class TopicService(
     private val events: EventRepository,
     private val group: ConsumerGroup,
-    private val channelCapacity: Int = 200,
-    private val numChannelConsumers: Int = 20
+    private val config: Config = Config(),
 ) {
     private val logger = LoggerFactory.getLogger(TopicService::class.java)
+
+    data class Config(
+        val channelCapacity: Int = 1,
+        val numChannelConsumers: Int = 1,
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun replayEvents(topic: String, id: Int? = null) = coroutineScope {
         logger.info("Replaying events from topic '{}'", topic)
 
         // Produce events in a separate coroutine
-        val events = produce(capacity = channelCapacity) {
+        val events = produce(capacity = config.channelCapacity) {
             var prevEventId: Int? = id
             do {
-                events.getEvents(topic, limit = channelCapacity, id = prevEventId)
+                events.getEvents(topic, limit = config.channelCapacity, id = prevEventId)
                     .also { prevEventId = it.lastOrNull()?.id }
                     .forEach { send(it) }
             } while (isActive && prevEventId != null)
@@ -36,7 +40,7 @@ class TopicService(
         val relevantConsumers = group.consumers.filter { it.consumerConfig.topic == topic }
 
         // Create `numConsumers` coroutines to process the events simultaneously
-        (0..numChannelConsumers)
+        (0..config.numChannelConsumers)
             .map {
                 async {
                     events.consumeEach { event ->
@@ -45,7 +49,7 @@ class TopicService(
                             runCatching {
                                 consumer.replayEvent(payload)
                             }.onFailure {
-                                logger.warn("Failed to replay event ${event.id}")
+                                logger.warn("Failed to replay event ${event.id}: ${it.stackTraceToString()}")
                                 throw it
                             }
                         }

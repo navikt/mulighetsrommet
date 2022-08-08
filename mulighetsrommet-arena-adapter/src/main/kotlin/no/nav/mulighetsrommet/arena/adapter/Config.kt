@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter
 
+import no.nav.mulighetsrommet.arena.adapter.services.TopicService
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
@@ -18,7 +19,8 @@ data class AppConfig(
 )
 
 data class ServiceConfig(
-    val mulighetsrommetApi: AuthenticatedService
+    val mulighetsrommetApi: AuthenticatedService,
+    val topicService: TopicService.Config,
 )
 
 data class AuthenticatedService(
