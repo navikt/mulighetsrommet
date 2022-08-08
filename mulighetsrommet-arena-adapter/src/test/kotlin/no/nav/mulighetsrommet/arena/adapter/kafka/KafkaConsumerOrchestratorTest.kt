@@ -43,7 +43,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
     val topicName = "tiltakendret"
 
     lateinit var producer: KafkaProducerClient<String, String>
-    lateinit var preset: Properties
+    lateinit var consumerProperties: Properties
     val listener =
         DatabaseListener(createDatabaseConfigWithRandomSchema())
     register(listener)
@@ -56,7 +56,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
 
         val brokerUrl = kafkaContainer.bootstrapServers
 
-        val properties = KafkaPropertiesBuilder.producerBuilder()
+        val producerProperties = KafkaPropertiesBuilder.producerBuilder()
             .withBrokerUrl(brokerUrl)
             .withBaseProperties()
             .withProducerId("producer")
@@ -68,10 +68,10 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
 
         producer =
             KafkaProducerClientBuilder.builder<String, String>()
-                .withProperties(properties)
+                .withProperties(producerProperties)
                 .build()
 
-        preset = KafkaPropertiesBuilder.consumerBuilder()
+        consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
             .withBrokerUrl(brokerUrl)
             .withBaseProperties()
             .withConsumerGroupId("consumer")
@@ -105,12 +105,18 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("consumer starts processing event from producer") {
-        val topicRepository: TopicRepository = mockk(relaxed = true)
-        every { topicRepository.selectAll() } answers { listOf(Topic(1, "key", topicName, mockk(), true)) }
+        val topicRepository: TopicRepository =
+            mockk(relaxed = true)
+        every { topicRepository.selectAll() } answers {
+            listOf(
+                Topic(1, "key", topicName, mockk(), true)
+            )
+        }
         val consumer: TopicConsumer<Any> = mockk()
         every { consumer.consumerConfig.topic } answers { topicName }
+
         val kafka = KafkaConsumerOrchestrator(
-            preset,
+            consumerProperties,
             listener.db,
             ConsumerGroup(listOf(consumer)),
             topicRepository,
@@ -126,7 +132,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         )
         producer.close()
 
-        runBlocking { delay(5000) }
+        runBlocking { delay(3000) }
 
         verify(exactly = 1) {
             runBlocking {
