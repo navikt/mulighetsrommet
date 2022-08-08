@@ -72,9 +72,8 @@ dependencies {
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
-    testImplementation("org.assertj:assertj-db:1.1.1")
 
     // Metrikker
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.0")
@@ -90,6 +89,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.github.seratch:kotliquery:1.6.2")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+
     implementation("no.nav.security:mock-oauth2-server:0.4.3")
     runtimeOnly("org.webjars:swagger-ui:4.1.2")
 

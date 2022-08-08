@@ -13,9 +13,6 @@ import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.arena.adapter.DatabaseConfig
 import no.nav.mulighetsrommet.test.extensions.DatabaseListener
-import org.apache.kafka.clients.CommonClientConfigs
-import org.apache.kafka.clients.admin.KafkaAdminClient
-import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
@@ -31,12 +28,14 @@ fun createDatabaseConfigWithRandomSchema(
     password: Masked = Masked("valp")
 ): DatabaseConfig {
     val schema = "${UUID.randomUUID()}"
-    return DatabaseConfig(host, port, name, schema, user, password)
+    return DatabaseConfig(host, port, name, schema, user, password, 1)
 }
 
 internal class KafkaConsumerOrchestratorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
+
+    val topicName = "tiltakendret"
 
     lateinit var producer: KafkaProducerClient<String, String>
     lateinit var preset: Properties
@@ -76,7 +75,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
                 ByteArrayDeserializer::class.java
             )
             .build()
-
+/*
         val admin =
             KafkaAdminClient.create(
                 mapOf(
@@ -87,36 +86,35 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
 
         admin.deleteTopics(
             listOf(
-                "tiltakendret"
+                topicName
             )
         )
 
         admin.createTopics(
             listOf(
-                NewTopic("tiltakendret", 1, 1)
+                NewTopic(topicName, 1, 1)
             )
         )
 
         admin.close()
+        */
     }
 
     test("consumer starts processing event from producer") {
         val consumer: TopicConsumer<*> = mockk()
-        every { consumer.topic } answers { "tiltakendret" }
-        println(listener.db)
-        println("hei1")
+        every { consumer.topic } answers { topicName }
+
         val kafka = KafkaConsumerOrchestrator(
             preset,
             listener.db,
             listOf(consumer)
         )
-        println("hei2")
 
         kafka.enableTopicConsumption()
 
         producer.send(
             ProducerRecord(
-                "tiltakendret",
+                topicName,
                 "key",
                 "value"
             )
@@ -126,7 +124,9 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         runBlocking { delay(5000) }
 
         verify(exactly = 1) {
-            consumer.processEvent(any())
+            runBlocking {
+                consumer.processEvent(any())
+            }
         }
     }
 

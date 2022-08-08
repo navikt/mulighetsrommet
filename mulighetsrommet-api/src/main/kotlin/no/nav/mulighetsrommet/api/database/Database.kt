@@ -4,21 +4,21 @@ import com.codahale.metrics.health.HealthCheckRegistry
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.Session
-import kotliquery.action.ExecuteQueryAction
-import kotliquery.action.ListResultQueryAction
-import kotliquery.action.NullableResultQueryAction
-import kotliquery.action.UpdateAndReturnGeneratedKeyQueryAction
-import kotliquery.action.UpdateQueryAction
+import kotliquery.action.*
 import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.mulighetsrommet.api.DatabaseConfig
 import org.flywaydb.core.Flyway
+import org.slf4j.LoggerFactory
 import java.sql.Array
 
 class Database(databaseConfig: DatabaseConfig) {
+    private val logger = LoggerFactory.getLogger(Database::class.java)
+
+    private val flyway: Flyway
 
     val dataSource: HikariDataSource
-    val flyway: Flyway
+
     private val session: Session
         get() = sessionOf(dataSource)
 
@@ -33,6 +33,7 @@ class Database(databaseConfig: DatabaseConfig) {
             }
             .load()
 
+        logger.debug("Start flyway migrations")
         flyway.migrate()
 
         val hikariConfig = HikariConfig()
@@ -41,11 +42,11 @@ class Database(databaseConfig: DatabaseConfig) {
         hikariConfig.driverClassName = "org.postgresql.Driver"
         hikariConfig.username = databaseConfig.user
         hikariConfig.password = databaseConfig.password.value
-        hikariConfig.maximumPoolSize = 3
+        hikariConfig.maximumPoolSize = databaseConfig.maximumPoolSize
         hikariConfig.healthCheckRegistry = HealthCheckRegistry()
-
         hikariConfig.validate()
 
+        logger.debug("Initializing database connection pool")
         dataSource = HikariDataSource(hikariConfig)
     }
 
@@ -53,8 +54,10 @@ class Database(databaseConfig: DatabaseConfig) {
         flyway.clean()
     }
 
-    fun runHealthChecks(): Boolean {
-        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)?.runHealthChecks()?.all { it.value.isHealthy }
+    fun isHealthy(): Boolean {
+        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)
+            ?.runHealthChecks()
+            ?.all { it.value.isHealthy }
             ?: false
     }
 
@@ -76,20 +79,20 @@ class Database(databaseConfig: DatabaseConfig) {
         }
     }
 
-    fun run(query: ExecuteQueryAction) {
-        using(session) {
+    fun run(query: ExecuteQueryAction): Boolean {
+        return using(session) {
             it.run(query)
         }
     }
 
-    fun run(query: UpdateQueryAction) {
-        using(session) {
+    fun run(query: UpdateQueryAction): Int {
+        return using(session) {
             it.run(query)
         }
     }
 
-    fun run(query: UpdateAndReturnGeneratedKeyQueryAction) {
-        using(session) {
+    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
+        return using(session) {
             it.run(query)
         }
     }

@@ -16,7 +16,7 @@ fun Route.internalRoutes() {
         call.respond(HttpStatusCode.OK)
     }
     get("/internal/readiness") {
-        if (db.runHealthChecks()) {
+        if (db.isHealthy()) {
             call.respond(HttpStatusCode.OK)
         } else {
             call.respond(HttpStatusCode.InternalServerError)
@@ -27,19 +27,5 @@ fun Route.internalRoutes() {
     }
     get("/internal/prometheus") {
         call.respond(appMicrometerRegistry.scrape())
-    }
-    get("/internal/clean") {
-        runCatching {
-            db.flyway.clean()
-        }.onSuccess {
-            call.respondText("Clean successfull", status = HttpStatusCode.OK)
-        }.onFailure { call.respondText("Could not clean database", status = HttpStatusCode.InternalServerError) }
-    }
-    get("/internal/migrate") {
-        runCatching {
-            db.flyway.migrate()
-        }.onSuccess {
-            call.respondText("Migrate successfull", status = HttpStatusCode.OK)
-        }.onFailure { call.respondText("Could not migrate database", status = HttpStatusCode.InternalServerError) }
     }
 }

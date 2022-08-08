@@ -2,10 +2,10 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
-import no.nav.mulighetsrommet.arena.adapter.Database
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.arena.ArenaTiltakdeltaker
@@ -13,10 +13,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakdeltakerEndretConsumer(
-    db: Database,
     override val topic: String,
+    override val events: EventRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaTiltakdeltaker>(db) {
+) : TopicConsumer<ArenaTiltakdeltaker>() {
 
     override val logger: Logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
 
@@ -26,7 +26,7 @@ class TiltakdeltakerEndretConsumer(
         return payload.TILTAKDELTAKER_ID.toString()
     }
 
-    override fun handleEvent(payload: ArenaTiltakdeltaker) {
+    override suspend fun handleEvent(payload: ArenaTiltakdeltaker) {
         client.sendRequest(HttpMethod.Put, "/api/v1/arena/deltakere", payload.toAdapterTiltakdeltaker())
         logger.debug("processed tiltak endret event")
     }
