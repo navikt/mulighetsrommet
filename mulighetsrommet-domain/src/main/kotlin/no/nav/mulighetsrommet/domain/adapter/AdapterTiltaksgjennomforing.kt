@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 @Serializable
 data class AdapterTiltaksgjennomforing(
     val id: Int,
-    val navn: String,
+    val navn: String?,
     val tiltakskode: String,
     val arrangorId: Int?,
     val sakId: Int,
