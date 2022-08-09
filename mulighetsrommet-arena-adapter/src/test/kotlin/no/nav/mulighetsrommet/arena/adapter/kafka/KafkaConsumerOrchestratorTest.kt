@@ -53,14 +53,25 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
     val topicName2 = "topic2"
     val topicName3 = "topic3"
 
+    val key1 = "key1"
+    val key2 = "key2"
+    val key3 = "key3"
+
+    val value1 = "value1"
+    val value2 = "value2"
+
     val topicRepository: TopicRepository =
         mockk(relaxed = true)
 
+    val consumer1: TopicConsumer<Any> = mockk()
+    val consumer2: TopicConsumer<Any> = mockk()
+    val consumer3: TopicConsumer<Any> = mockk()
+
     every { topicRepository.selectAll() } answers {
         listOf(
-            Topic(1, "key1", topicName1, mockk(), true),
-            Topic(2, "key2", topicName2, mockk(), true),
-            Topic(3, "key3", topicName3, mockk(), true)
+            Topic(1, key1, topicName1, mockk(), true),
+            Topic(2, key2, topicName2, mockk(), true),
+            Topic(3, key3, topicName3, mockk(), true)
         )
     }
 
@@ -81,10 +92,6 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("consumer starts processing event from producer 2") {
-        val consumer1: TopicConsumer<Any> = mockk()
-        val consumer2: TopicConsumer<Any> = mockk()
-        val consumer3: TopicConsumer<Any> = mockk()
-
         val consumerRepository =
             KafkaConsumerRepository(listener.db)
 
@@ -99,15 +106,12 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         val orchestrator = KafkaConsumerOrchestrator(
             consumerProperties,
             listener.db,
-            ConsumerGroup(listOf(consumer1, consumer2, consumer3)),
+            ConsumerGroup(
+                listOf(consumer1, consumer2, consumer3)
+            ),
             topicRepository,
             200
         )
-
-        val key1 = "key1"
-        val value1 = "value1"
-        val key2 = "key2"
-        val value2 = "value2"
 
         val producer =
             kafka.createStringStringProducer()
@@ -156,7 +160,13 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
             }
         }
 
-        println(consumerRepository.getRecords(topicName1, 0, 100))
+        println(
+            consumerRepository.getRecords(
+                topicName2,
+                0,
+                100
+            )
+        )
 
         println(
             consumerRepository.hasRecordWithKey(
