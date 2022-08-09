@@ -60,19 +60,7 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "teamarenanais.aapen-arena-tiltaksgruppeendret-v1-q2",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
               "name": "teamarenanais.aapen-arena-tiltakendret-v1-q2",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
-              "name": "teamarenanais.aapen-arena-avtaleinfoendret-v1-q2",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
