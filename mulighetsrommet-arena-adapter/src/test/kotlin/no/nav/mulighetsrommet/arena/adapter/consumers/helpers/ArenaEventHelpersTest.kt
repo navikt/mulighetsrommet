@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
-import org.intellij.lang.annotations.Language
 
 class ArenaEventHelpersTest : FunSpec({
 
@@ -14,36 +14,57 @@ class ArenaEventHelpersTest : FunSpec({
     data class Foo(val name: String)
 
     context("decodeEvent") {
-        test("should decode arena operation") {
-            @Language("JSON")
-            val data = """
-            {
-                "op_type": "I",
-                "after": {
-                    "name": "Bar"
+
+        fun createData(operation: String): String {
+            return """
+                {
+                    "op_type": "$operation",
+                    "before": {
+                        "name": "Foo"
+                    },
+                    "after": {
+                        "name": "Bar"
+                    }
                 }
-            }
             """.trimIndent()
+        }
+
+        test("should decode arena operation") {
+            val data = createData("I")
 
             val decoded = ArenaEventHelpers.decodeEvent<Foo>(Json.parseToJsonElement(data))
 
             decoded.operation shouldBe ArenaOperation.Insert
         }
 
-        test("should decode 'after' block to specified type") {
-            @Language("JSON")
-            val data = """
-            {
-                "op_type": "I",
-                "after": {
-                    "name": "Bar"
-                }
+        context("when operation is Insert") {
+            test("should decode 'after' block to specified type") {
+                val data = createData("I")
+
+                val decoded = ArenaEventHelpers.decodeEvent<Foo>(Json.parseToJsonElement(data))
+
+                decoded shouldBe ArenaEvent(ArenaOperation.Insert, Foo(name = "Bar"))
             }
-            """.trimIndent()
+        }
 
-            val decoded = ArenaEventHelpers.decodeEvent<Foo>(Json.parseToJsonElement(data))
+        context("when operation is Update") {
+            test("should decode 'after' block to specified type") {
+                val data = createData("U")
 
-            decoded.data shouldBe Foo(name = "Bar")
+                val decoded = ArenaEventHelpers.decodeEvent<Foo>(Json.parseToJsonElement(data))
+
+                decoded shouldBe ArenaEvent(ArenaOperation.Update, Foo(name = "Bar"))
+            }
+        }
+
+        context("when operation is Delete") {
+            test("should decode 'before' block to specified type") {
+                val data = createData("D")
+
+                val decoded = ArenaEventHelpers.decodeEvent<Foo>(Json.parseToJsonElement(data))
+
+                decoded shouldBe ArenaEvent(ArenaOperation.Delete, Foo(name = "Foo"))
+            }
         }
     }
 })
