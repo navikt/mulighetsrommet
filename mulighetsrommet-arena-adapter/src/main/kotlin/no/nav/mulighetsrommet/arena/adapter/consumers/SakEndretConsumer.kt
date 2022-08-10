@@ -4,7 +4,9 @@ import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
@@ -16,23 +18,23 @@ class SakEndretConsumer(
     override val consumerConfig: ConsumerConfig,
     override val events: EventRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaSak>() {
+) : TopicConsumer<ArenaEvent<ArenaSak>>() {
 
-    override val logger: Logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
+    override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeEvent(payload: JsonElement): ArenaSak = ArenaEventHelpers.decodeEvent<ArenaSak>(payload).data
+    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaSak> = ArenaEventHelpers.decodeEvent(payload)
 
-    override fun shouldProcessEvent(payload: ArenaSak): Boolean {
-        return sakIsRelatedToTiltaksgjennomforing(payload)
+    override fun shouldProcessEvent(event: ArenaEvent<ArenaSak>): Boolean {
+        return sakIsRelatedToTiltaksgjennomforing(event.data)
     }
 
-    override fun resolveKey(payload: ArenaSak): String {
-        return payload.SAK_ID.toString()
+    override fun resolveKey(event: ArenaEvent<ArenaSak>): String {
+        return event.data.SAK_ID.toString()
     }
 
-    override suspend fun handleEvent(payload: ArenaSak) {
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/sak", payload.toAdapterSak())
-        logger.debug("processed sak endret event")
+    override suspend fun handleEvent(event: ArenaEvent<ArenaSak>) {
+        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.sendRequest(method, "/api/v1/arena/sak", event.data.toAdapterSak())
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"

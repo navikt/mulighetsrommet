@@ -4,7 +4,9 @@ import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
@@ -18,24 +20,20 @@ class TiltakgjennomforingEndretConsumer(
     override val consumerConfig: ConsumerConfig,
     override val events: EventRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaTiltaksgjennomforing>() {
+) : TopicConsumer<ArenaEvent<ArenaTiltaksgjennomforing>>() {
 
-    override val logger: Logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
+    override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeEvent(payload: JsonElement): ArenaTiltaksgjennomforing =
-        ArenaEventHelpers.decodeEvent<ArenaTiltaksgjennomforing>(payload).data
+    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaTiltaksgjennomforing> =
+        ArenaEventHelpers.decodeEvent(payload)
 
-    override fun resolveKey(payload: ArenaTiltaksgjennomforing): String {
-        return payload.TILTAKGJENNOMFORING_ID.toString()
+    override fun resolveKey(event: ArenaEvent<ArenaTiltaksgjennomforing>): String {
+        return event.data.TILTAKGJENNOMFORING_ID.toString()
     }
 
-    override suspend fun handleEvent(payload: ArenaTiltaksgjennomforing) {
-        client.sendRequest(
-            HttpMethod.Put,
-            "/api/v1/arena/tiltaksgjennomforinger",
-            payload.toAdapterTiltaksgjennomforing()
-        )
-        logger.debug("processed tiltakgjennomforing endret event")
+    override suspend fun handleEvent(event: ArenaEvent<ArenaTiltaksgjennomforing>) {
+        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.sendRequest(method, "/api/v1/arena/tiltaksgjennomforing", event.data.toAdapterTiltaksgjennomforing())
     }
 
     private fun ArenaTiltaksgjennomforing.toAdapterTiltaksgjennomforing() = AdapterTiltaksgjennomforing(
