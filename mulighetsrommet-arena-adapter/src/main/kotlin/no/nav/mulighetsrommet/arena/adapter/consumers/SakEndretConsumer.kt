@@ -20,7 +20,7 @@ class SakEndretConsumer(
 
     override val logger: Logger = LoggerFactory.getLogger(SakEndretConsumer::class.java)
 
-    override fun decodeEvent(payload: JsonElement): ArenaSak = ArenaEventHelpers.decodeAfter(payload)
+    override fun decodeEvent(payload: JsonElement): ArenaSak = ArenaEventHelpers.decodeEvent<ArenaSak>(payload).data
 
     override fun shouldProcessEvent(payload: ArenaSak): Boolean {
         return sakIsRelatedToTiltaksgjennomforing(payload)

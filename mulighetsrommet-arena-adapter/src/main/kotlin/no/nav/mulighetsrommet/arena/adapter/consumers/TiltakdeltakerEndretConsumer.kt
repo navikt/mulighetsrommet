@@ -21,7 +21,8 @@ class TiltakdeltakerEndretConsumer(
 
     override val logger: Logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
 
-    override fun decodeEvent(payload: JsonElement): ArenaTiltakdeltaker = ArenaEventHelpers.decodeAfter(payload)
+    override fun decodeEvent(payload: JsonElement): ArenaTiltakdeltaker =
+        ArenaEventHelpers.decodeEvent<ArenaTiltakdeltaker>(payload).data
 
     override fun resolveKey(payload: ArenaTiltakdeltaker): String {
         return payload.TILTAKDELTAKER_ID.toString()
