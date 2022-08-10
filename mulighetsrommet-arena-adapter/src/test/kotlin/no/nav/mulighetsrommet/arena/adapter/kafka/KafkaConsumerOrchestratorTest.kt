@@ -12,27 +12,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.delay
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.utils.createDatabaseConfigWithRandomSchema
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.Password
 import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.utility.DockerImageName
 import java.util.*
-
-fun createDatabaseConfigWithRandomSchema(
-    host: String = "localhost",
-    port: Int = 5443,
-    name: String = "mulighetsrommet-arena-adapter-db",
-    user: String = "valp",
-    password: Password = Password("valp")
-): DatabaseConfig {
-    val schema = "${UUID.randomUUID()}"
-    return DatabaseConfig(host, port, name, schema, user, password, 1)
-}
 
 internal class KafkaConsumerOrchestratorTest : FunSpec({
 
