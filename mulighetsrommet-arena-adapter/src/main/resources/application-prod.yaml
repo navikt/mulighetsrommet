@@ -19,7 +19,7 @@ app:
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
 
-  enableFailedRecordProcessor: true
+  enableFailedRecordProcessor: false
 
   kafka:
     brokers: ${KAFKA_BROKERS}
