@@ -22,7 +22,7 @@ class TiltakgjennomforingEndretConsumer(
 
     override val logger: Logger = LoggerFactory.getLogger(TiltakgjennomforingEndretConsumer::class.java)
 
-    override fun toDomain(payload: JsonElement): ArenaTiltaksgjennomforing = ArenaEventHelpers.decodeAfter(payload)
+    override fun decodeEvent(payload: JsonElement): ArenaTiltaksgjennomforing = ArenaEventHelpers.decodeAfter(payload)
 
     override fun resolveKey(payload: ArenaTiltaksgjennomforing): String {
         return payload.TILTAKGJENNOMFORING_ID.toString()

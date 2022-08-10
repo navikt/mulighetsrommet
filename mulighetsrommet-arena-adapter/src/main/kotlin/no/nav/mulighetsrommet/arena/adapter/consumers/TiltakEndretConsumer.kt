@@ -21,7 +21,7 @@ class TiltakEndretConsumer(
 
     override val logger: Logger = LoggerFactory.getLogger(TiltakEndretConsumer::class.java)
 
-    override fun toDomain(payload: JsonElement): ArenaTiltak = ArenaEventHelpers.decodeAfter(payload)
+    override fun decodeEvent(payload: JsonElement): ArenaTiltak = ArenaEventHelpers.decodeAfter(payload)
 
     override fun resolveKey(payload: ArenaTiltak): String {
         return payload.TILTAKSKODE

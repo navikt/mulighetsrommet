@@ -11,7 +11,7 @@ abstract class TopicConsumer<T>() {
     abstract val events: EventRepository
 
     suspend fun processEvent(payload: JsonElement) {
-        val parsedPayload = toDomain(payload)
+        val parsedPayload = decodeEvent(payload)
         if (shouldProcessEvent(parsedPayload)) {
             val key = resolveKey(parsedPayload)
 
@@ -24,7 +24,7 @@ abstract class TopicConsumer<T>() {
     }
 
     suspend fun replayEvent(payload: JsonElement) {
-        val parsedEvent = toDomain(payload)
+        val parsedEvent = decodeEvent(payload)
         if (shouldProcessEvent(parsedEvent)) {
             val key = resolveKey(parsedEvent)
 
@@ -33,7 +33,7 @@ abstract class TopicConsumer<T>() {
         }
     }
 
-    protected abstract fun toDomain(payload: JsonElement): T
+    protected abstract fun decodeEvent(payload: JsonElement): T
 
     protected open fun shouldProcessEvent(payload: T): Boolean = true
 
