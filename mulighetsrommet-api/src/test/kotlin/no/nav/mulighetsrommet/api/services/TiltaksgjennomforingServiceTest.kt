@@ -104,7 +104,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("should get tiltak by id") {
-            service.getTiltaksgjennomforingById(1) shouldBe Tiltaksgjennomforing(
+            service.getTiltaksgjennomforingById(tiltak1.id) shouldBe Tiltaksgjennomforing(
                 id = 1,
                 navn = "Oppfølging",
                 tiltakskode = "INDOPPFOLG",
@@ -190,6 +190,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     service.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
                 }
             }
+        }
+
+        test("should delete tiltak") {
+            arenaService.deleteTiltaksgjennomforing(tiltak1)
+
+            service.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
         }
     }
 })

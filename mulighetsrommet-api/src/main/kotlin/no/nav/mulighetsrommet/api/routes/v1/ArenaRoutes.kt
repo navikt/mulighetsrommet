@@ -19,7 +19,7 @@ fun Route.arenaRoutes() {
     val arenaService: ArenaService by inject()
 
     route("/api/v1/arena/") {
-        put("tiltakstyper") {
+        put("tiltakstype") {
             runCatching {
                 val tiltakstype = call.receive<AdapterTiltak>()
                 arenaService.upsertTiltakstype(tiltakstype)
@@ -31,7 +31,17 @@ fun Route.arenaRoutes() {
             }
         }
 
-        put("tiltaksgjennomforinger") {
+        delete("tiltakstype") {
+            runCatching {
+                val tiltakstype = call.receive<AdapterTiltak>()
+                arenaService.deleteTiltakstype(tiltakstype)
+            }.onFailure {
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                call.respondText("Kunne ikke slette tiltakstype", status = HttpStatusCode.InternalServerError)
+            }
+        }
+
+        put("tiltaksgjennomforing") {
             runCatching {
                 val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
                 arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
@@ -43,7 +53,17 @@ fun Route.arenaRoutes() {
             }
         }
 
-        put("deltakere") {
+        delete("tiltaksgjennomforing") {
+            runCatching {
+                val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
+                arenaService.deleteTiltaksgjennomforing(tiltaksgjennomforing)
+            }.onFailure {
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                call.respondText("Kunne ikke slette tiltak", status = HttpStatusCode.InternalServerError)
+            }
+        }
+
+        put("deltaker") {
             runCatching {
                 val deltaker = call.receive<AdapterTiltakdeltaker>()
                 arenaService.upsertDeltaker(deltaker)
@@ -55,10 +75,33 @@ fun Route.arenaRoutes() {
             }
         }
 
+        delete("deltaker") {
+            runCatching {
+                val deltaker = call.receive<AdapterTiltakdeltaker>()
+                arenaService.deleteDeltaker(deltaker)
+            }.onFailure {
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                call.respondText("Kunne ikke slette deltaker", status = HttpStatusCode.InternalServerError)
+            }
+        }
+
         put("sak") {
             runCatching {
                 val sak = call.receive<AdapterSak>()
                 arenaService.updateTiltaksgjennomforingWithSak(sak)
+            }.onSuccess {
+                val response = it ?: HttpStatusCode.NotFound
+                call.respond(response)
+            }.onFailure {
+                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
+            }
+        }
+
+        delete("sak") {
+            runCatching {
+                val sak = call.receive<AdapterSak>()
+                arenaService.unsetSakOnTiltaksgjennomforing(sak)
             }.onSuccess {
                 val response = it ?: HttpStatusCode.NotFound
                 call.respond(response)

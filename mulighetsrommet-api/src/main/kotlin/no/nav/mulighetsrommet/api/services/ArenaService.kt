@@ -14,7 +14,7 @@ class ArenaService(private val db: Database) {
     private val logger = LoggerFactory.getLogger(ArenaService::class.java)
 
     fun upsertTiltakstype(tiltakstype: AdapterTiltak): AdapterTiltak {
-        logger.info("Lagrer tiltakstype tiltakskode={} ", tiltakstype.tiltakskode)
+        logger.info("Lagrer tiltakstype tiltakskode=${tiltakstype.tiltakskode}")
 
         @Language("PostgreSQL")
         val query = """
@@ -41,8 +41,22 @@ class ArenaService(private val db: Database) {
         return db.run(queryResult)!!
     }
 
+    fun deleteTiltakstype(tiltakstype: AdapterTiltak) {
+        logger.info("Sletter tiltakstype tiltakskode=${tiltakstype.tiltakskode}")
+
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltakstype
+            where tiltakskode = ?
+        """.trimIndent()
+
+        queryOf(query, tiltakstype.tiltakskode)
+            .asExecute
+            .let { db.run(it) }
+    }
+
     fun upsertTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): AdapterTiltaksgjennomforing {
-        logger.info("Lagrer tiltak tiltakskode=${tiltak.tiltakskode} sakId=${tiltak.sakId}")
+        logger.info("Lagrer tiltak id=${tiltak.id}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -83,8 +97,22 @@ class ArenaService(private val db: Database) {
         return db.run(queryResult)!!
     }
 
+    fun deleteTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing) {
+        logger.info("Sletter tiltak id=${tiltak.id}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
+
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltaksgjennomforing
+            where arena_id = ?
+        """.trimIndent()
+
+        queryOf(query, tiltak.id)
+            .asExecute
+            .let { db.run(it) }
+    }
+
     fun upsertDeltaker(deltaker: AdapterTiltakdeltaker): AdapterTiltakdeltaker {
-        logger.info("Lagrer deltaker tiltak={}", deltaker.tiltaksgjennomforingId)
+        logger.info("Lagrer deltaker id=${deltaker.id}, tiltak=${deltaker.tiltaksgjennomforingId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -113,12 +141,28 @@ class ArenaService(private val db: Database) {
         return db.run(queryResult)!!
     }
 
-    fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): AdapterTiltaksgjennomforing? {
-        logger.info("Oppdaterer tiltak med sak sakId={} tiltaksnummer={}", sak.id, sak.lopenummer)
+    fun deleteDeltaker(deltaker: AdapterTiltakdeltaker) {
+        logger.info("Sletter deltaker id=${deltaker.id}, tiltak=${deltaker.tiltaksgjennomforingId}")
 
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing set tiltaksnummer = ?, aar = ? where sak_id = ? returning *
+            delete from deltaker
+            where arena_id = ?
+        """.trimIndent()
+
+        queryOf(query, deltaker.id)
+            .asExecute
+            .let { db.run(it) }
+    }
+
+    fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): AdapterTiltaksgjennomforing? {
+        logger.info("Oppdaterer tiltak med sak sakId=${sak.id} tiltaksnummer=${sak.lopenummer}")
+
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing set tiltaksnummer = ?, aar = ?
+            where sak_id = ?
+            returning *
         """.trimIndent()
 
         val queryResult = queryOf(
@@ -128,5 +172,21 @@ class ArenaService(private val db: Database) {
             sak.id,
         ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
         return db.run(queryResult)
+    }
+
+    fun unsetSakOnTiltaksgjennomforing(sak: AdapterSak): AdapterTiltaksgjennomforing? {
+        logger.info("Fjerner referanse til sak for tiltak sakId=${sak.id} tiltaksnummer=${sak.lopenummer}")
+
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing set tiltaksnummer = null, aar = null
+            where sak_id = ?
+            returning *
+        """.trimIndent()
+
+        return queryOf(query, sak.id)
+            .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
+            .asSingle
+            .let { db.run(it) }
     }
 }

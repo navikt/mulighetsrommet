@@ -4,7 +4,9 @@ import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
@@ -17,19 +19,20 @@ class TiltakdeltakerEndretConsumer(
     override val consumerConfig: ConsumerConfig,
     override val events: EventRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaTiltakdeltaker>() {
+) : TopicConsumer<ArenaEvent<ArenaTiltakdeltaker>>() {
 
-    override val logger: Logger = LoggerFactory.getLogger(TiltakdeltakerEndretConsumer::class.java)
+    override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun toDomain(payload: JsonElement): ArenaTiltakdeltaker = ArenaEventHelpers.decodeAfter(payload)
+    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaTiltakdeltaker> =
+        ArenaEventHelpers.decodeEvent(payload)
 
-    override fun resolveKey(payload: ArenaTiltakdeltaker): String {
-        return payload.TILTAKDELTAKER_ID.toString()
+    override fun resolveKey(event: ArenaEvent<ArenaTiltakdeltaker>): String {
+        return event.data.TILTAKDELTAKER_ID.toString()
     }
 
-    override suspend fun handleEvent(payload: ArenaTiltakdeltaker) {
-        client.sendRequest(HttpMethod.Put, "/api/v1/arena/deltakere", payload.toAdapterTiltakdeltaker())
-        logger.debug("processed tiltak endret event")
+    override suspend fun handleEvent(event: ArenaEvent<ArenaTiltakdeltaker>) {
+        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.sendRequest(method, "/api/v1/arena/deltaker", event.data.toAdapterTiltakdeltaker())
     }
 
     private fun ArenaTiltakdeltaker.toAdapterTiltakdeltaker() = AdapterTiltakdeltaker(
