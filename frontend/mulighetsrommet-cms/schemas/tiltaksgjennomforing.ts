@@ -148,6 +148,18 @@ export default {
       type: "array",
       of: [lenke],
     },
+    {
+      name: "tilgjengelighetsstatus",
+      title: "Tilgjengelighetsstatus",
+      type: "string",
+      options: {
+        list: [
+          { title: "Åpent", value: "ApentForInnsok" },
+          { title: "Venteliste", value: "Venteliste" },
+          { title: "Stengt", value: "Stengt" },
+        ],
+      }
+    },
   ],
   preview: {
     select: {
