@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { QueryKeys } from '../../core/api/QueryKeys';
+import { QueryKeys } from '../../core/api/query-keys';
 import { MulighetsrommetService } from 'mulighetsrommet-api-client';
 import useDebounce from '../../hooks/useDebounce';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
