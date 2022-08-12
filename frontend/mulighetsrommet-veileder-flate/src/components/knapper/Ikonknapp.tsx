@@ -2,7 +2,6 @@ import React from 'react';
 import './Ikonknapp.less';
 import { Button } from '@navikt/ds-react';
 import classNames from 'classnames';
-import { kebabCase } from '../../utils/Utils';
 
 interface SidemenyKnappProps {
   children: React.ReactNode;
