@@ -65,7 +65,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filtertags').children().should('have.length', 1);
   });
 
-  it('Sortering', () => {
+  it.skip('Sortering', () => {
     //Tester på de forskjellige typene: string, number, date og status
     cy.sortering('tabellheader_tiltaksnavn');
     cy.sortering('tabellheader_tiltaksnummer');
