@@ -6,7 +6,7 @@ import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { BarStackHorizontal } from '@visx/shape';
 import { SeriesPoint } from '@visx/shape/lib/types';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
-import { StatistikkFraCsvFil } from '../../../api/models';
+import { StatistikkFraCsvFil } from '../../../core/api/models';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
 import '../TiltaksdetaljerFane.less';
 import { Datapunkt } from './Datapunkt';

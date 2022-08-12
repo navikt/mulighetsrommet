@@ -6,7 +6,7 @@ import { OpenAPI } from 'mulighetsrommet-api-client';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
-import { headers, toRecord } from './api/headers';
+import { headers, toRecord } from './core/api/headers';
 import App from './App';
 import { APPLICATION_NAME } from './constants';
 

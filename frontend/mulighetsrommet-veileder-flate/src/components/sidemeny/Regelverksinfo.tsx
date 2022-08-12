@@ -1,7 +1,7 @@
 import React from 'react';
-import { RegelverkFil, RegelverkLenke } from '../../api/models';
+import { RegelverkFil, RegelverkLenke } from '../../core/api/models';
 import { Link } from '@navikt/ds-react';
-import { logEvent } from '../../api/logger';
+import { logEvent } from '../../core/api/logger';
 
 interface RegelverksinfoProps {
   regelverkFiler?: RegelverkFil[];

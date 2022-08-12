@@ -2,7 +2,7 @@ import React from 'react';
 import { Tag, Button, Alert } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { FAKE_DOOR, useFeatureToggles } from '../../api/feature-toggles';
+import { FAKE_DOOR, useFeatureToggles } from '../../core/api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
@@ -13,7 +13,7 @@ import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
 import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import { useHentBrukerdata } from '../../api/queries/useHentBrukerdata';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
 
 function BrukersOppfolgingsenhet() {

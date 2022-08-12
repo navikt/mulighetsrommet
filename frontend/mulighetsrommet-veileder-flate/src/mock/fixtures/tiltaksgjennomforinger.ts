@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Tiltaksgjennomforing } from '../../api/models';
+import { Tiltaksgjennomforing } from '../../core/api/models';
 
 export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {

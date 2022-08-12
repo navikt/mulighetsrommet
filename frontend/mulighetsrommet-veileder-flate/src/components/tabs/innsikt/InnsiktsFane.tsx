@@ -1,7 +1,7 @@
 import { Alert } from '@navikt/ds-react';
 import useResizeObserver from 'use-resize-observer';
-import useTiltaksgjennomforingByTiltaksnummer from '../../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { useTiltakstyperMedTiltakstypenavn } from '../../../api/queries/useTiltakstypeMedTiltakstypenavn';
+import useTiltaksgjennomforingByTiltaksnummer from '../../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import { useTiltakstyperMedTiltakstypenavn } from '../../../core/api/queries/useTiltakstypeMedTiltakstypenavn';
 import '../TiltaksdetaljerFane.less';
 import BarChart from './BarChart';
 import { Forskningsrapport } from './Forskningsrapport';

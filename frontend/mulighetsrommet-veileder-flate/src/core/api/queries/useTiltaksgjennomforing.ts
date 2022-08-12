@@ -1,6 +1,6 @@
 import groq from 'groq';
 import { useAtom } from 'jotai';
-import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
 import { Tiltaksgjennomforing } from '../models';
 import { useSanity } from './useSanity';
 

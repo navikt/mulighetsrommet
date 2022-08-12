@@ -1,9 +1,9 @@
 import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { Tiltaksgjennomforing } from '../../api/models';
+import { Tiltaksgjennomforing } from '../../core/api/models';
 import Regelverksinfo from './Regelverksinfo';
-import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
