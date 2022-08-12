@@ -44,9 +44,7 @@
     "date-fns": "^2.29.1",
     "groq": "^2.29.3",
     "jotai": "^1.7.6",
-    "lodash.throttle": "^4.1.1",
     "mulighetsrommet-api-client": "*",
-    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.33.1",
@@ -58,8 +56,7 @@
     "vite": "^2.9.14",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-require": "^1.0.1",
-    "vite-plugin-svgr": "^2.2.1",
-    "yargs-parser": "^21.0.1"
+    "vite-plugin-svgr": "^2.2.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.3.0",
