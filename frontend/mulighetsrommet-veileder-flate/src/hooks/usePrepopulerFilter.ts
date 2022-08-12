@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { useHentBrukerdata } from '../api/queries/useHentBrukerdata';
-import { useInnsatsgrupper } from '../api/queries/useInnsatsgrupper';
+import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
+import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../core/atoms/atoms';
 
 export function usePrepopulerFilter() {

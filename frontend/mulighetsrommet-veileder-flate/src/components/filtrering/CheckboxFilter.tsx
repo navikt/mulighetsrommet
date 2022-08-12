@@ -2,7 +2,7 @@ import React from 'react';
 import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from '@navikt/ds-react';
 import './Filtermeny.less';
 import { kebabCase } from '../../utils/Utils';
-import { logEvent } from '../../api/logger';
+import { logEvent } from '../../core/api/logger';
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionNavn: string;

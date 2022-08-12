@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { StatistikkFraCsvFil } from '../api/models';
-import useSisteStatistikkFil from '../api/queries/useSisteStatistikkFil';
+import { StatistikkFraCsvFil } from '../core/api/models';
+import useSisteStatistikkFil from '../core/api/queries/useSisteStatistikkFil';
 
 export default function useHentStatistikkFraFil(): StatistikkFraCsvFil[] {
   const [text, setText] = useState<string>();
