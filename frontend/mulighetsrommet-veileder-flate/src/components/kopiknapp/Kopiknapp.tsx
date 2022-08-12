@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { logEvent } from '../../api/logger';
+import { logEvent } from '../../core/api/logger';
 import { Copy, CopyFilled } from '@navikt/ds-icons';
 import { Button, Tooltip } from '@navikt/ds-react';
 import './Kopiknapp.less';

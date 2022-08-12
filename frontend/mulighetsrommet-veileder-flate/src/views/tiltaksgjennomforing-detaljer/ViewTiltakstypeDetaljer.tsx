@@ -5,9 +5,9 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
-import useTiltaksgjennomforingByTiltaksnummer from '../../api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { Alert, Loader } from '@navikt/ds-react';
-import { useGetTiltaksnummerFraUrl } from '../../api/queries/useGetTiltaksnummerFraUrl';
+import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 
 const ViewTiltakstypeDetaljer = () => {

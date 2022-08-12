@@ -7,9 +7,9 @@ import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
-import { logEvent } from '../../api/logger';
-import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../api/models';
+import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import { logEvent } from '../../core/api/logger';
+import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../core/api/models';
 import { paginationAtom } from '../../core/atoms/atoms';
 
 const TiltaksgjennomforingsTabell = () => {
@@ -194,7 +194,7 @@ const TiltaksgjennomforingsTabell = () => {
                 lokasjon,
                 tiltakstype,
                 kontaktinfoArrangor,
-                tilgjengelighetsstatus
+                tilgjengelighetsstatus,
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">

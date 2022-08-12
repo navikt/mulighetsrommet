@@ -1,5 +1,5 @@
 import { PortableText } from '@portabletext/react';
-import { Forskningsrapport as ForskningsrapportType } from '../../../api/models';
+import { Forskningsrapport as ForskningsrapportType } from '../../../core/api/models';
 import '../TiltaksdetaljerFane.less';
 
 interface Props {
