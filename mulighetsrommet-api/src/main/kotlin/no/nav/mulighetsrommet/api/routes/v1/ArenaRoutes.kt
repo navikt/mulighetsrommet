@@ -37,6 +37,8 @@ fun Route.arenaRoutes() {
             runCatching {
                 val tiltakstype = call.receive<AdapterTiltak>()
                 arenaService.deleteTiltakstype(tiltakstype)
+            }.onSuccess {
+                call.response.status(HttpStatusCode.OK)
             }.onFailure {
                 logger.error(
                     "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
@@ -63,6 +65,8 @@ fun Route.arenaRoutes() {
             runCatching {
                 val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
                 arenaService.deleteTiltaksgjennomforing(tiltaksgjennomforing)
+            }.onSuccess {
+                call.response.status(HttpStatusCode.OK)
             }.onFailure {
                 logger.error(
                     "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
@@ -89,6 +93,8 @@ fun Route.arenaRoutes() {
             runCatching {
                 val deltaker = call.receive<AdapterTiltakdeltaker>()
                 arenaService.deleteDeltaker(deltaker)
+            }.onSuccess {
+                call.response.status(HttpStatusCode.OK)
             }.onFailure {
                 logger.error(
                     "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
@@ -117,8 +123,8 @@ fun Route.arenaRoutes() {
                 val sak = call.receive<AdapterSak>()
                 arenaService.unsetSakOnTiltaksgjennomforing(sak)
             }.onSuccess {
-                val response = it ?: HttpStatusCode.NotFound
-                call.respond(response)
+                val status = if (it != null) HttpStatusCode.OK else HttpStatusCode.NotFound
+                call.response.status(status)
             }.onFailure {
                 logger.error(
                     "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
