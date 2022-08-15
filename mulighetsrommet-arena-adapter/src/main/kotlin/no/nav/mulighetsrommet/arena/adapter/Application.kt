@@ -8,12 +8,12 @@ import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureDependencyInjection
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
-import no.nav.mulighetsrommet.arena.adapter.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureSentry
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
@@ -34,7 +34,6 @@ fun main() {
 }
 
 fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClient: AzureAdMachineToMachineTokenClient) {
-
     configureDependencyInjection(config, kafkaPreset, tokenClient)
     configureSerialization()
     configureMonitoring()

@@ -8,7 +8,8 @@ import no.nav.mulighetsrommet.api.routes.internalRoutes
 import no.nav.mulighetsrommet.api.routes.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
-import no.nav.mulighetsrommet.ktor.plugins.*
+import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
+import no.nav.mulighetsrommet.ktor.plugins.configureSentry
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 
 fun main() {
