@@ -93,6 +93,9 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.mockk:mockk:1.12.4")
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
+    testImplementation("org.testcontainers:kafka:1.17.3")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
 
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
@@ -104,9 +107,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.36")
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
-    testImplementation("io.mockk:mockk:1.12.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
 }
