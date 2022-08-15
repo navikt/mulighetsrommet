@@ -93,7 +93,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.mockk:mockk:1.12.4")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.3")
     testImplementation("org.testcontainers:kafka:1.17.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
 
