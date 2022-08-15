@@ -10,8 +10,8 @@ export default function useTiltaksgjennomforing() {
     groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
-  ${byggSokefilter(filter.search)} 
-  %ENHET%
+  ${byggSokefilter(filter.search)}
+  "&& (($enhetsId in enheter[]->nummer.current) || (enheter[0] == null && $fylkeId == fylke->nummer.current))"
   ]
   {
     _id,
