@@ -72,9 +72,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
                     ByteArrayDeserializer::class.java
                 )
                 .build()
-    }
 
-    test("consumers processes event from correct topic and inserts event into failed events on fail") {
         every { topicRepository.selectAll() } answers {
             listOf(
                 Topic(1, key1, topicName1, mockk(), true),
@@ -90,7 +88,9 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         every { runBlocking { consumer2.processEvent(any()) } } throws Exception()
 
         every { consumer3.consumerConfig.topic } answers { topicName3 }
+    }
 
+    test("consumers processes event from correct topic and inserts event into failed events on fail") {
         val orchestrator = KafkaConsumerOrchestrator(
             consumerProperties,
             listener.db,
