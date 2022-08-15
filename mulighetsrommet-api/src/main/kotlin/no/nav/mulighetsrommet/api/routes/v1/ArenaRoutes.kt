@@ -27,8 +27,7 @@ fun Route.arenaRoutes() {
                 call.respond(updatedTiltakstype)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
             }
@@ -40,8 +39,7 @@ fun Route.arenaRoutes() {
                 arenaService.deleteTiltakstype(tiltakstype)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke slette tiltakstype", status = HttpStatusCode.InternalServerError)
             }
@@ -55,8 +53,7 @@ fun Route.arenaRoutes() {
                 call.respond(createdTiltaksgjennomforing)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke opprette tiltak", status = HttpStatusCode.InternalServerError)
             }
@@ -68,8 +65,7 @@ fun Route.arenaRoutes() {
                 arenaService.deleteTiltaksgjennomforing(tiltaksgjennomforing)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke slette tiltak", status = HttpStatusCode.InternalServerError)
             }
@@ -83,8 +79,7 @@ fun Route.arenaRoutes() {
                 call.respond(createdDeltaker)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
             }
@@ -96,8 +91,7 @@ fun Route.arenaRoutes() {
                 arenaService.deleteDeltaker(deltaker)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke slette deltaker", status = HttpStatusCode.InternalServerError)
             }
@@ -112,8 +106,7 @@ fun Route.arenaRoutes() {
                 call.respond(response)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
             }
@@ -128,8 +121,7 @@ fun Route.arenaRoutes() {
                 call.respond(response)
             }.onFailure {
                 logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
                 )
                 call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
             }
