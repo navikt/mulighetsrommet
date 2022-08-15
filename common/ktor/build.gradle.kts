@@ -17,7 +17,7 @@ dependencies {
     implementation("io.ktor:ktor-server-call-id-jvm:$ktorVersion")
 
     // Metrikker
-    implementation("io.micrometer:micrometer-registry-prometheus:1.9.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
 
     val hopliteVersion = "2.4.0"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")

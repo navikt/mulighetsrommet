@@ -81,9 +81,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
 
-    // Metrikker
-    implementation("io.micrometer:micrometer-registry-prometheus:1.9.0")
-
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")

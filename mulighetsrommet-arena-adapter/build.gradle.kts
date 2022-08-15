@@ -106,7 +106,6 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")

@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.arena.adapter.plugins.configureDependencyInjection
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
-import no.nav.mulighetsrommet.arena.adapter.routes.internalRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureSentry
@@ -34,16 +34,17 @@ fun main() {
 }
 
 fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClient: AzureAdMachineToMachineTokenClient) {
+    val db by inject<Database>()
+
     configureDependencyInjection(config, kafkaPreset, tokenClient)
     configureSerialization()
-    configureMonitoring()
+    configureMonitoring({ db.isHealthy() })
     configureHTTP()
     configureSentry(config.sentry)
 
     val kafka: KafkaConsumerOrchestrator by inject()
 
     routing {
-        internalRoutes()
         apiRoutes()
         managerRoutes()
     }

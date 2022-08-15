@@ -6,10 +6,16 @@ import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 
-fun Application.configureMonitoring() {
+fun interface MonitoredResource {
+    fun isAvailable(): Boolean
+}
+
+fun Application.configureMonitoring(vararg resources: MonitoredResource) {
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     install(MicrometerMetrics) {
@@ -39,6 +45,24 @@ fun Application.configureMonitoring() {
 
         verify { callId ->
             callId.isNotEmpty()
+        }
+    }
+
+    routing {
+        get("/internal/liveness") {
+            call.respond(HttpStatusCode.OK)
+        }
+
+        get("/internal/readiness") {
+            if (resources.all { it.isAvailable() }) {
+                call.respond(HttpStatusCode.OK)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+
+        get("/internal/prometheus") {
+            call.respond(appMicrometerRegistry.scrape())
         }
     }
 }
