@@ -20,7 +20,7 @@ fun Application.configureMonitoring() {
         disableDefaultColors()
 
         filter { call ->
-            call.request.path().startsWith("/")
+            call.request.path().startsWith("/internal").not()
         }
 
         mdc("status") {
