@@ -11,33 +11,33 @@ abstract class TopicConsumer<T>() {
     abstract val events: EventRepository
 
     suspend fun processEvent(payload: JsonElement) {
-        val parsedPayload = toDomain(payload)
+        val parsedPayload = decodeEvent(payload)
         if (shouldProcessEvent(parsedPayload)) {
             val key = resolveKey(parsedPayload)
 
-            logger.debug("Persisting event: topic=${consumerConfig.topic}, key=$key")
+            logger.info("Persisting event: topic=${consumerConfig.topic}, key=$key")
             events.saveEvent(consumerConfig.topic, key, payload.toString())
 
-            logger.debug("Handling event: topic=${consumerConfig.topic}, key=$key")
+            logger.info("Handling event: topic=${consumerConfig.topic}, key=$key")
             handleEvent(parsedPayload)
         }
     }
 
     suspend fun replayEvent(payload: JsonElement) {
-        val parsedEvent = toDomain(payload)
+        val parsedEvent = decodeEvent(payload)
         if (shouldProcessEvent(parsedEvent)) {
             val key = resolveKey(parsedEvent)
 
-            logger.debug("Replaying event: topic=${consumerConfig.topic}, key=$key")
+            logger.info("Replaying event: topic=${consumerConfig.topic}, key=$key")
             handleEvent(parsedEvent)
         }
     }
 
-    protected abstract fun toDomain(payload: JsonElement): T
+    protected abstract fun decodeEvent(payload: JsonElement): T
 
-    protected open fun shouldProcessEvent(payload: T): Boolean = true
+    protected open fun shouldProcessEvent(event: T): Boolean = true
 
-    protected abstract fun resolveKey(payload: T): String
+    protected abstract fun resolveKey(event: T): String
 
-    protected abstract suspend fun handleEvent(payload: T)
+    protected abstract suspend fun handleEvent(event: T)
 }

@@ -52,7 +52,7 @@ object DatabaseMapper {
 
     fun toAdapterTiltaksgjennomforing(row: Row): AdapterTiltaksgjennomforing = AdapterTiltaksgjennomforing(
         id = row.int("arena_id"),
-        navn = row.string("navn"),
+        navn = row.stringOrNull("navn"),
         tiltakskode = row.string("tiltakskode"),
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),

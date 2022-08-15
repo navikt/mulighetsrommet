@@ -26,7 +26,10 @@ fun Route.frontendLoggerRoutes() {
             }.onSuccess { event ->
                 call.respond(event)
             }.onFailure {
-                logger.error("${this.context.request.path()} ${it.stackTraceToString()}")
+                logger.error(
+                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
+                    it
+                )
             }
         }
     }
