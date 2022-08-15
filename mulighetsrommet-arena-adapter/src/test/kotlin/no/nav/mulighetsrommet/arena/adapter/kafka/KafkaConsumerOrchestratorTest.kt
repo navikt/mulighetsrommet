@@ -122,7 +122,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         verify(exactly = 1) {
             runBlocking {
                 consumer1.processEvent(
-                    JsonElementDeserializer().deserialize(
+                    ArenaJsonElementDeserializer().deserialize(
                         topicName1,
                         value1.toByteArray()
                     )
@@ -133,7 +133,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
         verify(exactly = 1) {
             runBlocking {
                 consumer2.processEvent(
-                    JsonElementDeserializer().deserialize(
+                    ArenaJsonElementDeserializer().deserialize(
                         topicName2,
                         value2.toByteArray()
                     )
