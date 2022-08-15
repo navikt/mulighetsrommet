@@ -6,13 +6,14 @@ import kotlinx.serialization.json.JsonNull
 import org.apache.kafka.common.serialization.Deserializer
 import java.nio.charset.StandardCharsets
 
-class JsonElementDeserializer : Deserializer<JsonElement> {
+class ArenaJsonElementDeserializer : Deserializer<JsonElement> {
     override fun deserialize(topic: String, data: ByteArray?): JsonElement {
         if (data == null) {
             return JsonNull
         }
 
         val value = String(data, StandardCharsets.UTF_8)
-        return Json.parseToJsonElement(value)
+        val stripped = value.replace("\\u0000", "")
+        return Json.parseToJsonElement(stripped)
     }
 }

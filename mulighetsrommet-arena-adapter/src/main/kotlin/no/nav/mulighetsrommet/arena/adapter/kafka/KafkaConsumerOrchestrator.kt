@@ -117,7 +117,7 @@ class KafkaConsumerOrchestrator(
                 .withConsumerConfig(
                     consumer.consumerConfig.topic,
                     stringDeserializer(),
-                    JsonElementDeserializer(),
+                    ArenaJsonElementDeserializer(),
                     Consumer { event ->
                         runBlocking {
                             consumer.processEvent(event.value())
