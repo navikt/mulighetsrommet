@@ -11,7 +11,6 @@ import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../api/logger';
 import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../api/models';
 import { paginationAtom } from '../../core/atoms/atoms';
-import tiltaksgjennomforing from "mulighetsrommet-cms/schemas/tiltaksgjennomforing";
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
