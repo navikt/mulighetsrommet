@@ -29,7 +29,7 @@ export const handlers: RestHandler[] = [
 
     const client = getSanityClient();
 
-    const newQuery = query.replace("%ENHET%", "")
+    const newQuery = query.replace("$enhetsId in", "! 0 in").replace("$fylkeId ==", "\"0\" !=")
 
     const result = await client.fetch(newQuery);
     return ok(result);
