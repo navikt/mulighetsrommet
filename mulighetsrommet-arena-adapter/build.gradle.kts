@@ -85,14 +85,14 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
-    val navCommonModules = "2.2022.05.05_06.41-84855089824b"
+    val navCommonModules = "2.2022.07.01_07.12-6a0864fa6938"
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
-    val kotestVersion = "5.3.1"
+    val kotestVersion = "5.4.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.mockk:mockk:1.12.4")
+    testImplementation("io.mockk:mockk:1.12.5")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.3")
     testImplementation("org.testcontainers:kafka:1.17.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
@@ -106,7 +106,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.34.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.33.2")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.39.0")
 }

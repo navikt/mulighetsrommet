@@ -41,7 +41,7 @@ dependencies {
     testImplementation(testFixtures(project(":common:database")))
 
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
 
     val ktorVersion = "2.0.3"
@@ -68,18 +68,18 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2.2022.05.05_06.41-84855089824b"
+    val navCommonModules = "2.2022.07.01_07.12-6a0864fa6938"
     implementation("no.nav.common:token-client:$navCommonModules")
 
     // Test
-    val kotestVersion = "5.3.1"
+    val kotestVersion = "5.4.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
-    testImplementation("io.mockk:mockk:1.12.4")
-    testImplementation("no.nav.security:mock-oauth2-server:0.4.6")
+    testImplementation("io.mockk:mockk:1.12.5")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.1")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.11")
@@ -87,14 +87,6 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
-    // Database
-    implementation("org.flywaydb:flyway-core:8.5.5")
-    implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.postgresql:postgresql:42.3.3")
-    implementation("com.github.seratch:kotliquery:1.6.2")
-    implementation("io.dropwizard.metrics:metrics-healthchecks:4.0.3")
-    implementation("io.dropwizard.metrics:metrics-core:3.2.1")
-
     // OpenAPI
-    runtimeOnly("org.webjars:swagger-ui:4.1.2")
+    runtimeOnly("org.webjars:swagger-ui:4.11.1")
 }
