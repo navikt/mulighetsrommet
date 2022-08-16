@@ -5,6 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.logging.*
+import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
@@ -26,9 +28,7 @@ fun Route.arenaRoutes() {
             }.onSuccess { updatedTiltakstype ->
                 call.respond(updatedTiltakstype)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -40,9 +40,7 @@ fun Route.arenaRoutes() {
             }.onSuccess {
                 call.response.status(HttpStatusCode.OK)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke slette tiltakstype", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -54,9 +52,7 @@ fun Route.arenaRoutes() {
             }.onSuccess { createdTiltaksgjennomforing ->
                 call.respond(createdTiltaksgjennomforing)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke opprette tiltak", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -68,9 +64,7 @@ fun Route.arenaRoutes() {
             }.onSuccess {
                 call.response.status(HttpStatusCode.OK)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke slette tiltak", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -82,9 +76,7 @@ fun Route.arenaRoutes() {
             }.onSuccess { createdDeltaker ->
                 call.respond(createdDeltaker)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -96,9 +88,7 @@ fun Route.arenaRoutes() {
             }.onSuccess {
                 call.response.status(HttpStatusCode.OK)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke slette deltaker", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -111,9 +101,7 @@ fun Route.arenaRoutes() {
                 val response = it ?: HttpStatusCode.NotFound
                 call.respond(response)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -126,11 +114,15 @@ fun Route.arenaRoutes() {
                 val status = if (it != null) HttpStatusCode.OK else HttpStatusCode.NotFound
                 call.response.status(status)
             }.onFailure {
-                logger.error(
-                    "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}"
-                )
+                logError(logger, it)
                 call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
             }
         }
     }
+}
+
+private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, it: Throwable) {
+    logger.error(
+        "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()} stack_trace=${it.stackTraceToString()}"
+    )
 }
