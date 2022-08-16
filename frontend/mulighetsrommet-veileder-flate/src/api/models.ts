@@ -14,6 +14,11 @@ type Innsatsgrupper =
   | 'Spesielt tilpasset innsats'
   | 'Varig tilpasset innsats';
 
+export type Tilgjengelighetsstatus =
+  | 'Apent'
+  | 'Venteliste'
+  | 'Stengt';
+
 export interface Tiltakstype {
   _id: string;
   tiltakstypeNavn: Tiltakstyper;
@@ -66,6 +71,7 @@ export interface Tiltaksgjennomforing {
     pameldingOgVarighet?: object;
   };
   kontaktinfoTiltaksansvarlige: Tiltaksansvarlig[];
+  tilgjengelighetsstatus?: Tilgjengelighetsstatus;
 }
 
 export interface Arrangor {

@@ -9,7 +9,7 @@ import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../api/logger';
-import { Tiltaksgjennomforing } from '../../api/models';
+import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../api/models';
 import { paginationAtom } from '../../core/atoms/atoms';
 
 const TiltaksgjennomforingsTabell = () => {
@@ -29,9 +29,8 @@ const TiltaksgjennomforingsTabell = () => {
     }
   }, [tiltaksgjennomforinger]);
 
-  const tilgjengelighetsstatus = (status: string) => {
-    //TODO endre denne når vi får inn data fra Arena
-    if (status === 'Åpent') {
+  const visStatus = (status?: Tilgjengelighetsstatus) => {
+    if (status === 'Apent' || !status) {
       return (
         <div className="tabell__tilgjengelighetsstatus">
           <img src={StatusGronn} alt="Grønt sirkelikon" />
@@ -195,6 +194,7 @@ const TiltaksgjennomforingsTabell = () => {
                 lokasjon,
                 tiltakstype,
                 kontaktinfoArrangor,
+                tilgjengelighetsstatus
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
@@ -214,7 +214,7 @@ const TiltaksgjennomforingsTabell = () => {
                   <Table.DataCell>
                     {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
                   </Table.DataCell>
-                  <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
+                  <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
                 </Table.Row>
               )
             )

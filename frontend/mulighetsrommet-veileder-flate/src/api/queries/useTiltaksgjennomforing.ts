@@ -21,7 +21,8 @@ export default function useTiltaksgjennomforing() {
     oppstartsdato,
     tiltaksnummer,
     kontaktinfoArrangor->,
-    tiltakstype->
+    tiltakstype->,
+    tilgjengelighetsstatus
   }`
   );
 }
