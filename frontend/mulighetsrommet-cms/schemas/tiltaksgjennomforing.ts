@@ -154,7 +154,7 @@ export default {
       type: "string",
       options: {
         list: [
-          { title: "Åpent", value: "ApentForInnsok" },
+          { title: "Åpent", value: "Apent" },
           { title: "Venteliste", value: "Venteliste" },
           { title: "Stengt", value: "Stengt" },
         ],

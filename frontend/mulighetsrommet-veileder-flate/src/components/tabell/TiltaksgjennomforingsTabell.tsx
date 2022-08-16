@@ -30,7 +30,7 @@ const TiltaksgjennomforingsTabell = () => {
   }, [tiltaksgjennomforinger]);
 
   const visStatus = (status?: Tilgjengelighetsstatus) => {
-    if (status === 'ApentForInnsok' || !status) {
+    if (status === 'Apent' || !status) {
       return (
         <div className="tabell__tilgjengelighetsstatus">
           <img src={StatusGronn} alt="Grønt sirkelikon" />

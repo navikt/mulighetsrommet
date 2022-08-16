@@ -15,7 +15,7 @@ type Innsatsgrupper =
   | 'Varig tilpasset innsats';
 
 export type Tilgjengelighetsstatus =
-  | 'ApentForInnsok'
+  | 'Apent'
   | 'Venteliste'
   | 'Stengt';
 
