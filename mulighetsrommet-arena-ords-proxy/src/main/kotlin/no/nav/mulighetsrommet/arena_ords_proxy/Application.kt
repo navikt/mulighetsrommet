@@ -4,11 +4,10 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.arena_ords_proxy.plugins.configureErrorHandling
 import no.nav.mulighetsrommet.arena_ords_proxy.plugins.configureHTTP
-import no.nav.mulighetsrommet.arena_ords_proxy.plugins.configureMonitoring
 import no.nav.mulighetsrommet.arena_ords_proxy.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena_ords_proxy.routes.arenaOrdsRoutes
-import no.nav.mulighetsrommet.arena_ords_proxy.routes.internalRoutes
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 
 fun main() {
@@ -28,7 +27,6 @@ fun Application.configure(arenaOrdsClient: ArenaOrdsClient) {
     configureErrorHandling()
 
     routing {
-        internalRoutes()
         arenaOrdsRoutes(arenaOrdsClient)
     }
 }
