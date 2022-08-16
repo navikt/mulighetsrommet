@@ -9,7 +9,7 @@ ktlint {
 }
 
 dependencies {
-    val ktorVersion = "2.0.3"
+    val ktorVersion = "2.1.0"
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
