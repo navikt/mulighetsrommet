@@ -10,7 +10,7 @@ import { Alert, Loader } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import Deleknapp from "../../components/knapper/Deleknapp";
-import Tilbakemeldingsmodal from "../../components/modal/Tilbakemeldingsmodal";
+import Delemodal from "../../components/modal/Delemodal";
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -49,7 +49,7 @@ const ViewTiltakstypeDetaljer = () => {
         <Deleknapp ariaLabel={"Dele"} handleClick={handleClickApneModal}>Del med bruker </Deleknapp>
       </div>
       <TiltaksdetaljerFane />
-      <Tilbakemeldingsmodal modalOpen={delemodalApen} setModalOpen={() => setDelemodalApen(false)}/>
+      <Delemodal modalOpen={delemodalApen} setModalOpen={() => setDelemodalApen(false)} tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn} brukerNavn={"NAVN"}/>
     </div>
   );
 };
