@@ -177,9 +177,9 @@ const TiltaksgjennomforingsTabell = () => {
         <Table.Body>
           {tiltaksgjennomforinger.length === 0 ? (
             <Table.Row>
-              <Table.DataCell colSpan={5}>
+              <Table.DataCell colSpan={6}>
                 <Alert variant="info" className="tabell__alert">
-                  Det finnes ingen tiltakstyper med dette søket.
+                  Det finnes ingen tiltaksgjennomføringer med dette søket.
                 </Alert>
               </Table.DataCell>
             </Table.Row>
