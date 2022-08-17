@@ -38,7 +38,7 @@ class MulighetsrommetApiClient(
                     response?.let {
                         logger.warn("Request failed with response status=${it.status}")
                     }
-                    logger.info("Retrying request method=${request.method}, url=${request.url.buildString()}")
+                    logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
                 }
             }
             defaultRequest {
@@ -63,7 +63,5 @@ class MulighetsrommetApiClient(
         if (!response.status.isSuccess()) {
             throw Exception("Request to mulighetsrommet-api failed with ${response.status}")
         }
-
-        logger.debug("sent request status ${response.status} (${response.request.url})")
     }
 }

@@ -69,6 +69,26 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             antallPlasser = 5,
         )
     }
+
+    test("should decode ANTALL_DELTAKERE as nearest integer") {
+        val event = createInsertEvent(
+            """{
+                "TILTAKGJENNOMFORING_ID": 3780431,
+                "LOKALTNAVN": "Testenavn",
+                "TILTAKSKODE": "INDOPPFAG",
+                "ARBGIV_ID_ARRANGOR": 49612,
+                "SAK_ID": 13572352,
+                "DATO_FRA": null,
+                "DATO_TIL": null,
+                "STATUS_TREVERDIKODE_INNSOKNING": "J",
+                "ANTALL_DELTAKERE": 5.5
+            }"""
+        )
+
+        consumer.processEvent(event)
+
+        decodeRequestBody(engine.requestHistory.last(), AdapterTiltaksgjennomforing.serializer()).antallPlasser shouldBe 6
+    }
 })
 
 private fun <T> decodeRequestBody(request: HttpRequestData, kSerializer: KSerializer<T>): T {
