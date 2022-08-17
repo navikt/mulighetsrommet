@@ -1,4 +1,4 @@
-import { Innsatsgruppe } from '../../api/models';
+import { Innsatsgruppe } from '../../core/api/models';
 import { faker } from '@faker-js/faker';
 
 export const innsatsgrupper: Innsatsgruppe[] = [

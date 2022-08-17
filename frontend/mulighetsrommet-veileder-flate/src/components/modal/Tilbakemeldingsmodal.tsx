@@ -2,7 +2,7 @@ import { Textarea } from '@navikt/ds-react';
 import React, { useState } from 'react';
 import './modal.less';
 import StandardModal from './StandardModal';
-import { logEvent } from '../../api/logger';
+import { logEvent } from '../../core/api/logger';
 import { toast } from 'react-toastify';
 
 interface TilbakemeldingsmodalProps {

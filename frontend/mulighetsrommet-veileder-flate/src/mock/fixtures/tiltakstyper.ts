@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Tiltakstype } from '../../api/models';
+import { Tiltakstype } from '../../core/api/models';
 export const tiltakstyper: Tiltakstype[] = [
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),

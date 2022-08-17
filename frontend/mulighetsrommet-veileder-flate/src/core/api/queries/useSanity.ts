@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
-import { QueryKeys } from '../../core/api/QueryKeys';
+import { QueryKeys } from '../query-keys';
 import { MulighetsrommetService } from 'mulighetsrommet-api-client';
-import useDebounce from '../../hooks/useDebounce';
-import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import useDebounce from '../../../hooks/useDebounce';
+import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 
 export function useSanity<T>(query: string, enabled: boolean = true) {
   const debouncedQuery = useDebounce(query, 300);
