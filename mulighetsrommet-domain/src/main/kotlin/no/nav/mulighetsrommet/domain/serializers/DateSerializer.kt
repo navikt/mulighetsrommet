@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain
+package no.nav.mulighetsrommet.domain.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain
+package no.nav.mulighetsrommet.domain.models
 
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime

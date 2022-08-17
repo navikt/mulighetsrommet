@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import org.intellij.lang.annotations.Language
 
 class TiltaksgjennomforingService(private val db: Database) {

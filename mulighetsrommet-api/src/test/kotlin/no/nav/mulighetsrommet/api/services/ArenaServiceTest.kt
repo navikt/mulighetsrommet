@@ -5,11 +5,11 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
 import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
-import no.nav.mulighetsrommet.domain.Deltakerstatus
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
 import java.time.LocalDateTime

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.domain.adapter
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.DateSerializer
+import no.nav.mulighetsrommet.domain.serializers.DateSerializer
 import java.time.LocalDateTime
 
 @Serializable
