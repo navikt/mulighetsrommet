@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import io.ktor.client.*
+import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -11,7 +12,11 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import org.slf4j.LoggerFactory
 
-class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> String) {
+class MulighetsrommetApiClient(
+    engine: HttpClientEngine = CIO.create(),
+    baseUri: String,
+    private val getToken: () -> String,
+) {
 
     private val logger = LoggerFactory.getLogger(MulighetsrommetApiClient::class.java)
     private val client: HttpClient
@@ -19,7 +24,7 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
     init {
         logger.debug("Init MulighetsrommetApiClient")
 
-        client = HttpClient(CIO) {
+        client = HttpClient(engine) {
             install(ContentNegotiation) {
                 json()
             }
@@ -40,7 +45,7 @@ class MulighetsrommetApiClient(uriBase: String, private val getToken: () -> Stri
                 contentType(ContentType.Application.Json)
 
                 url.takeFrom(
-                    URLBuilder().takeFrom(uriBase).apply {
+                    URLBuilder().takeFrom(baseUri).apply {
                         encodedPath += url.encodedPath
                     }
                 )
