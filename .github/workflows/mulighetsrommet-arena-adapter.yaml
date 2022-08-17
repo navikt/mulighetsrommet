@@ -6,6 +6,7 @@ on:
       - .github/workflows/mulighetsrommet-arena-adapter.yaml
       - build.gradle.kts
       - settings.gradle.kts
+      - common/**
       - mulighetsrommet-arena-adapter/**
   workflow_dispatch:
     inputs:
