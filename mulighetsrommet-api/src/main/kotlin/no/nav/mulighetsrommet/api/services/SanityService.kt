@@ -11,7 +11,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.SanityConfig
 import no.nav.mulighetsrommet.api.setup.http.baseClient
-import no.nav.mulighetsrommet.api.utils.replaceEnhetInQuery
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,19 +49,15 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
     private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String?): JsonElement? {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId)
-        return get(
-            replaceEnhetInQuery(
-                query = query,
-                enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: "",
-                fylkeId = fylkesId
-            )
-        )
+        return get(query, brukerData.oppfolgingsenhet?.enhetId ?: "", fylkesId)
     }
 
-    private suspend fun get(query: String): JsonElement? {
+    private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): JsonElement? {
         client.get {
             url {
                 parameters.append("query", query)
+                enhetsId?.let { parameters.append("\$enhetsId", "\"$it\"") }
+                fylkeId?.let { parameters.append("\$fylkeId", "\"$it\"") }
             }
         }.let {
             val response = it.body<JsonObject>()
