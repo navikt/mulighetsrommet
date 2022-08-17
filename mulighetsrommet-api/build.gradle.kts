@@ -35,7 +35,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":mulighetsrommet-domain"))
+    implementation(project(":common:domain"))
     implementation(project(":common:ktor"))
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
