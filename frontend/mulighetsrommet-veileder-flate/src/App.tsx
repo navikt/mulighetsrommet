@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.less';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 import RoutesConfig from './RoutesConfig';
+import FeedbackKnapp from './components/feedback/Feedback';
+import React from 'react';
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
 Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
@@ -33,6 +35,7 @@ function App() {
             pauseOnHover
           />
           <ReactQueryDevtools initialIsOpen={false} />
+          <FeedbackKnapp />
         </QueryClientProvider>
       </div>
     </div>
