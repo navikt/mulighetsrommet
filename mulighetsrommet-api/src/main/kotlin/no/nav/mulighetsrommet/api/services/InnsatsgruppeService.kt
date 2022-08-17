@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.models.Innsatsgruppe
 
 class InnsatsgruppeService(private val db: Database) {
 

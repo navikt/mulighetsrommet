@@ -84,6 +84,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     val navCommonModules = "2.2022.07.01_07.12-6a0864fa6938"
     implementation("no.nav.common:kafka:$navCommonModules")

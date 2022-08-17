@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-import no.nav.mulighetsrommet.domain.Deltakerstatus
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

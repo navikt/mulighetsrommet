@@ -6,13 +6,13 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
 import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
-import no.nav.mulighetsrommet.domain.Deltakerstatus
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.Tiltaksgjennomforing.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing.Tilgjengelighetsstatus
 import java.time.LocalDateTime
 
 class TiltaksgjennomforingServiceTest : FunSpec({

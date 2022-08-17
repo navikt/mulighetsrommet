@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.arena
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.serializers.FloatToIntSerializer
 
 @Serializable
 data class ArenaTiltaksgjennomforing(
@@ -12,5 +13,6 @@ data class ArenaTiltaksgjennomforing(
     val LOKALTNAVN: String?,
     val ARBGIV_ID_ARRANGOR: Int?,
     val STATUS_TREVERDIKODE_INNSOKNING: JaNeiStatus?,
+    @Serializable(with = FloatToIntSerializer::class)
     val ANTALL_DELTAKERE: Int?
 )
