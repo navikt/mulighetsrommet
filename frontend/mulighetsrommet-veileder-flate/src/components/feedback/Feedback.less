@@ -11,7 +11,8 @@
       border-radius: 50%;
       width: 4rem;
       height: 4rem;
-      background-color: #c30000;
+      color: #000;
+      background-color: #fff;
 
       &:hover {
         width: 4.5rem;
@@ -39,10 +40,29 @@
         margin-bottom: 1rem;
       }
 
+      &__textarea {
+        margin-bottom: 1rem;
 
-      &__textarea__send-btn {
-        margin: 1rem 0;
+        &__send-btn {
+          margin-top: 1rem;
+        }
       }
+      
+      &--slide-in {
+        bottom: 100px;
+        animation: 0.33s ease-out slide-in;
+      }
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0.5;
+      bottom: 50px;
+    }
+    to {
+      opacity: 1;
+      bottom: 100px;
     }
   }
 }

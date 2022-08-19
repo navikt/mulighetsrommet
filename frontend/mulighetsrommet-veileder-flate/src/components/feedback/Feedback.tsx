@@ -2,41 +2,43 @@ import React, { useRef, useState } from 'react';
 import { logEvent } from '../../api/logger';
 import './Feedback.less';
 import FeedbackButton from './FeedbackButton';
-import FeedbackModal from './FeedbackModal';
-import { Heading, useEventListener } from '@navikt/ds-react';
+import FeedbackModalGrafana from './FeedbackModalGrafana';
+import { useEventListener } from '@navikt/ds-react';
 import Show from '../../utils/Show';
+import FeedbackModalForms from './FeedbackModalForms';
 
 const Feedback = () => {
-  const tilbakemeldingPrefix = 'har_sendt_tilbakemelding';
-
   const [isModalOpen, setModalOpen] = useState(false);
-  const harSendtTilbakemelding = false;
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  //TODO når/hvis vi får godkjent grafana kan vi fjerne forms og fikse Grafana
+  const grafana = false;
 
   const handleClickOutside = (e: { target: Node | null }) => {
     if (wrapperRef.current?.contains(e.target)) {
       return;
     }
     if (isModalOpen) {
-             setModalOpen(false);
+      setModalOpen(false);
     }
   };
 
   useEventListener('mousedown', handleClickOutside);
 
   const handleClick = () => {
-    if (!isModalOpen) {
-      setModalOpen(isModalOpen);
-      logEvent('mulighetsrommet.tilbakemelding_modal_apnet');
-    }
     setModalOpen(!isModalOpen);
+    !isModalOpen && logEvent('mulighetsrommet.tilbakemelding_modal_apnet');
   };
 
   return (
     <div ref={wrapperRef}>
       <FeedbackButton handleClick={handleClick} isModalOpen={isModalOpen} />
-      <Show if={isModalOpen}>
-        <FeedbackModal />
+      <Show if={isModalOpen && grafana}>
+        <FeedbackModalGrafana isModalOpen={isModalOpen} />
+      </Show>
+
+      <Show if={isModalOpen && !grafana}>
+        <FeedbackModalForms isModalOpen={isModalOpen} />
       </Show>
     </div>
   );
