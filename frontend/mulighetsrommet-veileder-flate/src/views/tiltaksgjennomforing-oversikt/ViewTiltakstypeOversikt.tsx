@@ -67,12 +67,12 @@ const ViewTiltakstypeOversikt = () => {
               <BrukersOppfolgingsenhet />
               <FilterTags
                 options={filter.innsatsgrupper!}
-                handleClick={(id: string) =>
+                handleClick={(id: string) => {
                   setFilter({
                     ...filter,
-                    innsatsgrupper: filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id),
-                  })
-                }
+                    innsatsgrupper: [...filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id)],
+                  });
+                }}
               />
               <FilterTags
                 options={filter.tiltakstyper!}
