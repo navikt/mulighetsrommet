@@ -1,4 +1,4 @@
-import { Alert } from '@navikt/ds-react';
+import { Alert, Loader } from '@navikt/ds-react';
 import useResizeObserver from 'use-resize-observer';
 import useTiltaksgjennomforingByTiltaksnummer from '../../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { useTiltakstyperMedTiltakstypenavn } from '../../../core/api/queries/useTiltakstypeMedTiltakstypenavn';
@@ -14,8 +14,12 @@ const tiltakstyperMedStatistikk = ['Oppfølging', 'Digital Oppfølging', 'ARR', 
 
 const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   const { ref, width = 500 } = useResizeObserver<HTMLDivElement>({});
-  const { data } = useTiltakstyperMedTiltakstypenavn(tiltakstype);
+  const { data, isLoading } = useTiltakstyperMedTiltakstypenavn(tiltakstype);
   const forskningsrapporter = data?.forskningsrapport;
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   if (!forskningsrapporter && !tiltakstyperMedStatistikk.includes(tiltakstype)) {
     return (
