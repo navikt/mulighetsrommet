@@ -13,7 +13,7 @@ function Routes() {
       <ReactRouterRoutes>
         <Route path="/" element={<App />}>
           <Route index element={<Statistics />} />
-          <Route path="/management" element={<Management />} />
+          <Route path="management" element={<Management />} />
         </Route>
       </ReactRouterRoutes>
     </BrowserRouter>
