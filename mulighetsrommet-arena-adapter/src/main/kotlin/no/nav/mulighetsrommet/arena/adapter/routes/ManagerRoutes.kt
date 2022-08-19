@@ -13,18 +13,17 @@ import org.koin.ktor.ext.inject
 fun Route.managerRoutes() {
     val kafka: KafkaConsumerOrchestrator by inject()
     singlePageApplication {
-        applicationRoute = "manager"
         useResources = true
         react("web")
     }
-    get("/assets/*") {
-        call.respondRedirect("/manager" + call.request.uri)
-    }
-    get("/manager/topics") {
+//    get("/*") {
+//        call.respondRedirect("/" + call.request.uri)
+//    }
+    get("/topics") {
         val topics = kafka.getTopics()
         call.respond(topics)
     }
-    put("/manager/topics") {
+    put("/topics") {
         val topics = call.receive<List<Topic>>()
         kafka.updateRunningTopics(topics)
         call.respond(HttpStatusCode.OK)
