@@ -1,7 +1,7 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
 import React from 'react';
 import './KontaktinfoFane.less';
-import { Tiltaksansvarlig } from '../../../api/models';
+import { Tiltaksansvarlig } from '../../../core/api/models';
 
 interface TiltaksansvarligProps {
   tiltaksansvarlige: Tiltaksansvarlig[];

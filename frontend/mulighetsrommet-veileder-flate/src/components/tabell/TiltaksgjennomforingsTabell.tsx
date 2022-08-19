@@ -7,9 +7,9 @@ import Kopiknapp from '../kopiknapp/Kopiknapp';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import useTiltaksgjennomforing from '../../api/queries/useTiltaksgjennomforing';
-import { logEvent } from '../../api/logger';
-import { Tiltaksgjennomforing } from '../../api/models';
+import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import { logEvent } from '../../core/api/logger';
+import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../core/api/models';
 import { paginationAtom } from '../../core/atoms/atoms';
 
 const TiltaksgjennomforingsTabell = () => {
@@ -29,9 +29,8 @@ const TiltaksgjennomforingsTabell = () => {
     }
   }, [tiltaksgjennomforinger]);
 
-  const tilgjengelighetsstatus = (status: string) => {
-    //TODO endre denne når vi får inn data fra Arena
-    if (status === 'Åpent') {
+  const visStatus = (status?: Tilgjengelighetsstatus) => {
+    if (status === 'Apent' || !status) {
       return (
         <div className="tabell__tilgjengelighetsstatus">
           <img src={StatusGronn} alt="Grønt sirkelikon" />
@@ -178,9 +177,9 @@ const TiltaksgjennomforingsTabell = () => {
         <Table.Body>
           {tiltaksgjennomforinger.length === 0 ? (
             <Table.Row>
-              <Table.DataCell colSpan={5}>
+              <Table.DataCell colSpan={6}>
                 <Alert variant="info" className="tabell__alert">
-                  Det finnes ingen tiltakstyper med dette søket.
+                  Det finnes ingen tiltaksgjennomføringer med dette søket.
                 </Alert>
               </Table.DataCell>
             </Table.Row>
@@ -195,6 +194,7 @@ const TiltaksgjennomforingsTabell = () => {
                 lokasjon,
                 tiltakstype,
                 kontaktinfoArrangor,
+                tilgjengelighetsstatus,
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
@@ -214,7 +214,7 @@ const TiltaksgjennomforingsTabell = () => {
                   <Table.DataCell>
                     {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
                   </Table.DataCell>
-                  <Table.DataCell>{tilgjengelighetsstatus('Åpent')}</Table.DataCell>
+                  <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
                 </Table.Row>
               )
             )

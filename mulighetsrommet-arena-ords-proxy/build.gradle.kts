@@ -27,7 +27,7 @@ repositories {
 dependencies {
     implementation(project(":common:ktor"))
 
-    val ktorVersion = "2.0.2"
+    val ktorVersion = "2.1.0"
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-default-headers-jvm:$ktorVersion")
@@ -45,15 +45,14 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
-    val kotestVersion = "5.3.0"
+    val kotestVersion = "5.4.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:1.0.3")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.12.5")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.11")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.8.3")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("org.slf4j:slf4j-api:1.7.36")
 }

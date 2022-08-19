@@ -3,7 +3,7 @@ import { Heading } from '@navikt/ds-react';
 import './KontaktinfoFane.less';
 import ArrangorInfo from './ArrangorInfo';
 import TiltaksansvarligInfo from './TiltaksansvarligInfo';
-import { Arrangor, Tiltaksansvarlig } from '../../../api/models';
+import { Arrangor, Tiltaksansvarlig } from '../../../core/api/models';
 
 interface KontaktinfoFaneProps {
   tiltaksansvarlige: Tiltaksansvarlig[];

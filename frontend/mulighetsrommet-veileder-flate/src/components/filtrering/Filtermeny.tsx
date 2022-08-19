@@ -5,8 +5,8 @@ import { useAtom } from 'jotai';
 import Searchfield from './Searchfield';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
-import { useInnsatsgrupper } from '../../api/queries/useInnsatsgrupper';
-import { useTiltakstyper } from '../../api/queries/useTiltakstyper';
+import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
+import { useTiltakstyper } from '../../core/api/queries/useTiltakstyper';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
 const Filtermeny = () => {

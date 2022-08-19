@@ -1,7 +1,7 @@
 import React from 'react';
 import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
 import './Nokkelinfo.less';
-import { NokkelinfoKomponenter } from '../../api/models';
+import { NokkelinfoKomponenter } from '../../core/api/models';
 
 interface NokkelinfoProps {
   nokkelinfoKomponenter: NokkelinfoKomponenter[];
