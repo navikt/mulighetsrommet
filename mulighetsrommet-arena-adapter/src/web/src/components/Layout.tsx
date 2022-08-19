@@ -1,24 +1,14 @@
-import {
-  Container,
-  LinkBox,
-  LinkOverlay,
-  Heading,
-  Box,
-} from "@chakra-ui/react";
+import { Container, Box } from "@chakra-ui/react";
+import { Outlet } from "react-router-dom";
+import Navigation from "./Navigation";
 
-export const Layout = ({ children }: React.PropsWithChildren) => (
+export const Layout = () => (
   <Box as="main" w="100%">
-    <Container mt="8" maxW="container.xl">
-      <LinkBox mb="8" w="fit-content">
-        <LinkOverlay
-          _hover={{ color: "pink.500" }}
-          href="https://youtu.be/RJHctyXPmkg?t=5"
-        >
-          <Heading size="4xl">MAAM</Heading>
-        </LinkOverlay>
-        <Heading size="xs">mulighetsrommet-arena-adapter-manager</Heading>
-      </LinkBox>
-      {children}
-    </Container>
+    <Navigation />
+    <Box w="inherit" py="8">
+      <Container maxW="container.xl">
+        <Outlet />
+      </Container>
+    </Box>
   </Box>
 );
