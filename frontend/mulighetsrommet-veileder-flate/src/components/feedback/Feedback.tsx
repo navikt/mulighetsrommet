@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { logEvent } from '../../api/logger';
+import { logEvent } from '../../core/api/logger';
 import './Feedback.less';
 import FeedbackButton from './FeedbackButton';
 import FeedbackModalGrafana from './FeedbackModalGrafana';

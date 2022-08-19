@@ -7,10 +7,11 @@ interface FeedbackButtonProps {
   handleClick: () => void;
   isModalOpen: boolean;
 }
+
 const FeedbackButton = ({ handleClick, isModalOpen }: FeedbackButtonProps) => {
   return (
     <Button
-      className={isModalOpen ? 'feedback__btn' : 'feedback__btn'}
+      className="feedback__btn"
       onClick={handleClick}
       title="Hjelp oss å bli bedre ved å dele tilbakemeldingen din."
     >

@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { BodyShort, Button, Detail, Heading } from '@navikt/ds-react';
+import { BodyShort, Detail, Heading } from '@navikt/ds-react';
 import './Feedback.less';
 import Lenke from '../lenke/Lenke';
 import classNames from 'classnames';
-import { ExternalLink } from '@navikt/ds-icons';
 
 interface FeedbackModalProps {
   isModalOpen: boolean;
@@ -25,12 +24,13 @@ const FeedbackModalForms = ({ isModalOpen }: FeedbackModalProps) => {
         </BodyShort>
       </div>
 
-      <Button
-        className="feedback__modal__textarea"
-        onClick={() => window.open('https://forms.office.com/r/gGtRvL8Niv')}
+      <Lenke
+        isExternal
+        to="https://forms.office.com/r/gGtRvL8Niv"
+        className="feedback__modal__textarea feedback__modal__forms"
       >
-        Gi tilbakemelding <ExternalLink aria-label="Ekstern lenke" />
-      </Button>
+        Gi tilbakemelding
+      </Lenke>
 
       <Detail>
         Dette er kun for tilbakemelding og overvåkes ikke av support. Trenger du hjelp? Ta kontakt med oss i{' '}
