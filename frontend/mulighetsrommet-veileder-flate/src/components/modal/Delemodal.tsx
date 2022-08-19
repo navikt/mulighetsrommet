@@ -11,14 +11,14 @@ interface DelemodalProps {
   setModalOpen: () => void;
   tiltaksgjennomforingsnavn: string;
   brukerNavn: string;
+  chattekst: string;
 }
 
-const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn }: DelemodalProps) => {
-  const startText = 'test test test' + brukerNavn;
+const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
+  const startText = "Hei, " + brukerNavn + "!\n" + chattekst;
   const [verdi, setVerdi] = useState(startText);
 
   const handleSend = () => {
-    logEvent('mulighetsrommet.tilbakemelding.detaljside', { kommentar: verdi });
     setVerdi(startText);
     toast.info('Takk for din tilbakemelding!');
   };

@@ -31,7 +31,8 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
         regelverkFilNavn
       },
       regelverkLenker[]->,
-      innsatsgruppe->
+      innsatsgruppe->,
+      chattekst
     }
   }[0]`);
 }

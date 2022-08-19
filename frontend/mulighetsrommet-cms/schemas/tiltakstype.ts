@@ -62,6 +62,11 @@ export default {
       type: "array",
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
     },
+    {
+      name: "chattekst",
+      title: "Tekst til å dele med bruker i chat",
+      type: "string",
+    },
   ],
   preview: {
     select: {

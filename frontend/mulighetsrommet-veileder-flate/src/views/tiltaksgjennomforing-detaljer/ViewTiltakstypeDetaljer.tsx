@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import './ViewTiltaksgjennomforingDetaljer.less';
-import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
-import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
-import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
-import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
-import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { Alert, Loader } from '@navikt/ds-react';
-import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
-import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import "./ViewTiltaksgjennomforingDetaljer.less";
+import Tilbakeknapp from "../../components/tilbakeknapp/Tilbakeknapp";
+import TiltaksgjennomforingsHeader from "../../layouts/TiltaksgjennomforingsHeader";
+import Nokkelinfo from "../../components/nokkelinfo/Nokkelinfo";
+import SidemenyDetaljer from "../../components/sidemeny/SidemenyDetaljer";
+import TiltaksdetaljerFane from "../../components/tabs/TiltaksdetaljerFane";
+import useTiltaksgjennomforingByTiltaksnummer from "../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer";
+import { Alert, Loader } from "@navikt/ds-react";
+import { useGetTiltaksnummerFraUrl } from "../../core/api/queries/useGetTiltaksnummerFraUrl";
+import { useHentFnrFraUrl } from "../../hooks/useHentFnrFraUrl";
 import Deleknapp from "../../components/knapper/Deleknapp";
 import Delemodal from "../../components/modal/Delemodal";
 
@@ -16,7 +16,7 @@ const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
-  const [ delemodalApen, setDelemodalApen ] = useState<boolean>(false)
+  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
@@ -49,7 +49,9 @@ const ViewTiltakstypeDetaljer = () => {
         <Deleknapp ariaLabel={"Dele"} handleClick={handleClickApneModal}>Del med bruker </Deleknapp>
       </div>
       <TiltaksdetaljerFane />
-      <Delemodal modalOpen={delemodalApen} setModalOpen={() => setDelemodalApen(false)} tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn} brukerNavn={"NAVN"}/>
+      <Delemodal modalOpen={delemodalApen} setModalOpen={() => setDelemodalApen(false)}
+                 tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn} brukerNavn={"NAVN"}
+                 chattekst={tiltaksgjennomforing.tiltakstype.chattekst ?? ""} />
     </div>
   );
 };
