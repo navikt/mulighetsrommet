@@ -295,10 +295,17 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
       </div>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-          <div style={{ color: colorScale(tooltipData.key) }}>
-            <strong>{tooltipData.key}</strong>
+          <div className="tooltip-container tooltip-container-row">
+            <div>
+              <span className="tooltip-color-icon" style={{ background: colorScale(tooltipData.key) }} />
+            </div>
+            <div className="tooltip-container-column">
+              <span className="tooltip-data-text tooltip-data-number">
+                {tooltipData.bar.data[tooltipData.key].toFixed(2)}%
+              </span>
+              <span className="tooltip-data-text tooltip-data-label">{tooltipData.key}</span>
+            </div>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key].toFixed(2)} %</div>
         </TooltipInPortal>
       )}
     </div>
