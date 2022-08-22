@@ -2,7 +2,7 @@ import React from 'react';
 import { Tag, Button, Alert } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { FAKE_DOOR, useFeatureToggles } from '../../core/api/feature-toggles';
+import { ENABLE_ARBEIDSFLATE, useFeatureToggles } from '../../core/api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
@@ -46,7 +46,7 @@ const ViewTiltakstypeOversikt = () => {
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
   const features = useFeatureToggles();
-  const visFakeDoorFeature = features.isSuccess && features.data[FAKE_DOOR];
+  const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
   const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
     gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
 
@@ -57,7 +57,7 @@ const ViewTiltakstypeOversikt = () => {
 
   return (
     <>
-      {visFakeDoorFeature ? (
+      {!enableArbeidsflate ? (
         <FakeDoor />
       ) : (
         <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">

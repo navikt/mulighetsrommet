@@ -1,16 +1,16 @@
 import { headers } from './headers';
 import { useQuery } from 'react-query';
 
-export const FAKE_DOOR = 'mulighetsrommet.fake-door';
+export const ENABLE_ARBEIDSFLATE = 'mulighetsrommet.enable-arbeidsflate';
 
-export const ALL_TOGGLES = [FAKE_DOOR];
+export const ALL_TOGGLES = [ENABLE_ARBEIDSFLATE];
 
 export interface Features {
-  [FAKE_DOOR]: boolean;
+  [ENABLE_ARBEIDSFLATE]: boolean;
 }
 
 export const initialFeatures: Features = {
-  [FAKE_DOOR]: false,
+  [ENABLE_ARBEIDSFLATE]: false,
 };
 
 const toggles = ALL_TOGGLES.map(element => 'feature=' + element).join('&');

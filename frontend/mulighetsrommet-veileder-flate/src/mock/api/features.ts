@@ -1,5 +1,5 @@
-import { Features, FAKE_DOOR } from '../../core/api/feature-toggles';
+import { Features, ENABLE_ARBEIDSFLATE } from '../../core/api/feature-toggles';
 
 export const mockFeatures: Features = {
-  [FAKE_DOOR]: false,
+  [ENABLE_ARBEIDSFLATE]: true,
 };
