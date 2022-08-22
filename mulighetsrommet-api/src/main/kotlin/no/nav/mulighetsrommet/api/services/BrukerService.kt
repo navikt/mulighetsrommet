@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
