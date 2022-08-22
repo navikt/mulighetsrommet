@@ -1,7 +1,7 @@
 import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
-import { mockFeatures } from './features';
 import { badReq, ok } from './responses';
+import { mockFeatures } from './features';
 
 export const handlers: RestHandler[] = [
   rest.get('*/api/feature', (req, res, ctx) => {
@@ -29,7 +29,7 @@ export const handlers: RestHandler[] = [
 
     const client = getSanityClient();
 
-    const result = await client.fetch(query, { "enhetsId": "*", "fylkeId": "5700" });
+    const result = await client.fetch(query, { enhetsId: '*', fylkeId: '5700' });
     return ok(result);
   }),
 ];

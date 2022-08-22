@@ -6,10 +6,14 @@ import FeedbackModalGrafana from './FeedbackModalGrafana';
 import { useEventListener } from '@navikt/ds-react';
 import Show from '../../utils/Show';
 import FeedbackModalForms from './FeedbackModalForms';
+import { FEEDBACK, useFeatureToggles } from '../../core/api/feature-toggles';
 
 const Feedback = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const features = useFeatureToggles();
+  const visFeedback = features.isSuccess && features.data[FEEDBACK];
 
   //TODO når/hvis vi får godkjent grafana kan vi fjerne forms og fikse Grafana
   const grafana = false;
@@ -31,16 +35,20 @@ const Feedback = () => {
   };
 
   return (
-    <div ref={wrapperRef}>
-      <FeedbackButton handleClick={handleClick} isModalOpen={isModalOpen} />
-      <Show if={isModalOpen && grafana}>
-        <FeedbackModalGrafana isModalOpen={isModalOpen} />
-      </Show>
+    <>
+      {visFeedback && (
+        <div ref={wrapperRef}>
+          <FeedbackButton handleClick={handleClick} isModalOpen={isModalOpen} />
+          <Show if={isModalOpen && grafana}>
+            <FeedbackModalGrafana isModalOpen={isModalOpen} />
+          </Show>
 
-      <Show if={isModalOpen && !grafana}>
-        <FeedbackModalForms isModalOpen={isModalOpen} />
-      </Show>
-    </div>
+          <Show if={isModalOpen && !grafana}>
+            <FeedbackModalForms isModalOpen={isModalOpen} />
+          </Show>
+        </div>
+      )}
+    </>
   );
 };
 
