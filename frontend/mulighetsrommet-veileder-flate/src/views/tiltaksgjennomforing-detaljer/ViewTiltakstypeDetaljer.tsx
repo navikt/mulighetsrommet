@@ -12,9 +12,12 @@ import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import Deleknapp from '../../components/knapper/Deleknapp';
 import Delemodal from '../../components/modal/Delemodal';
 import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import { useAtom } from 'jotai';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
@@ -40,7 +43,7 @@ const ViewTiltakstypeDetaljer = () => {
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
-        <Tilbakeknapp tilbakelenke={`/${fnr}`} />
+        <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
         <TiltaksgjennomforingsHeader />
         {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
           <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />

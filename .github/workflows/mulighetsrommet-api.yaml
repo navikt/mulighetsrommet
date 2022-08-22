@@ -6,6 +6,7 @@ on:
       - .github/workflows/mulighetsrommet-api.yaml
       - build.gradle.kts
       - settings.gradle.kts
+      - common/**
       - mulighetsrommet-api/**
   workflow_dispatch:
     inputs:

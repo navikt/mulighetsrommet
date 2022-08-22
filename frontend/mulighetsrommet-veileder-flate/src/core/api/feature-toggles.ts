@@ -1,16 +1,19 @@
 import { headers } from './headers';
 import { useQuery } from 'react-query';
 
-export const FAKE_DOOR = 'mulighetsrommet.fake-door';
+export const ENABLE_ARBEIDSFLATE = 'mulighetsrommet.enable-arbeidsflate';
+export const FEEDBACK = 'mulighetsrommet.feedback';
 
-export const ALL_TOGGLES = [FAKE_DOOR];
+export const ALL_TOGGLES = [ENABLE_ARBEIDSFLATE, FEEDBACK];
 
 export interface Features {
-  [FAKE_DOOR]: boolean;
+  [ENABLE_ARBEIDSFLATE]: boolean;
+  [FEEDBACK]: boolean;
 }
 
 export const initialFeatures: Features = {
-  [FAKE_DOOR]: false,
+  [ENABLE_ARBEIDSFLATE]: false,
+  [FEEDBACK]: true,
 };
 
 const toggles = ALL_TOGGLES.map(element => 'feature=' + element).join('&');

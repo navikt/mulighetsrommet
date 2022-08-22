@@ -25,3 +25,5 @@ export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfil
 
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');
+
+export const feedbackTilfredshet = false;

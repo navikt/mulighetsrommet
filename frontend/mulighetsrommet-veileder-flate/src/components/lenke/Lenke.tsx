@@ -14,7 +14,8 @@ interface LinkProps extends RouterLinkProps {
 function Lenke({ children, isExternal = false, isInline = false, to, className, ...others }: LinkProps) {
   return isExternal ? (
     <Link target="_blank" href={to.toString()} className={classNames('navds-link', className)} {...others}>
-      <ExternalLink aria-label="Ekstern lenke" /> {children}
+      {children}
+      <ExternalLink aria-label="Ekstern lenke" />
     </Link>
   ) : (
     <RouterLink to={to} className={classNames('link', { lenke: isInline }, className)} {...others}>

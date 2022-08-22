@@ -80,3 +80,43 @@
     }
   }
 }
+
+.tooltip-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+
+  &-column {
+    flex-direction: column;
+  }
+  
+  &-row {
+    flex-direction: row;
+  }
+}
+
+.tooltip-color-icon {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.tooltip-data {
+  &-text {
+    display: block;
+    padding: 2px 0px;
+  }
+
+  &-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--navds-semantic-color-text-inverted)
+  }
+
+  &-label {
+    font-size: 14px;
+    color: var(--navds-global-color-gray-400);
+  }
+}

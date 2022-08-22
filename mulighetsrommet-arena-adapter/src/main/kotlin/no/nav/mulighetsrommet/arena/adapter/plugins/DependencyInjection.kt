@@ -72,7 +72,7 @@ private fun services(services: ServiceConfig): Module = module {
 
 private fun clients(serviceConfig: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient) = module {
     single {
-        MulighetsrommetApiClient(serviceConfig.mulighetsrommetApi.url) {
+        MulighetsrommetApiClient(baseUri = serviceConfig.mulighetsrommetApi.url) {
             tokenClient.createMachineToMachineToken(serviceConfig.mulighetsrommetApi.scope)
         }
     }

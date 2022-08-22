@@ -1,7 +1,7 @@
 import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
-import { mockFeatures } from './features';
 import { badReq, ok } from './responses';
+import { mockFeatures } from './features';
 
 export const handlers: RestHandler[] = [
   rest.get('*/api/feature', (req, res, ctx) => {

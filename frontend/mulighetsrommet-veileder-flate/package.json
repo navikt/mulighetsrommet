@@ -27,7 +27,7 @@
   "dependencies": {
     "@navikt/ds-css": "^0.18.27",
     "@navikt/ds-icons": "^0.8.20",
-    "@navikt/ds-react": "^0.19.25",
+    "@navikt/ds-react": "^0.19.27",
     "@navikt/navspa": "^6.0.1",
     "@portabletext/react": "^1.0.6",
     "@sanity/client": "^3.3.2",

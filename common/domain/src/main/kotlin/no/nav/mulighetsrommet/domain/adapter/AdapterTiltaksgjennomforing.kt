@@ -1,18 +1,20 @@
 package no.nav.mulighetsrommet.domain.adapter
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.DateSerializer
-import no.nav.mulighetsrommet.domain.Deltakerstatus
+import no.nav.mulighetsrommet.domain.serializers.DateSerializer
 import java.time.LocalDateTime
 
 @Serializable
-data class AdapterTiltakdeltaker (
+data class AdapterTiltaksgjennomforing(
     val id: Int,
-    val tiltaksgjennomforingId: Int,
-    val personId: Int,
+    val navn: String?,
+    val tiltakskode: String,
+    val arrangorId: Int?,
+    val sakId: Int,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null,
-    val status: Deltakerstatus
+    val apentForInnsok: Boolean = true,
+    val antallPlasser: Int? = null,
 )
