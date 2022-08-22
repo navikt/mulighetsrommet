@@ -132,4 +132,10 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
       expect($value.text()).to.eq('Situasjonsbestemt innsats');
     });
   });
+
+  it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
+    cy.getByTestId('filter_sokefelt').type('blablablablabla');
+    cy.getByTestId('feilmelding-container').should('be.visible');
+    cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
+  });
 });

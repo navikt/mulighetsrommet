@@ -7,7 +7,7 @@ interface Props {
 
 export function Feilmelding({ children }: Props) {
   return (
-    <div aria-live="assertive" className="feilmelding-container">
+    <div data-testid="feilmelding-container" aria-live="assertive" className="feilmelding-container">
       {children}
     </div>
   );
