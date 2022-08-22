@@ -14,7 +14,6 @@ export const initialFeatures: Features = {
 };
 
 const toggles = ALL_TOGGLES.map(element => 'feature=' + element).join('&');
-
 export const fetchConfig = {
   headers,
 };

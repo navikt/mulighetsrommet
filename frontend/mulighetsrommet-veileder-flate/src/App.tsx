@@ -1,10 +1,13 @@
 import { Modal } from '@navikt/ds-react';
+import { ApiError } from 'mulighetsrommet-api-client';
+import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.less';
+import { Feilmelding } from './components/feilmelding/Feilmelding';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 import RoutesConfig from './RoutesConfig';
 
@@ -13,29 +16,65 @@ Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
 
+function ErrorFallback({ error }: any) {
+  let feilmelding = (
+    <p>
+      Vi er ikke helt sikre på hva som gikk falt. Du kan gå tilbake, eller{' '}
+      <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401">ta kontakt i Porten</a> hvis du trenger
+      hjelp.
+    </p>
+  );
+
+  if (error.status === 404) {
+    feilmelding = (
+      <p>Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg hit.</p>
+    );
+  }
+
+  if (error.status === 401 || error.status === 403) {
+    feilmelding = (
+      <p>Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis problemene vedvarer</p>
+    );
+  }
+
+  return (
+    <Feilmelding>
+      <p>
+        <b>
+          Noe gikk galt - Statuskode: {error.status} {error.statusText}
+        </b>
+      </p>
+      {feilmelding}
+      <a href="/">Tilbake til forsiden</a>
+    </Feilmelding>
+  );
+}
+
 function App() {
   return (
-    <div className="app__container">
-      <div className={APPLICATION_NAME}>
-        <QueryClientProvider client={queryClient}>
-          <Router>
-            <RoutesConfig />
-          </Router>
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <div className="app__container">
+        <div className={APPLICATION_NAME}>
+          <QueryClientProvider client={queryClient}>
+            <Router>
+              <RoutesConfig />
+            </Router>
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 
