@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
+import { Alert, Button, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
 import './Tabell.less';
 import { useAtom } from 'jotai';
 import Lenke from '../lenke/Lenke';
@@ -11,6 +11,8 @@ import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomfor
 import { logEvent } from '../../core/api/logger';
 import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../core/api/models';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { RESET } from 'jotai/utils';
+import { Feilmelding } from '../feilmelding/Feilmelding';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -19,7 +21,7 @@ const TiltaksgjennomforingsTabell = () => {
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
-  const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
 
@@ -95,6 +97,20 @@ const TiltaksgjennomforingsTabell = () => {
         : comparator(a, b, sortOrDefault.orderBy);
     })
     .slice((page - 1) * rowsPerPage, page * rowsPerPage);
+
+  if (tiltaksgjennomforinger.length === 0) {
+    return (
+      <Feilmelding>
+        <p>
+          <b>Ingen tiltaksgjennomføringer funnet</b>
+        </p>
+        <p>Prøv å justere søket eller filteret for å finne det du leter etter</p>
+        <button className="button-as-link" onClick={() => setFilter(RESET)}>
+          Tilbakestill filter
+        </button>
+      </Feilmelding>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -176,58 +192,48 @@ const TiltaksgjennomforingsTabell = () => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltaksgjennomforinger.length === 0 ? (
-            <Table.Row>
-              <Table.DataCell colSpan={6}>
-                <Alert variant="info" className="tabell__alert">
-                  Det finnes ingen tiltaksgjennomføringer med dette søket.
-                </Alert>
-              </Table.DataCell>
-            </Table.Row>
-          ) : (
-            gjennomforingerForSide.map(
-              ({
-                _id,
-                tiltaksnummer,
-                tiltaksgjennomforingNavn,
-                oppstart,
-                oppstartsdato,
-                lokasjon,
-                tiltakstype,
-                kontaktinfoArrangor,
-                tilgjengelighetsstatus,
-              }) => (
-                <Table.Row key={_id}>
-                  <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke
-                      to={`${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
-                      isInline
-                      data-testid="tabell_tiltaksgjennomforing"
-                    >
-                      {tiltaksgjennomforingNavn}
-                    </Lenke>
-                    <div>{kontaktinfoArrangor.selskapsnavn}</div>
-                  </Table.DataCell>
-                  <Table.DataCell data-testid="tabell_tiltaksnummer">
-                    <div className="tabell__tiltaksnummer">
-                      {tiltaksnummer}
-                      <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
-                    </div>
-                  </Table.DataCell>
-                  <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
-                  <Table.DataCell>{lokasjon}</Table.DataCell>
-                  <Table.DataCell>
-                    {oppstart === 'dato'
-                      ? new Date(oppstartsdato!).toLocaleString('no-NO', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                        })
-                      : 'Løpende'}
-                  </Table.DataCell>
-                  <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
-                </Table.Row>
-              )
+          {gjennomforingerForSide.map(
+            ({
+              _id,
+              tiltaksnummer,
+              tiltaksgjennomforingNavn,
+              oppstart,
+              oppstartsdato,
+              lokasjon,
+              tiltakstype,
+              kontaktinfoArrangor,
+              tilgjengelighetsstatus,
+            }) => (
+              <Table.Row key={_id}>
+                <Table.DataCell className="tabell__tiltaksnavn">
+                  <Lenke
+                    to={`${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+                    isInline
+                    data-testid="tabell_tiltaksgjennomforing"
+                  >
+                    {tiltaksgjennomforingNavn}
+                  </Lenke>
+                  <div>{kontaktinfoArrangor.selskapsnavn}</div>
+                </Table.DataCell>
+                <Table.DataCell data-testid="tabell_tiltaksnummer">
+                  <div className="tabell__tiltaksnummer">
+                    {tiltaksnummer}
+                    <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
+                  </div>
+                </Table.DataCell>
+                <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
+                <Table.DataCell>{lokasjon}</Table.DataCell>
+                <Table.DataCell>
+                  {oppstart === 'dato'
+                    ? new Date(oppstartsdato!).toLocaleString('no-NO', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                      })
+                    : 'Løpende'}
+                </Table.DataCell>
+                <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
+              </Table.Row>
             )
           )}
         </Table.Body>

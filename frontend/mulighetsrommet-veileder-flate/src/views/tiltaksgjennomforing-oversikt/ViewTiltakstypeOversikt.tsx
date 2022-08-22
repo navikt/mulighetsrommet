@@ -15,6 +15,7 @@ import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
+import { useErrorHandler } from 'react-error-boundary';
 
 function BrukersOppfolgingsenhet() {
   const brukerdata = useHentBrukerdata();
@@ -45,6 +46,7 @@ const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
+  useErrorHandler(brukerdata?.error);
   const features = useFeatureToggles();
   const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
   const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
