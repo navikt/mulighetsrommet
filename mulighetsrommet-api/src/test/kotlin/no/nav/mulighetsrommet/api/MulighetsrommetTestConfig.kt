@@ -24,6 +24,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
     veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig(),
+    veilarbpersonConfig = createVeilarbpersonConfig(),
 )
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
@@ -35,6 +36,13 @@ fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
 
 fun createVeilarbvedsstotteConfig(): VeilarbvedtaksstotteConfig {
     return VeilarbvedtaksstotteConfig(
+        url = "",
+        scope = ""
+    )
+}
+
+fun createVeilarbpersonConfig(): VeilarbpersonConfig {
+    return VeilarbpersonConfig(
         url = "",
         scope = ""
     )
