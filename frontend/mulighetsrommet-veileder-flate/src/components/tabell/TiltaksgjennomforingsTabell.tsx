@@ -10,7 +10,7 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../core/api/logger';
 import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../core/api/models';
-import { paginationAtom } from '../../core/atoms/atoms';
+import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -19,6 +19,7 @@ const TiltaksgjennomforingsTabell = () => {
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
+  const [filter] = useAtom(tiltaksgjennomforingsfilter);
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
 
@@ -198,7 +199,11 @@ const TiltaksgjennomforingsTabell = () => {
               }) => (
                 <Table.Row key={_id}>
                   <Table.DataCell className="tabell__tiltaksnavn">
-                    <Lenke to={`${tiltaksnummer}`} isInline data-testid="tabell_tiltaksgjennomforing">
+                    <Lenke
+                      to={`${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+                      isInline
+                      data-testid="tabell_tiltaksgjennomforing"
+                    >
                       {tiltaksgjennomforingNavn}
                     </Lenke>
                     <div>{kontaktinfoArrangor.selskapsnavn}</div>
@@ -212,7 +217,13 @@ const TiltaksgjennomforingsTabell = () => {
                   <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                   <Table.DataCell>{lokasjon}</Table.DataCell>
                   <Table.DataCell>
-                    {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
+                    {oppstart === 'dato'
+                      ? new Date(oppstartsdato!).toLocaleString('no-NO', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                        })
+                      : 'Løpende'}
                   </Table.DataCell>
                   <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
                 </Table.Row>

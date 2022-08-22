@@ -13,9 +13,17 @@ export const Section = ({
   loadingText,
 }: SectionProps) => (
   <Box w="100%">
-    <Heading mb="4" size="lg">
-      {headerText}
-    </Heading>
+    <Box
+      rounded={6}
+      p="2"
+      bg="pink"
+      border="1px"
+      borderColor="pink.300"
+      mb="2"
+      w="fit-content"
+    >
+      <Heading size="md">{headerText}</Heading>
+    </Box>
     <Box boxShadow="sm" p="5" borderWidth="1px" rounded="md">
       {isLoading ? (
         <Box w="100%" minH="15rem">

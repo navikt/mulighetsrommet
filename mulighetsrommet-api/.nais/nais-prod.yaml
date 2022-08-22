@@ -21,7 +21,7 @@ spec:
     initialDelay: 20
   replicas:
     min: 2
-    max: 3
+    max: 10
     cpuThresholdPercentage: 75
   resources:
     limits:

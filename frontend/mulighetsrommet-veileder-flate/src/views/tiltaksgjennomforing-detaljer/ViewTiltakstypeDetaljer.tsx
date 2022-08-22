@@ -9,9 +9,12 @@ import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTi
 import { Alert, Loader } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import { useAtom } from 'jotai';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
 
@@ -31,7 +34,7 @@ const ViewTiltakstypeDetaljer = () => {
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
-        <Tilbakeknapp tilbakelenke={`/${fnr}`} />
+        <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
         <TiltaksgjennomforingsHeader />
         {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
           <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />

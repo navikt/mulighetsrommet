@@ -54,6 +54,7 @@ const Filtermeny = () => {
         isLoading={tiltakstyper.isLoading}
         isError={tiltakstyper.isError}
         sortert
+        defaultOpen={filter.tiltakstyper.length > 0}
       />
     </div>
   );
