@@ -34,7 +34,7 @@ const FeedbackModalForms = ({ isModalOpen }: FeedbackModalProps) => {
 
       <Detail>
         Dette er kun for tilbakemelding og overvåkes ikke av support. Trenger du hjelp? Ta kontakt med oss i{' '}
-        <Lenke isExternal to="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401">
+        <Lenke isExternal to="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">
           Porten
         </Lenke>
       </Detail>
