@@ -1,5 +1,4 @@
 import { Modal } from '@navikt/ds-react';
-import { ApiError } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
@@ -7,6 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.less';
+import Feedback from './components/feedback/Feedback';
 import { Feilmelding } from './components/feilmelding/Feilmelding';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 import RoutesConfig from './RoutesConfig';
@@ -71,6 +71,7 @@ function App() {
               pauseOnHover
             />
             <ReactQueryDevtools initialIsOpen={false} />
+            <Feedback />
           </QueryClientProvider>
         </div>
       </div>
