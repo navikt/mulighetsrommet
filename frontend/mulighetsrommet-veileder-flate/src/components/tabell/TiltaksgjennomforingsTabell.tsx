@@ -265,3 +265,5 @@ const TiltaksgjennomforingsTabell = () => {
     </div>
   );
 };
+
+export default TiltaksgjennomforingsTabell;
