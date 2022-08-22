@@ -13,10 +13,12 @@ import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../core/api/mod
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
   const [page, setPage] = useAtom(paginationAtom);
+  const { forcePrepopulerFilter } = usePrepopulerFilter();
   const rowsPerPage = 15;
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
@@ -105,7 +107,13 @@ const TiltaksgjennomforingsTabell = () => {
           <b>Ingen tiltaksgjennomføringer funnet</b>
         </p>
         <p>Prøv å justere søket eller filteret for å finne det du leter etter</p>
-        <button className="button-as-link" onClick={() => setFilter(RESET)}>
+        <button
+          className="button-as-link"
+          onClick={() => {
+            setFilter(RESET);
+            forcePrepopulerFilter(true);
+          }}
+        >
           Tilbakestill filter
         </button>
       </Feilmelding>
