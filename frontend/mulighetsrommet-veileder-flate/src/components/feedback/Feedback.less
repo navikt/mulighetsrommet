@@ -1,0 +1,79 @@
+.mulighetsrommet-veileder-flate {
+  .feedback {
+    &__btn {
+      box-shadow: 0 6px 10px 0 #6a6a6a;
+      transition: all 0.1s ease-in-out;
+      z-index: 1000;
+      text-align: center;
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      border-radius: 50%;
+      width: 4rem;
+      height: 4rem;
+      color: #000;
+      background-color: #fff;
+
+      &:hover {
+        width: 4.5rem;
+        height: 4.5rem;
+      }
+
+      &__icon {
+        width: 2rem;
+        height: auto;
+      }
+    }
+
+    &__modal {
+      width: 468px;
+      background-color: #fff;
+      box-shadow: 0 6px 10px 0 #6a6a6a;
+      transition: all 0.1s ease-in-out;
+      z-index: 1000;
+      position: fixed;
+      right: 1rem;
+      bottom: 6rem;
+      padding: 1rem;
+
+      &__heading {
+        margin-bottom: 1rem;
+      }
+
+      &__forms {
+        color: #fff;
+        background-color: #0067C5;
+        padding: .7rem 1rem;
+        text-decoration: none;
+
+        &:hover {
+          background-color: #0056B4;
+        }
+      }
+
+      &__textarea {
+        margin-bottom: 1rem;
+
+        &__send-btn {
+          margin-top: 1rem;
+        }
+      }
+
+      &--slide-in {
+        bottom: 100px;
+        animation: 0.33s ease-out slide-in;
+      }
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0.5;
+      bottom: 50px;
+    }
+    to {
+      opacity: 1;
+      bottom: 100px;
+    }
+  }
+}

@@ -1,0 +1,32 @@
+.mulighetsrommet-veileder-flate {
+  .feedback__tilfredshet {
+    display: flex;
+    margin: 1rem 0;
+    justify-content: space-around;
+
+    &--btn {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
+  }
+
+  .feedback__tilfredshet .tilfredshet-valg__ikon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feedback__tilfredshet .feedback__tilfredshet--btn--valgt {
+    transform: scale(1.2);
+  }
+
+  .feedback__tilfredshet .feedback__tilfredshet--btn--ikke-valgt {
+    opacity: 0.6;
+  }
+
+  .feedback__tilfredshet .feedback__tilfredshet--btn:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+    opacity: 1;
+  }
+}
