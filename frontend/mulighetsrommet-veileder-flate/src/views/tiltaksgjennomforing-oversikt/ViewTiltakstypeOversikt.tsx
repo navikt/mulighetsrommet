@@ -2,7 +2,7 @@ import React from 'react';
 import { Tag, Button, Alert } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { ENABLE_ARBEIDSFLATE, FAKE_DOOR, useFeatureToggles } from '../../core/api/feature-toggles';
+import { ENABLE_ARBEIDSFLATE, useFeatureToggles } from '../../core/api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
