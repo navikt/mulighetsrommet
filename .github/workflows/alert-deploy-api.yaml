@@ -1,10 +1,11 @@
-name: Deploy alerts to NAIS
+name: Deploy alerts to NAIS for Mulighetsrommet-api
 on:
   push:
     branches:
       - main
     paths:
       - 'alerts-api.yaml'
+      - '.github/workflows/alerts-api.yaml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
