@@ -217,7 +217,13 @@ const TiltaksgjennomforingsTabell = () => {
                   <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                   <Table.DataCell>{lokasjon}</Table.DataCell>
                   <Table.DataCell>
-                    {oppstart === 'dato' ? new Intl.DateTimeFormat().format(new Date(oppstartsdato!)) : 'Løpende'}
+                    {oppstart === 'dato'
+                      ? new Date(oppstartsdato!).toLocaleString('no-NO', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                        })
+                      : 'Løpende'}
                   </Table.DataCell>
                   <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
                 </Table.Row>
