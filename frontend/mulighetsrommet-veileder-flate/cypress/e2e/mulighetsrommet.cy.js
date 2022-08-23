@@ -103,7 +103,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it('Sjekk UU', () => {
-    cy.checkA11y({ exclude: ['.navds-tooltip'] });
+    cy.checkPageA11y();
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
