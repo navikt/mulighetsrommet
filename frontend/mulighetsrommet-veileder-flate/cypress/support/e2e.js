@@ -130,5 +130,5 @@ function callback(violations) {
 
 Cypress.Commands.add('checkPageA11y', () => {
   cy.injectAxe();
-  cy.checkA11y({ exclude: [[['.Toastify']]] });
+  cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] });
 });

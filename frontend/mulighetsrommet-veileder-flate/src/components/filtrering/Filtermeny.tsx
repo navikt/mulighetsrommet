@@ -56,23 +56,6 @@ const Filtermeny = () => {
         sortert
         defaultOpen={filter.tiltakstyper.length > 0}
       />
-      <CheckboxFilter
-        accordionNavn="Område"
-        options={filter.tiltakstyper!}
-        setOptions={tiltakstyper => setFilter({ ...filter, tiltakstyper })}
-        data={
-          tiltakstyper.data?.map(tiltakstype => {
-            return {
-              id: tiltakstype._id,
-              tittel: tiltakstype.tiltakstypeNavn,
-            };
-          }) ?? []
-        }
-        isLoading={tiltakstyper.isLoading}
-        isError={tiltakstyper.isError}
-        sortert
-        defaultOpen={filter.tiltakstyper.length > 0}
-      />
     </div>
   );
 };
