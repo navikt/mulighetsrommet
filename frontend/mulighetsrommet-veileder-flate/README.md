@@ -21,6 +21,7 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 - NAVs designsystem: [**@navikt/ds-css**](https://github.com/navikt/nav-frontend-moduler)
 - Mocking av testdata: [**MSW**](https://mswjs.io/)
 - Testverktøy for ende-til-ende-testing: [**Cypress**](https://www.cypress.io/)
+- CMS for innhold: [**Sanity**](https://mulighetsrommet.sanity.studio/desk)
 
 # <a name="kom-i-gang"></a>Kom i gang
 
