@@ -80,7 +80,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 });
 
-xdescribe('Tiltaksgjennomføringsdetaljer', () => {
+describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå til en tiltaksgjennomføring', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
