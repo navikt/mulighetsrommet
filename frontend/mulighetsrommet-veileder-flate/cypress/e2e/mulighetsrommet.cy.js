@@ -65,14 +65,6 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filtertags').children().should('have.length', 1);
   });
 
-  it.skip('Sortering', () => {
-    //Tester på de forskjellige typene: string, number, date og status
-    cy.sortering('tabellheader_tiltaksnavn');
-    cy.sortering('tabellheader_tiltaksnummer');
-    cy.sortering('tabellheader_oppstartsdato');
-    cy.sortering('tabellheader_status');
-  });
-
   it('Skal vise tilbakestill filter-knapp når filter utenfor normalen', () => {
     cy.velgFilter('situasjonsbestemt-innsats');
     cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');

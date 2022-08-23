@@ -102,18 +102,20 @@ const TiltaksgjennomforingsTabell = () => {
 
   if (tiltaksgjennomforinger.length === 0) {
     return (
-      <Feilmelding>
-        <Ingress>Ingen tiltaksgjennomføringer funnet</Ingress>
-        <BodyShort>Prøv å justere søket eller filteret for å finne det du leter etter</BodyShort>
-        <Button
-          variant="tertiary"
-          onClick={() => {
-            setFilter(RESET);
-            forcePrepopulerFilter(true);
-          }}
-        >
-          Tilbakestill filter
-        </Button>
+      <Feilmelding ikonvariant="warning">
+        <>
+          <Ingress>Ingen tiltaksgjennomføringer funnet</Ingress>
+          <BodyShort>Prøv å justere søket eller filteret for å finne det du leter etter</BodyShort>
+          <Button
+            variant="tertiary"
+            onClick={() => {
+              setFilter(RESET);
+              forcePrepopulerFilter(true);
+            }}
+          >
+            Tilbakestill filter
+          </Button>
+        </>
       </Feilmelding>
     );
   }
