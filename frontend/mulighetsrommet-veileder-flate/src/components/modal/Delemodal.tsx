@@ -22,7 +22,6 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const handleSend = () => {
     setVerdi(startText);
     setMeldingSendt(true);
-    //toast.info('Takk for din tilbakemelding!');
   };
   const clickSend = () => {
     //setModalOpen();
