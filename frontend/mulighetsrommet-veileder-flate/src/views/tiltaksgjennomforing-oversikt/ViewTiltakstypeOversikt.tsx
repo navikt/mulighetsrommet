@@ -1,8 +1,7 @@
 import React from 'react';
-import { Tag, Button, Alert } from '@navikt/ds-react';
+import { Alert, Button, Tag } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { ENABLE_ARBEIDSFLATE, useFeatureToggles } from '../../core/api/feature-toggles';
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
@@ -11,7 +10,6 @@ import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
-import FakeDoor from '../../components/fakedoor/FakeDoor';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
@@ -45,75 +43,62 @@ const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
-  const features = useFeatureToggles();
-  const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
   const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
     gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
 
-  if (features.isLoading) {
-    // Passer på at vi ikke flash-viser løsningen før vi har hentet toggle for fake-door
-    return null;
-  }
-
   return (
-    <>
-      {!enableArbeidsflate ? (
-        <FakeDoor />
-      ) : (
-        <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
-          <Filtermeny />
-          <div className="filtercontainer">
-            <div className="filtertags" data-testid="filtertags">
-              <BrukersOppfolgingsenhet />
-              <FilterTags
-                options={filter.innsatsgrupper!}
-                handleClick={(id: string) => {
-                  setFilter({
-                    ...filter,
-                    innsatsgrupper: [...filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id)],
-                  });
-                }}
-              />
-              <FilterTags
-                options={filter.tiltakstyper!}
-                handleClick={(id: string) =>
-                  setFilter({
-                    ...filter,
-                    tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
-                  })
-                }
-              />
-              <SearchFieldTag />
-            </div>
-            <Show
-              if={
-                filter.innsatsgrupper.length === 0 ||
-                filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
-                filter.search !== '' ||
-                filter.tiltakstyper.length > 0
-              }
-            >
-              <div className="tilbakestill-filter-knapp">
-                <Button
-                  size="small"
-                  variant="secondary"
-                  onClick={() => {
-                    setFilter(RESET);
-                    forcePrepopulerFilter(true);
-                  }}
-                  data-testid="knapp_tilbakestill-filter"
-                >
-                  Tilbakestill filter
-                </Button>
-              </div>
-            </Show>
-          </div>
-          <div className="tiltakstype-oversikt__tiltak">
-            <TiltaksgjennomforingsTabell />
-          </div>
+    <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
+      <Filtermeny />
+      <div className="filtercontainer">
+        <div className="filtertags" data-testid="filtertags">
+          <BrukersOppfolgingsenhet />
+          <FilterTags
+            options={filter.innsatsgrupper!}
+            handleClick={(id: string) => {
+              setFilter({
+                ...filter,
+                innsatsgrupper: [...filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id)],
+              });
+            }}
+          />
+          <FilterTags
+            options={filter.tiltakstyper!}
+            handleClick={(id: string) =>
+              setFilter({
+                ...filter,
+                tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
+              })
+            }
+          />
+          <SearchFieldTag />
         </div>
-      )}
-    </>
+        <Show
+          if={
+            filter.innsatsgrupper.length === 0 ||
+            filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
+            filter.search !== '' ||
+            filter.tiltakstyper.length > 0
+          }
+        >
+          <div className="tilbakestill-filter-knapp">
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() => {
+                setFilter(RESET);
+                forcePrepopulerFilter(true);
+              }}
+              data-testid="knapp_tilbakestill-filter"
+            >
+              Tilbakestill filter
+            </Button>
+          </div>
+        </Show>
+      </div>
+      <div className="tiltakstype-oversikt__tiltak">
+        <TiltaksgjennomforingsTabell />
+      </div>
+    </div>
   );
 };
 

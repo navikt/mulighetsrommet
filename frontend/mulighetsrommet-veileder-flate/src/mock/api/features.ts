@@ -1,4 +1,4 @@
-import { Features, ENABLE_ARBEIDSFLATE, FEEDBACK } from '../../core/api/feature-toggles';
+import { ENABLE_ARBEIDSFLATE, Features, FEEDBACK } from '../../core/api/feature-toggles';
 
 export const mockFeatures: Features = {
   [ENABLE_ARBEIDSFLATE]: true,
