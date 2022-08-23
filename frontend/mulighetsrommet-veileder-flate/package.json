@@ -62,7 +62,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
-    "@vitejs/plugin-react": "^2.0.0",
+    "@vitejs/plugin-react": "^2.0.1",
     "babel-polyfill": "^6.26.0",
     "browserslist": "^4.21.2",
     "cross-env": "^7.0.3",
@@ -84,7 +84,7 @@
     "rimraf": "^3.0.2",
     "rollup-plugin-visualizer": "^5.7.1",
     "typescript": "^4.7.4",
-    "vite": "^2.9.14",
+    "vite": "^3.0.9",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-require": "^1.0.1",
     "vite-plugin-svgr": "^2.2.1"
