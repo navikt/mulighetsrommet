@@ -29,10 +29,10 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: /mulighetsrommet-api/alerts-api.yaml
+          RESOURCE: mulighetsrommet-api/alerts-api.yaml
       - name: deploy to prod
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: /mulighetsrommet-api/alerts-api.yaml
+          RESOURCE: mulighetsrommet-api/alerts-api.yaml
