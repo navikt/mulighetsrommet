@@ -1,5 +1,6 @@
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
 import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../core/atoms/atoms';
@@ -7,6 +8,7 @@ import { tiltaksgjennomforingsfilter } from '../core/atoms/atoms';
 export function usePrepopulerFilter() {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
+  useErrorHandler(brukerdata?.error);
   const { data: innsatsgrupper } = useInnsatsgrupper();
   const data = brukerdata?.data;
 

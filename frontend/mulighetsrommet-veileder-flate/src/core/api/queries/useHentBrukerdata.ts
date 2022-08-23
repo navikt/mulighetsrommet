@@ -7,7 +7,7 @@ export function useHentBrukerdata() {
   const fnr = useHentFnrFraUrl();
   if (!fnr) return undefined;
 
-  return useQuery<Bruker>([QueryKeys.Brukerdata, fnr], () => MulighetsrommetService.getBrukerdata({ fnr }), {
+  return useQuery<Bruker, Error>([QueryKeys.Brukerdata, fnr], () => MulighetsrommetService.getBrukerdata({ fnr }), {
     enabled: !!fnr, // Ikke kjør spørringen hvis vi ikke har et fnr
   });
 }
