@@ -2,6 +2,7 @@ import React from 'react';
 import './Deleknapp.less';
 import { Button } from '@navikt/ds-react';
 import classNames from 'classnames';
+import { DELING_MED_BRUKER, useFeatureToggles } from "../../core/api/feature-toggles";
 
 interface DeleknappProps {
   children: React.ReactNode;
@@ -12,7 +13,10 @@ interface DeleknappProps {
 }
 
 const Deleknapp = ({ children, ariaLabel, className, handleClick, dataTestId }: DeleknappProps) => {
-  return (
+  const features = useFeatureToggles();
+  const visDeleknapp = features.isSuccess && features.data[DELING_MED_BRUKER];
+
+  return (visDeleknapp &&
     <Button
       onClick={handleClick}
       variant="tertiary"
