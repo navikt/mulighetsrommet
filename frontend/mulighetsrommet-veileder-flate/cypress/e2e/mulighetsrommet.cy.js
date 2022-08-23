@@ -17,7 +17,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Filtrer på Innsatsgrupper', () => {
     cy.velgFilter('standardinnsats');
 
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
     cy.wait(1000);
@@ -26,7 +26,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     });
 
     cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
-    cy.getByTestId('filtertags').children().should('have.length', 1);
+    cy.getByTestId('filtertags').children().should('have.length', 2);
   });
 
   it('Filtrer på Tiltakstyper', () => {
@@ -34,7 +34,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.velgFilter('avklaring');
     cy.velgFilter('oppfolging');
 
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.getByTestId('filtertags').children().should('have.length', 4);
 
     cy.wait(1000)
       .getByTestId('antall-tiltak')
@@ -103,7 +103,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it('Sjekk UU', () => {
-    cy.checkA11y({ exclude: ['.navds-tooltip'] });
+    cy.checkPageA11y();
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
@@ -123,7 +123,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
 
   it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
     // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
-    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
     cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
     cy.getByTestId('filtertags').children().should('have.length', 2);
     cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
