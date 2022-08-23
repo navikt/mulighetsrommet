@@ -11,7 +11,7 @@ metadata:
 spec:
   receivers:
     slack:
-      channel: "team-valp-feil"
+      channel: "#team-valp-feil"
       # <!here> results in a @here message in Slack
       prependText: "<!here> | "
   alerts:
