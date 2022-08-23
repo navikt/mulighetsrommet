@@ -45,8 +45,6 @@ const ViewTiltakstypeOversikt = () => {
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
   useErrorHandler(brukerdata?.error);
-  const features = useFeatureToggles();
-  const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
   const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
     gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
 
