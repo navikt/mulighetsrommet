@@ -15,8 +15,8 @@ export interface Features {
 
 export const initialFeatures: Features = {
   [ENABLE_ARBEIDSFLATE]: false,
-  [FEEDBACK]: true,
   [DELING_MED_BRUKER]: false,
+  [FEEDBACK]: false,
 };
 
 const toggles = ALL_TOGGLES.map(element => 'feature=' + element).join('&');
