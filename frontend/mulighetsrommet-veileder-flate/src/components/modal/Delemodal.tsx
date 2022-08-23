@@ -14,8 +14,25 @@ interface DelemodalProps {
   chattekst: string;
 }
 
+const defaults = { nonTextBehavior: 'remove' };
+
+function blocksToText(blocks: any, opts = {}) {
+  const options = Object.assign({}, defaults, opts);
+  return blocks
+    .map((block: any) => {
+      if (block._type !== 'block' || !block.children) {
+        return options.nonTextBehavior === 'remove' ? '' : `[${block._type} block]`;
+      }
+
+      return block.children.map((child: any) => child.text).join('');
+    })
+    .join('\n\n');
+}
+
 const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
-  const startText = 'Hei, ' + brukerNavn + '!\n' + chattekst;
+  const startText = blocksToText(chattekst)
+    .replace('<Fornavn>', brukerNavn)
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
   const [verdi, setVerdi] = useState(startText);
   const [meldingSendt, setMeldingSendt] = useState(false);
 
@@ -23,18 +40,18 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
     setVerdi(startText);
     setMeldingSendt(true);
   };
+
   const clickSend = () => {
-    //setModalOpen();
     handleSend();
   };
 
   const clickCancel = () => {
     setModalOpen();
     setVerdi(startText);
+    setMeldingSendt(false);
   };
 
-  const gaTilDialogen = () => {
-  };
+  const gaTilDialogen = () => {};
 
   return (
     <Modal
@@ -75,9 +92,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
           <Heading spacing level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
-          <BodyLong>
-            Du kan fortsette dialogen om dette tiltaket i dialogen.
-          </BodyLong>
+          <BodyLong>Du kan fortsette dialogen om dette tiltaket i dialogen.</BodyLong>
           <div className="modal_btngroup">
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
               Lukk
@@ -90,33 +105,5 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
       )}
     </Modal>
   );
-  /*
-    return (
-      <StandardModal
-        className="delemodal"
-        modalOpen={modalOpen}
-        setModalOpen={() => {
-          setModalOpen();
-          setVerdi(startText);
-        }}
-        heading={'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
-        handleForm={handleSend}
-        handleCancel={() => setVerdi(startText)}
-        shouldCloseOnOverlayClick={false}
-        btnText="Send via dialogen"
-      >
-        <BodyLong>
-          Kandidatene blir varslet på SMS/e-post, og kan se informasjon om tiltaket på i aktivitetsplanen på Ditt NAV.
-        </BodyLong>
-        <Textarea
-          value={verdi}
-          onChange={e => setVerdi(e.target.value)}
-          label=""
-          minRows={5}
-          data-testid="textarea_tilbakemelding"
-        />
-      </StandardModal>
-    );
-    */
 };
 export default Delemodal;

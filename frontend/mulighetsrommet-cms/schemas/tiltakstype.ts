@@ -63,9 +63,9 @@ export default {
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
     },
     {
-      name: "chattekst",
-      title: "Tekst til å dele med bruker i chat",
-      type: "string",
+      name: "delingMedBruker",
+      title: "Informasjon til å dele med bruker",
+      type: "blockContent",
     },
   ],
   preview: {
