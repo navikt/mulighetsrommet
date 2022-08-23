@@ -1,4 +1,4 @@
-name: Deploy alerts to NAIS for Mulighetsrommet-api
+name: Deploy alerts to NAIS for Mulighetsrommet-arena-adapter
 on:
   push:
     branches:
