@@ -4,6 +4,9 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import vitePluginRequire from 'vite-plugin-require';
 
 export default defineConfig({
+  server: {
+    port: 3000,
+  },
   plugins: [
     react(),
     vitePluginRequire(),
