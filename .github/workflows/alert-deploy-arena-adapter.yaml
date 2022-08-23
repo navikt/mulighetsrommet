@@ -4,18 +4,8 @@ on:
     branches:
       - main
     paths:
-      - alerts-arena-adapter.yaml
       - mulighetsrommet-arena-adapter/alerts-arena-adapter.yaml
       - .github/workflows/alert-deploy-arena-adapter.yaml
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Environment
-        required: true
-        default: prod
-        options:
-          - prod
 
 jobs:
   apply-alerts:

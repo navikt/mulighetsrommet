@@ -4,18 +4,8 @@ on:
     branches:
       - main
     paths:
-      - alerts-api.yaml
       - mulighetsrommet-api/alerts-api.yaml
       - .github/workflows/alert-deploy-api.yaml
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Environment
-        required: true
-        default: prod
-        options:
-          - prod
 
 jobs:
   apply-alerts:
