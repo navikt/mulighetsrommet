@@ -20,7 +20,8 @@ on:
           - dev_and_prod
 
 env:
-  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate:${{ github.sha }}
+  IMAGE_DEV: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-dev:${{ github.sha }}
+  IMAGE_PROD: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-prod:${{ github.sha }}
   CI: true
   TZ: Europe/Amsterdam
 
@@ -78,8 +79,8 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE} .
-          docker push ${IMAGE}
+          docker build -t ${IMAGE_DEV} .
+          docker push ${IMAGE_DEV}
 
   deploy-dev:
     name: Deploy (dev)
@@ -93,7 +94,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ env.IMAGE_DEV }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml      
 
   build-and-test:
@@ -149,13 +150,13 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE} .
-          docker push ${IMAGE}
+          docker build -t ${IMAGE_PROD} .
+          docker push ${IMAGE_PROD}
 
   deploy-prod:
     name: Deploy (prod)
     runs-on: ubuntu-latest
-    needs: [ build-and-test ]
+    needs: [ deploy-dev, build-and-test ]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - uses: actions/checkout@v3
@@ -164,5 +165,5 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ env.IMAGE_PROD }}
           VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
