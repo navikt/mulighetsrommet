@@ -32,7 +32,6 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
       },
       regelverkLenker[]->,
       innsatsgruppe->,
-      chattekst
     }
   }[0]`);
 }
