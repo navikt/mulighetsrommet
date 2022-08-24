@@ -1,14 +1,14 @@
-import { Modal } from '@navikt/ds-react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import {BodyShort, Ingress, Modal} from '@navikt/ds-react';
+import {ErrorBoundary} from 'react-error-boundary';
+import {QueryClient, QueryClientProvider} from 'react-query';
+import {ReactQueryDevtools} from 'react-query/devtools';
+import {BrowserRouter as Router} from 'react-router-dom';
+import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.less';
 import Feedback from './components/feedback/Feedback';
-import { Feilmelding } from './components/feilmelding/Feilmelding';
-import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
+import {Feilmelding} from './components/feilmelding/Feilmelding';
+import {APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER} from './constants';
 import RoutesConfig from './RoutesConfig';
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
@@ -18,34 +18,38 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWind
 
 function ErrorFallback({ error }: any) {
   let feilmelding = (
-    <p>
+    <BodyShort>
       Vi er ikke helt sikre på hva som gikk falt. Du kan gå tilbake, eller{' '}
       <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401">ta kontakt i Porten</a> hvis du trenger
       hjelp.
-    </p>
+    </BodyShort>
   );
 
   if (error.status === 404) {
     feilmelding = (
-      <p>Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg hit.</p>
+      <BodyShort>
+        Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg hit.
+      </BodyShort>
     );
   }
 
   if (error.status === 401 || error.status === 403) {
     feilmelding = (
-      <p>Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis problemene vedvarer</p>
+      <BodyShort>
+        Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis problemene vedvarer
+      </BodyShort>
     );
   }
 
   return (
     <Feilmelding>
-      <p>
-        <b>
+      <>
+        <Ingress>
           Noe gikk galt - Statuskode: {error.status} {error.statusText}
-        </b>
-      </p>
-      {feilmelding}
-      <a href="/">Tilbake til forsiden</a>
+        </Ingress>
+        {feilmelding}
+        <a href="/">Tilbake til forsiden</a>
+      </>
     </Feilmelding>
   );
 }

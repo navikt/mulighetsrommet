@@ -17,7 +17,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Filtrer på Innsatsgrupper', () => {
     cy.velgFilter('standardinnsats');
 
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.getByTestId('filtertags').children().should('have.length', 4);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
     cy.wait(1000);
@@ -34,7 +34,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.velgFilter('avklaring');
     cy.velgFilter('oppfolging');
 
-    cy.getByTestId('filtertags').children().should('have.length', 4);
+    cy.getByTestId('filtertags').children().should('have.length', 5);
 
     cy.wait(1000)
       .getByTestId('antall-tiltak')
@@ -54,7 +54,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Filtrer på søkefelt', () => {
     cy.fjernFilter('situasjonsbestemt-innsats');
     cy.getByTestId('filter_sokefelt').type('AFT');
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.getByTestId('filtertags').children().should('have.length', 3);
 
     cy.wait(1000)
       .getByTestId('antall-tiltak')
@@ -62,15 +62,7 @@ describe('Tiltaksgjennomføringstabell', () => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
     cy.getByTestId('filter_sokefelt').clear();
-    cy.getByTestId('filtertags').children().should('have.length', 1);
-  });
-
-  it.skip('Sortering', () => {
-    //Tester på de forskjellige typene: string, number, date og status
-    cy.sortering('tabellheader_tiltaksnavn');
-    cy.sortering('tabellheader_tiltaksnummer');
-    cy.sortering('tabellheader_oppstartsdato');
-    cy.sortering('tabellheader_status');
+    cy.getByTestId('filtertags').children().should('have.length', 2);
   });
 
   it('Skal vise tilbakestill filter-knapp når filter utenfor normalen', () => {
@@ -83,7 +75,8 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Skal kunne navigere mellom sider via paginering', () => {
     cy.getByTestId('paginering').should('exist');
     cy.getByTestId('paginering').children().children().eq(1).should('not.have.attr', 'aria-current');
-    cy.getByTestId('paginering').children().children().eq(2).click().children().should('have.attr', 'aria-current');
+    cy.getByTestId('paginering').children().children().eq(2).click();
+    cy.getByTestId('paginering').children().children().children().eq(2).should('have.attr', 'aria-current');
   });
 });
 

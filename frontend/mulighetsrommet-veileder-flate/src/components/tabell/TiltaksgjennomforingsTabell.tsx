@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Heading, Loader, Pagination, Table } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, Heading, Ingress, Loader, Pagination, Table } from '@navikt/ds-react';
 import './Tabell.less';
 import { useAtom } from 'jotai';
 import Lenke from '../lenke/Lenke';
@@ -9,7 +9,7 @@ import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../core/api/logger';
-import { Tiltaksgjennomforing, Tilgjengelighetsstatus } from '../../core/api/models';
+import { Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
@@ -102,20 +102,20 @@ const TiltaksgjennomforingsTabell = () => {
 
   if (tiltaksgjennomforinger.length === 0) {
     return (
-      <Feilmelding>
-        <p>
-          <b>Ingen tiltaksgjennomføringer funnet</b>
-        </p>
-        <p>Prøv å justere søket eller filteret for å finne det du leter etter</p>
-        <button
-          className="button-as-link"
-          onClick={() => {
-            setFilter(RESET);
-            forcePrepopulerFilter(true);
-          }}
-        >
-          Tilbakestill filter
-        </button>
+      <Feilmelding ikonvariant="warning">
+        <>
+          <Ingress>Ingen tiltaksgjennomføringer funnet</Ingress>
+          <BodyShort>Prøv å justere søket eller filteret for å finne det du leter etter</BodyShort>
+          <Button
+            variant="tertiary"
+            onClick={() => {
+              setFilter(RESET);
+              forcePrepopulerFilter(true);
+            }}
+          >
+            Tilbakestill filter
+          </Button>
+        </>
       </Feilmelding>
     );
   }
