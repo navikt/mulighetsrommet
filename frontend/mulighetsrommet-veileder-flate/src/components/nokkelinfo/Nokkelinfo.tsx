@@ -18,10 +18,8 @@ const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
                 {nokkelinfo.tittel}
               </Heading>
               {nokkelinfo.hjelpetekst && (
-                <HelpText title="Se hvordan prosenten er regnet ut" placement="auto">
-                  <span style={{ display: 'block', textAlign: 'left', maxWidth: '400px' }}>
-                    {nokkelinfo.hjelpetekst}
-                  </span>
+                <HelpText title="Se hvordan prosenten er regnet ut" placement="right" style={{ maxWidth: '400px' }}>
+                  {nokkelinfo.hjelpetekst}
                 </HelpText>
               )}
             </div>
