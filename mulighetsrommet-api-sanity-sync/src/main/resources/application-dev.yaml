@@ -5,3 +5,4 @@ db:
   user: ${DB_SANITY_SYNC_JOB_USERNAME}
   password: ${DB_SANITY_SYNC_JOB_PASSWORD}
   maximumPoolSize: 10
+  googleCloudSqlInstance: team-mulighetsrommet-dev-a2d7:europe-north1:mulighetsrommet-api

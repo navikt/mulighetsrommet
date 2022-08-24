@@ -8,6 +8,7 @@ data class DatabaseConfig(
     val user: String,
     val password: Password,
     val maximumPoolSize: Int,
+    val googleCloudSqlInstance: String? = null
 ) {
     val jdbcUrl
         get() = "jdbc:postgresql://$host:$port/$name"
