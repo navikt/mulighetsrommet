@@ -73,19 +73,18 @@ const ViewTiltakstypeOversikt = () => {
             }
           />
           <SearchFieldTag />
-        </div>
-        <Show
-          if={
-            filter.innsatsgrupper.length === 0 ||
-            filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
-            filter.search !== '' ||
-            filter.tiltakstyper.length > 0
-          }
-        >
-          <div className="tilbakestill-filter-knapp">
+          <Show
+            if={
+              filter.innsatsgrupper.length === 0 ||
+              filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
+              filter.search !== '' ||
+              filter.tiltakstyper.length > 0
+            }
+          >
             <Button
               size="small"
-              variant="secondary"
+              variant="tertiary"
+              className="tilbakestill-filter-knapp"
               onClick={() => {
                 setFilter(RESET);
                 forcePrepopulerFilter(true);
@@ -94,8 +93,8 @@ const ViewTiltakstypeOversikt = () => {
             >
               Tilbakestill filter
             </Button>
-          </div>
-        </Show>
+          </Show>
+        </div>
       </div>
       <div className="tiltakstype-oversikt__tiltak">
         <TiltaksgjennomforingsTabell />

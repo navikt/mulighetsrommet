@@ -25,4 +25,12 @@
       line-height: unset;
     }
   }
+
+  .navds-popover__content {
+    max-width: 400px;
+  }
+
+  .navds-popover__arrow::before { // Bugfix pga. feil i ds-react
+    display: none;
+  }
 }
