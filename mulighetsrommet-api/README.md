@@ -9,6 +9,7 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [`mulighetsrommet-api`](#mulighetsrommet-api)
 - [Innhold](#innhold)
 - [<a name="teknologier"></a>Teknologier](#teknologier)
+- [<a name="overvaking"></a>Overvåking og alarmer](#overvåking-og-alarmer)
 - [<a name="kom-i-gang"></a>Kom i gang](#kom-i-gang)
   - [<a name="forutsetninger"></a>Forutsetninger](#forutsetninger)
     - [JDK 11](#jdk-11)
@@ -27,6 +28,13 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [**MocKK**](https://mockk.io/)
 - [**Flyway**](https://flywaydb.org/)
 - [**Gradle**](https://gradle.org/)
+
+# <a name="overvaking"></a>Overvåking og alarmer
+Under `./alerts-api.yaml` ligger det alarmer definert. Disse blir deployet automatisk ved endringer via egen Github workflow som man finner under `../.github/workflows/alert-deploy-api.yaml`. 
+
+[Her kan man se en oversikt over alarmene](https://prometheus.dev-gcp.nais.io/alerts?search=mulighetsr) som er definert.
+
+[Grafana kan benyttes for å se metrikker for kjørende applikasjoner](https://grafana.nais.io/d/8W2DNq6nk/mulighetsrommet-api?orgId=1&var-datasource=prod-gcp&var-duration=15m&var-team=team-mulighetsrommet&from=now-15m&to=now)
 
 # <a name="kom-i-gang"></a>Kom i gang
 

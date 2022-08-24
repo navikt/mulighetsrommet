@@ -1,4 +1,5 @@
-.feilmelding-container {
+.mulighetsrommet-veileder-flate {
+  .feilmelding-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -7,22 +8,14 @@
     padding: 2rem;
     width: 670px;
     min-height: 180px;
-    margin: auto;
-    margin-top: 2rem;
+    margin: 2rem auto auto;
     text-align: center;
+    gap: 0.5rem;
 
-    p {
-        margin-top: 0;
-    }
-}
-
-.button-as-link {
-    border: none;
-    background: none;
-    color: var(--navds-semantic-color-interaction-primary);
-  
-    &:hover {
-        text-decoration: underline;
-        cursor: pointer;
+    svg {
+      margin-bottom: 1rem;
+      width: 3rem;
+      height: auto;
     }
   }
+}
