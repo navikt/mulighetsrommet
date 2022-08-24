@@ -1,0 +1,22 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+
+metadata:
+  name: mulighetsrommet-api-sanity-sync
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+
+spec:
+  image: {{ image }}
+  schedule: "0/1 * * * *" # Run every minute (for testing)
+  # schedule: "0 07 * * *" # Run every day at 07:00
+
+  gcp:
+    permissions:
+      - resource:
+          apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+          kind: Project
+        role: roles/cloudsql.client
+  envFrom:
+    - secret: google-sql-mulighetsrommet-api-mulighetsrommet-db-sani-e6a970e9

@@ -1,0 +1,64 @@
+name: CI/CD (mulighetsrommet-api-sanity-sync)
+
+on:
+  push:
+    paths:
+      - .github/workflows/mulighetsrommet-api-sanity-sync.yaml
+      - build.gradle.kts
+      - settings.gradle.kts
+      - common/**
+      - mulighetsrommet-api/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+
+env:
+  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api-sanity-sync:${{ github.sha }}
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mulighetsrommet-api-sanity-sync
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup backend
+        uses: ./.github/actions/setup-backend
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
+          docker build -t ${IMAGE} .
+          docker push ${IMAGE}
+
+  deploy-dev:
+    name: Deploy (dev)
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: mulighetsrommet-api-sanity-sync/.nais/nais-dev.yaml
+          VAR: image=${{ env.IMAGE }}
