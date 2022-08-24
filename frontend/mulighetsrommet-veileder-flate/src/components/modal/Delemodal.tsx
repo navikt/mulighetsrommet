@@ -41,7 +41,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
       shouldCloseOnOverlayClick={false}
       closeButton
       open={modalOpen}
-      onClose={setModalOpen}
+      onClose={clickCancel}
       className={classNames('mulighetsrommet-veileder-flate__modal', 'delemodal')}
       aria-label="modal"
     >
