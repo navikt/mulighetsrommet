@@ -8,7 +8,10 @@ data class DatabaseConfig(
     val user: String,
     val password: Password,
     val maximumPoolSize: Int,
-)
+) {
+    val jdbcUrl
+        get() = "jdbc:postgresql://$host:$port/$name"
+}
 
 @JvmInline
 value class Password(val value: String) {

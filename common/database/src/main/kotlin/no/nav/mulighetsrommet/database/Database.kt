@@ -20,11 +20,9 @@ class Database(config: DatabaseConfig) {
         get() = sessionOf(dataSource)
 
     init {
-        val jdbcUrl = "jdbc:postgresql://${config.host}:${config.port}/${config.name}"
-
         flyway = Flyway
             .configure()
-            .dataSource(jdbcUrl, config.user, config.password.value)
+            .dataSource(config.jdbcUrl, config.user, config.password.value)
             .apply {
                 config.schema?.let { schemas(it) }
             }
@@ -32,16 +30,18 @@ class Database(config: DatabaseConfig) {
 
         flyway.migrate()
 
-        val hikariConfig = HikariConfig()
-        hikariConfig.jdbcUrl = jdbcUrl
-        config.schema?.let { hikariConfig.schema = config.schema }
-        hikariConfig.driverClassName = "org.postgresql.Driver"
-        hikariConfig.username = config.user
-        hikariConfig.password = config.password.value
-        hikariConfig.maximumPoolSize = config.maximumPoolSize
-        hikariConfig.healthCheckRegistry = HealthCheckRegistry()
-        hikariConfig.validate()
-
+        val hikariConfig = HikariConfig().apply {
+            jdbcUrl = config.jdbcUrl
+            config.schema?.let {
+                schema = config.schema
+            }
+            driverClassName = "org.postgresql.Driver"
+            username = config.user
+            password = config.password.value
+            maximumPoolSize = config.maximumPoolSize
+            healthCheckRegistry = HealthCheckRegistry()
+            validate()
+        }
         dataSource = HikariDataSource(hikariConfig)
     }
 
