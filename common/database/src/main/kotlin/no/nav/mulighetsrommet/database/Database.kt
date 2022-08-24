@@ -10,11 +10,12 @@ import kotliquery.sessionOf
 import kotliquery.using
 import org.flywaydb.core.Flyway
 import java.sql.Array
+import javax.sql.DataSource
 
 class Database(config: DatabaseConfig) {
     private val flyway: Flyway
 
-    val dataSource: HikariDataSource
+    private val dataSource: HikariDataSource
 
     private val session: Session
         get() = sessionOf(dataSource)
@@ -43,6 +44,10 @@ class Database(config: DatabaseConfig) {
             validate()
         }
         dataSource = HikariDataSource(hikariConfig)
+    }
+
+    fun getDatasource(): DataSource {
+        return dataSource
     }
 
     fun clean() {

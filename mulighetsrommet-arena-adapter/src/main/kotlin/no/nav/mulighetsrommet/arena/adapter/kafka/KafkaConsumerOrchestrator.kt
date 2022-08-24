@@ -36,7 +36,7 @@ class KafkaConsumerOrchestrator(
 
         val kafkaConsumerRepository = KafkaConsumerRepository(db)
         val consumerTopicsConfig = configureConsumersTopics(kafkaConsumerRepository)
-        val lockProvider = JdbcLockProvider(db.dataSource)
+        val lockProvider = JdbcLockProvider(db.getDatasource())
 
         consumerClients = mutableMapOf()
         consumerTopicsConfig.forEach {
