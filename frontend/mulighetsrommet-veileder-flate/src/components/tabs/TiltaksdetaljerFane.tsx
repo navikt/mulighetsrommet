@@ -36,7 +36,7 @@ const TiltaksdetaljerFane = () => {
         setFane(value);
       }}
     >
-      <Tabs.List loop className="fane__liste">
+      <Tabs.List className="fane__liste">
         {faneoverskrifter.map((fane, index) => (
           <Tabs.Tab
             key={index}
