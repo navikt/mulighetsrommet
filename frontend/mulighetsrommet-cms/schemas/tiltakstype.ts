@@ -65,7 +65,7 @@ export default {
     {
       name: "delingMedBruker",
       title: "Informasjon til å dele med bruker",
-      type: "blockContent",
+      type: "text",
     },
   ],
   preview: {

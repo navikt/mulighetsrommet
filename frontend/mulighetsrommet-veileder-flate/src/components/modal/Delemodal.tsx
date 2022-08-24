@@ -1,38 +1,21 @@
-import HelpText, { Button, Heading, Modal, Textarea } from '@navikt/ds-react';
+import { Button, Heading, Modal, Textarea } from '@navikt/ds-react';
 import React, { useState } from 'react';
 import './modal.less';
-import StandardModal from './StandardModal';
 import { BodyLong } from '@navikt/ds-react';
 import classNames from 'classnames';
-import ModalContent from '@navikt/ds-react/esm/modal/ModalContent';
 
 interface DelemodalProps {
   modalOpen: boolean;
   setModalOpen: () => void;
-  tiltaksgjennomforingsnavn: string;
-  brukerNavn: string;
+  tiltaksgjennomforingsnavn?: string;
+  brukerNavn?: string;
   chattekst: string;
 }
 
-const defaults = { nonTextBehavior: 'remove' };
-
-function blocksToText(blocks: any, opts = {}) {
-  const options = Object.assign({}, defaults, opts);
-  return blocks
-    .map((block: any) => {
-      if (block._type !== 'block' || !block.children) {
-        return options.nonTextBehavior === 'remove' ? '' : `[${block._type} block]`;
-      }
-
-      return block.children.map((child: any) => child.text).join('');
-    })
-    .join('\n\n');
-}
-
 const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
-  const startText = blocksToText(chattekst)
-    .replace('<Fornavn>', brukerNavn)
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
+  const startText = chattekst
+    .replace('<Fornavn>', brukerNavn ?? '')
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn ?? '');
   const [verdi, setVerdi] = useState(startText);
   const [meldingSendt, setMeldingSendt] = useState(false);
 

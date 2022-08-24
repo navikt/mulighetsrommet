@@ -38,7 +38,7 @@ export interface Tiltakstype {
     pameldingOgVarighet?: object;
   };
   forskningsrapport?: Forskningsrapport[];
-  delingMedBruker?: object;
+  delingMedBruker?: string;
 }
 
 export interface Forskningsrapport {
