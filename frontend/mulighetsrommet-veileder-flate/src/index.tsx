@@ -5,15 +5,13 @@ import { createRoot } from 'react-dom/client';
 import { headers, toRecord } from './core/api/headers';
 import App from './App';
 import { APPLICATION_NAME } from './constants';
+import { initializeMockWorker } from "./mock/worker";
 
 OpenAPI.HEADERS = toRecord(headers);
 
 OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
 
-if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
-  const worker = require('./mock/worker');
-  worker.start();
-}
+initializeMockWorker()
 
 Navspa.eksporter(APPLICATION_NAME, App);
 
