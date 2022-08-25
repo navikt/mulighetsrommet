@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_VEILARBPERSONFLATE_MOCK=true vite",
     "build": "eslint && tsc && VITE_ENVIRONMENT=production VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.intern.nav.no/",
     "build:preprod": "eslint && tsc && VITE_ENVIRONMENT=dev VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build --base=https://mulighetsrommet-veileder-flate.dev.intern.nav.no/",
-    "build:mock": "eslint && tsc && cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite build",
+    "build:mock": "eslint && tsc && cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_VEILARBPERSONFLATE_MOCK=true vite build",
     "clean": "rimraf build",
     "cy:run": "npx cypress run --e2e",
     "cypress": "npx cypress open",
     "lint": "eslint src --ext .js,.ts,.tsx",
     "prettier": "prettier --write 'src/**/*.ts{,x}'",
     "serve": "vite preview",
-    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true vite"
+    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true VITE_VEILARBPERSONFLATE_MOCK=true vite"
   },
   "browserslist": [
     ">0.2%",
