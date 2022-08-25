@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
-import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import java.time.LocalDateTime
 
@@ -12,7 +12,7 @@ class TiltakstypeServiceTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = DatabaseListener(createDatabaseConfigWithRandomSchema())
+    val listener = FlywayDatabaseListener(createDatabaseConfigWithRandomSchema())
 
     register(listener)
 

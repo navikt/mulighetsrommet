@@ -1,100 +1,26 @@
 package no.nav.mulighetsrommet.database
 
-import com.codahale.metrics.health.HealthCheckRegistry
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.action.*
-import kotliquery.sessionOf
-import kotliquery.using
-import org.flywaydb.core.Flyway
 import java.sql.Array
+import javax.sql.DataSource
 
-class Database(config: DatabaseConfig) {
-    private val flyway: Flyway
+interface Database {
+    fun getDatasource(): DataSource
 
-    val dataSource: HikariDataSource
+    fun isHealthy(): Boolean
 
-    private val session: Session
-        get() = sessionOf(dataSource)
+    fun createArrayOf(arrayType: String, list: Collection<Any>): Array
 
-    init {
-        val jdbcUrl = "jdbc:postgresql://${config.host}:${config.port}/${config.name}"
+    fun <T> run(query: NullableResultQueryAction<T>): T?
 
-        flyway = Flyway
-            .configure()
-            .dataSource(jdbcUrl, config.user, config.password.value)
-            .apply {
-                config.schema?.let { schemas(it) }
-            }
-            .load()
+    fun <T> run(query: ListResultQueryAction<T>): List<T>
 
-        flyway.migrate()
+    fun run(query: ExecuteQueryAction): Boolean
 
-        val hikariConfig = HikariConfig()
-        hikariConfig.jdbcUrl = jdbcUrl
-        config.schema?.let { hikariConfig.schema = config.schema }
-        hikariConfig.driverClassName = "org.postgresql.Driver"
-        hikariConfig.username = config.user
-        hikariConfig.password = config.password.value
-        hikariConfig.maximumPoolSize = config.maximumPoolSize
-        hikariConfig.healthCheckRegistry = HealthCheckRegistry()
-        hikariConfig.validate()
+    fun run(query: UpdateQueryAction): Int
 
-        dataSource = HikariDataSource(hikariConfig)
-    }
+    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long?
 
-    fun clean() {
-        flyway.clean()
-    }
-
-    fun isHealthy(): Boolean {
-        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)
-            ?.runHealthChecks()
-            ?.all { it.value.isHealthy }
-            ?: false
-    }
-
-    fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
-        return using(session) {
-            it.createArrayOf(arrayType, list)
-        }
-    }
-
-    fun <T> run(query: NullableResultQueryAction<T>): T? {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    fun <T> run(query: ListResultQueryAction<T>): List<T> {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    fun run(query: ExecuteQueryAction): Boolean {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    fun run(query: UpdateQueryAction): Int {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    fun <T> transaction(operation: (TransactionalSession) -> T): T {
-        return using(session) {
-            it.transaction(operation)
-        }
-    }
+    fun <T> transaction(operation: (TransactionalSession) -> T): T
 }

@@ -1,0 +1,23 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+
+metadata:
+  name: mulighetsrommet-api-sanity-sync
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+
+spec:
+  image: {{ image }}
+  # At every 30th minute past every hour from 7 through 18. https://crontab.guru/#*/30_7-18_*_*_*
+  schedule: "*/30 7-18 * * *"
+
+  gcp:
+    permissions:
+      - resource:
+          apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+          kind: Project
+        role: roles/cloudsql.client
+  envFrom:
+    - secret: TODO
+    - secret: mulighetsrommet-api-sanity-sync

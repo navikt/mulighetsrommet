@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
-import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
@@ -18,7 +18,7 @@ class ArenaServiceTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = DatabaseListener(createDatabaseConfigWithRandomSchema())
+    val listener = FlywayDatabaseListener(createDatabaseConfigWithRandomSchema())
 
     register(listener)
 
@@ -56,7 +56,7 @@ class ArenaServiceTest : FunSpec({
         )
 
         test("upsert tiltakstype") {
-            val table = Table(listener.db.dataSource, "tiltakstype")
+            val table = Table(listener.db.getDatasource(), "tiltakstype")
 
             service.upsertTiltakstype(tiltakstype)
             service.upsertTiltakstype(tiltakstype.copy(innsatsgruppe = 2))
@@ -67,7 +67,7 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("upsert tiltaksgjennomføring") {
-            val table = Table(listener.db.dataSource, "tiltaksgjennomforing")
+            val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
 
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
@@ -78,7 +78,7 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("upsert deltaker") {
-            val table = Table(listener.db.dataSource, "deltaker")
+            val table = Table(listener.db.getDatasource(), "deltaker")
 
             service.upsertDeltaker(deltaker)
             service.upsertDeltaker(deltaker.copy(status = Deltakerstatus.DELTAR))
@@ -89,7 +89,7 @@ class ArenaServiceTest : FunSpec({
         }
 
         context("update tiltaksgjennomføring with sak") {
-            val table = Table(listener.db.dataSource, "tiltaksgjennomforing")
+            val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
             test("should update tiltaksnummer when sak references tiltaksgjennomføring") {
                 service.updateTiltaksgjennomforingWithSak(sak)
 
