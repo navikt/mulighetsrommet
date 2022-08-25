@@ -1,6 +1,6 @@
 import { Button, Heading, Modal, Textarea } from '@navikt/ds-react';
 import React, { useState } from 'react';
-import './modal.less';
+import './delemodal.less';
 import { BodyLong } from '@navikt/ds-react';
 import classNames from 'classnames';
 
@@ -22,10 +22,6 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const handleSend = () => {
     setVerdi(startText);
     setMeldingSendt(true);
-  };
-
-  const clickSend = () => {
-    handleSend();
   };
 
   const clickCancel = () => {
@@ -61,7 +57,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             data-testid="textarea_tilbakemelding"
           />
           <div className="modal_btngroup">
-            <Button onClick={clickSend} data-testid="modal_btn-send">
+            <Button onClick={handleSend} data-testid="modal_btn-send">
               Send via dialogen
             </Button>
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
