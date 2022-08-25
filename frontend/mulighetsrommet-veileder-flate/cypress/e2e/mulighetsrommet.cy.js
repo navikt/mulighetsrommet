@@ -116,6 +116,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
 
   it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
     // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
     cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
     cy.getByTestId('filtertags').children().should('have.length', 2);
     cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
@@ -123,6 +124,16 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
       expect($value.text()).to.eq('Situasjonsbestemt innsats');
     });
+  });
+
+  it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
+    cy.getByTestId('filter_checkbox_standardinnsats').click();
+    cy.getByTestId('filtertags').children().should('have.length', 4);
+    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
+    cy.tilbakeTilListevisning();
+    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
+    cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
+    cy.getByTestId('filtertags').children().should('have.length', 4);
   });
 
   it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
