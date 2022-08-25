@@ -1,4 +1,4 @@
-import { Button, Heading, Modal, Textarea } from '@navikt/ds-react';
+import { Detail, Button, Heading, Modal, Textarea } from '@navikt/ds-react';
 import React, { useState } from 'react';
 import './delemodal.less';
 import { BodyLong } from '@navikt/ds-react';
@@ -71,7 +71,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
           <Heading spacing level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
-          <BodyLong>Du kan fortsette dialogen om dette tiltaket i dialogen.</BodyLong>
+          <Detail>Du kan fortsette dialogen om dette tiltaket i dialogen.</Detail>
           <div className="modal_btngroup">
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
               Lukk
