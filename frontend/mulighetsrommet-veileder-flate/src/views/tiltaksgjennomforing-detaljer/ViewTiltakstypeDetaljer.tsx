@@ -60,7 +60,7 @@ const ViewTiltakstypeDetaljer = () => {
         modalOpen={delemodalApen}
         setModalOpen={() => setDelemodalApen(false)}
         tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
-        brukerNavn={brukerdata?.data?.fornavn ?? ""}
+        brukerNavn={brukerdata?.data?.fornavn ?? ''}
         chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
       />
     </div>

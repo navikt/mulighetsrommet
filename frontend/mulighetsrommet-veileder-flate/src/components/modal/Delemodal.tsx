@@ -7,15 +7,15 @@ import classNames from 'classnames';
 interface DelemodalProps {
   modalOpen: boolean;
   setModalOpen: () => void;
-  tiltaksgjennomforingsnavn?: string;
-  brukerNavn?: string;
+  tiltaksgjennomforingsnavn: string;
+  brukerNavn: string;
   chattekst: string;
 }
 
 const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
   const startText = chattekst
-    .replace('<Fornavn>', brukerNavn ?? '')
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn ?? '');
+    .replace('<Fornavn>', brukerNavn)
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
   const [verdi, setVerdi] = useState(startText);
   const [meldingSendt, setMeldingSendt] = useState(false);
 
