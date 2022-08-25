@@ -1,5 +1,4 @@
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
 import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
 import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
@@ -8,15 +7,8 @@ import { tiltaksgjennomforingsfilter } from '../core/atoms/atoms';
 export function usePrepopulerFilter() {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
-  useErrorHandler(brukerdata?.error);
   const { data: innsatsgrupper } = useInnsatsgrupper();
-  const data = brukerdata?.data;
-
-  useEffect(() => {
-    if (data && innsatsgrupper) {
-      forcePrepopulerFilter(false);
-    }
-  }, [data, innsatsgrupper]);
+  useErrorHandler(brukerdata?.error);
 
   function forcePrepopulerFilter(resetFilterTilUtgangspunkt: boolean) {
     const matchedInnsatsgruppe = innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe);
@@ -25,10 +17,7 @@ export function usePrepopulerFilter() {
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;
       const innsatsgrupper = resetFilterTilUtgangspunkt
         ? [{ id: matchedInnsatsgruppe._id, ...matchedInnsatsgruppe }]
-        : [
-            ...filter.innsatsgrupper.filter(gruppe => gruppe.id !== matchedInnsatsgruppe._id),
-            { id: matchedInnsatsgruppe._id, ...matchedInnsatsgruppe },
-          ];
+        : [...filter.innsatsgrupper.filter(gruppe => gruppe.id !== matchedInnsatsgruppe._id)];
       setFilter({
         search,
         tiltakstyper,
