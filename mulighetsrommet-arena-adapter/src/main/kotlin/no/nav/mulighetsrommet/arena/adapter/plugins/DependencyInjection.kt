@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.services.TopicService
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import org.koin.core.module.Module
@@ -52,7 +53,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
 }
 
 private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
-    single { FlywayDatabaseAdapter(databaseConfig) }
+    single<Database> { FlywayDatabaseAdapter(databaseConfig) }
 }
 
 private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
