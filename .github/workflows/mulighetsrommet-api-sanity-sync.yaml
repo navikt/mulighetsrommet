@@ -7,7 +7,7 @@ on:
       - build.gradle.kts
       - settings.gradle.kts
       - common/**
-      - mulighetsrommet-api/**
+      - mulighetsrommet-api-sanity-sync/**
   workflow_dispatch:
     inputs:
       environment:
@@ -17,6 +17,7 @@ on:
         default: dev
         options:
           - dev
+          - dev_and_prod
 
 env:
   IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api-sanity-sync:${{ github.sha }}
@@ -61,4 +62,20 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api-sanity-sync/.nais/nais-dev.yaml
+          VAR: image=${{ env.IMAGE }}
+
+  deploy-prod:
+    name: Deploy (prod)
+    runs-on: ubuntu-latest
+    needs: [build-and-test, deploy-dev]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: mulighetsrommet-api-sanity-sync/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}
