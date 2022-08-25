@@ -118,6 +118,7 @@ export default {
         list: [
           { title: "Dato", value: "dato" },
           { title: "Løpende", value: "lopende" },
+          { title: "Midlertidig stengt", value: "midlertidig_stengt" },
         ],
       },
       validation: (Rule: Rule) => Rule.required(),
@@ -158,7 +159,7 @@ export default {
           { title: "Venteliste", value: "Venteliste" },
           { title: "Stengt", value: "Stengt" },
         ],
-      }
+      },
     },
   ],
   preview: {

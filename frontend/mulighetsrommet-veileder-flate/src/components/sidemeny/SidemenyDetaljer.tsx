@@ -53,6 +53,8 @@ const SidemenyDetaljer = () => {
 };
 
 function resolveOppstart({ oppstart, oppstartsdato }: Tiltaksgjennomforing) {
+  if (oppstart === 'midlertidig_stengt') return 'Midlertidig stengt';
+
   return oppstart === 'dato' && oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende';
 }
 

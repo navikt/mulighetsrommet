@@ -15,6 +15,7 @@ type Innsatsgrupper =
   | 'Varig tilpasset innsats';
 
 export type Tilgjengelighetsstatus = 'Apent' | 'Venteliste' | 'Stengt';
+export type Oppstart = 'dato' | 'lopende' | 'midlertidig_stengt';
 
 export interface Tiltakstype {
   _id: string;
@@ -57,7 +58,7 @@ export interface Tiltaksgjennomforing {
   tiltaksnummer: number;
   kontaktinfoArrangor: Arrangor;
   lokasjon: string;
-  oppstart: string;
+  oppstart: Oppstart;
   oppstartsdato?: string;
   faneinnhold?: {
     forHvemInfoboks?: string;

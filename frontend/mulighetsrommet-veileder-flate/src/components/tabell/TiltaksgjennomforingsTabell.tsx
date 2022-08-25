@@ -9,7 +9,7 @@ import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
 import { logEvent } from '../../core/api/logger';
-import { Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
+import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
@@ -34,7 +34,16 @@ const TiltaksgjennomforingsTabell = () => {
     }
   }, [tiltaksgjennomforinger]);
 
-  const visStatus = (status?: Tilgjengelighetsstatus) => {
+  const visStatus = (oppstart: Oppstart, status?: Tilgjengelighetsstatus) => {
+    if (oppstart === 'midlertidig_stengt') {
+      return (
+        <div className="tabell__tilgjengelighetsstatus">
+          <img src={StatusRod} alt="Rødt sirkelikon" />
+          <div>Midlertidig stengt</div>
+        </div>
+      );
+    }
+
     if (status === 'Apent' || !status) {
       return (
         <div className="tabell__tilgjengelighetsstatus">
@@ -56,6 +65,21 @@ const TiltaksgjennomforingsTabell = () => {
           <div>Venteliste</div>
         </div>
       );
+    }
+  };
+
+  const visOppstartsdato = (oppstart: Oppstart, oppstartsdato?: string) => {
+    switch (oppstart) {
+      case 'dato':
+        return new Date(oppstartsdato!).toLocaleString('no-NO', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+      case 'lopende':
+        return 'Løpende';
+      case 'midlertidig_stengt':
+        return 'Midlertidig stengt';
     }
   };
 
@@ -231,16 +255,8 @@ const TiltaksgjennomforingsTabell = () => {
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                 <Table.DataCell>{lokasjon}</Table.DataCell>
-                <Table.DataCell>
-                  {oppstart === 'dato'
-                    ? new Date(oppstartsdato!).toLocaleString('no-NO', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                      })
-                    : 'Løpende'}
-                </Table.DataCell>
-                <Table.DataCell>{visStatus(tilgjengelighetsstatus)}</Table.DataCell>
+                <Table.DataCell>{visOppstartsdato(oppstart, oppstartsdato)}</Table.DataCell>
+                <Table.DataCell>{visStatus(oppstart, tilgjengelighetsstatus)} </Table.DataCell>
               </Table.Row>
             )
           )}
