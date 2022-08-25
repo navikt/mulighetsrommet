@@ -20,3 +20,4 @@ spec:
         role: roles/cloudsql.client
   envFrom:
     - secret: google-sql-mulighetsrommet-api-mulighetsrommet-db-sani-e6a970e9
+    - secret: mulighetsrommet-api-sanity-sync
