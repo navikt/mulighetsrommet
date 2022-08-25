@@ -30,6 +30,7 @@ function BrukersOppfolgingsenhet() {
       variant={brukersOppfolgingsenhet ? 'info' : 'error'}
       size="small"
       data-testid={`${kebabCase('filtertag_navenhet')}`}
+      title="Brukers oppfølgingsenhet"
     >
       {brukersOppfolgingsenhet}
     </Tag>
