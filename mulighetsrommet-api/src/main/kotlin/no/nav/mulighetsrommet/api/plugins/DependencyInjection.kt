@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import org.koin.core.module.Module
@@ -33,7 +34,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
 private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
-        single { FlywayDatabaseAdapter(databaseConfig) }
+        single<Database> { FlywayDatabaseAdapter(databaseConfig) }
     }
 }
 
