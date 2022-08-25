@@ -7,7 +7,7 @@ interface FeilmeldingProps {
   ikonvariant?: string;
 }
 
-export function Feilmelding({ children, ikonvariant }: FeilmeldingProps) {
+export const Feilmelding = ({ children, ikonvariant }: FeilmeldingProps) => {
   const ikon = () => {
     if (ikonvariant === 'info') {
       return <InformationColored />;
@@ -17,10 +17,11 @@ export function Feilmelding({ children, ikonvariant }: FeilmeldingProps) {
       return <ErrorColored />;
     }
   };
+
   return (
     <div data-testid="feilmelding-container" aria-live="assertive" className="feilmelding-container">
       {ikon()}
       {children}
     </div>
   );
-}
+};

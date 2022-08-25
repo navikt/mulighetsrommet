@@ -14,6 +14,7 @@ import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
 import { useErrorHandler } from 'react-error-boundary';
+import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 
 function BrukersOppfolgingsenhet() {
   const brukerdata = useHentBrukerdata();
@@ -44,7 +45,10 @@ const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
+  const innsatsgrupper = useInnsatsgrupper();
+
   useErrorHandler(brukerdata?.error);
+
   const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
     gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
 
@@ -75,10 +79,11 @@ const ViewTiltakstypeOversikt = () => {
           <SearchFieldTag />
           <Show
             if={
-              filter.innsatsgrupper.length === 0 ||
-              filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
-              filter.search !== '' ||
-              filter.tiltakstyper.length > 0
+              !innsatsgrupper.isLoading &&
+              (filter.innsatsgrupper.length === 0 ||
+                filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
+                filter.search !== '' ||
+                filter.tiltakstyper.length > 0)
             }
           >
             <Button
