@@ -3,11 +3,7 @@ import { rest, RestHandler } from 'msw';
 import { badReq, ok } from './responses';
 import { mockFeatures } from './features';
 
-export const handlers: RestHandler[] = [
-  rest.get('*/api/feature', (req, res, ctx) => {
-    return res(ctx.delay(500), ctx.json(mockFeatures));
-  }),
-
+export const apiHandlers: RestHandler[] = [
   rest.get('*/api/v1/bruker/:fnr', (req, res, ctx) => {
     const { fnr } = req.params;
     return ok({
@@ -17,6 +13,7 @@ export const handlers: RestHandler[] = [
         navn: 'NAV Fredrikstad',
         enhetId: '0106',
       },
+      fornavn: 'Iherdig',
     });
   }),
 
