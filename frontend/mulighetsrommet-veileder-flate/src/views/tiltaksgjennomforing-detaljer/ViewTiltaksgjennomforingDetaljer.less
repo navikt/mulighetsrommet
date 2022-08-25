@@ -20,6 +20,9 @@
     &__sidemeny {
       height: fit-content;
       margin-top: 3rem;
+      grid-row-start: 1;
+      grid-row-end: 3;
+      grid-column: 2;
     }
     &__regelverk {
       display: grid;
@@ -38,6 +41,9 @@
         grid-row: 2;
         margin-top: 0;
         padding: 2rem;
+        grid-row-start: initial;
+        grid-row-end: initial;
+        grid-column: initial;
       }
       &__rad:not(:last-child) {
         margin-bottom: 2rem;
