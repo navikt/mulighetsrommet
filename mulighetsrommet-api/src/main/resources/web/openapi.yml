@@ -262,12 +262,12 @@ components:
     Tiltakstype:
       type: object
       required:
-        - _id
+        - id
         - innsatsgruppe
         - navn
         - tiltakskode
       properties:
-        _id:
+        id:
           type: integer
         innsatsgruppe:
           type: number
@@ -280,7 +280,7 @@ components:
     Tiltaksgjennomforing:
       type: object
       properties:
-        _id:
+        id:
           type: integer
         navn:
           type: string
@@ -293,11 +293,11 @@ components:
         tilgjenglighet:
           type: string
           enum:
-            - ApentForInnsok
+            - Ledig
             - Venteliste
             - Stengt
       required:
-        - _id
+        - id
         - navn
         - tiltakskode
         - tiltaksnummer
@@ -421,9 +421,12 @@ components:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
           type: "#/components/schemas/Oppfolgingsenhet"
+        fornavn:
+          type: string
       required:
         - fnr
         - oppfolgingsenhet
+
     Innsatsgruppe:
       type: string
       enum:
