@@ -14,7 +14,7 @@ type Innsatsgrupper =
   | 'Spesielt tilpasset innsats'
   | 'Varig tilpasset innsats';
 
-export type Tilgjengelighetsstatus = 'Apent' | 'Venteliste' | 'Stengt';
+export type Tilgjengelighetsstatus = 'Ledig' | 'Venteliste' | 'Stengt';
 export type Oppstart = 'dato' | 'lopende' | 'midlertidig_stengt';
 
 export interface Tiltakstype {

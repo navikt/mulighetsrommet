@@ -44,7 +44,7 @@ const TiltaksgjennomforingsTabell = () => {
       );
     }
 
-    if (status === 'Apent' || !status) {
+    if (status === 'Ledig' || !status) {
       return (
         <div className="tabell__tilgjengelighetsstatus">
           <img src={StatusGronn} alt="Grønt sirkelikon" />
