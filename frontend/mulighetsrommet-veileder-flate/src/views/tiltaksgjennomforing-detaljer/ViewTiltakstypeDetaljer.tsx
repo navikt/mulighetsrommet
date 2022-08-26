@@ -11,7 +11,7 @@ import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksn
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import Deleknapp from '../../components/knapper/Deleknapp';
 import Delemodal from '../../components/modal/Delemodal';
-import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 

@@ -9,7 +9,8 @@ export default function useSisteStatistikkFil() {
         "statistikkFilUrl": statistikkfilopplastning.asset->url,
         
 }[0]`,
-    true,
-    true
+    {
+      includeUserdata: false,
+    }
   );
 }

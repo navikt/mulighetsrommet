@@ -35,7 +35,8 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
       innsatsgruppe->,
     }
   }[0]`,
-    true,
-    true
+    {
+      includeUserdata: false,
+    }
   );
 }
