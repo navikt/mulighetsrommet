@@ -28,6 +28,7 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
     private val jsonDecoder = Json {
         ignoreUnknownKeys = true
     }
+    private val fylkenummerCache = mutableMapOf<String?, String>()
 
     init {
         logger.debug("Init SanityHttpClient")
@@ -66,14 +67,21 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String {
-        val response =
-            get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
+        if (fylkenummerCache[enhetsId] != null) {
+            return fylkenummerCache[enhetsId] ?: ""
+        }
+
+        val response = get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
 
         log.info("Hentet data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 
         return try {
             val fylkeResponse = response?.let { jsonDecoder.decodeFromJsonElement<FylkeResponse>(it) }
-            fylkeResponse?.fylke?.nummer?.current ?: ""
+            val fylkeNummer = fylkeResponse?.fylke?.nummer?.current ?: ""
+            if (fylkeNummer != "" && enhetsId != null) {
+                fylkenummerCache[enhetsId] = fylkeNummer
+            }
+            fylkeNummer
         } catch (exception: Exception) {
             ""
         }
