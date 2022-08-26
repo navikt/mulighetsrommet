@@ -9,4 +9,5 @@ export type Bruker = {
     fnr: string;
     innsatsgruppe?: Innsatsgruppe;
     oppfolgingsenhet: Oppfolgingsenhet;
+    fornavn?: string;
 };

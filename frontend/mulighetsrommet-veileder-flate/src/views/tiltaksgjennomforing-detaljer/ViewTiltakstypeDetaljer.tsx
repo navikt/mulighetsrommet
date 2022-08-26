@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ViewTiltaksgjennomforingDetaljer.less';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
@@ -9,6 +9,9 @@ import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTi
 import { Alert, Loader } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import Deleknapp from '../../components/knapper/Deleknapp';
+import Delemodal from '../../components/modal/Delemodal';
+import { useHentBrukerdata } from "../../core/api/queries/useHentBrukerdata";
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 
@@ -17,6 +20,12 @@ const ViewTiltakstypeDetaljer = () => {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
+  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
+  const brukerdata = useHentBrukerdata();
+
+  const handleClickApneModal = () => {
+    setDelemodalApen(true);
+  };
 
   if (isLoading) {
     return <Loader className="filter-loader" size="xlarge" />;
@@ -40,8 +49,20 @@ const ViewTiltakstypeDetaljer = () => {
           <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
         )}
       </div>
-      <SidemenyDetaljer />
+      <div>
+        <SidemenyDetaljer />
+        <Deleknapp ariaLabel={'Dele'} handleClick={handleClickApneModal}>
+          Del med bruker
+        </Deleknapp>
+      </div>
       <TiltaksdetaljerFane />
+      <Delemodal
+        modalOpen={delemodalApen}
+        setModalOpen={() => setDelemodalApen(false)}
+        tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
+        brukerNavn={brukerdata?.data?.fornavn ?? ''}
+        chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
+      />
     </div>
   );
 };

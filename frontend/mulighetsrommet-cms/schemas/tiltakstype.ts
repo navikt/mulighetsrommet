@@ -62,6 +62,11 @@ export default {
       type: "array",
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
     },
+    {
+      name: "delingMedBruker",
+      title: "Informasjon til å dele med bruker",
+      type: "text",
+    },
   ],
   preview: {
     select: {

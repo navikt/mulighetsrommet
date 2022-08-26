@@ -26,6 +26,10 @@ app:
     url: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
     scope: api://dev-fss.pto.veilarboppfolging/.default
 
+  veilarbpersonConfig:
+    url: https://veilarbperson.dev-fss-pub.nais.io/veilarbperson/api
+    scope: api://dev-fss.pto.veilarbperson/.default
+
   sanity:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}

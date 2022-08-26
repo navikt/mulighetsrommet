@@ -8,6 +8,8 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
+import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
+import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.services.*
@@ -27,7 +29,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
-            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig))
+            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig), veilarbperson(appConfig))
         )
     }
 }
@@ -56,6 +58,15 @@ private fun veilarboppfolging(config: AppConfig): VeilarboppfolgingClient {
     )
 }
 
+private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
+    return VeilarbpersonClientImpl(
+        config.veilarbpersonConfig.url,
+        tokenClientProvider(config),
+        config.veilarbpersonConfig.scope,
+        config.veilarbpersonConfig.httpClient
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -70,7 +81,8 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
 private fun services(
     appConfig: AppConfig,
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
-    veilarboppfolging: VeilarboppfolgingClient
+    veilarboppfolging: VeilarboppfolgingClient,
+    veilarbpersonClient: VeilarbpersonClient,
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
@@ -80,7 +92,8 @@ private fun services(
     single {
         BrukerService(
             veilarboppfolgingClient = veilarboppfolging,
-            veilarbvedtaksstotteClient = veilarbvedsstotte
+            veilarbvedtaksstotteClient = veilarbvedsstotte,
+            veilarbpersonClient = veilarbpersonClient
         )
     }
 }

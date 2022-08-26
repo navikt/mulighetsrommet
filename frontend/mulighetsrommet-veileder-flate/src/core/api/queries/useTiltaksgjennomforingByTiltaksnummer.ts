@@ -31,7 +31,7 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
         regelverkFilNavn
       },
       regelverkLenker[]->,
-      innsatsgruppe->
+      innsatsgruppe->,
     }
   }[0]`);
 }

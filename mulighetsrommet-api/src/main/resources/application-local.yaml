@@ -26,6 +26,10 @@ app:
     url: http://localhost:8090
     scope: default
 
+  veilarbpersonConfig:
+    url: http://localhost:8090
+    scope: default
+
   sanity:
     dataset: test
     projectId: ${SANITY_PROJECT_ID}

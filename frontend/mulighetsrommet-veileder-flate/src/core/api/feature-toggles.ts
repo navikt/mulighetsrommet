@@ -3,16 +3,19 @@ import { useQuery } from 'react-query';
 
 export const ENABLE_ARBEIDSFLATE = 'mulighetsrommet.enable-arbeidsflate';
 export const FEEDBACK = 'mulighetsrommet.feedback';
+export const DELING_MED_BRUKER = 'mulighetsrommet.deling-med-bruker';
 
-export const ALL_TOGGLES = [ENABLE_ARBEIDSFLATE, FEEDBACK];
+export const ALL_TOGGLES = [ENABLE_ARBEIDSFLATE, FEEDBACK, DELING_MED_BRUKER];
 
 export interface Features {
   [ENABLE_ARBEIDSFLATE]: boolean;
   [FEEDBACK]: boolean;
+  [DELING_MED_BRUKER]: boolean;
 }
 
 export const initialFeatures: Features = {
   [ENABLE_ARBEIDSFLATE]: false,
+  [DELING_MED_BRUKER]: false,
   [FEEDBACK]: false,
 };
 
