@@ -18,7 +18,10 @@ fun Route.sanityRoutes() {
             val query = call.request.queryParameters["query"]
                 ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
             log.debug("Query sanity with value: $query")
-            val fnr = call.request.queryParameters["fnr"]
+            val fnr = when (call.request.queryParameters["fnr"]) {
+                "undefined" -> null // Dersom fnr er 'undefined' så trenger vi ikke verdien og det gjør spørringer mot Sanity raskere
+                else -> call.request.queryParameters["fnr"]
+            }
             val accessToken = call.getAccessToken()
 
             val result = sanityService.executeQuery(query, fnr, accessToken)

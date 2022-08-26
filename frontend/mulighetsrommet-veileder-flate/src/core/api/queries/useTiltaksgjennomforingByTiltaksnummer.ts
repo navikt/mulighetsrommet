@@ -5,7 +5,8 @@ import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforingByTiltaksnummer() {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
-  return useSanity<Tiltaksgjennomforing>(groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) && tiltaksnummer == ${tiltaksnummer}] {
+  return useSanity<Tiltaksgjennomforing>(
+    groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) && tiltaksnummer == ${tiltaksnummer}] {
     _id,
     tiltaksgjennomforingNavn,
     beskrivelse,
@@ -33,5 +34,8 @@ export default function useTiltaksgjennomforingByTiltaksnummer() {
       regelverkLenker[]->,
       innsatsgruppe->
     }
-  }[0]`);
+  }[0]`,
+    true,
+    true
+  );
 }
