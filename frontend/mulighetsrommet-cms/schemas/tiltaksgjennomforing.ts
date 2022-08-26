@@ -152,10 +152,13 @@ export default {
     {
       name: "tilgjengelighetsstatus",
       title: "Tilgjengelighetsstatus",
+      description:
+        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives her i Sanity.",
+      readOnly: true,
       type: "string",
       options: {
         list: [
-          { title: "Åpent", value: "Apent" },
+          { title: "Åpent", value: "Ledig" },
           { title: "Venteliste", value: "Venteliste" },
           { title: "Stengt", value: "Stengt" },
         ],
