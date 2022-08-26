@@ -33,7 +33,7 @@ class VeilarbvedtaksstotteClientImpl(
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
             }.body<VedtakDTO>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente siste 14A-vedtak: {}", exe.message, exe)
+            log.error("Klarte ikke hente siste 14A-vedtak")
             null
         }
     }
