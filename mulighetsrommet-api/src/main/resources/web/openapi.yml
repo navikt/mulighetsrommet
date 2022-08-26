@@ -5,11 +5,11 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
 
-  /api/v1/bruker/{fnr}:
+  /api/v1/bruker:
     parameters:
       - $ref: "#/components/parameters/Fnr"
     get:
@@ -249,7 +249,7 @@ components:
         $ref: "#/components/schemas/Tiltakskode"
     Fnr:
       name: fnr
-      in: path
+      in: query
       description: Fødselsnummer
       required: true
       schema:

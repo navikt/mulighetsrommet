@@ -12,8 +12,8 @@ fun Route.brukerRoutes() {
     val brukerService: BrukerService by inject()
 
     route("/api/v1/bruker") {
-        get("{fnr}") {
-            val fnr = call.parameters["fnr"] ?: return@get call.respondText(
+        get {
+            val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest
             )

@@ -1,6 +1,6 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  "baseBranch": "origin/dev",
+  "baseBranch": "origin/main",
   "pipeline": {
     "build": {
       "dependsOn": [
@@ -8,6 +8,9 @@
         "$VITE_MULIGHETSROMMET_API_MOCK",
         "$VITE_MULIGHETSROMMET_API_BASE"
       ]
+    },
+    "mulighetsrommet-api-client#build": {
+      "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
     "build:mock": {
       "dependsOn": ["^build"]
