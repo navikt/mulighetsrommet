@@ -14,6 +14,8 @@ import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/at
 import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -24,6 +26,8 @@ const TiltaksgjennomforingsTabell = () => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const brukerdata = useHentBrukerdata();
+  const innsatsgrupper = useInnsatsgrupper();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
 
@@ -134,7 +138,7 @@ const TiltaksgjennomforingsTabell = () => {
             variant="tertiary"
             onClick={() => {
               setFilter(RESET);
-              forcePrepopulerFilter(true);
+              forcePrepopulerFilter(true, innsatsgrupper.data, brukerdata.data);
             }}
           >
             Tilbakestill filter

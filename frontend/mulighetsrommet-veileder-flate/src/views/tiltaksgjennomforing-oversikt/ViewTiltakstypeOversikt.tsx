@@ -93,7 +93,7 @@ const ViewTiltakstypeOversikt = () => {
               className="tilbakestill-filter-knapp"
               onClick={() => {
                 setFilter(RESET);
-                forcePrepopulerFilter(true);
+                forcePrepopulerFilter(true, innsatsgrupper.data!, brukerdata.data!);
               }}
               data-testid="knapp_tilbakestill-filter"
             >

@@ -5,15 +5,15 @@ import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
 import { usePrepopulerFilter } from './usePrepopulerFilter';
 
 export function useInitialBrukerfilter() {
-  const brukerdata = useHentBrukerdata();
+  const maybeBrukerdata = useHentBrukerdata();
   const { forcePrepopulerFilter } = usePrepopulerFilter();
-  useErrorHandler(brukerdata?.error);
+  useErrorHandler(maybeBrukerdata?.error);
   const { data: innsatsgrupper } = useInnsatsgrupper();
-  const data = brukerdata?.data;
+  const brukerdata = maybeBrukerdata?.data;
 
   useEffect(() => {
-    if (data && innsatsgrupper) {
-      forcePrepopulerFilter(true);
+    if (brukerdata && innsatsgrupper) {
+      forcePrepopulerFilter(true, innsatsgrupper, brukerdata);
     }
-  }, [data, innsatsgrupper]);
+  }, [brukerdata, innsatsgrupper]);
 }
