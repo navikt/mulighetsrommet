@@ -4,8 +4,13 @@ import { badReq, ok } from './responses';
 import { mockFeatures } from './features';
 
 export const apiHandlers: RestHandler[] = [
-  rest.get('*/api/v1/bruker/:fnr', (req, res, ctx) => {
-    const { fnr } = req.params;
+  rest.get('*/api/v1/bruker', (req, res, ctx) => {
+    const fnr = req.url.searchParams.get('fnr');
+
+    if (typeof fnr !== 'string') {
+      return badReq("'fnr' must be specified");
+    }
+
     return ok({
       fnr,
       innsatsgruppe: 'SITUASJONSBESTEMT_INNSATS',
