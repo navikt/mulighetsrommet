@@ -5,7 +5,7 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseConfigWithRandomSchema
-import no.nav.mulighetsrommet.database.kotest.extensions.DatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
@@ -19,7 +19,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = DatabaseListener(createDatabaseConfigWithRandomSchema())
+    val listener = FlywayDatabaseListener(createDatabaseConfigWithRandomSchema())
 
     register(listener)
 
