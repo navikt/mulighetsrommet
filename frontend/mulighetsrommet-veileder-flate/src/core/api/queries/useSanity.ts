@@ -5,19 +5,31 @@ import useDebounce from '../../../hooks/useDebounce';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { useErrorHandler } from 'react-error-boundary';
 
+interface Options {
+  enabled?: boolean;
+  includeUserdata?: boolean;
+}
+
 /**
  *
- * @param query The Groq-query
- * @param enabled Wether to run the query or not
- * @param withoutUserdata If the query don't depend on user data, then you can set this value to true and save some time fetching your data
+ * @param query The Groq query to Sanity
+ * @param options Use the options.enabled to decide wether to fetch or not. Use options.includeUserdata for queries dependent on user data
  * @returns
  */
-export function useSanity<T>(query: string, enabled: boolean = true, withoutUserdata = false) {
+export function useSanity<T>(
+  query: string,
+  options: Options = {
+    enabled: true,
+    includeUserdata: true,
+  }
+) {
+  const { enabled = true, includeUserdata = true } = options;
   const debouncedQuery = useDebounce(query, 300);
   const fnr = useHentFnrFraUrl();
-  const fnrValue = withoutUserdata ? undefined : fnr;
+  const fnrValue = includeUserdata ? fnr : undefined;
+
   const hook = useQuery(
-    [QueryKeys.SanityQuery, debouncedQuery, fnr],
+    [QueryKeys.SanityQuery, debouncedQuery, fnr, options],
     () => MulighetsrommetService.sanityQuery({ query: debouncedQuery, fnr: fnrValue }) as Promise<T>,
     {
       enabled: !!enabled,
