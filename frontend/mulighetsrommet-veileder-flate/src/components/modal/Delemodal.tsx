@@ -47,7 +47,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
           </Heading>
           <BodyLong>
-            Kandidatene blir varslet på SMS/e-post, og kan se informasjon om tiltaket på i aktivitetsplanen på Ditt NAV.
+            Kandidatene blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Ditt NAV.
           </BodyLong>
           <Textarea
             value={verdi}
