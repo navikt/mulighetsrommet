@@ -4,15 +4,12 @@ info:
   version: 1.0.0
   title: Mulighetsrommet API
 
-servers:
-  - url: /api/v1
-
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
 
-  /bruker/{fnr}:
+  /api/v1/bruker/{fnr}:
     parameters:
       - $ref: "#/components/parameters/Fnr"
     get:
@@ -33,7 +30,7 @@ paths:
               schema:
                 type: string
 
-  /innsatsgrupper:
+  /api/v1/innsatsgrupper:
     get:
       tags:
         - Innsatsgrupper
@@ -48,7 +45,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Innsatsgruppe"
 
-  /logger/event:
+  /api/v1/logger/event:
     post:
       tags:
         - mulighetsrommet
@@ -72,7 +69,7 @@ paths:
               schema:
                 type: string
 
-  /tiltaksgjennomforinger:
+  /api/v1/tiltaksgjennomforinger:
     get:
       tags:
         - Tiltaksgjennomføringer
@@ -109,7 +106,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Tiltaksgjennomforing"
 
-  /tiltaksgjennomforinger/{id}:
+  /api/v1/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -130,7 +127,7 @@ paths:
               schema:
                 type: string
 
-  /tiltakstyper:
+  /api/v1/tiltakstyper:
     get:
       tags:
         - Tiltakstyper
@@ -160,7 +157,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Tiltakstype"
 
-  /tiltakstyper/{tiltakskode}:
+  /api/v1/tiltakstyper/{tiltakskode}:
     get:
       tags:
         - Tiltakstyper
@@ -181,7 +178,7 @@ paths:
               schema:
                 type: string
 
-  /tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
+  /api/v1/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
     parameters:
       - $ref: "#/components/parameters/Tiltakskode"
     get:
@@ -204,7 +201,7 @@ paths:
               schema:
                 type: string
 
-  /sanity:
+  /api/v1/sanity:
     get:
       tags:
         - mulighetsrommet
@@ -262,12 +259,12 @@ components:
     Tiltakstype:
       type: object
       required:
-        - _id
+        - id
         - innsatsgruppe
         - navn
         - tiltakskode
       properties:
-        _id:
+        id:
           type: integer
         innsatsgruppe:
           type: number
@@ -280,7 +277,7 @@ components:
     Tiltaksgjennomforing:
       type: object
       properties:
-        _id:
+        id:
           type: integer
         navn:
           type: string
@@ -293,11 +290,11 @@ components:
         tilgjenglighet:
           type: string
           enum:
-            - ApentForInnsok
+            - Ledig
             - Venteliste
             - Stengt
       required:
-        - _id
+        - id
         - navn
         - tiltakskode
         - tiltaksnummer
@@ -421,9 +418,12 @@ components:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
           type: "#/components/schemas/Oppfolgingsenhet"
+        fornavn:
+          type: string
       required:
         - fnr
         - oppfolgingsenhet
+
     Innsatsgruppe:
       type: string
       enum:
