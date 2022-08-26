@@ -111,8 +111,7 @@ fun Route.arenaRoutes() {
                 val sak = call.receive<AdapterSak>()
                 arenaService.unsetSakOnTiltaksgjennomforing(sak)
             }.onSuccess {
-                val status = if (it != null) HttpStatusCode.OK else HttpStatusCode.NotFound
-                call.response.status(status)
+                call.response.status(HttpStatusCode.OK)
             }.onFailure {
                 logError(logger, it)
                 call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)

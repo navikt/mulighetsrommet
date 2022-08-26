@@ -23,7 +23,6 @@ class ArenaServiceTest : FunSpec({
     register(listener)
 
     context("ArenaService") {
-
         val service = ArenaService(listener.db)
 
         val tiltakstype = AdapterTiltak(
@@ -89,8 +88,9 @@ class ArenaServiceTest : FunSpec({
         }
 
         context("update tiltaksgjennomføring with sak") {
-            val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
             test("should update tiltaksnummer when sak references tiltaksgjennomføring") {
+                val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
+
                 service.updateTiltaksgjennomforingWithSak(sak)
 
                 assertThat(table).row(0)
@@ -98,9 +98,20 @@ class ArenaServiceTest : FunSpec({
                     .column("tiltaksnummer").value().isEqualTo(3)
             }
 
+            test("should unset tiltaksnummer") {
+                val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
+
+                service.unsetSakOnTiltaksgjennomforing(sak)
+
+                assertThat(table).row(0)
+                    .column("id").value().isEqualTo(1)
+                    .column("tiltaksnummer").value().isNull
+                    .column("aar").value().isNull
+            }
+
             test("should not do an update when the sak does not reference any tiltaksgjennomføring") {
-                val notUpdated = service.updateTiltaksgjennomforingWithSak(sak.copy(id = 999))
-                notUpdated shouldBe null
+                service.updateTiltaksgjennomforingWithSak(sak.copy(id = 999)) shouldBe null
+                service.unsetSakOnTiltaksgjennomforing(sak.copy(id = 999)) shouldBe null
             }
         }
     }
