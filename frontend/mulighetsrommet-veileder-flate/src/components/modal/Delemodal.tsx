@@ -58,7 +58,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
           />
           <div className="modal_btngroup">
             <Button onClick={handleSend} data-testid="modal_btn-send">
-              Send via dialogen
+              Send via Dialogen
             </Button>
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
               Avbryt
@@ -71,13 +71,13 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
           <Heading spacing level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
-          <Detail>Du kan fortsette dialogen om dette tiltaket i dialogen.</Detail>
+          <Detail>Du kan fortsette dialogen om dette tiltaket i Dialogen.</Detail>
           <div className="modal_btngroup">
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
               Lukk
             </Button>
             <Button variant="tertiary" onClick={gaTilDialogen} data-testid="modal_btn-cancel">
-              Gå til dialogen
+              Gå til Dialogen
             </Button>
           </div>
         </Modal.Content>
