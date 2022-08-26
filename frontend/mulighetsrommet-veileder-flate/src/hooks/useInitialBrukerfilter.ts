@@ -4,7 +4,7 @@ import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
 import { useInnsatsgrupper } from '../core/api/queries/useInnsatsgrupper';
 import { usePrepopulerFilter } from './usePrepopulerFilter';
 
-export function useInitialBrukerfilter() {
+export function useInitialBrukerfilter(fnr: string) {
   const brukerdata = useHentBrukerdata();
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   useErrorHandler(brukerdata?.error);
@@ -15,5 +15,5 @@ export function useInitialBrukerfilter() {
     if (data?.innsatsgruppe?.length !== 0 && innsatsgrupper) {
       forcePrepopulerFilter(true);
     }
-  }, [data, innsatsgrupper]);
+  }, [data, innsatsgrupper, fnr]);
 }

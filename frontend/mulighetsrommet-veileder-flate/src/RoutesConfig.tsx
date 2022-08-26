@@ -9,7 +9,7 @@ import ViewTiltakstypeOversikt from './views/tiltaksgjennomforing-oversikt/ViewT
 const RoutesConfig = () => {
   const fnr = useHentFnrFraUrl();
   const features = useFeatureToggles();
-  useInitialBrukerfilter();
+  useInitialBrukerfilter(fnr);
 
   const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
 
