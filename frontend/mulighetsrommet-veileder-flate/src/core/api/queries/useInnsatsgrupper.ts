@@ -4,6 +4,8 @@ import { useSanity } from './useSanity';
 
 export function useInnsatsgrupper() {
   return useSanity<Innsatsgruppe[]>(
-    groq`*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)`
+    groq`*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)`,
+    true,
+    true
   );
 }
