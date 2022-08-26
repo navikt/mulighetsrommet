@@ -12,7 +12,7 @@ export function useInitialBrukerfilter() {
   const data = brukerdata?.data;
 
   useEffect(() => {
-    if (data && innsatsgrupper) {
+    if (data?.innsatsgruppe?.length !== 0 && innsatsgrupper) {
       forcePrepopulerFilter(true);
     }
   }, [data, innsatsgrupper]);
