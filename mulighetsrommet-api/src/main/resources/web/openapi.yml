@@ -45,30 +45,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/Innsatsgruppe"
 
-  /api/v1/logger/event:
-    post:
-      tags:
-        - mulighetsrommet
-      operationId: logFrontendEvent
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FrontendEvent"
-      responses:
-        201:
-          description: "Logged frontend event"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FrontendEvent"
-        500:
-          description: "Logging to frontend failed"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/tiltaksgjennomforinger:
     get:
       tags:
