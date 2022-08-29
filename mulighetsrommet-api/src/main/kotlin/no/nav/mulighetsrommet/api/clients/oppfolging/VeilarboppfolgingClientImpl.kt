@@ -32,7 +32,7 @@ class VeilarboppfolgingClientImpl(
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
             }.body<Oppfolgingsstatus>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente oppfølgingsstatus")
+            log.error("Klarte ikke hente oppfølgingsstatus: {}", exe.message)
             null
         }
     }
