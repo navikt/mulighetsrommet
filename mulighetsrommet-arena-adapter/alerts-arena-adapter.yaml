@@ -12,7 +12,7 @@ spec:
     slack:
       channel: "#team-valp-feil"
       # <!here> results in a @here message in Slack
-      prependText: "<!here> | "
+      prependText: " | "
   alerts:
     - alert: applikasjon nede
       # Change <appname> to the name of the app you want to monitor
@@ -33,12 +33,12 @@ spec:
     - alert: Høy andel HTTP serverfeil (5xx responser)
       severity: danger
       # Change <appname> to the name of the app you want to monitor and <namespace> to the namespace of the app
-      expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^5\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])))) > 1
+      expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^5\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])))) > 10
       for: 3m
-      action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
+      action: "Sjekk loggene for for å se hvorfor {{ $labels.app }} returnerer HTTP feilresponser"
     - alert: Høy andel HTTP klientfeil (4xx responser)
       severity: warning
       # Change <appname> to the name of the app you want to monitor and <namespace> to the namespace of the app
       expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])))) > 10
       for: 3m
-      action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
+      action: "Sjekk loggene for å se hvorfor {{ $labels.app }} returnerer HTTP feilresponser"
