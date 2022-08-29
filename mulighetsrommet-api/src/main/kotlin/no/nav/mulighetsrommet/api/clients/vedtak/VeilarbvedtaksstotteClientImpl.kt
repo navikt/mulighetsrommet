@@ -34,7 +34,7 @@ class VeilarbvedtaksstotteClientImpl(
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
             }
 
-            if (response.status == HttpStatusCode.NotFound) {
+            if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
                 log.info("Fant ikke siste 14A-vedtak for bruker")
                 return null
             }
