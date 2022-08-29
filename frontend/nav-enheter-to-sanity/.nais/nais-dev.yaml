@@ -9,12 +9,21 @@ metadata:
 
 spec:
   image: {{image}}
-  schedule: "0 07 * * *" # Run every day at 07:00
-  #  schedule: "0/1 * * * *" # Run every minute (for testing)
+  # Run every day at 07:00.
+  # https://crontab.guru/#0_07_*_*_*
+  schedule: "0 07 * * *"
 
   accessPolicy:
     outbound:
       external:
         - host: norg2.dev-fss-pub.nais.io
+
+  env:
+    - name: NORG2_API_ENDPOINT
+      value: https://norg2.dev-fss-pub.nais.io/norg2
+    - name: SANITY_PROJECT_ID
+      value: xegcworx
+    - name: SANITY_DATASET
+      value: test
   envFrom:
     - secret: nav-enheter-to-sanity
