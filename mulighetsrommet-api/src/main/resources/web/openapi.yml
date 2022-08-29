@@ -180,7 +180,7 @@ paths:
   /api/v1/sanity:
     get:
       tags:
-        - mulighetsrommet
+        - Sanity
       operationId: sanityQuery
       parameters:
         - in: query
