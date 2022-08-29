@@ -22,7 +22,7 @@ class VeilarboppfolgingClientImpl(
 
     override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?): Oppfolgingsstatus? {
         return try {
-            client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
+            val response = client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                 bearerAuth(
                     veilarboppfolgingTokenProvider.exchangeOnBehalfOfToken(
                         scope,
@@ -30,7 +30,8 @@ class VeilarboppfolgingClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
-            }.body<Oppfolgingsstatus>()
+            }
+            response.body<Oppfolgingsstatus>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente oppfølgingsstatus: {}", exe.message)
             null
