@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
@@ -31,6 +32,11 @@ class VeilarbvedtaksstotteClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
+            }
+
+            if (response.status == HttpStatusCode.NotFound) {
+                log.info("Fant ikke siste 14A-vedtak for bruker")
+                return null
             }
 
             response.body<VedtakDTO>()
