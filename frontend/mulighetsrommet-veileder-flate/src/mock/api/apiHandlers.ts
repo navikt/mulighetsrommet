@@ -14,7 +14,10 @@ export const apiHandlers: RestHandler[] = [
     return ok({
       fnr,
       innsatsgruppe: 'SITUASJONSBESTEMT_INNSATS',
-      oppfolgingsenhet: null,
+      oppfolgingsenhet: {
+        navn: 'NAV Fredrikstad',
+        enhetId: '0106',
+      },
       fornavn: 'Iherdig',
     });
   }),
