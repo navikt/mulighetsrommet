@@ -5,6 +5,7 @@ import { BodyLong } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { APPLICATION_NAME } from '../../constants';
+import { useNavigate } from 'react-router-dom';
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -21,7 +22,7 @@ interface State {
   malTekst: string;
 }
 
-type Status = 'IKKE_SENDT' | 'SENDT_OK' | 'SENDER' | 'SENDING_FEILET';
+type Status = 'IKKE_SENDT' | 'SENDER' | 'SENDT_OK' | 'SENDING_FEILET';
 
 interface SEND_MELDING_ACTION {
   type: 'Send melding';
@@ -45,20 +46,32 @@ interface SENDING_FEILET_ACTION {
   type: 'Sending feilet';
 }
 
-type Actions = SEND_MELDING_ACTION | SET_TEKST_ACTION | AVBRYT_ACTION | SENDT_OK_ACTION | SENDING_FEILET_ACTION;
+interface RESET_ACTION {
+  type: 'Reset';
+}
+
+type Actions =
+  | SEND_MELDING_ACTION
+  | SET_TEKST_ACTION
+  | AVBRYT_ACTION
+  | SENDT_OK_ACTION
+  | SENDING_FEILET_ACTION
+  | RESET_ACTION;
 
 function reducer(state: State, action: Actions): State {
   switch (action.type) {
-    case 'Sending feilet':
-      return { ...state, sendtStatus: 'SENDING_FEILET' };
-    case 'Sendt ok':
-      return { ...state, sendtStatus: 'SENDT_OK', tekst: state.malTekst, dialogId: action.payload };
     case 'Avbryt':
       return { ...state, sendtStatus: 'IKKE_SENDT', tekst: state.malTekst };
     case 'Send melding':
       return { ...state, sendtStatus: 'SENDER' };
+    case 'Sendt ok':
+      return { ...state, sendtStatus: 'SENDT_OK', tekst: state.malTekst, dialogId: action.payload };
+    case 'Sending feilet':
+      return { ...state, sendtStatus: 'SENDING_FEILET' };
     case 'Sett tekst':
       return { ...state, tekst: action.payload, sendtStatus: 'IKKE_SENDT' };
+    case 'Reset':
+      return initInitialState(state.tekst);
     default:
       return state;
   }
@@ -77,10 +90,12 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const startText = chattekst.replace('<Fornavn>', brukerNavn).replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
+  const navigate = useNavigate();
 
   const handleSend = async () => {
+    dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
-    const tekst = state.tekst;
+    const { tekst } = state;
     if (fnr) {
       const res = await fetch(`/veilarbdialog/api/dialog?fnr=${fnr}`, {
         method: 'POST',
@@ -91,7 +106,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
         credentials: 'include',
         body: JSON.stringify({ overskrift, tekst }),
       });
-      dispatch({ type: 'Send melding' });
+
       if (res.ok) {
         const { id } = (await res.json()) as { id: string };
         dispatch({ type: 'Sendt ok', payload: id });
@@ -106,7 +121,10 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
     dispatch({ type: 'Avbryt' });
   };
 
-  const gaTilDialogen = () => {};
+  const gaTilDialogen = () => {
+    const origin = window.location.origin;
+    window.location.href = `${origin}/${fnr}/${state.dialogId}#visDialog`;
+  };
 
   const senderTilDialogen = state.sendtStatus === 'SENDER';
 
@@ -119,7 +137,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
       className={classNames('mulighetsrommet-veileder-flate__modal', 'delemodal')}
       aria-label="modal"
     >
-      {state.sendtStatus !== 'SENDT_OK' && (
+      {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
         <Modal.Content>
           <Heading spacing level="1" size="large" data-testid="modal_header">
             {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
@@ -138,7 +156,12 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             <Button onClick={handleSend} data-testid="modal_btn-send" disabled={senderTilDialogen}>
               {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
             </Button>
-            <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
+            <Button
+              variant="tertiary"
+              onClick={clickCancel}
+              data-testid="modal_btn-cancel"
+              disabled={senderTilDialogen}
+            >
               Avbryt
             </Button>
           </div>
@@ -156,6 +179,26 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             </Button>
             <Button variant="tertiary" onClick={gaTilDialogen} data-testid="modal_btn-cancel">
               Gå til Dialogen
+            </Button>
+          </div>
+        </Modal.Content>
+      )}
+      {state.sendtStatus === 'SENDING_FEILET' && (
+        <Modal.Content>
+          <Heading spacing level="1" size="large" data-testid="modal_header">
+            Kunne ikke sende melding via Dialogen
+          </Heading>
+          <p>
+            Vi klarte ikke dele informasjon med bruker. Det kan være fordi brukeren er under manuell oppfølging, har
+            reservert seg i <abbr title="Kontakt- og reservasjonsregisteret">KRR</abbr> eller ikke har vært logget inn
+            på NAV.no de siste 18 månedene.
+          </p>
+          <div className="modal_btngroup">
+            <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
+              Lukk
+            </Button>
+            <Button variant="tertiary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-cancel">
+              Prøv på nytt
             </Button>
           </div>
         </Modal.Content>
