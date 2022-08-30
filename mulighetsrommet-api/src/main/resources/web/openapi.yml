@@ -393,7 +393,7 @@ components:
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
-          type: "#/components/schemas/Oppfolgingsenhet"
+          $ref: "#/components/schemas/Oppfolgingsenhet"
         fornavn:
           type: string
       required:
@@ -417,19 +417,6 @@ components:
       required:
         - navn
         - enhetId
-    FrontendEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        fields:
-          type: object
-          additionalProperties: true
-        tags:
-          type: object
-          additionalProperties: true
-      required:
-        - name
 
   examples:
     Tiltakstype:
@@ -439,6 +426,13 @@ components:
         navn: "Ny tiltakstype"
         innsatsgruppe: 1
         tiltakskode: "SPA"
-        sanityId: null
-        fraDato: "2022-04-06T07:14:19.780"
-        tilDato: "2023-04-06T07:14:19.780"
+
+    Tiltaksgjennomforing:
+      summary: "Tiltaksgjennomføring eksempel"
+      value:
+        id: null
+        navn: "Ny tiltaksgjennomføring"
+        tiltakskode: "SPA"
+        tiltaksnummer: 1234
+        aar: 2022
+        tilgjenglighet: "Ledig"
