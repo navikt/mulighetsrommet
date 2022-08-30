@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 
 class MulighetsrommetApiClient(
     engine: HttpClientEngine = CIO.create(),
+    maxRetries: Int = 5,
     baseUri: String,
     private val getToken: () -> String,
 ) {
@@ -32,8 +33,12 @@ class MulighetsrommetApiClient(
                 level = LogLevel.INFO
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 5)
+                retryIf(maxRetries) { _, response ->
+                    response.status.value.let { it in 500..599 } || response.status == HttpStatusCode.Conflict
+                }
+
                 exponentialDelay()
+
                 modifyRequest {
                     response?.let {
                         logger.warn("Request failed with response status=${it.status}")
@@ -53,15 +58,22 @@ class MulighetsrommetApiClient(
         }
     }
 
-    internal suspend inline fun <reified T> sendRequest(method: HttpMethod, requestUri: String, payload: T) {
-        val response: HttpResponse = client.request(requestUri) {
+    internal suspend inline fun <reified T> sendRequest(
+        method: HttpMethod,
+        requestUri: String,
+        payload: T,
+        isValidResponse: HttpResponse.() -> Boolean = { status.isSuccess() },
+    ): HttpResponse {
+        val response = client.request(requestUri) {
             bearerAuth(getToken())
             this.method = method
             setBody(payload)
         }
 
-        if (!response.status.isSuccess()) {
-            throw Exception("Request to mulighetsrommet-api failed with ${response.status}")
+        if (!isValidResponse(response)) {
+            throw ResponseException(response, response.bodyAsText())
         }
+
+        return response
     }
 }

@@ -95,7 +95,7 @@ private fun <T> decodeRequestBody(request: HttpRequestData, kSerializer: KSerial
     return Json.decodeFromString(kSerializer, (request.body as TextContent).text)
 }
 
-fun createInsertEvent(data: String) = Json.parseToJsonElement(
+private fun createInsertEvent(data: String) = Json.parseToJsonElement(
     """{
     "op_type": "I",
     "after": $data
