@@ -86,6 +86,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
         method: 'POST',
         headers: {
           'Nav-Consumer-Id': APPLICATION_NAME,
+          'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({ overskrift, tekst }),
