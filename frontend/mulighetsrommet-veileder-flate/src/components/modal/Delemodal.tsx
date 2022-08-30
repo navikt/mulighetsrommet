@@ -82,7 +82,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const tekst = state.tekst;
     if (fnr) {
-      const res = await fetch(`veilarbdialog/api/dialog?fnr=${fnr}`, {
+      const res = await fetch(`/veilarbdialog/api/dialog?fnr=${fnr}`, {
         method: 'POST',
         headers: {
           'Nav-Consumer-Id': APPLICATION_NAME,
