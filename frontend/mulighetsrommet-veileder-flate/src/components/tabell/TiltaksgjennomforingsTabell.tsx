@@ -14,6 +14,8 @@ import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/at
 import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
+import Body from '@navikt/ds-react/esm/table/Body';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -24,6 +26,7 @@ const TiltaksgjennomforingsTabell = () => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const brukerdata = useHentBrukerdata();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
 
@@ -124,7 +127,19 @@ const TiltaksgjennomforingsTabell = () => {
     })
     .slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  if (tiltaksgjennomforinger.length === 0) {
+  if (!brukerdata?.data?.oppfolgingsenhet) {
+    return (
+      <Feilmelding ikonvariant="warning">
+        <Ingress>Kunne ikke hente brukers oppfølgingsenhet</Ingress>
+        <BodyShort>
+          Vi kunne ikke hente oppfølgingsenhet for brukeren. Kontroller at brukeren er under oppfølging og finnes i
+          Arena.
+        </BodyShort>
+      </Feilmelding>
+    );
+  }
+
+  if (tiltaksgjennomforinger.length == 0) {
     return (
       <Feilmelding ikonvariant="warning">
         <>
