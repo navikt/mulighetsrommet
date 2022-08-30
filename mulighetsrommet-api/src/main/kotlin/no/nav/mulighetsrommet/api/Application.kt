@@ -31,7 +31,7 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureWebjars()
+    configureWebjars(config.swagger)
     configureSentry(config.sentry)
 
     routing {

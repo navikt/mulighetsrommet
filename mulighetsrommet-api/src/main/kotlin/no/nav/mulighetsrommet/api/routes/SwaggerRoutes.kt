@@ -9,8 +9,7 @@ fun Route.swaggerRoutes() {
     static("static") {
         resources("web")
     }
-
     get("/swagger-ui") {
-        call.respondRedirect("/assets/swagger-ui/index.html?url=/static/openapi.yml")
+        call.respondRedirect("/assets/swagger-ui/index.html")
     }
 }

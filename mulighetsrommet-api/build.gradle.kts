@@ -88,5 +88,6 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     // OpenAPI
-    runtimeOnly("org.webjars:swagger-ui:4.11.1")
+    // PS: Hvis man oppdaterer denne må man også rename mappen til riktig versjon i resources
+    runtimeOnly("org.webjars:swagger-ui:4.14.0")
 }
