@@ -8,7 +8,7 @@ const RoutesConfig = () => {
       (
       <>
         <Route path="/" element={<ViewTiltakstypeOversikt />} />
-        <Route path=":tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
+        <Route path="tiltak/:tiltaksnummer" element={<ViewTiltakstypeDetaljer />} />
       </>
       )
     </Routes>

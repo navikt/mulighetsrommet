@@ -47,6 +47,8 @@ function App() {
             <Router>
               <Routes>
                 <Route path=":fnr/*" element={<AppWrapper />} />
+                {/* Dersom vi sender bruker til Dialogen og de trykker seg tilbake til Arbeidsmarkedstiltak så vil de ha feil url. Vi må derfor sende de til forsiden via ruten under */}
+                <Route path=":fnr/:tiltak" element={<Navigate to={`/${fnr}`} />} />
                 <Route path="*" element={<Navigate to={`${fnr}`} />}>
                   {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}
                 </Route>
