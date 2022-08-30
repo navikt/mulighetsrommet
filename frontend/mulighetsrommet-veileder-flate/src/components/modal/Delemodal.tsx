@@ -1,11 +1,9 @@
-import { Detail, Button, Heading, Modal, Textarea } from '@navikt/ds-react';
-import React, { useReducer, useState } from 'react';
-import './delemodal.less';
-import { BodyLong } from '@navikt/ds-react';
+import { BodyLong, Button, Detail, Heading, Modal, Textarea } from '@navikt/ds-react';
 import classNames from 'classnames';
-import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import { useReducer } from 'react';
 import { APPLICATION_NAME } from '../../constants';
-import { useNavigate } from 'react-router-dom';
+import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import './delemodal.less';
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -90,7 +88,6 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const startText = chattekst.replace('<Fornavn>', brukerNavn).replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
-  const navigate = useNavigate();
 
   const handleSend = async () => {
     dispatch({ type: 'Send melding' });
