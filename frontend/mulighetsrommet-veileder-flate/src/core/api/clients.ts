@@ -1,5 +1,7 @@
-import { MulighetsrommetClient } from 'mulighetsrommet-api-client';
+import { MulighetsrommetClient, OpenAPI } from 'mulighetsrommet-api-client';
+import { headers, toRecord } from './headers';
 
-export const mulighetsrommetClient = new MulighetsrommetClient({
-  BASE: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '',
-});
+OpenAPI.HEADERS = toRecord(headers);
+OpenAPI.BASE = String(import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? '');
+
+export const mulighetsrommetClient = new MulighetsrommetClient(OpenAPI);
