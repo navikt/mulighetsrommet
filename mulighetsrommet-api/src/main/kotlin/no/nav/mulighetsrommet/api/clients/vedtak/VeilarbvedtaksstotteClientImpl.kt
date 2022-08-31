@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
@@ -23,7 +24,7 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String?): VedtakDTO? {
         return try {
-            client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
+            val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
                 bearerAuth(
                     veilarbvedtaksstotteTokenProvider.exchangeOnBehalfOfToken(
                         scope,
@@ -31,9 +32,16 @@ class VeilarbvedtaksstotteClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
-            }.body<VedtakDTO>()
+            }
+
+            if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
+                log.info("Fant ikke siste 14A-vedtak for bruker")
+                return null
+            }
+
+            response.body<VedtakDTO>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente siste 14A-vedtak")
+            log.error("Klarte ikke hente siste 14A-vedtak: {}", exe.message)
             null
         }
     }
