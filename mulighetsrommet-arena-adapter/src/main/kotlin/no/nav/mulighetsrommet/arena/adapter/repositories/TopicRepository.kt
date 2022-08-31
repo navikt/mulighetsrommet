@@ -21,9 +21,6 @@ class TopicRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
-    // TODO: https://github.com/seratch/kotliquery/issues/54 - Bug med at den ikke returnerer rader
-    // Denne skal kunne returnere bare rader som har blitt oppdatert, men gitt bug over går det ikke
-    // Filterer ut det manuelt i ManagerService isteden.
     fun updateRunning(topics: List<Topic>) {
         @Language("PostgreSQL")
         val query = """
