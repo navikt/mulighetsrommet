@@ -14,3 +14,9 @@ fun createDatabaseTestSchema(
     val schema = "$port--${UUID.randomUUID()}"
     return DatabaseConfig(host, port, name, schema, user, password, 1)
 }
+
+// mulighetsrommet-arena-adapter
+fun createArenaAdapterDatabaseTestSchema() = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
+
+// mulighetsrommet-api
+fun createApiDatabaseTestSchema() = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)

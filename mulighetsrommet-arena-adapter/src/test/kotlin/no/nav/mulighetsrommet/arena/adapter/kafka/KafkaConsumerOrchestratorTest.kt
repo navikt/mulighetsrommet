@@ -15,7 +15,7 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.testcontainers.containers.KafkaContainer
@@ -28,7 +28,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
 
     lateinit var consumerProperties: Properties
     val listener =
-        FlywayDatabaseListener(createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443))
+        FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema())
     register(listener)
 
     val kafka = install(
@@ -162,4 +162,5 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
             key2.toByteArray()
         ) shouldBe true
     }
+
 })
