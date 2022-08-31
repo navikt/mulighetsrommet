@@ -7,8 +7,8 @@ import { veilarbdialogHandlers, veilarbpersonflateHandlers } from "./api/ekstern
 export function initializeMockWorker() {
   const handlers = [
     ...(import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true' ? apiHandlers : []),
-    ...(import.meta.env.VITE_VEILARBPERSONFLATE_MOCK === 'true' ? veilarbpersonflateHandlers: []),
-    ...(import.meta.env.VITE_VEILARBPERSONFLATE_MOCK === 'true' ? veilarbdialogHandlers : []),
+    ...(import.meta.env.VITE_EKSTERNE_SYSTEMER_MOCK === 'true' ? veilarbpersonflateHandlers: []),
+    ...(import.meta.env.VITE_EKSTERNE_SYSTEMER_MOCK === 'true' ? veilarbdialogHandlers : []),
   ];
   if (handlers.length !== 0) {
     const worker = setupWorker(...handlers);
