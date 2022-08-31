@@ -4,6 +4,7 @@ import { useReducer } from 'react';
 import { APPLICATION_NAME } from '../../constants';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import './delemodal.less';
+import { mulighetsrommetClient } from '../../core/api/clients';
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -100,7 +101,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const { tekst } = state;
     if (fnr) {
-      const res = await fetch(`/veilarbdialog/api/dialog?fnr=${fnr}`, {
+      /*const res = await fetch(`/veilarbdialog/api/dialog?fnr=${fnr}`, {
         method: 'POST',
         headers: {
           'Nav-Consumer-Id': APPLICATION_NAME,
@@ -108,7 +109,9 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
         },
         credentials: 'include',
         body: JSON.stringify({ overskrift, tekst }),
-      });
+      });*/
+
+      const res = mulighetsrommetClient.dialogen.delMedDialogen(fnr, { overskrift, tekst });
 
       if (res.ok) {
         const { id } = (await res.json()) as { id: string };
