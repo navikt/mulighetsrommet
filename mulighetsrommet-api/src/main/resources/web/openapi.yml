@@ -48,7 +48,7 @@ paths:
   /api/v1/tiltaksgjennomforinger:
     get:
       tags:
-        - Tiltaksgjennomføringer
+        - Tiltaksgjennomforinger
       operationId: getTiltaksgjennomforinger
       parameters:
         - in: query
@@ -87,7 +87,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Tiltaksgjennomføringer
+        - Tiltaksgjennomforinger
       operationId: getTiltaksgjennomforing
       responses:
         200:
