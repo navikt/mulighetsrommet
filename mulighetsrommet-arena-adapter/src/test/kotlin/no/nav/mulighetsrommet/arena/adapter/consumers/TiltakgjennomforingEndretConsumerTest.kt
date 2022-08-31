@@ -1,15 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.consumers
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
-import io.ktor.client.request.*
-import io.ktor.content.*
+import io.ktor.client.plugins.*
 import io.ktor.http.*
-import io.ktor.utils.io.*
 import io.mockk.mockk
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
@@ -18,46 +16,15 @@ import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
-    val engine = MockEngine {
-        respond(
-            headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            status = HttpStatusCode.OK,
-            content = ByteReadChannel("{}"),
-        )
-    }
-    val client = MulighetsrommetApiClient(engine, baseUri = "api") {
-        "Bearer token"
-    }
-
-    val events = mockk<EventRepository>(relaxed = true)
-
-    val consumer = TiltakgjennomforingEndretConsumer(
-        ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
-        events,
-        client
-    )
-
     test("should call api with mapped event payload") {
-        val event = createInsertEvent(
-            """{
-                "TILTAKGJENNOMFORING_ID": 3780431,
-                "LOKALTNAVN": "Testenavn",
-                "TILTAKSKODE": "INDOPPFAG",
-                "ARBGIV_ID_ARRANGOR": 49612,
-                "SAK_ID": 13572352,
-                "DATO_FRA": null,
-                "DATO_TIL": null,
-                "STATUS_TREVERDIKODE_INNSOKNING": "J",
-                "ANTALL_DELTAKERE": 5
-            }"""
-        )
+        val engine = MockEngine { respondOk() }
 
-        consumer.processEvent(event)
+        val event = createtiltaksgjennomforingEndretEvent(antallDeltakere = 5)
+        createTiltaksgjennomforingEndretConsumer(engine).processEvent(event)
 
         val request = engine.requestHistory.last()
-
         request.method shouldBe HttpMethod.Put
-        decodeRequestBody(request, AdapterTiltaksgjennomforing.serializer()) shouldBe AdapterTiltaksgjennomforing(
+        decodeRequestBody<AdapterTiltaksgjennomforing>(request) shouldBe AdapterTiltaksgjennomforing(
             id = 3780431,
             navn = "Testenavn",
             tiltakskode = "INDOPPFAG",
@@ -71,34 +38,51 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     }
 
     test("should decode ANTALL_DELTAKERE as nearest integer") {
-        val event = createInsertEvent(
-            """{
-                "TILTAKGJENNOMFORING_ID": 3780431,
-                "LOKALTNAVN": "Testenavn",
-                "TILTAKSKODE": "INDOPPFAG",
-                "ARBGIV_ID_ARRANGOR": 49612,
-                "SAK_ID": 13572352,
-                "DATO_FRA": null,
-                "DATO_TIL": null,
-                "STATUS_TREVERDIKODE_INNSOKNING": "J",
-                "ANTALL_DELTAKERE": 5.5
-            }"""
-        )
+        val engine = MockEngine { respondOk() }
 
-        consumer.processEvent(event)
+        val event = createtiltaksgjennomforingEndretEvent(antallDeltakere = 5.5)
+        createTiltaksgjennomforingEndretConsumer(engine).processEvent(event)
 
-        decodeRequestBody(engine.requestHistory.last(), AdapterTiltaksgjennomforing.serializer()).antallPlasser shouldBe 6
+        decodeRequestBody<AdapterTiltaksgjennomforing>(engine.requestHistory.last()).antallPlasser shouldBe 6
+    }
+
+    context("when api returns 500") {
+        test("should treat the result as error") {
+            val consumer = createTiltaksgjennomforingEndretConsumer(
+                MockEngine { respondError(HttpStatusCode.InternalServerError) }
+            )
+
+            shouldThrow<ResponseException> {
+                consumer.processEvent(createtiltaksgjennomforingEndretEvent())
+            }
+        }
     }
 })
 
-private fun <T> decodeRequestBody(request: HttpRequestData, kSerializer: KSerializer<T>): T {
-    return Json.decodeFromString(kSerializer, (request.body as TextContent).text)
+fun createTiltaksgjennomforingEndretConsumer(engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
+    val client = MulighetsrommetApiClient(engine, maxRetries = 1, baseUri = "api") {
+        "Bearer token"
+    }
+
+    val events = mockk<EventRepository>(relaxed = true)
+
+    return TiltakgjennomforingEndretConsumer(
+        ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
+        events,
+        client
+    )
 }
 
-fun createInsertEvent(data: String) = Json.parseToJsonElement(
+private fun createtiltaksgjennomforingEndretEvent(antallDeltakere: Number = 5) = ArenaEvent.createInsertEvent(
     """{
-    "op_type": "I",
-    "after": $data
-}
-"""
+        "TILTAKGJENNOMFORING_ID": 3780431,
+        "LOKALTNAVN": "Testenavn",
+        "TILTAKSKODE": "INDOPPFAG",
+        "ARBGIV_ID_ARRANGOR": 49612,
+        "SAK_ID": 13572352,
+        "DATO_FRA": null,
+        "DATO_TIL": null,
+        "STATUS_TREVERDIKODE_INNSOKNING": "J",
+        "ANTALL_DELTAKERE": $antallDeltakere
+    }"""
 )
