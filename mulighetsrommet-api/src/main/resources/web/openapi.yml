@@ -201,6 +201,30 @@ paths:
             application/json:
               schema: { }
 
+  /internal/logger/event:
+    post:
+      tags:
+        - Internal
+      operationId: logFrontendEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FrontendEvent"
+      responses:
+        201:
+          description: "Logged frontend event"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FrontendEvent"
+        500:
+          description: "Logging to frontend failed"
+          content:
+            application/json:
+              schema:
+                type: string
+
 
 components:
   securitySchemes:
@@ -417,6 +441,20 @@ components:
       required:
         - navn
         - enhetId
+
+    FrontendEvent:
+      type: object
+      properties:
+        name:
+          type: string
+        fields:
+          type: object
+          additionalProperties: true
+        tags:
+          type: object
+          additionalProperties: true
+      required:
+        - name
 
   examples:
     Tiltakstype:

@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
 import { QueryKeys } from '../query-keys';
-import { MulighetsrommetService } from 'mulighetsrommet-api-client';
 import useDebounce from '../../../hooks/useDebounce';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { useErrorHandler } from 'react-error-boundary';
+import { mulighetsrommetClient } from '../clients';
 
 interface Options {
   enabled?: boolean;
@@ -30,7 +30,7 @@ export function useSanity<T>(
 
   const hook = useQuery(
     [QueryKeys.SanityQuery, debouncedQuery, fnr, options],
-    () => MulighetsrommetService.sanityQuery({ query: debouncedQuery, fnr: fnrValue }) as Promise<T>,
+    () => mulighetsrommetClient.sanity.sanityQuery({ query: debouncedQuery, fnr: fnrValue }) as Promise<T>,
     {
       enabled: !!enabled,
     }
