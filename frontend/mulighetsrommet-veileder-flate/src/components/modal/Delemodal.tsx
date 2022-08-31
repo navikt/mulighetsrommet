@@ -5,8 +5,6 @@ import { APPLICATION_NAME } from '../../constants';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import './delemodal.less';
 
-const MAKS_ANTALL_TEGN = 1000;
-
 interface DelemodalProps {
   modalOpen: boolean;
   setModalOpen: () => void;
@@ -91,8 +89,12 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
 
+  const getAntallTegn = () => {
+    return startText.length + 200;
+  };
+
   const handleSend = async () => {
-    if (state.tekst.trim().length > MAKS_ANTALL_TEGN) return;
+    if (state.tekst.trim().length > getAntallTegn()) return;
 
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
@@ -153,7 +155,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             minRows={10}
             maxRows={50}
             data-testid="textarea_tilbakemelding"
-            maxLength={MAKS_ANTALL_TEGN}
+            maxLength={getAntallTegn()}
           />
           <div className="modal_btngroup">
             <Button onClick={handleSend} data-testid="modal_btn-send" disabled={senderTilDialogen}>
