@@ -34,7 +34,9 @@ class SakEndretConsumer(
 
     override suspend fun handleEvent(event: ArenaEvent<ArenaSak>) {
         val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/sak", event.data.toAdapterSak())
+        client.sendRequest(method, "/api/v1/arena/sak", event.data.toAdapterSak()) {
+            status.isSuccess() || status == HttpStatusCode.Conflict
+        }
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"

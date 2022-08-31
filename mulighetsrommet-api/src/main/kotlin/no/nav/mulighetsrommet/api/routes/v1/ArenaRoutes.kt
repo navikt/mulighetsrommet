@@ -98,7 +98,7 @@ fun Route.arenaRoutes() {
                 val sak = call.receive<AdapterSak>()
                 arenaService.updateTiltaksgjennomforingWithSak(sak)
             }.onSuccess {
-                val response = it ?: HttpStatusCode.NotFound
+                val response = it ?: HttpStatusCode.Conflict
                 call.respond(response)
             }.onFailure {
                 logError(logger, it)
