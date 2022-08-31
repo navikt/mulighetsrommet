@@ -6,7 +6,7 @@ import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { Alert, Loader } from '@navikt/ds-react';
+import { Alert, HelpText, Loader, ReadMore } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import Deleknapp from '../../components/knapper/Deleknapp';
@@ -40,6 +40,12 @@ const ViewTiltakstypeDetaljer = () => {
       <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med tiltaksnummer "${tiltaksnummer}"`}</Alert>
     );
   }
+
+  const kanDeleMedBruker =
+    !brukerdata.data?.manuellStatus?.erUnderManuellOppfolging &&
+    !brukerdata.data?.manuellStatus?.krrStatus?.erReservert &&
+    brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
+
   return (
     <div className="tiltakstype-detaljer">
       <div className="tiltakstype-detaljer__info">
@@ -51,8 +57,19 @@ const ViewTiltakstypeDetaljer = () => {
       </div>
       <div>
         <SidemenyDetaljer />
-        <Deleknapp ariaLabel={'Dele'} handleClick={handleClickApneModal}>
-          Del med bruker
+        <Deleknapp
+          dataTestId="del-med-bruker-button"
+          ariaLabel={'Dele'}
+          handleClick={handleClickApneModal}
+          disabled={!kanDeleMedBruker}
+        >
+          {kanDeleMedBruker ? (
+            'Del med bruker'
+          ) : (
+            <span title="Bruker er under manuell oppfølging, finnes i Kontakt- og reservasjonsregisteret eller har ikke vært innlogget på NAV.no siste 18 mnd. Brukeren kan dermed ikke kontaktes digitalt.">
+              Kan ikke dele med bruker
+            </span>
+          )}
         </Deleknapp>
       </div>
       <TiltaksdetaljerFane />

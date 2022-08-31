@@ -10,9 +10,10 @@ interface DeleknappProps {
   handleClick: () => void;
   ariaLabel: string;
   dataTestId?: string;
+  disabled?: boolean;
 }
 
-const Deleknapp = ({ children, ariaLabel, className, handleClick, dataTestId }: DeleknappProps) => {
+const Deleknapp = ({ children, ariaLabel, className, handleClick, dataTestId, disabled = false }: DeleknappProps) => {
   const features = useFeatureToggles();
   const visDeleknapp = features.isSuccess && features.data[DELING_MED_BRUKER];
 
@@ -25,6 +26,7 @@ const Deleknapp = ({ children, ariaLabel, className, handleClick, dataTestId }: 
           className={classNames('deleknapp', className)}
           aria-label={ariaLabel}
           data-testid={dataTestId}
+          disabled={disabled}
         >
           {children}
         </Button>

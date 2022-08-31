@@ -19,6 +19,13 @@ export const apiHandlers: RestHandler[] = [
         enhetId: '0106',
       },
       fornavn: 'Iherdig',
+      manuellStatus: {
+        erUnderManuellOppfolging: false,
+        krrStatus: {
+          kanVarsles: true,
+          erReservert: false,
+        },
+      },
     });
   }),
 
