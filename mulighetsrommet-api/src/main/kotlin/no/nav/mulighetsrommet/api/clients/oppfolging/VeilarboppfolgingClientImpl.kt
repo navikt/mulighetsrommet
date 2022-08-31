@@ -66,7 +66,7 @@ class VeilarboppfolgingClientImpl(
             val body = response.body<ManuellStatusDTO>()
             body
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente manuell status: {}", exe.message)
+            log.error("Klarte ikke hente manuell status")
             null
         }
     }
