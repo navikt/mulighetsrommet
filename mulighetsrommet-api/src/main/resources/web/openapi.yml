@@ -201,7 +201,7 @@ paths:
             application/json:
               schema: { }
 
-  /internal/logger/event:
+  /logger/event:
     post:
       tags:
         - Internal
