@@ -14,4 +14,3 @@ export function initializeMockWorker() {
     worker.start();
   }
 }
-

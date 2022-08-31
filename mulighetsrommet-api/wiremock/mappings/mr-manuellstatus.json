@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v2/manuell/status",
+    "queryParameters": {
+      "fnr": {
+        "matches": "[\\d\\D]*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "erUnderManuellOppfolging": false,
+      "krrStatus": {
+        "kanVarsles": true,
+        "erReservert": false
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
