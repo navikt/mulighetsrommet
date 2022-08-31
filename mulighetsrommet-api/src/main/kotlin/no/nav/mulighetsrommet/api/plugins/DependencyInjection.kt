@@ -6,6 +6,8 @@ import io.ktor.server.application.*
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -29,7 +31,13 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
-            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig), veilarbperson(appConfig))
+            services(
+                appConfig,
+                veilarbvedsstotte(appConfig),
+                veilarboppfolging(appConfig),
+                veilarbperson(appConfig),
+                veilarbdialog(appConfig)
+            )
         )
     }
 }
@@ -67,6 +75,13 @@ private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
     )
 }
 
+private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
+    return VeilarbdialogClientImpl(
+        config.veilarbdialogConfig.url,
+        config.veilarbdialogConfig.httpClient
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -83,6 +98,7 @@ private fun services(
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient,
     veilarbpersonClient: VeilarbpersonClient,
+    veilarbdialogClient: VeilarbdialogClient
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
@@ -96,6 +112,7 @@ private fun services(
             veilarbpersonClient = veilarbpersonClient
         )
     }
+    single { DialogService(veilarbdialogClient) }
 }
 
 private fun erLokalUtvikling(): Boolean {

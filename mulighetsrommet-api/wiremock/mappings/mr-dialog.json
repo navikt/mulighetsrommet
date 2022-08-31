@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/dialog",
+    "queryParameters": {
+      "fnr": {
+        "matches": "[\\d\\D]*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "id": "1234"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

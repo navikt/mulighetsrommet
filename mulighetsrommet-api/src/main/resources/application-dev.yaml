@@ -30,6 +30,9 @@ app:
     url: https://veilarbperson.dev-fss-pub.nais.io/veilarbperson/api
     scope: api://dev-fss.pto.veilarbperson/.default
 
+  veilarbdialogConfig:
+    url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
+
   sanity:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}

@@ -45,6 +45,7 @@ fun Application.configure(config: AppConfig) {
             sanityRoutes()
             brukerRoutes()
             frontendLoggerRoutes()
+            dialogRoutes()
         }
     }
 }

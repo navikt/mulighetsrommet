@@ -19,6 +19,7 @@ data class AppConfig(
     val veilarboppfolgingConfig: VeilarboppfolgingConfig,
     val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig,
     val veilarbpersonConfig: VeilarbpersonConfig,
+    val veilarbdialogConfig: VeilarbdialogConfig,
     val swagger: SwaggerConfig? = null
 )
 
@@ -54,6 +55,11 @@ data class VeilarbvedtaksstotteConfig(
 data class VeilarbpersonConfig(
     val url: String,
     val scope: String,
+    val httpClient: HttpClient = baseClient
+)
+
+data class VeilarbdialogConfig(
+    val url: String,
     val httpClient: HttpClient = baseClient
 )
 
