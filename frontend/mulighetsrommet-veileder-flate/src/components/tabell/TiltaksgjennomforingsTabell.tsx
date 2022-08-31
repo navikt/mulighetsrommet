@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from 'react';
 import { Alert, BodyShort, Button, Heading, Ingress, Loader, Pagination, Table } from '@navikt/ds-react';
-import './Tabell.less';
 import { useAtom } from 'jotai';
-import Lenke from '../lenke/Lenke';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
+import { RESET } from 'jotai/utils';
+import { useEffect, useState } from 'react';
+import { logEvent } from '../../core/api/logger';
+import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
-import { logEvent } from '../../core/api/logger';
-import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
-import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import Body from '@navikt/ds-react/esm/table/Body';
-import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
+import Lenke from '../lenke/Lenke';
+import './Tabell.less';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
