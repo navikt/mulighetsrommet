@@ -10,7 +10,7 @@ import org.slf4j.MDC
 fun Route.frontendLoggerRoutes() {
     val logger = application.environment.log
 
-    route("/internal/logger/") {
+    route("/logger/") {
         post("event") {
             runCatching {
                 val event = call.receive<FrontendEvent>()
