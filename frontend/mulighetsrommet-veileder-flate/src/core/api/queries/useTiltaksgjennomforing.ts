@@ -1,14 +1,14 @@
 import groq from 'groq';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
-import { Tiltaksgjennomforing } from '../models';
+import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
 import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   return useSanity<Tiltaksgjennomforing[]>(
     groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
-  ${byggInnsatsgruppeFilter(filter.innsatsgrupper)} 
+  ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
   && (($enhetsId in enheter[]->nummer.current) || (enheter[0] == null && $fylkeId == fylke->nummer.current))
@@ -27,13 +27,29 @@ export default function useTiltaksgjennomforing() {
   );
 }
 
-function byggInnsatsgruppeFilter(innsatsgrupper: Tiltaksgjennomforingsfiltergruppe[]): string {
-  return innsatsgrupper.length > 0
-    ? `&& tiltakstype->innsatsgruppe->tittel in [${innsatsgrupper.map(gruppe => `"${gruppe.tittel}"`).join(', ')}]`
-    : '';
+function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
+  if (!innsatsgruppe) return '';
+
+  const innsatsgrupperISok = utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe)
+    .map(nokkel => `"${nokkel}"`)
+    .join(', ');
+  return `&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
 }
 
-function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjennomforingsfiltergruppe[]): string {
+function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler): InnsatsgruppeNokler[] {
+  switch (innsatsgruppe) {
+    case 'STANDARD_INNSATS':
+      return ['STANDARD_INNSATS'];
+    case 'SITUASJONSBESTEMT_INNSATS':
+      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS'];
+    case 'SPESIELT_TILPASSET_INNSATS':
+      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS', 'SPESIELT_TILPASSET_INNSATS'];
+    case 'VARIG_TILPASSET_INNSATS':
+      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS', 'SPESIELT_TILPASSET_INNSATS', 'VARIG_TILPASSET_INNSATS'];
+  }
+}
+
+function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
   return tiltakstyper.length > 0
     ? `&& tiltakstype->_id in [${tiltakstyper.map(type => `"${type.id}"`).join(', ')}]`
     : '';

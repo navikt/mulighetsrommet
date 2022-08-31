@@ -6,7 +6,7 @@ import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
-import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
@@ -15,6 +15,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
 import { useErrorHandler } from 'react-error-boundary';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
+import { InnsatsgruppeNokler } from '../../core/api/models';
 
 function BrukersOppfolgingsenhet() {
   const brukerdata = useHentBrukerdata();
@@ -50,8 +51,9 @@ const ViewTiltakstypeOversikt = () => {
 
   useErrorHandler(brukerdata?.error);
 
-  const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
-    gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
+  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: InnsatsgruppeNokler) => {
+    return innsatsgruppe !== brukerdata?.data?.innsatsgruppe;
+  };
 
   return (
     <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
@@ -59,15 +61,22 @@ const ViewTiltakstypeOversikt = () => {
       <div className="filtercontainer">
         <div className="filtertags" data-testid="filtertags">
           <BrukersOppfolgingsenhet />
-          <FilterTags
-            options={filter.innsatsgrupper!}
-            handleClick={(id: string) => {
-              setFilter({
-                ...filter,
-                innsatsgrupper: [...filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id)],
-              });
-            }}
-          />
+          {filter.innsatsgruppe && (
+            <FilterTags
+              options={[
+                {
+                  id: filter.innsatsgruppe,
+                  tittel: filter.innsatsgruppe,
+                },
+              ]}
+              handleClick={() => {
+                setFilter({
+                  ...filter,
+                  innsatsgruppe: undefined,
+                });
+              }}
+            />
+          )}
           <FilterTags
             options={filter.tiltakstyper!}
             handleClick={(id: string) =>
@@ -81,8 +90,8 @@ const ViewTiltakstypeOversikt = () => {
           <Show
             if={
               !innsatsgrupper.isLoading &&
-              (filter.innsatsgrupper.length === 0 ||
-                filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt) ||
+              (filter.innsatsgruppe! === undefined ||
+                brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe) ||
                 filter.search !== '' ||
                 filter.tiltakstyper.length > 0)
             }
