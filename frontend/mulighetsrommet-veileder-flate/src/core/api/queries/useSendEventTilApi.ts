@@ -1,4 +1,5 @@
-import { FrontendEvent, MulighetsrommetService } from 'mulighetsrommet-api-client';
+import { FrontendEvent } from 'mulighetsrommet-api-client';
+import { mulighetsrommetClient } from '../clients';
 
 const credentials = 'same-origin';
 
@@ -10,7 +11,7 @@ const MED_CREDENTIALS: RequestInit = {
   },
 };
 export function useSendEventTilApi(event: FrontendEvent) {
-  MulighetsrommetService.logFrontendEvent({ requestBody: event });
+  mulighetsrommetClient.internal.logFrontendEvent({ requestBody: event });
 }
 
 export function sendEventTilPortefolje(event: FrontendEvent) {
