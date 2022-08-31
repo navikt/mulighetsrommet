@@ -146,8 +146,10 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             value={state.tekst}
             onChange={e => dispatch({ type: 'Sett tekst', payload: e.currentTarget.value })}
             label=""
-            minRows={5}
+            minRows={10}
+            maxRows={50}
             data-testid="textarea_tilbakemelding"
+            maxLength={1000}
           />
           <div className="modal_btngroup">
             <Button onClick={handleSend} data-testid="modal_btn-send" disabled={senderTilDialogen}>
