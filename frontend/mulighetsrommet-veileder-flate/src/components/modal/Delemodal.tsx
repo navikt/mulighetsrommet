@@ -89,7 +89,13 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
 
+  const getAntallTegn = () => {
+    return startText.length + 200;
+  };
+
   const handleSend = async () => {
+    if (state.tekst.trim().length > getAntallTegn()) return;
+
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const { tekst } = state;
@@ -149,7 +155,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             minRows={10}
             maxRows={50}
             data-testid="textarea_tilbakemelding"
-            maxLength={1000}
+            maxLength={getAntallTegn()}
           />
           <div className="modal_btngroup">
             <Button onClick={handleSend} data-testid="modal_btn-send" disabled={senderTilDialogen}>
@@ -183,18 +189,21 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDING_FEILET' && (
-        <Modal.Content>
+        <Modal.Content className="delemodal__content">
           <Heading spacing level="1" size="large" data-testid="modal_header">
-            Kunne ikke sende melding via Dialogen
+            Tiltaket kunne ikke deles med brukeren
           </Heading>
-          <p>
-            Vi klarte ikke dele informasjon med bruker. Det kan være fordi brukeren er under manuell oppfølging, har
-            reservert seg i <abbr title="Kontakt- og reservasjonsregisteret">KRR</abbr> eller ikke har vært logget inn
-            på NAV.no de siste 18 månedene.
+          <p className="delemodal__content">
+            Vi kunne ikke dele informasjon digitalt med denne brukeren. Dette kan være fordi hen ikke ønsker eller kan
+            benytte de digitale tjenestene våre.
+            <br />
+            <a href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-arbeidsrettet-brukeroppfolging/SitePages/Manuell-oppf%C3%B8lging-i-Modia-arbeidsrettet-oppf%C3%B8lging.aspx">
+              Les mer om manuell oppfølging
+            </a>
           </p>
           <div className="modal_btngroup">
-            <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
-              Lukk
+            <Button variant="primary" onClick={clickCancel} data-testid="modal_btn-cancel">
+              Avslutt
             </Button>
             <Button variant="tertiary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-cancel">
               Prøv på nytt
