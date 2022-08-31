@@ -33,9 +33,7 @@ class MulighetsrommetApiClient(
                 level = LogLevel.INFO
             }
             install(HttpRequestRetry) {
-                retryIf(maxRetries) { _, response ->
-                    response.status.value.let { it in 500..599 } || response.status == HttpStatusCode.Conflict
-                }
+                retryOnServerErrors(maxRetries)
 
                 exponentialDelay()
 
