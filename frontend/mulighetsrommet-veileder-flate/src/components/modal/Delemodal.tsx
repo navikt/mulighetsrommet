@@ -6,7 +6,9 @@ import { logEvent } from '../../core/api/logger';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import './delemodal.less';
 
-export const logDelMedbrukerEvent = (action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet') => {
+export const logDelMedbrukerEvent = (
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
+) => {
   logEvent('mulighetsrommet.del-med-bruker', {
     action,
   });
@@ -131,6 +133,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const clickCancel = () => {
     setModalOpen();
     dispatch({ type: 'Avbryt' });
+    logDelMedbrukerEvent('Avbrutt del med bruker');
   };
 
   const gaTilDialogen = () => {
