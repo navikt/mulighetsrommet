@@ -17,10 +17,10 @@ spec:
     {{/each}}
   {{/if}}
   liveness:
-    path: /
+    path: /internal/isalive
     initialDelay: 10
   readiness:
-    path: /
+    path: /internal/isready
     initialDelay: 10
   replicas:
     min: 2
