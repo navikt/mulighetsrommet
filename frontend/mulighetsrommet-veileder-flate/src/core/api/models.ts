@@ -93,7 +93,7 @@ export interface Innsatsgruppe {
   _id: string;
   beskrivelse: string;
   tittel: Innsatsgrupper;
-  nokkel: string;
+  nokkel: InnsatsgruppeNokler;
 }
 
 export interface RegelverkFil {
@@ -129,3 +129,9 @@ export interface StatistikkFraCsvFil {
   Tiltakstype: string;
   Ukjent: string;
 }
+
+export type InnsatsgruppeNokler =
+  | 'STANDARD_INNSATS'
+  | 'SITUASJONSBESTEMT_INNSATS'
+  | 'SPESIELT_TILPASSET_INNSATS'
+  | 'VARIG_TILPASSET_INNSATS';
