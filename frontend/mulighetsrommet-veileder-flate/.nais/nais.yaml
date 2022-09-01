@@ -5,10 +5,6 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
-  annotations:
-    # Disable security context
-    # Ser ut til å være nødvendig for nginx-imaget
-    nais.io/security-does-not-matter: "true"
 spec:
   image: {{image}}
   port: 8080
