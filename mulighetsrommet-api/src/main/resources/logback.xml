@@ -19,4 +19,5 @@
     <logger name="no.nav.mulighetsrommet" level="INFO"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <logger name="no.nav.mulighetsrommet.api.routes.v1.ArenaRoutes" level="DEBUG" />
 </configuration>
