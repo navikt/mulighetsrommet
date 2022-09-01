@@ -13,11 +13,12 @@
             </throwableConverter>
         </encoder>
     </appender>
+    <logger name="no.nav.mulighetsrommet.api.routes.v1" level="DEBUG">
+        <appender-ref ref="stdout_json"/>
+    </logger>
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
     </root>
-    <logger name="no.nav.mulighetsrommet" level="INFO"/>
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="no.nav.mulighetsrommet.api.routes.v1.ArenaRoutes" level="DEBUG" />
 </configuration>
