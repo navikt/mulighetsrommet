@@ -92,7 +92,9 @@ function initInitialState(startTekst: string): State {
 }
 
 const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
-  const startText = chattekst.replace('<Fornavn>', brukerNavn).replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
+  const startText = `${chattekst
+    .replace('<Fornavn>', brukerNavn)
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen `;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
 
@@ -155,7 +157,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
           </Heading>
           <BodyLong>
-            Kandidatene blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Ditt NAV.
+            Bruker blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Min side.
           </BodyLong>
           <Textarea
             value={state.tekst}
