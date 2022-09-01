@@ -10,7 +10,7 @@ export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
 ) => {
   logEvent('mulighetsrommet.del-med-bruker', {
-    action,
+    value: action,
   });
 };
 
