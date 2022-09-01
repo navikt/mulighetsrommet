@@ -7,9 +7,10 @@ import { BrukersOppfolgingsenhet } from '../../components/oppfolgingsenhet/Bruke
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
+import { InnsatsgruppeNokler } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
-import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../core/atoms/atoms';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
@@ -23,14 +24,15 @@ const ViewTiltakstypeOversikt = () => {
 
   useErrorHandler(brukerdata?.error);
 
-  const brukersInnsatsgruppeErIkkeValgt = (gruppe: Tiltaksgjennomforingsfiltergruppe) =>
-    gruppe.nokkel !== brukerdata?.data?.innsatsgruppe;
+  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: InnsatsgruppeNokler) => {
+    return innsatsgruppe !== brukerdata?.data?.innsatsgruppe;
+  };
 
   const skalResetteFilter =
-    (filter.innsatsgrupper.length === 0 && !!brukerdata?.data?.innsatsgruppe) ||
+    filter.innsatsgruppe! === undefined ||
+    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
     filter.search !== '' ||
-    filter.tiltakstyper.length > 0 ||
-    filter.innsatsgrupper.some(brukersInnsatsgruppeErIkkeValgt);
+    filter.tiltakstyper.length > 0;
 
   return (
     <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
@@ -38,15 +40,17 @@ const ViewTiltakstypeOversikt = () => {
       <div className="filtercontainer">
         <div className="filtertags" data-testid="filtertags">
           <BrukersOppfolgingsenhet />
-          <FilterTags
-            options={filter.innsatsgrupper!}
-            handleClick={(id: string) => {
-              setFilter({
-                ...filter,
-                innsatsgrupper: [...filter.innsatsgrupper?.filter(innsatsgruppe => innsatsgruppe.id !== id)],
-              });
-            }}
-          />
+          {filter.innsatsgruppe && (
+            <FilterTags
+              options={[filter.innsatsgruppe]}
+              handleClick={() => {
+                setFilter({
+                  ...filter,
+                  innsatsgruppe: undefined,
+                });
+              }}
+            />
+          )}
           <FilterTags
             options={filter.tiltakstyper!}
             handleClick={(id: string) =>

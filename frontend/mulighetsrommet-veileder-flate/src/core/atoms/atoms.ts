@@ -1,20 +1,21 @@
 import { atomWithHash } from 'jotai/utils';
+import { InnsatsgruppeNokler } from '../api/models';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgrupper: Tiltaksgjennomforingsfiltergruppe[];
-  tiltakstyper: Tiltaksgjennomforingsfiltergruppe[];
+  innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
+  tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
-export interface Tiltaksgjennomforingsfiltergruppe {
+export interface Tiltaksgjennomforingsfiltergruppe<T> {
   id: string;
   tittel: string;
-  nokkel?: string;
+  nokkel?: T;
 }
 
 export const initialTiltaksgjennomforingsfilter = {
   search: '',
-  innsatsgrupper: [],
+  innsatsgruppe: undefined,
   tiltakstyper: [],
 };
 
