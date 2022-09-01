@@ -1,4 +1,4 @@
-FROM nginx:stable-alpine
+FROM nginxinc/nginx-unprivileged
 LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet"
 LABEL org.opencontainers.image.title="mulighetsrommet-veileder-flate"
 COPY dist /usr/share/nginx/html
