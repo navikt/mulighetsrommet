@@ -10,7 +10,7 @@ import { Alert, HelpText, Loader, ReadMore } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import Deleknapp from '../../components/knapper/Deleknapp';
-import Delemodal from '../../components/modal/Delemodal';
+import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/Delemodal';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
@@ -25,6 +25,7 @@ const ViewTiltakstypeDetaljer = () => {
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
+    logDelMedbrukerEvent('Åpnet dialog');
   };
 
   if (isLoading) {
