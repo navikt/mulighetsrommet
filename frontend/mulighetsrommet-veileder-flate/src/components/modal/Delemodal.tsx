@@ -2,8 +2,15 @@ import { BodyLong, Button, Detail, Heading, Modal, Textarea } from '@navikt/ds-r
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { APPLICATION_NAME } from '../../constants';
+import { logEvent } from '../../core/api/logger';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import './delemodal.less';
+
+export const logDelMedbrukerEvent = (action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet') => {
+  logEvent('mulighetsrommet.del-med-bruker', {
+    action,
+  });
+};
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -95,6 +102,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
 
   const handleSend = async () => {
     if (state.tekst.trim().length > getAntallTegn()) return;
+    logDelMedbrukerEvent('Delte med bruker');
 
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
@@ -115,6 +123,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
         dispatch({ type: 'Sendt ok', payload: id });
       } else {
         dispatch({ type: 'Sending feilet' });
+        logDelMedbrukerEvent('Del med bruker feilet');
       }
     }
   };

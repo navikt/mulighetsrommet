@@ -8,6 +8,7 @@ import CheckboxFilter from './CheckboxFilter';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { useTiltakstyper } from '../../core/api/queries/useTiltakstyper';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
+import InnsatsgruppeFilter from './InnsatsgruppeFilter';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -22,17 +23,26 @@ const Filtermeny = () => {
         Filter
       </Heading>
       <Searchfield sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
-      <CheckboxFilter
-        accordionNavn="Innsatsgrupper"
-        options={filter.innsatsgrupper!}
-        setOptions={innsatsgrupper => setFilter({ ...filter, innsatsgrupper })}
+      <InnsatsgruppeFilter
+        accordionNavn="Innsatsgruppe"
+        option={filter.innsatsgruppe?.nokkel}
+        key={filter.innsatsgruppe?.nokkel}
+        setOption={innsatsgruppe => {
+          const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
+          if (foundInnsatsgruppe) {
+            setFilter({
+              ...filter,
+              innsatsgruppe: {
+                id: foundInnsatsgruppe?._id,
+                tittel: foundInnsatsgruppe?.tittel,
+                nokkel: foundInnsatsgruppe?.nokkel,
+              },
+            });
+          }
+        }}
         data={
           innsatsgrupper.data?.map(innsatsgruppe => {
-            return {
-              id: innsatsgruppe._id,
-              tittel: innsatsgruppe.tittel,
-              nokkel: innsatsgruppe.nokkel,
-            };
+            return { id: innsatsgruppe._id, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
           }) ?? []
         }
         isLoading={innsatsgrupper.isLoading}
