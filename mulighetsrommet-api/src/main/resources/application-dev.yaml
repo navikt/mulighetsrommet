@@ -30,7 +30,7 @@ app:
     url: https://veilarbperson.dev-fss-pub.nais.io/veilarbperson/api
     scope: api://dev-fss.pto.veilarbperson/.default
 
-  veilarbveilederCOnfig:
+  veilarbveilederConfig:
     url: https://veilarbveileder.dev-fss-pub.nais.io/veilarbveileder/api
     scope: api://dev-fss.pto.veilarbveileder/.default
 
