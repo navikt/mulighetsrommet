@@ -1,20 +1,19 @@
-import React from 'react';
 import { Accordion, Alert, Loader, Radio, RadioGroup } from '@navikt/ds-react';
-import './Filtermeny.less';
-import { kebabCase } from '../../utils/Utils';
 import { InnsatsgruppeNokler } from '../../core/api/models';
+import { kebabCase } from '../../utils/Utils';
+import './Filtermeny.less';
 
-interface InnsatsgruppeFilterProps {
+interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }> {
   accordionNavn: string;
-  option: InnsatsgruppeNokler;
+  option?: InnsatsgruppeNokler;
   setOption: (type: InnsatsgruppeNokler) => void;
-  data: string[];
+  data: T[];
   isLoading: boolean;
   isError: boolean;
   defaultOpen?: boolean;
 }
 
-const InnsatsgruppeFilter = ({
+const InnsatsgruppeFilter = <T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }>({
   accordionNavn,
   option,
   setOption,
@@ -22,11 +21,15 @@ const InnsatsgruppeFilter = ({
   isLoading,
   isError,
   defaultOpen = false,
-}: InnsatsgruppeFilterProps) => {
-  const radiobox = (filtertype: InnsatsgruppeNokler) => {
+}: InnsatsgruppeFilterProps<T>) => {
+  const radiobox = (option: T) => {
     return (
-      <Radio value={filtertype} key={`${filtertype}`} data-testid={`filter_checkbox_${kebabCase(filtertype)}`}>
-        {filtertype}
+      <Radio
+        value={option.nokkel}
+        key={`${option.id}`}
+        data-testid={`filter_checkbox_${kebabCase(option?.tittel ?? '')}`}
+      >
+        {option.tittel}
       </Radio>
     );
   };

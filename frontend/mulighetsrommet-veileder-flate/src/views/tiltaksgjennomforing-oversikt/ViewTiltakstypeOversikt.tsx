@@ -63,12 +63,7 @@ const ViewTiltakstypeOversikt = () => {
           <BrukersOppfolgingsenhet />
           {filter.innsatsgruppe && (
             <FilterTags
-              options={[
-                {
-                  id: filter.innsatsgruppe,
-                  tittel: filter.innsatsgruppe,
-                },
-              ]}
+              options={[filter.innsatsgruppe]}
               handleClick={() => {
                 setFilter({
                   ...filter,
@@ -91,7 +86,7 @@ const ViewTiltakstypeOversikt = () => {
             if={
               !innsatsgrupper.isLoading &&
               (filter.innsatsgruppe! === undefined ||
-                brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe) ||
+                brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
                 filter.search !== '' ||
                 filter.tiltakstyper.length > 0)
             }

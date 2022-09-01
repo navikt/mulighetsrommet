@@ -15,7 +15,9 @@ export function usePrepopulerFilter() {
     if (matchedInnsatsgruppe) {
       const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;
-      const innsatsgruppe = resetFilterTilUtgangspunkt ? matchedInnsatsgruppe.nokkel : filter.innsatsgruppe;
+      const innsatsgruppe = resetFilterTilUtgangspunkt
+        ? { id: matchedInnsatsgruppe._id, nokkel: matchedInnsatsgruppe.nokkel, tittel: matchedInnsatsgruppe.tittel }
+        : filter.innsatsgruppe;
       setFilter({
         search,
         tiltakstyper,

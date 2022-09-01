@@ -25,12 +25,24 @@ const Filtermeny = () => {
       <Searchfield sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
       <InnsatsgruppeFilter
         accordionNavn="Innsatsgruppe"
-        option={filter.innsatsgruppe!}
-        key={filter.innsatsgruppe}
-        setOption={innsatsgruppe => setFilter({ ...filter, innsatsgruppe })}
+        option={filter.innsatsgruppe?.nokkel}
+        key={filter.innsatsgruppe?.nokkel}
+        setOption={innsatsgruppe => {
+          const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
+          if (foundInnsatsgruppe) {
+            setFilter({
+              ...filter,
+              innsatsgruppe: {
+                id: foundInnsatsgruppe?._id,
+                tittel: foundInnsatsgruppe?.tittel,
+                nokkel: foundInnsatsgruppe?.nokkel,
+              },
+            });
+          }
+        }}
         data={
           innsatsgrupper.data?.map(innsatsgruppe => {
-            return innsatsgruppe.tittel;
+            return { id: innsatsgruppe._id, tittel: innsatsgruppe.tittel, nokkel: innsatsgruppe.nokkel };
           }) ?? []
         }
         isLoading={innsatsgrupper.isLoading}

@@ -3,14 +3,14 @@ import { InnsatsgruppeNokler } from '../api/models';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgruppe?: InnsatsgruppeNokler;
-  tiltakstyper: Tiltaksgjennomforingsfiltergruppe[];
+  innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
+  tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
-export interface Tiltaksgjennomforingsfiltergruppe {
+export interface Tiltaksgjennomforingsfiltergruppe<T> {
   id: string;
   tittel: string;
-  nokkel?: string;
+  nokkel?: T;
 }
 
 export const initialTiltaksgjennomforingsfilter = {

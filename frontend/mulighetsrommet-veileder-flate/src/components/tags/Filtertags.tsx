@@ -1,9 +1,8 @@
-import React from 'react';
-import { Tag } from '@navikt/ds-react';
 import { Close } from '@navikt/ds-icons';
+import { Tag } from '@navikt/ds-react';
+import { kebabCase } from '../../utils/Utils';
 import Ikonknapp from '../knapper/Ikonknapp';
 import './Filtertags.less';
-import { kebabCase } from '../../utils/Utils';
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
