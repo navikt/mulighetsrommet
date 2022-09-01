@@ -20,6 +20,7 @@ interface DelemodalProps {
   tiltaksgjennomforingsnavn: string;
   brukerNavn: string;
   chattekst: string;
+  veiledernavn?: string;
 }
 
 interface State {
@@ -93,10 +94,17 @@ function initInitialState(startTekst: string): State {
   };
 }
 
-const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
+const Delemodal = ({
+  modalOpen,
+  setModalOpen,
+  tiltaksgjennomforingsnavn,
+  brukerNavn,
+  chattekst,
+  veiledernavn = '',
+}: DelemodalProps) => {
   const startText = `${chattekst
     .replace('<Fornavn>', brukerNavn)
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen `;
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
 

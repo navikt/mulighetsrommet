@@ -30,6 +30,25 @@ paths:
               schema:
                 type: string
 
+  /api/v1/veileder:
+    get:
+      tags:
+        - Veileder
+      operationId: getVeilederData
+      responses:
+        200:
+          description: Data about the 'veileder'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Veileder"
+        404:
+          description: "Could not find data about 'veileder'"
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/innsatsgrupper:
     get:
       tags:
@@ -441,6 +460,18 @@ components:
       required:
         - fnr
         - oppfolgingsenhet
+
+    Veileder:
+      type: object
+      properties:
+        etternavn:
+          type: string
+        fornavn:
+          type: string
+        ident:
+          type: string
+        navn:
+          type: string
 
     Innsatsgruppe:
       type: string
