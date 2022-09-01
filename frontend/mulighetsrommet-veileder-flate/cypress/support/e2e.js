@@ -43,6 +43,19 @@ import 'cypress-axe';
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+// https://github.com/cypress-io/cypress/issues/7362#issuecomment-944273204
+// Hide fetch/XHR requests
+const app = window.top;
+
+if (!app.document.head.querySelector('[data-hide-command-log-request]')) {
+  const style = app.document.createElement('style');
+  style.innerHTML = '.command-name-request, .command-name-xhr { display: none }';
+  style.setAttribute('data-hide-command-log-request', '');
+
+  app.document.head.appendChild(style);
+}
+
 before('Start server', () => {
   cy.server();
   cy.visit('/');
@@ -55,17 +68,22 @@ before('Start server', () => {
   cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
 });
 
+Cypress.Commands.add('resetSide', () => {
+  cy.visit('/');
+});
+
 Cypress.Commands.add('getByTestId', (selector, ...args) => {
   return cy.get(`[data-testid=${selector}]`, ...args);
 });
 
 Cypress.Commands.add('velgFilter', filternavn => {
-  cy.getByTestId(`filter_checkbox_${filternavn}`).should('not.be.checked').click().should('be.checked');
+  cy.getByTestId(`filter_checkbox_${filternavn}`).click();
+  cy.getByTestId(`filter_checkbox_${filternavn}`).should('be.checked');
   cy.getByTestId(`filtertag_${filternavn}`).should('exist');
 });
 
 Cypress.Commands.add('fjernFilter', filternavn => {
-  cy.getByTestId(`filter_checkbox_${filternavn}`).should('be.checked').click().should('not.be.checked');
+  cy.getByTestId(`filtertag_lukkeknapp_${filternavn}`).click();
   cy.getByTestId(`filtertag_${filternavn}`).should('not.exist');
 });
 
