@@ -5,6 +5,9 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
+  annotations:
+    # Ser ut til å være nødvendig for nginx-imaget
+     nais.io/read-only-file-system: "false"
 spec:
   image: {{image}}
   port: 8080
