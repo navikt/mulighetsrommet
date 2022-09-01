@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.routes.internal
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -10,7 +10,7 @@ import org.slf4j.MDC
 fun Route.frontendLoggerRoutes() {
     val logger = application.environment.log
 
-    route("/api/v1/logger/") {
+    route("/logger/") {
         post("event") {
             runCatching {
                 val event = call.receive<FrontendEvent>()

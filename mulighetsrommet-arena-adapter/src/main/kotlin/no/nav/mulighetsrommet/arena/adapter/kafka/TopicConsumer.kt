@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import org.slf4j.Logger
 
-abstract class TopicConsumer<T>() {
+abstract class TopicConsumer<T> {
     abstract val consumerConfig: ConsumerConfig
     abstract val logger: Logger
     abstract val events: EventRepository

@@ -98,7 +98,7 @@ fun Route.arenaRoutes() {
                 val sak = call.receive<AdapterSak>()
                 arenaService.updateTiltaksgjennomforingWithSak(sak)
             }.onSuccess {
-                val response = it ?: HttpStatusCode.NotFound
+                val response = it ?: HttpStatusCode.Conflict
                 call.respond(response)
             }.onFailure {
                 logError(logger, it)
@@ -120,8 +120,9 @@ fun Route.arenaRoutes() {
     }
 }
 
-private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, it: Throwable) {
-    logger.error(
-        "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()} stack_trace=${it.stackTraceToString()}"
+private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: Throwable) {
+    logger.info(
+        "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()}",
+        error
     )
 }

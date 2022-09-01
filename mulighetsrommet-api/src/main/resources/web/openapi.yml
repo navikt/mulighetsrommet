@@ -45,34 +45,10 @@ paths:
                 items:
                   $ref: "#/components/schemas/Innsatsgruppe"
 
-  /api/v1/logger/event:
-    post:
-      tags:
-        - mulighetsrommet
-      operationId: logFrontendEvent
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FrontendEvent"
-      responses:
-        201:
-          description: "Logged frontend event"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FrontendEvent"
-        500:
-          description: "Logging to frontend failed"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/tiltaksgjennomforinger:
     get:
       tags:
-        - Tiltaksgjennomføringer
+        - Tiltaksgjennomforinger
       operationId: getTiltaksgjennomforinger
       parameters:
         - in: query
@@ -111,7 +87,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Tiltaksgjennomføringer
+        - Tiltaksgjennomforinger
       operationId: getTiltaksgjennomforing
       responses:
         200:
@@ -204,7 +180,7 @@ paths:
   /api/v1/sanity:
     get:
       tags:
-        - mulighetsrommet
+        - Sanity
       operationId: sanityQuery
       parameters:
         - in: query
@@ -224,6 +200,30 @@ paths:
           content:
             application/json:
               schema: { }
+
+  /logger/event:
+    post:
+      tags:
+        - Internal
+      operationId: logFrontendEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FrontendEvent"
+      responses:
+        201:
+          description: "Logged frontend event"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FrontendEvent"
+        500:
+          description: "Logging to frontend failed"
+          content:
+            application/json:
+              schema:
+                type: string
 
 
 components:
@@ -256,6 +256,22 @@ components:
         type: string
 
   schemas:
+    ManuellStatus:
+      type: object
+      properties:
+        erUnderManuellOppfolging:
+          type: boolean
+          nullable: true
+        krrStatus:
+          type: object
+          properties:
+            kanVarsles:
+              type: boolean
+              nullable: true
+            erReservert:
+              type: boolean
+              nullable: true
+
     Tiltakstype:
       type: object
       required:
@@ -417,9 +433,11 @@ components:
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         oppfolgingsenhet:
-          type: "#/components/schemas/Oppfolgingsenhet"
+          $ref: "#/components/schemas/Oppfolgingsenhet"
         fornavn:
           type: string
+        manuellStatus:
+          $ref: "#/components/schemas/ManuellStatus"
       required:
         - fnr
         - oppfolgingsenhet
@@ -441,6 +459,7 @@ components:
       required:
         - navn
         - enhetId
+
     FrontendEvent:
       type: object
       properties:
@@ -463,6 +482,13 @@ components:
         navn: "Ny tiltakstype"
         innsatsgruppe: 1
         tiltakskode: "SPA"
-        sanityId: null
-        fraDato: "2022-04-06T07:14:19.780"
-        tilDato: "2023-04-06T07:14:19.780"
+
+    Tiltaksgjennomforing:
+      summary: "Tiltaksgjennomføring eksempel"
+      value:
+        id: null
+        navn: "Ny tiltaksgjennomføring"
+        tiltakskode: "SPA"
+        tiltaksnummer: 1234
+        aar: 2022
+        tilgjenglighet: "Ledig"

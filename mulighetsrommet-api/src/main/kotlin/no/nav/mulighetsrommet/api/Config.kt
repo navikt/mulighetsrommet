@@ -18,7 +18,8 @@ data class AppConfig(
     val sentry: SentryConfig? = null,
     val veilarboppfolgingConfig: VeilarboppfolgingConfig,
     val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig,
-    val veilarbpersonConfig: VeilarbpersonConfig
+    val veilarbpersonConfig: VeilarbpersonConfig,
+    val swagger: SwaggerConfig? = null
 )
 
 data class AuthConfig(
@@ -54,4 +55,8 @@ data class VeilarbpersonConfig(
     val url: String,
     val scope: String,
     val httpClient: HttpClient = baseClient
+)
+
+data class SwaggerConfig(
+    val enable: Boolean
 )

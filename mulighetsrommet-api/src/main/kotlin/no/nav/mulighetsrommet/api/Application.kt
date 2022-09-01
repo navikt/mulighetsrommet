@@ -4,7 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
-import no.nav.mulighetsrommet.api.routes.swaggerRoutes
+import no.nav.mulighetsrommet.api.routes.internal.*
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
@@ -31,7 +31,7 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureWebjars()
+    configureWebjars(config.swagger)
     configureSentry(config.sentry)
 
     routing {

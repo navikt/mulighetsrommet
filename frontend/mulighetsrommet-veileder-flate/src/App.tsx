@@ -1,4 +1,5 @@
 import { Modal } from '@navikt/ds-react';
+import { MulighetsrommetClient } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';

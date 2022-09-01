@@ -2,10 +2,12 @@ import groq from 'groq';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
 import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
+import { useHentBrukerdata } from './useHentBrukerdata';
 import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const brukerData = useHentBrukerdata();
   return useSanity<Tiltaksgjennomforing[]>(
     groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)} 
@@ -23,7 +25,10 @@ export default function useTiltaksgjennomforing() {
     kontaktinfoArrangor->,
     tiltakstype->,
     tilgjengelighetsstatus
-  }`
+  }`,
+    {
+      enabled: !!brukerData.data?.oppfolgingsenhet,
+    }
   );
 }
 

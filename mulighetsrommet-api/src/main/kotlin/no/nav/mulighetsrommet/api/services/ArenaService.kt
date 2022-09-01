@@ -21,24 +21,18 @@ class ArenaService(private val db: Database) {
             insert into tiltakstype (navn, innsatsgruppe_id, tiltakskode, fra_dato, til_dato)
             values (?, ?, ?, ?, ?)
             on conflict (tiltakskode)
-            do update set
-                navn = excluded.navn,
-                innsatsgruppe_id = excluded.innsatsgruppe_id,
-                tiltakskode = excluded.tiltakskode,
-                fra_dato = excluded.fra_dato,
-                til_dato = excluded.til_dato
+                do update set navn             = excluded.navn,
+                              innsatsgruppe_id = excluded.innsatsgruppe_id,
+                              tiltakskode      = excluded.tiltakskode,
+                              fra_dato         = excluded.fra_dato,
+                              til_dato         = excluded.til_dato
             returning *
         """.trimIndent()
 
-        val queryResult = queryOf(
-            query,
-            tiltakstype.navn,
-            tiltakstype.innsatsgruppe,
-            tiltakstype.tiltakskode,
-            tiltakstype.fraDato,
-            tiltakstype.tilDato
-        ).map { DatabaseMapper.toAdapterTiltak(it) }.asSingle
-        return db.run(queryResult)!!
+        return tiltakstype.run { queryOf(query, navn, innsatsgruppe, tiltakskode, fraDato, tilDato) }
+            .map { DatabaseMapper.toAdapterTiltak(it) }
+            .asSingle
+            .let { db.run(it)!! }
     }
 
     fun deleteTiltakstype(tiltakstype: AdapterTiltak) {
@@ -50,7 +44,7 @@ class ArenaService(private val db: Database) {
             where tiltakskode = ?
         """.trimIndent()
 
-        queryOf(query, tiltakstype.tiltakskode)
+        tiltakstype.run { queryOf(query, tiltakskode) }
             .asExecute
             .let { db.run(it) }
     }
@@ -82,19 +76,24 @@ class ArenaService(private val db: Database) {
             returning *
         """.trimIndent()
 
-        val queryResult = queryOf(
-            query,
-            tiltak.navn,
-            tiltak.arrangorId,
-            tiltak.tiltakskode,
-            tiltak.id,
-            tiltak.fraDato,
-            tiltak.tilDato,
-            tiltak.sakId,
-            tiltak.apentForInnsok,
-            tiltak.antallPlasser,
-        ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
-        return db.run(queryResult)!!
+        return tiltak
+            .run {
+                queryOf(
+                    query,
+                    navn,
+                    arrangorId,
+                    tiltakskode,
+                    id,
+                    fraDato,
+                    tilDato,
+                    sakId,
+                    apentForInnsok,
+                    antallPlasser
+                )
+            }
+            .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
+            .asSingle
+            .let { db.run(it)!! }
     }
 
     fun deleteTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing) {
@@ -106,7 +105,7 @@ class ArenaService(private val db: Database) {
             where arena_id = ?
         """.trimIndent()
 
-        queryOf(query, tiltak.id)
+        tiltak.run { queryOf(query, id) }
             .asExecute
             .let { db.run(it) }
     }
@@ -129,16 +128,10 @@ class ArenaService(private val db: Database) {
             returning *
         """.trimIndent()
 
-        val queryResult = queryOf(
-            query,
-            deltaker.id,
-            deltaker.tiltaksgjennomforingId,
-            deltaker.personId,
-            deltaker.fraDato,
-            deltaker.tilDato,
-            deltaker.status.name
-        ).map { DatabaseMapper.toAdapterTiltakdeltaker(it) }.asSingle
-        return db.run(queryResult)!!
+        return deltaker.run { queryOf(query, id, tiltaksgjennomforingId, personId, fraDato, tilDato, status.name) }
+            .map { DatabaseMapper.toAdapterTiltakdeltaker(it) }
+            .asSingle
+            .let { db.run(it)!! }
     }
 
     fun deleteDeltaker(deltaker: AdapterTiltakdeltaker) {
@@ -150,7 +143,7 @@ class ArenaService(private val db: Database) {
             where arena_id = ?
         """.trimIndent()
 
-        queryOf(query, deltaker.id)
+        deltaker.run { queryOf(query, id) }
             .asExecute
             .let { db.run(it) }
     }
@@ -165,13 +158,10 @@ class ArenaService(private val db: Database) {
             returning *
         """.trimIndent()
 
-        val queryResult = queryOf(
-            query,
-            sak.lopenummer,
-            sak.aar,
-            sak.id,
-        ).map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }.asSingle
-        return db.run(queryResult)
+        return sak.run { queryOf(query, lopenummer, aar, id) }
+            .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
+            .asSingle
+            .let { db.run(it) }
     }
 
     fun unsetSakOnTiltaksgjennomforing(sak: AdapterSak): AdapterTiltaksgjennomforing? {
@@ -184,7 +174,7 @@ class ArenaService(private val db: Database) {
             returning *
         """.trimIndent()
 
-        return queryOf(query, sak.id)
+        return sak.run { queryOf(query, id) }
             .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
             .asSingle
             .let { db.run(it) }

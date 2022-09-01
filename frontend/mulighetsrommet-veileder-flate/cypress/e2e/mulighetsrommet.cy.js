@@ -78,10 +78,37 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('paginering').children().children().eq(2).click();
     cy.getByTestId('paginering').children().children().children().eq(2).should('have.attr', 'aria-current');
   });
+
+  it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
+    // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
+    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
+    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
+
+    cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
+      expect($value.text()).to.eq('Situasjonsbestemt innsats');
+    });
+  });
+
+  it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
+    cy.getByTestId('filter_checkbox_standardinnsats').click();
+    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
+    cy.tilbakeTilListevisning();
+    cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
+    cy.getByTestId('filtertags').children().should('have.length', 3);
+  });
+
+  it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
+    cy.getByTestId('filter_sokefelt').type('blablablablabla');
+    cy.getByTestId('feilmelding-container').should('be.visible');
+    cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
+  });
 });
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå til en tiltaksgjennomføring', () => {
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
 
@@ -114,29 +141,8 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
 
-  it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
-    // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
-    cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
-    cy.getByTestId('filtertags').children().should('have.length', 2);
-    cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
-
-    cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
-      expect($value.text()).to.eq('Situasjonsbestemt innsats');
-    });
-  });
-
-  it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
-    cy.getByTestId('filter_checkbox_standardinnsats').click();
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+  it("Sjekk 'Del med bruker'", () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
-    cy.tilbakeTilListevisning();
-    cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
-    cy.getByTestId('filtertags').children().should('have.length', 3);
-  });
-
-  it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
-    cy.getByTestId('filter_sokefelt').type('blablablablabla');
-    cy.getByTestId('feilmelding-container').should('be.visible');
-    cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
+    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
   });
 });

@@ -1,47 +1,20 @@
-import React from 'react';
-import { Alert, Button, Tag } from '@navikt/ds-react';
+import { Button } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
+import { useErrorHandler } from 'react-error-boundary';
 import Filtermeny from '../../components/filtrering/Filtermeny';
+import { BrukersOppfolgingsenhet } from '../../components/oppfolgingsenhet/BrukerOppfolgingsenhet';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
 import SearchFieldTag from '../../components/tags/SearchFieldTag';
+import { InnsatsgruppeNokler } from '../../core/api/models';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
-import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import { kebabCase } from '../../utils/Utils';
-import { useErrorHandler } from 'react-error-boundary';
-import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
-import { InnsatsgruppeNokler } from '../../core/api/models';
-
-function BrukersOppfolgingsenhet() {
-  const brukerdata = useHentBrukerdata();
-  const brukersOppfolgingsenhet = brukerdata?.data?.oppfolgingsenhet?.navn;
-
-  if (brukerdata?.isLoading) {
-    return null;
-  }
-
-  return brukersOppfolgingsenhet ? (
-    <Tag
-      className={'nav-enhet-tag'}
-      key={'navenhet'}
-      variant={brukersOppfolgingsenhet ? 'info' : 'error'}
-      size="small"
-      data-testid={`${kebabCase('filtertag_navenhet')}`}
-      title="Brukers oppfølgingsenhet"
-    >
-      {brukersOppfolgingsenhet}
-    </Tag>
-  ) : (
-    <Alert key="alert-navenhet" data-testid="alert-navenhet" size="small" variant="error">
-      Klarte ikke hente brukers oppfølgingsenhet
-    </Alert>
-  );
-}
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -54,6 +27,12 @@ const ViewTiltakstypeOversikt = () => {
   const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: InnsatsgruppeNokler) => {
     return innsatsgruppe !== brukerdata?.data?.innsatsgruppe;
   };
+
+  const skalResetteFilter =
+    filter.innsatsgruppe! === undefined ||
+    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
+    filter.search !== '' ||
+    filter.tiltakstyper.length > 0;
 
   return (
     <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
@@ -82,15 +61,7 @@ const ViewTiltakstypeOversikt = () => {
             }
           />
           <SearchFieldTag />
-          <Show
-            if={
-              !innsatsgrupper.isLoading &&
-              (filter.innsatsgruppe! === undefined ||
-                brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
-                filter.search !== '' ||
-                filter.tiltakstyper.length > 0)
-            }
-          >
+          <Show if={!innsatsgrupper.isLoading && skalResetteFilter}>
             <Button
               size="small"
               variant="tertiary"

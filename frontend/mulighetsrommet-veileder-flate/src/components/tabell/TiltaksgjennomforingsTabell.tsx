@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
 import { Alert, BodyShort, Button, Heading, Ingress, Loader, Pagination, Table } from '@navikt/ds-react';
-import './Tabell.less';
 import { useAtom } from 'jotai';
-import Lenke from '../lenke/Lenke';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
+import { RESET } from 'jotai/utils';
+import { useEffect, useState } from 'react';
+import { logEvent } from '../../core/api/logger';
+import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
+import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
-import { logEvent } from '../../core/api/logger';
-import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
-import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { RESET } from 'jotai/utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
-import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
+import Lenke from '../lenke/Lenke';
+import './Tabell.less';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -24,6 +25,7 @@ const TiltaksgjennomforingsTabell = () => {
     return Math.ceil(tiltaksgjennomforing.length / rowsPerPage);
   };
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const brukerdata = useHentBrukerdata();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
 
@@ -83,7 +85,7 @@ const TiltaksgjennomforingsTabell = () => {
     }
   };
 
-  if (isLoading || isFetching) {
+  if (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching) {
     return <Loader className="filter-loader" size="xlarge" />;
   }
 
@@ -124,7 +126,19 @@ const TiltaksgjennomforingsTabell = () => {
     })
     .slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  if (tiltaksgjennomforinger.length === 0) {
+  if (!brukerdata?.data?.oppfolgingsenhet) {
+    return (
+      <Feilmelding ikonvariant="warning">
+        <Ingress>Kunne ikke hente brukers oppfølgingsenhet</Ingress>
+        <BodyShort>
+          Vi kunne ikke hente oppfølgingsenhet for brukeren. Kontroller at brukeren er under oppfølging og finnes i
+          Arena.
+        </BodyShort>
+      </Feilmelding>
+    );
+  }
+
+  if (tiltaksgjennomforinger.length == 0) {
     return (
       <Feilmelding ikonvariant="warning">
         <>
@@ -239,7 +253,7 @@ const TiltaksgjennomforingsTabell = () => {
               <Table.Row key={_id}>
                 <Table.DataCell className="tabell__tiltaksnavn">
                   <Lenke
-                    to={`${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+                    to={`tiltak/${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
                     isInline
                     data-testid="tabell_tiltaksgjennomforing"
                   >
