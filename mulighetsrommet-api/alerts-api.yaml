@@ -7,12 +7,11 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
+    app: mulighetsrommet-api
 spec:
   receivers:
     slack:
       channel: "#team-valp-feil"
-      # <!here> results in a @here message in Slack
-      prependText: " | "
   alerts:
     - alert: applikasjon nede
       # Change <appname> to the name of the app you want to monitor
@@ -30,15 +29,15 @@ spec:
       expr: selftests_aggregate_result_status{app="mulighetsrommet-api"} > 0
       for: 1m
       action: "Sjekk app {{ $labels.app }} i namespace {{ $labels.kubernetes_namespace }} sine selftest for å se hva som er galt"
-    - alert: Høy andel HTTP serverfeil (5xx responser)
+    - alert: Høy andel HTTP serverfeil (5xx responser) for {{ $labels.app }}
       severity: danger
       # Change <appname> to the name of the app you want to monitor and <namespace> to the namespace of the app
       expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^5\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
       for: 3m
-      action: "Sjekk loggene for å se hvorfor {{ $labels.app }} returnerer HTTP feilresponser"
-    - alert: Høy andel HTTP klientfeil (4xx responser)
+      action: "Sjekk loggene for å se hvorfor returnerer HTTP feilresponser"
+    - alert: Høy andel HTTP klientfeil (4xx responser) for {{ $labels.app }}
       severity: warning
       # Change <appname> to the name of the app you want to monitor and <namespace> to the namespace of the app
-      expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
+      expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^4(?!(?:09)$)\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
       for: 3m
-      action: "Sjekk loggene for å se hvorfor {{ $labels.app }} returnerer HTTP feilresponser"
+      action: "Sjekk loggene for å se hvorfor returnerer HTTP feilresponser"

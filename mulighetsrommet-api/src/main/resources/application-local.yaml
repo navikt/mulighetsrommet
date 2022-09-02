@@ -30,6 +30,10 @@ app:
     url: http://localhost:8090
     scope: default
 
+  veilarbveilederConfig:
+    url: http://localhost:8090
+    scope: default
+
   veilarbdialogConfig:
     url: http://localhost:8090
 

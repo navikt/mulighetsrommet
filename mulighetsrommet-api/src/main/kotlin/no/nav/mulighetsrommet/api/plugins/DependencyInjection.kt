@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
+import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
+import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -36,7 +38,8 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbvedsstotte(appConfig),
                 veilarboppfolging(appConfig),
                 veilarbperson(appConfig),
-                veilarbdialog(appConfig)
+                veilarbdialog(appConfig),
+                veilarbveileder(appConfig)
             )
         )
     }
@@ -82,6 +85,15 @@ private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
     )
 }
 
+private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
+    return VeilarbveilederClientImpl(
+        config.veilarbveilederConfig.url,
+        tokenClientProvider(config),
+        config.veilarbveilederConfig.scope,
+        config.veilarbveilederConfig.httpClient
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -98,7 +110,8 @@ private fun services(
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient,
     veilarbpersonClient: VeilarbpersonClient,
-    veilarbdialogClient: VeilarbdialogClient
+    veilarbdialogClient: VeilarbdialogClient,
+    veilarbveilerClient: VeilarbveilederClient
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
@@ -113,6 +126,11 @@ private fun services(
         )
     }
     single { DialogService(veilarbdialogClient) }
+    single {
+        VeilederService(
+            veilarbveilederClient = veilarbveilerClient
+        )
+    }
 }
 
 private fun erLokalUtvikling(): Boolean {

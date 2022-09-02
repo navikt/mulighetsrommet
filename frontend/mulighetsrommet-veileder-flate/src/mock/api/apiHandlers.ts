@@ -29,6 +29,15 @@ export const apiHandlers: RestHandler[] = [
     });
   }),
 
+  rest.get('*/api/v1/veileder', (req, res, ctx) => {
+    return ok({
+      etternavn: 'Veiledersen',
+      fornavn: 'Veileder',
+      ident: 'V1234',
+      navn: 'Veiledersen, Veileder',
+    });
+  }),
+
   rest.get('*/api/v1/sanity', async req => {
     const query = req.url.searchParams.get('query');
 

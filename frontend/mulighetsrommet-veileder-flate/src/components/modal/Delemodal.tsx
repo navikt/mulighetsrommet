@@ -2,9 +2,18 @@ import { BodyLong, Button, Detail, Heading, Modal, Textarea } from '@navikt/ds-r
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { APPLICATION_NAME } from '../../constants';
+import { logEvent } from '../../core/api/logger';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import './delemodal.less';
 import { mulighetsrommetClient } from '../../core/api/clients';
+
+export const logDelMedbrukerEvent = (
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
+) => {
+  logEvent('mulighetsrommet.del-med-bruker', {
+    value: action,
+  });
+};
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -12,6 +21,7 @@ interface DelemodalProps {
   tiltaksgjennomforingsnavn: string;
   brukerNavn: string;
   chattekst: string;
+  veiledernavn?: string;
 }
 
 interface State {
@@ -85,8 +95,17 @@ function initInitialState(startTekst: string): State {
   };
 }
 
-const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerNavn, chattekst }: DelemodalProps) => {
-  const startText = chattekst.replace('<Fornavn>', brukerNavn).replace('<tiltaksnavn>', tiltaksgjennomforingsnavn);
+const Delemodal = ({
+  modalOpen,
+  setModalOpen,
+  tiltaksgjennomforingsnavn,
+  brukerNavn,
+  chattekst,
+  veiledernavn = '',
+}: DelemodalProps) => {
+  const startText = `${chattekst
+    .replace('<Fornavn>', brukerNavn)
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
 
@@ -96,28 +115,19 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
 
   const handleSend = async () => {
     if (state.tekst.trim().length > getAntallTegn()) return;
+    logDelMedbrukerEvent('Delte med bruker');
 
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const { tekst } = state;
     if (fnr) {
-      /*const res = await fetch(`/veilarbdialog/api/dialog?fnr=${fnr}`, {
-        method: 'POST',
-        headers: {
-          'Nav-Consumer-Id': APPLICATION_NAME,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ overskrift, tekst }),
-      });*/
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
 
-      const res = mulighetsrommetClient.dialogen.delMedDialogen(fnr, { overskrift, tekst });
-
-      if (res.ok) {
-        const { id } = (await res.json()) as { id: string };
-        dispatch({ type: 'Sendt ok', payload: id });
+      if (res) {
+        dispatch({ type: 'Sendt ok', payload: res.id });
       } else {
         dispatch({ type: 'Sending feilet' });
+        logDelMedbrukerEvent('Del med bruker feilet');
       }
     }
   };
@@ -125,6 +135,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
   const clickCancel = () => {
     setModalOpen();
     dispatch({ type: 'Avbryt' });
+    logDelMedbrukerEvent('Avbrutt del med bruker');
   };
 
   const gaTilDialogen = () => {
@@ -149,7 +160,7 @@ const Delemodal = ({ modalOpen, setModalOpen, tiltaksgjennomforingsnavn, brukerN
             {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
           </Heading>
           <BodyLong>
-            Kandidatene blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Ditt NAV.
+            Bruker blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Min side.
           </BodyLong>
           <Textarea
             value={state.tekst}

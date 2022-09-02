@@ -10,10 +10,11 @@ import { Alert, HelpText, Loader, ReadMore } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import Deleknapp from '../../components/knapper/Deleknapp';
-import Delemodal from '../../components/modal/Delemodal';
+import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/Delemodal';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -22,9 +23,12 @@ const ViewTiltakstypeDetaljer = () => {
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
+  const veilederdata = useHentVeilederdata();
+  const veiledernavn = `${veilederdata?.data?.fornavn} ${veilederdata?.data?.etternavn}`;
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
+    logDelMedbrukerEvent('Åpnet dialog');
   };
 
   if (isLoading) {
@@ -67,7 +71,7 @@ const ViewTiltakstypeDetaljer = () => {
             'Del med bruker'
           ) : (
             <span title="Bruker er under manuell oppfølging, finnes i Kontakt- og reservasjonsregisteret eller har ikke vært innlogget på NAV.no siste 18 mnd. Brukeren kan dermed ikke kontaktes digitalt.">
-              Kan ikke dele med bruker
+              Del med bruker
             </span>
           )}
         </Deleknapp>
@@ -79,6 +83,7 @@ const ViewTiltakstypeDetaljer = () => {
         tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
         brukerNavn={brukerdata?.data?.fornavn ?? ''}
         chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
+        veiledernavn={veiledernavn}
       />
     </div>
   );

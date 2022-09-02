@@ -121,7 +121,7 @@ fun Route.arenaRoutes() {
 }
 
 private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: Throwable) {
-    logger.info(
+    logger.debug(
         "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()}",
         error
     )
