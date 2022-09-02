@@ -14,6 +14,7 @@ import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/Delemoda
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -22,6 +23,8 @@ const ViewTiltakstypeDetaljer = () => {
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
+  const veilederdata = useHentVeilederdata();
+  const veiledernavn = `${veilederdata?.data?.fornavn} ${veilederdata?.data?.etternavn}`;
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
@@ -80,6 +83,7 @@ const ViewTiltakstypeDetaljer = () => {
         tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
         brukerNavn={brukerdata?.data?.fornavn ?? ''}
         chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
+        veiledernavn={veiledernavn}
       />
     </div>
   );

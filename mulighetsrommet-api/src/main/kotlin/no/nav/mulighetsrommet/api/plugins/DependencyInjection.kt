@@ -12,6 +12,8 @@ import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
+import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
+import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -29,7 +31,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
-            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig), veilarbperson(appConfig))
+            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig), veilarbperson(appConfig), veilarbveileder(appConfig))
         )
     }
 }
@@ -67,6 +69,15 @@ private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
     )
 }
 
+private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
+    return VeilarbveilederClientImpl(
+        config.veilarbveilederConfig.url,
+        tokenClientProvider(config),
+        config.veilarbveilederConfig.scope,
+        config.veilarbveilederConfig.httpClient
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -83,6 +94,7 @@ private fun services(
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient,
     veilarbpersonClient: VeilarbpersonClient,
+    veilarbveilerClient: VeilarbveilederClient
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
@@ -94,6 +106,11 @@ private fun services(
             veilarboppfolgingClient = veilarboppfolging,
             veilarbvedtaksstotteClient = veilarbvedsstotte,
             veilarbpersonClient = veilarbpersonClient
+        )
+    }
+    single {
+        VeilederService(
+            veilarbveilederClient = veilarbveilerClient
         )
     }
 }

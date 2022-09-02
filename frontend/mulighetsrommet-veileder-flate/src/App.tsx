@@ -11,6 +11,7 @@ import FakeDoor from './components/fakedoor/FakeDoor';
 import Feedback from './components/feedback/Feedback';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
 import { ENABLE_ARBEIDSFLATE, useFeatureToggles } from './core/api/feature-toggles';
+import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
 import { useHentFnrFraUrl } from './hooks/useHentFnrFraUrl';
 import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import RoutesConfig from './RoutesConfig';
@@ -24,6 +25,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWind
 function AppWrapper() {
   const features = useFeatureToggles();
   useInitialBrukerfilter();
+  useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
 
   const enableArbeidsflate = features.isSuccess && features.data[ENABLE_ARBEIDSFLATE];
 

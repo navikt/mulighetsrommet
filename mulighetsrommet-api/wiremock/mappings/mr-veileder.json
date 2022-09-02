@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/veileder/me"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "etternavn": "Veiledersen",
+      "fornavn": "Veileder",
+      "ident": "V12345",
+      "navn": "Veiledersen, Veileder"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
