@@ -47,7 +47,7 @@ export const apiHandlers: RestHandler[] = [
 
     const client = getSanityClient();
 
-    const result = await client.fetch(query, { enhetsId: '*', fylkeId: '5700' });
+    const result = await client.fetch(query, { enhetsId: 'enhet.lokal.0106', fylkeId: 'enhet.fylke.5700' });
     return ok(result);
   }),
 ];

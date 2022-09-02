@@ -24,6 +24,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
+    cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
@@ -40,6 +41,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
     cy.getByTestId('filtertags').children().should('have.length', 5);
 
+    cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
@@ -58,6 +60,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filter_sokefelt').type('AFT');
     cy.getByTestId('filtertags').children().should('have.length', 3);
 
+    cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
