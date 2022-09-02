@@ -24,7 +24,7 @@ fun Route.apiRoutes() {
     }
 
     put("api/topics/replay/{id}") {
-        val id = call.request.queryParameters["id"]?.toInt() ?: return@put call.respond(
+        val id = call.parameters["id"]?.toInt() ?: return@put call.respond(
             HttpStatusCode.BadRequest,
             "'id' must be specified"
         )
