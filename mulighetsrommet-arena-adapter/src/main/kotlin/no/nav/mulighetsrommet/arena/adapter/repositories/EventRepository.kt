@@ -25,12 +25,28 @@ class EventRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getEvent(id: Int): Event? {
+        logger.info("Getting event id=$id")
+
+        @Language("PostgreSQL")
+        val query = """
+            select id, topic, payload
+            from events
+            where id = ?
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.toEvent() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     fun getEvents(topic: String, limit: Int, id: Int? = null): List<Event> {
         logger.info("Getting events topic=$topic, amount=$limit, id=$id")
 
         @Language("PostgreSQL")
         val query = """
-            select id, payload
+            select id, topic, payload
             from events
             where topic = :topic
               and id > :id
@@ -55,11 +71,13 @@ class EventRepository(private val db: Database) {
 private fun Row.toEvent(): Event {
     return Event(
         id = int("id"),
+        topic = string("topic"),
         payload = string("payload"),
     )
 }
 
 data class Event(
     val id: Int,
+    val topic: String,
     val payload: String,
 )

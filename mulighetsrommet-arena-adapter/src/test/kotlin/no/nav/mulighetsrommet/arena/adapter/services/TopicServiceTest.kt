@@ -10,27 +10,48 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.Event
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 
 class TopicServiceTest : FunSpec({
+    val topic = "foo-topic"
+
+    val fooEventPayload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
+    val barEventPayload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
+
+    val events = mockk<EventRepository>()
+    val consumer = mockk<TopicConsumer<Any>>()
+
+    val service = TopicService(events, ConsumerGroup(listOf(consumer)))
+
+    beforeEach {
+        every { consumer.consumerConfig.topic } answers { topic }
+        coEvery { consumer.replayEvent(any()) } just runs
+    }
+
+    afterEach {
+        clearAllMocks()
+    }
+
+    context("replay event") {
+        test("should run gracefully when specified event does not exist") {
+            every { events.getEvent(1) } returns null
+
+            service.replayEvent(1)
+
+            coVerify(exactly = 0) {
+                consumer.replayEvent(any())
+            }
+        }
+
+        test("should replay event payload specified by id") {
+            every { events.getEvent(1) } returns Event(id = 1, topic = topic, payload = fooEventPayload.toString())
+
+            service.replayEvent(1)
+
+            coVerify(exactly = 1) {
+                consumer.replayEvent(fooEventPayload)
+            }
+        }
+    }
 
     context("replay events") {
-        val topic = "foo-topic"
-
-        val fooEventPayload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
-        val barEventPayload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
-
-        val events = mockk<EventRepository>()
-        val consumer = mockk<TopicConsumer<Any>>()
-
-        val service = TopicService(events, ConsumerGroup(listOf(consumer)))
-
-        beforeEach {
-            every { consumer.consumerConfig.topic } answers { topic }
-            coEvery { consumer.replayEvent(any()) } just runs
-        }
-
-        afterEach {
-            clearAllMocks()
-        }
-
         test("should run gracefully when there are no events to replay") {
             every { events.getEvents(topic, any(), any()) } returns listOf()
 
@@ -45,7 +66,7 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getEvents(topic, any(), any())
             } returns listOf(
-                Event(id = 1, payload = fooEventPayload.toString())
+                Event(id = 1, topic = topic, payload = fooEventPayload.toString())
             ) andThen listOf()
 
             service.replayEvents(topic)
@@ -59,13 +80,13 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getEvents(topic, any(), null)
             } returns listOf(
-                Event(id = 1, payload = fooEventPayload.toString())
+                Event(id = 1, topic = topic, payload = fooEventPayload.toString())
             )
 
             every {
                 events.getEvents(topic, any(), 1)
             } returns listOf(
-                Event(id = 2, payload = barEventPayload.toString())
+                Event(id = 2, topic = topic, payload = barEventPayload.toString())
             )
 
             every { events.getEvents(topic, any(), 2) } returns listOf()
@@ -82,13 +103,13 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getEvents(topic, any(), null)
             } returns listOf(
-                Event(id = 1, payload = fooEventPayload.toString())
+                Event(id = 1, topic = topic, payload = fooEventPayload.toString())
             )
 
             every {
                 events.getEvents(topic, any(), 1)
             } returns listOf(
-                Event(id = 2, payload = barEventPayload.toString())
+                Event(id = 2, topic = topic, payload = barEventPayload.toString())
             )
 
             every { events.getEvents(topic, any(), 2) } returns listOf()
