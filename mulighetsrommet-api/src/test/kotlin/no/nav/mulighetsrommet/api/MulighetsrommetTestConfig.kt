@@ -26,6 +26,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig(),
     veilarbpersonConfig = createVeilarbpersonConfig(),
     veilarbveilederConfig = createVeilarbveilederConfig(),
+    veilarbdialogConfig = createVeilarbdialogConfig(),
 )
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
@@ -52,6 +53,12 @@ fun createVeilarbveilederConfig(): VeilarbveilederConfig {
     return VeilarbveilederConfig(
         url = "",
         scope = ""
+    )
+}
+
+fun createVeilarbdialogConfig(): VeilarbdialogConfig {
+    return VeilarbdialogConfig(
+        url = "",
     )
 }
 
