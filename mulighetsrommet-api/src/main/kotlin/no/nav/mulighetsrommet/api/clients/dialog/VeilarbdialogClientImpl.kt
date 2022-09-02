@@ -33,7 +33,7 @@ class VeilarbdialogClientImpl(
 
             return response.body<DialogResponse>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente sende melding til dialogen")
+            log.error("Klarte ikke sende melding til dialogen")
             null
         }
     }
