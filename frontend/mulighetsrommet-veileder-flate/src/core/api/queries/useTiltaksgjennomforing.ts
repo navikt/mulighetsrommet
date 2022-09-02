@@ -35,7 +35,7 @@ export default function useTiltaksgjennomforing() {
 }
 
 function byggEnhetOgFylkeFilter(): string {
-  return `&& ($enhetsId in enheter[]._ref || enheter[0] == null && $fylkeId == fylke._ref)`;
+  return `&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
 }
 
 function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
