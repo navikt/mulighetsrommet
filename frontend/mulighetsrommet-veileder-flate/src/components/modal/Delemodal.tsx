@@ -120,15 +120,12 @@ const Delemodal = ({
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const { tekst } = state;
-    if (fnr) {
+    try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
-
-      if (res) {
-        dispatch({ type: 'Sendt ok', payload: res.id });
-      } else {
-        dispatch({ type: 'Sending feilet' });
-        logDelMedbrukerEvent('Del med bruker feilet');
-      }
+      dispatch({ type: 'Sendt ok', payload: res.id });
+    } catch {
+      dispatch({ type: 'Sending feilet' });
+      logDelMedbrukerEvent('Del med bruker feilet');
     }
   };
 
