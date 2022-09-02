@@ -71,7 +71,7 @@ const ViewTiltakstypeDetaljer = () => {
             'Del med bruker'
           ) : (
             <span title="Bruker er under manuell oppfølging, finnes i Kontakt- og reservasjonsregisteret eller har ikke vært innlogget på NAV.no siste 18 mnd. Brukeren kan dermed ikke kontaktes digitalt.">
-              Kan ikke dele med bruker
+              Del med bruker
             </span>
           )}
         </Deleknapp>
