@@ -1,4 +1,4 @@
-xdescribe('Tiltaksgjennomføringstabell', () => {
+describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
@@ -113,7 +113,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
 
-  xit('Sjekk at tiltaksnummer tilsvarer med url', () => {
+  it('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.getByTestId('knapp_kopier').click();
 
     cy.window().then(win => {
@@ -123,11 +123,11 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     });
   });
 
-  xit('Sjekk UU', () => {
+  it('Sjekk UU', () => {
     cy.checkPageA11y();
   });
 
-  xit('Sjekk at fanene fungerer som de skal', () => {
+  it('Sjekk at fanene fungerer som de skal', () => {
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
@@ -162,7 +162,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('modal_header').should('not.exist');
   });
 
-  xit('Gå tilbake til tiltaksoversikten', () => {
+  it('Gå tilbake til tiltaksoversikten', () => {
     cy.tilbakeTilListevisning();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
