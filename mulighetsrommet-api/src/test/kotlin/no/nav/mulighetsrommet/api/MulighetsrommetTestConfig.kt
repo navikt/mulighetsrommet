@@ -59,6 +59,7 @@ fun createVeilarbveilederConfig(): VeilarbveilederConfig {
 fun createVeilarbdialogConfig(): VeilarbdialogConfig {
     return VeilarbdialogConfig(
         url = "",
+        scope = ""
     )
 }
 
