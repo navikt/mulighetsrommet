@@ -66,8 +66,6 @@ class VeilarboppfolgingClientImpl(
                 return null
             }
 
-            println(response.request.headers)
-
             val body = response.body<ManuellStatusDTO>()
             body
         } catch (exe: Exception) {
