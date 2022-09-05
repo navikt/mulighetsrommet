@@ -8,10 +8,8 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
-import org.slf4j.LoggerFactory
 
 fun Route.brukerRoutes() {
-    val log = LoggerFactory.getLogger(this.javaClass)
     val brukerService: BrukerService by inject()
 
     route("/api/v1/bruker") {

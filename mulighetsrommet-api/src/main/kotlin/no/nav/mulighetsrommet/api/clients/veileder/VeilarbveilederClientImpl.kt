@@ -23,7 +23,7 @@ class VeilarbveilederClientImpl(
 ) : VeilarbveilederClient {
     override suspend fun hentVeilederdata(accessToken: String?, callId: String?): VeilederDTO? {
         return try {
-            val response = client.get("$baseUrl/veileder/me") {
+            return client.get("$baseUrl/veileder/me") {
                 bearerAuth(
                     veilarbVeilederTokenProvider.exchangeOnBehalfOfToken(
                         scope,
@@ -32,9 +32,7 @@ class VeilarbveilederClientImpl(
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
                 callId?.let { header(HttpHeaders.XRequestId, it) }
-            }
-            log.info("utgående id: ${response.request.headers}")
-            return response.body<VeilederDTO>()
+            }.body<VeilederDTO>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente data om veileder")
             null
