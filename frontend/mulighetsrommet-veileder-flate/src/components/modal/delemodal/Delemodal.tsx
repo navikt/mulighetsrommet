@@ -5,7 +5,7 @@ import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import '../Modal.less';
 import './Delemodal.less';
-import { Actions, State } from './ModalActions';
+import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
 
