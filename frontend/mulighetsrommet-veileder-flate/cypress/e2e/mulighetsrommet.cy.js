@@ -103,7 +103,6 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filter_sokefelt').type('blablablablabla');
     cy.getByTestId('feilmelding-container').should('be.visible');
     cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
-    //mulig denne ikke er nødvendig
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
   });
 });

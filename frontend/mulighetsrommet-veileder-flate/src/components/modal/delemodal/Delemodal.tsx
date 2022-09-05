@@ -1,4 +1,4 @@
-import { BodyShort, Button, Heading, Modal, Textarea } from '@navikt/ds-react';
+import { BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
 import { useReducer } from 'react';
 import { APPLICATION_NAME } from '../../../constants';
 import { logEvent } from '../../../core/api/logger';
@@ -7,6 +7,15 @@ import '../Modal.less';
 import './Delemodal.less';
 import { Actions, State } from './ModalActions';
 import Lenke from '../../lenke/Lenke';
+import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
+
+export const logDelMedbrukerEvent = (
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
+) => {
+  logEvent('mulighetsrommet.del-med-bruker', {
+    value: action,
+  });
+};
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -16,14 +25,6 @@ interface DelemodalProps {
   chattekst: string;
   veiledernavn?: string;
 }
-
-export const logDelMedbrukerEvent = (
-  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
-) => {
-  logEvent('mulighetsrommet.del-med-bruker', {
-    value: action,
-  });
-};
 
 function reducer(state: State, action: Actions): State {
   switch (action.type) {
@@ -131,9 +132,10 @@ const Delemodal = ({
     >
       {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
         <Modal.Content>
-          <Heading level="1" size="medium" data-testid="modal_header">
-            {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
+          <Heading size="large" level="1" data-testid="modal_header">
+            Del tiltak med bruker
           </Heading>
+          <Ingress>{'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}</Ingress>
           <BodyShort size="small">
             Bruker blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Min side.
           </BodyShort>
@@ -167,7 +169,8 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDT_OK' && (
-        <Modal.Content>
+        <Modal.Content className="delemodal__tilbakemelding delemodal__success">
+          <SuccessColored className="delemodal__svg" />
           <Heading level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
@@ -183,7 +186,8 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDING_FEILET' && (
-        <Modal.Content>
+        <Modal.Content className="delemodal__tilbakemelding delemodal__success">
+          <ErrorColored className="delemodal__svg" />
           <Heading level="1" size="large" data-testid="modal_header">
             Tiltaket kunne ikke deles med brukeren
           </Heading>
