@@ -58,7 +58,6 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Filtrer på søkefelt', () => {
     cy.fjernFilter('situasjonsbestemt-innsats');
     cy.getByTestId('filter_sokefelt').type('AFT');
-    // cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.forventetAntallFiltertags(2);
 
     cy.wait(1000);
@@ -66,7 +65,6 @@ describe('Tiltaksgjennomføringstabell', () => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
     cy.getByTestId('filter_sokefelt').clear();
-    // cy.getByTestId('filtertags').children().should('have.length', 2);
     cy.forventetAntallFiltertags(1);
   });
 
@@ -97,12 +95,10 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
     cy.getByTestId('filter_checkbox_standardinnsats').click();
-    // cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.forventetAntallFiltertags(2);
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
     cy.tilbakeTilListevisning();
     cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
-    // cy.getByTestId('filtertags').children().should('have.length', 3);
     cy.forventetAntallFiltertags(2);
   });
 
