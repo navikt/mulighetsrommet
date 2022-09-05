@@ -76,7 +76,6 @@ xdescribe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('paginering').children().children().eq(1).should('not.have.attr', 'aria-current');
     cy.getByTestId('paginering').children().children().eq(2).click();
     cy.getByTestId('paginering').children().children().children().eq(2).should('have.attr', 'aria-current');
-    cy.debug();
   });
 
   it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
@@ -141,18 +140,26 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   it("Sjekk 'Del med bruker'", () => {
     cy.getByTestId('del-med-bruker-button').should('be.visible').click();
 
-    //sjekke header med tiltaksheader?
     cy.getByTestId('modal_header').should('be.visible');
-    // cy.getByTestId('textarea_tilbakemelding').click();
     cy.getByTestId('modal_btn-cancel').click();
     cy.getByTestId('modal_header').should('not.exist');
 
     cy.getByTestId('del-med-bruker-button').click();
     cy.getByTestId('modal_header').should('be.visible');
+
+    cy.getByTestId('textarea_tilbakemelding').type('{selectall}{backspace}');
+    cy.getByTestId('modal_btn-send').should('be.disabled');
+    cy.get('.navds-error-message').should('be.visible');
+
+    cy.getByTestId('textarea_tilbakemelding').type('Test');
+    cy.get('.navds-error-message').should('not.exist');
+    cy.getByTestId('modal_btn-send').should('not.be.disabled');
+
     cy.getByTestId('modal_btn-send').click();
     cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');
-    // cy.get('[data-testid=textarea_tilbakemelding]').type('');
-    // cy.get('[data-testid="modal_btn-send"] > .navds-label').click();
+
+    cy.getByTestId('modal_btn-cancel').click();
+    cy.getByTestId('modal_header').should('not.exist');
   });
 
   xit('Gå tilbake til tiltaksoversikten', () => {

@@ -66,12 +66,19 @@ const Delemodal = ({
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
-
   const getAntallTegn = () => {
+    if (startText.length === 0) {
+      return 750;
+    }
     return startText.length + 200;
   };
 
+  const handleError = () => {
+    if (state.tekst.length === 0) return 'Kan ikke sende tom melding.';
+  };
+
   const handleSend = async () => {
+    handleError();
     if (state.tekst.trim().length > getAntallTegn()) return;
     logDelMedbrukerEvent('Delte med bruker');
 
@@ -134,14 +141,18 @@ const Delemodal = ({
             value={state.tekst}
             onChange={e => dispatch({ type: 'Sett tekst', payload: e.currentTarget.value })}
             label=""
-            size="small"
             minRows={10}
             maxRows={50}
             data-testid="textarea_tilbakemelding"
             maxLength={getAntallTegn()}
+            error={handleError()}
           />
           <div className="modal_btngroup">
-            <Button onClick={handleSend} data-testid="modal_btn-send" disabled={senderTilDialogen}>
+            <Button
+              onClick={handleSend}
+              data-testid="modal_btn-send"
+              disabled={senderTilDialogen || state.tekst.length === 0}
+            >
               {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
             </Button>
             <Button
