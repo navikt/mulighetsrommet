@@ -22,7 +22,7 @@ class VeilarbvedtaksstotteClientImpl(
     }
 ) : VeilarbvedtaksstotteClient {
 
-    override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String?): VedtakDTO? {
+    override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String?, callId: String?): VedtakDTO? {
         return try {
             val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
                 bearerAuth(
@@ -32,6 +32,7 @@ class VeilarbvedtaksstotteClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
+                callId?.let { header(HttpHeaders.XRequestId, it) }
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {

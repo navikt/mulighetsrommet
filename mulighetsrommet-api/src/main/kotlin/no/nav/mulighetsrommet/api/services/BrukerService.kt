@@ -22,15 +22,15 @@ class BrukerService(
         .maximumSize(500)
         .build()
 
-    suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
+    suspend fun hentBrukerdata(fnr: String, accessToken: String?, callId: String?): Brukerdata {
         val cachedBrukerdata = brukerCache.getIfPresent(fnr)
 
         if (cachedBrukerdata != null) return cachedBrukerdata
 
-        val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
-        val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
-        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
-        val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
+        val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken, callId)
+        val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken, callId)
+        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken, callId)
+        val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken, callId)
 
         val brukerdata = Brukerdata(
             fnr = fnr,

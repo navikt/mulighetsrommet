@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.domain.ManuellStatusDTO
@@ -22,7 +23,7 @@ class VeilarboppfolgingClientImpl(
     }
 ) : VeilarboppfolgingClient {
 
-    override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?): Oppfolgingsstatus? {
+    override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?, callId: String?): Oppfolgingsstatus? {
         return try {
             val response = client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                 bearerAuth(
@@ -32,6 +33,7 @@ class VeilarboppfolgingClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
+                callId?.let { header(HttpHeaders.XRequestId, it) }
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
@@ -46,7 +48,7 @@ class VeilarboppfolgingClientImpl(
         }
     }
 
-    override suspend fun hentManuellStatus(fnr: String, accessToken: String?): ManuellStatusDTO? {
+    override suspend fun hentManuellStatus(fnr: String, accessToken: String?, callId: String?): ManuellStatusDTO? {
         return try {
             val response = client.get("$baseUrl/v2/manuell/status?fnr=$fnr") {
                 bearerAuth(
@@ -56,12 +58,15 @@ class VeilarboppfolgingClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
+                callId?.let { header(HttpHeaders.XRequestId, it) }
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
                 log.info("Fant ikke manuell status for bruker.")
                 return null
             }
+
+            println(response.request.headers)
 
             val body = response.body<ManuellStatusDTO>()
             body

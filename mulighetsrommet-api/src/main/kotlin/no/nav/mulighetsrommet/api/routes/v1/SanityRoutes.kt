@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.SanityService
@@ -23,8 +24,9 @@ fun Route.sanityRoutes() {
                 else -> call.request.queryParameters["fnr"]
             }
             val accessToken = call.getAccessToken()
+            val callId = call.request.header(HttpHeaders.XRequestId)
 
-            val result = sanityService.executeQuery(query, fnr, accessToken)
+            val result = sanityService.executeQuery(query, fnr, accessToken, callId)
             call.respondText(result.toString(), ContentType.Application.Json)
         }
     }

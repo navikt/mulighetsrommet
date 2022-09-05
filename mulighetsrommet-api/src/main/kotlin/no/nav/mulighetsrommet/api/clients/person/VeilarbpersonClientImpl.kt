@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.PersonDTO
@@ -21,7 +22,7 @@ class VeilarbpersonClientImpl(
     }
 ) : VeilarbpersonClient {
 
-    override suspend fun hentPersonInfo(fnr: String, accessToken: String?): PersonDTO? {
+    override suspend fun hentPersonInfo(fnr: String, accessToken: String?, callId: String?): PersonDTO? {
         return try {
             client.get("$baseUrl/v2/person?fnr=$fnr") {
                 bearerAuth(
@@ -31,6 +32,7 @@ class VeilarbpersonClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
+                callId?.let { header(HttpHeaders.XRequestId, it) }
             }.body<PersonDTO>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente fornavn")

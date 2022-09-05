@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.domain.VeilederDTO
 import no.nav.mulighetsrommet.api.setup.http.baseClient
@@ -19,7 +20,7 @@ class VeilarbveilederClientImpl(
         install(HttpCache)
     }
 ) : VeilarbveilederClient {
-    override suspend fun hentVeilederdata(accessToken: String?): VeilederDTO? {
+    override suspend fun hentVeilederdata(accessToken: String?, callId: String?): VeilederDTO? {
         return try {
             client.get("$baseUrl/veileder/me") {
                 bearerAuth(
@@ -29,6 +30,7 @@ class VeilarbveilederClientImpl(
                     )
                 )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
+                callId?.let { header(HttpHeaders.XRequestId, it) }
             }.body<VeilederDTO>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente data om veileder")

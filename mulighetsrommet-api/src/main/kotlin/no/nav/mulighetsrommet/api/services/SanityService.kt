@@ -40,15 +40,15 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
         }
     }
 
-    suspend fun executeQuery(query: String, fnr: String?, accessToken: String?): JsonElement? {
+    suspend fun executeQuery(query: String, fnr: String?, accessToken: String?, callId: String?): JsonElement? {
         if (fnr !== null) {
-            return getMedBrukerdata(query, fnr, accessToken)
+            return getMedBrukerdata(query, fnr, accessToken, callId)
         }
         return get(query)
     }
 
-    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String?): JsonElement? {
-        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String?, callId: String?): JsonElement? {
+        val brukerData = brukerService.hentBrukerdata(fnr, accessToken, callId)
         val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId)
         return get(query, brukerData.oppfolgingsenhet?.enhetId ?: "", fylkesId)
     }
