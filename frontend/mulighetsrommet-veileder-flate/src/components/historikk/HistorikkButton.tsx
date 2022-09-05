@@ -7,7 +7,7 @@ import { HistorikkForBruker } from './HistorikkForBruker';
 import './HistorikkForBruker.less';
 
 export function HistorikkButton() {
-  const [apneModal, setApneModal] = useState(false);
+  const [apneModal, setApneModal] = useState(true);
   const features = useFeatureToggles();
   const toggleModal = () => setApneModal(!apneModal);
 

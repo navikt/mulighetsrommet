@@ -39,19 +39,21 @@ export function HistorikkForBruker() {
         {data?.map(historikk => {
           return (
             <li key={historikk.id} className="historikk-for-bruker-element">
-              <div>
-                <h3 className="historikk-for-bruker-heading">{historikk.tiltaksnavn}</h3>
+              <section>
+                <h1 className="historikk-for-bruker-heading navds-heading navds-heading--small">
+                  {historikk.tiltaksnavn}
+                </h1>
                 <div className="historikk-for-bruker-metadata">
-                  <span>{historikk.tiltakstype}</span>
-                  <span>{historikk.arrangor}</span>
+                  <p className="historikk-text-content">{historikk.tiltakstype}</p>
+                  <p className="historikk-text-content">{historikk.arrangor}</p>
                 </div>
-                <span>
+                <p className="historikk-text-content">
                   {formaterDato(historikk.fra_dato)} - {formaterDato(historikk.til_dato)}
-                </span>
-              </div>
-              <div>
+                </p>
+              </section>
+              <aside>
                 <StatusBadge status={historikk.status} />
-              </div>
+              </aside>
             </li>
           );
         })}
