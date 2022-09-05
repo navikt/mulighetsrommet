@@ -21,7 +21,7 @@ fun Route.brukerRoutes() {
                 status = HttpStatusCode.BadRequest
             )
             val accessToken = call.getAccessToken()
-            log.info("Request id fra inkommende request", call.request.header(HttpHeaders.XRequestId))
+            log.info("Request id fra inkommende request ${call.request.header(HttpHeaders.XRequestId)}")
             call.respond(brukerService.hentBrukerdata(fnr, accessToken))
         }
     }
