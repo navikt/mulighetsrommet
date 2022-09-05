@@ -57,8 +57,8 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
         client.get {
             url {
                 parameters.append("query", query)
-                enhetsId?.let { parameters.append("\$enhetsId", "\"$it\"") }
-                fylkeId?.let { parameters.append("\$fylkeId", "\"$it\"") }
+                enhetsId?.let { parameters.append("\$enhetsId", "\"enhet.lokal.$it\"") }
+                fylkeId?.let { parameters.append("\$fylkeId", "\"enhet.fylke.$it\"") }
             }
         }.let {
             val response = it.body<JsonObject>()

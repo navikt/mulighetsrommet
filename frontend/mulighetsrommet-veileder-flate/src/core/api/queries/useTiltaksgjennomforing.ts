@@ -1,5 +1,6 @@
 import groq from 'groq';
 import { useAtom } from 'jotai';
+import { Bruker } from 'mulighetsrommet-api-client';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
 import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
 import { useHentBrukerdata } from './useHentBrukerdata';
@@ -8,12 +9,13 @@ import { useSanity } from './useSanity';
 export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
+
   return useSanity<Tiltaksgjennomforing[]>(
     groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
-  && (($enhetsId in enheter[]->nummer.current) || (enheter[0] == null && $fylkeId == fylke->nummer.current))
+  ${byggEnhetOgFylkeFilter()}
   ]
   {
     _id,
@@ -22,14 +24,18 @@ export default function useTiltaksgjennomforing() {
     oppstart,
     oppstartsdato,
     tiltaksnummer,
-    kontaktinfoArrangor->,
-    tiltakstype->,
+    kontaktinfoArrangor->{selskapsnavn},
+    tiltakstype->{tiltakstypeNavn},
     tilgjengelighetsstatus
   }`,
     {
       enabled: !!brukerData.data?.oppfolgingsenhet,
     }
   );
+}
+
+function byggEnhetOgFylkeFilter(): string {
+  return `&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
 }
 
 function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {

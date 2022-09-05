@@ -64,6 +64,10 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
+    // Cache
+    val caffeineVersion = "3.1.1"
+    implementation("com.github.ben-manes.caffeine:jcache:$caffeineVersion")
+
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
