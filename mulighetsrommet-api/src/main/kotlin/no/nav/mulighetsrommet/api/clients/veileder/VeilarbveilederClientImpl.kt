@@ -23,7 +23,7 @@ class VeilarbveilederClientImpl(
 ) : VeilarbveilederClient {
     override suspend fun hentVeilederdata(accessToken: String?, callId: String?): VeilederDTO? {
         return try {
-            return client.get("$baseUrl/veileder/me") {
+            client.get("$baseUrl/veileder/me") {
                 bearerAuth(
                     veilarbVeilederTokenProvider.exchangeOnBehalfOfToken(
                         scope,
