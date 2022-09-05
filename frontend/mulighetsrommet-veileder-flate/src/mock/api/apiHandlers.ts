@@ -2,6 +2,7 @@ import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
 import { badReq, ok } from './responses';
 import { mockFeatures } from './features';
+import { historikk } from '../fixtures/historikk';
 
 export const apiHandlers: RestHandler[] = [
   rest.get('*/api/v1/bruker', (req, res, ctx) => {
@@ -49,6 +50,16 @@ export const apiHandlers: RestHandler[] = [
 
     const result = await client.fetch(query, { enhetsId: 'enhet.lokal.0106', fylkeId: 'enhet.fylke.5700' });
     return ok(result);
+  }),
+
+  rest.get('*/api/v1/historikk', async req => {
+    const fnr = req.url.searchParams.get('fnr');
+
+    if (!(typeof fnr === 'string')) {
+      return badReq("'fnr' must be specified");
+    }
+
+    return ok(historikk);
   }),
 ];
 

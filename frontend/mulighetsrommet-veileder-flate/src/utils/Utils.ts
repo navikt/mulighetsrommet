@@ -9,6 +9,15 @@ export const inneholderUrl = (string: string) => {
 export function specialChar(string: string | { label: string }) {
   return string.toString().toLowerCase().split('æ').join('ae').split('ø').join('o').split('å').join('a');
 }
+
 export function kebabCase(string: string | { label: string }) {
   return specialChar(string).replace(/\s+/g, '-');
+}
+
+export function formaterDato(dato: string | Date) {
+  return new Date(dato).toLocaleString('no-NO', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 }
