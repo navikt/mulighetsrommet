@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogService
+import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
 
 fun Route.dialogRoutes() {
@@ -19,7 +20,8 @@ fun Route.dialogRoutes() {
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest
             )
-            val response = dialogService.sendMeldingTilDialogen(fnr, dialogRequest)
+            val accessToken = call.getAccessToken()
+            val response = dialogService.sendMeldingTilDialogen(fnr, accessToken, dialogRequest)
             response?.let { call.respond(response) } ?: call.respond(HttpStatusCode.Conflict)
         }
     }

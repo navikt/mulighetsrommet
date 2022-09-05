@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.api.clients.dialog
 
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogResponse
@@ -15,12 +15,24 @@ private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.jav
 
 class VeilarbdialogClientImpl(
     private val baseUrl: String,
+    private val veilarbdialogTokenProvider: AzureAdOnBehalfOfTokenClient,
+    private val scope: String,
     private val client: HttpClient = baseClient
 ) : VeilarbdialogClient {
 
-    override suspend fun sendMeldingTilDialogen(fnr: String, requestBody: DialogRequest): DialogResponse? {
+    override suspend fun sendMeldingTilDialogen(
+        fnr: String,
+        accessToken: String?,
+        requestBody: DialogRequest
+    ): DialogResponse? {
         return try {
             val response = client.post("$baseUrl/dialog?fnr=$fnr") {
+                bearerAuth(
+                    veilarbdialogTokenProvider.exchangeOnBehalfOfToken(
+                        scope,
+                        accessToken
+                    )
+                )
                 header("Nav-Consumer-Id", "mulighetsrommet-api")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(requestBody)

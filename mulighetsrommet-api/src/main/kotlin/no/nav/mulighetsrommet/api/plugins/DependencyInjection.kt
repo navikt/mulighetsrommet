@@ -81,6 +81,8 @@ private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
 private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
     return VeilarbdialogClientImpl(
         config.veilarbdialogConfig.url,
+        tokenClientProvider(config),
+        config.veilarbdialogConfig.scope,
         config.veilarbdialogConfig.httpClient
     )
 }

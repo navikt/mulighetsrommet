@@ -61,6 +61,7 @@ data class VeilarbpersonConfig(
 
 data class VeilarbdialogConfig(
     val url: String,
+    val scope: String,
     val httpClient: HttpClient = baseClient
 )
 

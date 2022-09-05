@@ -36,6 +36,7 @@ app:
 
   veilarbdialogConfig:
     url: http://localhost:8090
+    scope: default
 
   sanity:
     dataset: test

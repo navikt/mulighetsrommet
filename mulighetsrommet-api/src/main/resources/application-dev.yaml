@@ -36,6 +36,7 @@ app:
 
   veilarbdialogConfig:
     url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
+    scope: api://dev-fss.pto.veilarbdialog/.default
 
   sanity:
     dataset: ${SANITY_DATASET}
