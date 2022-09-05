@@ -1,18 +1,12 @@
-import { BodyLong, Button, Detail, Heading, Modal, Textarea } from '@navikt/ds-react';
-import classNames from 'classnames';
+import { BodyShort, Button, Heading, Modal, Textarea } from '@navikt/ds-react';
 import { useReducer } from 'react';
-import { APPLICATION_NAME } from '../../constants';
-import { logEvent } from '../../core/api/logger';
-import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
-import './delemodal.less';
-
-export const logDelMedbrukerEvent = (
-  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
-) => {
-  logEvent('mulighetsrommet.del-med-bruker', {
-    value: action,
-  });
-};
+import { APPLICATION_NAME } from '../../../constants';
+import { logEvent } from '../../../core/api/logger';
+import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import '../Modal.less';
+import './Delemodal.less';
+import { Actions, State } from './ModalActions';
+import Lenke from '../../lenke/Lenke';
 
 interface DelemodalProps {
   modalOpen: boolean;
@@ -23,48 +17,13 @@ interface DelemodalProps {
   veiledernavn?: string;
 }
 
-interface State {
-  tekst: string;
-  sendtStatus: Status;
-  dialogId: string;
-  malTekst: string;
-}
-
-type Status = 'IKKE_SENDT' | 'SENDER' | 'SENDT_OK' | 'SENDING_FEILET';
-
-interface SEND_MELDING_ACTION {
-  type: 'Send melding';
-}
-
-interface AVBRYT_ACTION {
-  type: 'Avbryt';
-}
-
-interface SET_TEKST_ACTION {
-  type: 'Sett tekst';
-  payload: string;
-}
-
-interface SENDT_OK_ACTION {
-  type: 'Sendt ok';
-  payload: string;
-}
-
-interface SENDING_FEILET_ACTION {
-  type: 'Sending feilet';
-}
-
-interface RESET_ACTION {
-  type: 'Reset';
-}
-
-type Actions =
-  | SEND_MELDING_ACTION
-  | SET_TEKST_ACTION
-  | AVBRYT_ACTION
-  | SENDT_OK_ACTION
-  | SENDING_FEILET_ACTION
-  | RESET_ACTION;
+export const logDelMedbrukerEvent = (
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
+) => {
+  logEvent('mulighetsrommet.del-med-bruker', {
+    value: action,
+  });
+};
 
 function reducer(state: State, action: Actions): State {
   switch (action.type) {
@@ -159,21 +118,23 @@ const Delemodal = ({
       closeButton
       open={modalOpen}
       onClose={clickCancel}
-      className={classNames('mulighetsrommet-veileder-flate__modal', 'delemodal')}
+      className="mulighetsrommet-veileder-flate__modal delemodal"
       aria-label="modal"
+      data-testid="delemodal"
     >
       {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
         <Modal.Content>
-          <Heading spacing level="1" size="large" data-testid="modal_header">
+          <Heading level="1" size="medium" data-testid="modal_header">
             {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
           </Heading>
-          <BodyLong>
+          <BodyShort size="small">
             Bruker blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Min side.
-          </BodyLong>
+          </BodyShort>
           <Textarea
             value={state.tekst}
             onChange={e => dispatch({ type: 'Sett tekst', payload: e.currentTarget.value })}
             label=""
+            size="small"
             minRows={10}
             maxRows={50}
             data-testid="textarea_tilbakemelding"
@@ -184,7 +145,7 @@ const Delemodal = ({
               {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
             </Button>
             <Button
-              variant="tertiary"
+              variant="secondary"
               onClick={clickCancel}
               data-testid="modal_btn-cancel"
               disabled={senderTilDialogen}
@@ -196,39 +157,41 @@ const Delemodal = ({
       )}
       {state.sendtStatus === 'SENDT_OK' && (
         <Modal.Content>
-          <Heading spacing level="1" size="large" data-testid="modal_header">
+          <Heading level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
-          <Detail>Du kan fortsette dialogen om dette tiltaket i Dialogen.</Detail>
+          <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
           <div className="modal_btngroup">
-            <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
-              Lukk
-            </Button>
-            <Button variant="tertiary" onClick={gaTilDialogen} data-testid="modal_btn-cancel">
+            <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
               Gå til Dialogen
+            </Button>
+            <Button variant="secondary" onClick={clickCancel} data-testid="modal_btn-cancel">
+              Lukk
             </Button>
           </div>
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDING_FEILET' && (
-        <Modal.Content className="delemodal__content">
-          <Heading spacing level="1" size="large" data-testid="modal_header">
+        <Modal.Content>
+          <Heading level="1" size="large" data-testid="modal_header">
             Tiltaket kunne ikke deles med brukeren
           </Heading>
-          <p className="delemodal__content">
+          <BodyShort>
             Vi kunne ikke dele informasjon digitalt med denne brukeren. Dette kan være fordi hen ikke ønsker eller kan
-            benytte de digitale tjenestene våre.
-            <br />
-            <a href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-arbeidsrettet-brukeroppfolging/SitePages/Manuell-oppf%C3%B8lging-i-Modia-arbeidsrettet-oppf%C3%B8lging.aspx">
-              Les mer om manuell oppfølging
-            </a>
-          </p>
+            benytte de digitale tjenestene våre.{' '}
+            <Lenke
+              isExternal
+              to="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-arbeidsrettet-brukeroppfolging/SitePages/Manuell-oppf%C3%B8lging-i-Modia-arbeidsrettet-oppf%C3%B8lging.aspx"
+            >
+              Les mer om manuell oppfølging{' '}
+            </Lenke>
+          </BodyShort>
           <div className="modal_btngroup">
-            <Button variant="primary" onClick={clickCancel} data-testid="modal_btn-cancel">
-              Avslutt
-            </Button>
-            <Button variant="tertiary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-cancel">
+            <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
               Prøv på nytt
+            </Button>
+            <Button variant="secondary" onClick={clickCancel} data-testid="modal_btn-cancel">
+              Lukk
             </Button>
           </div>
         </Modal.Content>

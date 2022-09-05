@@ -1,6 +1,6 @@
 import { Button, Heading, Modal } from '@navikt/ds-react';
 import React from 'react';
-import './modal.less';
+import './Modal.less';
 import classNames from 'classnames';
 
 interface StandardModalModalProps {

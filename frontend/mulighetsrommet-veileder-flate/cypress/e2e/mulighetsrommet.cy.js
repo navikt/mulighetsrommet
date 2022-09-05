@@ -1,8 +1,4 @@
-describe('Tiltaksgjennomføringstabell', () => {
-  beforeEach(() => {
-    cy.resetSide();
-  });
-
+xdescribe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
@@ -80,10 +76,12 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('paginering').children().children().eq(1).should('not.have.attr', 'aria-current');
     cy.getByTestId('paginering').children().children().eq(2).click();
     cy.getByTestId('paginering').children().children().children().eq(2).should('have.attr', 'aria-current');
+    cy.debug();
   });
 
   it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
     // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
+    cy.resetSide();
     cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
     cy.getByTestId('filtertags').children().should('have.length', 2);
     cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
@@ -106,16 +104,17 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filter_sokefelt').type('blablablablabla');
     cy.getByTestId('feilmelding-container').should('be.visible');
     cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
+    //mulig denne ikke er nødvendig
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
   });
 });
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå til en tiltaksgjennomføring', () => {
-    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
 
-  it('Sjekk at tiltaksnummer tilsvarer med url', () => {
+  xit('Sjekk at tiltaksnummer tilsvarer med url', () => {
     cy.getByTestId('knapp_kopier').click();
 
     cy.window().then(win => {
@@ -125,11 +124,11 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     });
   });
 
-  it('Sjekk UU', () => {
+  xit('Sjekk UU', () => {
     cy.checkPageA11y();
   });
 
-  it('Sjekk at fanene fungerer som de skal', () => {
+  xit('Sjekk at fanene fungerer som de skal', () => {
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
@@ -139,13 +138,25 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('tab2').should('be.visible');
   });
 
-  it('Gå tilbake til tiltaksoversikten', () => {
-    cy.tilbakeTilListevisning();
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+  it("Sjekk 'Del med bruker'", () => {
+    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
+
+    //sjekke header med tiltaksheader?
+    cy.getByTestId('modal_header').should('be.visible');
+    // cy.getByTestId('textarea_tilbakemelding').click();
+    cy.getByTestId('modal_btn-cancel').click();
+    cy.getByTestId('modal_header').should('not.exist');
+
+    cy.getByTestId('del-med-bruker-button').click();
+    cy.getByTestId('modal_header').should('be.visible');
+    cy.getByTestId('modal_btn-send').click();
+    cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');
+    // cy.get('[data-testid=textarea_tilbakemelding]').type('');
+    // cy.get('[data-testid="modal_btn-send"] > .navds-label').click();
   });
 
-  it("Sjekk 'Del med bruker'", () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
-    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
+  xit('Gå tilbake til tiltaksoversikten', () => {
+    cy.tilbakeTilListevisning();
+    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
   });
 });
