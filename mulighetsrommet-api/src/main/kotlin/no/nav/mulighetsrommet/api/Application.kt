@@ -46,6 +46,7 @@ fun Application.configure(config: AppConfig) {
             brukerRoutes()
             veilederRoutes()
             frontendLoggerRoutes()
+            dialogRoutes()
         }
     }
 }

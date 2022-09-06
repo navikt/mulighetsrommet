@@ -220,6 +220,54 @@ paths:
             application/json:
               schema: { }
 
+  /api/v1/dialog:
+    post:
+      tags:
+        - dialogen
+      operationId: delMedDialogen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DialogRequest"
+      parameters:
+        - in: query
+          name: fnr
+          schema:
+            type: string
+          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
+      responses:
+        200:
+          description: Dialog response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DialogResponse"
+        409:
+          description: "Sending message to Dialogen failed"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/historikk:
+    get:
+      tags:
+        - Historikk
+      operationId: hentHistorikkForBruker
+      parameters:
+        - in: query
+          name: fnr
+          schema:
+            type: string
+          description: SSN for the user which will be used to fetch 'historikk' for user
+      responses: # TODO type opp korrekt data fra backend for historikk-endepunktet
+        200:
+          description: Historical data about the user
+          content:
+            application/json:
+              schema: { }
+
   /logger/event:
     post:
       tags:
@@ -243,24 +291,6 @@ paths:
             application/json:
               schema:
                 type: string
-
-  /api/v1/historikk:
-    get:
-      tags:
-        - Historikk
-      operationId: hentHistorikkForBruker
-      parameters:
-      - in: query
-        name: fnr
-        schema:
-          type: string
-        description: SSN for the user which will be used to fetch 'historikk' for user
-      responses: # TODO type opp korrekt data fra backend for historikk-endepunktet
-        200:
-          description: Historical data about the user
-          content:
-            application/json:
-              schema: { }
       
 
 
@@ -523,6 +553,25 @@ components:
           additionalProperties: true
       required:
         - name
+
+    DialogRequest:
+      type: object
+      properties:
+        overskrift:
+          type: string
+        tekst:
+          type: string
+      required:
+        - overskrift
+        - tekst
+
+    DialogResponse:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
 
   examples:
     Tiltakstype:

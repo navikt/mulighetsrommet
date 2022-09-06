@@ -1,12 +1,12 @@
 import { BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
 import { useReducer } from 'react';
-import { APPLICATION_NAME } from '../../../constants';
 import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import '../Modal.less';
 import './Delemodal.less';
 import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
+import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
 
 export const logDelMedbrukerEvent = (
@@ -85,24 +85,12 @@ const Delemodal = ({
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const { tekst } = state;
-    if (fnr) {
-      const res = await fetch(`/veilarbdialog/api/dialog?fnr=${fnr}`, {
-        method: 'POST',
-        headers: {
-          'Nav-Consumer-Id': APPLICATION_NAME,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ overskrift, tekst }),
-      });
-
-      if (res.ok) {
-        const { id } = (await res.json()) as { id: string };
-        dispatch({ type: 'Sendt ok', payload: id });
-      } else {
-        dispatch({ type: 'Sending feilet' });
-        logDelMedbrukerEvent('Del med bruker feilet');
-      }
+    try {
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
+      dispatch({ type: 'Sendt ok', payload: res.id });
+    } catch {
+      dispatch({ type: 'Sending feilet' });
+      logDelMedbrukerEvent('Del med bruker feilet');
     }
   };
 

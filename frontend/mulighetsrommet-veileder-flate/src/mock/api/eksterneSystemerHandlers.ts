@@ -6,9 +6,3 @@ export const veilarbpersonflateHandlers: RestHandler[] = [
     return res(ctx.delay(500), ctx.json(mockFeatures));
   }),
 ];
-
-export const veilarbdialogHandlers: RestHandler[] = [
-  rest.post('*/api/dialog', (req, res, ctx) => {
-    return res(ctx.delay(500), ctx.json({ id: '1234' }));
-  }),
-];
