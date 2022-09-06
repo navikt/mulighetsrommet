@@ -33,7 +33,6 @@ class VeilarbdialogClientImpl(
                         accessToken
                     )
                 )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(requestBody)
             }

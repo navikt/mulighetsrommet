@@ -30,7 +30,6 @@ class VeilarbpersonClientImpl(
                         accessToken
                     )
                 )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
             }.body<PersonDTO>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente fornavn")

@@ -28,7 +28,6 @@ class VeilarbveilederClientImpl(
                         accessToken
                     )
                 )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
             }.body<VeilederDTO>()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente data om veileder")
