@@ -39,6 +39,12 @@ export const apiHandlers: RestHandler[] = [
     });
   }),
 
+  rest.post('*/api/v1/dialog', (req, res, ctx) => {
+    return ok({
+      id: '12345',
+    });
+  }),
+
   rest.get('*/api/v1/sanity', async req => {
     const query = req.url.searchParams.get('query');
 
