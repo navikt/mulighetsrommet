@@ -39,7 +39,7 @@ export function HistorikkForBruker() {
         {data?.map(historikk => {
           return (
             <li key={historikk.id} className="historikk-for-bruker-element">
-              <section>
+              <div>
                 <h1 className="historikk-for-bruker-heading navds-heading navds-heading--small">
                   {historikk.tiltaksnavn}
                 </h1>
@@ -50,7 +50,7 @@ export function HistorikkForBruker() {
                 <p className="historikk-text-content">
                   {formaterDato(historikk.fra_dato)} - {formaterDato(historikk.til_dato)}
                 </p>
-              </section>
+              </div>
               <aside>
                 <StatusBadge status={historikk.status} />
               </aside>
