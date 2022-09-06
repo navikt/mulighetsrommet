@@ -22,7 +22,7 @@ const Deleknapp = ({ children, ariaLabel, className, handleClick, dataTestId, di
       {visDeleknapp && (
         <Button
           onClick={handleClick}
-          variant="tertiary"
+          variant="secondary"
           className={classNames('deleknapp', className)}
           aria-label={ariaLabel}
           data-testid={dataTestId}

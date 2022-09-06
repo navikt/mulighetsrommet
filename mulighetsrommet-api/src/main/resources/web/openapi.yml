@@ -274,6 +274,25 @@ paths:
               schema:
                 type: string
 
+  /api/v1/historikk:
+    get:
+      tags:
+        - Historikk
+      operationId: hentHistorikkForBruker
+      parameters:
+      - in: query
+        name: fnr
+        schema:
+          type: string
+        description: SSN for the user which will be used to fetch 'historikk' for user
+      responses: # TODO type opp korrekt data fra backend for historikk-endepunktet
+        200:
+          description: Historical data about the user
+          content:
+            application/json:
+              schema: { }
+      
+
 
 components:
   securitySchemes:

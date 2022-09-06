@@ -3,6 +3,7 @@ import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useErrorHandler } from 'react-error-boundary';
 import Filtermeny from '../../components/filtrering/Filtermeny';
+import { HistorikkButton } from '../../components/historikk/HistorikkButton';
 import { BrukersOppfolgingsenhet } from '../../components/oppfolgingsenhet/BrukerOppfolgingsenhet';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
 import FilterTags from '../../components/tags/Filtertags';
@@ -61,6 +62,7 @@ const ViewTiltakstypeOversikt = () => {
             }
           />
           <SearchFieldTag />
+          <HistorikkButton />
           <Show if={!innsatsgrupper.isLoading && skalResetteFilter}>
             <Button
               size="small"

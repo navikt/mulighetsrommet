@@ -1,8 +1,4 @@
 describe('Tiltaksgjennomføringstabell', () => {
-  beforeEach(() => {
-    cy.resetSide();
-  });
-
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
@@ -21,7 +17,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Filtrer på Innsatsgrupper', () => {
     cy.velgFilter('standardinnsats');
 
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.forventetAntallFiltertags(2);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
     cy.wait(1000);
@@ -30,7 +26,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     });
 
     cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.forventetAntallFiltertags(1);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
   });
 
@@ -39,7 +35,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.velgFilter('avklaring');
     cy.velgFilter('oppfolging');
 
-    cy.getByTestId('filtertags').children().should('have.length', 5);
+    cy.forventetAntallFiltertags(4);
 
     cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
@@ -51,21 +47,21 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filter_checkbox_avklaring').should('not.be.checked');
     cy.getByTestId('filter_checkbox_oppfolging').should('not.be.checked');
 
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.forventetAntallFiltertags(2);
     cy.apneLukketFilterAccordion('tiltakstyper', false);
   });
 
   it('Filtrer på søkefelt', () => {
     cy.fjernFilter('situasjonsbestemt-innsats');
     cy.getByTestId('filter_sokefelt').type('AFT');
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.forventetAntallFiltertags(2);
 
     cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
     cy.getByTestId('filter_sokefelt').clear();
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.forventetAntallFiltertags(1);
   });
 
   it('Skal vise tilbakestill filter-knapp når filter utenfor normalen', () => {
@@ -84,8 +80,9 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Skal ha ferdig utfylt brukers innsatsgruppe', () => {
     // Situasjonsbestemt innsats er innsatsgruppe som returneres når testene kjører med mock-data
+    cy.resetSide();
     cy.getByTestId('filter_checkbox_situasjonsbestemt-innsats').should('be.checked');
-    cy.getByTestId('filtertags').children().should('have.length', 2);
+    cy.forventetAntallFiltertags(2);
     cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
 
     cy.getByTestId('filtertag_situasjonsbestemt-innsats').then($value => {
@@ -95,23 +92,23 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
     cy.getByTestId('filter_checkbox_standardinnsats').click();
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.forventetAntallFiltertags(2);
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
     cy.tilbakeTilListevisning();
     cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
-    cy.getByTestId('filtertags').children().should('have.length', 3);
+    cy.forventetAntallFiltertags(2);
   });
 
   it('Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet', () => {
     cy.getByTestId('filter_sokefelt').type('blablablablabla');
     cy.getByTestId('feilmelding-container').should('be.visible');
     cy.getByTestId('feilmelding-container').should('have.attr', 'aria-live');
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
   });
 });
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå til en tiltaksgjennomføring', () => {
-    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
 
@@ -139,13 +136,33 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('tab2').should('be.visible');
   });
 
+  it("Sjekk 'Del med bruker'", () => {
+    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
+
+    cy.getByTestId('modal_header').should('be.visible');
+    cy.getByTestId('modal_btn-cancel').click();
+    cy.getByTestId('modal_header').should('not.exist');
+
+    cy.getByTestId('del-med-bruker-button').click();
+    cy.getByTestId('modal_header').should('be.visible');
+
+    cy.getByTestId('textarea_tilbakemelding').type('{selectall}{backspace}');
+    cy.getByTestId('modal_btn-send').should('be.disabled');
+    cy.get('.navds-error-message').should('be.visible');
+
+    cy.getByTestId('textarea_tilbakemelding').type('Test');
+    cy.get('.navds-error-message').should('not.exist');
+    cy.getByTestId('modal_btn-send').should('not.be.disabled');
+
+    cy.getByTestId('modal_btn-send').click();
+    cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');
+
+    cy.getByTestId('modal_btn-cancel').click();
+    cy.getByTestId('modal_header').should('not.exist');
+  });
+
   it('Gå tilbake til tiltaksoversikten', () => {
     cy.tilbakeTilListevisning();
     cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
-  });
-
-  it("Sjekk 'Del med bruker'", () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
-    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
   });
 });

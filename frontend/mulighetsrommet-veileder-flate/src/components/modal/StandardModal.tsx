@@ -1,6 +1,6 @@
 import { Button, Heading, Modal } from '@navikt/ds-react';
 import React from 'react';
-import './modal.less';
+import './Modal.less';
 import classNames from 'classnames';
 
 interface StandardModalModalProps {
@@ -13,6 +13,7 @@ interface StandardModalModalProps {
   btnText?: string;
   children: React.ReactNode;
   shouldCloseOnOverlayClick?: boolean;
+  hideButtons?: boolean;
 }
 
 const StandardModal = ({
@@ -25,6 +26,7 @@ const StandardModal = ({
   btnText,
   children,
   shouldCloseOnOverlayClick,
+  hideButtons = false,
 }: StandardModalModalProps) => {
   const clickSend = () => {
     setModalOpen();
@@ -50,14 +52,16 @@ const StandardModal = ({
           {heading}
         </Heading>
         {children}
-        <div className="modal_btngroup">
-          <Button onClick={clickSend} data-testid="modal_btn-send">
-            {btnText || 'Send'}
-          </Button>
-          <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
-            Avbryt
-          </Button>
-        </div>
+        {!hideButtons ? (
+          <div className="modal_btngroup">
+            <Button onClick={clickSend} data-testid="modal_btn-send">
+              {btnText || 'Send'}
+            </Button>
+            <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
+              Avbryt
+            </Button>
+          </div>
+        ) : null}
       </Modal.Content>
     </Modal>
   );
