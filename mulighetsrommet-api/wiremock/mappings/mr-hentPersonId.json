@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/hentPersonId",
+    "queryParameters": {
+      "fnr": {
+        "matches": "[\\d\\D]*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": 4897255,
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

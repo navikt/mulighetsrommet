@@ -6,6 +6,8 @@ import io.ktor.server.application.*
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
+import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -31,7 +33,14 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
-            services(appConfig, veilarbvedsstotte(appConfig), veilarboppfolging(appConfig), veilarbperson(appConfig), veilarbveileder(appConfig))
+            services(
+                appConfig,
+                veilarbvedsstotte(appConfig),
+                veilarboppfolging(appConfig),
+                veilarbperson(appConfig),
+                veilarbveileder(appConfig),
+                veilarbarena(appConfig)
+            )
         )
     }
 }
@@ -78,6 +87,15 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     )
 }
 
+private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
+    return VeilarbarenaClientImpl(
+        config.veilarbarenaConfig.url,
+        tokenClientProvider(config),
+        config.veilarbarenaConfig.scope,
+        config.veilarbarenaConfig.httpClient
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -94,13 +112,14 @@ private fun services(
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient,
     veilarbpersonClient: VeilarbpersonClient,
-    veilarbveilerClient: VeilarbveilederClient
+    veilarbveilerClient: VeilarbveilederClient,
+    veilarbarenaClient: VeilarbarenaClient
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
     single { InnsatsgruppeService(get()) }
-    single { HistorikkService(get()) }
+    single { HistorikkService(get(), veilarbarenaClient) }
     single { SanityService(appConfig.sanity, get()) }
     single {
         BrukerService(
@@ -113,6 +132,8 @@ private fun services(
         VeilederService(
             veilarbveilederClient = veilarbveilerClient
         )
+    }
+    single {
     }
 }
 

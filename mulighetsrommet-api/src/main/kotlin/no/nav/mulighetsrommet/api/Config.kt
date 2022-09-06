@@ -20,6 +20,7 @@ data class AppConfig(
     val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig,
     val veilarbpersonConfig: VeilarbpersonConfig,
     val veilarbveilederConfig: VeilarbveilederConfig,
+    val veilarbarenaConfig: VeilarbvarenaConfig,
     val swagger: SwaggerConfig? = null
 )
 
@@ -59,6 +60,12 @@ data class VeilarbpersonConfig(
 )
 
 data class VeilarbveilederConfig(
+    val url: String,
+    val scope: String,
+    val httpClient: HttpClient = baseClient
+)
+
+data class VeilarbvarenaConfig(
     val url: String,
     val scope: String,
     val httpClient: HttpClient = baseClient

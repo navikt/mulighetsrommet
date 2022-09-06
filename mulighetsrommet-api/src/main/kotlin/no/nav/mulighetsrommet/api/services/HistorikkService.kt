@@ -1,15 +1,16 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import org.intellij.lang.annotations.Language
 import java.lang.Integer.parseInt
 
-class HistorikkService(private val db: Database) {
-    suspend fun hentHistorikkForBruker(fnr: String): List<HistorikkForDeltaker> {
-        val personId = fnr // TODO Må konvertere fnr til personId fra veilarbarena
+class HistorikkService(private val db: Database, private val veilarbarenaClient: VeilarbarenaClient) {
+    suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltaker> {
+        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken)
         return getHistorikkForBrukerFromDb(parseInt(personId, 10))
     }
 

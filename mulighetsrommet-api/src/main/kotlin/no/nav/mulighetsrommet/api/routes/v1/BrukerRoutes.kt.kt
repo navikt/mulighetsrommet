@@ -30,7 +30,8 @@ fun Route.brukerRoutes() {
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest
             )
-            call.respond(historikkService.hentHistorikkForBruker(fnr))
+            val accessToken = call.getAccessToken()
+            call.respond(historikkService.hentHistorikkForBruker(fnr, accessToken))
         }
     }
 }
