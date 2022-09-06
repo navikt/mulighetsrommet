@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "mulighetsrommet-api-client",
+  "name": "mulighetsrommet-api-client1",
   "version": "0.1.0",
   "module": "build/index.ts",
   "types": "build/index.ts",
