@@ -87,6 +87,10 @@ Cypress.Commands.add('fjernFilter', filternavn => {
   cy.getByTestId(`filtertag_${filternavn}`).should('not.exist');
 });
 
+Cypress.Commands.add('forventetAntallFiltertags', antallForventet => {
+  cy.get('.cypress-tag').should('have.length', antallForventet);
+});
+
 Cypress.Commands.add('apneLukketFilterAccordion', (filternavn, apne) => {
   if (apne) {
     cy.getByTestId(`filter_accordionheader_${filternavn}`).click();

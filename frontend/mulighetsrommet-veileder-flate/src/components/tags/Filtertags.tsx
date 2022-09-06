@@ -15,6 +15,7 @@ const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
       {options.map(filtertype => {
         return (
           <Tag
+            className="cypress-tag"
             key={filtertype.id}
             variant="info"
             size="small"
