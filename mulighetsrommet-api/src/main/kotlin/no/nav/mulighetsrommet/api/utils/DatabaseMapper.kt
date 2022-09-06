@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utils
 
 import kotliquery.Row
+import no.nav.mulighetsrommet.api.services.HistorikkForBruker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
@@ -39,6 +40,10 @@ object DatabaseMapper {
         tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
         personId = row.int("person_id"),
         status = Deltakerstatus.valueOf(row.string("status"))
+    )
+
+    fun toBrukerHistorikk(row: Row): HistorikkForBruker = HistorikkForBruker(
+        id = row.string("deltaker_id")
     )
 
     // mulighetsrommet-arena-adapter specific

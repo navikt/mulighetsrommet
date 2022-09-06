@@ -1,9 +1,9 @@
 -- For manual insertion
-insert into innsatsgruppe (id, tittel, beskrivelse)
-values (1, 'Standardinnsats', 'Gode muligheter'),
-       (2, 'Situasjonsbestemt innsats', 'Trenger veiledning'),
-       (3, 'Spesielt tilpasset innsats', 'Trenger veiledning, nedsatt arbeidsevne'),
-       (4, 'Varig tilpasset innsats', 'Jobbe delvis eller liten mulighet til å jobbe');
+insert into innsatsgruppe (id, navn)
+values (1, 'Standardinnsats'),
+       (2, 'Situasjonsbestemt innsats'),
+       (3, 'Spesielt tilpasset innsats'),
+       (4, 'Varig tilpasset innsats');
 
 insert into tiltakstype (innsatsgruppe_id, navn, tiltakskode, fra_dato, til_dato)
 values  (1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
@@ -111,3 +111,8 @@ values  (1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
         (2, 'Varig vernet arbeid (VVA)', 'VV', '2001-01-01', '2099-01-01'),
         (4, 'Sysselsettingstiltak for yrkeshemmede', 'YHEMMOFF', '2001-01-01', '2015-12-31')
 
+
+insert into tiltaksgjennomforing(navn, tiltaksnummer, fra_dato, til_dato, tiltakskode, arrangor_id, arena_id, sak_id, sanity_id, aar, apent_for_innsok, antall_plasser, tilgjengelighet)
+values(
+       'Arbeidsrettet rehabilitering - Trondheim', '1234'
+      )

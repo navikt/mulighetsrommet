@@ -100,6 +100,7 @@ private fun services(
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
     single { InnsatsgruppeService(get()) }
+    single { HistorikkService(get()) }
     single { SanityService(appConfig.sanity, get()) }
     single {
         BrukerService(
