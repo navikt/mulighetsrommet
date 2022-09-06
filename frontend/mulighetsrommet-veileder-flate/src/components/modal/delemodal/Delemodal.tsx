@@ -79,7 +79,6 @@ const Delemodal = ({
   };
 
   const handleSend = async () => {
-    handleError();
     if (state.tekst.trim().length > getAntallTegn()) return;
     logDelMedbrukerEvent('Delte med bruker');
 
