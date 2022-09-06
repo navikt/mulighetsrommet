@@ -7,8 +7,8 @@ import '../Modal.less';
 import './Delemodal.less';
 import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
+import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
-import { mulighetsrommetClient } from "../../../core/api/clients";
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
