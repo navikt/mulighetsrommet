@@ -1,6 +1,5 @@
 import { BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
 import { useReducer } from 'react';
-import './delemodal.less';
 import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import '../Modal.less';
