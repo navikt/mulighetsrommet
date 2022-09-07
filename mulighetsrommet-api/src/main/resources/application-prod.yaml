@@ -45,3 +45,6 @@ app:
 
   sentry:
     dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134
+
+  unleashConfig:
+    baseUrl: https://unleash.nais.io/api/

@@ -3,9 +3,12 @@ package no.nav.mulighetsrommet.api.plugins
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import no.nav.common.featuretoggle.UnleashClient
+import no.nav.common.featuretoggle.UnleashClientImpl
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.UnleashConfig
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -33,6 +36,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
+            unleash(appConfig.unleashConfig),
             services(
                 appConfig,
                 veilarbvedsstotte(appConfig),
@@ -48,6 +52,12 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> { FlywayDatabaseAdapter(databaseConfig) }
+    }
+}
+
+private fun unleash(unleashConfig: UnleashConfig): Module {
+    return module(createdAtStart = true) {
+        single<UnleashClient> { UnleashClientImpl(unleashConfig.baseUrl, "mulighetsrommet-api") }
     }
 }
 

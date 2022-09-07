@@ -45,3 +45,6 @@ app:
 
   swagger:
     enable: true
+
+  unleashConfig:
+    baseUrl: https://unleash.nais.io/api/

@@ -27,6 +27,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbpersonConfig = createVeilarbpersonConfig(),
     veilarbveilederConfig = createVeilarbveilederConfig(),
     veilarbdialogConfig = createVeilarbdialogConfig(),
+    unleashConfig = createUnleashConfig()
 )
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
@@ -97,5 +98,11 @@ fun createSanityConfig(): SanityConfig {
         projectId = "",
         authToken = "",
         dataset = ""
+    )
+}
+
+fun createUnleashConfig(): UnleashConfig {
+    return UnleashConfig(
+        baseUrl = "https://unleash.nais.io/api/"
     )
 }

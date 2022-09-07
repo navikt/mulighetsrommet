@@ -21,7 +21,8 @@ data class AppConfig(
     val veilarbpersonConfig: VeilarbpersonConfig,
     val veilarbdialogConfig: VeilarbdialogConfig,
     val veilarbveilederConfig: VeilarbveilederConfig,
-    val swagger: SwaggerConfig? = null
+    val swagger: SwaggerConfig? = null,
+    val unleashConfig: UnleashConfig
 )
 
 data class AuthConfig(
@@ -73,4 +74,8 @@ data class VeilarbveilederConfig(
 
 data class SwaggerConfig(
     val enable: Boolean
+)
+
+data class UnleashConfig(
+    val baseUrl: String
 )

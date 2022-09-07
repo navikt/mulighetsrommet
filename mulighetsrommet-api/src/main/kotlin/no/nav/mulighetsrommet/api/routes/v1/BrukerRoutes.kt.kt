@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
 
 fun Route.brukerRoutes() {
-    val brukerService: BrukerService by inject()
+    val brukerService by inject<BrukerService>()
 
     route("/api/v1/bruker") {
         get {

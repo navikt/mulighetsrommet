@@ -74,6 +74,7 @@ dependencies {
 
     val navCommonModules = "2.2022.07.01_07.12-6a0864fa6938"
     implementation("no.nav.common:token-client:$navCommonModules")
+    implementation("no.nav.common:feature-toggle:$navCommonModules")
 
     // Test
     val kotestVersion = "5.4.1"
