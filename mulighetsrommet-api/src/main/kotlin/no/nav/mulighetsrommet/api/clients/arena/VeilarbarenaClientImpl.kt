@@ -22,7 +22,7 @@ class VeilarbarenaClientImpl(
 ) : VeilarbarenaClient {
     override suspend fun hentPersonIdForFnr(fnr: String, accessToken: String?): String? {
         return try {
-            val response = client.get("$baseUrl/hentPersonId") {
+            val response = client.get("$baseUrl/oppfolgingsbruker/hentPersonId") {
                 bearerAuth(
                     veilarbArenaTokenProvider.exchangeOnBehalfOfToken(
                         scope,
