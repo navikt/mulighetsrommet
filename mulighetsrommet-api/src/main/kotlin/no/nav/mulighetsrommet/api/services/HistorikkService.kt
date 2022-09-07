@@ -6,11 +6,18 @@ import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import org.intellij.lang.annotations.Language
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.lang.Integer.parseInt
 
 class HistorikkService(private val db: Database, private val veilarbarenaClient: VeilarbarenaClient) {
+    val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
+
     suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltaker> {
-        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken)
+        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
+            log.debug("Klarte ikke hente personId fra veilarbarena")
+            return emptyList()
+        }
         return getHistorikkForBrukerFromDb(parseInt(personId, 10))
     }
 
