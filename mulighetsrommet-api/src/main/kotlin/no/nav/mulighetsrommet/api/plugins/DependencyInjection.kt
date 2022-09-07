@@ -133,8 +133,6 @@ private fun services(
             veilarbveilederClient = veilarbveilerClient
         )
     }
-    single {
-    }
 }
 
 private fun erLokalUtvikling(): Boolean {
