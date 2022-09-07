@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
@@ -101,9 +102,11 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
 
 private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
     return VeilarbarenaClientImpl(
-        config.veilarbarenaConfig.url,
-        tokenClientProvider(config),
+        config.gcpProxy.url,
+        tokenClientProviderForMachineToMachine(config),
+        tokenClientProviderForMachineToMachine(config),
         config.veilarbarenaConfig.scope,
+        config.gcpProxy.scope,
         config.veilarbarenaConfig.httpClient
     )
 }
@@ -116,6 +119,17 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
             .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
             .buildOnBehalfOfTokenClient()
         false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+    }
+}
+
+private fun tokenClientProviderForMachineToMachine(config: AppConfig): AzureAdMachineToMachineTokenClient {
+    return when (erLokalUtvikling()) {
+        true -> AzureAdTokenClientBuilder.builder()
+            .withClientId(config.auth.azure.audience)
+            .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
+            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+            .buildMachineToMachineTokenClient()
+        false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
     }
 }
 

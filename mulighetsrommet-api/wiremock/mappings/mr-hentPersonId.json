@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/hentPersonId",
+    "urlPathPattern": "/proxy/veilarbarena/oppfolgingsbruker/hentPersonId",
     "queryParameters": {
       "fnr": {
         "matches": "[\\d\\D]*"

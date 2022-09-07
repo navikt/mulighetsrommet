@@ -52,3 +52,7 @@ app:
 
   swagger:
     enable: true
+
+  gcpProxy:
+    url: https://poao-gcp-proxy.dev-fss-pub.nais.io/api/
+    scope: api://dev-fss.pto.poao-gcp-proxy/.default

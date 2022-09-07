@@ -22,7 +22,8 @@ data class AppConfig(
     val veilarbdialogConfig: VeilarbdialogConfig,
     val veilarbveilederConfig: VeilarbveilederConfig,
     val veilarbarenaConfig: VeilarbvarenaConfig,
-    val swagger: SwaggerConfig? = null
+    val swagger: SwaggerConfig? = null,
+    val gcpProxy: GcpProxyConfig
 )
 
 data class AuthConfig(
@@ -80,4 +81,9 @@ data class VeilarbvarenaConfig(
 
 data class SwaggerConfig(
     val enable: Boolean
+)
+
+data class GcpProxyConfig(
+    val url: String,
+    val scope: String
 )
