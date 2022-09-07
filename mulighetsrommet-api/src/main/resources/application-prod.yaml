@@ -34,6 +34,10 @@ app:
     url: https://veilarbveileder.prod-fss-pub.nais.io/veilarbveileder/api
     scope: api://prod-fss.pto.veilarbveileder/.default
 
+  veilarbdialogConfig:
+    url: https://veilarbdialog.prod-fss-pub.nais.io/veilarbdialog/api
+    scope: api://prod-fss.pto.veilarbdialog/.default
+
   veilarbarenaConfig:
     url: https://veilarbarena.dev-fss-pub.nais.io/veilarbarena/api
     scope: api://prod-fss.pto.veilarbarena/.default

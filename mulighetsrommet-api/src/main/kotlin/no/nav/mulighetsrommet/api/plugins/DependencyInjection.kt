@@ -8,6 +8,8 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
+import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -38,6 +40,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbvedsstotte(appConfig),
                 veilarboppfolging(appConfig),
                 veilarbperson(appConfig),
+                veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
                 veilarbarena(appConfig)
             )
@@ -78,6 +81,15 @@ private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
     )
 }
 
+private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
+    return VeilarbdialogClientImpl(
+        config.veilarbdialogConfig.url,
+        tokenClientProvider(config),
+        config.veilarbdialogConfig.scope,
+        config.veilarbdialogConfig.httpClient
+    )
+}
+
 private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     return VeilarbveilederClientImpl(
         config.veilarbveilederConfig.url,
@@ -112,6 +124,7 @@ private fun services(
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient,
     veilarbpersonClient: VeilarbpersonClient,
+    veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient
 ) = module {
@@ -128,6 +141,7 @@ private fun services(
             veilarbpersonClient = veilarbpersonClient
         )
     }
+    single { DialogService(veilarbdialogClient) }
     single {
         VeilederService(
             veilarbveilederClient = veilarbveilerClient

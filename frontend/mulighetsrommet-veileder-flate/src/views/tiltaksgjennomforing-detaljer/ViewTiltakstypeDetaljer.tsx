@@ -59,7 +59,7 @@ const ViewTiltakstypeDetaljer = () => {
           <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
         )}
       </div>
-      <div>
+      <div className="tiltakstype-detaljer__sidemeny">
         <SidemenyDetaljer />
         <Deleknapp
           dataTestId="del-med-bruker-button"
