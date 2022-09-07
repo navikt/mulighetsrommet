@@ -33,12 +33,18 @@ class VeilarbarenaClientImpl(
                 parameter("fnr", fnr)
             }
 
-            if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
-                log.info("Fant ikke personId for bruker. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
-                return null
+            if (response.status == HttpStatusCode.OK) {
+                return response.bodyAsText()
             }
 
-            response.bodyAsText()
+            if (response.status == HttpStatusCode.NoContent) {
+                log.info("Det ble ikke returnert personId fra veilarbarena. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
+            }
+
+            if (response.status == HttpStatusCode.NotFound) {
+                log.debug("Fant ikke personId. Det kan være feil endepunkt til veilarbarena, eller at personId ikke finnes for innsendt fnr.")
+            }
+            null
         } catch (exe: Exception) {
             log.error("Klarte ikke hente personId for bruker: {}", exe.message)
             null
