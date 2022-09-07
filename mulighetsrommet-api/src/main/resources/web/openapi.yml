@@ -250,7 +250,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/historikk:
+  /api/v1/bruker/historikk:
     get:
       tags:
         - Historikk
