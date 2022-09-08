@@ -104,6 +104,7 @@ private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
     return VeilarbarenaClientImpl(
         config.gcpProxy.url,
         tokenClientProviderForMachineToMachine(config),
+        tokenClientProvider(config),
         config.veilarbarenaConfig.scope,
         config.gcpProxy.scope,
         config.veilarbarenaConfig.httpClient

@@ -13,8 +13,8 @@ import java.lang.Integer.parseInt
 class HistorikkService(private val db: Database, private val veilarbarenaClient: VeilarbarenaClient) {
     val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
 
-    suspend fun hentHistorikkForBruker(fnr: String): List<HistorikkForDeltaker> {
-        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr) ?: run {
+    suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltaker> {
+        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
             log.debug("Klarte ikke hente personId fra veilarbarena")
             return emptyList()
         }

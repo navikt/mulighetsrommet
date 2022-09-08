@@ -5,6 +5,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
@@ -14,13 +15,14 @@ private val log = LoggerFactory.getLogger(VeilarbarenaClientImpl::class.java)
 class VeilarbarenaClientImpl(
     private val baseUrl: String,
     private val machineToMachineTokenClient: MachineToMachineTokenClient,
+    private val oboTokenClient: AzureAdOnBehalfOfTokenClient,
     private val scope: String,
     private val proxyScope: String,
     private val client: HttpClient = baseClient.config {
         install(HttpCache)
     }
 ) : VeilarbarenaClient {
-    override suspend fun hentPersonIdForFnr(fnr: String): String? {
+    override suspend fun hentPersonIdForFnr(fnr: String, accessToken: String?): String? {
         return try {
             val response = client.get("$baseUrl/proxy/veilarbarena/api/oppfolgingsbruker/hentPersonId") {
                 bearerAuth(
@@ -31,7 +33,7 @@ class VeilarbarenaClientImpl(
                 headers {
                     append(
                         "Downstream-Authorization",
-                        "Bearer ${machineToMachineTokenClient.createMachineToMachineToken(scope)}"
+                        "Bearer ${oboTokenClient.exchangeOnBehalfOfToken(scope, accessToken)}"
                     )
                     append("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
