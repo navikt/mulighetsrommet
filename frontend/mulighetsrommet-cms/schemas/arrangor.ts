@@ -34,6 +34,7 @@ export default {
   preview: {
     select: {
       title: "selskapsnavn",
+      subtitle: "adresse",
     },
   },
 };
