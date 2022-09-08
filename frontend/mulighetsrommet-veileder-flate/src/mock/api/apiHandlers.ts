@@ -58,7 +58,7 @@ export const apiHandlers: RestHandler[] = [
     return ok(result);
   }),
 
-  rest.get('*/api/v1/historikk', async req => {
+  rest.get('*/api/v1/bruker/historikk', async req => {
     const fnr = req.url.searchParams.get('fnr');
 
     if (!(typeof fnr === 'string')) {

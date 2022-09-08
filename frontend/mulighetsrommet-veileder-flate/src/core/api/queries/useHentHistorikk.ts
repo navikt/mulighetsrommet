@@ -6,8 +6,8 @@ import { QueryKeys } from '../query-keys';
 interface Historikk {
   id: string;
   fnr: string;
-  fra_dato: Date;
-  til_dato: Date;
+  fraDato: Date;
+  tilDato: Date;
   status: Deltakerstatus;
   tiltaksnummer: string;
   tiltaksnavn: string;

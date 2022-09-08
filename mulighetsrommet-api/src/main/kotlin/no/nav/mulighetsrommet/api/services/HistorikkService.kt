@@ -28,7 +28,8 @@ class HistorikkService(private val db: Database, private val veilarbarenaClient:
          from deltaker
          left join tiltaksgjennomforing tiltak on tiltak.arena_id = deltaker.tiltaksgjennomforing_id
          left join tiltakstype t on tiltak.tiltakskode = t.tiltakskode
-            where person_id = ?;
+            where person_id = ?
+            order by deltaker.fra_dato desc;
         """.trimIndent()
         val queryResult = queryOf(query, person_id).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
         return db.run(queryResult)
