@@ -1,28 +1,14 @@
-// TODO Type opp historikk basert på modell fra openapi.yaml
 import { faker } from '@faker-js/faker';
+import { HistorikkForBruker } from 'mulighetsrommet-api-client';
 
-interface Historikk {
-  id: string;
-  fnr: string;
-  fraDato: Date;
-  tilDato: Date;
-  status: Deltakerstatus;
-  tiltaksnummer: string;
-  tiltaksnavn: string;
-  tiltakstype: string;
-  arrangor: string;
-}
+export const historikk: HistorikkForBruker[] = genererHistorikk(7);
 
-type Deltakerstatus = 'VENTER' | 'AVSLUTTET' | 'DELTAR' | 'IKKE_AKTUELL';
-
-export const historikk: Historikk[] = genererHistorikk(7);
-
-function genererHistorikk(antallRader: number): Historikk[] {
+function genererHistorikk(antallRader: number): HistorikkForBruker[] {
   const data = [...Array(antallRader)].map(i => ({
     id: faker.git.shortSha(),
     fnr: '12345678910',
-    fraDato: faker.date.recent(10),
-    tilDato: faker.date.soon(10),
+    fraDato: faker.date.recent(10).toString(),
+    tilDato: faker.date.soon(10).toString(),
     status: faker.helpers.arrayElement(['VENTER', 'AVSLUTTET', 'DELTAR', 'IKKE_AKTUELL']),
     tiltaksnummer: faker.random.numeric(6),
     tiltaksnavn: faker.company.catchPhrase(),
@@ -43,5 +29,5 @@ function genererHistorikk(antallRader: number): Historikk[] {
     arrangor: faker.helpers.arrayElement(['AS3', 'Adecco', 'Jobbklubben', 'Kom i Arbeid AS']),
   }));
 
-  return data as Historikk[];
+  return data as HistorikkForBruker[];
 }
