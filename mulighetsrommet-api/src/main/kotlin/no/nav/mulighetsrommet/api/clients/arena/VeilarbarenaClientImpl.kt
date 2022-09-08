@@ -29,11 +29,11 @@ class VeilarbarenaClientImpl(
                     )
                 )
                 headers {
-                    this.append(
+                    append(
                         "Downstream-Authorization",
                         "Bearer ${machineToMachineTokenClient.createMachineToMachineToken(proxyScope)}"
                     )
-                    this.append("Nav-Consumer-Id", "mulighetsrommet-api")
+                    append("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
                 parameter("fnr", fnr)
             }
