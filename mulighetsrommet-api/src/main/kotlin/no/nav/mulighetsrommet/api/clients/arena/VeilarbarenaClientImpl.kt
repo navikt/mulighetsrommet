@@ -25,13 +25,13 @@ class VeilarbarenaClientImpl(
             val response = client.get("$baseUrl/proxy/veilarbarena/api/oppfolgingsbruker/hentPersonId") {
                 bearerAuth(
                     machineToMachineTokenClient.createMachineToMachineToken(
-                        scope
+                        proxyScope
                     )
                 )
                 headers {
                     append(
                         "Downstream-Authorization",
-                        "Bearer ${machineToMachineTokenClient.createMachineToMachineToken(proxyScope)}"
+                        "Bearer ${machineToMachineTokenClient.createMachineToMachineToken(scope)}"
                     )
                     append("Nav-Consumer-Id", "mulighetsrommet-api")
                 }
