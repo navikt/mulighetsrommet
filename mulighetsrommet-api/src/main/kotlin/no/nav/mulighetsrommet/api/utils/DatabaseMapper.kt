@@ -41,6 +41,16 @@ object DatabaseMapper {
         status = Deltakerstatus.valueOf(row.string("status"))
     )
 
+    fun toBrukerHistorikk(row: Row): HistorikkForDeltaker = HistorikkForDeltaker(
+        id = row.string("id"),
+        fraDato = row.localDateTimeOrNull("fra_dato"),
+        tilDato = row.localDateTimeOrNull("til_dato"),
+        status = Deltakerstatus.valueOf(row.string("status")),
+        tiltaksnavn = row.string("navn"),
+        tiltaksnummer = row.string("tiltaksnummer"),
+        tiltakstype = row.string("tiltakstype")
+    )
+
     // mulighetsrommet-arena-adapter specific
     fun toAdapterTiltak(row: Row): AdapterTiltak = AdapterTiltak(
         navn = row.string("navn"),

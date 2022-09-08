@@ -5,7 +5,10 @@ import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
+import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
+import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -39,7 +42,8 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarboppfolging(appConfig),
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
-                veilarbveileder(appConfig)
+                veilarbveileder(appConfig),
+                veilarbarena(appConfig)
             )
         )
     }
@@ -96,6 +100,17 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     )
 }
 
+private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
+    return VeilarbarenaClientImpl(
+        config.gcpProxy.url,
+        tokenClientProviderForMachineToMachine(config),
+        tokenClientProvider(config),
+        config.veilarbarenaConfig.scope,
+        config.gcpProxy.scope,
+        config.veilarbarenaConfig.httpClient
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -107,18 +122,31 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
     }
 }
 
+private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
+    return when (erLokalUtvikling()) {
+        true -> AzureAdTokenClientBuilder.builder()
+            .withClientId(config.auth.azure.audience)
+            .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
+            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+            .buildMachineToMachineTokenClient()
+        false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+    }
+}
+
 private fun services(
     appConfig: AppConfig,
     veilarbvedsstotte: VeilarbvedtaksstotteClient,
     veilarboppfolging: VeilarboppfolgingClient,
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
-    veilarbveilerClient: VeilarbveilederClient
+    veilarbveilerClient: VeilarbveilederClient,
+    veilarbarenaClient: VeilarbarenaClient
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
     single { InnsatsgruppeService(get()) }
+    single { HistorikkService(get(), veilarbarenaClient) }
     single { SanityService(appConfig.sanity, get()) }
     single {
         BrukerService(

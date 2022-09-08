@@ -38,6 +38,10 @@ app:
     url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
     scope: api://dev-fss.pto.veilarbdialog/.default
 
+  veilarbarenaConfig:
+    url: https://veilarbarena.dev-fss-pub.nais.io/veilarbarena/api
+    scope: api://dev-fss.pto.veilarbarena/.default
+
   sanity:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}
@@ -48,3 +52,7 @@ app:
 
   swagger:
     enable: true
+
+  gcpProxy:
+    url: https://poao-gcp-proxy.dev-fss-pub.nais.io
+    scope: api://dev-fss.pto.poao-gcp-proxy/.default

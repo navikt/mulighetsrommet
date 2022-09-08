@@ -38,6 +38,10 @@ app:
     url: http://localhost:8090
     scope: default
 
+  veilarbarenaConfig:
+    url: http://localhost:8090
+    scope: default
+
   sanity:
     dataset: test
     projectId: ${SANITY_PROJECT_ID}
@@ -45,3 +49,7 @@ app:
 
   swagger:
     enable: true
+
+  gcpProxy:
+    url: http://localhost:8090
+    scope: default

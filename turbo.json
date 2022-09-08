@@ -6,7 +6,8 @@
       "dependsOn": [
         "^build",
         "$VITE_MULIGHETSROMMET_API_MOCK",
-        "$VITE_MULIGHETSROMMET_API_BASE"
+        "$VITE_MULIGHETSROMMET_API_BASE",
+        "$mulighetsrommet-api/src/main/resources/web/openapi.yml"
       ]
     },
     "mulighetsrommet-api-client#build": {
