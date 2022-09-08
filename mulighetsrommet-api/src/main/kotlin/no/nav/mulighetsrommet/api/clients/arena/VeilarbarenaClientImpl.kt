@@ -28,11 +28,13 @@ class VeilarbarenaClientImpl(
                         scope
                     )
                 )
-                header(
-                    "Downstream-Authorization",
-                    "Bearer ${machineToMachineTokenClient.createMachineToMachineToken(proxyScope)}"
-                )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
+                headers {
+                    this.append(
+                        "Downstream-Authorization",
+                        "Bearer ${machineToMachineTokenClient.createMachineToMachineToken(proxyScope)}"
+                    )
+                    this.append("Nav-Consumer-Id", "mulighetsrommet-api")
+                }
                 parameter("fnr", fnr)
             }
 
