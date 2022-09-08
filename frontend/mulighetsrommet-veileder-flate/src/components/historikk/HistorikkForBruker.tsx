@@ -33,6 +33,10 @@ export function HistorikkForBruker() {
 
   if (isError) return <Alert variant="error">Klarte ikke hente historikk for bruker</Alert>;
 
+  if (data?.length! === 0) {
+    return <Alert variant="info">Fant ikke historikk for bruker</Alert>;
+  }
+
   return (
     <div className="historikk-for-bruker">
       <ul className="historikk-for-bruker-liste">
@@ -48,7 +52,10 @@ export function HistorikkForBruker() {
                   <p className="historikk-text-content">{historikk.arrangor}</p>
                 </div>
                 <p className="historikk-text-content">
-                  {formaterDato(historikk.fra_dato)} - {formaterDato(historikk.til_dato)}
+                  {[historikk.fraDato, historikk.tilDato]
+                    .filter(Boolean)
+                    .map(dato => formaterDato(dato))
+                    .join(' - ')}
                 </p>
               </div>
               <aside>

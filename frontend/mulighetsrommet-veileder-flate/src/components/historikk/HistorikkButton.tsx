@@ -10,11 +10,10 @@ export function HistorikkButton() {
   const [apneModal, setApneModal] = useState(false);
   const features = useFeatureToggles();
   const toggleModal = () => setApneModal(!apneModal);
-
   const visHistorikkKnapp = features.isSuccess && features.data[VIS_HISTORIKK];
-  useHentHistorikk(visHistorikkKnapp);
+  const { isLoading } = useHentHistorikk(visHistorikkKnapp);
 
-  if (!visHistorikkKnapp) return null;
+  if (isLoading || !visHistorikkKnapp) return null;
 
   return (
     <>

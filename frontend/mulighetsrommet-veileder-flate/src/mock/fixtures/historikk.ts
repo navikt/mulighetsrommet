@@ -4,8 +4,8 @@ import { faker } from '@faker-js/faker';
 interface Historikk {
   id: string;
   fnr: string;
-  fra_dato: Date;
-  til_dato: Date;
+  fraDato: Date;
+  tilDato: Date;
   status: Deltakerstatus;
   tiltaksnummer: string;
   tiltaksnavn: string;
@@ -19,7 +19,7 @@ export const historikk: Historikk[] = genererHistorikk(7);
 
 function genererHistorikk(antallRader: number): Historikk[] {
   const data = [...Array(antallRader)].map(i => ({
-    id: faker.git.shortSha(),
+    id: faker.git.shortSha,
     fnr: '12345678910',
     fra_dato: faker.date.recent(10),
     til_dato: faker.date.soon(10),
