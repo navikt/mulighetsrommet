@@ -54,5 +54,5 @@ app:
     enable: true
 
   gcpProxy:
-    url: https://poao-gcp-proxy.dev-fss-pub.nais.io/api
+    url: https://poao-gcp-proxy.dev-fss-pub.nais.io
     scope: api://dev-fss.pto.poao-gcp-proxy/.default
