@@ -37,6 +37,6 @@ spec:
     - alert: Høy andel HTTP klientfeil (4xx responser) for mulighetsrommet-api
       severity: warning
       # Change <appname> to the name of the app you want to monitor and <namespace> to the namespace of the app
-      expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^4(?!(?:09)$)\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
+      expr: (100 * (sum by (backend) (rate(response_total{status_code=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])) / sum by (backend) (rate(response_total{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
       for: 3m
       action: "Sjekk loggene for å se hvorfor returnerer HTTP feilresponser"
