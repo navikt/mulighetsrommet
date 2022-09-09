@@ -10,11 +10,12 @@ ktlint {
 
 dependencies {
     val ktorVersion = "2.1.0"
+    implementation("io.ktor:ktor-server-call-id-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-id-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
 
     // Metrikker
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
