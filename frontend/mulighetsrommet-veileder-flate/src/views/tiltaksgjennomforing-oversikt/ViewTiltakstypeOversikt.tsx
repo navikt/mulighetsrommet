@@ -62,7 +62,6 @@ const ViewTiltakstypeOversikt = () => {
             }
           />
           <SearchFieldTag />
-          <HistorikkButton />
           <Show if={!innsatsgrupper.isLoading && skalResetteFilter}>
             <Button
               size="small"
@@ -77,6 +76,9 @@ const ViewTiltakstypeOversikt = () => {
               Tilbakestill filter
             </Button>
           </Show>
+        </div>
+        <div>
+          <HistorikkButton />
         </div>
       </div>
       <div className="tiltakstype-oversikt__tiltak">
