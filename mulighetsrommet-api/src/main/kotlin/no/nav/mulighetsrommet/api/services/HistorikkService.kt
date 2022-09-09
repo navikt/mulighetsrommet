@@ -24,12 +24,12 @@ class HistorikkService(private val db: Database, private val veilarbarenaClient:
     private fun getHistorikkForBrukerFromDb(person_id: Int): List<HistorikkForDeltaker> {
         @Language("PostgreSQL")
         val query = """
-            select deltaker.id, deltaker.fra_dato, deltaker.til_dato, status, tiltak.navn, tiltaksnummer, t.navn tiltakstype
-         from deltaker
-         left join tiltaksgjennomforing tiltak on tiltak.arena_id = deltaker.tiltaksgjennomforing_id
-         left join tiltakstype t on tiltak.tiltakskode = t.tiltakskode
-            where person_id = ?
-            order by deltaker.fra_dato desc;
+        select deltaker.id, deltaker.fra_dato, deltaker.til_dato, status, gjennomforing.navn, tiltaksnummer, tiltakstype.navn tiltakstype
+        from deltaker
+        left join tiltaksgjennomforing gjennomforing on gjennomforing.arena_id = deltaker.tiltaksgjennomforing_id
+        left join tiltakstype tiltakstype on tiltakstype.tiltakskode = gjennomforing.tiltakskode
+        where person_id = ?
+        order by deltaker.fra_dato desc nulls last;
         """.trimIndent()
         val queryResult = queryOf(query, person_id).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
         return db.run(queryResult)
