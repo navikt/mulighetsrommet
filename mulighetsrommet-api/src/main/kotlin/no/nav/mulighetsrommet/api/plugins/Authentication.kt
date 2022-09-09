@@ -22,8 +22,7 @@ fun Application.configureAuthentication(auth: AuthConfig) {
             }
 
             validate { credentials ->
-                // TODO: validate user from nav-ident header
-                // val navIdent = request.header("nav-ident")
+                credentials["NAVident"] ?: return@validate null
 
                 JWTPrincipal(credentials.payload)
             }
