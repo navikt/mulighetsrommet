@@ -7,7 +7,7 @@ import {
 } from '../../core/api/feature-toggles';
 
 export const mockFeatures: Features = {
-  [ENABLE_ARBEIDSFLATE]: true,
+  [ENABLE_ARBEIDSFLATE]: false,
   [FEEDBACK]: true,
   [DELING_MED_BRUKER]: true,
   [VIS_HISTORIKK]: true,
