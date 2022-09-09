@@ -102,11 +102,11 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
 
 private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
     return VeilarbarenaClientImpl(
-        config.gcpProxy.url,
+        config.poaoGcpProxy.url,
         tokenClientProviderForMachineToMachine(config),
         tokenClientProvider(config),
         config.veilarbarenaConfig.scope,
-        config.gcpProxy.scope,
+        config.poaoGcpProxy.scope,
         config.veilarbarenaConfig.httpClient
     )
 }

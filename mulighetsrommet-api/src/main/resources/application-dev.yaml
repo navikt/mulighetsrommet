@@ -18,6 +18,17 @@ app:
       audience: ${AZURE_APP_CLIENT_ID}
       tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
 
+  sanity:
+    dataset: ${SANITY_DATASET}
+    projectId: ${SANITY_PROJECT_ID}
+    authToken: ${SANITY_AUTH_TOKEN}
+
+  sentry:
+    dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134
+
+  swagger:
+    enable: true
+
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api
     scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
@@ -42,17 +53,6 @@ app:
     url: https://veilarbarena.dev-fss-pub.nais.io/veilarbarena/api
     scope: api://dev-fss.pto.veilarbarena/.default
 
-  sanity:
-    dataset: ${SANITY_DATASET}
-    projectId: ${SANITY_PROJECT_ID}
-    authToken: ${SANITY_AUTH_TOKEN}
-
-  sentry:
-    dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134
-
-  swagger:
-    enable: true
-
-  gcpProxy:
+  poaoGcpProxy:
     url: https://poao-gcp-proxy.dev-fss-pub.nais.io
     scope: api://dev-fss.pto.poao-gcp-proxy/.default

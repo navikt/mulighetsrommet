@@ -28,7 +28,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbveilederConfig = createVeilarbveilederConfig(),
     veilarbdialogConfig = createVeilarbdialogConfig(),
     veilarbarenaConfig = createVeilarbarenaConfig(),
-    gcpProxy = createGcpProxyConfig()
+    poaoGcpProxy = createPoaoGcpProxyConfig()
 )
 
 fun createVeilarbarenaConfig(): VeilarbvarenaConfig {
@@ -110,8 +110,8 @@ fun createSanityConfig(): SanityConfig {
     )
 }
 
-fun createGcpProxyConfig(): GcpProxyConfig {
-    return GcpProxyConfig(
+fun createPoaoGcpProxyConfig(): PoaoGcpProxyConfig {
+    return PoaoGcpProxyConfig(
         url = "",
         scope = ""
     )
