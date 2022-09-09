@@ -23,7 +23,8 @@ data class AppConfig(
     val veilarbdialogConfig: VeilarbdialogConfig,
     val veilarbveilederConfig: VeilarbveilederConfig,
     val veilarbarenaConfig: VeilarbvarenaConfig,
-    val poaoGcpProxy: PoaoGcpProxyConfig
+    val poaoGcpProxy: PoaoGcpProxyConfig,
+    val poaoTilgang: PoaoTilgangConfig,
 )
 
 data class AuthConfig(
@@ -86,4 +87,9 @@ data class VeilarbvarenaConfig(
 data class PoaoGcpProxyConfig(
     val url: String,
     val scope: String
+)
+
+data class PoaoTilgangConfig(
+    val url: String,
+    val scope: String,
 )

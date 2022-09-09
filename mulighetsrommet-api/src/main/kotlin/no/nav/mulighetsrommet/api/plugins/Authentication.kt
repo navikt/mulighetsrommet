@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -28,4 +31,14 @@ fun Application.configureAuthentication(auth: AuthConfig) {
             }
         }
     }
+}
+
+/**
+ * Gets a NAVident from the underlying [JWTPrincipal], or throws a [StatusException]
+ * if the claim is not available.
+ */
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
+    return call.principal<JWTPrincipal>()
+        ?.get("NAVident")
+        ?: throw StatusException(HttpStatusCode.Forbidden, "NAVident mangler i JWTPrincipal")
 }
