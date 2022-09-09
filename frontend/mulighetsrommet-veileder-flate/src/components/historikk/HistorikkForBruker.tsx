@@ -1,10 +1,11 @@
 import { Alert, Loader } from '@navikt/ds-react';
 import classNames from 'classnames';
-import { Deltakerstatus, useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
+import { useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
+import { HistorikkForBruker as IHistorikkForBruker } from 'mulighetsrommet-api-client';
 import { formaterDato } from '../../utils/Utils';
 import './HistorikkForBruker.less';
 
-function StatusBadge({ status }: { status: Deltakerstatus }) {
+function StatusBadge({ status }: { status?: IHistorikkForBruker.status }) {
   return (
     <div
       className={classNames('historikk-for-bruker-statusbadge', `historikk-for-bruker-statusbadgde-farge-${status}`)}
@@ -14,7 +15,7 @@ function StatusBadge({ status }: { status: Deltakerstatus }) {
   );
 }
 
-function statustekst(status: Deltakerstatus): string {
+function statustekst(status?: IHistorikkForBruker.status): string {
   switch (status) {
     case 'AVSLUTTET':
       return 'Fullført';
@@ -24,6 +25,8 @@ function statustekst(status: Deltakerstatus): string {
       return 'Ikke aktuell';
     case 'VENTER':
       return 'Venter på oppstart';
+    default:
+      return '';
   }
 }
 
@@ -54,7 +57,7 @@ export function HistorikkForBruker() {
                 <p className="historikk-text-content">
                   {[historikk.fraDato, historikk.tilDato]
                     .filter(Boolean)
-                    .map(dato => formaterDato(dato))
+                    .map(dato => formaterDato(dato!))
                     .join(' - ')}
                 </p>
               </div>
