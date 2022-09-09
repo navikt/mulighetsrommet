@@ -5,7 +5,7 @@ import { useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
 import { formaterDato } from '../../utils/Utils';
 import './HistorikkForBruker.less';
 
-function StatusBadge({ status }: { status: IHistorikkForBruker.status }) {
+function StatusBadge({ status }: { status?: IHistorikkForBruker.status }) {
   return (
     <div
       className={classNames('historikk-for-bruker-statusbadge', `historikk-for-bruker-statusbadgde-farge-${status}`)}
@@ -15,7 +15,7 @@ function StatusBadge({ status }: { status: IHistorikkForBruker.status }) {
   );
 }
 
-function statustekst(status: IHistorikkForBruker.status): string {
+function statustekst(status?: IHistorikkForBruker.status): string {
   switch (status) {
     case 'AVSLUTTET':
       return 'Avsluttet';
@@ -57,7 +57,7 @@ export function HistorikkForBruker() {
                 <p className="historikk-text-content">
                   {[historikk.fraDato, historikk.tilDato]
                     .filter(Boolean)
-                    .map(dato => formaterDato(dato))
+                    .map(dato => formaterDato(dato!))
                     .join(' - ')}
                 </p>
               </div>
