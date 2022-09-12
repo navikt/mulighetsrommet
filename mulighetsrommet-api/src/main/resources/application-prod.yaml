@@ -55,5 +55,5 @@ app:
     scope: api://prod-fss.pto.poao-gcp-proxy/.default
 
   poaoTilgang:
-    url: https://poao-tilgang.intern.nav.no
+    url: http://poao-tilgang.poao
     scope: api://prod-gcp.poao.poao-tilgang/.default
