@@ -44,3 +44,7 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    outbound:
+      rules:
+        - application: mulighetsrommet-api
