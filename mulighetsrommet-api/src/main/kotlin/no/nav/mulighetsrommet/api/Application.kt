@@ -4,6 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
+import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
 import no.nav.mulighetsrommet.api.routes.internal.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
@@ -40,16 +41,18 @@ fun Application.configure(config: AppConfig) {
     routing {
         swaggerRoutes()
 
-        authenticate {
+        authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             innsatsgruppeRoutes()
-            arenaRoutes()
             sanityRoutes()
             brukerRoutes()
             veilederRoutes()
             frontendLoggerRoutes()
             dialogRoutes()
+        }
+        authenticate(AuthProvider.AzureAdMachineToMachine.name) {
+            arenaRoutes()
         }
     }
 }

@@ -11,15 +11,31 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
+enum class AuthProvider {
+    AzureAdMachineToMachine,
+    AzureAdNavIdent,
+}
+
 fun Application.configureAuthentication(auth: AuthConfig) {
     val (azure) = auth
 
-    install(Authentication) {
-        jwt {
-            val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL())
-                .cached(5, 12, TimeUnit.HOURS)
-                .build()
+    val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL())
+        .cached(5, 12, TimeUnit.HOURS)
+        .build()
 
+    install(Authentication) {
+        jwt(AuthProvider.AzureAdMachineToMachine.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                // TODO: verify that this is a m2m-token
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+        jwt(AuthProvider.AzureAdNavIdent.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
             }
