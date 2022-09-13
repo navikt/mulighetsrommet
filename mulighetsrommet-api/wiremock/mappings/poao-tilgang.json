@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/poao-tilgang/api/v1/tilgang/modia"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "decision": {
+        "type": "PERMIT"
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

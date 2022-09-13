@@ -16,18 +16,26 @@ data class AppConfig(
     val auth: AuthConfig,
     val sanity: SanityConfig,
     val sentry: SentryConfig? = null,
+    val swagger: SwaggerConfig? = null,
     val veilarboppfolgingConfig: VeilarboppfolgingConfig,
     val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig,
     val veilarbpersonConfig: VeilarbpersonConfig,
     val veilarbdialogConfig: VeilarbdialogConfig,
     val veilarbveilederConfig: VeilarbveilederConfig,
     val veilarbarenaConfig: VeilarbvarenaConfig,
-    val swagger: SwaggerConfig? = null,
-    val gcpProxy: GcpProxyConfig
+    val poaoGcpProxy: PoaoGcpProxyConfig,
+    val poaoTilgang: PoaoTilgangConfig,
 )
 
 data class AuthConfig(
     val azure: AuthProvider
+)
+
+data class AuthProvider(
+    val issuer: String,
+    val jwksUri: String,
+    val audience: String,
+    val tokenEndpointUrl: String
 )
 
 data class SanityConfig(
@@ -36,11 +44,8 @@ data class SanityConfig(
     val authToken: String
 )
 
-data class AuthProvider(
-    val issuer: String,
-    val jwksUri: String,
-    val audience: String,
-    val tokenEndpointUrl: String
+data class SwaggerConfig(
+    val enable: Boolean
 )
 
 data class VeilarboppfolgingConfig(
@@ -79,11 +84,12 @@ data class VeilarbvarenaConfig(
     val httpClient: HttpClient = baseClient
 )
 
-data class SwaggerConfig(
-    val enable: Boolean
-)
-
-data class GcpProxyConfig(
+data class PoaoGcpProxyConfig(
     val url: String,
     val scope: String
+)
+
+data class PoaoTilgangConfig(
+    val url: String,
+    val scope: String,
 )

@@ -48,11 +48,18 @@ spec:
   azure:
     application:
       enabled: true
+      claims:
+        extra:
+          - NAVident
   accessPolicy:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter
         - application: veilarbpersonflate
+          namespace: poao
+    outbound:
+      rules:
+        - application: poao-tilgang
           namespace: poao
   envFrom:
     - secret: mulighetsrommet-api

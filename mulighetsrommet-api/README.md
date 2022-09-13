@@ -97,9 +97,12 @@ Følgende steg kan benyttes til å generere opp et token:
 
 1. Sørg for at containeren for `mock-oauth2-server` kjører lokalt (`docker-compose up --profile dev -d`)
 2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger)
-3. Trykk på knappen `Get a token`
-4. Full ut felt for `user/subject` (spiller ingen trille hva dette er) og trykk deretter `Sign in`
-5. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header
+3. Generer et token
+   1. Trykk på knappen `Get a token`
+   2. Full ut felt for `user/subject` (spiller ingen trille hva dette er)
+   3. Skriv inn en NAVident i `optional claims`, f.eks.`{ "NAVident": "ABC123" }`
+   4. Trykk `Sign in`
+4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header
 
 Eksempel:
 ```sh

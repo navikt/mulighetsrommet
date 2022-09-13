@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
+import no.nav.mulighetsrommet.api.clients.poao_tilgang.PoaoTilgangClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
@@ -102,11 +103,11 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
 
 private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
     return VeilarbarenaClientImpl(
-        config.gcpProxy.url,
+        config.poaoGcpProxy.url,
         tokenClientProviderForMachineToMachine(config),
         tokenClientProvider(config),
         config.veilarbarenaConfig.scope,
-        config.gcpProxy.scope,
+        config.poaoGcpProxy.scope,
         config.veilarbarenaConfig.httpClient
     )
 }
@@ -140,8 +141,10 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    veilarbarenaClient: VeilarbarenaClient
+    veilarbarenaClient: VeilarbarenaClient,
 ) = module {
+    val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
+
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
@@ -160,6 +163,12 @@ private fun services(
         VeilederService(
             veilarbveilederClient = veilarbveilerClient
         )
+    }
+    single {
+        val client = PoaoTilgangClient(baseUrl = appConfig.poaoTilgang.url) {
+            m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope)
+        }
+        PoaoTilgangService(client)
     }
 }
 
