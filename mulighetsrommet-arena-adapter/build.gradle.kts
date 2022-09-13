@@ -23,7 +23,7 @@ flyway {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    // Needed to use the `@OptIn` annotation for exeprimental features
+    // Needed to use the `@OptIn` annotation for experimental features
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
@@ -94,7 +94,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.mockk:mockk:1.12.5")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.3")
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
     testImplementation("org.testcontainers:kafka:1.17.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
 
