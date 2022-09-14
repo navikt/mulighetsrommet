@@ -15,7 +15,7 @@ ktlint {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    // Needed to use the `@OptIn` annotation for exeprimental features
+    // Needed to use the `@OptIn` annotation for experimental features
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 

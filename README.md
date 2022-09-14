@@ -3,8 +3,6 @@
 ![Deploy (api)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-api.yaml/badge.svg)
 ![Deploy (frontend)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-veileder-flate.yaml/badge.svg)
 
-
-
 ## Introduksjon
 
 Mulighetsrommet er en applikasjonsportfølje som skal hjelpe både brukere og veiledere til å få en helhetlig oversikt over alle arbeidsmarkedstiltak NAV kan tilby.
@@ -13,20 +11,21 @@ Veiledere vil også kunne få en samlet oversikt over all informasjon fra flere 
 Hensikten er å kunne gi begge parter lett tilgang til den samme kvalitetssikret tiltaksinformasjonen som vi har i NAV.
 
 ## Overvåking av løsninger
+
 Vi bruker [Sentry](https://sentry.gc.nav.no/) for overvåkning av våre løsninger.
 
-Det finnes også to dashboards for løsningen hhv. [Her for API](https://logs.adeo.no/app/dashboards#/view/6927d260-00ed-11ed-9b1a-4723a5e7a9db?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))) og [her for metrikker fra frontend](https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now)))
+Det finnes også to dashboards for løsningen hhv. [Her for API](<https://logs.adeo.no/app/dashboards#/view/6927d260-00ed-11ed-9b1a-4723a5e7a9db?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>) og [her for metrikker fra frontend](<https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
 
 ## Moduler
 
 ### `mulighetsrommet-veileder-flate`
 
-|                  |                                                                                                      |
-| ---------------- | ---------------------------------------------------------------------------------------------------- |
+|                  |                                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------- |
 | Kildekode        | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (dev-miljø)  | <https://mulighetsrommet-veileder-flate.dev.intern.nav.no/>                                            |
-| Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/>                                                 |
+| Url (dev-miljø)  | <https://veilarbpersonflate.dev.intern.nav.no/12118323058>                                              |
+| Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/>                                                  |
 
 ### `mulighetsrommet-api-client`
 
@@ -49,12 +48,12 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 
 ### `mulighetsrommet-api`
 
-|                 |                                                                                  |
-| --------------- | -------------------------------------------------------------------------------- |
+|                 |                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------- |
 | Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api>           |
 | README          | <https://github.com/navikt/mulighetsrommet/blob/main/mulighetsrommet-api/README.md> |
-| Url (dev-miljø) | <https://mulighetsrommet-api.dev.intern.nav.no/>                                   |
-| API             | <https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui>                         |
+| Url (dev-miljø) | <https://mulighetsrommet-api.dev.intern.nav.no/>                                    |
+| API             | <https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui>                          |
 
 ### `mulighetsrommet-kafka-manager`
 
@@ -78,4 +77,3 @@ For å gjøre noen rutineoppgaver enklere er det mulig å installere følgende g
 
 - Installasjon av pre-commit hook for å kjøre `ktlintFormat` på endrede filer: Kjør kommando `./gradlew addKtlintFormatGitPreCommitHook`
 - Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør kommando `./gradlew addKtlintCheckGitPreCommitHook`
-
