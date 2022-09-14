@@ -91,7 +91,7 @@ internal class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("consumers processes event from correct topic and inserts event into failed events on fail") {
-        val orchestrator = KafkaConsumerOrchestrator(
+        KafkaConsumerOrchestrator(
             consumerProperties,
             listener.db,
             ConsumerGroup(
