@@ -1,2 +1,4 @@
 ingresses:
   - https://mulighetsrommet-veileder-flate.labs.nais.io
+minReplicas: 1
+maxReplicas: 1

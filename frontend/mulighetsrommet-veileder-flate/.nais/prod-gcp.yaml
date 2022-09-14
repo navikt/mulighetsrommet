@@ -1,3 +1,4 @@
 ingresses:
   - https://mulighetsrommet-veileder-flate.intern.nav.no
-
+minReplicas: 2
+maxReplicas: 3
