@@ -18,7 +18,7 @@ class PoaoTilgangClient(
     private val baseUrl: String,
     private val tokenProvider: Supplier<String>,
 ) {
-    private val logger = SecureLog.getSecurelogger()
+    private val secureLog = SecureLog.getSecurelogger()
 
     private val client: HttpClient = createHttpJsonClient(engine)
 
@@ -35,7 +35,7 @@ class PoaoTilgangClient(
         val decision = response.body<TilgangTilModiaResponse>().decision
 
         if (decision.type == Decision.DecisionType.DENY) {
-            logger.warn("Bruker mangler tilgang til Modia Arbeidsrettet Oppfølging. navIdent=$navIdent, reason=${decision.reason}, message=${decision.message}")
+            secureLog.warn("Bruker mangler tilgang til Modia Arbeidsrettet Oppfølging. navIdent=$navIdent, reason=${decision.reason}, message=${decision.message}")
         }
 
         return decision.type == Decision.DecisionType.PERMIT
