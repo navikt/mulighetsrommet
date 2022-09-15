@@ -10,7 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.setup.http.createHttpJsonClient
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.secureLog.SecureLog
 import java.util.function.Supplier
 
 class PoaoTilgangClient(
@@ -18,7 +18,7 @@ class PoaoTilgangClient(
     private val baseUrl: String,
     private val tokenProvider: Supplier<String>,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger = SecureLog.getSecurelogger()
 
     private val client: HttpClient = createHttpJsonClient(engine)
 
