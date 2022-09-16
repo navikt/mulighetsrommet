@@ -9,11 +9,11 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogResponse
 import no.nav.mulighetsrommet.api.setup.http.baseClient
-import no.nav.mulighetsrommet.secureLog.SecureLog
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
-private val secureLog = SecureLog.getSecurelogger()
+private val secureLog = SecureLog.logger
 
 class VeilarbdialogClientImpl(
     private val baseUrl: String,

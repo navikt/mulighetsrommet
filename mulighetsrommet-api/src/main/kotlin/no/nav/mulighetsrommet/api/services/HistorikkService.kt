@@ -15,7 +15,7 @@ class HistorikkService(private val db: Database, private val veilarbarenaClient:
 
     suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltaker> {
         val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
-            log.debug("Klarte ikke hente personId fra veilarbarena")
+            log.info("Klarte ikke hente personId fra veilarbarena")
             return emptyList()
         }
         return getHistorikkForBrukerFromDb(parseInt(personId, 10))

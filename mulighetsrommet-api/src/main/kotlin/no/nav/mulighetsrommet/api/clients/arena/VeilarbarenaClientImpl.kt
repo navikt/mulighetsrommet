@@ -10,12 +10,12 @@ import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.setup.http.baseClient
-import no.nav.mulighetsrommet.secureLog.SecureLog
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 private val log = LoggerFactory.getLogger(VeilarbarenaClientImpl::class.java)
-private val secureLog = SecureLog.getSecurelogger()
+private val secureLog = SecureLog.logger
 
 class VeilarbarenaClientImpl(
     private val baseUrl: String,
@@ -62,13 +62,13 @@ class VeilarbarenaClientImpl(
             }
 
             if (response.status == HttpStatusCode.NoContent) {
-                secureLog.debug("Det ble ikke returnert personId fra veilarbarena for bruker med fnr: $fnr")
+                secureLog.info("Det ble ikke returnert personId fra veilarbarena for bruker med fnr: $fnr")
                 log.info("Det ble ikke returnert personId fra veilarbarena. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
             }
 
             if (response.status == HttpStatusCode.NotFound) {
-                secureLog.debug("Fant ikke personId fra veilarbarena for bruker med fnr: $fnr")
-                log.debug("Fant ikke personId. Det kan være feil endepunkt til veilarbarena, eller at personId ikke finnes for innsendt fnr.")
+                secureLog.info("Fant ikke personId fra veilarbarena for bruker med fnr: $fnr")
+                log.info("Fant ikke personId. Det kan være feil endepunkt til veilarbarena, eller at personId ikke finnes for innsendt fnr.")
             }
             null
         } catch (exe: Exception) {
