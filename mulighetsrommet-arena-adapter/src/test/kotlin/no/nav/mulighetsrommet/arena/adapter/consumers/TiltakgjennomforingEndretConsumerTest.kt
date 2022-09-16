@@ -19,48 +19,50 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     test("should call api with mapped event payload") {
         val engine = MockEngine { respondOk() }
 
-        val event = createtiltaksgjennomforingEndretEvent(antallDeltakere = 5)
-        createTiltaksgjennomforingEndretConsumer(engine).processEvent(event)
+        val event = createEvent(antallDeltakere = 5)
+        createConsumer(engine).processEvent(event)
 
-        val request = engine.requestHistory.last()
-        request.method shouldBe HttpMethod.Put
-        decodeRequestBody<AdapterTiltaksgjennomforing>(request) shouldBe AdapterTiltaksgjennomforing(
-            id = 3780431,
-            navn = "Testenavn",
-            tiltakskode = "INDOPPFAG",
-            arrangorId = 49612,
-            sakId = 13572352,
-            fraDato = null,
-            tilDato = null,
-            apentForInnsok = true,
-            antallPlasser = 5,
-        )
+        engine.requestHistory.last().run {
+            method shouldBe HttpMethod.Put
+
+            decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe AdapterTiltaksgjennomforing(
+                id = 3780431,
+                navn = "Testenavn",
+                tiltakskode = "INDOPPFAG",
+                arrangorId = 49612,
+                sakId = 13572352,
+                fraDato = null,
+                tilDato = null,
+                apentForInnsok = true,
+                antallPlasser = 5,
+            )
+        }
     }
 
     test("should decode ANTALL_DELTAKERE as nearest integer") {
         val engine = MockEngine { respondOk() }
 
-        val event = createtiltaksgjennomforingEndretEvent(antallDeltakere = 5.5)
-        createTiltaksgjennomforingEndretConsumer(engine).processEvent(event)
+        val event = createEvent(antallDeltakere = 5.5)
+        createConsumer(engine).processEvent(event)
 
-        decodeRequestBody<AdapterTiltaksgjennomforing>(engine.requestHistory.last()).antallPlasser shouldBe 6
+        engine.requestHistory.last().decodeRequestBody<AdapterTiltaksgjennomforing>().antallPlasser shouldBe 6
     }
 
     context("when api returns 500") {
         test("should treat the result as error") {
-            val consumer = createTiltaksgjennomforingEndretConsumer(
+            val consumer = createConsumer(
                 MockEngine { respondError(HttpStatusCode.InternalServerError) }
             )
 
             shouldThrow<ResponseException> {
-                consumer.processEvent(createtiltaksgjennomforingEndretEvent())
+                consumer.processEvent(createEvent())
             }
         }
     }
 })
 
-fun createTiltaksgjennomforingEndretConsumer(engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
-    val client = MulighetsrommetApiClient(engine, maxRetries = 1, baseUri = "api") {
+private fun createConsumer(engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
+    val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
         "Bearer token"
     }
 
@@ -73,7 +75,7 @@ fun createTiltaksgjennomforingEndretConsumer(engine: HttpClientEngine): Tiltakgj
     )
 }
 
-private fun createtiltaksgjennomforingEndretEvent(antallDeltakere: Number = 5) = ArenaEvent.createInsertEvent(
+private fun createEvent(antallDeltakere: Number = 5) = ArenaEvent.createInsertEvent(
     """{
         "TILTAKGJENNOMFORING_ID": 3780431,
         "LOKALTNAVN": "Testenavn",
