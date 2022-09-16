@@ -89,29 +89,29 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette deltaker")
                 }
         }
-    }
 
-    put("sak") {
-        val sak = call.receive<AdapterSak>()
-        arenaService.updateTiltaksgjennomforingWithSak(sak)
-            .map {
-                val response = it ?: HttpStatusCode.Conflict
-                call.respond(response)
-            }
-            .mapLeft {
-                logError(logger, it.error)
-                call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
-            }
-    }
+        put("sak") {
+            val sak = call.receive<AdapterSak>()
+            arenaService.updateTiltaksgjennomforingWithSak(sak)
+                .map {
+                    val response = it ?: HttpStatusCode.Conflict
+                    call.respond(response)
+                }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
+                }
+        }
 
-    delete("sak") {
-        val sak = call.receive<AdapterSak>()
-        arenaService.unsetSakOnTiltaksgjennomforing(sak)
-            .map { call.response.status(HttpStatusCode.OK) }
-            .mapLeft {
-                logError(logger, it.error)
-                call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
-            }
+        delete("sak") {
+            val sak = call.receive<AdapterSak>()
+            arenaService.unsetSakOnTiltaksgjennomforing(sak)
+                .map { call.response.status(HttpStatusCode.OK) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
+                }
+        }
     }
 }
 
