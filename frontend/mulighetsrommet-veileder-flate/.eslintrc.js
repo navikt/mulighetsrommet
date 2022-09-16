@@ -4,6 +4,7 @@ module.exports = {
     es2021: true,
     node: true,
   },
+
   extends: ['plugin:react/recommended', 'standard', 'prettier', 'plugin:cypress/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -14,6 +15,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react', '@typescript-eslint', 'prettier', 'cypress'],
+  ignorePatterns: ['/node_modules/**'],
   rules: {
     '@typescript-eslint/no-use-before-define': ['off'],
     'no-use-before-define': 'off',
