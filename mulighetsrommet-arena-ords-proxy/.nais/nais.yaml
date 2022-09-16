@@ -35,3 +35,7 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: mulighetsrommet-arena-adapter
