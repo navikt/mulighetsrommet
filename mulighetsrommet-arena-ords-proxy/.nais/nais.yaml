@@ -10,6 +10,8 @@ spec:
   port: 8086
   ingresses:
     - https://mulighetsrommet-arena-ords-proxy.dev.intern.nav.no
+  secureLogs:
+    enabled: true
   prometheus:
     enabled: true
     path: /internal/prometheus

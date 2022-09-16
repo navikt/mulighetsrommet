@@ -9,9 +9,11 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
 import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
+private val secureLog = SecureLog.logger
 
 class VeilarbvedtaksstotteClientImpl(
     private val baseUrl: String,
@@ -41,7 +43,8 @@ class VeilarbvedtaksstotteClientImpl(
 
             response.body<VedtakDTO>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente siste 14A-vedtak: {}", exe.message)
+            secureLog.error("Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr", exe)
+            log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i secureLogs.")
             null
         }
     }

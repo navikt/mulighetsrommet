@@ -10,7 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.setup.http.createHttpJsonClient
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import java.util.function.Supplier
 
 class PoaoTilgangClient(
@@ -18,7 +18,7 @@ class PoaoTilgangClient(
     private val baseUrl: String,
     private val tokenProvider: Supplier<String>,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val secureLog = SecureLog.logger
 
     private val client: HttpClient = createHttpJsonClient(engine)
 
@@ -35,7 +35,7 @@ class PoaoTilgangClient(
         val decision = response.body<TilgangTilModiaResponse>().decision
 
         if (decision.type == Decision.DecisionType.DENY) {
-            logger.warn("Bruker mangler tilgang til Modia Arbeidsrettet Oppfølging. navIdent=$navIdent, reason=${decision.reason}, message=${decision.message}")
+            secureLog.warn("Bruker mangler tilgang til Modia Arbeidsrettet Oppfølging. navIdent=$navIdent, reason=${decision.reason}, message=${decision.message}")
         }
 
         return decision.type == Decision.DecisionType.PERMIT

@@ -9,9 +9,11 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.domain.ManuellStatusDTO
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsstatus
 import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
+private val secureLog = SecureLog.logger
 
 class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
@@ -41,7 +43,8 @@ class VeilarboppfolgingClientImpl(
 
             response.body<Oppfolgingsstatus>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente oppfølgingsstatus: {}", exe.message)
+            secureLog.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr")
+            log.error("Klarte ikke hente oppfølgingsstatus. Se secureLogs for detaljer.")
             null
         }
     }
@@ -66,7 +69,8 @@ class VeilarboppfolgingClientImpl(
             val body = response.body<ManuellStatusDTO>()
             body
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente manuell status")
+            secureLog.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
+            log.error("Klarte ikke hente manuell status. Se detaljer i secureLogs.")
             null
         }
     }
