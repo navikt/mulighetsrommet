@@ -15,7 +15,6 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react', '@typescript-eslint', 'prettier', 'cypress'],
-  ignorePatterns: ['/node_modules/**'],
   rules: {
     '@typescript-eslint/no-use-before-define': ['off'],
     'no-use-before-define': 'off',
