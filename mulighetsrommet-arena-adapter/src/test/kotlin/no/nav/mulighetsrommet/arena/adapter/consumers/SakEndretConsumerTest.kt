@@ -20,7 +20,7 @@ class SakEndretConsumerTest : FunSpec({
         test("should not api with mapped event payload") {
             val engine = MockEngine { respondOk() }
 
-            createSakEndretConsumer(engine).processEvent(createSakEndretEvent(sakskode = "NOT_TILT"))
+            createConsumer(engine).processEvent(createEvent(sakskode = "NOT_TILT"))
 
             engine.requestHistory shouldHaveSize 0
         }
@@ -30,26 +30,12 @@ class SakEndretConsumerTest : FunSpec({
         test("should call api with mapped event payload") {
             val engine = MockEngine { respondOk() }
 
-            createSakEndretConsumer(engine).processEvent(createSakEndretEvent())
+            createConsumer(engine).processEvent(createEvent())
 
-            val request = engine.requestHistory.last()
-            request.method shouldBe HttpMethod.Put
-            decodeRequestBody<AdapterSak>(request) shouldBe AdapterSak(
-                id = 1,
-                aar = 2022,
-                lopenummer = 2,
-            )
-        }
+            engine.requestHistory.last().run {
+                method shouldBe HttpMethod.Put
 
-        context("when api returns 409") {
-            test("should treat the result as successful") {
-                val engine = MockEngine { respondError(HttpStatusCode.Conflict) }
-
-                createSakEndretConsumer(engine).processEvent(createSakEndretEvent())
-
-                val request = engine.requestHistory.last()
-                request.method shouldBe HttpMethod.Put
-                decodeRequestBody<AdapterSak>(request) shouldBe AdapterSak(
+                decodeRequestBody<AdapterSak>() shouldBe AdapterSak(
                     id = 1,
                     aar = 2022,
                     lopenummer = 2,
@@ -57,31 +43,40 @@ class SakEndretConsumerTest : FunSpec({
             }
         }
 
+        context("when api returns 409") {
+            test("should treat the result as successful") {
+                val engine = MockEngine { respondError(HttpStatusCode.Conflict) }
+
+                createConsumer(engine).processEvent(createEvent())
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Put
+
+                    decodeRequestBody<AdapterSak>() shouldBe AdapterSak(
+                        id = 1,
+                        aar = 2022,
+                        lopenummer = 2,
+                    )
+                }
+            }
+        }
+
         context("when api returns 500") {
             test("should treat the result as error") {
-                val consumer = createSakEndretConsumer(
+                val consumer = createConsumer(
                     MockEngine { respondError(HttpStatusCode.InternalServerError) }
                 )
 
                 shouldThrow<ResponseException> {
-                    consumer.processEvent(createSakEndretEvent())
+                    consumer.processEvent(createEvent())
                 }
             }
         }
     }
 })
 
-private fun createSakEndretEvent(sakskode: String = "TILT") = ArenaEvent.createInsertEvent(
-    """{
-        "SAK_ID": 1,
-        "SAKSKODE": "$sakskode",
-        "AAR": 2022,
-        "LOPENRSAK": 2
-    }"""
-)
-
-private fun createSakEndretConsumer(engine: HttpClientEngine): SakEndretConsumer {
-    val client = MulighetsrommetApiClient(engine, maxRetries = 1, baseUri = "api") {
+private fun createConsumer(engine: HttpClientEngine): SakEndretConsumer {
+    val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
         "Bearer token"
     }
 
@@ -93,3 +88,12 @@ private fun createSakEndretConsumer(engine: HttpClientEngine): SakEndretConsumer
         client
     )
 }
+
+private fun createEvent(sakskode: String = "TILT") = ArenaEvent.createInsertEvent(
+    """{
+        "SAK_ID": 1,
+        "SAKSKODE": "$sakskode",
+        "AAR": 2022,
+        "LOPENRSAK": 2
+    }"""
+)
