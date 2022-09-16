@@ -70,7 +70,7 @@ dependencies {
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
 
-    val ktorVersion = "2.1.0"
+    val ktorVersion = "2.1.1"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
@@ -86,14 +86,14 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
-    val navCommonModules = "2.2022.07.01_07.12-6a0864fa6938"
+    val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
-    val kotestVersion = "5.4.1"
+    val kotestVersion = "5.4.2"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.mockk:mockk:1.12.5")
+    testImplementation("io.mockk:mockk:1.12.7")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
     testImplementation("org.testcontainers:kafka:1.17.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
@@ -103,11 +103,11 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("ch.qos.logback:logback-classic:1.4.0")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("org.slf4j:slf4j-api:2.0.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.33.2")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.39.0")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
 }
