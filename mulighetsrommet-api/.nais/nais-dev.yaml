@@ -10,6 +10,8 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-api.dev.intern.nav.no
+  secureLogs:
+    enabled: true
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -46,11 +48,18 @@ spec:
   azure:
     application:
       enabled: true
+      claims:
+        extra:
+          - NAVident
   accessPolicy:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter
         - application: veilarbpersonflate
+          namespace: poao
+    outbound:
+      rules:
+        - application: poao-tilgang
           namespace: poao
   envFrom:
     - secret: mulighetsrommet-api

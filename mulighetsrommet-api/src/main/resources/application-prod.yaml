@@ -18,6 +18,14 @@ app:
       audience: ${AZURE_APP_CLIENT_ID}
       tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
 
+  sanity:
+    dataset: ${SANITY_DATASET}
+    projectId: ${SANITY_PROJECT_ID}
+    authToken: ${SANITY_AUTH_TOKEN}
+
+  sentry:
+    dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134
+
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
     scope: api://prod-fss.pto.veilarbvedtaksstotte/.default
@@ -38,10 +46,14 @@ app:
     url: https://veilarbdialog.prod-fss-pub.nais.io/veilarbdialog/api
     scope: api://prod-fss.pto.veilarbdialog/.default
 
-  sanity:
-    dataset: ${SANITY_DATASET}
-    projectId: ${SANITY_PROJECT_ID}
-    authToken: ${SANITY_AUTH_TOKEN}
+  veilarbarenaConfig:
+    url: https://veilarbarena.dev-fss-pub.nais.io/veilarbarena/api
+    scope: api://prod-fss.pto.veilarbarena/.default
 
-  sentry:
-    dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134
+  poaoGcpProxy:
+    url: https://poao-gcp-proxy.prod-fss-pub.nais.io
+    scope: api://prod-fss.pto.poao-gcp-proxy/.default
+
+  poaoTilgang:
+    url: http://poao-tilgang.poao
+    scope: api://prod-gcp.poao.poao-tilgang/.default

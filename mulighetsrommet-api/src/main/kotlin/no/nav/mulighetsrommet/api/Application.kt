@@ -4,12 +4,15 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
-import no.nav.mulighetsrommet.api.routes.internal.*
+import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
+import no.nav.mulighetsrommet.api.routes.internal.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureSentry
+import no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
 
@@ -33,20 +36,23 @@ fun Application.configure(config: AppConfig) {
     configureSerialization()
     configureWebjars(config.swagger)
     configureSentry(config.sentry)
+    configureStatusPagesForStatusException()
 
     routing {
         swaggerRoutes()
 
-        authenticate {
+        authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             innsatsgruppeRoutes()
-            arenaRoutes()
             sanityRoutes()
             brukerRoutes()
             veilederRoutes()
             frontendLoggerRoutes()
             dialogRoutes()
+        }
+        authenticate(AuthProvider.AzureAdMachineToMachine.name) {
+            arenaRoutes()
         }
     }
 }

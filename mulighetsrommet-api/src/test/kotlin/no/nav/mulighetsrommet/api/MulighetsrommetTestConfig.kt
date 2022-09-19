@@ -27,7 +27,17 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbpersonConfig = createVeilarbpersonConfig(),
     veilarbveilederConfig = createVeilarbveilederConfig(),
     veilarbdialogConfig = createVeilarbdialogConfig(),
+    veilarbarenaConfig = createVeilarbarenaConfig(),
+    poaoGcpProxy = createPoaoGcpProxyConfig(),
+    poaoTilgang = PoaoTilgangConfig("", ""),
 )
+
+fun createVeilarbarenaConfig(): VeilarbvarenaConfig {
+    return VeilarbvarenaConfig(
+        url = "",
+        scope = ""
+    )
+}
 
 fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
     return VeilarboppfolgingConfig(
@@ -49,6 +59,7 @@ fun createVeilarbpersonConfig(): VeilarbpersonConfig {
         scope = ""
     )
 }
+
 fun createVeilarbveilederConfig(): VeilarbveilederConfig {
     return VeilarbveilederConfig(
         url = "",
@@ -69,7 +80,7 @@ fun createDatabaseConfigWithRandomSchema(
     name: String = "mulighetsrommet-api-db",
     user: String = "valp",
     password: Password = Password("valp"),
-    maximumPoolSize: Int = 1,
+    maximumPoolSize: Int = 1
 ): DatabaseConfig {
     val schema = "$name-${java.util.UUID.randomUUID()}"
     return DatabaseConfig(host, port, name, schema, user, password, maximumPoolSize)
@@ -97,5 +108,12 @@ fun createSanityConfig(): SanityConfig {
         projectId = "",
         authToken = "",
         dataset = ""
+    )
+}
+
+fun createPoaoGcpProxyConfig(): PoaoGcpProxyConfig {
+    return PoaoGcpProxyConfig(
+        url = "",
+        scope = ""
     )
 }

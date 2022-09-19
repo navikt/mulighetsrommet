@@ -18,6 +18,14 @@ app:
       audience: mulighetsrommet-api
       tokenEndpointUrl: http://localhost:8081/azure/token
 
+  sanity:
+    dataset: test
+    projectId: ${SANITY_PROJECT_ID}
+    authToken: ${SANITY_AUTH_TOKEN}
+
+  swagger:
+    enable: true
+
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090
     scope: default
@@ -38,10 +46,14 @@ app:
     url: http://localhost:8090
     scope: default
 
-  sanity:
-    dataset: test
-    projectId: ${SANITY_PROJECT_ID}
-    authToken: ${SANITY_AUTH_TOKEN}
+  veilarbarenaConfig:
+    url: http://localhost:8090
+    scope: default
 
-  swagger:
-    enable: true
+  poaoGcpProxy:
+    url: http://localhost:8090
+    scope: default
+
+  poaoTilgang:
+    url: http://localhost:8090/poao-tilgang
+    scope: default

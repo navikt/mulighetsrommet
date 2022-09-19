@@ -5,7 +5,7 @@ server:
 app:
   services:
     mulighetsrommetApi:
-      url: https://mulighetsrommet-api.intern.nav.no
+      url: http://mulighetsrommet-api
       scope: api://prod-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
     topicService:
       channelCapacity: 500

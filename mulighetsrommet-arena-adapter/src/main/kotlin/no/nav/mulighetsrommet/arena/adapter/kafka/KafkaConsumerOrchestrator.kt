@@ -30,7 +30,7 @@ class KafkaConsumerOrchestrator(
     private val topicPoller: Poller
 
     init {
-        logger.debug("Initializing Kafka")
+        logger.info("Initializing Kafka consumer clients")
 
         updateTopics(group.consumers)
 
@@ -65,12 +65,12 @@ class KafkaConsumerOrchestrator(
 
     fun enableFailedRecordProcessor() {
         consumerRecordProcessor.start()
-        logger.debug("Started kafka consumer record processor")
+        logger.info("Started kafka consumer record processor")
     }
 
     fun disableFailedRecordProcessor() {
         consumerRecordProcessor.close()
-        logger.debug("Stopped kafka processors")
+        logger.info("Stopped kafka processors")
     }
 
     fun getTopics() = topicRepository.selectAll()
@@ -89,10 +89,10 @@ class KafkaConsumerOrchestrator(
             if (client != null) {
                 if (client.isRunning && !it.running) {
                     client.stop()
-                    logger.debug("Stopped ${it.topic}")
+                    logger.info("Stopped client for topic ${it.topic}")
                 } else if (!client.isRunning && it.running) {
                     client.start()
-                    logger.debug("Started ${it.topic}")
+                    logger.info("Started client for topic ${it.topic}")
                 }
             }
         }

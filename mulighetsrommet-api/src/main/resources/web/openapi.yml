@@ -250,7 +250,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/historikk:
+  /api/v1/bruker/historikk:
     get:
       tags:
         - Historikk
@@ -261,12 +261,12 @@ paths:
           schema:
             type: string
           description: SSN for the user which will be used to fetch 'historikk' for user
-      responses: # TODO type opp korrekt data fra backend for historikk-endepunktet
+      responses:
         200:
           description: Historical data about the user
           content:
             application/json:
-              schema: { }
+              $ref: "#/components/schemas/HistorikkForBruker"
 
   /logger/event:
     post:
@@ -572,6 +572,33 @@ components:
           type: string
       required:
         - id
+
+    HistorikkForBruker:
+      type: object
+      properties:
+        id:
+          type: string
+        fnr:
+          type: string
+        fraDato:
+          type: string
+        tilDato:
+          type: string
+        status:
+          type: string
+          enum:
+            - VENTER
+            - AVSLUTTET
+            - DELTAR
+            - IKKE_AKTUELL
+        tiltaksnummer:
+          type: string
+        tiltaksnavn:
+          type: string
+        tiltakstype:
+          type: string
+        arrangor:
+          type: string
 
   examples:
     Tiltakstype:

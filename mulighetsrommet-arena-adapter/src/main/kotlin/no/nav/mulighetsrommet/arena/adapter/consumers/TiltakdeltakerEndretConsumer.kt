@@ -32,7 +32,9 @@ class TiltakdeltakerEndretConsumer(
 
     override suspend fun handleEvent(event: ArenaEvent<ArenaTiltakdeltaker>) {
         val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/deltaker", event.data.toAdapterTiltakdeltaker())
+        client.sendRequest(method, "/api/v1/arena/deltaker", event.data.toAdapterTiltakdeltaker()) {
+            status.isSuccess() || status == HttpStatusCode.Conflict
+        }
     }
 
     private fun ArenaTiltakdeltaker.toAdapterTiltakdeltaker() = AdapterTiltakdeltaker(

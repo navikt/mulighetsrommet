@@ -8,11 +8,13 @@ import io.ktor.server.routing.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
+import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import org.koin.ktor.ext.inject
+import org.postgresql.util.PSQLException
 
 fun Route.arenaRoutes() {
 
@@ -22,105 +24,98 @@ fun Route.arenaRoutes() {
 
     route("/api/v1/arena/") {
         put("tiltakstype") {
-            runCatching {
-                val tiltakstype = call.receive<AdapterTiltak>()
-                arenaService.upsertTiltakstype(tiltakstype)
-            }.onSuccess { updatedTiltakstype ->
-                call.respond(updatedTiltakstype)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke oppdatere tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
+            val tiltakstype = call.receive<AdapterTiltak>()
+            arenaService.upsertTiltakstype(tiltakstype)
+                .map { call.respond(it) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltakstype")
+                }
         }
 
         delete("tiltakstype") {
-            runCatching {
-                val tiltakstype = call.receive<AdapterTiltak>()
-                arenaService.deleteTiltakstype(tiltakstype)
-            }.onSuccess {
-                call.response.status(HttpStatusCode.OK)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke slette tiltakstype", status = HttpStatusCode.InternalServerError)
-            }
+            val tiltakstype = call.receive<AdapterTiltak>()
+            arenaService.deleteTiltakstype(tiltakstype)
+                .map { call.response.status(HttpStatusCode.OK) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakstype")
+                }
         }
 
         put("tiltaksgjennomforing") {
-            runCatching {
-                val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
-                arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-            }.onSuccess { createdTiltaksgjennomforing ->
-                call.respond(createdTiltaksgjennomforing)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke opprette tiltak", status = HttpStatusCode.InternalServerError)
-            }
+            val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
+            arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+                .map { call.respond(it) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltak")
+                }
         }
 
         delete("tiltaksgjennomforing") {
-            runCatching {
-                val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
-                arenaService.deleteTiltaksgjennomforing(tiltaksgjennomforing)
-            }.onSuccess {
-                call.response.status(HttpStatusCode.OK)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke slette tiltak", status = HttpStatusCode.InternalServerError)
-            }
+            val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
+            arenaService.deleteTiltaksgjennomforing(tiltaksgjennomforing)
+                .map { call.response.status(HttpStatusCode.OK) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltak")
+                }
         }
 
         put("deltaker") {
-            runCatching {
-                val deltaker = call.receive<AdapterTiltakdeltaker>()
-                arenaService.upsertDeltaker(deltaker)
-            }.onSuccess { createdDeltaker ->
-                call.respond(createdDeltaker)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke opprette deltaker", status = HttpStatusCode.InternalServerError)
-            }
+            val deltaker = call.receive<AdapterTiltakdeltaker>()
+            arenaService.upsertDeltaker(deltaker)
+                .map { call.respond(HttpStatusCode.OK, it) }
+                .mapLeft {
+                    when (it) {
+                        is DatabaseOperationError.ForeignKeyViolation -> {
+                            call.respond(HttpStatusCode.Conflict, "Kunne ikke opprette deltaker")
+                        }
+                        else -> {
+                            logError(logger, it.error)
+                            call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette deltaker")
+                        }
+                    }
+                }
         }
 
         delete("deltaker") {
-            runCatching {
-                val deltaker = call.receive<AdapterTiltakdeltaker>()
-                arenaService.deleteDeltaker(deltaker)
-            }.onSuccess {
-                call.response.status(HttpStatusCode.OK)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke slette deltaker", status = HttpStatusCode.InternalServerError)
-            }
+            val deltaker = call.receive<AdapterTiltakdeltaker>()
+            arenaService.deleteDeltaker(deltaker)
+                .map { call.response.status(HttpStatusCode.OK) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette deltaker")
+                }
         }
 
         put("sak") {
-            runCatching {
-                val sak = call.receive<AdapterSak>()
-                arenaService.updateTiltaksgjennomforingWithSak(sak)
-            }.onSuccess {
-                val response = it ?: HttpStatusCode.Conflict
-                call.respond(response)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
-            }
+            val sak = call.receive<AdapterSak>()
+            arenaService.updateTiltaksgjennomforingWithSak(sak)
+                .map {
+                    val response = it ?: HttpStatusCode.Conflict
+                    call.respond(response)
+                }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
+                }
         }
 
         delete("sak") {
-            runCatching {
-                val sak = call.receive<AdapterSak>()
-                arenaService.unsetSakOnTiltaksgjennomforing(sak)
-            }.onSuccess {
-                call.response.status(HttpStatusCode.OK)
-            }.onFailure {
-                logError(logger, it)
-                call.respondText("Kunne ikke oppdatere tiltak med sak", status = HttpStatusCode.InternalServerError)
-            }
+            val sak = call.receive<AdapterSak>()
+            arenaService.unsetSakOnTiltaksgjennomforing(sak)
+                .map { call.response.status(HttpStatusCode.OK) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
+                }
         }
     }
 }
 
-private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: Throwable) {
+private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: PSQLException) {
     logger.debug(
         "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()}",
         error

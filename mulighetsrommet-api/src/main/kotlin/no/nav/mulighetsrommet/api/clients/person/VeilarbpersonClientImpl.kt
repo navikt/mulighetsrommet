@@ -8,9 +8,11 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.PersonDTO
 import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
+private val secureLog = SecureLog.logger
 
 class VeilarbpersonClientImpl(
     private val baseUrl: String,
@@ -32,7 +34,8 @@ class VeilarbpersonClientImpl(
                 )
             }.body<PersonDTO>()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente fornavn")
+            secureLog.error("Klarte ikke hente fornavn for bruker med fnr: $fnr")
+            log.error("Klarte ikke hente fornavn. Se detaljer i secureLog.")
             null
         }
     }

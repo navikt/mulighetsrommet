@@ -1,26 +1,12 @@
+import { HistorikkForBruker } from 'mulighetsrommet-api-client';
 import { useQuery } from 'react-query';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 
-interface Historikk {
-  id: string;
-  fnr: string;
-  fra_dato: Date;
-  til_dato: Date;
-  status: Deltakerstatus;
-  tiltaksnummer: string;
-  tiltaksnavn: string;
-  tiltakstype: string;
-  arrangor: string;
-}
-
-export type Deltakerstatus = 'VENTER' | 'AVSLUTTET' | 'DELTAR' | 'IKKE_AKTUELL';
-
-// TODO Type opp retur-verdi for hook
 export function useHentHistorikk(prefetch: boolean = true) {
   const fnr = useHentFnrFraUrl();
-  return useQuery<Historikk[], any>(
+  return useQuery<HistorikkForBruker[], any>(
     [QueryKeys.Historikk, fnr],
     () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ fnr }),
     { enabled: prefetch }
