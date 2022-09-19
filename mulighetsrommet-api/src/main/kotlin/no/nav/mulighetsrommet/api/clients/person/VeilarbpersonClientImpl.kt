@@ -32,7 +32,6 @@ class VeilarbpersonClientImpl(
                         accessToken
                     )
                 )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
             }.body<PersonDTO>()
         } catch (exe: Exception) {
             secureLog.error("Klarte ikke hente fornavn for bruker med fnr: $fnr")

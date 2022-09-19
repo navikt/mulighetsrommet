@@ -33,7 +33,6 @@ class VeilarboppfolgingClientImpl(
                         accessToken
                     )
                 )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
@@ -58,7 +57,6 @@ class VeilarboppfolgingClientImpl(
                         accessToken
                     )
                 )
-                header("Nav-Consumer-Id", "mulighetsrommet-api")
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
