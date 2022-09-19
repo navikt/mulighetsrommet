@@ -28,6 +28,17 @@ const TiltaksansvarligInfo = ({ tiltaksansvarlige }: TiltaksansvarligProps) => {
                 </BodyShort>
               </div>
               <div className="kontaktinfo__rad">
+                <Label size="small">Teams</Label>
+                <BodyShort>
+                  <a
+                    target="_blank"
+                    href={`https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(tiltaksansvarlig.epost)}`}
+                  >
+                    Kontakt {tiltaksansvarlig.navn} på Teams
+                  </a>
+                </BodyShort>
+              </div>
+              <div className="kontaktinfo__rad">
                 <Label size="small">Enhet</Label>
                 <BodyShort>{tiltaksansvarlig.enhet}</BodyShort>
               </div>
