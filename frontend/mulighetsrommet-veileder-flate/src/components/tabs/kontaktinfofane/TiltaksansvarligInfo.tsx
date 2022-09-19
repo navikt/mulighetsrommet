@@ -3,6 +3,8 @@ import React from 'react';
 import './KontaktinfoFane.less';
 import { Tiltaksansvarlig } from '../../../core/api/models';
 
+const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
+
 interface TiltaksansvarligProps {
   tiltaksansvarlige: Tiltaksansvarlig[];
 }
@@ -30,10 +32,7 @@ const TiltaksansvarligInfo = ({ tiltaksansvarlige }: TiltaksansvarligProps) => {
               <div className="kontaktinfo__rad">
                 <Label size="small">Teams</Label>
                 <BodyShort>
-                  <a
-                    target="_blank"
-                    href={`https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(tiltaksansvarlig.epost)}`}
-                  >
+                  <a target="_blank" href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}>
                     Kontakt {tiltaksansvarlig.navn} på Teams
                   </a>
                 </BodyShort>
