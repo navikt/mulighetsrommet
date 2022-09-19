@@ -45,7 +45,7 @@ dependencies {
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
     implementation("io.arrow-kt:arrow-core:1.1.2")
 
-    val ktorVersion = "2.1.0"
+    val ktorVersion = "2.1.1"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
@@ -74,24 +74,24 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2.2022.07.01_07.12-6a0864fa6938"
+    val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
     implementation("no.nav.common:token-client:$navCommonModules")
 
     // Test
-    val kotestVersion = "5.4.1"
+    val kotestVersion = "5.4.2"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.2.5")
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
-    testImplementation("io.mockk:mockk:1.12.5")
+    testImplementation("io.mockk:mockk:1.12.7")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.1")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("ch.qos.logback:logback-classic:1.4.0")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("org.slf4j:slf4j-api:2.0.0")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     // OpenAPI
