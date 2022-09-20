@@ -26,7 +26,9 @@ export default () =>
           .items(deskItems);
       }
 
-      return S.list().title("Innhold").items(deskItems);
+      return S.list()
+        .title("Innhold")
+        .items(...adminStructure);
     });
 
 export const getDefaultDocumentNode = ({ schemaType }) => {
