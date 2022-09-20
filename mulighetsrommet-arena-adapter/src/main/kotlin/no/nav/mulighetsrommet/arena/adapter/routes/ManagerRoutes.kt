@@ -16,9 +16,6 @@ fun Route.managerRoutes() {
         useResources = true
         react("web")
     }
-//    get("/*") {
-//        call.respondRedirect("/" + call.request.uri)
-//    }
     get("/topics") {
         val topics = kafka.getTopics()
         call.respond(topics)
