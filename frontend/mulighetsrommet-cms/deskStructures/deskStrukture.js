@@ -28,7 +28,7 @@ export default () =>
 
       return S.list()
         .title("Innhold")
-        .items(...adminStructure);
+        .items([...adminStructure]);
     });
 
 export const getDefaultDocumentNode = ({ schemaType }) => {
