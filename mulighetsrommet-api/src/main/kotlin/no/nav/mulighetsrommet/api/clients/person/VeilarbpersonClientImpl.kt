@@ -26,16 +26,14 @@ class VeilarbpersonClientImpl(
 
     override suspend fun hentPersonInfo(fnr: String, accessToken: String?): PersonDTO? {
         return try {
-            val hei = client.get("$baseUrl/v2/person?fnr=$fnr") {
+            client.get("$baseUrl/v2/person?fnr=$fnr") {
                 bearerAuth(
                     veilarbpersonTokenProvider.exchangeOnBehalfOfToken(
                         scope,
                         accessToken
                     )
                 )
-            }
-            log.info("headers: ${hei.request.headers}")
-            hei.body<PersonDTO>()
+            }.body<PersonDTO>()
         } catch (exe: Exception) {
             secureLog.error("Klarte ikke hente fornavn for bruker med fnr: $fnr")
             log.error("Klarte ikke hente fornavn. Se detaljer i secureLog.")
