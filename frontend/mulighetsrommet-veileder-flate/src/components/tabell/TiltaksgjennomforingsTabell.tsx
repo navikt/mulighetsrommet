@@ -12,9 +12,9 @@ import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Feilmelding } from '../feilmelding/Feilmelding';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
+import { CopyToClipboard } from '@navikt/ds-react-internal';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -264,7 +264,15 @@ const TiltaksgjennomforingsTabell = () => {
                 <Table.DataCell data-testid="tabell_tiltaksnummer">
                   <div className="tabell__tiltaksnummer">
                     {tiltaksnummer}
-                    <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
+                    <CopyToClipboard
+                      popoverText="Kopiert!"
+                      copyText="Kopier"
+                      iconPosition="right"
+                      size="small"
+                      popoverPlacement="top"
+                      data-testid="tabell_knapp_kopier"
+                      className="kopiknapp"
+                    />
                   </div>
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
@@ -284,10 +292,12 @@ const TiltaksgjennomforingsTabell = () => {
               {tiltaksgjennomforinger.length} tiltak
             </Heading>
             <Pagination
+              size="small"
               data-testid="paginering"
               page={page}
               onPageChange={setPage}
               count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
+              data-version="v1"
             />
           </>
         ) : null}
