@@ -10,12 +10,14 @@ export default {
       name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
       type: "string",
+      description: "Fyll inn navnet på tiltakstypen her",
       validation: (Rule) => Rule.required().min(2).max(200),
     },
     {
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "string",
+      description: "Her kan du skrive en beskrivelse av tiltakstypen",
     },
     {
       name: "nokkelinfoKomponenter",
@@ -26,6 +28,7 @@ export default {
     {
       name: "innsatsgruppe",
       title: "Innsatsgruppe",
+      description: "Hvilken innsatsgruppe gjelder tiltakstypen for?",
       type: "reference",
       options: {
         disableNew: true,
@@ -35,6 +38,7 @@ export default {
     {
       name: "varighet",
       title: "Varighet",
+      description: "Om tiltakstypen har en varighet kan du legge det inn her",
       type: "string",
     },
     {
@@ -65,6 +69,8 @@ export default {
     {
       name: "delingMedBruker",
       title: "Informasjon til å dele med bruker",
+      description:
+        "Dette er teksten som veileder kan dele med bruker via 'Del med bruker'-knapp",
       type: "text",
     },
   ],
