@@ -15,6 +15,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
+import { capitalize } from "../../utils/Utils";
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -24,7 +25,7 @@ const ViewTiltakstypeDetaljer = () => {
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
-  const veiledernavn = `${veilederdata?.data?.fornavn} ${veilederdata?.data?.etternavn}`;
+  const veiledernavn = `${capitalize(veilederdata?.data?.fornavn)} ${capitalize(veilederdata?.data?.etternavn)}`;
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
