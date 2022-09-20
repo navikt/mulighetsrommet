@@ -21,6 +21,7 @@ data class AppConfig(
 data class ServiceConfig(
     val mulighetsrommetApi: AuthenticatedService,
     val topicService: TopicService.Config,
+    val arenaOrdsApi: AuthenticatedService
 )
 
 data class AuthenticatedService(

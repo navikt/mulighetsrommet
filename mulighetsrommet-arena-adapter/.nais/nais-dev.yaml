@@ -50,3 +50,4 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
+        - application: mulighetsrommet-arena-ords-proxy
