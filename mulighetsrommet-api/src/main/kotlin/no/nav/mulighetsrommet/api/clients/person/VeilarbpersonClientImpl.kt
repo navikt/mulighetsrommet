@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.PersonDTO
@@ -25,14 +26,16 @@ class VeilarbpersonClientImpl(
 
     override suspend fun hentPersonInfo(fnr: String, accessToken: String?): PersonDTO? {
         return try {
-            client.get("$baseUrl/v2/person?fnr=$fnr") {
+            val hei = client.get("$baseUrl/v2/person?fnr=$fnr") {
                 bearerAuth(
                     veilarbpersonTokenProvider.exchangeOnBehalfOfToken(
                         scope,
                         accessToken
                     )
                 )
-            }.body<PersonDTO>()
+            }
+            log.info("headers: ${hei.request.headers}")
+            hei.body<PersonDTO>()
         } catch (exe: Exception) {
             secureLog.error("Klarte ikke hente fornavn for bruker med fnr: $fnr")
             log.error("Klarte ikke hente fornavn. Se detaljer i secureLog.")
