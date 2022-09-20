@@ -97,7 +97,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testImplementation("net.datafaker:datafaker:1.5.0")
     testImplementation("org.assertj:assertj-db:2.0.2")
 
     val koinVersion = "3.2.0"
