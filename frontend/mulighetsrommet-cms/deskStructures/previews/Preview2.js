@@ -82,7 +82,7 @@ export function Preview2({ document }) {
         <div>
           <MarginBottom>
             <h3>Beskrivelse</h3>
-            <p>{displayed.beskrivelse}</p>
+            {tiltaksdata?.tiltakstypeNavn === 'Opplæring (Gruppe AMO)' && <p>{displayed.beskrivelse}</p> }
             <TekstFraTiltakstype>
               {tiltaksdata?.beskrivelse}
             </TekstFraTiltakstype>
