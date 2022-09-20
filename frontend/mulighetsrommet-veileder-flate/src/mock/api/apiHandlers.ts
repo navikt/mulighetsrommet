@@ -1,7 +1,6 @@
 import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
 import { badReq, ok } from './responses';
-import { mockFeatures } from './features';
 import { historikk } from '../fixtures/historikk';
 
 export const apiHandlers: RestHandler[] = [
@@ -19,7 +18,7 @@ export const apiHandlers: RestHandler[] = [
         navn: 'NAV Fredrikstad',
         enhetId: '0106',
       },
-      fornavn: 'Iherdig',
+      fornavn: 'IHERDIG',
       manuellStatus: {
         erUnderManuellOppfolging: false,
         krrStatus: {
@@ -32,8 +31,8 @@ export const apiHandlers: RestHandler[] = [
 
   rest.get('*/api/v1/veileder', (req, res, ctx) => {
     return ok({
-      etternavn: 'Veiledersen',
-      fornavn: 'Veileder',
+      etternavn: 'VEILEDERSEN',
+      fornavn: 'VEILEDER',
       ident: 'V1234',
       navn: 'Veiledersen, Veileder',
     });
