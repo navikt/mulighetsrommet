@@ -1,17 +1,15 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.utils
+package no.nav.mulighetsrommet.arena.adapter.utils
 
-import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
-import no.nav.mulighetsrommet.domain.arena.ArenaSak
-import no.nav.mulighetsrommet.domain.arena.ArenaTiltak
-import no.nav.mulighetsrommet.domain.arena.ArenaTiltakdeltaker
-import no.nav.mulighetsrommet.domain.arena.ArenaTiltaksgjennomforing
+import net.datafaker.Faker
+import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
+import no.nav.mulighetsrommet.domain.arena.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 object EventFaker {
 
     private const val DEFAULT_NUM_OF_EVENTS = 10
-    val faker = Faker(Locale("nb", "NO"))
+    private val faker = Faker(Locale("nb", "NO"))
 
     fun generateFakeEventDataSet(numOfEvents: Int = DEFAULT_NUM_OF_EVENTS): Array<List<Any>> {
         val tiltakstyper = createFakeTiltakstypeEvents(numOfEvents)
@@ -25,8 +23,8 @@ object EventFaker {
     fun createFakeTiltakstypeEvents(numOfEvents: Int = DEFAULT_NUM_OF_EVENTS): List<ArenaTiltak> {
         return (0..numOfEvents).map {
             ArenaTiltak(
-                faker.dog().breed(),
-                faker.dog().name(),
+                "tiltaksnavn$it",
+                "tiltakskode$it",
                 faker.date().past(365 * 10, TimeUnit.DAYS).toString(),
                 faker.date().future(365 * 10, TimeUnit.DAYS).toString()
             )
@@ -44,8 +42,10 @@ object EventFaker {
                 tiltakskoder.random(),
                 faker.date().past(365 * 10, TimeUnit.DAYS).toString(),
                 faker.date().future(365 * 10, TimeUnit.DAYS).toString(),
-                faker.cat().breed(),
-                it + 1
+                "tiltaksgjennomforingnavn$it",
+                it + 1,
+                JaNeiStatus.Ja,
+                faker.random().nextInt(20)
             )
         }
     }

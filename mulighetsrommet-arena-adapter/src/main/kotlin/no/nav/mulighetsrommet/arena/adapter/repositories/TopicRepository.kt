@@ -24,11 +24,11 @@ class TopicRepository(private val db: Database) {
     fun updateRunning(topics: List<Topic>) {
         @Language("PostgreSQL")
         val query = """
-            update topics set running = ? where id = ? and running != ? returning *
+            update topics set running = ? where id = ?
         """.trimIndent()
         db.transaction { tx ->
             topics.forEach {
-                tx.run(queryOf(query, it.running, it.id, it.running).asExecute)
+                tx.run(queryOf(query, it.running, it.id).asExecute)
             }
         }
     }
@@ -42,7 +42,6 @@ class TopicRepository(private val db: Database) {
             do update set
                 key = excluded.key,
                 topic = excluded.topic
-            returning * 
         """.trimIndent()
         db.transaction { tx ->
             consumers.forEach {
