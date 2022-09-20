@@ -261,8 +261,8 @@ const TiltaksgjennomforingsTabell = () => {
                   </Lenke>
                   <div>{kontaktinfoArrangor.selskapsnavn}</div>
                 </Table.DataCell>
-                <Table.DataCell data-testid="tabell_tiltaksnummer">
-                  <div className="tabell__tiltaksnummer">
+                <Table.DataCell data-testid="tabell_tiltaksnummer" className="tabell__tiltaksnummer">
+                  <div className="tabell__tiltaksnummer__wrapper">
                     {tiltaksnummer}
                     <CopyToClipboard
                       popoverText="Kopiert!"
