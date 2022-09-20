@@ -71,7 +71,6 @@ const redaktorAvdirStructure = [
       ![
         "tiltaksgjennomforing",
         "arrangor",
-        "navKontaktperson",
         "regelverkfil",
         "enhet",
         "regelverklenke",
