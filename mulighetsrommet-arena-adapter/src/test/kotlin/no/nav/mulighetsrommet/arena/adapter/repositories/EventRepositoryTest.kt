@@ -44,5 +44,4 @@ class EventRepositoryTest : FunSpec({
         events shouldHaveSize 3
         events.map { it.id } shouldContainInOrder listOf(3, 4, 5)
     }
-
 })
