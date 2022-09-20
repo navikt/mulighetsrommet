@@ -14,7 +14,7 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
-import { CopyToClipboard } from '@navikt/ds-react-internal';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -263,16 +263,7 @@ const TiltaksgjennomforingsTabell = () => {
                 </Table.DataCell>
                 <Table.DataCell data-testid="tabell_tiltaksnummer" className="tabell__tiltaksnummer">
                   <div className="tabell__tiltaksnummer__wrapper">
-                    {tiltaksnummer}
-                    <CopyToClipboard
-                      popoverText="Kopiert!"
-                      copyText="Kopier"
-                      iconPosition="right"
-                      size="small"
-                      popoverPlacement="top"
-                      data-testid="tabell_knapp_kopier"
-                      className="kopiknapp"
-                    />
+                    {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
                   </div>
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>

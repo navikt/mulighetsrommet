@@ -3,7 +3,7 @@ import { Panel } from '@navikt/ds-react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 import Regelverksinfo from './Regelverksinfo';
 import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { CopyToClipboard } from '@navikt/ds-react-internal';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
@@ -18,16 +18,7 @@ const SidemenyDetaljer = () => {
         <div className="tiltakstype-detaljer__rad">
           <strong>Tiltaksnummer</strong>
           <div className="tiltakstype-detaljer__rad__info">
-            {tiltaksnummer}
-            <CopyToClipboard
-              popoverText="Kopiert!"
-              copyText={String(tiltaksnummer)}
-              iconPosition="right"
-              size="small"
-              popoverPlacement="top"
-              data-testid="knapp_kopier"
-              className="kopiknapp"
-            />
+            {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
           </div>
         </div>
 
