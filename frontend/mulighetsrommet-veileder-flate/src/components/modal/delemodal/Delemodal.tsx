@@ -8,6 +8,7 @@ import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
+import { capitalize } from "../../../utils/Utils";
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -63,7 +64,7 @@ const Delemodal = ({
   veiledernavn = '',
 }: DelemodalProps) => {
   const startText = `${chattekst
-    .replace('<Fornavn>', brukerNavn)
+    .replace('<Fornavn>', capitalize(brukerNavn))
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();

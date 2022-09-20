@@ -1,3 +1,7 @@
+import { blockContentValidation } from "../validation/blockContentValidation";
+
+const MAKS_LENGDE_INNHOLD = 1000;
+
 export default {
   name: "faneinnhold",
   title: "Faneinnhold",
@@ -32,10 +36,18 @@ export default {
     {
       name: "forHvem",
       title: "For hvem",
+      description: `Her kan du skrive en beskrivelse av hvem tiltakstypen gjelder for. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
       type: "blockContent",
       group: "forHvem",
+      validation: (Rule) =>
+        Rule.custom((doc) =>
+          blockContentValidation(
+            doc,
+            MAKS_LENGDE_INNHOLD,
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
+          )
+        ),
     },
-
     {
       name: "detaljerOgInnholdInfoboks",
       title: "Detaljer og innhold - infoboks",
@@ -47,8 +59,17 @@ export default {
     {
       name: "detaljerOgInnhold",
       title: "Detaljer og innhold",
+      description: `Her kan du skrive om detaljer og innhold som gjelder for tiltakstypen. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
       type: "blockContent",
       group: "detaljerOgInnhold",
+      validation: (Rule) =>
+        Rule.custom((doc) =>
+          blockContentValidation(
+            doc,
+            MAKS_LENGDE_INNHOLD,
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
+          )
+        ),
     },
     {
       name: "pameldingOgVarighetInfoboks",
@@ -61,8 +82,17 @@ export default {
     {
       name: "pameldingOgVarighet",
       title: "Påmelding og varighet",
+      description: `Her kan du skrive om påmelding og varighet for tiltakstypen. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
       type: "blockContent",
       group: "pameldingOgVarighet",
+      validation: (Rule) =>
+        Rule.custom((doc) =>
+          blockContentValidation(
+            doc,
+            MAKS_LENGDE_INNHOLD,
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
+          )
+        ),
     },
   ],
 };
