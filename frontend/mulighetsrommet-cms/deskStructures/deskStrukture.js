@@ -15,6 +15,7 @@ export default () =>
 
       if (roleNames.includes("administrator")) {
         deskItems.push(...adminStructure);
+        return S.list().title("Adminstrator").items(deskItems);
       }
 
       // Innhold for fagansvarlige i AV.Dir
