@@ -71,7 +71,7 @@ class TopicRepositoryTest : FunSpec({
         val topics = (0..1).map { mockk<Topic>() }
 
         topics.forEachIndexed { index, it ->
-            every { it.id } returns index+1
+            every { it.id } returns index + 1
             every { it.running } returns true
         }
 

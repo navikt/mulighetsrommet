@@ -75,5 +75,4 @@ class KafkaConsumerRepositoryTest : FunSpec({
         val result = kafkaConsumerRepository.getTopicPartitions(mutableListOf("topic1"))
         result.size shouldBe 2
     }
-
 })
