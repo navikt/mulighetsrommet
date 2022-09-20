@@ -71,12 +71,10 @@ const redaktorAvdirStructure = [
       ![
         "tiltaksgjennomforing",
         "arrangor",
-        "regelverkfil",
+        "navKontaktperson",
         "enhet",
-        "regelverklenke",
         "innsatsgruppe",
         "statistikkfil",
-        "forskningsrapport",
       ].includes(listItem.getId())
   ),
 ];
