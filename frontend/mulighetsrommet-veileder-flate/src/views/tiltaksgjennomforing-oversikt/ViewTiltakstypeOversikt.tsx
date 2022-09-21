@@ -16,13 +16,15 @@ import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import '../../layouts/TiltaksgjennomforingsHeader.less';
 import Show from '../../utils/Show';
 import './ViewTiltakstypeOversikt.less';
+import { useFeatureToggles, VIS_HISTORIKK } from '../../core/api/feature-toggles';
 
 const ViewTiltakstypeOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const brukerdata = useHentBrukerdata();
   const innsatsgrupper = useInnsatsgrupper();
-
+  const features = useFeatureToggles();
+  const visHistorikkKnapp = features.isSuccess && features.data[VIS_HISTORIKK];
   useErrorHandler(brukerdata?.error);
 
   const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: InnsatsgruppeNokler) => {
@@ -77,9 +79,7 @@ const ViewTiltakstypeOversikt = () => {
             </Button>
           </Show>
         </div>
-        <div>
-          <HistorikkButton />
-        </div>
+        {visHistorikkKnapp && <HistorikkButton />}
       </div>
       <div className="tiltakstype-oversikt__tiltak">
         <TiltaksgjennomforingsTabell />

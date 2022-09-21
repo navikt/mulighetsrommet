@@ -15,6 +15,7 @@ export default () =>
 
       if (roleNames.includes("administrator")) {
         deskItems.push(...adminStructure);
+        return S.list().title("Adminstrator").items(deskItems);
       }
 
       // Innhold for fagansvarlige i AV.Dir
@@ -25,7 +26,9 @@ export default () =>
           .items(deskItems);
       }
 
-      return S.list().title("Innhold").items(deskItems);
+      return S.list()
+        .title("Innhold")
+        .items([...adminStructure]);
     });
 
 export const getDefaultDocumentNode = ({ schemaType }) => {
