@@ -1,165 +1,105 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
-import io.kotest.common.runBlocking
-import io.kotest.core.extensions.install
+import io.kotest.assertions.timing.eventually
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
-import io.kotest.extensions.testcontainers.TestContainerExtension
 import io.kotest.extensions.testcontainers.kafka.createStringStringProducer
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.delay
-import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.utils.createDatabaseConfigWithRandomSchema
+import io.mockk.*
+import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.createKafkaTestContainerSetup
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.utility.DockerImageName
-import java.util.*
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
-internal class KafkaConsumerOrchestratorTest : FunSpec({
+@OptIn(ExperimentalTime::class)
+class KafkaConsumerOrchestratorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    lateinit var consumerProperties: Properties
-    val listener =
-        FlywayDatabaseListener(createDatabaseConfigWithRandomSchema())
-    register(listener)
-
-    val kafka = install(
-        TestContainerExtension(
-            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
-        )
-    ) {
-        withEmbeddedZookeeper()
-    }
+    val (listener, kafka, consumerProperties) = createKafkaTestContainerSetup()
 
     val producer = kafka.createStringStringProducer()
 
-    val topicName1 = "topic1"
-    val topicName2 = "topic2"
-    val topicName3 = "topic3"
-
-    val key1 = "key1"
-    val key2 = "key2"
-    val key3 = "key3"
-
-    val value1 = "value1"
-    val value2 = "value2"
+    val keys = (0..2).map { "key$it" }
+    val topicNames = (0..2).map { "topic$it" }
+    val values = (0..1).map { "value$it" }
 
     val topicRepository: TopicRepository = mockk(relaxed = true)
+    lateinit var consumerRepository: KafkaConsumerRepository
 
-    val consumer1: TopicConsumer<Any> = mockk()
-    val consumer2: TopicConsumer<Any> = mockk()
-    val consumer3: TopicConsumer<Any> = mockk()
+    val consumers = (0..2).map { mockk<TopicConsumer<Any>>() }
 
     beforeSpec {
 
-        val brokerUrl = kafka.bootstrapServers
+        consumerRepository = KafkaConsumerRepository(listener.db)
 
-        consumerProperties =
-            KafkaPropertiesBuilder.consumerBuilder()
-                .withBrokerUrl(brokerUrl)
-                .withBaseProperties()
-                .withConsumerGroupId("consumer")
-                .withDeserializers(
-                    ByteArrayDeserializer::class.java,
-                    ByteArrayDeserializer::class.java
-                )
-                .build()
-
-        every { topicRepository.selectAll() } answers {
-            listOf(
-                Topic(1, key1, topicName1, mockk(), true),
-                Topic(2, key2, topicName2, mockk(), true),
-                Topic(3, key3, topicName3, mockk(), true)
+        every { topicRepository.selectAll() } returns keys.mapIndexed { index, it ->
+            Topic(
+                index,
+                it,
+                topicNames[index],
+                TopicType.CONSUMER,
+                true
             )
         }
 
-        every { consumer1.consumerConfig.topic } answers { topicName1 }
-        every { runBlocking { consumer1.processEvent(any()) } } returns Unit
+        topicNames.forEachIndexed { index, it -> every { consumers[index].consumerConfig.topic } returns it }
 
-        every { consumer2.consumerConfig.topic } answers { topicName2 }
-        every { runBlocking { consumer2.processEvent(any()) } } throws Exception()
+        coEvery { consumers[0].processEvent(any()) } returns Unit
+        coEvery { consumers[1].processEvent(any()) } throws Exception()
 
-        every { consumer3.consumerConfig.topic } answers { topicName3 }
-    }
-
-    test("consumers processes event from correct topic and inserts event into failed events on fail") {
         KafkaConsumerOrchestrator(
             consumerProperties,
             listener.db,
             ConsumerGroup(
-                listOf(consumer1, consumer2, consumer3)
+                consumers
             ),
             topicRepository,
-            200
+            Long.MAX_VALUE
         )
 
-        producer.send(
-            ProducerRecord(
-                topicName2,
-                key2,
-                value2
-            )
-        )
-        producer.send(
-            ProducerRecord(
-                topicName1,
-                key1,
-                value1
-            )
-        )
+        values.forEachIndexed() { index, it -> producer.send(ProducerRecord(topicNames[index], keys[index], it)) }
         producer.close()
+    }
 
-        runBlocking { delay(1000) }
-
-        verify(exactly = 1) {
-            runBlocking {
-                consumer1.processEvent(
+    test("consumers processes event from correct topic and inserts event into failed events on fail") {
+        eventually(Duration.Companion.seconds(3)) {
+            coVerify(exactly = 1) {
+                consumers[0].processEvent(
                     ArenaJsonElementDeserializer().deserialize(
-                        topicName1,
-                        value1.toByteArray()
+                        topicNames[0],
+                        values[0].toByteArray()
                     )
                 )
             }
-        }
 
-        verify(exactly = 1) {
-            runBlocking {
-                consumer2.processEvent(
+            coVerify(exactly = 1) {
+                consumers[1].processEvent(
                     ArenaJsonElementDeserializer().deserialize(
-                        topicName2,
-                        value2.toByteArray()
+                        topicNames[1],
+                        values[1].toByteArray()
                     )
                 )
             }
-        }
 
-        verify(exactly = 0) {
-            runBlocking {
-                consumer3.processEvent(any())
+            coVerify(exactly = 0) {
+                consumers[2].processEvent(any())
             }
+
+            consumerRepository.hasRecordWithKey(
+                topicNames[0],
+                0,
+                keys[0].toByteArray()
+            ) shouldBe false
+
+            consumerRepository.hasRecordWithKey(
+                topicNames[1],
+                0,
+                keys[1].toByteArray()
+            ) shouldBe true
         }
-
-        val consumerRepository =
-            KafkaConsumerRepository(listener.db)
-
-        consumerRepository.hasRecordWithKey(
-            topicName1,
-            0,
-            key1.toByteArray()
-        ) shouldBe false
-
-        consumerRepository.hasRecordWithKey(
-            topicName2,
-            0,
-            key2.toByteArray()
-        ) shouldBe true
     }
 })
