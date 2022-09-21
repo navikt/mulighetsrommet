@@ -1,4 +1,4 @@
-xdescribe('Tiltaksgjennomføringstabell', () => {
+describe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
@@ -49,6 +49,21 @@ xdescribe('Tiltaksgjennomføringstabell', () => {
 
     cy.forventetAntallFiltertags(2);
     cy.apneLukketFilterAccordion('tiltakstyper', false);
+  });
+
+  it('Filtrer på individuelle eller gruppetiltak', () => {
+    cy.apneLukketFilterAccordion('gruppe-eller-individuelle-tiltak', true);
+    cy.velgFilter('gruppetiltak');
+    cy.forventetAntallFiltertags(3);
+
+    cy.getByTestId('filter_checkbox_gruppetiltak').should('be.checked');
+    cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
+
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
+
+    cy.getByTestId('filter_checkbox_gruppetiltak').should('not.be.checked');
+    cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
+    cy.apneLukketFilterAccordion('gruppe-eller-individuelle-tiltak', false);
   });
 
   it('Filtrer på søkefelt', () => {

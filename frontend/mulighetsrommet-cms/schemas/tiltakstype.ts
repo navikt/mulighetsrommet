@@ -20,6 +20,21 @@ export default {
       description: "Her kan du skrive en beskrivelse av tiltakstypen",
     },
     {
+      name: "typeTiltak",
+      title: "Individuelt eller gruppetiltak?",
+      description: "Er tiltaket et individuelt- eller et gruppetiltak?",
+      type: "string",
+      options: {
+        list: [
+          { title: "Individuelt tiltak", value: "individuelt" },
+          { title: "Gruppetiltak", value: "gruppe" },
+        ],
+      },
+      layout: "radio",
+      validation: (Rule) =>
+        Rule.required().error("Du må velge ett av alternativene"),
+    },
+    {
       name: "nokkelinfoKomponenter",
       title: "Nøkkelinfo",
       type: "array",

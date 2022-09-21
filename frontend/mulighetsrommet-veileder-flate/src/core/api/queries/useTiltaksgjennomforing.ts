@@ -1,6 +1,5 @@
 import groq from 'groq';
 import { useAtom } from 'jotai';
-import { Bruker } from 'mulighetsrommet-api-client';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
 import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
 import { useHentBrukerdata } from './useHentBrukerdata';
@@ -10,11 +9,11 @@ export default function useTiltaksgjennomforing() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
 
-  return useSanity<Tiltaksgjennomforing[]>(
-    groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
+  const sanityQueryString = groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
   ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
+  ${byggTiltaksgruppeFilter(filter.tiltaksgruppe ?? [])}
   ${byggEnhetOgFylkeFilter()}
   ]
   {
@@ -27,15 +26,23 @@ export default function useTiltaksgjennomforing() {
     kontaktinfoArrangor->{selskapsnavn},
     tiltakstype->{tiltakstypeNavn},
     tilgjengelighetsstatus
-  }`,
-    {
-      enabled: !!brukerData.data?.oppfolgingsenhet,
-    }
-  );
+  }`;
+
+  return useSanity<Tiltaksgjennomforing[]>(sanityQueryString, {
+    enabled: !!brukerData.data?.oppfolgingsenhet,
+  });
 }
 
 function byggEnhetOgFylkeFilter(): string {
-  return `&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
+  return groq`&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
+}
+
+function byggTiltaksgruppeFilter(tiltaksgrupper: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
+  if (tiltaksgrupper.length === 0) return '';
+
+  const tiltaksgruppeStreng = idSomListe(tiltaksgrupper);
+
+  return groq`&& tiltakstype->typeTiltak in [${tiltaksgruppeStreng}]`;
 }
 
 function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
@@ -44,7 +51,7 @@ function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
   const innsatsgrupperISok = utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe)
     .map(nokkel => `"${nokkel}"`)
     .join(', ');
-  return `&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
+  return groq`&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
 }
 
 function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler): InnsatsgruppeNokler[] {
@@ -61,13 +68,15 @@ function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler)
 }
 
 function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
-  return tiltakstyper.length > 0
-    ? `&& tiltakstype->_id in [${tiltakstyper.map(type => `"${type.id}"`).join(', ')}]`
-    : '';
+  return tiltakstyper.length > 0 ? groq`&& tiltakstype->_id in [${idSomListe(tiltakstyper)}]` : '';
 }
 
 function byggSokefilter(search: string | undefined) {
   return search
-    ? `&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
+    ? groq`&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
     : '';
+}
+
+function idSomListe(elementer: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
+  return elementer.map(({ id }) => `"${id}"`).join(', ');
 }

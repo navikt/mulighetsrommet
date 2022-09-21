@@ -9,6 +9,7 @@ import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { useTiltakstyper } from '../../core/api/queries/useTiltakstyper';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import InnsatsgruppeFilter from './InnsatsgruppeFilter';
+import { FilterForIndividueltEllerGruppetiltak } from './FilterForIndividueltEllerGruppetiltak';
 
 const Filtermeny = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -66,6 +67,7 @@ const Filtermeny = () => {
         sortert
         defaultOpen={filter.tiltakstyper.length > 0}
       />
+      <FilterForIndividueltEllerGruppetiltak />
     </div>
   );
 };

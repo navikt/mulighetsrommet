@@ -7,6 +7,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
+      typeTiltak: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -51,6 +52,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
+      typeTiltak: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -95,6 +97,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
+      typeTiltak: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
