@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import io.ktor.server.testing.*
-import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.Password
+import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun <R> withMulighetsrommetApp(
@@ -19,7 +18,7 @@ fun <R> withMulighetsrommetApp(
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
-    database = createDatabaseConfigWithRandomSchema(),
+    database = createApiDatabaseTestSchema(),
     auth = createAuthConfig(oauth),
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
@@ -72,18 +71,6 @@ fun createVeilarbdialogConfig(): VeilarbdialogConfig {
         url = "",
         scope = ""
     )
-}
-
-fun createDatabaseConfigWithRandomSchema(
-    host: String = "localhost",
-    port: Int = 5442,
-    name: String = "mulighetsrommet-api-db",
-    user: String = "valp",
-    password: Password = Password("valp"),
-    maximumPoolSize: Int = 1
-): DatabaseConfig {
-    val schema = "$name-${java.util.UUID.randomUUID()}"
-    return DatabaseConfig(host, port, name, schema, user, password, maximumPoolSize)
 }
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

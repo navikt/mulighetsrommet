@@ -83,8 +83,6 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
-    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
     implementation("no.nav.common:kafka:$navCommonModules")
@@ -97,6 +95,9 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
     testImplementation("org.testcontainers:kafka:1.17.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+    testImplementation("org.assertj:assertj-db:2.0.2")
 
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
@@ -108,6 +109,5 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.33.2")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
 }
