@@ -19,8 +19,8 @@ export function FilterForIndividueltEllerGruppetiltak() {
   return (
     <CheckboxFilter
       accordionNavn="Gruppe eller individuelle tiltak"
-      options={filter.tiltaksgruppe}
-      setOptions={tiltaksgruppe => setFilter({ ...filter, tiltaksgruppe })}
+      options={filter.typeTiltak}
+      setOptions={typeTiltak => setFilter({ ...filter, typeTiltak })}
       data={
         typer.map(({ id, tittel }) => {
           return {
@@ -32,7 +32,7 @@ export function FilterForIndividueltEllerGruppetiltak() {
       isLoading={false}
       isError={false}
       sortert
-      defaultOpen={filter.tiltaksgruppe.length > 0}
+      defaultOpen={filter.typeTiltak.length > 0}
     />
   );
 }
