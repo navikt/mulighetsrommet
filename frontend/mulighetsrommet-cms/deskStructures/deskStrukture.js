@@ -1,9 +1,8 @@
 import S from "@sanity/desk-tool/structure-builder";
 import userStore from "part:@sanity/base/user";
 import adminStructure from "./adminStructure";
-import { TiltakstypeOgTiltaksgjennomforingPreview } from "./previews/TiltakstypeOgTiltaksgjennomforingPreview";
 import redaktorAvdirStructure from "./redaktorAvdirStructure";
-import { Preview2 } from "./previews/Preview2";
+import { TiltaksgjennomforingOgTypePreview } from "./previews/TiltaksgjennomforingOgTypePreview";
 
 export default () =>
   userStore
@@ -34,11 +33,8 @@ export const getDefaultDocumentNode = ({ schemaType }) => {
     return S.document().views([
       S.view.form(),
       S.view
-        .component(TiltakstypeOgTiltaksgjennomforingPreview)
+        .component(TiltaksgjennomforingOgTypePreview)
         .title("Gjennomføring med tiltakstype"),
-      S.view
-        .component(Preview2)
-        .title("test"),
     ]);
   }
 };
