@@ -17,8 +17,17 @@
       }
 
       &__tiltaksnummer {
-        display: grid;
-        grid-template-columns: 10% auto;
+        padding-right: 1.5rem;
+
+        &__wrapper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .kopiknapp:hover {
+            background-color: transparent;
+          }
+        }
       }
 
       &__kolonne {

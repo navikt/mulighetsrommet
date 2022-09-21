@@ -19,9 +19,11 @@ const SearchFieldTag = () => {
       {filter.search && (
         <Tag className="cypress-tag" variant="info" size="small">
           {`'${filter.search}'`}
-          <Ikonknapp handleClick={handleClickFjernFilter} ariaLabel="Lukkeknapp">
-            <Close className="filtertags__ikon" aria-label="Lukkeknapp" />
-          </Ikonknapp>
+          <Ikonknapp
+            handleClick={handleClickFjernFilter}
+            ariaLabel="Lukkeknapp"
+            icon={<Close className="filtertags__ikon" aria-label="Lukkeknapp" />}
+          />
         </Tag>
       )}
     </>

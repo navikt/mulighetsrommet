@@ -12,9 +12,9 @@ import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Feilmelding } from '../feilmelding/Feilmelding';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -261,10 +261,9 @@ const TiltaksgjennomforingsTabell = () => {
                   </Lenke>
                   <div>{kontaktinfoArrangor.selskapsnavn}</div>
                 </Table.DataCell>
-                <Table.DataCell data-testid="tabell_tiltaksnummer">
-                  <div className="tabell__tiltaksnummer">
-                    {tiltaksnummer}
-                    <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
+                <Table.DataCell data-testid="tabell_tiltaksnummer" className="tabell__tiltaksnummer">
+                  <div className="tabell__tiltaksnummer__wrapper">
+                    {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
                   </div>
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
@@ -284,10 +283,12 @@ const TiltaksgjennomforingsTabell = () => {
               {tiltaksgjennomforinger.length} tiltak
             </Heading>
             <Pagination
+              size="small"
               data-testid="paginering"
               page={page}
               onPageChange={setPage}
               count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
+              data-version="v1"
             />
           </>
         ) : null}

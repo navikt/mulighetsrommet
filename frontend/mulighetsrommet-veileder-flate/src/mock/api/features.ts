@@ -1,14 +1,7 @@
-import {
-  Features,
-  ENABLE_ARBEIDSFLATE,
-  FEEDBACK,
-  DELING_MED_BRUKER,
-  VIS_HISTORIKK,
-} from '../../core/api/feature-toggles';
+import { ENABLE_ARBEIDSFLATE, Features, FEEDBACK, VIS_HISTORIKK } from '../../core/api/feature-toggles';
 
 export const mockFeatures: Features = {
   [ENABLE_ARBEIDSFLATE]: true,
   [FEEDBACK]: true,
-  [DELING_MED_BRUKER]: true,
   [VIS_HISTORIKK]: true,
 };
