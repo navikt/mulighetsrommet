@@ -5,7 +5,7 @@ export interface Tiltaksgjennomforingsfilter {
   search?: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
-  typeTiltak: Tiltaksgjennomforingsfiltergruppe<string>[];
+  tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -18,7 +18,7 @@ export const initialTiltaksgjennomforingsfilter = {
   search: '',
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  typeTiltak: [],
+  tiltaksgruppe: [],
 };
 
 export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(

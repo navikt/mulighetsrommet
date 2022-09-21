@@ -20,7 +20,7 @@ export default {
       description: "Her kan du skrive en beskrivelse av tiltakstypen",
     },
     {
-      name: "typeTiltak",
+      name: "tiltaksgruppe",
       title: "Individuelt eller gruppetiltak?",
       description: "Er tiltaket et individuelt- eller et gruppetiltak?",
       type: "string",

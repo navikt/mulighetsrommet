@@ -14,7 +14,7 @@ export function usePrepopulerFilter() {
     const matchedInnsatsgruppe = innsatsgrupper?.find(gruppe => gruppe.nokkel === brukerdata?.data?.innsatsgruppe);
     if (matchedInnsatsgruppe) {
       const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
-      const typeTiltak = resetFilterTilUtgangspunkt ? [] : filter.typeTiltak;
+      const tiltaksgruppe = resetFilterTilUtgangspunkt ? [] : filter.tiltaksgruppe;
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;
       const innsatsgruppe = resetFilterTilUtgangspunkt
         ? { id: matchedInnsatsgruppe._id, nokkel: matchedInnsatsgruppe.nokkel, tittel: matchedInnsatsgruppe.tittel }
@@ -23,7 +23,7 @@ export function usePrepopulerFilter() {
         search,
         tiltakstyper,
         innsatsgruppe,
-        typeTiltak,
+        tiltaksgruppe,
       });
     }
   }

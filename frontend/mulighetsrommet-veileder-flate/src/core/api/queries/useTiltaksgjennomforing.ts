@@ -13,7 +13,7 @@ export default function useTiltaksgjennomforing() {
   ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)} 
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
-  ${byggTypeTiltakFilterStreng(filter.typeTiltak ?? [])}
+  ${byggTiltaksgruppeFilterStreng(filter.tiltaksgruppe ?? [])}
   ${byggEnhetOgFylkeFilter()}
   ]
   {
@@ -37,12 +37,12 @@ function byggEnhetOgFylkeFilter(): string {
   return groq`&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
 }
 
-function byggTypeTiltakFilterStreng(typeTiltak: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
-  if (typeTiltak.length === 0) return '';
+function byggTiltaksgruppeFilterStreng(tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
+  if (tiltaksgruppe.length === 0) return '';
 
-  const tiltaksgruppeStreng = idSomListe(typeTiltak);
+  const tiltaksgruppeStreng = idSomListe(tiltaksgruppe);
 
-  return groq`&& tiltakstype->typeTiltak in [${tiltaksgruppeStreng}]`;
+  return groq`&& tiltakstype->tiltaksgruppe in [${tiltaksgruppeStreng}]`;
 }
 
 function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {

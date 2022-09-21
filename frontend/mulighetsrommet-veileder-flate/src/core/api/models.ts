@@ -16,12 +16,12 @@ type Innsatsgrupper =
 
 export type Tilgjengelighetsstatus = 'Ledig' | 'Venteliste' | 'Stengt';
 export type Oppstart = 'dato' | 'lopende' | 'midlertidig_stengt';
-type TypeTiltak = 'individuelt' | 'gruppe';
+type Tiltaksgruppe = 'individuelt' | 'gruppe';
 
 export interface Tiltakstype {
   _id: string;
   tiltakstypeNavn: Tiltakstyper;
-  typeTiltak: TypeTiltak;
+  tiltaksgruppe: Tiltaksgruppe;
   beskrivelse?: string;
   innsatsgruppe: Innsatsgruppe;
   varighet?: string;
