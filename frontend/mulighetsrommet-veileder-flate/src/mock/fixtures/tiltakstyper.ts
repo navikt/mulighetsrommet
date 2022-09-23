@@ -4,6 +4,7 @@ export const tiltakstyper: Tiltakstype[] = [
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
     tiltakstypeNavn: 'VTA',
+    tiltaksgruppe: 'gruppe',
     beskrivelse: faker.lorem.paragraph(2),
     nokkelinfoKomponenter: [
       {

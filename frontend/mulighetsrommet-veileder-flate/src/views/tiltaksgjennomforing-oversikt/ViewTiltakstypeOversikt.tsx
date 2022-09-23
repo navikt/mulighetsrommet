@@ -35,7 +35,8 @@ const ViewTiltakstypeOversikt = () => {
     filter.innsatsgruppe! === undefined ||
     brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
     filter.search !== '' ||
-    filter.tiltakstyper.length > 0;
+    filter.tiltakstyper.length > 0 ||
+    filter.tiltaksgruppe.length > 0;
 
   return (
     <div className="tiltakstype-oversikt" id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
@@ -60,6 +61,15 @@ const ViewTiltakstypeOversikt = () => {
               setFilter({
                 ...filter,
                 tiltakstyper: filter.tiltakstyper?.filter(tiltakstype => tiltakstype.id !== id),
+              })
+            }
+          />
+          <FilterTags
+            options={filter.tiltaksgruppe!}
+            handleClick={(id: string) =>
+              setFilter({
+                ...filter,
+                tiltaksgruppe: filter.tiltaksgruppe?.filter(gruppe => gruppe.id !== id),
               })
             }
           />
