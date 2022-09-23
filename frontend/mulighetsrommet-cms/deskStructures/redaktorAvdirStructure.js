@@ -15,6 +15,9 @@ const redaktorAvdirStructure = [
                 .defaultOrdering([{ field: "navn", direction: "asc" }])
                 .child((enhet) =>
                   S.documentList()
+                    .defaultOrdering([
+                      { field: "_createdAt", direction: "desc" },
+                    ])
                     .title("Tiltaksgjennomføringer")
                     .filter(
                       '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref)'
@@ -31,6 +34,9 @@ const redaktorAvdirStructure = [
                 .defaultOrdering([{ field: "navn", direction: "asc" }])
                 .child((enhet) =>
                   S.documentList()
+                    .defaultOrdering([
+                      { field: "_createdAt", direction: "desc" },
+                    ])
                     .title("Tiltaksgjennomføringer")
                     .filter(
                       '_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref'
@@ -48,6 +54,9 @@ const redaktorAvdirStructure = [
                 ])
                 .child((tiltakstype) =>
                   S.documentList()
+                    .defaultOrdering([
+                      { field: "_createdAt", direction: "desc" },
+                    ])
                     .title("Tiltaksgjennomføringer")
                     .filter(
                       '_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref'
@@ -62,6 +71,7 @@ const redaktorAvdirStructure = [
     .title("Alle tiltaksgjennomføringer")
     .child(
       S.documentList()
+        .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
         .title("Alle tiltaksgjennomføringer")
         .filter('_type == "tiltaksgjennomforing"')
     ),
