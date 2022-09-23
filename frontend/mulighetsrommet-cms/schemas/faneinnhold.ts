@@ -1,6 +1,6 @@
 import { blockContentValidation } from "../validation/blockContentValidation";
 
-const MAKS_LENGDE_INNHOLD = 1500;
+const MAKS_LENGDE_INNHOLD = 2500;
 
 export default {
   name: "faneinnhold",
