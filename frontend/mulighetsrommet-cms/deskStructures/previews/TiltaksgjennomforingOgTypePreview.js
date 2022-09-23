@@ -98,6 +98,8 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
             uncheckedIcon={false}
             checkedIcon={false}
             onColor={tiltaksfarge}
+            height={20}
+            width={36}
           />
         </div>
         {fargekodet && (
@@ -116,56 +118,62 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
 
   const { displayed } = document;
   return (
-    <div style={{ margin: "64px"}}>
+    <div style={{ margin: "64px" }}>
       <Verktoylinje />
-      <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
-        {displayed.tiltaksgjennomforingNavn}
-      </h1>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <small style={{ paddingTop: "4px", paddingBottom: "4px"}}>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
-        <small style={{ border: "1px dashed black", padding: "4px"}}>
-          Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
-        </small>
-      </div>
-      <div>
-        <MarginBottom>
-          <h3>Beskrivelse</h3>
-          {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
+      <div style={{ maxWidth: "600px" }}>
+        <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
+          {displayed.tiltaksgjennomforingNavn}
+        </h1>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <small style={{ paddingTop: "4px", paddingBottom: "4px" }}>
+            Tiltakstype: {tiltaksdata.tiltakstypeNavn}
+          </small>
+          <small style={{ border: "1px dashed black", padding: "4px" }}>
+            Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
+          </small>
+        </div>
+        <div>
+          <MarginBottom>
+            <h3>Beskrivelse</h3>
+            {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
+              <TekstFraGjennomforing>
+                {displayed.beskrivelse}
+              </TekstFraGjennomforing>
+            )}
+            <TekstFraTiltakstype>
+              {tiltaksdata?.beskrivelse}
+            </TekstFraTiltakstype>
+          </MarginBottom>
+          <MarginBottom>
+            <h3>For hvem</h3>
+            <TekstFraTiltakstype>
+              {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
+            </TekstFraTiltakstype>
             <TekstFraGjennomforing>
-              {displayed.beskrivelse}
+              {displayed.faneinnhold?.forHvem?.map(tilListe)}
             </TekstFraGjennomforing>
-          )}
-          <TekstFraTiltakstype>{tiltaksdata?.beskrivelse}</TekstFraTiltakstype>
-        </MarginBottom>
-        <MarginBottom>
-          <h3>For hvem</h3>
-          <TekstFraTiltakstype>
-            {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
-          </TekstFraTiltakstype>
-          <TekstFraGjennomforing>
-            {displayed.faneinnhold?.forHvem?.map(tilListe)}
-          </TekstFraGjennomforing>
-        </MarginBottom>
-        <MarginBottom>
-          <h3>Detaljer og innhold</h3>
-          <TekstFraTiltakstype>
-            {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
-              return tilListe(el);
-            })}
-          </TekstFraTiltakstype>
-          <TekstFraGjennomforing>
-            {displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}
-          </TekstFraGjennomforing>
-        </MarginBottom>
-        <MarginBottom>
-          <h3>Påmelding og varighet</h3>
-          <TekstFraTiltakstype>
-            {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
-          </TekstFraTiltakstype>
-          <TekstFraGjennomforing>
-            {displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
-          </TekstFraGjennomforing>
-        </MarginBottom>
+          </MarginBottom>
+          <MarginBottom>
+            <h3>Detaljer og innhold</h3>
+            <TekstFraTiltakstype>
+              {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
+                return tilListe(el);
+              })}
+            </TekstFraTiltakstype>
+            <TekstFraGjennomforing>
+              {displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}
+            </TekstFraGjennomforing>
+          </MarginBottom>
+          <MarginBottom>
+            <h3>Påmelding og varighet</h3>
+            <TekstFraTiltakstype>
+              {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+            </TekstFraTiltakstype>
+            <TekstFraGjennomforing>
+              {displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+            </TekstFraGjennomforing>
+          </MarginBottom>
+        </div>
       </div>
     </div>
   );
