@@ -116,13 +116,13 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
 
   const { displayed } = document;
   return (
-    <div style={{ padding: "50px" }}>
+    <div style={{ margin: "64px"}}>
       <Verktoylinje />
       <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
         {displayed.tiltaksgjennomforingNavn}
       </h1>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <small style={{ padding: "4px"}}>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
+        <small style={{ paddingTop: "4px", paddingBottom: "4px"}}>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
         <small style={{ border: "1px dashed black", padding: "4px"}}>
           Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
         </small>
