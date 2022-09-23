@@ -37,7 +37,7 @@ export const getDefaultDocumentNode = ({ schemaType }) => {
       S.view.form(),
       S.view
         .component(TiltaksgjennomforingOgTypePreview)
-        .title("Gjennomføring med tiltakstype"),
+        .title("Forhåndsvisning"),
     ]);
   }
 };
