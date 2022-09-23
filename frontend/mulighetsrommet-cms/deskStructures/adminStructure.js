@@ -16,6 +16,9 @@ const adminStructure = [
                 .defaultOrdering([{ field: "navn", direction: "asc" }])
                 .child((enhet) =>
                   S.documentList()
+                    .defaultOrdering([
+                      { field: "_createdAt", direction: "desc" },
+                    ])
                     .title("Tiltaksgjennomføringer")
                     .filter(
                       '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref)'
@@ -36,6 +39,9 @@ const adminStructure = [
                     .filter(
                       '_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref'
                     )
+                    .defaultOrdering([
+                      { field: "_createdAt", direction: "desc" },
+                    ])
                     .params({ enhet })
                 )
             ),
@@ -49,6 +55,9 @@ const adminStructure = [
                 ])
                 .child((tiltakstype) =>
                   S.documentList()
+                    .defaultOrdering([
+                      { field: "_createdAt", direction: "desc" },
+                    ])
                     .title("Tiltaksgjennomføringer")
                     .filter(
                       '_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref'
@@ -63,6 +72,7 @@ const adminStructure = [
     .title("Alle tiltaksgjennomføringer")
     .child(
       S.documentList()
+        .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
         .title("Alle tiltaksgjennomføringer")
         .filter('_type == "tiltaksgjennomforing"')
     ),
