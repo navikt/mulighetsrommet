@@ -77,7 +77,6 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
           height: "20px",
         }}
@@ -85,7 +84,6 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
@@ -103,7 +101,7 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
           />
         </div>
         {fargekodet && (
-          <div>
+          <div style={{marginLeft: "20px"}}>
             <Legend farge={tiltaksfarge}>Tekst fra tiltakstype</Legend>
             <Legend farge={gjennomforingsfarge}>
               Tekst fra tiltaksgjennomføring
