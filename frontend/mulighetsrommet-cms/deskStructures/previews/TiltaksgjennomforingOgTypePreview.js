@@ -25,7 +25,7 @@ const gjennomforingsfarge = "#881D0C";
 
 export function TiltaksgjennomforingOgTypePreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
-  const [fargekodet, setFargekodet] = useState(true);
+  const [fargekodet, setFargekodet] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,8 +83,7 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          height: "20px",
-          borderBottom: "black"
+          height: "20px"
         }}
       >
         <div style={{
@@ -119,7 +118,7 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
   return (
     <div style={{ padding: "50px" }}>
       <Verktoylinje />
-      <h1>{displayed.tiltaksgjennomforingNavn}</h1>
+      <h1 style={{borderTop: "1px solid black", paddingTop: "8px" }}>{displayed.tiltaksgjennomforingNavn}</h1>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <small>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
       </div>
