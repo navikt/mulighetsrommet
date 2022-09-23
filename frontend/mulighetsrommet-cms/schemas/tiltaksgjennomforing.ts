@@ -37,6 +37,12 @@ export default {
       validation: (Rule: Rule) => Rule.required(),
     },
     {
+      name: "estimert_ventetid",
+      title: "Estimert ventetid",
+      description: "Her kan du oppgi estimert ventetid for tiltaket",
+      type: "string",
+    },
+    {
       name: "kontaktinfoArrangor",
       title: "Arrangør",
       type: "reference",
