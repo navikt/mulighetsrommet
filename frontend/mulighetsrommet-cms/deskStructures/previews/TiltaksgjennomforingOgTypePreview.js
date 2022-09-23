@@ -122,7 +122,10 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
         {displayed.tiltaksgjennomforingNavn}
       </h1>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <small>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
+        <small style={{ padding: "4px"}}>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
+        <small style={{ border: "1px dashed black", padding: "4px"}}>
+          Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
+        </small>
       </div>
       <div>
         <MarginBottom>
