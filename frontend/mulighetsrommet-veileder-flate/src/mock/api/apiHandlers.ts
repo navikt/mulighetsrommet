@@ -33,7 +33,7 @@ export const apiHandlers: RestHandler[] = [
     return ok({
       etternavn: 'VEILEDERSEN',
       fornavn: 'VEILEDER',
-      ident: 'V1234',
+      ident: 'V12345',
       navn: 'Veiledersen, Veileder',
     });
   }),
@@ -65,6 +65,11 @@ export const apiHandlers: RestHandler[] = [
     }
 
     return ok(historikk);
+  }),
+
+  rest.post('*/api/v1/delMedBruker', async req => {
+    const data = await req.json();
+    return ok(data);
   }),
 ];
 
