@@ -13,7 +13,7 @@ function Legend({ farge, children }) {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <ReactColorSquare height={12} width={12} color={farge} />
-      <small style={{ marginLeft: "4px" }}>{children}</small>
+      <small style={{ marginLeft: "4px", textAlign: "right" }}>{children}</small>
     </div>
   );
 }
@@ -23,7 +23,7 @@ const gjennomforingsfarge = "#881D0C";
 
 export function TiltaksgjennomforingOgTypePreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
-  const [fargekodet, setFargekodet] = useState(false);
+  const [fargekodet, setFargekodet] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,41 +74,49 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
 
   function Verktoylinje() {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          height: "20px",
-        }}
-      >
+      <>
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            height: "20px",
+            alignItems: "center"
           }}
         >
-          <medium style={{ marginRight: "4px" }}>
-            Marker tekst fra tiltakstype og tiltaksgjennomføring i ulike farger
-          </medium>
-          <Switch
-            onChange={() => setFargekodet(!fargekodet)}
-            checked={fargekodet}
-            uncheckedIcon={false}
-            checkedIcon={false}
-            onColor={tiltaksfarge}
-            height={20}
-            width={36}
-          />
-        </div>
-        {fargekodet && (
-          <div style={{marginLeft: "20px"}}>
-            <Legend farge={tiltaksfarge}>Tekst fra tiltakstype</Legend>
-            <Legend farge={gjennomforingsfarge}>
-              Tekst fra tiltaksgjennomføring
-            </Legend>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <medium style={{ marginRight: "4px" }}>
+              Marker tekst fra tiltakstype og tiltaksgjennomføring
+            </medium>
+            <Switch
+              onChange={() => setFargekodet(!fargekodet)}
+              checked={fargekodet}
+              uncheckedIcon={false}
+              checkedIcon={false}
+              onColor={tiltaksfarge}
+              height={20}
+              width={36}
+            />
           </div>
-        )}
-      </div>
+          {fargekodet && (
+            <div
+              style={{
+                marginLeft: "16px"
+              }}
+            >
+              <div>
+                <Legend farge={tiltaksfarge}>Fra tiltakstype</Legend>
+              </div>
+              <Legend farge={gjennomforingsfarge}>
+                Fra tiltaksgjennomføring
+              </Legend>
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 
@@ -119,9 +127,11 @@ export function TiltaksgjennomforingOgTypePreview({ document }) {
     <div style={{ margin: "64px" }}>
       <Verktoylinje />
       <div style={{ maxWidth: "600px" }}>
-        <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
-          {displayed.tiltaksgjennomforingNavn}
-        </h1>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
+            {displayed.tiltaksgjennomforingNavn}
+          </h1>
+        </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <small style={{ paddingTop: "4px", paddingBottom: "4px" }}>
             Tiltakstype: {tiltaksdata.tiltakstypeNavn}
