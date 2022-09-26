@@ -1,14 +1,32 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
+import Switch from "react-switch";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
-function MinHeight({ children }) {
-  return <div style={{ minHeight: "550px" }}>{children}</div>;
+function MarginBottom({ children }) {
+  return <div style={{ marginBottom: "4rem" }}>{children}</div>;
 }
+
+function Firkant({farge}) {
+  return <div style={{ display: "inline-block", background: farge, height: "12px", width: "12px" }}/>;
+}
+
+function Legend({ farge, children }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <Firkant farge={farge}/>
+      <small style={{ marginLeft: "4px", textAlign: "right" }}>{children}</small>
+    </div>
+  );
+}
+
+const tiltaksfarge = "#00347D";
+const gjennomforingsfarge = "#881D0C";
 
 export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
+  const [fargekodet, setFargekodet] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,6 +38,20 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
 
     fetchData();
   }, [document]);
+
+  function TekstFraTiltakstype({ children }) {
+    return (
+      <p style={{ color: fargekodet ? tiltaksfarge : "black" }}>{children}</p>
+    );
+  }
+
+  function TekstFraGjennomforing({ children }) {
+    return (
+      <p style={{ color: fargekodet ? gjennomforingsfarge : "black" }}>
+        {children}
+      </p>
+    );
+  }
 
   function tilListe(el) {
     if (el.listItem === "bullet") {
@@ -43,59 +75,115 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
     });
   }
 
+  function Verktoylinje() {
+    return (
+      <>
+        <div
+          style={{
+            display: "flex",
+            height: "20px",
+            alignItems: "center"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <medium style={{ marginRight: "4px" }}>
+              Marker tekst fra tiltakstype og tiltaksgjennomføring
+            </medium>
+            <Switch
+              onChange={() => setFargekodet(!fargekodet)}
+              checked={fargekodet}
+              uncheckedIcon={false}
+              checkedIcon={false}
+              onColor={tiltaksfarge}
+              height={20}
+              width={36}
+            />
+          </div>
+          {fargekodet && (
+            <div
+              style={{
+                marginLeft: "16px"
+              }}
+            >
+              <div>
+                <Legend farge={tiltaksfarge}>Fra tiltakstype</Legend>
+              </div>
+              <Legend farge={gjennomforingsfarge}>
+                Fra tiltaksgjennomføring
+              </Legend>
+            </div>
+          )}
+        </div>
+      </>
+    );
+  }
+
   if (!tiltaksdata) return "Laster tiltaksdata...";
 
   const { displayed } = document;
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>{displayed.tiltaksgjennomforingNavn}</h1>
-      <small>Tiltakstype: {tiltaksdata.tiltakstypeNavn}</small>
-      <div
-        style={{
-          display: "grid",
-          gap: "20px",
-          gridTemplateColumns: "repeat(2, 1fr)",
-        }}
-      >
+    <div style={{ margin: "64px" }}>
+      <Verktoylinje />
+      <div style={{ maxWidth: "600px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
+            {displayed.tiltaksgjennomforingNavn}
+          </h1>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <small style={{ paddingTop: "4px", paddingBottom: "4px" }}>
+            Tiltakstype: {tiltaksdata.tiltakstypeNavn}
+          </small>
+          <small style={{ border: "1px dashed black", padding: "4px" }}>
+            Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
+          </small>
+        </div>
         <div>
-          <MinHeight>
-            <h3>Beskrivelse fra tiltakstype</h3>
-            <p>{tiltaksdata?.beskrivelse}</p>
-          </MinHeight>
-          <MinHeight>
-            <h3>For hvem fra tiltakstype</h3>
-            <p>{tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}</p>
-          </MinHeight>
-          <MinHeight>
-            <h3>Detaljer og innhold fra tiltakstype</h3>
-            <p>
+          <MarginBottom>
+            <h3>Beskrivelse</h3>
+            {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
+              <TekstFraGjennomforing>
+                {displayed.beskrivelse}
+              </TekstFraGjennomforing>
+            )}
+            <TekstFraTiltakstype>
+              {tiltaksdata?.beskrivelse}
+            </TekstFraTiltakstype>
+          </MarginBottom>
+          <MarginBottom>
+            <h3>For hvem</h3>
+            <TekstFraTiltakstype>
+              {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
+            </TekstFraTiltakstype>
+            <TekstFraGjennomforing>
+              {displayed.faneinnhold?.forHvem?.map(tilListe)}
+            </TekstFraGjennomforing>
+          </MarginBottom>
+          <MarginBottom>
+            <h3>Detaljer og innhold</h3>
+            <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
                 return tilListe(el);
               })}
-            </p>
-          </MinHeight>
-          <MinHeight>
-            <h3>Påmelding og varighet fra tiltakstype</h3>
-            <p>{tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}</p>
-          </MinHeight>
-        </div>
-        <div>
-          <MinHeight>
-            <h3>Beskrivelse fra gjennomføring</h3>
-            <p>{displayed.beskrivelse}</p>
-          </MinHeight>
-          <MinHeight>
-            <h3>For hvem fra gjennomføring</h3>
-            <p>{displayed.faneinnhold?.forHvem?.map(tilListe)}</p>
-          </MinHeight>
-          <MinHeight>
-            <h3>Detaljer og innhold fra gjennomføring</h3>
-            <p>{displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}</p>
-          </MinHeight>
-          <MinHeight>
-            <h3>Påmelding og varighet fra gjennomføring</h3>
-            <p>{displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}</p>
-          </MinHeight>
+            </TekstFraTiltakstype>
+            <TekstFraGjennomforing>
+              {displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}
+            </TekstFraGjennomforing>
+          </MarginBottom>
+          <MarginBottom>
+            <h3>Påmelding og varighet</h3>
+            <TekstFraTiltakstype>
+              {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+            </TekstFraTiltakstype>
+            <TekstFraGjennomforing>
+              {displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+            </TekstFraGjennomforing>
+          </MarginBottom>
         </div>
       </div>
     </div>
