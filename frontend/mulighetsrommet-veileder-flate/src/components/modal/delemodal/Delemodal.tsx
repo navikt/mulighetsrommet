@@ -8,7 +8,9 @@ import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
-import { capitalize } from "../../../utils/Utils";
+import { capitalize } from '../../../utils/Utils';
+import { useHentVeilederdata } from '../../../core/api/queries/useHentVeilederdata';
+import { useGetTiltaksnummerFraUrl } from '../../../core/api/queries/useGetTiltaksnummerFraUrl';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -63,6 +65,8 @@ const Delemodal = ({
   chattekst,
   veiledernavn = '',
 }: DelemodalProps) => {
+  const { data: veilederdata } = useHentVeilederdata();
+  const tiltaksnummer = useGetTiltaksnummerFraUrl();
   const startText = `${chattekst
     .replace('<Fornavn>', capitalize(brukerNavn))
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
@@ -79,6 +83,24 @@ const Delemodal = ({
     if (state.tekst.length === 0) return 'Kan ikke sende tom melding.';
   };
 
+  const lagreDelingAvTiltakMedBruker = async (bruker_fnr: string, navident: string, tiltaksnummer: string) => {
+    if (!navident) return;
+
+    try {
+      const res = await fetch('/api/v1/delMedBruker', {
+        method: 'POST',
+        body: JSON.stringify({ bruker_fnr, navident, tiltaksnummer }),
+      });
+
+      if (!res.ok) {
+        // TODO What to do?
+        throw new Error('Klarte ikke lagre info om deling av tiltak');
+      }
+    } catch (error) {
+      // TODO What to do? Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
+    }
+  };
+
   const handleSend = async () => {
     if (state.tekst.trim().length > getAntallTegn()) return;
     logDelMedbrukerEvent('Delte med bruker');
@@ -88,6 +110,7 @@ const Delemodal = ({
     const { tekst } = state;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
+      lagreDelingAvTiltakMedBruker(fnr, veilederdata?.ident ?? '', tiltaksnummer);
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
       dispatch({ type: 'Sending feilet' });
