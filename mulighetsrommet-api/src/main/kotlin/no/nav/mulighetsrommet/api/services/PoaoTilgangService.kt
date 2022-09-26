@@ -22,7 +22,7 @@ class PoaoTilgangService(
         }
 
         if (!access) {
-            throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til Modia Arbeidsrettet ppfølging")
+            throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til Modia Arbeidsrettet oppfølging")
         }
     }
 
