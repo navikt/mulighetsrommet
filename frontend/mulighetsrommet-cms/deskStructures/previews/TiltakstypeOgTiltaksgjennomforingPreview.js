@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
 import Switch from "react-switch";
-import ReactColorSquare from "react-color-square";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
@@ -9,10 +8,14 @@ function MarginBottom({ children }) {
   return <div style={{ marginBottom: "4rem" }}>{children}</div>;
 }
 
+function Firkant({farge}) {
+  return <div style={{ display: "inline-block", background: farge, height: "12px", width: "12px" }}/>;
+}
+
 function Legend({ farge, children }) {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <ReactColorSquare height={12} width={12} color={farge} />
+      <Firkant farge={farge}/>
       <small style={{ marginLeft: "4px", textAlign: "right" }}>{children}</small>
     </div>
   );
