@@ -50,6 +50,7 @@ fun Application.configure(config: AppConfig) {
             veilederRoutes()
             frontendLoggerRoutes()
             dialogRoutes()
+            delMedBrukerRoutes()
         }
         authenticate(AuthProvider.AzureAdMachineToMachine.name) {
             arenaRoutes()
