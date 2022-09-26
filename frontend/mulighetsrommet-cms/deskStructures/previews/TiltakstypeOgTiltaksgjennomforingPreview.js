@@ -21,7 +21,7 @@ function Legend({ farge, children }) {
 const tiltaksfarge = "#00347D";
 const gjennomforingsfarge = "#881D0C";
 
-export function TiltaksgjennomforingOgTypePreview({ document }) {
+export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
   const [fargekodet, setFargekodet] = useState(false);
 

@@ -2,7 +2,7 @@ import S from "@sanity/desk-tool/structure-builder";
 import userStore from "part:@sanity/base/user";
 import adminStructure from "./adminStructure";
 import redaktorAvdirStructure from "./redaktorAvdirStructure";
-import { TiltaksgjennomforingOgTypePreview } from "./previews/TiltaksgjennomforingOgTypePreview";
+import { TiltakstypeOgTiltaksgjennomforingPreview } from "./previews/TiltakstypeOgTiltaksgjennomforingPreview";
 
 export default () =>
   userStore
@@ -36,7 +36,7 @@ export const getDefaultDocumentNode = ({ schemaType }) => {
     return S.document().views([
       S.view.form(),
       S.view
-        .component(TiltaksgjennomforingOgTypePreview)
+        .component(TiltakstypeOgTiltaksgjennomforingPreview)
         .title("Forhåndsvisning"),
     ]);
   }
