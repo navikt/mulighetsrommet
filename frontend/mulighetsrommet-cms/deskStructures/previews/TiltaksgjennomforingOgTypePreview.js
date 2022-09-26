@@ -23,7 +23,7 @@ const gjennomforingsfarge = "#881D0C";
 
 export function TiltaksgjennomforingOgTypePreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
-  const [fargekodet, setFargekodet] = useState(true);
+  const [fargekodet, setFargekodet] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
