@@ -18,16 +18,12 @@ export interface Tiltaksgjennomforingsfiltergruppe<T> {
 export const initialTiltaksgjennomforingsfilter = {
   search: '',
   innsatsgruppe: undefined,
-  tiltakstyper: [{id: "hei", tittel:"hei2"}],
+  tiltakstyper: [],
   tiltaksgruppe: [],
   lokasjoner: [],
 };
 
-
-export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
-  'filter',
-  initialTiltaksgjennomforingsfilter
-);
+export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>('filter', initialTiltaksgjennomforingsfilter);
 
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');

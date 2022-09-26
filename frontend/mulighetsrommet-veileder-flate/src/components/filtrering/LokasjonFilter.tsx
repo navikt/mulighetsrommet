@@ -6,13 +6,11 @@ import useLokasjonerForBruker from "../../core/api/queries/useLokasjonerForBruke
 export function LokasjonFilter() {
   const lokasjoner = useLokasjonerForBruker();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
-  console.log(filter)
-  console.log(lokasjoner)
-  console.log(filter.lokasjoner)
+
   return (
     <CheckboxFilter
       accordionNavn="Lokasjon"
-      options={filter.lokasjoner ?? []}
+      options={filter.lokasjoner}
       setOptions={lokasjoner => setFilter({ ...filter, lokasjoner })}
       data={
         lokasjoner.data?.map(lokasjon => {
@@ -25,7 +23,7 @@ export function LokasjonFilter() {
       isLoading={lokasjoner.isLoading}
       isError={lokasjoner.isError}
       sortert
-      // defaultOpen={filter.lokasjoner?.length ?? > 0}
+      defaultOpen={filter.lokasjoner?.length > 0}
     />
   );
 }
