@@ -51,14 +51,14 @@ fun Route.delMedBrukerRoutes() {
                 if (it == null) {
                     call.respondText(
                         status = HttpStatusCode.NoContent,
-                        text = "Fant ikke innslag om at veilder har delt tiltak med bruker tidligere"
+                        text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere"
                     )
                 }
                 call.respond(it!!)
             }.mapLeft {
                 call.respondText(
                     status = HttpStatusCode.NoContent,
-                    text = "Fant ikke innslag om at veilder har delt tiltak med bruker tidligere"
+                    text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere"
                 )
             }
         }

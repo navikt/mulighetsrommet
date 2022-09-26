@@ -22,7 +22,7 @@ class DelMedBrukerService(private val db: Database) {
         }
 
         if (data.navident.trim().length != 6) {
-            secureLog.warn("Veilders NAVident er ikke 6 tegn. NAVident sendt inn: ${data.navident}")
+            secureLog.warn("Veileders NAVident er ikke 6 tegn. NAVident sendt inn: ${data.navident}")
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }
 
