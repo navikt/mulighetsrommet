@@ -36,17 +36,6 @@ class DelMedBrukerServiceTest : FunSpec({
                 .column("tiltaksnummer").value().isEqualTo("123456")
         }
 
-        test("Lagre til tabell feiler dersom input for veileders navident er feil") {
-            val payloadMedFeilData = payload.copy(
-                navident = "nav12345"
-            )
-            val exception = shouldThrow<BadRequestException> {
-                service.lagreDelMedBruker(payloadMedFeilData)
-            }
-
-            exception.message shouldContain "Veileders NAVident er ikke 6 tegn"
-        }
-
         test("Lagre til tabell feiler dersom input for brukers fnr er ulikt 11 tegn") {
             val payloadMedFeilData = payload.copy(
                 bruker_fnr = "12345678910123"
