@@ -87,15 +87,15 @@ const Delemodal = ({
     if (!navident) return;
 
     try {
-      const res = await fetch('/api/v1/delMedBruker', {
-        method: 'POST',
-        body: JSON.stringify({ bruker_fnr, navident, tiltaksnummer }),
+      const res = await mulighetsrommetClient.delMedBruker.postDelMedBruker({
+        requestBody: { bruker_fnr, navident, tiltaksnummer },
       });
 
       if (!res.ok) {
         // TODO What to do?
         throw new Error('Klarte ikke lagre info om deling av tiltak');
       }
+      const data = await res.json();
     } catch (error) {
       // TODO What to do? Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
     }
