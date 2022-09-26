@@ -21,8 +21,10 @@ class DelMedBrukerService(private val db: Database) {
             throw BadRequestException("Brukers fnr er ikke 11 tegn")
         }
 
-        if (data.navident.trim().length != 6) {
-            secureLog.warn("Veileders NAVident er ikke 6 tegn. NAVident sendt inn: ${data.navident}")
+        if (data.navident.trim().isEmpty()) {
+            secureLog.warn(
+                "Veileders NAVident er tomt. Kan ikke lagre info om tiltak."
+            )
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }
 
