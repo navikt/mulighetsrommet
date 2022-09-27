@@ -9,9 +9,7 @@ import Lenke from '../../lenke/Lenke';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
 import { capitalize } from '../../../utils/Utils';
-import { useHentVeilederdata } from '../../../core/api/queries/useHentVeilederdata';
-import { useGetTiltaksnummerFraUrl } from '../../../core/api/queries/useGetTiltaksnummerFraUrl';
-import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedBrukerStatus';
+import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
