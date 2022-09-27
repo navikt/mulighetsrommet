@@ -6,6 +6,7 @@ export interface Tiltaksgjennomforingsfilter {
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
   tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[];
+  lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
 export interface Tiltaksgjennomforingsfiltergruppe<T> {
@@ -19,12 +20,10 @@ export const initialTiltaksgjennomforingsfilter = {
   innsatsgruppe: undefined,
   tiltakstyper: [],
   tiltaksgruppe: [],
+  lokasjoner: [],
 };
 
-export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
-  'filter',
-  initialTiltaksgjennomforingsfilter
-);
+export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>('filter', initialTiltaksgjennomforingsfilter);
 
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');

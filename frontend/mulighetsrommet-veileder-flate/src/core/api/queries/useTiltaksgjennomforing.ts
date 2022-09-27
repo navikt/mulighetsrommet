@@ -14,6 +14,7 @@ export default function useTiltaksgjennomforing() {
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
   ${byggTiltaksgruppeFilterStreng(filter.tiltaksgruppe ?? [])}
+  ${byggLokasjonsFilter(filter.lokasjoner ?? [])}
   ${byggEnhetOgFylkeFilter()}
   ]
   {
@@ -35,6 +36,14 @@ export default function useTiltaksgjennomforing() {
 
 function byggEnhetOgFylkeFilter(): string {
   return groq`&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
+}
+
+function byggLokasjonsFilter(lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
+  if (lokasjoner.length === 0) return '';
+
+  const lokasjonsStreng = lokasjoner.map(({ tittel }) => `"${tittel}"`).join(', ');;
+
+  return groq`&& lokasjon in [${lokasjonsStreng}]`;
 }
 
 function byggTiltaksgruppeFilterStreng(tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[]): string {

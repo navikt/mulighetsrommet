@@ -16,6 +16,7 @@ export function usePrepopulerFilter() {
       const tiltakstyper = resetFilterTilUtgangspunkt ? [] : filter.tiltakstyper;
       const tiltaksgruppe = resetFilterTilUtgangspunkt ? [] : filter.tiltaksgruppe;
       const search = resetFilterTilUtgangspunkt ? '' : filter.search;
+      const lokasjoner = resetFilterTilUtgangspunkt ? [] : filter.lokasjoner;
       const innsatsgruppe = resetFilterTilUtgangspunkt
         ? { id: matchedInnsatsgruppe._id, nokkel: matchedInnsatsgruppe.nokkel, tittel: matchedInnsatsgruppe.tittel }
         : filter.innsatsgruppe;
@@ -24,6 +25,7 @@ export function usePrepopulerFilter() {
         tiltakstyper,
         innsatsgruppe,
         tiltaksgruppe,
+        lokasjoner
       });
     }
   }

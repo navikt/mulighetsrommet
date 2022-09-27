@@ -5,6 +5,7 @@ import './Filtermeny.less';
 import { Fritekstfilter } from './Fritekstfilter';
 import InnsatsgruppeFilter from './InnsatsgruppeFilter';
 import { Tiltakstypefilter } from './Tiltakstypefilter';
+import { LokasjonFilter } from "./LokasjonFilter";
 
 const Filtermeny = () => {
   usePrepopulerFilter();
@@ -18,6 +19,7 @@ const Filtermeny = () => {
       <InnsatsgruppeFilter />
       <Tiltakstypefilter />
       <FilterForIndividueltEllerGruppetiltak />
+      <LokasjonFilter />
     </div>
   );
 };
