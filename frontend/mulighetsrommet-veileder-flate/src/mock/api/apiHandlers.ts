@@ -2,6 +2,7 @@ import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
 import { badReq, ok } from './responses';
 import { historikk } from '../fixtures/historikk';
+import { DelMedBruker } from 'mulighetsrommet-api-client';
 
 export const apiHandlers: RestHandler[] = [
   rest.get('*/api/v1/bruker', (req, res, ctx) => {

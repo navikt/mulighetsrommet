@@ -11,6 +11,7 @@ import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
 import { capitalize } from '../../../utils/Utils';
 import { useHentVeilederdata } from '../../../core/api/queries/useHentVeilederdata';
 import { useGetTiltaksnummerFraUrl } from '../../../core/api/queries/useGetTiltaksnummerFraUrl';
+import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -65,13 +66,12 @@ const Delemodal = ({
   chattekst,
   veiledernavn = '',
 }: DelemodalProps) => {
-  const { data: veilederdata } = useHentVeilederdata();
-  const tiltaksnummer = useGetTiltaksnummerFraUrl();
   const startText = `${chattekst
     .replace('<Fornavn>', capitalize(brukerNavn))
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
+  const { sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const getAntallTegn = () => {
     if (startText.length === 0) {
       return 750;
@@ -83,24 +83,6 @@ const Delemodal = ({
     if (state.tekst.length === 0) return 'Kan ikke sende tom melding.';
   };
 
-  const lagreDelingAvTiltakMedBruker = async (bruker_fnr: string, navident: string, tiltaksnummer: string) => {
-    if (!navident) return;
-
-    try {
-      const res = await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-        requestBody: { bruker_fnr, navident, tiltaksnummer },
-      });
-
-      if (!res.ok) {
-        // TODO What to do?
-        throw new Error('Klarte ikke lagre info om deling av tiltak');
-      }
-      const data = await res.json();
-    } catch (error) {
-      // TODO What to do? Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
-    }
-  };
-
   const handleSend = async () => {
     if (state.tekst.trim().length > getAntallTegn()) return;
     logDelMedbrukerEvent('Delte med bruker');
@@ -110,7 +92,7 @@ const Delemodal = ({
     const { tekst } = state;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
-      lagreDelingAvTiltakMedBruker(fnr, veilederdata?.ident ?? '', tiltaksnummer);
+      lagreVeilederHarDeltTiltakMedBruker();
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
       dispatch({ type: 'Sending feilet' });
