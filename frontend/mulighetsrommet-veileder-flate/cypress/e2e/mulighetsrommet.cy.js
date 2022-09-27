@@ -156,13 +156,13 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it("Sjekk 'Del med bruker'", () => {
-    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
+    cy.getByTestId('deleknapp').should('be.visible').click();
 
     cy.getByTestId('modal_header').should('be.visible');
     cy.getByTestId('modal_btn-cancel').click();
     cy.getByTestId('modal_header').should('not.exist');
 
-    cy.getByTestId('del-med-bruker-button').click();
+    cy.getByTestId('deleknapp').click();
     cy.getByTestId('modal_header').should('be.visible');
 
     cy.getByTestId('textarea_tilbakemelding').type('{selectall}{backspace}');

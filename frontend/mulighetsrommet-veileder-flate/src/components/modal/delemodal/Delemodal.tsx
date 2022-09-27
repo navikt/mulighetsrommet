@@ -69,7 +69,9 @@ const Delemodal = ({
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
-  const { sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const senderTilDialogen = state.sendtStatus === 'SENDER';
+
   const getAntallTegn = () => {
     if (startText.length === 0) {
       return 750;
@@ -98,10 +100,10 @@ const Delemodal = ({
     }
   };
 
-  const clickCancel = () => {
+  const clickCancel = (log = true) => {
     setModalOpen();
     dispatch({ type: 'Avbryt' });
-    logDelMedbrukerEvent('Avbrutt del med bruker');
+    log && logDelMedbrukerEvent('Avbrutt del med bruker');
   };
 
   const gaTilDialogen = () => {
@@ -109,12 +111,10 @@ const Delemodal = ({
     window.location.href = `${origin}/${fnr}/${state.dialogId}#visDialog`;
   };
 
-  const senderTilDialogen = state.sendtStatus === 'SENDER';
-
   return (
     <Modal
       shouldCloseOnOverlayClick={false}
-      closeButton
+      closeButton={false}
       open={modalOpen}
       onClose={clickCancel}
       className="mulighetsrommet-veileder-flate__modal delemodal"
@@ -150,7 +150,7 @@ const Delemodal = ({
             </Button>
             <Button
               variant="secondary"
-              onClick={clickCancel}
+              onClick={() => clickCancel()}
               data-testid="modal_btn-cancel"
               disabled={senderTilDialogen}
             >
@@ -170,7 +170,7 @@ const Delemodal = ({
             <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
               Gå til Dialogen
             </Button>
-            <Button variant="secondary" onClick={clickCancel} data-testid="modal_btn-cancel">
+            <Button variant="secondary" onClick={() => clickCancel(false)} data-testid="modal_btn-cancel">
               Lukk
             </Button>
           </div>
@@ -196,7 +196,7 @@ const Delemodal = ({
             <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
               Prøv på nytt
             </Button>
-            <Button variant="secondary" onClick={clickCancel} data-testid="modal_btn-cancel">
+            <Button variant="secondary" onClick={() => clickCancel} data-testid="modal_btn-cancel">
               Lukk
             </Button>
           </div>
