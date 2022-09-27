@@ -3,31 +3,41 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.poao_tilgang.PoaoTilgangClient
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.poao_tilgang.api.dto.response.DecisionDto
+import no.nav.poao_tilgang.api.dto.response.DecisionType
+import no.nav.poao_tilgang.api.dto.response.EvaluatePoliciesResponse
+import no.nav.poao_tilgang.api.dto.response.PolicyEvaluationResultDto
+import no.nav.poao_tilgang.client.PoaoTilgangClient
+import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
+import java.util.*
 
 class PoaoTilgangServiceTest : FunSpec({
     context("verifyAccessToModia") {
         test("should throw StatusException when decision is DENY") {
             val engine = mockJsonResponse {
-                PoaoTilgangClient.TilgangTilModiaResponse(
-                    decision = PoaoTilgangClient.Decision(
-                        type = PoaoTilgangClient.Decision.DecisionType.DENY,
-                        message = null,
-                        reason = null,
+                EvaluatePoliciesResponse(
+                    results = listOf(
+                        PolicyEvaluationResultDto(
+                            UUID.randomUUID(),
+                            decision = DecisionDto(type = DecisionType.DENY, message = null, reason = null)
+                        )
                     )
                 )
             }
-            val client = PoaoTilgangClient(engine = engine, baseUrl = "http://poao-tilgang") { "Bearer token" }
+
+            val client: PoaoTilgangClient =
+                PoaoTilgangHttpClient(baseUrl = "http://poao-tilgang", { "" }, client = mockClient)
 
             val service = PoaoTilgangService(client)
 
             shouldThrow<StatusException> {
-                service.verifyAccessToModia("ABC123")
+                service.verifyAccessToUserFromVeileder("ABC123", "12345678910")
             }
 
             engine.requestHistory shouldHaveSize 1
@@ -39,7 +49,7 @@ class PoaoTilgangServiceTest : FunSpec({
                     decision = PoaoTilgangClient.Decision(
                         type = PoaoTilgangClient.Decision.DecisionType.PERMIT,
                         message = null,
-                        reason = null,
+                        reason = null
                     )
                 )
             }
@@ -47,7 +57,7 @@ class PoaoTilgangServiceTest : FunSpec({
 
             val service = PoaoTilgangService(client)
 
-            service.verifyAccessToModia("ABC123")
+            service.verifyAccessToUserFromVeileder("ABC123", "12345678910")
 
             engine.requestHistory shouldHaveSize 1
         }
@@ -58,7 +68,7 @@ class PoaoTilgangServiceTest : FunSpec({
                     decision = PoaoTilgangClient.Decision(
                         type = PoaoTilgangClient.Decision.DecisionType.PERMIT,
                         message = null,
-                        reason = null,
+                        reason = null
                     )
                 )
             }
@@ -66,13 +76,13 @@ class PoaoTilgangServiceTest : FunSpec({
 
             val service = PoaoTilgangService(client)
 
-            service.verifyAccessToModia("ABC111")
-            service.verifyAccessToModia("ABC111")
+            service.verifyAccessToUserFromVeileder("ABC111", "12345678910")
+            service.verifyAccessToUserFromVeileder("ABC111", "12345678910")
 
             engine.requestHistory shouldHaveSize 1
 
-            service.verifyAccessToModia("ABC222")
-            service.verifyAccessToModia("ABC222")
+            service.verifyAccessToUserFromVeileder("ABC222", "12345678910")
+            service.verifyAccessToUserFromVeileder("ABC222", "12345678910")
 
             engine.requestHistory shouldHaveSize 2
         }

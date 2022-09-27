@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
-import no.nav.mulighetsrommet.api.clients.poao_tilgang.PoaoTilgangClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
@@ -24,6 +23,8 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.poao_tilgang.client.PoaoTilgangClient
+import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -54,6 +55,14 @@ private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> { FlywayDatabaseAdapter(databaseConfig) }
     }
+}
+
+private fun poaoTilgangClient(appConfig: AppConfig): PoaoTilgangClient {
+    // TODO Vurdere en cachet versjon
+    return PoaoTilgangHttpClient(
+        appConfig.poaoTilgang.url,
+        { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+    )
 }
 
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
@@ -141,7 +150,7 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    veilarbarenaClient: VeilarbarenaClient,
+    veilarbarenaClient: VeilarbarenaClient
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
@@ -165,9 +174,7 @@ private fun services(
         )
     }
     single {
-        val client = PoaoTilgangClient(baseUrl = appConfig.poaoTilgang.url) {
-            m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope)
-        }
+        val client = poaoTilgangClient(appConfig)
         PoaoTilgangService(client)
     }
     single { DelMedBrukerService(get()) }

@@ -77,6 +77,10 @@ dependencies {
     val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
     implementation("no.nav.common:token-client:$navCommonModules")
 
+    // Tilgangskontroll
+    val poaoTilgangClient = "0c2f239644b665cee0d950b8a8f49bf7ef554f03" // Full SHA fra git-commit
+    implementation("com.github.navikt.poao-tilgang:client:$poaoTilgangClient")
+
     // Test
     val kotestVersion = "5.4.2"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
