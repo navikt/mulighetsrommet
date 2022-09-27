@@ -82,7 +82,7 @@ const ViewTiltakstypeDetaljer = () => {
           data-testid="deleknapp"
           disabled={!kanDeleMedBruker}
           title={tooltip()}
-          icon={harDeltMedBruker && <SuccessStroke />}
+          icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
           iconPosition="left"
         >
           {harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}

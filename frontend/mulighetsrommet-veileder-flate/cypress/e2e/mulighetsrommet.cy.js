@@ -68,11 +68,8 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Filtrer på lokasjoner', () => {
     cy.apneLukketFilterAccordion('lokasjon', true);
-    cy.velgFilter('daniel-springs');
+    cy.getByTestId('checkboxgroup_lokasjon').children().children().first().click();
     cy.forventetAntallFiltertags(3);
-
-    cy.getByTestId('filter_checkbox_daniel-springs').should('be.checked');
-    cy.getByTestId('filter_checkbox_addie-brook').should('not.be.checked');
 
     cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
@@ -81,8 +78,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
 
-    cy.getByTestId('filter_checkbox_daniel-springs').should('not.be.checked');
-    cy.getByTestId('filter_checkbox_addie-brook').should('not.be.checked');
+    cy.getByTestId('checkboxgroup_lokasjon').children().children().should('not.be.checked');
     cy.apneLukketFilterAccordion('lokasjon', false);
   });
 
@@ -95,6 +91,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
+
     cy.getByTestId('filter_sokefelt').clear();
     cy.forventetAntallFiltertags(1);
   });
