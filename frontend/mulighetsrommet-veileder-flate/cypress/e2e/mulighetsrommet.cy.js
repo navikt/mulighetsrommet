@@ -66,6 +66,26 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.apneLukketFilterAccordion('gruppe-eller-individuelle-tiltak', false);
   });
 
+  it('Filtrer på lokasjoner', () => {
+    cy.apneLukketFilterAccordion('lokasjon', true);
+    cy.velgFilter('daniel-springs');
+    cy.forventetAntallFiltertags(3);
+
+    cy.getByTestId('filter_checkbox_daniel-springs').should('be.checked');
+    cy.getByTestId('filter_checkbox_addie-brook').should('not.be.checked');
+
+    cy.wait(1000);
+    cy.getByTestId('antall-tiltak').then($navn => {
+      expect(antallTiltak).not.to.eq($navn.text());
+    });
+
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
+
+    cy.getByTestId('filter_checkbox_daniel-springs').should('not.be.checked');
+    cy.getByTestId('filter_checkbox_addie-brook').should('not.be.checked');
+    cy.apneLukketFilterAccordion('lokasjon', false);
+  });
+
   it('Filtrer på søkefelt', () => {
     cy.fjernFilter('situasjonsbestemt-innsats');
     cy.getByTestId('filter_sokefelt').type('AFT');
