@@ -15,7 +15,7 @@ export function LokasjonFilter() {
       data={
         lokasjoner.data?.map(lokasjon => {
           return {
-            id: lokasjon,
+            id: lokasjon.replaceAll(' ', '-').toLowerCase(),
             tittel: lokasjon,
           };
         }) ?? []

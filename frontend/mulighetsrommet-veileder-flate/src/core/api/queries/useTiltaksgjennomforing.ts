@@ -41,7 +41,7 @@ function byggEnhetOgFylkeFilter(): string {
 function byggLokasjonsFilter(lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
   if (lokasjoner.length === 0) return '';
 
-  const lokasjonsStreng = idSomListe(lokasjoner);
+  const lokasjonsStreng = lokasjoner.map(({ tittel }) => `"${tittel}"`).join(', ');;
 
   return groq`&& lokasjon in [${lokasjonsStreng}]`;
 }
