@@ -10,6 +10,7 @@ import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
 import { capitalize } from '../../../utils/Utils';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
+import { useFeatureToggles } from '../../../core/api/feature-toggles';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -69,7 +70,11 @@ const Delemodal = ({
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
-  const { sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const features = useFeatureToggles();
+  const skalLagreAtViDelerMedBruker =
+    features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
+  console.log(features);
   const getAntallTegn = () => {
     if (startText.length === 0) {
       return 750;
@@ -90,7 +95,10 @@ const Delemodal = ({
     const { tekst } = state;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
-      lagreVeilederHarDeltTiltakMedBruker();
+      if (skalLagreAtViDelerMedBruker) {
+        // TODO Fjern sjekk og toggle mulighetsrommet.lagre-del-tiltak-med-bruker når vi har avklart med jurister at det er ok å lagre fnr til bruker i db
+        lagreVeilederHarDeltTiltakMedBruker();
+      }
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
       dispatch({ type: 'Sending feilet' });
