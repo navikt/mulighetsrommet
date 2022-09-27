@@ -68,7 +68,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
   it('Filtrer på lokasjoner', () => {
     cy.apneLukketFilterAccordion('lokasjon', true);
-    cy.getByTestId('checkboxgroup_lokasjon').children().children().first().click();
+    cy.getByTestId('checkboxgroup_lokasjon').children().children().last().click();
     cy.forventetAntallFiltertags(3);
 
     cy.wait(1000);
