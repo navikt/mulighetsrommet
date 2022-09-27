@@ -2,6 +2,7 @@ import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
 import { badReq, ok } from './responses';
 import { historikk } from '../fixtures/historikk';
+import { DelMedBruker } from '../../../../mulighetsrommet-api-client/build/models/DelMedBruker';
 
 export const apiHandlers: RestHandler[] = [
   rest.get('*/api/v1/bruker', (req, res, ctx) => {
@@ -72,12 +73,12 @@ export const apiHandlers: RestHandler[] = [
     return ok(data);
   }),
 
-  rest.get('*/api/v1/delMedBruker', async req => {
+  rest.get('*/api/v1/delMedBruker', () => {
     return ok<DelMedBruker>({
       tiltaksnummer: '29518',
       navident: 'V15555',
       bruker_fnr: '11223344557',
-      created_at: new Date(2022, 2, 22),
+      created_at: new Date(2022, 2, 22).toString(),
     });
   }),
 ];
