@@ -170,6 +170,7 @@ private fun services(
         }
         PoaoTilgangService(client)
     }
+    single { DelMedBrukerService(get()) }
 }
 
 private fun erLokalUtvikling(): Boolean {

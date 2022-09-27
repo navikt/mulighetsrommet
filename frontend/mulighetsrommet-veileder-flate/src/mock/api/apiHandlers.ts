@@ -2,6 +2,7 @@ import SanityClient from '@sanity/client';
 import { rest, RestHandler } from 'msw';
 import { badReq, ok } from './responses';
 import { historikk } from '../fixtures/historikk';
+import { DelMedBruker } from 'mulighetsrommet-api-client';
 
 export const apiHandlers: RestHandler[] = [
   rest.get('*/api/v1/bruker', (req, res, ctx) => {
@@ -33,7 +34,7 @@ export const apiHandlers: RestHandler[] = [
     return ok({
       etternavn: 'VEILEDERSEN',
       fornavn: 'VEILEDER',
-      ident: 'V1234',
+      ident: 'V12345',
       navn: 'Veiledersen, Veileder',
     });
   }),
@@ -65,6 +66,11 @@ export const apiHandlers: RestHandler[] = [
     }
 
     return ok(historikk);
+  }),
+
+  rest.post('*/api/v1/delMedBruker', async req => {
+    const data = await req.json();
+    return ok(data);
   }),
 ];
 

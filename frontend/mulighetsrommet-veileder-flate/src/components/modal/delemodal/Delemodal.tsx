@@ -8,7 +8,8 @@ import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
-import { capitalize } from "../../../utils/Utils";
+import { capitalize } from '../../../utils/Utils';
+import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -68,6 +69,7 @@ const Delemodal = ({
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
+  const { sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const getAntallTegn = () => {
     if (startText.length === 0) {
       return 750;
@@ -88,6 +90,7 @@ const Delemodal = ({
     const { tekst } = state;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
+      lagreVeilederHarDeltTiltakMedBruker();
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
       dispatch({ type: 'Sending feilet' });

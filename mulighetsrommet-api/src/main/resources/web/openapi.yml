@@ -291,6 +291,53 @@ paths:
             application/json:
               schema:
                 type: string
+
+  /api/v1/delMedBruker:
+    get:
+      tags:
+        - Del med bruker
+      operationId: getDelMedBruker
+      parameters:
+        - in: query
+          name: "fnr"
+          schema:
+            type: string
+          description: Brukers fnr
+        - in: query
+          name: "navident"
+          schema:
+            type: string
+          description: "Veileders ident"
+        - in: query
+          name: "tiltaksnummer"
+          schema:
+            type: string
+          description: "Tiltaksnummer"
+      responses:
+        200:
+          description: "Last entry in database about share with user"
+          content:
+            application/json:
+              $ref: "#/components/schemas/DelMedBruker"
+        204:
+          description: "No content found"
+
+    post:
+      tags:
+        - Del med bruker
+      operationId: postDelMedBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DelMedBruker"
+      responses:
+        200:
+          description: "Stored data from insertion in database"
+          content:
+            application/json:
+              $ref: "#/components/schemas/DelMedBruker"
+       
       
 
 
@@ -599,6 +646,27 @@ components:
           type: string
         arrangor:
           type: string
+    
+    DelMedBruker:
+      type: object
+      properties:
+        id:
+          type: string
+        bruker_fnr:
+          type: string
+        navident:
+          type: string
+        tiltaksnummer:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        created_by: 
+          type: string
+        updated_by:
+          type: string
+
 
   examples:
     Tiltakstype:

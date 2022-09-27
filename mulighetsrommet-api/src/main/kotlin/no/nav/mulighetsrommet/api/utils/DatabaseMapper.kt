@@ -14,7 +14,7 @@ object DatabaseMapper {
             id = row.int("id"),
             navn = row.string("navn"),
             innsatsgruppe = row.int("innsatsgruppe_id"),
-            tiltakskode = row.string("tiltakskode"),
+            tiltakskode = row.string("tiltakskode")
         )
 
     fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
@@ -31,7 +31,7 @@ object DatabaseMapper {
 
     fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
         id = row.int("id"),
-        navn = row.string("navn"),
+        navn = row.string("navn")
     )
 
     fun toDeltaker(row: Row): Deltaker = Deltaker(
@@ -69,7 +69,7 @@ object DatabaseMapper {
         arrangorId = row.intOrNull("arrangor_id"),
         sakId = row.int("sak_id"),
         apentForInnsok = row.boolean("apent_for_innsok"),
-        antallPlasser = row.intOrNull("antall_plasser"),
+        antallPlasser = row.intOrNull("antall_plasser")
     )
 
     fun toAdapterTiltakdeltaker(row: Row): AdapterTiltakdeltaker = AdapterTiltakdeltaker(
@@ -79,5 +79,16 @@ object DatabaseMapper {
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(row.string("status"))
+    )
+
+    fun toDelMedBruker(row: Row): DelMedBruker = DelMedBruker(
+        id = row.string("id"),
+        bruker_fnr = row.string("bruker_fnr"),
+        navident = row.string("navident"),
+        tiltaksnummer = row.string("tiltaksnummer"),
+        created_at = row.localDateTime("created_at"),
+        updated_at = row.localDateTime("updated_at"),
+        created_by = row.string("created_by"),
+        updated_by = row.string("updated_by")
     )
 }
