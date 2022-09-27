@@ -74,7 +74,6 @@ const Delemodal = ({
   const features = useFeatureToggles();
   const skalLagreAtViDelerMedBruker =
     features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
-  console.log(features);
   const getAntallTegn = () => {
     if (startText.length === 0) {
       return 750;
