@@ -12,14 +12,13 @@ class PoaoTilgangService(
     val client: PoaoTilgangClient
 ) {
 
-    private val cache: Cache<String, Boolean> = Caffeine.newBuilder()
+    private val cache: Cache<NavidentOgNorskIdentCacheKey, Boolean> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .build()
 
     suspend fun verifyAccessToUserFromVeileder(navIdent: String, norskIdent: String) {
-        // TODO Se på nøkkel for cache-verdi
-        val access = cachedResult(cache, navIdent) {
+        val access = cachedResult(cache, NavidentOgNorskIdentCacheKey(navIdent, norskIdent)) {
             // TODO Hør med Sondre ang. error handling ved kasting av feil
             client.evaluatePolicy(EksternBrukerPolicyInput(navIdent, norskIdent)).getOrThrow().isPermit
         }
@@ -44,3 +43,8 @@ class PoaoTilgangService(
         return value
     }
 }
+
+data class NavidentOgNorskIdentCacheKey(
+    val navident: String,
+    val norskident: String
+)
