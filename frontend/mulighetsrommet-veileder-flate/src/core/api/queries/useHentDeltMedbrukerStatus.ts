@@ -38,5 +38,5 @@ export function useHentDeltMedBrukerStatus() {
     }
   }
 
-  return { sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker };
+  return { harDeltMedBruker: sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker };
 }

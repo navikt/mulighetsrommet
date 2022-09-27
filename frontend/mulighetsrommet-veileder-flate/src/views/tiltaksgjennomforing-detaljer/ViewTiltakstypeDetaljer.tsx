@@ -6,16 +6,17 @@ import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { Alert, Loader } from '@navikt/ds-react';
+import { Alert, Button, Loader } from '@navikt/ds-react';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
-import Deleknapp from '../../components/knapper/Deleknapp';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
-import { capitalize } from "../../utils/Utils";
+import { capitalize, formaterDato } from '../../utils/Utils';
+import { SuccessStroke } from '@navikt/ds-icons';
+import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -26,6 +27,13 @@ const ViewTiltakstypeDetaljer = () => {
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
   const veiledernavn = `${capitalize(veilederdata?.data?.fornavn)} ${capitalize(veilederdata?.data?.etternavn)}`;
+
+  const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
+  const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
+  const kanDeleMedBruker =
+    !manuellOppfolging && !krrStatusErReservert && brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
+  const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
+  const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
@@ -46,10 +54,14 @@ const ViewTiltakstypeDetaljer = () => {
     );
   }
 
-  const kanDeleMedBruker =
-    !brukerdata.data?.manuellStatus?.erUnderManuellOppfolging &&
-    !brukerdata.data?.manuellStatus?.krrStatus?.erReservert &&
-    brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
+  const tooltip = () => {
+    if (manuellOppfolging)
+      return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre.';
+    else if (krrStatusErReservert)
+      return 'Brukeren har  reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
+    else if (harDeltMedBruker) return `Tiltaket ble sist delt med bruker ${datoSidenSistDelt}`;
+    else return 'Del tiltak med bruker';
+  };
 
   return (
     <div className="tiltakstype-detaljer">
@@ -62,20 +74,19 @@ const ViewTiltakstypeDetaljer = () => {
       </div>
       <div className="tiltakstype-detaljer__sidemeny">
         <SidemenyDetaljer />
-        <Deleknapp
-          dataTestId="del-med-bruker-button"
-          ariaLabel={'Dele'}
-          handleClick={handleClickApneModal}
+        <Button
+          onClick={handleClickApneModal}
+          variant="secondary"
+          className="deleknapp"
+          aria-label="Dele"
+          data-testid="deleknapp"
           disabled={!kanDeleMedBruker}
+          title={tooltip()}
+          icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
+          iconPosition="left"
         >
-          {kanDeleMedBruker ? (
-            'Del med bruker'
-          ) : (
-            <span title="Bruker er under manuell oppfølging, finnes i Kontakt- og reservasjonsregisteret eller har ikke vært innlogget på NAV.no siste 18 mnd. Brukeren kan dermed ikke kontaktes digitalt.">
-              Del med bruker
-            </span>
-          )}
-        </Deleknapp>
+          {harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
+        </Button>
       </div>
       <TiltaksdetaljerFane />
       <Delemodal
