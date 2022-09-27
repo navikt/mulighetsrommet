@@ -69,6 +69,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 val client: PoaoTilgangClient = mockk()
                 every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910")) } returns mockResponse
                 every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "12345678910")) } returns mockResponse
+                every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "10987654321")) } returns mockResponse
 
                 val service = PoaoTilgangService(client)
 
@@ -77,10 +78,12 @@ class PoaoTilgangServiceTest : FunSpec(
 
                 service.verifyAccessToUserFromVeileder("ABC222", "12345678910")
                 service.verifyAccessToUserFromVeileder("ABC222", "12345678910")
+                service.verifyAccessToUserFromVeileder("ABC222", "10987654321")
 
                 verify(exactly = 1) {
                     client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910"))
                     client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "12345678910"))
+                    client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "10987654321"))
                 }
             }
         }
