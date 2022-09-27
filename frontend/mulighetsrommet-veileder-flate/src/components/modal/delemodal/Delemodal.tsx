@@ -196,7 +196,7 @@ const Delemodal = ({
             <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
               Prøv på nytt
             </Button>
-            <Button variant="secondary" onClick={() => clickCancel} data-testid="modal_btn-cancel">
+            <Button variant="secondary" onClick={() => clickCancel()} data-testid="modal_btn-cancel">
               Lukk
             </Button>
           </div>
