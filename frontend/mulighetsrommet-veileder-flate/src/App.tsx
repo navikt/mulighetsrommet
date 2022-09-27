@@ -1,5 +1,4 @@
 import { Modal } from '@navikt/ds-react';
-import { MulighetsrommetClient } from 'mulighetsrommet-api-client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
@@ -20,7 +19,7 @@ import { ErrorFallback } from './utils/ErrorFallback';
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
 Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
+const queryClient = new QueryClient();
 
 function AppWrapper() {
   const features = useFeatureToggles();

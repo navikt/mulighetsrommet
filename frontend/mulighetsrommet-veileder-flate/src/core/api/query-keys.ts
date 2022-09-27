@@ -3,4 +3,5 @@ export const enum QueryKeys {
   Brukerdata = 'brukerdata',
   Veilederdata = 'veilederdata',
   Historikk = 'historikk',
+  DeltMedBrukerStatus = 'deltMedBrukerStatus',
 }
