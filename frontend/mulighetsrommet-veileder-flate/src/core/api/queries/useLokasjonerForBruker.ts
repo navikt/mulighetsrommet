@@ -1,6 +1,6 @@
-import { useHentBrukerdata } from "./useHentBrukerdata";
-import groq from "groq";
-import { useSanity } from "./useSanity";
+import { useHentBrukerdata } from './useHentBrukerdata';
+import groq from 'groq';
+import { useSanity } from './useSanity';
 
 export default function useLokasjonerForBruker() {
   const brukerData = useHentBrukerdata();

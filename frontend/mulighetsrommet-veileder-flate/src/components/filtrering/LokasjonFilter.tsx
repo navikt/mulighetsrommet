@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import CheckboxFilter from './CheckboxFilter';
-import useLokasjonerForBruker from "../../core/api/queries/useLokasjonerForBruker";
+import useLokasjonerForBruker from '../../core/api/queries/useLokasjonerForBruker';
 
 export function LokasjonFilter() {
   const lokasjoner = useLokasjonerForBruker();
