@@ -23,7 +23,8 @@ class DelMedBrukerServiceTest : FunSpec({
         val payload = DelMedBruker(
             bruker_fnr = "12345678910",
             navident = "nav123",
-            tiltaksnummer = "123456"
+            tiltaksnummer = "123456",
+            dialogId = "1234"
         )
 
         test("Insert del med bruker-data") {
