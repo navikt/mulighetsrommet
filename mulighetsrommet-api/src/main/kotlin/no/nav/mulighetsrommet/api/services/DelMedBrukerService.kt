@@ -54,4 +54,15 @@ class DelMedBrukerService(private val db: Database) {
             tiltaksnummer
         ).map { DatabaseMapper.toDelMedBruker(it) }.asSingle.let { db.run(it) }
     }
+
+    fun getTiltaksgjennomforingerDeltMedBruker(fnr: String): QueryResult<List<DelMedBruker?>> = query {
+        @Language("PostgreSQL")
+        val query = """
+            select DISTINCT ON (tiltaksnummer) tiltaksnummer, * from del_med_bruker where bruker_fnr = ? order by tiltaksnummer, created_at desc
+        """.trimIndent()
+        queryOf(
+            query,
+            fnr
+        ).map { DatabaseMapper.toDelMedBruker(it) }.asList.let { db.run(it) }
+    }
 }

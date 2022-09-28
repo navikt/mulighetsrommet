@@ -345,6 +345,29 @@ paths:
             application/json:
               $ref: "#/components/schemas/DelMedBruker"
 
+  /api/v1/delMedBruker:
+    get:
+      tags:
+        - Del med bruker
+      operationId: getTiltaksgjennomforingerDeltMedBruker
+      parameters:
+        - in: query
+          name: "fnr"
+          schema:
+            type: string
+          description: "Brukers fnr"
+      responses:
+        200:
+          description: "List of entries in database about share with user"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  - $ref: "#/components/schemas/DelMedBruker"
+        204:
+          description: "No content found"
+
 components:
   securitySchemes:
     bearerAuth:
