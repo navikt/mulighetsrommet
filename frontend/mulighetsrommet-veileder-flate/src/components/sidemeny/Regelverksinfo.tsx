@@ -15,7 +15,7 @@ const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps
     return (
       regelverkFil.regelverkFilUrl && (
         <div key={regelverkFil._id}>
-          <Link target="_blank" href={`${regelverkFil.regelverkFilUrl}`} onClick={() => loggTrykkPaRegelverk}>
+          <Link target="_blank" href={`${regelverkFil.regelverkFilUrl}`} onClick={loggTrykkPaRegelverk}>
             {regelverkFil.regelverkFilNavn}
           </Link>
         </div>
@@ -27,7 +27,7 @@ const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps
     return (
       regelverkLenke.regelverkUrl && (
         <div key={regelverkLenke._id}>
-          <Link target="_blank" href={regelverkLenke.regelverkUrl} onClick={() => loggTrykkPaRegelverk}>
+          <Link target="_blank" href={regelverkLenke.regelverkUrl} onClick={loggTrykkPaRegelverk}>
             {regelverkLenke.regelverkLenkeNavn}
           </Link>
         </div>
