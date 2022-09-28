@@ -291,7 +291,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/delMedBruker:
+  /api/v1/delMedBruker/{tiltaksnummer}:
     get:
       tags:
         - Del med bruker
@@ -307,11 +307,12 @@ paths:
           schema:
             type: string
           description: "Veileders ident"
-        - in: query
+        - in: path
           name: "tiltaksnummer"
+          description: "Tiltaksnummer for et tiltak"
+          required: true
           schema:
             type: string
-          description: "Tiltaksnummer"
       responses:
         200:
           description: "Last entry in database about share with user"
@@ -325,6 +326,13 @@ paths:
       tags:
         - Del med bruker
       operationId: postDelMedBruker
+      parameters:
+        - in: path
+          name: "tiltaksnummer"
+          description: "Tiltaksnummer for et tiltak"
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:

@@ -25,6 +25,7 @@ export function useHentDeltMedBrukerStatus() {
 
     try {
       const res = await mulighetsrommetClient.delMedBruker.postDelMedBruker({
+        tiltaksnummer,
         requestBody: { bruker_fnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
       });
 
