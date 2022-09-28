@@ -73,7 +73,7 @@ export const apiHandlers: RestHandler[] = [
     return ok(data);
   }),
 
-  rest.get('*/api/v1/delMedBruker', () => {
+  rest.get('*/api/v1/delMedBruker/*', () => {
     return ok<DelMedBruker>({
       tiltaksnummer: '29518',
       navident: 'V15555',
@@ -81,6 +81,33 @@ export const apiHandlers: RestHandler[] = [
       bruker_fnr: '11223344557',
       created_at: new Date(2022, 2, 22).toString(),
     });
+  }),
+
+  rest.get('*/api/v1/delMedBruker', () => {
+    return ok<DelMedBruker[]>([
+      {
+        "id": "5",
+        "bruker_fnr": "12345678910",
+        "navident": "V12345",
+        "tiltaksnummer": "29518",
+        "dialogId": "1234",
+        "created_at": "2022-09-28T13:57:42.141479",
+        "updated_at": "2022-09-28T13:57:42.141479",
+        "created_by": "V12345",
+        "updated_by": "V12345"
+      },
+      {
+        "id": "3",
+        "bruker_fnr": "12345678910",
+        "navident": "V12345",
+        "tiltaksnummer": "2974",
+        "dialogId": "1234",
+        "created_at": "2022-09-28T13:37:35.350350",
+        "updated_at": "2022-09-28T13:37:35.350350",
+        "created_by": "V12345",
+        "updated_by": "V12345"
+      }
+    ]);
   }),
 ];
 
