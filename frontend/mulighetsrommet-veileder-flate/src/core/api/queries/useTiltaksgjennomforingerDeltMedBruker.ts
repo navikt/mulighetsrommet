@@ -6,7 +6,7 @@ import { mulighetsrommetClient } from '../clients';
 
 export function useHentTiltaksgjennomforingerDeltMedBruker() {
   const fnr = useHentFnrFraUrl();
-  return useQuery<DelMedBruker[], any>([QueryKeys.DeltMedBrukerStatus, fnr], () =>
+  return useQuery<DelMedBruker[], any>([QueryKeys.DeltMedBrukerListe, fnr], () =>
     mulighetsrommetClient.delMedBruker.getTiltaksgjennomforingerDeltMedBruker({ fnr })
   );
 }

@@ -1,5 +1,5 @@
-import { Alert, BodyShort, Button, Heading, Ingress, Loader, Pagination, Table } from '@navikt/ds-react';
-import { Dialog } from "@navikt/ds-icons";
+import { Dialog } from '@navikt/ds-icons';
+import { Alert, BodyShort, Button, Heading, Ingress, Link, Loader, Pagination, Table } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
@@ -7,17 +7,18 @@ import { logEvent } from '../../core/api/logger';
 import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import { useHentTiltaksgjennomforingerDeltMedBruker } from '../../core/api/queries/useTiltaksgjennomforingerDeltMedBruker';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
-import TiltakSendtIkon from '../../ikoner/sent.png';
+import { formaterDato } from '../../utils/Utils';
 import { Feilmelding } from '../feilmelding/Feilmelding';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
-import { useHentTiltaksgjennomforingerDeltMedBruker } from '../../core/api/queries/useTiltaksgjennomforingerDeltMedBruker';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -29,9 +30,15 @@ const TiltaksgjennomforingsTabell = () => {
   };
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
+  const { getUrlTilDialogen } = useNavigerTilDialogen();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
-  const { data: delteTiltaksgjennomforinger = [] } = useHentTiltaksgjennomforingerDeltMedBruker();
+  const { data: delteTiltaksgjennomforinger = [], refetch: refetchDelteTiltaksgjennomforinger } =
+    useHentTiltaksgjennomforingerDeltMedBruker();
+
+  useEffect(() => {
+    refetchDelteTiltaksgjennomforinger();
+  }, []);
 
   useEffect(() => {
     if (tiltaksgjennomforinger.length <= rowsPerPage && !isFetching) {
@@ -80,10 +87,17 @@ const TiltaksgjennomforingsTabell = () => {
     );
     if (deltMedBrukerInfoForTiltaksgjennomforing) {
       return (
-        <Lenke to={''}>
-          {/*<img src={TiltakSendtIkon} alt="Ikon av at tiltak er delt med bruker" height={24} width={24} />*/}
+        <Link
+          title={`Tiltak delt den ${formaterDato(
+            deltMedBrukerInfoForTiltaksgjennomforing.created_at!!
+          )}. Trykk på meg for å åpne i Dialogen.`}
+          href={getUrlTilDialogen(
+            deltMedBrukerInfoForTiltaksgjennomforing.bruker_fnr!!,
+            deltMedBrukerInfoForTiltaksgjennomforing.dialogId!!
+          )}
+        >
           <Dialog />
-        </Lenke>
+        </Link>
       );
     }
     return null;
