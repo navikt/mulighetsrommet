@@ -3,22 +3,24 @@ package no.nav.mulighetsrommet.api.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.poao_tilgang.PoaoTilgangClient
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.poao_tilgang.client.EksternBrukerPolicyInput
+import no.nav.poao_tilgang.client.PoaoTilgangClient
 import java.util.concurrent.TimeUnit
 
 class PoaoTilgangService(
-    val client: PoaoTilgangClient,
+    val client: PoaoTilgangClient
 ) {
 
-    private val cache: Cache<String, Boolean> = Caffeine.newBuilder()
+    private val cache: Cache<NavidentOgNorskIdentCacheKey, Boolean> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .build()
 
-    suspend fun verifyAccessToModia(navIdent: String) {
-        val access = cachedResult(cache, navIdent) {
-            client.hasAccessToModia(navIdent)
+    suspend fun verifyAccessToUserFromVeileder(navIdent: String, norskIdent: String) {
+        val access = cachedResult(cache, NavidentOgNorskIdentCacheKey(navIdent, norskIdent)) {
+            // TODO Hør med Sondre ang. error handling ved kasting av feil
+            client.evaluatePolicy(EksternBrukerPolicyInput(navIdent, norskIdent)).getOrThrow().isPermit
         }
 
         if (!access) {
@@ -41,3 +43,8 @@ class PoaoTilgangService(
         return value
     }
 }
+
+data class NavidentOgNorskIdentCacheKey(
+    val navident: String,
+    val norskident: String
+)

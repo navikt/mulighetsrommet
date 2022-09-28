@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.domain.models.DelMedBruker
@@ -17,9 +18,9 @@ fun Route.delMedBrukerRoutes() {
     val delMedBrukerService by inject<DelMedBrukerService>()
     val poaoTilgang: PoaoTilgangService by inject()
 
-    route("/api/v1/delMedBruker/") {
-        post("{tiltaksnummer}") {
-            poaoTilgang.verifyAccessToModia(getNavIdent())
+    route("/api/v1/delMedBruker") {
+        post {
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
             val payload = call.receive<DelMedBruker>()
             delMedBrukerService.lagreDelMedBruker(payload).map {
                 call.respond(it)
@@ -33,7 +34,7 @@ fun Route.delMedBrukerRoutes() {
         }
 
         get("{tiltaksnummer}") {
-            poaoTilgang.verifyAccessToModia(getNavIdent())
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
             val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr til bruker",
                 status = HttpStatusCode.BadRequest
