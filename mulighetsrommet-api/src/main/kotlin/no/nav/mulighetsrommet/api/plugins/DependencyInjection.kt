@@ -58,7 +58,6 @@ private fun db(databaseConfig: DatabaseConfig): Module {
 }
 
 private fun poaoTilgangClient(appConfig: AppConfig): PoaoTilgangClient {
-    // TODO Vurdere en cachet versjon
     return PoaoTilgangHttpClient(
         appConfig.poaoTilgang.url,
         { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
