@@ -11,6 +11,7 @@ import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
 import { capitalize } from '../../../utils/Utils';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
+import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -75,6 +76,7 @@ const Delemodal = ({
     features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
   const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
     useHentDeltMedBrukerStatus();
+  const { navigerTilDialogen } = useNavigerTilDialogen();
   const senderTilDialogen = state.sendtStatus === 'SENDER';
 
   const getAntallTegn = () => {
@@ -99,7 +101,7 @@ const Delemodal = ({
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       if (skalLagreAtViDelerMedBruker) {
         // TODO Fjern sjekk og toggle mulighetsrommet.lagre-del-tiltak-med-bruker når vi har avklart med jurister at det er ok å lagre fnr til bruker i db
-        lagreVeilederHarDeltTiltakMedBruker();
+        lagreVeilederHarDeltTiltakMedBruker(res.id);
         refetchOmVeilederHarDeltMedBruker();
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
@@ -116,8 +118,7 @@ const Delemodal = ({
   };
 
   const gaTilDialogen = () => {
-    const origin = window.location.origin;
-    window.location.href = `${origin}/${fnr}/${state.dialogId}#visDialog`;
+    navigerTilDialogen(fnr, state.dialogId);
   };
 
   return (
