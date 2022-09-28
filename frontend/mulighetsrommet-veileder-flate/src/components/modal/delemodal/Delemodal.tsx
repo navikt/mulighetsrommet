@@ -69,7 +69,8 @@ const Delemodal = ({
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
-  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
+    useHentDeltMedBrukerStatus();
   const senderTilDialogen = state.sendtStatus === 'SENDER';
 
   const getAntallTegn = () => {
@@ -93,6 +94,7 @@ const Delemodal = ({
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       lagreVeilederHarDeltTiltakMedBruker();
+      refetchOmVeilederHarDeltMedBruker();
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
       dispatch({ type: 'Sending feilet' });
