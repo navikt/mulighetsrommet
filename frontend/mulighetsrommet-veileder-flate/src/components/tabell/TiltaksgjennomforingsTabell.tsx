@@ -90,7 +90,7 @@ const TiltaksgjennomforingsTabell = () => {
         <Link
           title={`Tiltak delt den ${formaterDato(
             deltMedBrukerInfoForTiltaksgjennomforing.created_at!!
-          )}. Trykk på meg for å åpne i Dialogen.`}
+          )}. Trykk her for å åpne i Dialogen.`}
           href={getUrlTilDialogen(
             deltMedBrukerInfoForTiltaksgjennomforing.bruker_fnr!!,
             deltMedBrukerInfoForTiltaksgjennomforing.dialogId!!
