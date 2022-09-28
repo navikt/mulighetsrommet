@@ -101,7 +101,7 @@ const Delemodal = ({
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       if (skalLagreAtViDelerMedBruker) {
         // TODO Fjern sjekk og toggle mulighetsrommet.lagre-del-tiltak-med-bruker når vi har avklart med jurister at det er ok å lagre fnr til bruker i db
-        lagreVeilederHarDeltTiltakMedBruker(res.id);
+        await lagreVeilederHarDeltTiltakMedBruker(res.id);
         refetchOmVeilederHarDeltMedBruker();
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
