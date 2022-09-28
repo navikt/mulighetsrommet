@@ -654,6 +654,8 @@ components:
           type: string
         tiltaksnummer:
           type: string
+        dialogId:
+          type: string
         created_at:
           type: string
         updated_at:

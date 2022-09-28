@@ -10,6 +10,7 @@ data class DelMedBruker(
     val bruker_fnr: String,
     val navident: String,
     val tiltaksnummer: String,
+    val dialogId: String,
     @Serializable(with = DateSerializer::class)
     val created_at: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)

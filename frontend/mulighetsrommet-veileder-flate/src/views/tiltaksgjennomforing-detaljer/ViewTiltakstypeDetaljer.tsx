@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
-import './ViewTiltaksgjennomforingDetaljer.less';
-import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
+import { SuccessStroke } from '@navikt/ds-icons';
+import { Alert, Button, Loader } from '@navikt/ds-react';
+import { useAtom } from 'jotai';
+import { useState } from 'react';
+import Lenke from '../../components/lenke/Lenke';
+import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
-import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { Alert, Button, Loader } from '@navikt/ds-react';
+import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
-import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
-import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import { useAtom } from 'jotai';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
-import { capitalize, formaterDato } from '../../utils/Utils';
-import { SuccessStroke } from '@navikt/ds-icons';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
+import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
+import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
+import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
+import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
+import { capitalize, formaterDato } from '../../utils/Utils';
+import './ViewTiltaksgjennomforingDetaljer.less';
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -26,6 +28,7 @@ const ViewTiltakstypeDetaljer = () => {
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
+  const { getUrlTilDialogen } = useNavigerTilDialogen();
   const veiledernavn = `${capitalize(veilederdata?.data?.fornavn)} ${capitalize(veilederdata?.data?.etternavn)}`;
 
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
@@ -87,6 +90,13 @@ const ViewTiltakstypeDetaljer = () => {
         >
           {harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
         </Button>
+        {harDeltMedBruker ? (
+          <div style={{ textAlign: 'center' }}>
+            <Lenke isExternal to={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
+              Åpne i dialogen
+            </Lenke>
+          </div>
+        ) : null}
       </div>
       <TiltaksdetaljerFane />
       <Delemodal
