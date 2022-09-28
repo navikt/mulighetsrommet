@@ -43,8 +43,8 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate> |
 | README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (dev-miljø) | <https://mulighetsrommet-veileder-flate.dev.intern.nav.no/> |
-| Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/> |
+| Url (test-datasett) | <https://mulighetsrommet.sanity.studio/test/desk> |
+| Url (prod-datasett) | <https://mulighetsrommet.sanity.studio/production/desk> |
 
 ### `mulighetsrommet-api`
 
