@@ -66,6 +66,22 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.apneLukketFilterAccordion('gruppe-eller-individuelle-tiltak', false);
   });
 
+  it('Filtrer på lokasjoner', () => {
+    cy.apneLukketFilterAccordion('lokasjon', true);
+    cy.getByTestId('checkboxgroup_lokasjon').children().children().last().click();
+    cy.forventetAntallFiltertags(3);
+
+    cy.wait(1000);
+    cy.getByTestId('antall-tiltak').then($navn => {
+      expect(antallTiltak).not.to.eq($navn.text());
+    });
+
+    cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
+
+    cy.getByTestId('checkboxgroup_lokasjon').children().children().should('not.be.checked');
+    cy.apneLukketFilterAccordion('lokasjon', false);
+  });
+
   it('Filtrer på søkefelt', () => {
     cy.fjernFilter('situasjonsbestemt-innsats');
     cy.getByTestId('filter_sokefelt').type('AFT');
@@ -75,6 +91,7 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
+
     cy.getByTestId('filter_sokefelt').clear();
     cy.forventetAntallFiltertags(1);
   });
@@ -156,13 +173,13 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it("Sjekk 'Del med bruker'", () => {
-    cy.getByTestId('del-med-bruker-button').should('be.visible').click();
+    cy.getByTestId('deleknapp').should('be.visible').click();
 
     cy.getByTestId('modal_header').should('be.visible');
     cy.getByTestId('modal_btn-cancel').click();
     cy.getByTestId('modal_header').should('not.exist');
 
-    cy.getByTestId('del-med-bruker-button').click();
+    cy.getByTestId('deleknapp').click();
     cy.getByTestId('modal_header').should('be.visible');
 
     cy.getByTestId('textarea_tilbakemelding').type('{selectall}{backspace}');

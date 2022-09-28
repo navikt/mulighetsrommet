@@ -26,6 +26,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   sortert = false,
 }: CheckboxFilterProps<T>) => {
   const valgteTypeIDer = options.map(type => type.id);
+  const kebabCaseAccordionNavn = kebabCase(accordionNavn);
 
   const handleEndreFilter = (filtertypeTittel: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -52,13 +53,19 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   return (
     <Accordion role="menu">
       <Accordion.Item defaultOpen={defaultOpen}>
-        <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
+        <Accordion.Header data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}>
           {accordionNavn}
         </Accordion.Header>
-        <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
+        <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
           {isLoading && <Loader className="filter-loader" size="xlarge" />}
           {data && (
-            <CheckboxGroup legend="" hideLegend size="small" value={valgteTypeIDer.map(String)}>
+            <CheckboxGroup
+              legend=""
+              hideLegend
+              size="small"
+              value={valgteTypeIDer.map(String)}
+              data-testId={`checkboxgroup_${kebabCaseAccordionNavn}`}
+            >
               {sortert ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox) : data.map(checkbox)}
             </CheckboxGroup>
           )}
