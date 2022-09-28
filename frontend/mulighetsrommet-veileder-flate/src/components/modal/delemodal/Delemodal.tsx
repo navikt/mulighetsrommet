@@ -70,10 +70,11 @@ const Delemodal = ({
     .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
-  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const features = useFeatureToggles();
   const skalLagreAtViDelerMedBruker =
     features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
+  const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
+    useHentDeltMedBrukerStatus();
   const senderTilDialogen = state.sendtStatus === 'SENDER';
 
   const getAntallTegn = () => {
@@ -99,6 +100,7 @@ const Delemodal = ({
       if (skalLagreAtViDelerMedBruker) {
         // TODO Fjern sjekk og toggle mulighetsrommet.lagre-del-tiltak-med-bruker når vi har avklart med jurister at det er ok å lagre fnr til bruker i db
         lagreVeilederHarDeltTiltakMedBruker();
+        refetchOmVeilederHarDeltMedBruker();
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {

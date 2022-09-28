@@ -10,7 +10,7 @@ export function useHentDeltMedBrukerStatus() {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
   const { data: veilederData } = useHentVeilederdata();
   const bruker_fnr = useHentFnrFraUrl();
-  const { data: sistDeltMedBruker } = useQuery<DelMedBruker>(
+  const { data: sistDeltMedBruker, refetch } = useQuery<DelMedBruker>(
     [QueryKeys.DeltMedBrukerStatus, bruker_fnr, veilederData?.ident, tiltaksnummer],
     () =>
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
@@ -38,5 +38,5 @@ export function useHentDeltMedBrukerStatus() {
     }
   }
 
-  return { harDeltMedBruker: sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker };
+  return { harDeltMedBruker: sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker, refetch };
 }
