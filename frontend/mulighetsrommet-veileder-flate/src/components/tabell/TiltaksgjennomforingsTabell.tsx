@@ -1,4 +1,5 @@
 import { Alert, BodyShort, Button, Heading, Ingress, Loader, Pagination, Table } from '@navikt/ds-react';
+import { Dialog } from "@navikt/ds-icons";
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
@@ -11,10 +12,12 @@ import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
+import TiltakSendtIkon from '../../ikoner/sent.png';
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
+import { useHentTiltaksgjennomforingerDeltMedBruker } from '../../core/api/queries/useTiltaksgjennomforingerDeltMedBruker';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -28,6 +31,7 @@ const TiltaksgjennomforingsTabell = () => {
   const brukerdata = useHentBrukerdata();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
+  const { data: delteTiltaksgjennomforinger = [] } = useHentTiltaksgjennomforingerDeltMedBruker();
 
   useEffect(() => {
     if (tiltaksgjennomforinger.length <= rowsPerPage && !isFetching) {
@@ -68,6 +72,21 @@ const TiltaksgjennomforingsTabell = () => {
         </div>
       );
     }
+  };
+
+  const tiltakDeltLenkeOgIkon = (tiltaksnummer: string) => {
+    const deltMedBrukerInfoForTiltaksgjennomforing = delteTiltaksgjennomforinger.find(
+      delt => delt.tiltaksnummer === tiltaksnummer
+    );
+    if (deltMedBrukerInfoForTiltaksgjennomforing) {
+      return (
+        <Lenke to={''}>
+          {/*<img src={TiltakSendtIkon} alt="Ikon av at tiltak er delt med bruker" height={24} width={24} />*/}
+          <Dialog />
+        </Lenke>
+      );
+    }
+    return null;
   };
 
   const visOppstartsdato = (oppstart: Oppstart, oppstartsdato?: string) => {
@@ -252,14 +271,19 @@ const TiltaksgjennomforingsTabell = () => {
             }) => (
               <Table.Row key={_id}>
                 <Table.DataCell className="tabell__tiltaksnavn">
-                  <Lenke
-                    to={`tiltak/${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
-                    isInline
-                    data-testid="tabell_tiltaksgjennomforing"
-                  >
-                    {tiltaksgjennomforingNavn}
-                  </Lenke>
-                  <div>{kontaktinfoArrangor.selskapsnavn}</div>
+                  <div className="tabell__tiltaksnummer__wrapper">
+                    <div>
+                      <Lenke
+                        to={`tiltak/${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+                        isInline
+                        data-testid="tabell_tiltaksgjennomforing"
+                      >
+                        {tiltaksgjennomforingNavn}
+                      </Lenke>
+                      <div>{kontaktinfoArrangor.selskapsnavn}</div>
+                    </div>
+                    {tiltakDeltLenkeOgIkon(tiltaksnummer.toString())}
+                  </div>
                 </Table.DataCell>
                 <Table.DataCell data-testid="tabell_tiltaksnummer" className="tabell__tiltaksnummer">
                   <div className="tabell__tiltaksnummer__wrapper">
