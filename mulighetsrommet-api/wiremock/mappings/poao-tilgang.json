@@ -1,14 +1,19 @@
 {
   "request": {
     "method": "POST",
-    "urlPathPattern": "/poao-tilgang/api/v1/tilgang/modia"
+    "urlPathPattern": "/poao-tilgang/api/v1/policy/evaluate"
   },
   "response": {
     "status": 200,
     "jsonBody": {
-      "decision": {
-        "type": "PERMIT"
-      }
+      "results": [
+        {
+          "requestId": "073ee000-3e61-11ed-b878-0242ac120002",
+          "decision": {
+            "type": "PERMIT"
+          }
+        }
+      ]
     },
     "headers": {
       "Content-Type": "application/json"

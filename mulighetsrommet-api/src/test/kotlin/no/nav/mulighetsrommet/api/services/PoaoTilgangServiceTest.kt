@@ -2,87 +2,90 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ints.exactly
+import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.poao_tilgang.PoaoTilgangClient
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.poao_tilgang.client.Decision
+import no.nav.poao_tilgang.client.EksternBrukerPolicyInput
+import no.nav.poao_tilgang.client.PoaoTilgangClient
+import no.nav.poao_tilgang.client.api.ApiResult
+import java.util.*
 
-class PoaoTilgangServiceTest : FunSpec({
-    context("verifyAccessToModia") {
-        test("should throw StatusException when decision is DENY") {
-            val engine = mockJsonResponse {
-                PoaoTilgangClient.TilgangTilModiaResponse(
-                    decision = PoaoTilgangClient.Decision(
-                        type = PoaoTilgangClient.Decision.DecisionType.DENY,
-                        message = null,
-                        reason = null,
+class PoaoTilgangServiceTest : FunSpec(
+    {
+        context("verifyAccessToBrukerForVeileder") {
+            test("should throw StatusException when decision is DENY") {
+                val mockResponse = ApiResult<Decision>(
+                    throwable = null,
+                    result = Decision.Deny(
+                        message = "",
+                        reason = ""
                     )
                 )
+
+                val client: PoaoTilgangClient = mockk()
+                every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910")) } returns mockResponse
+
+                val service = PoaoTilgangService(client)
+
+                shouldThrow<StatusException> {
+                    service.verifyAccessToUserFromVeileder("ABC123", "12345678910")
+                }
+
+                verify(exactly = 1) {
+                    client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910"))
+                }
             }
-            val client = PoaoTilgangClient(engine = engine, baseUrl = "http://poao-tilgang") { "Bearer token" }
 
-            val service = PoaoTilgangService(client)
-
-            shouldThrow<StatusException> {
-                service.verifyAccessToModia("ABC123")
-            }
-
-            engine.requestHistory shouldHaveSize 1
-        }
-
-        test("should verify access to modia when decision is PERMIT") {
-            val engine = mockJsonResponse {
-                PoaoTilgangClient.TilgangTilModiaResponse(
-                    decision = PoaoTilgangClient.Decision(
-                        type = PoaoTilgangClient.Decision.DecisionType.PERMIT,
-                        message = null,
-                        reason = null,
-                    )
+            test("should verify access to modia when decision is PERMIT") {
+                val mockResponse = ApiResult<Decision>(
+                    throwable = null,
+                    result = Decision.Permit
                 )
+
+                val client: PoaoTilgangClient = mockk()
+                every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910")) } returns mockResponse
+
+                val service = PoaoTilgangService(client)
+
+                service.verifyAccessToUserFromVeileder("ABC123", "12345678910")
+
+                verify(exactly = 1) {
+                    client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910"))
+                }
             }
-            val client = PoaoTilgangClient(engine = engine, baseUrl = "http://poao-tilgang") { "Bearer token" }
 
-            val service = PoaoTilgangService(client)
-
-            service.verifyAccessToModia("ABC123")
-
-            engine.requestHistory shouldHaveSize 1
-        }
-
-        test("should cache response based on provided NAVident") {
-            val engine = mockJsonResponse {
-                PoaoTilgangClient.TilgangTilModiaResponse(
-                    decision = PoaoTilgangClient.Decision(
-                        type = PoaoTilgangClient.Decision.DecisionType.PERMIT,
-                        message = null,
-                        reason = null,
-                    )
+            test("should cache response based on provided NAVident") {
+                val mockResponse = ApiResult<Decision>(
+                    throwable = null,
+                    result = Decision.Permit
                 )
+
+                val client: PoaoTilgangClient = mockk()
+                every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910")) } returns mockResponse
+                every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "12345678910")) } returns mockResponse
+                every { client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "10987654321")) } returns mockResponse
+
+                val service = PoaoTilgangService(client)
+
+                service.verifyAccessToUserFromVeileder("ABC123", "12345678910")
+                service.verifyAccessToUserFromVeileder("ABC123", "12345678910")
+
+                service.verifyAccessToUserFromVeileder("ABC222", "12345678910")
+                service.verifyAccessToUserFromVeileder("ABC222", "12345678910")
+                service.verifyAccessToUserFromVeileder("ABC222", "10987654321")
+
+                verify(exactly = 1) {
+                    client.evaluatePolicy(EksternBrukerPolicyInput("ABC123", "12345678910"))
+                    client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "12345678910"))
+                    client.evaluatePolicy(EksternBrukerPolicyInput("ABC222", "10987654321"))
+                }
             }
-            val client = PoaoTilgangClient(engine = engine, baseUrl = "http://poao-tilgang") { "Bearer token" }
-
-            val service = PoaoTilgangService(client)
-
-            service.verifyAccessToModia("ABC111")
-            service.verifyAccessToModia("ABC111")
-
-            engine.requestHistory shouldHaveSize 1
-
-            service.verifyAccessToModia("ABC222")
-            service.verifyAccessToModia("ABC222")
-
-            engine.requestHistory shouldHaveSize 2
         }
     }
-})
-
-private inline fun <reified T> mockJsonResponse(crossinline createResponse: () -> T) = MockEngine {
-    val response = createResponse()
-    respond(
-        content = Json.encodeToString(response),
-        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-    )
-}
+)
