@@ -77,6 +77,7 @@ export const apiHandlers: RestHandler[] = [
     return ok<DelMedBruker>({
       tiltaksnummer: '29518',
       navident: 'V15555',
+      dialogId: '12345',
       bruker_fnr: '11223344557',
       created_at: new Date(2022, 2, 22).toString(),
     });

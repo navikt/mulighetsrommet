@@ -20,12 +20,13 @@ export function useHentDeltMedBrukerStatus() {
       })
   );
 
-  async function lagreVeilederHarDeltTiltakMedBruker() {
+  async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string) {
     if (!veilederData?.ident) return;
 
     try {
       const res = await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-        requestBody: { bruker_fnr, navident: veilederData?.ident, tiltaksnummer },
+        tiltaksnummer,
+        requestBody: { bruker_fnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
       });
 
       if (!res.ok) {

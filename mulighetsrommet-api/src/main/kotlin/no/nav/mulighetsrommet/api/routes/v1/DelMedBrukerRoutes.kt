@@ -17,8 +17,8 @@ fun Route.delMedBrukerRoutes() {
     val delMedBrukerService by inject<DelMedBrukerService>()
     val poaoTilgang: PoaoTilgangService by inject()
 
-    route("/api/v1/delMedBruker") {
-        post {
+    route("/api/v1/delMedBruker/") {
+        post("{tiltaksnummer}") {
             poaoTilgang.verifyAccessToModia(getNavIdent())
             val payload = call.receive<DelMedBruker>()
             delMedBrukerService.lagreDelMedBruker(payload).map {
@@ -32,7 +32,7 @@ fun Route.delMedBrukerRoutes() {
             }
         }
 
-        get {
+        get("{tiltaksnummer}") {
             poaoTilgang.verifyAccessToModia(getNavIdent())
             val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr til bruker",
@@ -42,10 +42,7 @@ fun Route.delMedBrukerRoutes() {
                 "Mangler eller ugyldig navident til veileder",
                 status = HttpStatusCode.BadRequest
             )
-            val tiltaksnummer = call.request.queryParameters["tiltaksnummer"] ?: return@get call.respondText(
-                "Mangler eller ugyldig tiltaksnummer",
-                status = HttpStatusCode.BadRequest
-            )
+            val tiltaksnummer = call.parameters["tiltaksnummer"] ?: ""
 
             delMedBrukerService.getDeltMedBruker(fnr, navident, tiltaksnummer).map {
                 if (it == null) {

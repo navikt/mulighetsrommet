@@ -30,11 +30,11 @@ class DelMedBrukerService(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into del_med_bruker(bruker_fnr, navident, tiltaksnummer, created_by, updated_by) 
-            values(?, ?, ?, ?, ?)
+            insert into del_med_bruker(bruker_fnr, navident, tiltaksnummer, dialogId, created_by, updated_by) 
+            values(?, ?, ?, ?, ?, ?)
             returning *
         """.trimIndent()
-        data.run { queryOf(query, data.bruker_fnr, data.navident, data.tiltaksnummer, data.navident, data.navident) }
+        data.run { queryOf(query, data.bruker_fnr, data.navident, data.tiltaksnummer, data.dialogId, data.navident, data.navident) }
             .map {
                 DatabaseMapper.toDelMedBruker(it)
             }
