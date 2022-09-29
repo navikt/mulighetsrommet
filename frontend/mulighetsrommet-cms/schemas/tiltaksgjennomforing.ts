@@ -65,18 +65,6 @@ export default {
 
           return true;
         }),
-      hidden: async ({ document }) => {
-        const tiltaksgruppe = await client.fetch(
-          "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
-          { tiltakstype: document.tiltakstype._ref }
-        );
-
-        if (tiltaksgruppe?.includes("individuelt")) {
-          return true;
-        }
-
-        return false;
-      },
     },
     {
       name: "lokasjon",
