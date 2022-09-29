@@ -16,6 +16,9 @@ Vi bruker [Sentry](https://sentry.gc.nav.no/) for overvåkning av våre løsning
 
 Det finnes også to dashboards for løsningen hhv. [Her for API](<https://logs.adeo.no/app/dashboards#/view/6927d260-00ed-11ed-9b1a-4723a5e7a9db?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>) og [her for metrikker fra frontend](<https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
 
+## Feature toggles
+Vi bruker Unleash for å skru av eller på funksjonalitet tilknyttet løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/features)
+
 ## Moduler
 
 ### `mulighetsrommet-veileder-flate`
