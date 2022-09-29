@@ -42,15 +42,14 @@ class DelMedBrukerService(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getDeltMedBruker(fnr: String, navident: String, tiltaksnummer: String): QueryResult<DelMedBruker?> = query {
+    fun getDeltMedBruker(fnr: String, tiltaksnummer: String): QueryResult<DelMedBruker?> = query {
         @Language("PostgreSQL")
         val query = """
-            select * from del_med_bruker where bruker_fnr = ? and navident = ? and tiltaksnummer = ? order by created_at desc
+            select * from del_med_bruker where bruker_fnr = ? and tiltaksnummer = ? order by created_at desc
         """.trimIndent()
         queryOf(
             query,
             fnr,
-            navident,
             tiltaksnummer
         ).map { DatabaseMapper.toDelMedBruker(it) }.asSingle.let { db.run(it) }
     }

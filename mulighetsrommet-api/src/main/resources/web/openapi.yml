@@ -302,11 +302,6 @@ paths:
           schema:
             type: string
           description: "Brukers fnr"
-        - in: query
-          name: "navident"
-          schema:
-            type: string
-          description: "Veileders ident"
         - in: path
           name: "tiltaksnummer"
           description: "Tiltaksnummer for et tiltak"

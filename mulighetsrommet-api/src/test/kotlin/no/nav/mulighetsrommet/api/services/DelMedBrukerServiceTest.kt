@@ -52,7 +52,6 @@ class DelMedBrukerServiceTest : FunSpec({
             val table = Table(listener.db.getDatasource(), "del_med_bruker")
             service.getDeltMedBruker(
                 fnr = "12345678910",
-                navident = "nav123",
                 tiltaksnummer = "123456"
             ).map {
                 assertThat(table).row(0)
