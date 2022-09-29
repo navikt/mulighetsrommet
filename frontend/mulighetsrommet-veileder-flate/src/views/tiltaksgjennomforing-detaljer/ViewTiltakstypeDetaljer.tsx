@@ -1,8 +1,7 @@
-import { SuccessStroke } from '@navikt/ds-icons';
-import { Alert, Button, Loader } from '@navikt/ds-react';
+import { Dialog, SuccessStroke } from '@navikt/ds-icons';
+import { Link, Alert, Button, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
-import Lenke from '../../components/lenke/Lenke';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
@@ -19,6 +18,9 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, formaterDato } from '../../utils/Utils';
 import './ViewTiltaksgjennomforingDetaljer.less';
+import { Tiltakstype, Tiltakstyper } from "../../core/api/models";
+
+const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd']
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -77,6 +79,16 @@ const ViewTiltakstypeDetaljer = () => {
       </div>
       <div className="tiltakstype-detaljer__sidemeny">
         <SidemenyDetaljer />
+        {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && <Button
+          onClick={() => {alert("Opprett avtale er ikke implementert enda")}}
+          variant="primary"
+          className="deleknapp"
+          aria-label="Opprett avtale"
+          data-testid="opprettavtaleknapp"
+          title={tooltip()}
+        >
+          Opprett avtale
+        </Button>}
         <Button
           onClick={handleClickApneModal}
           variant="secondary"
@@ -91,10 +103,11 @@ const ViewTiltakstypeDetaljer = () => {
           {harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
         </Button>
         {harDeltMedBruker ? (
-          <div style={{ textAlign: 'center' }}>
-            <Lenke isExternal to={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
               Åpne i dialogen
-            </Lenke>
+              <Dialog />
+            </Link>
           </div>
         ) : null}
       </div>
