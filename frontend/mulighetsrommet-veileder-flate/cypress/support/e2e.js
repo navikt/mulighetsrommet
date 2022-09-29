@@ -152,5 +152,13 @@ function callback(violations) {
 
 Cypress.Commands.add('checkPageA11y', () => {
   cy.injectAxe();
+  cy.configureAxe({
+    rules: [
+      {
+        id: 'svg-img-alt',
+        enabled: false,
+      },
+    ],
+  });
   cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] });
 });
