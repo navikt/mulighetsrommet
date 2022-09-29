@@ -11,7 +11,7 @@ export function useHentDeltMedBrukerStatus() {
   const { data: veilederData } = useHentVeilederdata();
   const bruker_fnr = useHentFnrFraUrl();
   const { data: sistDeltMedBruker, refetch } = useQuery<DelMedBruker>(
-    [QueryKeys.DeltMedBrukerStatus, bruker_fnr, veilederData?.ident, tiltaksnummer],
+    [QueryKeys.DeltMedBrukerStatus, bruker_fnr, tiltaksnummer],
     () =>
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
         fnr: bruker_fnr,

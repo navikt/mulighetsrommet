@@ -39,13 +39,10 @@ fun Route.delMedBrukerRoutes() {
                 "Mangler eller ugyldig fnr til bruker",
                 status = HttpStatusCode.BadRequest
             )
-            val navident = call.request.queryParameters["navident"] ?: return@get call.respondText(
-                "Mangler eller ugyldig navident til veileder",
-                status = HttpStatusCode.BadRequest
-            )
+
             val tiltaksnummer = call.parameters["tiltaksnummer"] ?: ""
 
-            delMedBrukerService.getDeltMedBruker(fnr, navident, tiltaksnummer).map {
+            delMedBrukerService.getDeltMedBruker(fnr, tiltaksnummer).map {
                 if (it == null) {
                     call.respondText(
                         status = HttpStatusCode.NoContent,
