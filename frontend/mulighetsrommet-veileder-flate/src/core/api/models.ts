@@ -1,4 +1,4 @@
-type Tiltakstyper =
+export type Tiltakstyper =
   | 'Digital jobbklubb'
   | 'AFT'
   | 'Jobbklubb'
@@ -6,7 +6,8 @@ type Tiltakstyper =
   | 'Oppfølging'
   | 'Avklaring'
   | 'VTA'
-  | 'Opplæring (Gruppe AMO)';
+  | 'Opplæring (Gruppe AMO)'
+  | 'Midlertidig lønnstilskudd';
 
 type Innsatsgrupper =
   | 'Standard innsats'
@@ -59,7 +60,7 @@ export interface Tiltaksgjennomforing {
   tiltaksgjennomforingNavn: string;
   beskrivelse?: string;
   tiltaksnummer: number;
-  kontaktinfoArrangor: Arrangor;
+  kontaktinfoArrangor?: Arrangor;
   lokasjon: string;
   oppstart: Oppstart;
   oppstartsdato?: string;

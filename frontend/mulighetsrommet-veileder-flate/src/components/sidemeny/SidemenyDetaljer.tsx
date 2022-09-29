@@ -1,9 +1,8 @@
-import React from 'react';
 import { Panel } from '@navikt/ds-react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
-import Regelverksinfo from './Regelverksinfo';
 import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
+import Regelverksinfo from './Regelverksinfo';
 
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
@@ -27,10 +26,12 @@ const SidemenyDetaljer = () => {
           <span>{tiltakstype.tiltakstypeNavn}</span>
         </div>
 
-        <div className="tiltakstype-detaljer__rad">
-          <strong>Arrangør</strong>
-          <span>{kontaktinfoArrangor.selskapsnavn}</span>
-        </div>
+        {kontaktinfoArrangor?.selskapsnavn ? (
+          <div className="tiltakstype-detaljer__rad">
+            <strong>Arrangør</strong>
+            <span>{kontaktinfoArrangor.selskapsnavn}</span>
+          </div>
+        ) : null}
 
         <div className="tiltakstype-detaljer__rad">
           <strong>Innsatsgruppe</strong>

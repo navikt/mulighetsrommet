@@ -73,7 +73,7 @@ export const apiHandlers: RestHandler[] = [
     return ok(data);
   }),
 
-  rest.get('*/api/v1/delMedBruker', () => {
+  rest.get('*/api/v1/delMedBruker/*', () => {
     return ok<DelMedBruker>({
       tiltaksnummer: '29518',
       navident: 'V15555',

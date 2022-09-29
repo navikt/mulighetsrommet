@@ -47,7 +47,23 @@ export default {
       title: "Arrangør",
       type: "reference",
       to: [{ type: "arrangor" }],
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(async (arrangor, { document }) => {
+          const tiltaksgruppe = await client.fetch(
+            "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
+            { tiltakstype: document.tiltakstype._ref }
+          );
+
+          if (tiltaksgruppe?.includes("individuelt")) {
+            return true;
+          }
+
+          if (!arrangor) {
+            return "For tiltak som ikke er individuelle må man velge en arrangør";
+          }
+
+          return true;
+        }),
     },
     {
       name: "lokasjon",

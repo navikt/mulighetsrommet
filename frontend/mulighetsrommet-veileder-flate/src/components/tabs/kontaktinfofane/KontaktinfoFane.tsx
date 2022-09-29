@@ -1,13 +1,12 @@
-import React from 'react';
 import { Heading } from '@navikt/ds-react';
-import './KontaktinfoFane.less';
-import ArrangorInfo from './ArrangorInfo';
-import TiltaksansvarligInfo from './TiltaksansvarligInfo';
 import { Arrangor, Tiltaksansvarlig } from '../../../core/api/models';
+import ArrangorInfo from './ArrangorInfo';
+import './KontaktinfoFane.less';
+import TiltaksansvarligInfo from './TiltaksansvarligInfo';
 
 interface KontaktinfoFaneProps {
   tiltaksansvarlige: Tiltaksansvarlig[];
-  arrangorinfo: Arrangor;
+  arrangorinfo?: Arrangor;
 }
 
 const KontaktinfoFane = ({ tiltaksansvarlige, arrangorinfo }: KontaktinfoFaneProps) => {
@@ -17,7 +16,7 @@ const KontaktinfoFane = ({ tiltaksansvarlige, arrangorinfo }: KontaktinfoFanePro
         <Heading size="large" level="2" className="kontaktinfo__header">
           Arrangør
         </Heading>
-        <ArrangorInfo arrangorinfo={arrangorinfo} />
+        {arrangorinfo ? <ArrangorInfo arrangorinfo={arrangorinfo} /> : null}
       </div>
       <div>
         <Heading size="large" level="2" className="kontaktinfo__header">
