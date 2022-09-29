@@ -128,29 +128,25 @@ const severityIndicators = {
   critical: '🔴',
 };
 
-function callback(violations) {
-  violations.forEach(violation => {
-    const nodes = Cypress.$(violation.nodes.map(node => node.target).join(','));
+function terminalLog(violations) {
+  cy.task(
+    'log',
+    `${violations.length} accessibility violation${violations.length === 1 ? '' : 's'} ${
+      violations.length === 1 ? 'was' : 'were'
+    } detected`
+  );
+  // pluck specific keys to keep the table readable
+  const violationData = violations.map(({ id, impact, description, nodes }) => ({
+    id,
+    impact,
+    description,
+    nodes: nodes.length,
+  }));
 
-    Cypress.log({
-      name: `${severityIndicators[violation.impact]} A11Y`,
-      consoleProps: () => violation,
-      $el: nodes,
-      message: `[${violation.help}](${violation.helpUrl}`,
-    });
-
-    violation.nodes.forEach(({ target }) => {
-      Cypress.log({
-        name: '🔧',
-        consoleProps: () => violation,
-        $el: Cypress.$(target.join(',')),
-        message: target,
-      });
-    });
-  });
+  cy.task('table', violationData);
 }
 
 Cypress.Commands.add('checkPageA11y', () => {
   cy.injectAxe();
-  cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] });
+  cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] }, null, terminalLog);
 });
