@@ -10,7 +10,6 @@ export default {
   name: "tiltaksgjennomforing",
   title: "Tiltaksgjennomføring",
   type: "document",
-
   icon: GrDocumentPerformance,
   fields: [
     {
