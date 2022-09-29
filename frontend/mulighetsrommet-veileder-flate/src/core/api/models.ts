@@ -1,4 +1,4 @@
-type Tiltakstyper =
+export type Tiltakstyper =
   | 'Digital jobbklubb'
   | 'AFT'
   | 'Jobbklubb'
@@ -6,7 +6,8 @@ type Tiltakstyper =
   | 'Oppfølging'
   | 'Avklaring'
   | 'VTA'
-  | 'Opplæring (Gruppe AMO)';
+  | 'Opplæring (Gruppe AMO)'
+  | 'Midlertidig lønnstilskudd';
 
 type Innsatsgrupper =
   | 'Standard innsats'
