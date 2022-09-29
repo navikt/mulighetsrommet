@@ -128,7 +128,7 @@ const severityIndicators = {
   critical: '🔴',
 };
 
-function callback(violations) {
+function logTerminal(violations) {
   violations.forEach(violation => {
     const nodes = Cypress.$(violation.nodes.map(node => node.target).join(','));
 
@@ -152,5 +152,5 @@ function callback(violations) {
 
 Cypress.Commands.add('checkPageA11y', () => {
   cy.injectAxe();
-  cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] });
+  cy.checkA11y({ exclude: [[['.Toastify', '#floating-ui-root', '.navds-tabs__tab-inner']]] }, null, logTerminal);
 });

@@ -322,6 +322,7 @@ paths:
         204:
           description: "No content found"
 
+  /api/v1/delMedBruker:
     post:
       tags:
         - Del med bruker
