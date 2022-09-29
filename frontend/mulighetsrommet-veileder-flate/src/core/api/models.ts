@@ -59,7 +59,7 @@ export interface Tiltaksgjennomforing {
   tiltaksgjennomforingNavn: string;
   beskrivelse?: string;
   tiltaksnummer: number;
-  kontaktinfoArrangor: Arrangor;
+  kontaktinfoArrangor?: Arrangor;
   lokasjon: string;
   oppstart: Oppstart;
   oppstartsdato?: string;

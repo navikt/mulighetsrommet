@@ -1,14 +1,13 @@
-import React from 'react';
-import './TiltaksdetaljerFane.less';
 import { Tabs } from '@navikt/ds-react';
-import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
-import DetaljerFane from './detaljerFane';
+import { useAtom } from 'jotai';
 import { logEvent } from '../../core/api/logger';
 import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
-import { kebabCase } from '../../utils/Utils';
-import { useAtom } from 'jotai';
 import { faneAtom } from '../../core/atoms/atoms';
+import { kebabCase } from '../../utils/Utils';
+import DetaljerFane from './detaljerFane';
 import InnsiktsFane from './innsikt/InnsiktsFane';
+import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
+import './TiltaksdetaljerFane.less';
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();

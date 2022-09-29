@@ -15,7 +15,6 @@ export function useHentDeltMedBrukerStatus() {
     () =>
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
         fnr: bruker_fnr,
-        navident: veilederData?.ident,
         tiltaksnummer,
       })
   );

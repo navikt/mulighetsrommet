@@ -12,9 +12,9 @@ import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Feilmelding } from '../feilmelding/Feilmelding';
+import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import './Tabell.less';
-import Kopiknapp from '../kopiknapp/Kopiknapp';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -259,7 +259,7 @@ const TiltaksgjennomforingsTabell = () => {
                   >
                     {tiltaksgjennomforingNavn}
                   </Lenke>
-                  <div>{kontaktinfoArrangor.selskapsnavn}</div>
+                  <div>{kontaktinfoArrangor?.selskapsnavn}</div>
                 </Table.DataCell>
                 <Table.DataCell data-testid="tabell_tiltaksnummer" className="tabell__tiltaksnummer">
                   <div className="tabell__tiltaksnummer__wrapper">
