@@ -45,6 +45,8 @@ export default {
     {
       name: "kontaktinfoArrangor",
       title: "Arrangør",
+      description:
+        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak",
       type: "reference",
       to: [{ type: "arrangor" }],
       validation: (Rule) =>
