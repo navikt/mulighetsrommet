@@ -3,6 +3,7 @@ import sanityClient from "part:@sanity/base/client";
 import { Rule } from "@sanity/types";
 import { EnhetType } from "./enhet";
 import lenke from "./lenke";
+import tiltakstype from "./tiltakstype";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
@@ -55,6 +56,9 @@ export default {
           );
 
           if (tiltaksgruppe?.includes("individuelt")) {
+            if (arrangor) {
+              return "Individuelle tiltak skal ikke ha noen arrangør"
+            }
             return true;
           }
 
