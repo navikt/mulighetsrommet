@@ -1,9 +1,9 @@
 import React from 'react';
-import './Lenke.less';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import classNames from 'classnames';
 import { Link } from '@navikt/ds-react';
 import { ExternalLink } from '@navikt/ds-icons';
+import styles from './Lenke.module.scss';
 
 interface LinkProps extends RouterLinkProps {
   isInline?: boolean;
@@ -18,7 +18,7 @@ function Lenke({ children, isExternal = false, isInline = false, to, className, 
       <ExternalLink aria-label="Ekstern lenke" />
     </Link>
   ) : (
-    <RouterLink to={to} className={classNames('link', { lenke: isInline }, className)} {...others}>
+    <RouterLink to={to} className={classNames(styles.link, className)} {...others}>
       {children}
     </RouterLink>
   );

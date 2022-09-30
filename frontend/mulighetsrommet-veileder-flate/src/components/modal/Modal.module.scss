@@ -1,0 +1,20 @@
+.overstyrteStylesFraDSModal {
+  width: 40rem;
+  padding: 1rem;
+
+  :global(.navds-heading) {
+    margin-right: 1rem;
+  }
+
+  :global(.navds-modal__content) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.modal_btngroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}

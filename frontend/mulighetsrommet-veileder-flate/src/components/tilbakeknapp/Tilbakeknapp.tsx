@@ -1,7 +1,6 @@
 import { Back } from '@navikt/ds-icons';
-import React from 'react';
-import './Tilbakeknapp.less';
 import Lenke from '../lenke/Lenke';
+import styles from './Tilbakeknapp.module.scss';
 
 interface TilbakeknappProps {
   tilbakelenke: string;
@@ -9,7 +8,7 @@ interface TilbakeknappProps {
 
 const Tilbakeknapp = ({ tilbakelenke }: TilbakeknappProps) => {
   return (
-    <Lenke className="tilbakeknapp" to={tilbakelenke} data-testid="tilbakeknapp">
+    <Lenke className={styles.tilbakeknapp} to={tilbakelenke} data-testid="tilbakeknapp">
       <Back aria-label="Tilbakeknapp" />
       <span>Tilbake</span>
     </Lenke>

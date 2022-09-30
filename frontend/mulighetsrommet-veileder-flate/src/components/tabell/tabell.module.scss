@@ -1,0 +1,72 @@
+.filterLoader {
+  display: block;
+  margin: 0 auto;
+}
+
+:global(.navds-table) {
+  border: 1px solid var(--navds-semantic-color-border-muted);
+
+  :global(.navds-table__sort-button) {
+    height: 4rem;
+  }
+}
+
+.tabellWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  :global(.kopiknapp:hover) {
+    background-color: transparent;
+  }
+}
+
+.tabell {
+  &__tiltaksnavn {
+    font-weight: bold;
+  }
+
+  &__tiltaksnummer {
+    padding-right: 1.5rem;
+
+    @media (max-width: 1400px) {
+      grid-template-columns: 40% auto;
+    }
+  }
+
+  &__kolonne {
+    &__tiltaksnavn {
+      width: 25%;
+    }
+  }
+
+  &__alert {
+    max-width: unset;
+  }
+}
+
+.tilgjengelighetsstatus {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3rem;
+
+  img {
+    width: 1rem;
+    height: 100%;
+    align-self: center;
+  }
+}
+
+.underTabell {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+:global(.navds-table__header),
+:global(.navds-table--zebra-stripes),
+:global(.navds-table__body),
+:global(.navds-table__row:nth-of-type(even):not(:hover):not(.navds-table__row--selected)) {
+  background-color: var(--navds-semantic-color-canvas-background-light);
+}

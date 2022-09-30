@@ -2,7 +2,7 @@ import { BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
-import '../Modal.less';
+import styles from '../Modal.module.scss';
 import './Delemodal.less';
 import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
@@ -150,7 +150,7 @@ const Delemodal = ({
             maxLength={getAntallTegn()}
             error={handleError()}
           />
-          <div className="modal_btngroup">
+          <div className={styles.modal_btngroup}>
             <Button
               onClick={handleSend}
               data-testid="modal_btn-send"
@@ -176,7 +176,7 @@ const Delemodal = ({
             Meldingen er sendt
           </Heading>
           <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
-          <div className="modal_btngroup">
+          <div className={styles.modal_btngroup}>
             <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
               Gå til Dialogen
             </Button>
@@ -202,7 +202,7 @@ const Delemodal = ({
               Les mer om manuell oppfølging{' '}
             </Lenke>
           </BodyShort>
-          <div className="modal_btngroup">
+          <div className={styles.modal_btngroup}>
             <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
               Prøv på nytt
             </Button>
