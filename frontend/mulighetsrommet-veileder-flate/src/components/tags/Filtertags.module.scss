@@ -1,0 +1,22 @@
+:global(.navds-button) {
+  min-width: unset;
+}
+
+:global(.navds-button__inner) {
+  justify-content: center;
+}
+
+.overstyrtIkonknapp {
+  padding: var(--navds-spacing-1) 0;
+  margin-left: 0.2rem;
+  padding-left: 0.4rem;
+}
+
+.ikon {
+  width: 70%;
+  height: auto;
+}
+
+:global(.navds-tag) {
+  background-color: #cce1ff;
+}

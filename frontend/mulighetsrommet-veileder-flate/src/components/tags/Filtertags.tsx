@@ -2,7 +2,7 @@ import { Close } from '@navikt/ds-icons';
 import { Tag } from '@navikt/ds-react';
 import { kebabCase } from '../../utils/Utils';
 import Ikonknapp from '../knapper/Ikonknapp';
-import './Filtertags.less';
+import styles from './Filtertags.module.scss';
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
@@ -23,13 +23,14 @@ const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
           >
             {filtertype.tittel}
             <Ikonknapp
+              className={styles.overstyrtIkonknapp}
               handleClick={() => handleClick(filtertype.id)}
               ariaLabel="Lukke"
               data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
               icon={
                 <Close
                   data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
-                  className="filtertags__ikon"
+                  className={styles.ikon}
                   aria-label="Lukke"
                 />
               }
