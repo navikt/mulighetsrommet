@@ -1,7 +1,6 @@
-import React from 'react';
 import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
-import './Nokkelinfo.less';
 import { NokkelinfoKomponenter } from '../../core/api/models';
+import styles from './Nokkelinfo.module.scss';
 
 interface NokkelinfoProps {
   nokkelinfoKomponenter: NokkelinfoKomponenter[];
@@ -9,11 +8,11 @@ interface NokkelinfoProps {
 
 const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
   return (
-    <div className="nokkelinfo">
+    <div className={styles.container}>
       {nokkelinfoKomponenter.map((nokkelinfo: NokkelinfoKomponenter, index: number) => {
         return (
-          <div className="nokkelinfo__container" key={index}>
-            <div className="nokkelinfo__heading">
+          <div className={styles.nokkelinfo} key={index}>
+            <div className={styles.heading}>
               <Heading size="xsmall" level="2">
                 {nokkelinfo.tittel}
               </Heading>
@@ -23,7 +22,7 @@ const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
                 </HelpText>
               )}
             </div>
-            <BodyShort className="nokkelinfo__tekst">{nokkelinfo.innhold}</BodyShort>
+            <BodyShort className={styles.tekst}>{nokkelinfo.innhold}</BodyShort>
           </div>
         );
       })}
