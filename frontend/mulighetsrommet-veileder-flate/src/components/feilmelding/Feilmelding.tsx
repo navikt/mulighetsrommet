@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import './Feilmelding.less';
+import styles from './Feilmelding.module.scss';
 import { ErrorColored, InformationColored, WarningColored } from '@navikt/ds-icons';
 
 interface FeilmeldingProps {
@@ -19,7 +19,7 @@ export const Feilmelding = ({ children, ikonvariant }: FeilmeldingProps) => {
   };
 
   return (
-    <div data-testid="feilmelding-container" aria-live="assertive" className="feilmelding-container">
+    <div data-testid="feilmelding-container" aria-live="assertive" className={styles.feilmeldingContainer}>
       {ikon()}
       {children}
     </div>
