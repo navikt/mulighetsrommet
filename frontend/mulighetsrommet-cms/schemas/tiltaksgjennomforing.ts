@@ -57,6 +57,9 @@ export default {
           );
 
           if (tiltaksgruppe?.includes("individuelt")) {
+            if (arrangor) {
+              return "Individuelle tiltak skal ikke ha noen arrangør"
+            }
             return true;
           }
 
