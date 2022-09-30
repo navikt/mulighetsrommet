@@ -87,7 +87,7 @@ const TiltaksgjennomforingsTabell = () => {
   };
 
   if (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching) {
-    return <Loader className={styles.filterLoader} size="xlarge" />;
+    return <Loader className={'filter-loader'} size="xlarge" />;
   }
 
   if (isError) {

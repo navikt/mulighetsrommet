@@ -1,7 +1,7 @@
-import React from 'react';
-import { RegelverkFil, RegelverkLenke } from '../../core/api/models';
 import { Link } from '@navikt/ds-react';
 import { logEvent } from '../../core/api/logger';
+import { RegelverkFil, RegelverkLenke } from '../../core/api/models';
+import styles from './Regelverksinfo.module.scss';
 
 interface RegelverksinfoProps {
   regelverkFiler?: RegelverkFil[];
@@ -36,7 +36,7 @@ const Regelverksinfo = ({ regelverkFiler, regelverkLenker }: RegelverksinfoProps
   };
 
   return (
-    <div className="tiltakstype-detaljer__regelverk">
+    <div className={styles.regelverk}>
       {regelverkFiler && regelverkFiler.map(regelverkFilComponent)}
       {regelverkLenker && regelverkLenker.map(regelverkLenkeComponent)}
     </div>

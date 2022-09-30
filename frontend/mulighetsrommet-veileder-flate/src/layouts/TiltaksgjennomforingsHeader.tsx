@@ -1,8 +1,7 @@
-import React from 'react';
-import './TiltaksgjennomforingsHeader.less';
 import { Heading, Ingress } from '@navikt/ds-react';
-import { kebabCase } from '../utils/Utils';
 import useTiltaksgjennomforingByTiltaksnummer from '../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import { kebabCase } from '../utils/Utils';
+import './TiltaksgjennomforingsHeader.less';
 
 const TiltaksgjennomforingsHeader = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
