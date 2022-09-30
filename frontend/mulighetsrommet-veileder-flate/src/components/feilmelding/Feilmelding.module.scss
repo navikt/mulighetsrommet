@@ -1,0 +1,21 @@
+
+.feilmeldingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: white;
+  padding: 2rem;
+  width: 670px;
+  min-height: 180px;
+  margin: 2rem auto auto;
+  text-align: center;
+  gap: 0.5rem;
+
+  :global(svg) {
+    margin-bottom: 1rem;
+    width: 3rem;
+    height: auto;
+  }
+}
+
