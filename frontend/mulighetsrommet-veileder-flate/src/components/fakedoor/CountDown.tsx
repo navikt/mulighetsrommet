@@ -1,20 +1,19 @@
 import { intervalToDuration, startOfDay } from 'date-fns';
-import './CountDown.less';
 
 const CountDown = () => {
   const dagerTilPilot = numberOfDaysUntilPilot();
 
   if (dagerTilPilot <= 0) {
     return (
-      <div className="fakedoor-countdown">
+      <div>
         <span>Tjenesten vil bli tilgjengelig i dag.</span>
       </div>
     );
   }
   return (
-    <div className="fakedoor-countdown">
+    <div>
       <span>Tjenesten vil bli tilgjengelig om </span>
-      <span className={'fakedoor-countdown-days'}> {dagerTilPilot} </span>
+      <span style={{ fontWeight: 'bold' }}> {dagerTilPilot} </span>
       <span>{dagerTilPilot > 1 ? 'dager.' : 'dag.'}</span>
     </div>
   );
