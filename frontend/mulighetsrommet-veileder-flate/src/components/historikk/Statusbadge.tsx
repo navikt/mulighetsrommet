@@ -3,7 +3,11 @@ import { HistorikkForBruker } from 'mulighetsrommet-api-client';
 import styles from './Statusbadge.module.scss';
 
 export function StatusBadge({ status }: { status?: HistorikkForBruker.status }) {
-  return <div className={classNames(styles.historikkForBrukerStatusbadge, styles[status])}>{statustekst(status)}</div>;
+  return (
+    <div className={classNames(styles.historikkForBrukerStatusbadge, styles[status as unknown as any])}>
+      {statustekst(status)}
+    </div>
+  );
 }
 
 function statustekst(status?: HistorikkForBruker.status): string {
