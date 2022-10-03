@@ -11,7 +11,7 @@ import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useErrorHandler } from 'react-error-boundary';
 import { InnsatsgruppeNokler } from '../../core/api/models';
-import styles from './Filtertags.module.scss'
+import styles from './Filtertags.module.scss';
 
 export function Filtertags() {
   const brukerdata = useHentBrukerdata();

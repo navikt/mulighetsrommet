@@ -5,7 +5,7 @@ import styles from './Filtermeny.module.scss';
 import { Fritekstfilter } from './Fritekstfilter';
 import InnsatsgruppeFilter from './InnsatsgruppeFilter';
 import { Tiltakstypefilter } from './Tiltakstypefilter';
-import { LokasjonFilter } from "./LokasjonFilter";
+import { LokasjonFilter } from './LokasjonFilter';
 
 const Filtermeny = () => {
   usePrepopulerFilter();
