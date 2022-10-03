@@ -1,6 +1,5 @@
 import Filtermeny from '../../components/filtrering/Filtermeny';
 import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
-import '../../layouts/TiltaksgjennomforingsHeader.less';
 import './ViewTiltakstypeOversikt.less';
 import { Filtertags } from '../../components/filtrering/Filtertags';
 import { HistorikkButton } from '../../components/historikk/HistorikkButton';
@@ -17,7 +16,7 @@ const ViewTiltakstypeOversikt = () => {
         {visHistorikkKnapp && <HistorikkButton />}
       </div>
       <Filtermeny />
-      <div className="tiltakstype-oversikt__tiltak">
+      <div>
         <TiltaksgjennomforingsTabell />
       </div>
     </div>
