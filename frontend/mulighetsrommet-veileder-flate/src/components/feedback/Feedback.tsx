@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
-import './Feedback.less';
 import FeedbackButton from './FeedbackButton';
 import { useEventListener } from '@navikt/ds-react';
 import FeedbackModalForms from './FeedbackModalForms';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@navikt/ds-react';
 import { Close, DialogReport } from '@navikt/ds-icons';
-import './Feedback.less';
+import styles from './Feedback.module.scss';
 
 interface FeedbackButtonProps {
   handleClick: () => void;
@@ -11,14 +11,14 @@ interface FeedbackButtonProps {
 const FeedbackButton = ({ handleClick, isModalOpen }: FeedbackButtonProps) => {
   return (
     <Button
-      className="feedback__btn"
+      className={styles.feedbackBtn}
       onClick={handleClick}
       title="Hjelp oss å bli bedre ved å dele tilbakemeldingen din."
     >
       {isModalOpen ? (
-        <Close aria-label="Lukk" className="feedback__btn__icon" />
+        <Close aria-label="Lukk" className={styles.feedbackBtn__icon} />
       ) : (
-        <DialogReport aria-label="Åpne tilbakemeldingsundersøkelse" className="feedback__btn__icon" />
+        <DialogReport aria-label="Åpne tilbakemeldingsundersøkelse" className={styles.feedbackBtn__icon} />
       )}
     </Button>
   );
