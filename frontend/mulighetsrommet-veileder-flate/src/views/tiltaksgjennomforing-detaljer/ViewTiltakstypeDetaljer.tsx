@@ -27,7 +27,7 @@ const ViewTiltakstypeDetaljer = () => {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
-  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
+  const [delemodalApen, setDelemodalApen] = useState<boolean>(true);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
   const { getUrlTilDialogen } = useNavigerTilDialogen();
