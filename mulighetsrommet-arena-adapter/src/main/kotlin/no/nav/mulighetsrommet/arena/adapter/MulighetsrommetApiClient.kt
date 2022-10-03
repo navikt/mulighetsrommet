@@ -19,12 +19,10 @@ class MulighetsrommetApiClient(
     private val getToken: () -> String,
 ) {
 
-    private val logger = LoggerFactory.getLogger(MulighetsrommetApiClient::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
 
     init {
-        logger.debug("Init MulighetsrommetApiClient")
-
         client = HttpClient(engine) {
             install(ContentNegotiation) {
                 json()
@@ -41,7 +39,7 @@ class MulighetsrommetApiClient(
 
                 modifyRequest {
                     response?.let {
-                        logger.warn("Request failed with response status=${it.status}")
+                        logger.info("Request failed with response_status=${it.status}")
                     }
                     logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
                 }
