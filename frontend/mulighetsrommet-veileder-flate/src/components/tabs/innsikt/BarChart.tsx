@@ -8,9 +8,11 @@ import { SeriesPoint } from '@visx/shape/lib/types';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { StatistikkFraCsvFil } from '../../../core/api/models';
 import useHentStatistikkFraFil from '../../../hooks/useHentStatistikkFraFil';
-import '../TiltaksdetaljerFane.less';
+import styles from '../Detaljfane.module.scss';
+import barchartStyles from './Barchart.module.scss';
 import { Datapunkt } from './Datapunkt';
 import { localPoint } from '@visx/event';
+import classNames from 'classnames';
 
 const SISTE_AAR = 5;
 
@@ -200,7 +202,7 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
 
   return width < 10 ? null : (
     <div>
-      <div style={{ width }} className={'tiltaksdetaljer__innsiktheader'}>
+      <div style={{ width }} className={styles.tiltaksdetaljer__innsiktheader}>
         Status etter avgang siste {SISTE_AAR} år ({dataForVisning[0].År})
       </div>
 
@@ -295,15 +297,17 @@ export default function BarChart({ tiltakstype, width, height, margin = defaultM
       </div>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-          <div className="tooltip-container tooltip-container-row">
+          <div className={classNames(barchartStyles.tooltipContainer, barchartStyles.tooltipContainer_row)}>
             <div>
-              <span className="tooltip-color-icon" style={{ background: colorScale(tooltipData.key) }} />
+              <span className={barchartStyles.tooltipColorIcon} style={{ background: colorScale(tooltipData.key) }} />
             </div>
-            <div className="tooltip-container-column">
-              <span className="tooltip-data-text tooltip-data-number">
+            <div className={barchartStyles.tooltipContainer_column}>
+              <span className={classNames(barchartStyles.tooltipData_text, barchartStyles.tooltipData_number)}>
                 {tooltipData.bar.data[tooltipData.key].toFixed(2)}%
               </span>
-              <span className="tooltip-data-text tooltip-data-label">{tooltipData.key}</span>
+              <span className={classNames(barchartStyles.tooltipData_text, barchartStyles.tooltipData_label)}>
+                {tooltipData.key}
+              </span>
             </div>
           </div>
         </TooltipInPortal>

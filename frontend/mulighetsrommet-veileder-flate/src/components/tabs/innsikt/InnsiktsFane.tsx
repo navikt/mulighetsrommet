@@ -1,8 +1,7 @@
 import { Alert, Loader } from '@navikt/ds-react';
 import useResizeObserver from 'use-resize-observer';
-import useTiltaksgjennomforingByTiltaksnummer from '../../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { useTiltakstyperMedTiltakstypenavn } from '../../../core/api/queries/useTiltakstypeMedTiltakstypenavn';
-import '../TiltaksdetaljerFane.less';
+import styles from '../Detaljfane.module.scss';
 import BarChart from './BarChart';
 import { Forskningsrapport } from './Forskningsrapport';
 
@@ -30,7 +29,7 @@ const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   }
 
   return (
-    <div className={'tiltaksdetaljer__maksbredde'}>
+    <div className={styles.tiltaksdetaljer__maksbredde}>
       {tiltakstyperMedStatistikk.includes(tiltakstype) ? (
         <div style={{ marginBottom: '2rem' }} ref={ref}>
           <BarChart tiltakstype={tiltakstype} width={width} height={300} />

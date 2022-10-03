@@ -1,0 +1,15 @@
+.tiltaksdetaljer {
+  &__alert {
+    margin-bottom: 1rem;
+  }
+
+  &__maksbredde {
+    max-width: 100ch;
+  }
+
+  &__innsiktheader {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+}

@@ -7,7 +7,7 @@ import { kebabCase } from '../../utils/Utils';
 import DetaljerFane from './detaljerFane';
 import InnsiktsFane from './innsikt/InnsiktsFane';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
-import './TiltaksdetaljerFane.less';
+import styles from './TiltaksdetaljerFane.module.scss';
 
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
@@ -29,19 +29,19 @@ const TiltaksdetaljerFane = () => {
       defaultValue={fane}
       size="medium"
       selectionFollowsFocus
-      className="fane__root"
+      className={styles.fane__root}
       onChange={value => {
         logEvent('mulighetsrommet.faner', { value: tabValueTilFaneoverSkrifter[value] ?? value });
         setFane(value);
       }}
     >
-      <Tabs.List className="fane__liste">
+      <Tabs.List className={styles.fane__liste}>
         {faneoverskrifter.map((fane, index) => (
           <Tabs.Tab
             key={index}
             value={`tab${index + 1}`}
             label={fane}
-            className="btn__tab"
+            className={styles.btn__tab}
             data-testid={`fane_${kebabCase(fane)}`}
           />
         ))}
