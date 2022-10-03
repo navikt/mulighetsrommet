@@ -1,0 +1,43 @@
+.historikkForBruker {
+  color: var(--navds-global-color-semantic-text);
+  padding-bottom: 10rem;
+}
+
+.historikkTextContent {
+  margin: 0;
+}
+
+.historikkDatoer {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 5rem 1rem 5rem;
+  grid-gap: 5px;
+  text-align: center;
+}
+
+.historikkForBrukerListe {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.historikkForBrukerHeading {
+  margin: 1rem 0rem 0rem 0rem;
+}
+
+.historikkForBrukerElement {
+  border-bottom: 2px solid var(--navds-semantic-color-border-inverted);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.historikkForBrukerMetadata {
+  color: var(--navds-semantic-color-text-muted);
+  min-width: 150px;
+  display: grid;
+  grid-gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 1rem;
+  margin-top: 0.2rem;
+}

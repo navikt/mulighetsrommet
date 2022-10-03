@@ -1,35 +1,10 @@
 import { Alert, Loader } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { HistorikkForBruker as IHistorikkForBruker } from 'mulighetsrommet-api-client';
-import { format } from 'path';
 import { useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
 import { formaterDato } from '../../utils/Utils';
-import './HistorikkForBruker.less';
-
-function StatusBadge({ status }: { status?: IHistorikkForBruker.status }) {
-  return (
-    <div
-      className={classNames('historikk-for-bruker-statusbadge', `historikk-for-bruker-statusbadgde-farge-${status}`)}
-    >
-      {statustekst(status)}
-    </div>
-  );
-}
-
-function statustekst(status?: IHistorikkForBruker.status): string {
-  switch (status) {
-    case 'AVSLUTTET':
-      return 'Avsluttet';
-    case 'DELTAR':
-      return 'Deltar';
-    case 'IKKE_AKTUELL':
-      return 'Ikke aktuell';
-    case 'VENTER':
-      return 'Venter';
-    default:
-      return '';
-  }
-}
+import styles from './HistorikkForBruker.module.scss';
+import { StatusBadge } from './Statusbadge';
 
 export function HistorikkForBruker() {
   const { data, isLoading, isError } = useHentHistorikk();
@@ -56,20 +31,20 @@ export function HistorikkForBruker() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <div className="historikk-for-bruker">
-      <ul className="historikk-for-bruker-liste">
+    <div className={styles.historikkForBruker}>
+      <ul className={styles.historikkForBrukerListe}>
         {tiltak?.map(historikk => {
           return (
-            <li key={historikk.id} className="historikk-for-bruker-element">
+            <li key={historikk.id} className={styles.historikkForBrukerElement}>
               <div>
-                <h1 className="historikk-for-bruker-heading navds-heading navds-heading--small">
+                <h1 className={classNames(styles.historikkForBrukerHeading, 'navds-heading navds-heading--small')}>
                   {historikk.tiltaksnavn}
                 </h1>
-                <div className="historikk-for-bruker-metadata">
-                  <p className="historikk-text-content">{historikk.tiltakstype}</p>
-                  <p className="historikk-text-content">{historikk.arrangor}</p>
+                <div className={styles.historikkForBrukerMetadata}>
+                  <p className={styles.historikkTextContent}>{historikk.tiltakstype}</p>
+                  <p className={styles.historikkTextContent}>{historikk.arrangor}</p>
                 </div>
-                <p className="historikk-text-content historikk-datoer">
+                <p className={classNames(styles.historikkTextContent, styles.historikkDatoer)}>
                   <span> {formaterDato(historikk.fraDato ?? '')}</span> -{' '}
                   <span>{formaterDato(historikk.tilDato ?? '')}</span>
                 </p>

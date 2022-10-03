@@ -2,7 +2,7 @@ import { Button } from '@navikt/ds-react';
 import { useState } from 'react';
 import StandardModal from '../modal/StandardModal';
 import { HistorikkForBruker } from './HistorikkForBruker';
-import './HistorikkForBruker.less';
+import styles from './HistorikkButton.module.scss';
 
 export function HistorikkButton() {
   const [apneModal, setApneModal] = useState(false);
@@ -12,7 +12,7 @@ export function HistorikkButton() {
     <>
       <Button onClick={toggleModal}>Historikk</Button>
       <StandardModal
-        className="historikk-modal"
+        className={styles.historikkModal}
         hideButtons
         modalOpen={apneModal}
         setModalOpen={toggleModal}
