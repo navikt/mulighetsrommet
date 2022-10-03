@@ -78,7 +78,7 @@ dependencies {
     implementation("no.nav.common:token-client:$navCommonModules")
 
     // Tilgangskontroll
-    val poaoTilgangClient = "0c2f239644b665cee0d950b8a8f49bf7ef554f03" // Full SHA fra git-commit
+    val poaoTilgangClient = "ce474aded50b50200827dba1ce319043f53d5e7f" // Full SHA fra git-commit
     implementation("com.github.navikt.poao-tilgang:client:$poaoTilgangClient")
 
     // Test

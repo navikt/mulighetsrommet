@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.poao_tilgang.client.EksternBrukerPolicyInput
+import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +20,7 @@ class PoaoTilgangService(
     suspend fun verifyAccessToUserFromVeileder(navIdent: String, norskIdent: String) {
         val access = cachedResult(cache, NavidentOgNorskIdentCacheKey(navIdent, norskIdent)) {
             // TODO Hør med Sondre ang. error handling ved kasting av feil
-            client.evaluatePolicy(EksternBrukerPolicyInput(navIdent, norskIdent)).getOrThrow().isPermit
+            client.evaluatePolicy(NavAnsattTilgangTilEksternBrukerPolicyInput(navIdent, norskIdent)).getOrThrow().isPermit
         }
 
         if (!access) {

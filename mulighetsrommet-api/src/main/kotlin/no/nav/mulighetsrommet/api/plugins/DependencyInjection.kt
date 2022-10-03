@@ -151,7 +151,7 @@ private fun services(
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient
 ) = module {
-    val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
+    tokenClientProviderForMachineToMachine(appConfig)
 
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
