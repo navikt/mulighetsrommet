@@ -1,5 +1,5 @@
 import { BrukersOppfolgingsenhet } from '../oppfolgingsenhet/BrukerOppfolgingsenhet';
-import FilterTags from '../tags/Filtertags';
+import FilterTag from '../tags/FilterTag';
 import SearchFieldTag from '../tags/SearchFieldTag';
 import Show from '../../utils/Show';
 import { Button } from '@navikt/ds-react';
@@ -37,7 +37,7 @@ export function Filtertags() {
     <div className={styles.filtertags} data-testid="filtertags">
       <BrukersOppfolgingsenhet />
       {filter.innsatsgruppe && (
-        <FilterTags
+        <FilterTag
           options={[filter.innsatsgruppe]}
           handleClick={() => {
             setFilter({
@@ -47,7 +47,7 @@ export function Filtertags() {
           }}
         />
       )}
-      <FilterTags
+      <FilterTag
         options={filter.tiltakstyper!}
         handleClick={(id: string) =>
           setFilter({
@@ -56,7 +56,7 @@ export function Filtertags() {
           })
         }
       />
-      <FilterTags
+      <FilterTag
         options={filter.tiltaksgruppe!}
         handleClick={(id: string) =>
           setFilter({
@@ -65,7 +65,7 @@ export function Filtertags() {
           })
         }
       />
-      <FilterTags
+      <FilterTag
         options={filter.lokasjoner!}
         handleClick={(id: string) =>
           setFilter({

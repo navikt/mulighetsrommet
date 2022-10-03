@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import Ikonknapp from '../knapper/Ikonknapp';
-import style from './Filtertags.module.scss';
+import style from './Filtertag.module.scss';
 
 const SearchFieldTag = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);

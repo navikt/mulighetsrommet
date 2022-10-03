@@ -2,14 +2,14 @@ import { Close } from '@navikt/ds-icons';
 import { Tag } from '@navikt/ds-react';
 import { kebabCase } from '../../utils/Utils';
 import Ikonknapp from '../knapper/Ikonknapp';
-import styles from './Filtertags.module.scss';
+import styles from './Filtertag.module.scss';
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
   handleClick: (id: string) => void;
 }
 
-const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
+const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
   return (
     <>
       {options.map(filtertype => {
@@ -42,4 +42,4 @@ const FilterTags = ({ options, handleClick }: FilterTagsProps) => {
   );
 };
 
-export default FilterTags;
+export default FilterTag;

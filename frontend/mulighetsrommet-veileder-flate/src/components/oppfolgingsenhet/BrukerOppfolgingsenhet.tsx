@@ -12,7 +12,7 @@ export function BrukersOppfolgingsenhet() {
 
   return brukersOppfolgingsenhet ? (
     <Tag
-      className="nav-enhet-tag cypress-tag"
+      className="cypress-tag"
       key={'navenhet'}
       variant={brukersOppfolgingsenhet ? 'info' : 'error'}
       size="small"
