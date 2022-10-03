@@ -28,17 +28,15 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mulighetsrommet-api-sanity-sync
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew :mulighetsrommet-api-sanity-sync:build
       - name: Build and push Docker image
+        working-directory: mulighetsrommet-api-sanity-sync
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
