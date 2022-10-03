@@ -29,7 +29,7 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
   }, [showTooltip]);
 
   return (
-    <Tooltip placement="top" content="Kopiert" className={styles.kopiknappTooltil} open={showTooltip} role="tooltip">
+    <Tooltip placement="top" content="Kopiert" className={styles.kopiknappTooltip} open={showTooltip} role="tooltip">
       <Button
         size="xsmall"
         variant="tertiary"
