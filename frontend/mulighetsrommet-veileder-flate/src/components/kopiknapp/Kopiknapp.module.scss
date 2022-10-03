@@ -3,7 +3,7 @@
   vertical-align: bottom;
   margin: 0 auto;
 
-  ::global(.navds-button--tertiary:hover) {
+  :global(.navds-button--tertiary:hover) {
     background-color: transparent;
   }
 }
