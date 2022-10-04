@@ -1,11 +1,10 @@
-import React from 'react';
+import { Close } from '@navikt/ds-icons';
 import { Tag } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { Close } from '@navikt/ds-icons';
-import Ikonknapp from '../knapper/Ikonknapp';
-import './Filtertags.less';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { RESET } from 'jotai/utils';
+import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import Ikonknapp from '../knapper/Ikonknapp';
+import style from './Filtertag.module.scss';
 
 const SearchFieldTag = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -22,7 +21,7 @@ const SearchFieldTag = () => {
           <Ikonknapp
             handleClick={handleClickFjernFilter}
             ariaLabel="Lukkeknapp"
-            icon={<Close className="filtertags__ikon" aria-label="Lukkeknapp" />}
+            icon={<Close className={style.ikon} aria-label="Lukkeknapp" />}
           />
         </Tag>
       )}

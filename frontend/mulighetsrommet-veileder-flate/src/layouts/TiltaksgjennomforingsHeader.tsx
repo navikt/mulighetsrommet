@@ -1,8 +1,7 @@
-import React from 'react';
-import './TiltaksgjennomforingsHeader.less';
 import { Heading, Ingress } from '@navikt/ds-react';
-import { kebabCase } from '../utils/Utils';
 import useTiltaksgjennomforingByTiltaksnummer from '../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import { kebabCase } from '../utils/Utils';
+import styles from './TiltaksgjennomforingsHeader.module.scss';
 
 const TiltaksgjennomforingsHeader = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
@@ -14,17 +13,15 @@ const TiltaksgjennomforingsHeader = () => {
       <Heading
         level="1"
         size="xlarge"
-        className="tiltaksgjennomforing__title"
+        className={styles.tiltaksgjennomforing__title}
         data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltaksgjennomforingNavn)}`}
       >
         {tiltaksgjennomforingNavn}
       </Heading>
       {tiltakstype?.tiltakstypeNavn === 'Opplæring (Gruppe AMO)'
-        ? beskrivelse && <Ingress className="tiltaksgjennomforing__beskrivelse">{beskrivelse}</Ingress>
+        ? beskrivelse && <Ingress>{beskrivelse}</Ingress>
         : null}
-      {tiltakstype.beskrivelse && (
-        <Ingress className="tiltaksgjennomforing__beskrivelse">{tiltakstype.beskrivelse}</Ingress>
-      )}
+      {tiltakstype.beskrivelse && <Ingress>{tiltakstype.beskrivelse}</Ingress>}
     </>
   );
 };

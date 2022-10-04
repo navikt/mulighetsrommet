@@ -2,8 +2,8 @@ import { BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
-import '../Modal.less';
-import './Delemodal.less';
+import modalStyles from '../Modal.module.scss';
+import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
 import { mulighetsrommetClient } from '../../../core/api/clients';
@@ -12,6 +12,7 @@ import { capitalize } from '../../../utils/Utils';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
+import classNames from 'classnames';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
@@ -127,7 +128,7 @@ const Delemodal = ({
       closeButton={false}
       open={modalOpen}
       onClose={clickCancel}
-      className="mulighetsrommet-veileder-flate__modal delemodal"
+      className={classNames(modalStyles.overstyrteStylesFraDSModal, delemodalStyles.delemodal)}
       aria-label="modal"
       data-testid="delemodal"
     >
@@ -150,7 +151,7 @@ const Delemodal = ({
             maxLength={getAntallTegn()}
             error={handleError()}
           />
-          <div className="modal_btngroup">
+          <div className={modalStyles.modal_btngroup}>
             <Button
               onClick={handleSend}
               data-testid="modal_btn-send"
@@ -170,13 +171,15 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDT_OK' && (
-        <Modal.Content className="delemodal__tilbakemelding delemodal__success">
-          <SuccessColored className="delemodal__svg" />
+        <Modal.Content
+          className={classNames(delemodalStyles.delemodal__tilbakemelding, delemodalStyles.delemodal__success)}
+        >
+          <SuccessColored className={delemodalStyles.delemodal__svg} />
           <Heading level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
           <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
-          <div className="modal_btngroup">
+          <div className={modalStyles.modal_btngroup}>
             <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
               Gå til Dialogen
             </Button>
@@ -187,8 +190,10 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDING_FEILET' && (
-        <Modal.Content className="delemodal__tilbakemelding delemodal__success">
-          <ErrorColored className="delemodal__svg" />
+        <Modal.Content
+          className={classNames(delemodalStyles.delemodal__tilbakemelding, delemodalStyles.delemodal__success)}
+        >
+          <ErrorColored className={delemodalStyles.delemodal__svg} />
           <Heading level="1" size="large" data-testid="modal_header">
             Tiltaket kunne ikke deles med brukeren
           </Heading>
@@ -202,7 +207,7 @@ const Delemodal = ({
               Les mer om manuell oppfølging{' '}
             </Lenke>
           </BodyShort>
-          <div className="modal_btngroup">
+          <div className={modalStyles.modal_btngroup}>
             <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
               Prøv på nytt
             </Button>

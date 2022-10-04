@@ -4,7 +4,6 @@ import { InnsatsgruppeNokler } from '../../core/api/models';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
-import './Filtermeny.less';
 
 interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }> {
   accordionNavn: string;

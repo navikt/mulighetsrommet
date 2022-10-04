@@ -1,7 +1,7 @@
 import { Button, Heading, Modal } from '@navikt/ds-react';
 import React from 'react';
-import './Modal.less';
 import classNames from 'classnames';
+import styles from './Modal.module.scss';
 
 interface StandardModalModalProps {
   modalOpen: boolean;
@@ -44,7 +44,7 @@ const StandardModal = ({
       closeButton
       open={modalOpen}
       onClose={setModalOpen}
-      className={classNames('mulighetsrommet-veileder-flate__modal', className)}
+      className={classNames(styles.overstyrteStylesFraDSModal, className)}
       aria-label="modal"
     >
       <Modal.Content>
@@ -53,7 +53,7 @@ const StandardModal = ({
         </Heading>
         {children}
         {!hideButtons ? (
-          <div className="modal_btngroup">
+          <div className={styles.modal_btngroup}>
             <Button onClick={clickSend} data-testid="modal_btn-send">
               {btnText || 'Send'}
             </Button>

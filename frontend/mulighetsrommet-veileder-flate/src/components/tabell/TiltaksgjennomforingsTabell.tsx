@@ -1,4 +1,5 @@
 import { Alert, BodyShort, Button, Heading, Ingress, Loader, Pagination, Table } from '@navikt/ds-react';
+import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
@@ -14,7 +15,7 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
-import './Tabell.less';
+import styles from './tabell.module.scss';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -39,7 +40,7 @@ const TiltaksgjennomforingsTabell = () => {
   const visStatus = (oppstart: Oppstart, status?: Tilgjengelighetsstatus) => {
     if (oppstart === 'midlertidig_stengt') {
       return (
-        <div className="tabell__tilgjengelighetsstatus">
+        <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusRod} alt="Rødt sirkelikon" />
           <div>Midlertidig stengt</div>
         </div>
@@ -48,21 +49,21 @@ const TiltaksgjennomforingsTabell = () => {
 
     if (status === 'Ledig' || !status) {
       return (
-        <div className="tabell__tilgjengelighetsstatus">
+        <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusGronn} alt="Grønt sirkelikon" />
           <div>Åpent</div>
         </div>
       );
     } else if (status === 'Stengt') {
       return (
-        <div className="tabell__tilgjengelighetsstatus">
+        <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusRod} alt="Rødt sirkelikon" />
           <div>Stengt</div>
         </div>
       );
     } else if (status === 'Venteliste') {
       return (
-        <div className="tabell__tilgjengelighetsstatus">
+        <div className={styles.tilgjengelighetsstatus}>
           <img src={StatusGul} alt="Gult sirkelikon" />
           <div>Venteliste</div>
         </div>
@@ -86,7 +87,7 @@ const TiltaksgjennomforingsTabell = () => {
   };
 
   if (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching) {
-    return <Loader className="filter-loader" size="xlarge" />;
+    return <Loader size="xlarge" />;
   }
 
   if (isError) {
@@ -165,7 +166,7 @@ const TiltaksgjennomforingsTabell = () => {
         size="small"
         sort={sort}
         data-testid="tabell_tiltakstyper"
-        className="tabell"
+        className={classNames(styles.tabell)}
         onSortChange={sortKey => {
           setSort(
             sort && sortKey === sort.orderBy && sort.direction === 'descending'
@@ -190,49 +191,24 @@ const TiltaksgjennomforingsTabell = () => {
             <Table.ColumnHeader
               sortKey="tiltaksgjennomforingNavn"
               sortable
-              className="tabell__kolonne__tiltaksnavn"
+              className={styles.tabell__kolonne__tiltaksnavn}
               data-testid="tabellheader_tiltaksnavn"
             >
               Tiltaksnavn
             </Table.ColumnHeader>
-            <Table.ColumnHeader
-              sortKey="tiltaksnummer"
-              sortable
-              className="tabell__kolonne__tiltaksnummer"
-              data-testid="tabellheader_tiltaksnummer"
-            >
+            <Table.ColumnHeader sortKey="tiltaksnummer" sortable data-testid="tabellheader_tiltaksnummer">
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader
-              sortKey="tiltakstypeNavn"
-              sortable
-              className="tabell__kolonne__tiltakstype"
-              data-testid="tabellheader_tiltakstype"
-            >
+            <Table.ColumnHeader sortKey="tiltakstypeNavn" sortable data-testid="tabellheader_tiltakstype">
               Tiltakstype
             </Table.ColumnHeader>
-            <Table.ColumnHeader
-              sortKey="lokasjon"
-              sortable
-              className="tabell__kolonne__oppstart"
-              data-testid="tabellheader_lokasjon"
-            >
+            <Table.ColumnHeader sortKey="lokasjon" sortable data-testid="tabellheader_lokasjon">
               Lokasjon
             </Table.ColumnHeader>
-            <Table.ColumnHeader
-              sortKey="oppstart"
-              sortable
-              className="tabell__kolonne__oppstart"
-              data-testid="tabellheader_oppstartsdato"
-            >
+            <Table.ColumnHeader sortKey="oppstart" sortable data-testid="tabellheader_oppstartsdato">
               Oppstartsdato
             </Table.ColumnHeader>
-            <Table.ColumnHeader
-              sortKey="status"
-              sortable
-              className="tabell__kolonne__plasser"
-              data-testid="tabellheader_status"
-            >
+            <Table.ColumnHeader sortKey="status" sortable data-testid="tabellheader_status">
               Status
             </Table.ColumnHeader>
           </Table.Row>
@@ -251,7 +227,7 @@ const TiltaksgjennomforingsTabell = () => {
               tilgjengelighetsstatus,
             }) => (
               <Table.Row key={_id}>
-                <Table.DataCell className="tabell__tiltaksnavn">
+                <Table.DataCell className={styles.tabell__tiltaksnavn}>
                   <Lenke
                     to={`tiltak/${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
                     isInline
@@ -261,8 +237,8 @@ const TiltaksgjennomforingsTabell = () => {
                   </Lenke>
                   <div>{kontaktinfoArrangor?.selskapsnavn}</div>
                 </Table.DataCell>
-                <Table.DataCell data-testid="tabell_tiltaksnummer" className="tabell__tiltaksnummer">
-                  <div className="tabell__tiltaksnummer__wrapper">
+                <Table.DataCell data-testid="tabell_tiltaksnummer" className={classNames(styles.tabell__tiltaksnummer)}>
+                  <div className={styles.tabellWrapper}>
                     {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
                   </div>
                 </Table.DataCell>
@@ -275,7 +251,7 @@ const TiltaksgjennomforingsTabell = () => {
           )}
         </Table.Body>
       </Table>
-      <div className="under-tabell">
+      <div className={styles.underTabell}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
             <Heading level="1" size="xsmall" data-testid="antall-tiltak">

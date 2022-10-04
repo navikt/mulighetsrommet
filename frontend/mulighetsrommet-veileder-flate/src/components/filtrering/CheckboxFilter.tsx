@@ -1,6 +1,5 @@
 import React from 'react';
 import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from '@navikt/ds-react';
-import './Filtermeny.less';
 import { kebabCase } from '../../utils/Utils';
 import { logEvent } from '../../core/api/logger';
 
@@ -57,7 +56,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
           {accordionNavn}
         </Accordion.Header>
         <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
-          {isLoading && <Loader className="filter-loader" size="xlarge" />}
+          {isLoading && <Loader size="xlarge" />}
           {data && (
             <CheckboxGroup
               legend=""

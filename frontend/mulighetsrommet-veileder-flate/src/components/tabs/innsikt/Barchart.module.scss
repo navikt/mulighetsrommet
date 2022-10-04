@@ -1,0 +1,39 @@
+.tooltipContainer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+
+  &_column {
+    flex-direction: column;
+  }
+
+  &_row {
+    flex-direction: row;
+  }
+}
+
+.tooltipColorIcon {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.tooltipData {
+  &_text {
+    display: block;
+    padding: 2px 0px;
+  }
+
+  &_number {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--navds-semantic-color-text-inverted);
+  }
+
+  &_label {
+    font-size: 14px;
+    color: var(--navds-global-color-gray-400);
+  }
+}

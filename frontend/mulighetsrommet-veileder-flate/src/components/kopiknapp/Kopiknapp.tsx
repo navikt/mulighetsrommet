@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
 import { Copy, CopyFilled } from '@navikt/ds-icons';
 import { Button, Tooltip } from '@navikt/ds-react';
-import './Kopiknapp.less';
+import styles from './Kopiknapp.module.scss';
 
 interface KopiknappProps {
   kopitekst: string;
@@ -29,11 +29,11 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
   }, [showTooltip]);
 
   return (
-    <Tooltip placement="top" content="Kopiert" open={showTooltip} role="tooltip">
+    <Tooltip placement="top" content="Kopiert" className={styles.kopiknappTooltip} open={showTooltip} role="tooltip">
       <Button
         size="xsmall"
         variant="tertiary"
-        className="kopiknapp"
+        className={styles.kopiknapp}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onClick={e => {

@@ -1,7 +1,7 @@
 import React from 'react';
-import './Ikonknapp.less';
 import { Button } from '@navikt/ds-react';
 import classNames from 'classnames';
+import styles from './Ikonknapp.module.scss';
 
 interface SidemenyKnappProps {
   children?: React.ReactNode;
@@ -18,7 +18,7 @@ const Ikonknapp = ({ children, icon, ariaLabel, className, handleClick, dataTest
       onClick={handleClick}
       icon={icon}
       variant="tertiary"
-      className={classNames('ikonknapp', className)}
+      className={classNames(styles.ikonknapp, className)}
       aria-label={ariaLabel}
       data-testid={dataTestId}
     >

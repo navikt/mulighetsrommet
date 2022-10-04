@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { BodyShort, Detail, Heading } from '@navikt/ds-react';
-import './Feedback.less';
+import styles from './Feedback.module.scss';
 import Lenke from '../lenke/Lenke';
 import classNames from 'classnames';
 import Show from '../../utils/Show';
@@ -13,11 +13,11 @@ const FeedbackModalForms = ({ isModalOpen }: FeedbackModalProps) => {
   return (
     <Show if={isModalOpen}>
       <div
-        className={classNames('feedback__modal', {
-          'feedback__modal--slide-in': isModalOpen,
+        className={classNames(styles.feedBackModal, {
+          [styles.feedBackModal__slideIn]: isModalOpen,
         })}
       >
-        <div className="feedback__modal__heading">
+        <div className={styles.feedBackModal__heading}>
           <Heading size="large" level="1">
             Tilbakemelding
           </Heading>
@@ -26,7 +26,11 @@ const FeedbackModalForms = ({ isModalOpen }: FeedbackModalProps) => {
           </BodyShort>
         </div>
 
-        <Lenke isExternal to="https://forms.office.com/r/gGtRvL8Niv" className="feedback__modal__forms">
+        <Lenke
+          isExternal
+          to="https://forms.office.com/r/gGtRvL8Niv"
+          className={classNames(styles.feedBackModal__forms, styles.feedBackModal__textarea)}
+        >
           Gi tilbakemelding
         </Lenke>
 

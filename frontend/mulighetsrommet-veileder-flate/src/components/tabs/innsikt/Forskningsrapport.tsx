@@ -1,6 +1,7 @@
 import { PortableText } from '@portabletext/react';
 import { Forskningsrapport as ForskningsrapportType } from '../../../core/api/models';
-import '../TiltaksdetaljerFane.less';
+import styles from '../Detaljfane.module.scss';
+import forskningStyles from './Forskningsrapport.module.scss';
 
 interface Props {
   forskningsrapporter: ForskningsrapportType[];
@@ -8,13 +9,13 @@ interface Props {
 
 export function Forskningsrapport({ forskningsrapporter }: Props) {
   return (
-    <section className="forskningsrapport__container">
+    <section>
       {forskningsrapporter.map(rapport => {
         return (
           <div key={rapport._id}>
-            <h2 className="tiltaksdetaljer__innsiktheader">{rapport.tittel}</h2>
+            <h2 className={styles.tiltaksdetaljer__innsiktheader}>{rapport.tittel}</h2>
             <PortableText value={rapport.beskrivelse} />
-            <ul className="forskningsrapport__lenkeliste">
+            <ul className={forskningStyles.forskningsrapport__lenkeliste}>
               {rapport.lenker?.map(({ lenke, lenkenavn }, index) => {
                 return (
                   <li key={index}>

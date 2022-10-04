@@ -1,0 +1,27 @@
+.historikkForBrukerStatusbadge {
+  display: inline-block;
+  text-align: center;
+  border-radius: 5%;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+}
+
+.AVSLUTTET {
+  background: var(--navds-global-color-gray-100);
+  color: var(--navds-global-color-gray-800);
+}
+
+.DELTAR {
+  background: var(--navds-global-color-green-100);
+  color: var(--navds-global-color-green-800);
+}
+
+.IKKE_AKTUELL {
+  background: var(--navds-global-color-red-100);
+  color: var(--navds-global-color-red-900);
+}
+
+.VENTER {
+  background: var(--navds-global-color-lightblue-100);
+  color: var(--navds-global-color-lightblue-800);
+}

@@ -1,5 +1,5 @@
 import { Dialog, SuccessStroke } from '@navikt/ds-icons';
-import { Link, Alert, Button, Loader } from '@navikt/ds-react';
+import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
@@ -7,6 +7,7 @@ import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
+import { Tiltakstyper } from '../../core/api/models';
 import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -17,10 +18,9 @@ import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, formaterDato } from '../../utils/Utils';
-import './ViewTiltaksgjennomforingDetaljer.less';
-import { Tiltakstype, Tiltakstyper } from "../../core/api/models";
+import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 
-const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd']
+const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -46,7 +46,7 @@ const ViewTiltakstypeDetaljer = () => {
   };
 
   if (isLoading) {
-    return <Loader className="filter-loader" size="xlarge" />;
+    return <Loader className={styles.filterLoader} size="xlarge" />;
   }
 
   if (isError) {
@@ -69,30 +69,34 @@ const ViewTiltakstypeDetaljer = () => {
   };
 
   return (
-    <div className="tiltakstype-detaljer">
-      <div className="tiltakstype-detaljer__info">
+    <div className={styles.tiltakstypeDetaljer}>
+      <div>
         <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
         <TiltaksgjennomforingsHeader />
         {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
           <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
         )}
       </div>
-      <div className="tiltakstype-detaljer__sidemeny">
+      <div className={styles.sidemeny}>
         <SidemenyDetaljer />
-        {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && <Button
-          onClick={() => {alert("Opprett avtale er ikke implementert enda")}}
-          variant="primary"
-          className="deleknapp"
-          aria-label="Opprett avtale"
-          data-testid="opprettavtaleknapp"
-          title={tooltip()}
-        >
-          Opprett avtale
-        </Button>}
+        {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && (
+          <Button
+            onClick={() => {
+              alert('Opprett avtale er ikke implementert enda');
+            }}
+            variant="primary"
+            className={styles.deleknapp}
+            aria-label="Opprett avtale"
+            data-testid="opprettavtaleknapp"
+            title={tooltip()}
+          >
+            Opprett avtale
+          </Button>
+        )}
         <Button
           onClick={handleClickApneModal}
           variant="secondary"
-          className="deleknapp"
+          className={styles.deleknapp}
           aria-label="Dele"
           data-testid="deleknapp"
           disabled={!kanDeleMedBruker}
