@@ -151,8 +151,6 @@ private fun services(
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient
 ) = module {
-    tokenClientProviderForMachineToMachine(appConfig)
-
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
