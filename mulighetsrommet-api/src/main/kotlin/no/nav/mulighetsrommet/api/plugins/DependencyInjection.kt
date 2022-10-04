@@ -36,6 +36,10 @@ import java.security.interfaces.RSAPublicKey
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(Koin) {
         SLF4JLogger()
+        val poaoTilgangClient = PoaoTilgangHttpClient(
+            appConfig.poaoTilgang.url,
+            { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+        )
         modules(
             db(appConfig.database),
             services(
@@ -45,7 +49,8 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
-                veilarbarena(appConfig)
+                veilarbarena(appConfig),
+                poaoTilgangClient
             )
         )
     }
@@ -55,13 +60,6 @@ private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> { FlywayDatabaseAdapter(databaseConfig) }
     }
-}
-
-private fun poaoTilgangClient(appConfig: AppConfig): PoaoTilgangClient {
-    return PoaoTilgangHttpClient(
-        appConfig.poaoTilgang.url,
-        { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
-    )
 }
 
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
@@ -149,7 +147,8 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    veilarbarenaClient: VeilarbarenaClient
+    veilarbarenaClient: VeilarbarenaClient,
+    poaoTilgangClient: PoaoTilgangClient
 ) = module {
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
@@ -171,8 +170,7 @@ private fun services(
         )
     }
     single {
-        val client = poaoTilgangClient(appConfig)
-        PoaoTilgangService(client)
+        PoaoTilgangService(poaoTilgangClient)
     }
     single { DelMedBrukerService(get()) }
 }
