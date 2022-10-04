@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -36,10 +35,7 @@ import java.security.interfaces.RSAPublicKey
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(Koin) {
         SLF4JLogger()
-        val poaoTilgangClient = PoaoTilgangHttpClient(
-            appConfig.poaoTilgang.url,
-            { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
-        )
+
         modules(
             db(appConfig.database),
             services(
@@ -49,8 +45,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
-                veilarbarena(appConfig),
-                poaoTilgangClient
+                veilarbarena(appConfig)
             )
         )
     }
@@ -147,9 +142,12 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    veilarbarenaClient: VeilarbarenaClient,
-    poaoTilgangClient: PoaoTilgangClient
+    veilarbarenaClient: VeilarbarenaClient
 ) = module {
+    val poaoTilgangClient = PoaoTilgangHttpClient(
+        appConfig.poaoTilgang.url,
+        { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+    )
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
