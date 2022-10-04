@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -36,6 +35,7 @@ import java.security.interfaces.RSAPublicKey
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(Koin) {
         SLF4JLogger()
+
         modules(
             db(appConfig.database),
             services(
@@ -55,13 +55,6 @@ private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> { FlywayDatabaseAdapter(databaseConfig) }
     }
-}
-
-private fun poaoTilgangClient(appConfig: AppConfig): PoaoTilgangClient {
-    return PoaoTilgangHttpClient(
-        appConfig.poaoTilgang.url,
-        { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
-    )
 }
 
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
@@ -173,8 +166,11 @@ private fun services(
         )
     }
     single {
-        val client = poaoTilgangClient(appConfig)
-        PoaoTilgangService(client)
+        val poaoTilgangClient = PoaoTilgangHttpClient(
+            appConfig.poaoTilgang.url,
+            { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+        )
+        PoaoTilgangService(poaoTilgangClient)
     }
     single { DelMedBrukerService(get()) }
 }
