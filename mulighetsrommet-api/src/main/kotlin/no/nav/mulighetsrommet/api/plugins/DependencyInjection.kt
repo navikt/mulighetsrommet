@@ -144,10 +144,8 @@ private fun services(
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient
 ) = module {
-    val poaoTilgangClient = PoaoTilgangHttpClient(
-        appConfig.poaoTilgang.url,
-        { tokenClientProviderForMachineToMachine(appConfig).createMachineToMachineToken(appConfig.poaoTilgang.scope) }
-    )
+    val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
+
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
@@ -168,6 +166,10 @@ private fun services(
         )
     }
     single {
+        val poaoTilgangClient = PoaoTilgangHttpClient(
+            appConfig.poaoTilgang.url,
+            { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+        )
         PoaoTilgangService(poaoTilgangClient)
     }
     single { DelMedBrukerService(get()) }
