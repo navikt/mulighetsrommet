@@ -1,25 +1,28 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
-import { Arrangor } from '../../../core/api/models';
+import useTiltaksgjennomforingByTiltaksnummer from '../../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import styles from './Arrangorinfo.module.scss';
 
-interface ArrangorProps {
-  arrangorinfo: Arrangor;
-}
+const ArrangorInfo = () => {
+  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  if (!data) return null;
 
-const ArrangorInfo = ({ arrangorinfo }: ArrangorProps) => {
+  const { kontaktinfoArrangor } = data;
+
+  if (!kontaktinfoArrangor) return null;
+
   return (
     <>
       <Heading size="small" level="3" className={styles.navn}>
-        {arrangorinfo.selskapsnavn}
+        {kontaktinfoArrangor?.selskapsnavn}
       </Heading>
       <div className={styles.container}>
         <div className={styles.rad}>
           <Label size="small">Telefon</Label>
-          <BodyShort>{arrangorinfo.telefonnummer}</BodyShort>
+          <BodyShort>{kontaktinfoArrangor?.telefonnummer}</BodyShort>
         </div>
         <div className={styles.rad}>
           <Label size="small">Adresse</Label>
-          <BodyShort>{arrangorinfo.adresse}</BodyShort>
+          <BodyShort>{kontaktinfoArrangor?.adresse}</BodyShort>
         </div>
       </div>
     </>

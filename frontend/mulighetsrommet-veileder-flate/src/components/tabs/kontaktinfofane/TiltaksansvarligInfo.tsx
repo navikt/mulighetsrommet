@@ -1,14 +1,14 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
-import { Tiltaksansvarlig } from '../../../core/api/models';
+import useTiltaksgjennomforingByTiltaksnummer from '../../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import styles from './Arrangorinfo.module.scss';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
-interface TiltaksansvarligProps {
-  tiltaksansvarlige: Tiltaksansvarlig[];
-}
+const TiltaksansvarligInfo = () => {
+  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  if (!data) return null;
 
-const TiltaksansvarligInfo = ({ tiltaksansvarlige }: TiltaksansvarligProps) => {
+  const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
   return (
     <>
       {tiltaksansvarlige.map(tiltaksansvarlig => {
