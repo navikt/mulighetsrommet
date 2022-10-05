@@ -8,9 +8,24 @@ const redaktorAvdirStructure = [
       ![
         "tiltaksgjennomforing",
         "enhet",
+        "navKontaktperson",
+        "arrangor",
+        "regelverkfil",
+        "regelverklenke",
+        "forskningsrapport",
         "innsatsgruppe",
         "statistikkfil",
       ].includes(listItem.getId())
+  ),
+  S.divider(),
+  ...S.documentTypeListItems().filter((listItem) =>
+    ["navKontaktperson", "arrangor"].includes(listItem.getId())
+  ),
+  S.divider(),
+  ...S.documentTypeListItems().filter((listItem) =>
+    ["regelverkfil", "regelverklenke", "forskningsrapport"].includes(
+      listItem.getId()
+    )
   ),
 ];
 
