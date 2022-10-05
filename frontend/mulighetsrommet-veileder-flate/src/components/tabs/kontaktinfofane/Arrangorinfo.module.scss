@@ -1,0 +1,14 @@
+.navn {
+  margin-bottom: 0.2rem;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.rad {
+  display: grid;
+  grid-template-columns: 6rem auto;
+}

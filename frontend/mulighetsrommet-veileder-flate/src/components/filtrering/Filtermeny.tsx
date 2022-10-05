@@ -11,8 +11,8 @@ const Filtermeny = () => {
   usePrepopulerFilter();
 
   return (
-    <div className={styles.tiltakstypeOversiktFiltermeny}>
-      <Heading size="medium" level="1" className={styles.filtermenyHeading} role="heading">
+    <div className={styles.tiltakstype_oversikt_filtermeny}>
+      <Heading size="medium" level="1" className={styles.filtermeny_heading} role="heading">
         Filter
       </Heading>
       <Fritekstfilter />

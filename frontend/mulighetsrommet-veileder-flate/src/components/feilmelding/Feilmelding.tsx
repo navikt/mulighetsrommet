@@ -19,7 +19,7 @@ export const Feilmelding = ({ children, ikonvariant }: FeilmeldingProps) => {
   };
 
   return (
-    <div data-testid="feilmelding-container" aria-live="assertive" className={styles.feilmeldingContainer}>
+    <div data-testid="feilmelding-container" aria-live="assertive" className={styles.feilmelding_container}>
       {ikon()}
       {children}
     </div>

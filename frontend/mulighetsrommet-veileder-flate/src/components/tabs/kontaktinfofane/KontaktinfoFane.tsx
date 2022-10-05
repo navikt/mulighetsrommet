@@ -13,13 +13,13 @@ const KontaktinfoFane = ({ tiltaksansvarlige, arrangorinfo }: KontaktinfoFanePro
   return (
     <div className={styles.kontaktinfo}>
       <div>
-        <Heading size="large" level="2" className={styles.kontaktinfo__header}>
+        <Heading size="large" level="2" className={styles.header}>
           Arrangør
         </Heading>
         {arrangorinfo ? <ArrangorInfo arrangorinfo={arrangorinfo} /> : null}
       </div>
       <div>
-        <Heading size="large" level="2" className={styles.kontaktinfo__header}>
+        <Heading size="large" level="2" className={styles.header}>
           Tiltaksansvarlig
         </Heading>
         <TiltaksansvarligInfo tiltaksansvarlige={tiltaksansvarlige} />

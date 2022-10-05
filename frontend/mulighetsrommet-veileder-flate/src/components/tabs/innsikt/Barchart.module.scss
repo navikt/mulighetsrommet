@@ -1,4 +1,4 @@
-.tooltipContainer {
+.tooltip_container {
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -13,14 +13,14 @@
   }
 }
 
-.tooltipColorIcon {
+.tooltip_color_icon {
   width: 10px;
   height: 10px;
   display: inline-block;
   border-radius: 50%;
 }
 
-.tooltipData {
+.tooltip_data {
   &_text {
     display: block;
     padding: 2px 0px;

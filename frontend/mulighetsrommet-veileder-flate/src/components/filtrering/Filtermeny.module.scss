@@ -1,5 +1,4 @@
-
-.tiltakstypeOversiktFiltermeny {
+.tiltakstype_oversikt_filtermeny {
   width: 15rem;
   height: 100%;
   border-right: 1px solid var(--navds-semantic-color-border-muted);
@@ -13,7 +12,7 @@
   grid-row-end: 4;
 }
 
-.filtermenyHeading {
+.filtermeny_heading {
   display: flex;
   justify-content: space-between;
   align-items: center;

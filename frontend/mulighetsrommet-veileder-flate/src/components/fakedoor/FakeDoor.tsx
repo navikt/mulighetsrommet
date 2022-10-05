@@ -3,9 +3,9 @@ import imgUrl from '../../illustrasjonfakedoor.png';
 
 const FakeDoor = () => {
   return (
-    <div className={styles.fakedoorContainer}>
-      <div className={styles.fakedoorTextContainer}>
-        <h1 className={styles.fakedoorHeader}>Takk for at du deltok i piloten</h1>
+    <div className={styles.fakedoor_container}>
+      <div className={styles.fakedoor_text_container}>
+        <h1 className={styles.fakedoor_header}>Takk for at du deltok i piloten</h1>
         <div>
           <div>
             Piloten om arbeidsmarkedstiltak er nå avsluttet. Tusen takk for at du var med på å teste den nye tjenesten.
@@ -14,7 +14,7 @@ const FakeDoor = () => {
           <br />
         </div>
       </div>
-      <div className={styles.fakedoorImage}>
+      <div className={styles.fakedoor_image}>
         <img src={imgUrl} id="fakedoor-bilde" alt="Illustrasjon av løsning" />
       </div>
     </div>

@@ -43,7 +43,7 @@ function App() {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className={styles.app__container}>
+      <div className={styles.app_container}>
         <div className={APPLICATION_NAME}>
           <QueryClientProvider client={queryClient}>
             <Router>

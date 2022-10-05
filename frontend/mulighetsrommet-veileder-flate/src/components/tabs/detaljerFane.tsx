@@ -1,6 +1,6 @@
 import { Alert } from '@navikt/ds-react';
 import { PortableText } from '@portabletext/react';
-import styles from './Detaljfane.module.scss';
+import styles from './Detaljerfane.module.scss';
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
@@ -16,14 +16,14 @@ const DetaljerFane = ({
   tiltakstype,
 }: DetaljerFaneProps) => {
   return (
-    <div className={styles.tiltaksdetaljer__maksbredde}>
+    <div className={styles.tiltaksdetaljer_maksbredde}>
       {tiltakstypeAlert && (
-        <Alert variant="info" className={styles.tiltaksdetaljer__alert}>
+        <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
           {tiltakstypeAlert}
         </Alert>
       )}
       {tiltaksgjennomforingAlert && (
-        <Alert variant="info" className={styles.tiltaksdetaljer__alert}>
+        <Alert variant="info" className={styles.tiltaksdetaljer_alert}>
           {tiltaksgjennomforingAlert}
         </Alert>
       )}

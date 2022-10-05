@@ -128,7 +128,7 @@ const Delemodal = ({
       closeButton={false}
       open={modalOpen}
       onClose={clickCancel}
-      className={classNames(modalStyles.overstyrteStylesFraDSModal, delemodalStyles.delemodal)}
+      className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
       aria-label="modal"
       data-testid="delemodal"
     >
@@ -171,10 +171,8 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDT_OK' && (
-        <Modal.Content
-          className={classNames(delemodalStyles.delemodal__tilbakemelding, delemodalStyles.delemodal__success)}
-        >
-          <SuccessColored className={delemodalStyles.delemodal__svg} />
+        <Modal.Content className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
+          <SuccessColored className={delemodalStyles.delemodal_svg} />
           <Heading level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
@@ -190,10 +188,8 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDING_FEILET' && (
-        <Modal.Content
-          className={classNames(delemodalStyles.delemodal__tilbakemelding, delemodalStyles.delemodal__success)}
-        >
-          <ErrorColored className={delemodalStyles.delemodal__svg} />
+        <Modal.Content className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
+          <ErrorColored className={delemodalStyles.delemodal_svg} />
           <Heading level="1" size="large" data-testid="modal_header">
             Tiltaket kunne ikke deles med brukeren
           </Heading>

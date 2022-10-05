@@ -2,7 +2,7 @@
 .delemodal {
   background-color: #f7f7f7;
 
-  &__tilbakemelding {
+  &_tilbakemelding {
     text-align: center;
 
     .modal_btngroup {
@@ -10,7 +10,7 @@
     }
   }
 
-  &__svg {
+  &_svg {
     width: 3rem;
     height: auto;
     align-self: center;

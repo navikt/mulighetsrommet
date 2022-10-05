@@ -23,7 +23,7 @@ const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
           >
             {filtertype.tittel}
             <Ikonknapp
-              className={styles.overstyrtIkonknapp}
+              className={styles.overstyrt_ikon_knapp}
               handleClick={() => handleClick(filtertype.id)}
               ariaLabel="Lukke"
               data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}

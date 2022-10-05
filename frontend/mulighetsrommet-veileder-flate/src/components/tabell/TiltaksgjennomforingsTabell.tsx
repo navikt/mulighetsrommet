@@ -191,7 +191,7 @@ const TiltaksgjennomforingsTabell = () => {
             <Table.ColumnHeader
               sortKey="tiltaksgjennomforingNavn"
               sortable
-              className={styles.tabell__kolonne__tiltaksnavn}
+              className={styles.tabell_tiltaksnavn}
               data-testid="tabellheader_tiltaksnavn"
             >
               Tiltaksnavn
@@ -227,7 +227,7 @@ const TiltaksgjennomforingsTabell = () => {
               tilgjengelighetsstatus,
             }) => (
               <Table.Row key={_id}>
-                <Table.DataCell className={styles.tabell__tiltaksnavn}>
+                <Table.DataCell className={styles.tabell_tiltaksnavn}>
                   <Lenke
                     to={`tiltak/${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
                     isInline
@@ -237,8 +237,8 @@ const TiltaksgjennomforingsTabell = () => {
                   </Lenke>
                   <div>{kontaktinfoArrangor?.selskapsnavn}</div>
                 </Table.DataCell>
-                <Table.DataCell data-testid="tabell_tiltaksnummer" className={classNames(styles.tabell__tiltaksnummer)}>
-                  <div className={styles.tabellWrapper}>
+                <Table.DataCell data-testid="tabell_tiltaksnummer" className={classNames(styles.tabell_tiltaksnummer)}>
+                  <div className={styles.tabell_wrapper}>
                     {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
                   </div>
                 </Table.DataCell>
@@ -251,7 +251,7 @@ const TiltaksgjennomforingsTabell = () => {
           )}
         </Table.Body>
       </Table>
-      <div className={styles.underTabell}>
+      <div className={styles.under_tabell}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
             <Heading level="1" size="xsmall" data-testid="antall-tiltak">

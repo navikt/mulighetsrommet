@@ -1,4 +1,4 @@
-.filterLoader {
+.filter_loader {
   display: block;
   margin: 0 auto;
 }
@@ -11,7 +11,7 @@
   }
 }
 
-.tabellWrapper {
+.tabell_wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22,11 +22,11 @@
 }
 
 .tabell {
-  &__tiltaksnavn {
+  &_tiltaksnavn {
     font-weight: bold;
   }
 
-  &__tiltaksnummer {
+  &_tiltaksnummer {
     padding-right: 1.5rem;
 
     @media (max-width: 1400px) {
@@ -34,14 +34,8 @@
     }
   }
 
-  &__kolonne {
-    &__tiltaksnavn {
-      width: 25%;
-    }
-  }
-
-  &__alert {
-    max-width: unset;
+  &_tiltaksnavn {
+    width: 25%;
   }
 }
 
@@ -57,7 +51,7 @@
   }
 }
 
-.underTabell {
+.under_tabell {
   display: flex;
   justify-content: space-between;
   margin-top: 1rem;

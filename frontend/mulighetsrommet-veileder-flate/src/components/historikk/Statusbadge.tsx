@@ -4,7 +4,7 @@ import styles from './Statusbadge.module.scss';
 
 export function StatusBadge({ status }: { status?: HistorikkForBruker.status }) {
   return (
-    <div className={classNames(styles.historikkForBrukerStatusbadge, styles[status as unknown as any])}>
+    <div className={classNames(styles.historikk_for_bruker_statusbadge, styles[status as unknown as any])}>
       {statustekst(status)}
     </div>
   );

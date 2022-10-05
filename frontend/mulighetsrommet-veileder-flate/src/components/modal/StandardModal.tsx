@@ -44,7 +44,7 @@ const StandardModal = ({
       closeButton
       open={modalOpen}
       onClose={setModalOpen}
-      className={classNames(styles.overstyrteStylesFraDSModal, className)}
+      className={classNames(styles.overstyrte_styles_fra_ds_modal, className)}
       aria-label="modal"
     >
       <Modal.Content>
