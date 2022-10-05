@@ -46,7 +46,7 @@ const ViewTiltakstypeDetaljer = () => {
   };
 
   if (isLoading) {
-    return <Loader className={styles.filterLoader} size="xlarge" />;
+    return <Loader className={styles.filter_loader} size="xlarge" />;
   }
 
   if (isError) {

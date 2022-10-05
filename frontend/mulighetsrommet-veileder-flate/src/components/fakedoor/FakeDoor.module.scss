@@ -1,4 +1,4 @@
-.fakedoorContainer {
+.fakedoor_container {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -15,7 +15,7 @@
   }
 }
 
-.fakedoorTextContainer {
+.fakedoor_text_container {
   color: white;
   width: 60%;
   min-width: 500px;
@@ -25,12 +25,11 @@
   }
 }
 
-.fakedoorHeader {
+.fakedoor_header {
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.fakedoorImage {
+.fakedoor_image {
   overflow: hidden;
 }
-

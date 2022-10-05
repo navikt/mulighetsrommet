@@ -1,7 +1,7 @@
 import { Alert, Loader } from '@navikt/ds-react';
 import useResizeObserver from 'use-resize-observer';
 import { useTiltakstyperMedTiltakstypenavn } from '../../../core/api/queries/useTiltakstypeMedTiltakstypenavn';
-import styles from '../Detaljfane.module.scss';
+import styles from '../Detaljerfane.module.scss';
 import BarChart from './BarChart';
 import { Forskningsrapport } from './Forskningsrapport';
 

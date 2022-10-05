@@ -6,6 +6,7 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 
 - [Teknologier](#teknologier)
 - [Kom i gang](#kom-i-gang)
+- [kodestil](#kodestil)
   - [Forutsetninger](#forutsetninger)
   - [Steg for steg](#steg-for-steg)
 
@@ -26,6 +27,9 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 # <a name="kom-i-gang"></a>Kom i gang
 
 For å komme i gang kan du hoppe rett til [Steg for steg](#steg-for-steg) gitt at du har satt opp alt under [Forutsetinger](#forutsetninger).
+
+# <a name="kodestil"></a>Kodestil
+For styling bruker vi css modules med .scss-filendelse. Vi skriver klassenavn med snake_case. Det vil si underscore som separator i klassenavn.
 
 ## <a name="forutsetninger"></a>Forutsetninger
 

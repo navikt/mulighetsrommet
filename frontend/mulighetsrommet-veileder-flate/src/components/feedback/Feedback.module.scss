@@ -9,7 +9,7 @@
   }
 }
 
-.feedBackModal {
+.feedback_modal {
   width: 468px;
   background-color: #fff;
   box-shadow: 0 6px 10px 0 #6a6a6a;
@@ -20,11 +20,11 @@
   bottom: 6rem;
   padding: 1rem;
 
-  &__heading {
+  &_heading {
     margin-bottom: 1rem;
   }
 
-  &__forms {
+  &_forms {
     color: #fff;
     background-color: #0067c5;
     padding: 0.7rem 1rem;
@@ -35,38 +35,12 @@
     }
   }
 
-  &__textarea {
+  &_textarea {
     margin-bottom: 1rem;
   }
 
-  &__slideIn {
+  &_slideIn {
     bottom: 100px;
     animation: 0.33s ease-out slide-in;
   }
 }
-
-.feedbackBtn {
-  box-shadow: 0 6px 10px 0 #6a6a6a;
-  transition: all 0.1s ease-in-out;
-  z-index: 1000;
-  text-align: center;
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  border-radius: 50%;
-  width: 4rem;
-  height: 4rem;
-  color: #000;
-  background-color: #fff;
-
-  &:hover {
-    width: 4.5rem;
-    height: 4.5rem;
-  }
-
-  &__icon {
-    width: 2rem;
-    height: auto;
-  }
-}
-
