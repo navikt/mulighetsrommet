@@ -1,4 +1,4 @@
-.feedback_button {
+:global(.navds-button).feedback_button {
   box-shadow: 0 6px 10px 0 #6a6a6a;
   transition: all 0.1s ease-in-out;
   z-index: 1000;
@@ -16,9 +16,9 @@
     width: 4.5rem;
     height: 4.5rem;
   }
+}
 
-  &_icon {
-    width: 2rem;
-    height: auto;
-  }
+.icon {
+  width: 2rem;
+  height: auto;
 }
