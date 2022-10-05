@@ -7,8 +7,6 @@ const redaktorAvdirStructure = [
     (listItem) =>
       ![
         "tiltaksgjennomforing",
-        "arrangor",
-        "navKontaktperson",
         "enhet",
         "innsatsgruppe",
         "statistikkfil",
