@@ -2,6 +2,7 @@ import S from "@sanity/desk-tool/structure-builder";
 import userStore from "part:@sanity/base/user";
 import adminStructure from "./adminStructure";
 import redaktorAvdirStructure from "./redaktorAvdirStructure";
+import redaktorTiltaksgjennomforingStructure from "./redaktorTiltaksgjennomforingStructure";
 import { TiltakstypeOgTiltaksgjennomforingPreview } from "./previews/TiltakstypeOgTiltaksgjennomforingPreview";
 
 export default () =>
@@ -24,6 +25,12 @@ export default () =>
         return S.list()
           .title("Innhold for fagansvarlige i AV.Dir")
           .items(deskItems);
+      }
+
+      // Innhold for tiltaksansvarlige
+      if (roleNames.includes("redaktor-tiltaksgjennomforing")) {
+        deskItems.push(...redaktorTiltaksgjennomforingStructure);
+        return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
       }
 
       return S.list()
