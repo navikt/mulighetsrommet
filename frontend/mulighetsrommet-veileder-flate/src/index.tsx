@@ -1,8 +1,7 @@
-import '@navikt/ds-css';
 import Navspa from '@navikt/navspa';
-import { OpenAPI } from 'mulighetsrommet-api-client';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import '@navikt/ds-css'; // Importer global css etter app så blir det seende likt ut lokalt og i dev/prod-miljø
 import { APPLICATION_NAME } from './constants';
 import { initializeMockWorker } from './mock/worker';
 

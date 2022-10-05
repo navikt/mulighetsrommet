@@ -7,12 +7,10 @@
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid var(--navds-semantic-color-border-muted);
-    margin-bottom: 2rem;
     gap: 5%;
     justify-content: start;
-    width: inherit;
 
-    ::global(.navds-label) {
+    :global(.navds-label) {
       font-weight: normal;
       margin: 0 0.5rem;
       color: var(--navds-semantic-color-text);
@@ -46,4 +44,9 @@
       justify-content: space-between;
     }
   }
+}
+
+:global(.navds-tabs__tablist-wrapper) {
+  width: 100%;
+  display: block !important;
 }

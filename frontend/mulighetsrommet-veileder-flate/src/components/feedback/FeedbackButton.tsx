@@ -18,7 +18,7 @@ const FeedbackButton = ({ handleClick, isModalOpen }: FeedbackButtonProps) => {
       {isModalOpen ? (
         <Close aria-label="Lukk" className={styles.feedback_button_icon} />
       ) : (
-        <DialogReport aria-label="Åpne tilbakemeldingsundersøkelse" className={styles.feedback_button_icon} />
+        <DialogReport aria-label="Åpne tilbakemeldingsundersøkelse" className={styles.icon} />
       )}
     </Button>
   );
