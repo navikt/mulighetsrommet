@@ -14,7 +14,7 @@ const TiltaksdetaljerFane = () => {
   const [fane, setFane] = useAtom(faneAtom);
   if (!data) return null;
 
-  const { tiltakstype, kontaktinfoTiltaksansvarlige, kontaktinfoArrangor, faneinnhold } = data;
+  const { tiltakstype, faneinnhold } = data;
   const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
@@ -71,7 +71,7 @@ const TiltaksdetaljerFane = () => {
         />
       </Tabs.Panel>
       <Tabs.Panel value="tab4" data-testid="tab4">
-        <KontaktinfoFane tiltaksansvarlige={kontaktinfoTiltaksansvarlige} arrangorinfo={kontaktinfoArrangor} />
+        <KontaktinfoFane />
       </Tabs.Panel>
       <Tabs.Panel value="tab5" data-testid="tab5">
         <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
