@@ -50,21 +50,21 @@ const TiltaksgjennomforingsTabell = () => {
     if (status === 'Ledig' || !status) {
       return (
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGronn} alt="Grønt sirkelikon" />
+          <img src={StatusGronn} alt="Tilgjengelighetsstatus åpent" />
           <div>Åpent</div>
         </div>
       );
     } else if (status === 'Stengt') {
       return (
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt sirkelikon" />
+          <img src={StatusRod} alt="Tilgjengelighetsstatus stengt" />
           <div>Stengt</div>
         </div>
       );
     } else if (status === 'Venteliste') {
       return (
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGul} alt="Gult sirkelikon" />
+          <img src={StatusGul} alt="Tilgjengelighetsstatus venteliste" />
           <div>Venteliste</div>
         </div>
       );
