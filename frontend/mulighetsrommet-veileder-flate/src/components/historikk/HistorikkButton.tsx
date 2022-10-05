@@ -12,7 +12,7 @@ export function HistorikkButton() {
     <>
       <Button onClick={toggleModal}>Historikk</Button>
       <StandardModal
-        className={styles.historikkModal}
+        className={styles.historikk_modal}
         hideButtons
         modalOpen={apneModal}
         setModalOpen={toggleModal}
