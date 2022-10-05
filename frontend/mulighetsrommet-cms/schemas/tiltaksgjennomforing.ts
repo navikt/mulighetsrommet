@@ -40,7 +40,7 @@ export default {
       title: "Tiltaksnummer",
       description: "Her skriver du inn tiltaksnummeret for gjennomføringen",
       type: "number",
-      validation: (Rule: Rule) => Rule.required().unique(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "estimert_ventetid",
