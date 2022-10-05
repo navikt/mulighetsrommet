@@ -28,11 +28,9 @@ export default () =>
       }
 
       // Innhold for tiltaksansvarlige
-      if (roleNames.includes("redaktor_av_dir")) {
+      if (roleNames.includes("redaktor-tiltaksgjennomforing")) {
         deskItems.push(...redaktorTiltaksgjennomforingStructure);
-        return S.list()
-          .title("Innhold for fagansvarlige i AV.Dir")
-          .items(deskItems);
+        return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
       }
 
       return S.list()
