@@ -1,9 +1,11 @@
-:global(.navds-button) {
-  min-width: unset;
-}
+:global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-button) {
+    min-width: unset;
+  }
 
-:global(.navds-button__inner) {
-  justify-content: center;
+  :global(.navds-button__inner) {
+    justify-content: center;
+  }
 }
 
 :global(.navds-button).overstyrt_ikon_knapp {
@@ -15,9 +17,4 @@
 .ikon {
   width: 70%;
   height: auto;
-}
-
-:global(.navds-tag) {
-  background-color: #cce1ff;
-  height: 40px;
 }
