@@ -19,6 +19,7 @@
 
   :global(.navds-heading) {
     font-weight: unset;
+    // background-color: red;
   }
 }
 
@@ -27,11 +28,13 @@
   line-height: unset;
 }
 
-:global(.navds-popover__content) {
-  max-width: 400px;
-}
+:global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-popover__content) {
+    max-width: 400px;
+  }
 
-:global(.navds-popover__arrow::before) {
-  // Bugfix pga. feil i ds-react
-  display: none;
+  :global(.navds-popover__arrow::before) {
+    // Bugfix pga. feil i ds-react
+    display: none;
+  }
 }
