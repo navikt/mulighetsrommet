@@ -83,7 +83,6 @@ const ViewTiltakstypeDetaljer = () => {
           <Button
             as="a"
             href="https://tiltaksgjennomforing.dev.intern.nav.no/tiltaksgjennomforing/"
-            onClick={() => console.log(env)}
             target="_blank"
             variant="primary"
             className={styles.deleknapp}
