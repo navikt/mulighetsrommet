@@ -19,8 +19,18 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { environments } from '../../env';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
+
+function lenkeTilOpprettAvtaleForEnv(): string {
+  const env: environments = import.meta.env.VITE_ENVIRONMENT;
+  const baseUrl =
+    env === 'production'
+      ? 'https://tiltaksgjennomforing.intern.nav.no/'
+      : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
+  return `${baseUrl}tilbakesgjennomforing/opprett-avtale`;
+}
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -81,9 +91,9 @@ const ViewTiltakstypeDetaljer = () => {
         <SidemenyDetaljer />
         {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && (
           <Button
-            onClick={() => {
-              alert('Opprett avtale er ikke implementert enda');
-            }}
+            as="a"
+            href={lenkeTilOpprettAvtaleForEnv()}
+            target="_blank"
             variant="primary"
             className={styles.deleknapp}
             aria-label="Opprett avtale"
