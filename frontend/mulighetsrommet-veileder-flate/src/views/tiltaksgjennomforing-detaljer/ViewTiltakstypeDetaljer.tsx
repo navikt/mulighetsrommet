@@ -81,9 +81,10 @@ const ViewTiltakstypeDetaljer = () => {
         <SidemenyDetaljer />
         {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && (
           <Button
-            onClick={() => {
-              alert('Opprett avtale er ikke implementert enda');
-            }}
+            as="a"
+            href="https://tiltaksgjennomforing.dev.intern.nav.no/tiltaksgjennomforing/"
+            onClick={() => console.log(env)}
+            target="_blank"
             variant="primary"
             className={styles.deleknapp}
             aria-label="Opprett avtale"
