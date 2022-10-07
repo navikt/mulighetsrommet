@@ -19,8 +19,18 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { environments } from '../../env';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
+
+function lenkeTilOpprettAvtaleForEnv(): string {
+  const env: environments = import.meta.env.VITE_ENVIRONMENT;
+  const baseUrl =
+    env === 'production'
+      ? 'https://tiltaksgjennomforing.intern.nav.no/'
+      : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
+  return baseUrl + 'tiltaksgjennomforing/opprett-avtale';
+}
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
@@ -82,7 +92,7 @@ const ViewTiltakstypeDetaljer = () => {
         {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && (
           <Button
             as="a"
-            href="https://tiltaksgjennomforing.dev.intern.nav.no/tiltaksgjennomforing/"
+            href={lenkeTilOpprettAvtaleForEnv()}
             target="_blank"
             variant="primary"
             className={styles.deleknapp}
