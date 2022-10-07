@@ -25,11 +25,13 @@ const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd
 
 function lenkeTilOpprettAvtaleForEnv(): string {
   const env: environments = import.meta.env.VITE_ENVIRONMENT;
-  const baseUrl =
+  /* const baseUrl =
     env === 'production'
       ? 'https://tiltaksgjennomforing.intern.nav.no/'
       : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
-  return baseUrl + 'tiltaksgjennomforing/opprett-avtale';
+    */
+    const baseUrl = env === 'dev' ? 'https://tiltaksgjennomforing.dev.intern.nav.no/' : ''
+    return baseUrl + 'tiltaksgjennomforing/opprett-avtale';
 }
 
 const ViewTiltakstypeDetaljer = () => {
