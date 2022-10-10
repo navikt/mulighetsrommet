@@ -196,7 +196,7 @@ export default {
       title: "Tilgjengelighetsstatus",
       description:
         "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives her i Sanity.",
-      readOnly: false, // TODO Sett tilbake til true for readOnly
+      readOnly: true,
       type: "string",
       options: {
         list: [
