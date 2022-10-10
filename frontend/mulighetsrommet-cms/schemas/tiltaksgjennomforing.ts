@@ -40,7 +40,18 @@ export default {
       title: "Tiltaksnummer",
       description: "Her skriver du inn tiltaksnummeret for gjennomføringen",
       type: "number",
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.custom(async (tiltaksnummer) => {
+          if (!tiltaksnummer) return "Tiltaksnummer må spesifiseres.";
+
+          const antallTiltaksnummer = await client.fetch(
+            `count(*[_type == 'tiltaksgjennomforing' && tiltaksnummer == ${tiltaksnummer}])`
+          );
+
+          return antallTiltaksnummer === 1
+            ? true
+            : `Tiltaksnummer må være unikt for alle tiltaksgjennomføringer. Fant ${antallTiltaksnummer} totalt.`;
+        }),
     },
     {
       name: "estimert_ventetid",
