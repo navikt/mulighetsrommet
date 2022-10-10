@@ -9,13 +9,12 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import StatusGronn from '../../ikoner/Sirkel-gronn.png';
-import StatusGul from '../../ikoner/Sirkel-gul.png';
-import StatusRod from '../../ikoner/Sirkel-rod.png';
+
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import styles from './tabell.module.scss';
+import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
 
 const TiltaksgjennomforingsTabell = () => {
   const [sort, setSort] = useState<any>();
@@ -36,40 +35,6 @@ const TiltaksgjennomforingsTabell = () => {
       setPage(1);
     }
   }, [tiltaksgjennomforinger]);
-
-  const visStatus = (oppstart: Oppstart, status?: Tilgjengelighetsstatus) => {
-    if (oppstart === 'midlertidig_stengt') {
-      return (
-        <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt sirkelikon" />
-          <div>Midlertidig stengt</div>
-        </div>
-      );
-    }
-
-    if (status === 'Ledig' || !status) {
-      return (
-        <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGronn} alt="Tilgjengelighetsstatus åpent" />
-          <div>Åpent</div>
-        </div>
-      );
-    } else if (status === 'Stengt') {
-      return (
-        <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Tilgjengelighetsstatus stengt" />
-          <div>Stengt</div>
-        </div>
-      );
-    } else if (status === 'Venteliste') {
-      return (
-        <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGul} alt="Tilgjengelighetsstatus venteliste" />
-          <div>Venteliste</div>
-        </div>
-      );
-    }
-  };
 
   const visOppstartsdato = (oppstart: Oppstart, oppstartsdato?: string) => {
     switch (oppstart) {
@@ -159,6 +124,8 @@ const TiltaksgjennomforingsTabell = () => {
     );
   }
 
+  console.log(gjennomforingerForSide);
+
   return (
     <div className="w-full flex flex-col gap-4">
       <Table
@@ -220,6 +187,7 @@ const TiltaksgjennomforingsTabell = () => {
               tiltaksnummer,
               tiltaksgjennomforingNavn,
               oppstart,
+              estimert_ventetid,
               oppstartsdato,
               lokasjon,
               tiltakstype,
@@ -245,7 +213,13 @@ const TiltaksgjennomforingsTabell = () => {
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                 <Table.DataCell>{lokasjon}</Table.DataCell>
                 <Table.DataCell>{visOppstartsdato(oppstart, oppstartsdato)}</Table.DataCell>
-                <Table.DataCell>{visStatus(oppstart, tilgjengelighetsstatus)} </Table.DataCell>
+                <Table.DataCell>
+                  <TilgjengelighetsstatusComponent
+                    oppstart={oppstart}
+                    status={tilgjengelighetsstatus}
+                    estimert_ventetid={estimert_ventetid}
+                  />
+                </Table.DataCell>
               </Table.Row>
             )
           )}

@@ -63,6 +63,7 @@ export interface Tiltaksgjennomforing {
   kontaktinfoArrangor?: Arrangor;
   lokasjon: string;
   oppstart: Oppstart;
+  estimert_ventetid?: string;
   oppstartsdato?: string;
   faneinnhold?: {
     forHvemInfoboks?: string;
