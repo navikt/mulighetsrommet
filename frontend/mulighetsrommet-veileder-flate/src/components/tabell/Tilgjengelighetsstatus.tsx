@@ -30,7 +30,6 @@ export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ven
           <img src={StatusGronn} alt="Tilgjengelighetsstatus åpent" />
           <div>Åpent</div>
         </div>
-        {estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null}
       </div>
     );
   } else if (status === 'Stengt') {
