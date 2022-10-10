@@ -1,5 +1,6 @@
 import { Tabs } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
+import { useFeatureToggles, VIS_INNSIKTSFANE } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
 import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
 import { faneAtom } from '../../core/atoms/atoms';
@@ -12,10 +13,19 @@ import styles from './TiltaksdetaljerFane.module.scss';
 const TiltaksdetaljerFane = () => {
   const { data } = useTiltaksgjennomforingByTiltaksnummer();
   const [fane, setFane] = useAtom(faneAtom);
+  const features = useFeatureToggles();
+  const visInnsiktsfane = features.isSuccess && features.data[VIS_INNSIKTSFANE];
+
   if (!data) return null;
 
   const { tiltakstype, faneinnhold } = data;
-  const faneoverskrifter = ['For hvem', 'Detaljer og innhold', 'Påmelding og varighet', 'Kontaktinfo', 'Innsikt'];
+  const faneoverskrifter = [
+    'For hvem',
+    'Detaljer og innhold',
+    'Påmelding og varighet',
+    'Kontaktinfo',
+    'Innsikt',
+  ] as const;
   const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
     tab2: faneoverskrifter[1],
@@ -36,15 +46,23 @@ const TiltaksdetaljerFane = () => {
       }}
     >
       <Tabs.List className={styles.fane__liste}>
-        {faneoverskrifter.map((fane, index) => (
-          <Tabs.Tab
-            key={index}
-            value={`tab${index + 1}`}
-            label={fane}
-            className={styles.btn__tab}
-            data-testid={`fane_${kebabCase(fane)}`}
-          />
-        ))}
+        {faneoverskrifter
+          .filter(fane => {
+            if (!visInnsiktsfane && fane === 'Innsikt') {
+              return false;
+            }
+
+            return true;
+          })
+          .map((fane, index) => (
+            <Tabs.Tab
+              key={index}
+              value={`tab${index + 1}`}
+              label={fane}
+              className={styles.btn__tab}
+              data-testid={`fane_${kebabCase(fane)}`}
+            />
+          ))}
       </Tabs.List>
       <Tabs.Panel value="tab1" data-testid="tab1">
         <DetaljerFane
@@ -73,9 +91,11 @@ const TiltaksdetaljerFane = () => {
       <Tabs.Panel value="tab4" data-testid="tab4">
         <KontaktinfoFane />
       </Tabs.Panel>
-      <Tabs.Panel value="tab5" data-testid="tab5">
-        <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
-      </Tabs.Panel>
+      {visInnsiktsfane ? (
+        <Tabs.Panel value="tab5" data-testid="tab5">
+          <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
+        </Tabs.Panel>
+      ) : null}
     </Tabs>
   );
 };

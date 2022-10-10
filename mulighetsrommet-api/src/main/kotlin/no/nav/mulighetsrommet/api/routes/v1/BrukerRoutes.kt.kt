@@ -19,6 +19,7 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/bruker") {
         get {
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
             val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest

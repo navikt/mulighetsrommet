@@ -1,16 +1,6 @@
 .overstyrte_styles_fra_ds_modal {
   width: 40rem;
   padding: 1rem;
-
-  :global(.navds-heading) {
-    margin-right: 1rem;
-  }
-
-  :global(.navds-modal__content) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
 }
 
 .modal_btngroup {
