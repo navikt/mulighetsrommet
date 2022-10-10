@@ -23,6 +23,7 @@ export default function useTiltaksgjennomforing() {
     lokasjon,
     oppstart,
     oppstartsdato,
+    estimert_ventetid,
     tiltaksnummer,
     kontaktinfoArrangor->{selskapsnavn},
     tiltakstype->{tiltakstypeNavn},

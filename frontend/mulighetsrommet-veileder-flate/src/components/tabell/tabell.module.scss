@@ -3,11 +3,13 @@
   margin: 0 auto;
 }
 
-:global(.navds-table) {
-  border: 1px solid var(--navds-semantic-color-border-muted);
+:global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-table) {
+    border: 1px solid var(--navds-semantic-color-border-muted);
 
-  :global(.navds-table__sort-button) {
-    height: 4rem;
+    :global(.navds-table__sort-button) {
+      height: 4rem;
+    }
   }
 }
 
@@ -39,28 +41,17 @@
   }
 }
 
-.tilgjengelighetsstatus {
-  display: flex;
-  flex-direction: row;
-  gap: 0.3rem;
-
-  img {
-    width: 1rem;
-    height: 100%;
-    align-self: center;
-  }
-}
-
 .under_tabell {
   display: flex;
   justify-content: space-between;
   margin-top: 1rem;
   margin-bottom: 2rem;
 }
-
-:global(.navds-table__header),
-:global(.navds-table--zebra-stripes),
-:global(.navds-table__body),
-:global(.navds-table__row:nth-of-type(even):not(:hover):not(.navds-table__row--selected)) {
-  background-color: var(--navds-semantic-color-canvas-background-light);
+:global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-table__header),
+  :global(.navds-table--zebra-stripes),
+  :global(.navds-table__body),
+  :global(.navds-table__row:nth-of-type(even):not(:hover):not(.navds-table__row--selected)) {
+    background-color: var(--navds-semantic-color-canvas-background-light);
+  }
 }

@@ -1,4 +1,4 @@
-.ikonknapp {
+:global(.navds-button).ikonknapp {
   width: fit-content;
   color: black;
 
@@ -11,8 +11,8 @@
   }
 
   &:active {
-    background-color: transparent !important;
-    box-shadow: none !important;
+    background-color: transparent;
+    box-shadow: none;
     color: var(--navds-button-color-tertiary-text);
   }
 }
