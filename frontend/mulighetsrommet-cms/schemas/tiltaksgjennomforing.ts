@@ -44,9 +44,9 @@ export default {
     },
     {
       name: "estimert_ventetid",
-      title: "Estimert ventetid",
+      title: "Estimert ventetid eller stengt til",
       description:
-        "Her kan du oppgi estimert ventetid for tiltaket. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
       type: "string",
     },
     {
