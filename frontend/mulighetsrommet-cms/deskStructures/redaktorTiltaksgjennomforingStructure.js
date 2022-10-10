@@ -25,9 +25,7 @@ const redaktorTiltaksgjennomforingStructure = [
   ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["regelverkfil", "regelverklenke", "forskningsrapport"].includes(
-      listItem.getId()
-    )
+    ["forskningsrapport"].includes(listItem.getId())
   ),
 ];
 
