@@ -48,7 +48,8 @@ object DatabaseMapper {
         status = Deltakerstatus.valueOf(row.string("status")),
         tiltaksnavn = row.string("navn"),
         tiltaksnummer = row.string("tiltaksnummer"),
-        tiltakstype = row.string("tiltakstype")
+        tiltakstype = row.string("tiltakstype"),
+        arrangorId = row.int("arrangor_id")
     )
 
     // mulighetsrommet-arena-adapter specific
