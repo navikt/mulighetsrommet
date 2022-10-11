@@ -29,7 +29,7 @@ function lenkeTilOpprettAvtaleForEnv(): string {
     env === 'production'
       ? 'https://tiltaksgjennomforing.intern.nav.no/'
       : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
-  return `${baseUrl}tilbakesgjennomforing/opprett-avtale`;
+  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
 }
 
 const ViewTiltakstypeDetaljer = () => {
