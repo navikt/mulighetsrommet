@@ -8,19 +8,19 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class EventRepository(private val db: Database) {
-    private val logger: Logger = LoggerFactory.getLogger(EventRepository::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(topic: String, key: String, payload: String) {
         @Language("PostgreSQL")
         val query = """
-            insert into events(topic, key, payload)
-            values (?, ?, ?::jsonb)
+            insert into events(consumption_status, topic, key, payload)
+            values (?::consumption_status, ?, ?, ?::jsonb)
             on conflict (topic, key)
             do update set
                 payload = excluded.payload
         """.trimIndent()
 
-        queryOf(query, topic, key, payload)
+        queryOf(query, Event.ConsumptionStatus.Processed.toString(), topic, key, payload)
             .asUpdate
             .let { db.run(it) }
     }
@@ -30,7 +30,7 @@ class EventRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, topic, payload
+            select id, consumption_status, topic, payload
             from events
             where id = ?
         """.trimIndent()
@@ -46,7 +46,7 @@ class EventRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, topic, payload
+            select id, consumption_status, topic, payload
             from events
             where topic = :topic
               and id > :id
@@ -71,6 +71,7 @@ class EventRepository(private val db: Database) {
 private fun Row.toEvent(): Event {
     return Event(
         id = int("id"),
+        status = Event.ConsumptionStatus.valueOf(string("consumption_status")),
         topic = string("topic"),
         payload = string("payload"),
     )
@@ -78,6 +79,24 @@ private fun Row.toEvent(): Event {
 
 data class Event(
     val id: Int,
+    val status: ConsumptionStatus,
     val topic: String,
     val payload: String,
-)
+) {
+    enum class ConsumptionStatus {
+        /** Event processing is pending and will be started in the next schedule */
+        Pending,
+
+        /** Event is being processed */
+        Processing,
+
+        /** Event has been processed */
+        Processed,
+
+        /** Processing has failed, event processing can be retried */
+        Failed,
+
+        /** Event has been ignored */
+        Ignored
+    }
+}

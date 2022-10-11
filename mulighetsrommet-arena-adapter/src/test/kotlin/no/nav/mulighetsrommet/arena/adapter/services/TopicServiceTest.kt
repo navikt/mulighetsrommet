@@ -41,7 +41,12 @@ class TopicServiceTest : FunSpec({
         }
 
         test("should replay event payload specified by id") {
-            every { events.get(1) } returns Event(id = 1, topic = topic, payload = fooEventPayload.toString())
+            every { events.get(1) } returns Event(
+                id = 1,
+                status = Event.ConsumptionStatus.Processed,
+                topic = topic,
+                payload = fooEventPayload.toString()
+            )
 
             service.replayEvent(1)
 
@@ -66,7 +71,12 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getAll(topic, any(), any())
             } returns listOf(
-                Event(id = 1, topic = topic, payload = fooEventPayload.toString())
+                Event(
+                    id = 1,
+                    status = Event.ConsumptionStatus.Processed,
+                    topic = topic,
+                    payload = fooEventPayload.toString()
+                )
             ) andThen listOf()
 
             service.replayEvents(topic)
@@ -80,13 +90,23 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getAll(topic, any(), null)
             } returns listOf(
-                Event(id = 1, topic = topic, payload = fooEventPayload.toString())
+                Event(
+                    id = 1,
+                    status = Event.ConsumptionStatus.Processed,
+                    topic = topic,
+                    payload = fooEventPayload.toString()
+                )
             )
 
             every {
                 events.getAll(topic, any(), 1)
             } returns listOf(
-                Event(id = 2, topic = topic, payload = barEventPayload.toString())
+                Event(
+                    id = 2,
+                    status = Event.ConsumptionStatus.Processed,
+                    topic = topic,
+                    payload = barEventPayload.toString()
+                )
             )
 
             every { events.getAll(topic, any(), 2) } returns listOf()
@@ -103,13 +123,23 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getAll(topic, any(), null)
             } returns listOf(
-                Event(id = 1, topic = topic, payload = fooEventPayload.toString())
+                Event(
+                    id = 1,
+                    status = Event.ConsumptionStatus.Processed,
+                    topic = topic,
+                    payload = fooEventPayload.toString()
+                )
             )
 
             every {
                 events.getAll(topic, any(), 1)
             } returns listOf(
-                Event(id = 2, topic = topic, payload = barEventPayload.toString())
+                Event(
+                    id = 2,
+                    status = Event.ConsumptionStatus.Processed,
+                    topic = topic,
+                    payload = barEventPayload.toString()
+                )
             )
 
             every { events.getAll(topic, any(), 2) } returns listOf()
