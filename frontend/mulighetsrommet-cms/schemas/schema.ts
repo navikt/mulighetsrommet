@@ -15,6 +15,7 @@ import nokkelinfo from "./nokkelinfo";
 import faneinnhold from "./faneinnhold";
 import forskningsrapport from "./forskningsrapport";
 import lenke from "./lenke";
+import redaktor from "./redaktor";
 
 export default createSchema({
   name: "default",
@@ -34,7 +35,7 @@ export default createSchema({
     faneinnhold,
     lenke,
     forskningsrapport,
-
+    redaktor,
     // When added to this list, object types can be used as
     // { type: 'typename' } in other document schemas
     blockContent,
