@@ -1,6 +1,5 @@
 import S from "@sanity/desk-tool/structure-builder";
 import { commonStructure } from "./commonStructure";
-import tiltakstype from "../schemas/tiltakstype";
 
 const redaktorTiltaksgjennomforingStructure = (redaktorNavn) => [
   S.listItem()
@@ -9,7 +8,7 @@ const redaktorTiltaksgjennomforingStructure = (redaktorNavn) => [
       S.documentList()
         .title("Mine tiltaksgjennomføringer")
         .filter(
-          '_type == "tiltaksgjennomforing" && redaktor -> navn == $redaktorNavn'
+          '_type == "tiltaksgjennomforing" && $redaktorNavn in redaktor[]->navn'
         )
         .params({ redaktorNavn })
         .defaultOrdering([{ field: "_createdAt", direction: "desc" }])

@@ -14,20 +14,26 @@ export default {
   fields: [
     {
       name: "redaktor",
-      title: "Redaktør",
-      type: "reference",
+      title: "Redaktører",
+      type: "array",
       description:
-          "Her velger du hvem som har opprettet denne tiltaksgjennomføringen.",
-      to: [{type: "redaktor"}],
-      validation: (Rule: Rule) => Rule.required(),
+        "Her velger du hvem som eier innholdet i denne tiltaksgjennomføringen.",
+      to: [{ type: "redaktor" }],
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "redaktor" }],
+        },
+      ],
+      validation: (Rule: Rule) => Rule.required().unique(),
     },
     {
       name: "tiltakstype",
       title: "Tiltakstype",
       type: "reference",
       description:
-          "Her velger du hvilken tiltakstype gjennomføringen gjelder for",
-      to: [{type: "tiltakstype"}],
+        "Her velger du hvilken tiltakstype gjennomføringen gjelder for",
+      to: [{ type: "tiltakstype" }],
       validation: (Rule: Rule) => Rule.required(),
     },
     {
@@ -41,67 +47,59 @@ export default {
       name: "beskrivelse",
       title: "Beskrivelse",
       description:
-          "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
+        "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
       type: "string",
     },
     {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description: "Her skriver du inn tiltaksnummeret for gjennomføringen",
-      type: "number",
+      type: "slug",
       validation: (Rule) =>
-          Rule.custom(async (tiltaksnummer) => {
-            if (!tiltaksnummer) return "Tiltaksnummer må spesifiseres.";
-
-            const antallTiltaksnummer = await client.fetch(
-                `count(*[_type == 'tiltaksgjennomforing' && tiltaksnummer == ${tiltaksnummer}])`
-            );
-
-            return antallTiltaksnummer === 1
-                ? true
-                : `Tiltaksnummer må være unikt for alle tiltaksgjennomføringer. Fant ${antallTiltaksnummer} totalt.`;
-          }),
+        Rule.required().error(
+          "Tiltaksnummer må være unikt for alle tiltaksgjennomføringer"
+        ),
     },
     {
       name: "estimert_ventetid",
       title: "Estimert ventetid eller stengt til",
       description:
-          "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
       type: "string",
     },
     {
       name: "kontaktinfoArrangor",
       title: "Arrangør",
       description:
-          "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak",
+        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak",
       type: "reference",
-      to: [{type: "arrangor"}],
+      to: [{ type: "arrangor" }],
       validation: (Rule) =>
-          Rule.custom(async (arrangor, {document}) => {
-            const tiltaksgruppe = await client.fetch(
-                "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
-                {tiltakstype: document.tiltakstype._ref}
-            );
+        Rule.custom(async (arrangor, { document }) => {
+          const tiltaksgruppe = await client.fetch(
+            "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
+            { tiltakstype: document.tiltakstype._ref }
+          );
 
-            if (tiltaksgruppe?.includes("individuelt")) {
-              if (arrangor) {
-                return "Individuelle tiltak skal ikke ha noen arrangør";
-              }
-              return true;
+          if (tiltaksgruppe?.includes("individuelt")) {
+            if (arrangor) {
+              return "Individuelle tiltak skal ikke ha noen arrangør";
             }
-
-            if (!arrangor) {
-              return "For tiltak som ikke er individuelle må man velge en arrangør";
-            }
-
             return true;
-          }),
+          }
+
+          if (!arrangor) {
+            return "For tiltak som ikke er individuelle må man velge en arrangør";
+          }
+
+          return true;
+        }),
     },
     {
       name: "lokasjon",
       title: "Lokasjon",
       description:
-          "Her skriver du inn hvor i tiltaket gjelder. Feks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
+        "Her skriver du inn hvor i tiltaket gjelder. Feks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
       validation: (Rule: Rule) => Rule.required(),
     },
@@ -110,7 +108,7 @@ export default {
       title: "Fylke",
       description: "I hvilken region gjelder dette tiltaket?",
       type: "reference",
-      to: [{type: "enhet"}],
+      to: [{ type: "enhet" }],
       options: {
         disableNew: true,
         filter: "type == $type",
@@ -124,18 +122,18 @@ export default {
       name: "enheter",
       title: "Enheter",
       description:
-          "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
+        "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
-      hidden: ({document}) => {
+      hidden: ({ document }) => {
         return !document.fylke;
       },
       of: [
         {
           type: "reference",
-          to: [{type: "enhet"}],
+          to: [{ type: "enhet" }],
           options: {
             disableNew: true,
-            filter: ({document}) => {
+            filter: ({ document }) => {
               return {
                 filter: `fylke._ref == $fylke`,
                 params: {
@@ -147,36 +145,36 @@ export default {
         },
       ],
       validation: (Rule: Rule) =>
-          Rule.unique().custom(async (enheter, {document}) => {
-            if (!document.fylke || !enheter) {
-              return true;
-            }
+        Rule.unique().custom(async (enheter, { document }) => {
+          if (!document.fylke || !enheter) {
+            return true;
+          }
 
-            const validEnheter = await client.fetch(
-                "*[_type == 'enhet' && fylke._ref == $fylke]._id",
-                {fylke: document.fylke._ref}
-            );
+          const validEnheter = await client.fetch(
+            "*[_type == 'enhet' && fylke._ref == $fylke]._id",
+            { fylke: document.fylke._ref }
+          );
 
-            const paths = enheter
-                ?.filter((enhet) => !validEnheter.includes(enhet._ref))
-                ?.map((enhet) => [{_key: enhet._key}]);
+          const paths = enheter
+            ?.filter((enhet) => !validEnheter.includes(enhet._ref))
+            ?.map((enhet) => [{ _key: enhet._key }]);
 
-            return !paths.length
-                ? true
-                : {message: "Alle enheter må tilhøre valgt fylke", paths};
-          }),
+          return !paths.length
+            ? true
+            : { message: "Alle enheter må tilhøre valgt fylke", paths };
+        }),
     },
     {
       name: "oppstart",
       title: "Oppstart eller midlertidig stengt",
       description:
-          "Her velger du om tiltaksgjennomføringen har oppstart på en spesifikk dato eller om det er løpende oppstart.",
+        "Her velger du om tiltaksgjennomføringen har oppstart på en spesifikk dato eller om det er løpende oppstart.",
       type: "string",
       options: {
         list: [
-          {title: "Dato", value: "dato"},
-          {title: "Løpende", value: "lopende"},
-          {title: "Midlertidig stengt", value: "midlertidig_stengt"},
+          { title: "Dato", value: "dato" },
+          { title: "Løpende", value: "lopende" },
+          { title: "Midlertidig stengt", value: "midlertidig_stengt" },
         ],
       },
       validation: (Rule: Rule) => Rule.required(),
@@ -185,8 +183,8 @@ export default {
       name: "oppstartsdato",
       title: "Dato for oppstart",
       type: "date",
-      options: {dateFormat: "DD/MM/YYYY"},
-      hidden: ({parent}) => parent?.oppstart !== "dato",
+      options: { dateFormat: "DD/MM/YYYY" },
+      hidden: ({ parent }) => parent?.oppstart !== "dato",
     },
     //Faneinnhold
     {
@@ -198,16 +196,16 @@ export default {
       name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
       description:
-          "Her velger du en eller flere tiltaksansvarlige for tiltaksgjennomføringen",
+        "Her velger du en eller flere tiltaksansvarlige for tiltaksgjennomføringen",
       type: "array",
-      of: [{type: "reference", to: [{type: "navKontaktperson"}]}],
+      of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       validation: (Rule: Rule) => Rule.required().min(1).unique(),
     },
     {
       name: "lenker",
       title: "Lenker",
       description:
-          "Dersom du har lenker som er interessant for tiltaksgjennomføringen kan det legges til her. PS: Per 05.10.2022 er dette feltet ikke synlig for veiledere enda.",
+        "Dersom du har lenker som er interessant for tiltaksgjennomføringen kan det legges til her. PS: Per 05.10.2022 er dette feltet ikke synlig for veiledere enda.",
       type: "array",
       of: [lenke],
     },
@@ -215,14 +213,14 @@ export default {
       name: "tilgjengelighetsstatus",
       title: "Tilgjengelighetsstatus",
       description:
-          "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives her i Sanity.",
+        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives her i Sanity.",
       readOnly: true,
       type: "string",
       options: {
         list: [
-          {title: "Åpent", value: "Ledig"},
-          {title: "Venteliste", value: "Venteliste"},
-          {title: "Stengt", value: "Stengt"},
+          { title: "Åpent", value: "Ledig" },
+          { title: "Venteliste", value: "Venteliste" },
+          { title: "Stengt", value: "Stengt" },
         ],
       },
     },
@@ -234,7 +232,7 @@ export default {
       fylke: "fylke.navn",
     },
     prepare: (selection) => {
-      const {title, tiltakstypeNavn, fylke} = selection;
+      const { title, tiltakstypeNavn, fylke } = selection;
       return {
         title,
         subtitle: `${fylke} - ${tiltakstypeNavn}`,

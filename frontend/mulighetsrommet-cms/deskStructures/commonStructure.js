@@ -86,7 +86,7 @@ export function commonStructure() {
                     S.documentList()
                       .title("Per redaktør")
                       .filter(
-                        '_type == "tiltaksgjennomforing" && $redaktorId == redaktor._ref'
+                        '_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref'
                       )
                       .params({ redaktorId })
                       .defaultOrdering([
