@@ -26,6 +26,7 @@ export default {
   preview: {
     select: {
       title: "navn",
+      subtitle: "enhet",
     },
   },
 };
