@@ -12,9 +12,7 @@ export default () =>
     const deskItems = [];
 
     if (roleNames.includes("administrator")) {
-      deskItems.push(...redaktorTiltaksgjennomforingStructure(user.name));
-      // deskItems.push(...adminStructure);
-      return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
+      deskItems.push(...adminStructure);
       return S.list().title("Adminstrator").items(deskItems);
     }
 
