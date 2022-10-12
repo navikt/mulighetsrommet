@@ -1,5 +1,6 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import sanityClient from "part:@sanity/base/client";
+import userStore from "part:@sanity/base/user";
 import { Rule } from "@sanity/types";
 import { EnhetType } from "./enhet";
 import lenke from "./lenke";
@@ -26,6 +27,18 @@ export default {
         },
       ],
       validation: (Rule: Rule) => Rule.required().unique(),
+      initialValue: async () => {
+        const user = await userStore.getCurrentUser();
+        const foundRedaktor = await client.fetch(
+          `*[_type == "redaktor" && navn == '${user.name}'][0]`
+        );
+        return [
+          {
+            _type: "reference",
+            _ref: foundRedaktor._id,
+          },
+        ];
+      },
     },
     {
       name: "tiltakstype",

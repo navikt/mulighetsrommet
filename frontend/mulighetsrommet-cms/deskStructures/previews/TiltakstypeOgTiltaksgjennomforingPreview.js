@@ -8,15 +8,26 @@ function MarginBottom({ children }) {
   return <div style={{ marginBottom: "4rem" }}>{children}</div>;
 }
 
-function Firkant({farge}) {
-  return <div style={{ display: "inline-block", background: farge, height: "12px", width: "12px" }}/>;
+function Firkant({ farge }) {
+  return (
+    <div
+      style={{
+        display: "inline-block",
+        background: farge,
+        height: "12px",
+        width: "12px",
+      }}
+    />
+  );
 }
 
 function Legend({ farge, children }) {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <Firkant farge={farge}/>
-      <small style={{ marginLeft: "4px", textAlign: "right" }}>{children}</small>
+      <Firkant farge={farge} />
+      <small style={{ marginLeft: "4px", textAlign: "right" }}>
+        {children}
+      </small>
     </div>
   );
 }
@@ -82,7 +93,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
           style={{
             display: "flex",
             height: "20px",
-            alignItems: "center"
+            alignItems: "center",
           }}
         >
           <div
@@ -107,7 +118,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
           {fargekodet && (
             <div
               style={{
-                marginLeft: "16px"
+                marginLeft: "16px",
               }}
             >
               <div>

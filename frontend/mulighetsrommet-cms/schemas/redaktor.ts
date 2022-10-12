@@ -1,5 +1,6 @@
 import { GrUserAdmin } from "react-icons/gr";
 import { Rule } from "@sanity/types";
+import userStore from "part:@sanity/base/user";
 
 export default {
   name: "redaktor",
@@ -14,6 +15,20 @@ export default {
         "Brukes for å filtrere på tiltaksgjennomføringene du oppretter.",
       type: "string",
       validation: (Rule: Rule) => Rule.required().min(2).max(200),
+      initialValue: async () => {
+        const { name } = await userStore.getCurrentUser();
+        return name;
+      },
+    },
+    {
+      name: "epost",
+      title: "NAV-epost",
+      type: "slug",
+      validation: (Rule: Rule) => Rule.required(),
+      initialValue: async () => {
+        const { email } = await userStore.getCurrentUser();
+        return { _type: "slug", current: email };
+      },
     },
     {
       name: "enhet",
