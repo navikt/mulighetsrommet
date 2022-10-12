@@ -1,5 +1,6 @@
 import S from "@sanity/desk-tool/structure-builder";
 import { commonStructure } from "./commonStructure";
+
 const redaktorAvdirStructure = [
   ...commonStructure(),
   S.divider(),
@@ -15,6 +16,7 @@ const redaktorAvdirStructure = [
         "forskningsrapport",
         "innsatsgruppe",
         "statistikkfil",
+        "redaktor",
       ].includes(listItem.getId())
   ),
   S.divider(),
