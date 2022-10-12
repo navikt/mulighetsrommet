@@ -1,5 +1,7 @@
 import S from "@sanity/desk-tool/structure-builder";
+
 const ORDER_BY_CREATEDAT_FIELD = [{ field: "_createdAt", direction: "desc" }];
+
 export function commonStructure() {
   return [
     S.listItem()
@@ -73,6 +75,23 @@ export function commonStructure() {
                         '_type == "tiltaksgjennomforing" && $tiltakstype == tiltakstype._ref'
                       )
                       .params({ tiltakstype })
+                  )
+              ),
+            S.listItem()
+              .title("Per redaktør")
+              .child(
+                S.documentTypeList("redaktor")
+                  .title("Per redaktør")
+                  .child((redaktorId) =>
+                    S.documentList()
+                      .title("Per redaktør")
+                      .filter(
+                        '_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref'
+                      )
+                      .params({ redaktorId })
+                      .defaultOrdering([
+                        { field: "_createdAt", direction: "desc" },
+                      ])
                   )
               ),
           ])

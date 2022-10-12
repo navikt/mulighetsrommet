@@ -13,6 +13,21 @@ export default {
   icon: GrDocumentPerformance,
   fields: [
     {
+      name: "redaktor",
+      title: "Redaktører",
+      type: "array",
+      description:
+        "Her velger du hvem som eier innholdet i denne tiltaksgjennomføringen.",
+      to: [{ type: "redaktor" }],
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "redaktor" }],
+        },
+      ],
+      validation: (Rule: Rule) => Rule.required().unique(),
+    },
+    {
       name: "tiltakstype",
       title: "Tiltakstype",
       type: "reference",
@@ -39,14 +54,17 @@ export default {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description: "Her skriver du inn tiltaksnummeret for gjennomføringen",
-      type: "number",
-      validation: (Rule: Rule) => Rule.required(),
+      type: "slug",
+      validation: (Rule) =>
+        Rule.required().error(
+          "Tiltaksnummer må være unikt for alle tiltaksgjennomføringer"
+        ),
     },
     {
       name: "estimert_ventetid",
-      title: "Estimert ventetid",
+      title: "Estimert ventetid eller stengt til",
       description:
-        "Her kan du oppgi estimert ventetid for tiltaket. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
       type: "string",
     },
     {

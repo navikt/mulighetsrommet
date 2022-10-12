@@ -7,7 +7,8 @@
   "scripts": {
     "start": "sanity start",
     "build": "sanity build",
-    "deploy": "sanity deploy --no-build"
+    "deploy": "sanity deploy --no-build",
+    "backup": "sanity dataset export production ./production.tar.gz && sanity dataset export test ./test.tar.gz"
   },
   "keywords": [
     "sanity"

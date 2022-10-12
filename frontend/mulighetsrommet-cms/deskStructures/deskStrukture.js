@@ -6,37 +6,34 @@ import redaktorTiltaksgjennomforingStructure from "./redaktorTiltaksgjennomforin
 import { TiltakstypeOgTiltaksgjennomforingPreview } from "./previews/TiltakstypeOgTiltaksgjennomforingPreview";
 
 export default () =>
-  userStore
-    .getCurrentUser()
-    .then((user) => user.roles)
-    .then((roles) => {
-      const roleNames = roles.map((r) => r.name);
+  userStore.getCurrentUser().then((user) => {
+    const roleNames = user.roles.map((r) => r.name);
 
-      const deskItems = [];
+    const deskItems = [];
 
-      if (roleNames.includes("administrator")) {
-        deskItems.push(...adminStructure);
-        return S.list().title("Adminstrator").items(deskItems);
-      }
+    if (roleNames.includes("administrator")) {
+      deskItems.push(...adminStructure);
+      return S.list().title("Adminstrator").items(deskItems);
+    }
 
-      // Innhold for fagansvarlige i AV.Dir
-      if (roleNames.includes("redaktor_av_dir")) {
-        deskItems.push(...redaktorAvdirStructure);
-        return S.list()
-          .title("Innhold for fagansvarlige i AV.Dir")
-          .items(deskItems);
-      }
-
-      // Innhold for tiltaksansvarlige
-      if (roleNames.includes("redaktor-tiltaksgjennomforing")) {
-        deskItems.push(...redaktorTiltaksgjennomforingStructure);
-        return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
-      }
-
+    // Innhold for fagansvarlige i AV.Dir
+    if (roleNames.includes("redaktor_av_dir")) {
+      deskItems.push(...redaktorAvdirStructure);
       return S.list()
-        .title("Innhold")
-        .items([...adminStructure]);
-    });
+        .title("Innhold for fagansvarlige i AV.Dir")
+        .items(deskItems);
+    }
+
+    // Innhold for tiltaksansvarlige
+    if (roleNames.includes("redaktor-tiltaksgjennomforing")) {
+      deskItems.push(...redaktorTiltaksgjennomforingStructure(user.name));
+      return S.list().title("Innhold for tiltaksansvarlig").items(deskItems);
+    }
+
+    return S.list()
+      .title("Innhold")
+      .items([...adminStructure]);
+  });
 
 export const getDefaultDocumentNode = ({ schemaType }) => {
   if (schemaType === "tiltaksgjennomforing") {
