@@ -4,12 +4,12 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.Integer.parseInt
 
 class HistorikkService(
     private val db: Database,
@@ -23,7 +23,18 @@ class HistorikkService(
             log.info("Klarte ikke hente personId fra veilarbarena")
             return emptyList()
         }
-        return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {
+        return listOf(
+            HistorikkForDeltaker(
+                id = "test",
+                fraDato = null,
+                tilDato = null,
+                status = Deltakerstatus.DELTAR,
+                tiltaksnavn = "Testnavn",
+                tiltaksnummer = "12321434",
+                tiltakstype = "Lønnstilskudd",
+                arrangorId = 916970935
+            )
+        ).map {
             HistorikkForDeltakerDTO(
                 id = it.id,
                 fraDato = it.fraDato,
