@@ -32,7 +32,7 @@ class HistorikkService(
                 tiltaksnavn = "Testnavn",
                 tiltaksnummer = "12321434",
                 tiltakstype = "Lønnstilskudd",
-                arrangorId = 916970935
+                arrangorId = 924538589
             )
         ).map {
             HistorikkForDeltakerDTO(
