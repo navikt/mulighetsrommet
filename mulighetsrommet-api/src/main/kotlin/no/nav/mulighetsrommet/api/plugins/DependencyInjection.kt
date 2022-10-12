@@ -7,6 +7,8 @@ import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.clients.amtenhetsregister.AmtEnhetsregisterClient
+import no.nav.mulighetsrommet.api.clients.amtenhetsregister.AmtEnhetsregisterClientImpl
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
 import no.nav.mulighetsrommet.api.clients.arenaordsproxy.ArenaOrdsProxyClient
@@ -48,7 +50,8 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
                 veilarbarena(appConfig),
-                arenaordsproxy(appConfig)
+                arenaordsproxy(appConfig),
+                amtenhetsregister(appConfig)
             )
         )
     }
@@ -124,6 +127,14 @@ private fun arenaordsproxy(config: AppConfig): ArenaOrdsProxyClient {
     )
 }
 
+private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
+    return AmtEnhetsregisterClientImpl(
+        baseUrl = config.amtEnhetsregister.url,
+        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
+        scope = config.amtEnhetsregister.scope
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -154,7 +165,8 @@ private fun services(
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient,
-    arenaOrdsProxyClient: ArenaOrdsProxyClient
+    arenaOrdsProxyClient: ArenaOrdsProxyClient,
+    amtEnhetsregisterClient: AmtEnhetsregisterClient,
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
@@ -164,7 +176,7 @@ private fun services(
     single { InnsatsgruppeService(get()) }
     single { HistorikkService(get(), veilarbarenaClient, get()) }
     single { SanityService(appConfig.sanity, get()) }
-    single { ArrangorService(arenaOrdsProxyClient) }
+    single { ArrangorService(arenaOrdsProxyClient, amtEnhetsregisterClient) }
     single {
         BrukerService(
             veilarboppfolgingClient = veilarboppfolging,

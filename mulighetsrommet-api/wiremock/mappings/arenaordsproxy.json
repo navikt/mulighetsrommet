@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/arbeidsgiver/([\\d\\D]*)"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "virksomhetsnummer": "123456789",
+      "organisasjonsnummerMorselskap": "9876543121"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

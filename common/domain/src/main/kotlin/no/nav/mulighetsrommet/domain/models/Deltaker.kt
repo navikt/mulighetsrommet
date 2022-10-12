@@ -20,6 +20,7 @@ data class Deltaker(
     val status: Deltakerstatus
 )
 
+@Serializable
 data class HistorikkForDeltakerDTO(
     val id: String,
     @Serializable(with = DateSerializer::class)
@@ -30,10 +31,9 @@ data class HistorikkForDeltakerDTO(
     val tiltaksnavn: String,
     val tiltaksnummer: String,
     val tiltakstype: String,
-    val arrangor: String
+    val arrangor: String?
 )
 
-@Serializable
 data class HistorikkForDeltaker(
     val id: String,
     @Serializable(with = DateSerializer::class)

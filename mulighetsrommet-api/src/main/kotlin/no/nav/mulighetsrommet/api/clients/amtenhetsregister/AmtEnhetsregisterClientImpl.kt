@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.arenaordsproxy
+package no.nav.mulighetsrommet.api.clients.amtenhetsregister
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -6,23 +6,23 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.common.token_client.client.MachineToMachineTokenClient
-import no.nav.mulighetsrommet.api.domain.ArbeidsgiverDTO
+import no.nav.mulighetsrommet.api.domain.VirksomhetDTO
 import no.nav.mulighetsrommet.api.setup.http.baseClient
 import org.slf4j.LoggerFactory
 
-private val log = LoggerFactory.getLogger(ArenaOrdsProxyClient::class.java)
+private val log = LoggerFactory.getLogger(AmtEnhetsregisterClient::class.java)
 
-class ArenaOrdsProxyClientImpl(
+class AmtEnhetsregisterClientImpl(
     private val baseUrl: String,
     private val machineToMachineTokenClient: MachineToMachineTokenClient,
     private val scope: String,
     private val client: HttpClient = baseClient.config {
         install(HttpCache)
     }
-) : ArenaOrdsProxyClient {
-    override suspend fun hentArbeidsgiver(arbeidsgiverId: Int): ArbeidsgiverDTO? {
+) : AmtEnhetsregisterClient {
+    override suspend fun hentVirksomhetsNavn(virksomhetsnummer: Int): VirksomhetDTO? {
         return try {
-            val response = client.get("$baseUrl/arbeidsgiver/$arbeidsgiverId") {
+            val response = client.get("$baseUrl/api/enhet/$virksomhetsnummer") {
                 bearerAuth(
                     machineToMachineTokenClient.createMachineToMachineToken(
                         scope
