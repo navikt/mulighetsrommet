@@ -35,6 +35,18 @@ class HistorikkService(
                 arrangor = arrangorService.hentArrangorNavn(it.arrangorId)
             )
         }
+        /*return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {
+            HistorikkForDeltakerDTO(
+                id = it.id,
+                fraDato = it.fraDato,
+                tilDato = it.tilDato,
+                status = it.status,
+                tiltaksnavn = it.tiltaksnavn,
+                tiltaksnummer = it.tiltaksnummer,
+                tiltakstype = it.tiltakstype,
+                arrangor = arrangorService.hentArrangorNavn(it.arrangorId)
+            )
+        }*/
     }
 
     private fun getHistorikkForBrukerFromDb(person_id: Int): List<HistorikkForDeltaker> {

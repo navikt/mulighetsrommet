@@ -22,7 +22,7 @@ class ArenaOrdsProxyClientImpl(
 ) : ArenaOrdsProxyClient {
     override suspend fun hentArbeidsgiver(arbeidsgiverId: Int): ArbeidsgiverDTO? {
         return try {
-            val response = client.get("$baseUrl/arbeidsgiver/$arbeidsgiverId") {
+            val response = client.get("$baseUrl/ords/arbeidsgiver/$arbeidsgiverId") {
                 bearerAuth(
                     machineToMachineTokenClient.createMachineToMachineToken(
                         scope

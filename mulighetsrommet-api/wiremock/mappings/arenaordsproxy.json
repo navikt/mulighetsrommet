@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/arbeidsgiver/([\\d\\D]*)"
+    "urlPattern": "/ords/arbeidsgiver/([\\d\\D]*)"
   },
   "response": {
     "status": 200,

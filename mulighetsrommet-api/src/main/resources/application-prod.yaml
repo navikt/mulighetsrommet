@@ -63,5 +63,5 @@ app:
     scope: api://prod-gcp.amt.amt-enhetsregister/.default
 
   arenaOrdsProxy:
-    url: https://amt-arena-ords-proxy.prod-fss-pub.nais.io
+    url: https://amt-arena-ords-proxy.prod-fss-pub.nais.io/api
     scope: api://prod-fss.amt.amt-arena-ords-proxy/.default
