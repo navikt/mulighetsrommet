@@ -16,7 +16,7 @@ abstract class TopicConsumer<T> {
             val key = resolveKey(parsedPayload)
 
             logger.info("Persisting event: topic=${consumerConfig.topic}, key=$key")
-            events.saveEvent(consumerConfig.topic, key, payload.toString())
+            events.upsert(consumerConfig.topic, key, payload.toString())
 
             logger.info("Handling event: topic=${consumerConfig.topic}, key=$key")
             handleEvent(parsedPayload)

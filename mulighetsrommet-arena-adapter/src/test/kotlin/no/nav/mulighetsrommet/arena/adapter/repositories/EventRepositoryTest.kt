@@ -27,19 +27,19 @@ class EventRepositoryTest : FunSpec({
     }
 
     test("should save events") {
-        (0..4).forEach { eventRepository.saveEvent("topic", it.toString(), "{}") }
+        (0..4).forEach { eventRepository.upsert("topic", it.toString(), "{}") }
 
         Assertions.assertThat(table).hasNumberOfRows(5)
     }
 
     test("should retrieve 3 saved events") {
-        val events = eventRepository.getEvents("topic", 3)
+        val events = eventRepository.getAll("topic", 3)
 
         events shouldHaveSize 3
     }
 
     test("should retrieve 3 saved events starting from id 2") {
-        val events = eventRepository.getEvents("topic", 3, 2)
+        val events = eventRepository.getAll("topic", 3, 2)
 
         events shouldHaveSize 3
         events.map { it.id } shouldContainInOrder listOf(3, 4, 5)

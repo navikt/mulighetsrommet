@@ -31,7 +31,7 @@ class TopicServiceTest : FunSpec({
 
     context("replay event") {
         test("should run gracefully when specified event does not exist") {
-            every { events.getEvent(1) } returns null
+            every { events.get(1) } returns null
 
             service.replayEvent(1)
 
@@ -41,7 +41,7 @@ class TopicServiceTest : FunSpec({
         }
 
         test("should replay event payload specified by id") {
-            every { events.getEvent(1) } returns Event(id = 1, topic = topic, payload = fooEventPayload.toString())
+            every { events.get(1) } returns Event(id = 1, topic = topic, payload = fooEventPayload.toString())
 
             service.replayEvent(1)
 
@@ -53,7 +53,7 @@ class TopicServiceTest : FunSpec({
 
     context("replay events") {
         test("should run gracefully when there are no events to replay") {
-            every { events.getEvents(topic, any(), any()) } returns listOf()
+            every { events.getAll(topic, any(), any()) } returns listOf()
 
             service.replayEvents(topic)
 
@@ -64,7 +64,7 @@ class TopicServiceTest : FunSpec({
 
         test("should replay event payload when events are available for the specified topic") {
             every {
-                events.getEvents(topic, any(), any())
+                events.getAll(topic, any(), any())
             } returns listOf(
                 Event(id = 1, topic = topic, payload = fooEventPayload.toString())
             ) andThen listOf()
@@ -78,18 +78,18 @@ class TopicServiceTest : FunSpec({
 
         test("should replay all events in the order of their id") {
             every {
-                events.getEvents(topic, any(), null)
+                events.getAll(topic, any(), null)
             } returns listOf(
                 Event(id = 1, topic = topic, payload = fooEventPayload.toString())
             )
 
             every {
-                events.getEvents(topic, any(), 1)
+                events.getAll(topic, any(), 1)
             } returns listOf(
                 Event(id = 2, topic = topic, payload = barEventPayload.toString())
             )
 
-            every { events.getEvents(topic, any(), 2) } returns listOf()
+            every { events.getAll(topic, any(), 2) } returns listOf()
 
             service.replayEvents(topic)
 
@@ -101,18 +101,18 @@ class TopicServiceTest : FunSpec({
 
         test("should only replay events after the specified id") {
             every {
-                events.getEvents(topic, any(), null)
+                events.getAll(topic, any(), null)
             } returns listOf(
                 Event(id = 1, topic = topic, payload = fooEventPayload.toString())
             )
 
             every {
-                events.getEvents(topic, any(), 1)
+                events.getAll(topic, any(), 1)
             } returns listOf(
                 Event(id = 2, topic = topic, payload = barEventPayload.toString())
             )
 
-            every { events.getEvents(topic, any(), 2) } returns listOf()
+            every { events.getAll(topic, any(), 2) } returns listOf()
 
             service.replayEvents(topic, 1)
 

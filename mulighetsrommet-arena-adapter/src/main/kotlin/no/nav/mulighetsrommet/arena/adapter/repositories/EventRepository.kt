@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 class EventRepository(private val db: Database) {
     private val logger: Logger = LoggerFactory.getLogger(EventRepository::class.java)
 
-    fun saveEvent(topic: String, key: String, payload: String) {
+    fun upsert(topic: String, key: String, payload: String) {
         @Language("PostgreSQL")
         val query = """
             insert into events(topic, key, payload)
@@ -25,7 +25,7 @@ class EventRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getEvent(id: Int): Event? {
+    fun get(id: Int): Event? {
         logger.info("Getting event id=$id")
 
         @Language("PostgreSQL")
@@ -41,7 +41,7 @@ class EventRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getEvents(topic: String, limit: Int, id: Int? = null): List<Event> {
+    fun getAll(topic: String, limit: Int, id: Int? = null): List<Event> {
         logger.info("Getting events topic=$topic, amount=$limit, id=$id")
 
         @Language("PostgreSQL")

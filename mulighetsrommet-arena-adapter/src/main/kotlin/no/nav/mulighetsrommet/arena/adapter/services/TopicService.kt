@@ -25,7 +25,7 @@ class TopicService(
     suspend fun replayEvent(id: Int) = coroutineScope {
         logger.info("Replaying event id=$id")
 
-        return@coroutineScope events.getEvent(id)?.also { event ->
+        return@coroutineScope events.get(id)?.also { event ->
             val relevantConsumers = group.consumers.filter { it.consumerConfig.topic == event.topic }
             replay(relevantConsumers, event)
         }
@@ -39,7 +39,7 @@ class TopicService(
         val events = produce(capacity = config.channelCapacity) {
             var prevEventId: Int? = id
             do {
-                events.getEvents(topic, limit = config.channelCapacity, id = prevEventId)
+                events.getAll(topic, limit = config.channelCapacity, id = prevEventId)
                     .also { prevEventId = it.lastOrNull()?.id }
                     .forEach { send(it) }
             } while (isActive && prevEventId != null)
