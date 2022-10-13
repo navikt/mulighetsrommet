@@ -4,6 +4,7 @@ import adminStructure from "./adminStructure";
 import redaktorAvdirStructure from "./redaktorAvdirStructure";
 import redaktorTiltaksgjennomforingStructure from "./redaktorTiltaksgjennomforingStructure";
 import { TiltakstypeOgTiltaksgjennomforingPreview } from "./previews/TiltakstypeOgTiltaksgjennomforingPreview";
+import { TiltakstypePreview } from "./previews/TiltakstypePreview";
 
 export default () =>
   userStore.getCurrentUser().then((user) => {
@@ -41,7 +42,16 @@ export const getDefaultDocumentNode = ({ schemaType }) => {
       S.view.form(),
       S.view
         .component(TiltakstypeOgTiltaksgjennomforingPreview)
-        .title("Forhåndsvisning"),
+        .title("Forhåndsvisning av tiltaksgjennomføring"),
+    ]);
+  }
+
+  if (schemaType === "tiltakstype") {
+    return S.document().views([
+      S.view.form(),
+      S.view
+        .component(TiltakstypePreview)
+        .title("Forhåndsvisning av tiltakstype"),
     ]);
   }
 };
