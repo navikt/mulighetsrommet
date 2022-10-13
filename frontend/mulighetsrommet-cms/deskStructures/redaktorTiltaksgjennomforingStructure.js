@@ -1,9 +1,11 @@
 import S from "@sanity/desk-tool/structure-builder";
 import { commonStructure } from "./commonStructure";
+import { GrDocumentPerformance } from "react-icons/gr";
 
 const redaktorTiltaksgjennomforingStructure = (redaktorNavn) => [
   S.listItem()
     .title("Mine tiltaksgjennomføringer")
+    .icon(GrDocumentPerformance)
     .child(
       S.documentList()
         .title("Mine tiltaksgjennomføringer")
