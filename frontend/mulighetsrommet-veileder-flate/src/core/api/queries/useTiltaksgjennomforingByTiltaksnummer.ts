@@ -6,11 +6,11 @@ import { useSanity } from './useSanity';
 export default function useTiltaksgjennomforingByTiltaksnummer() {
   const tiltaksnummer = useGetTiltaksnummerFraUrl();
   return useSanity<Tiltaksgjennomforing>(
-    groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) && tiltaksnummer == ${tiltaksnummer}] {
+    groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) && tiltaksnummer.current == '${tiltaksnummer}'] {
     _id,
     tiltaksgjennomforingNavn,
     beskrivelse,
-    tiltaksnummer,
+    "tiltaksnummer": tiltaksnummer.current,
     lokasjon,
     oppstart,
     oppstartsdato,

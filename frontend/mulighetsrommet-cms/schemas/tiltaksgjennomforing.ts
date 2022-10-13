@@ -32,10 +32,11 @@ export default {
         const foundRedaktor = await client.fetch(
           `*[_type == "redaktor" && navn == '${user.name}'][0]`
         );
+        if (!foundRedaktor) return [];
         return [
           {
             _type: "reference",
-            _ref: foundRedaktor._id,
+            _ref: foundRedaktor?._id,
           },
         ];
       },
