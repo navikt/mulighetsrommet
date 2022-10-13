@@ -24,7 +24,7 @@ export default function useTiltaksgjennomforing() {
     oppstart,
     oppstartsdato,
     estimert_ventetid,
-    tiltaksnummer,
+    "tiltaksnummer": tiltaksnummer.current,
     kontaktinfoArrangor->{selskapsnavn},
     tiltakstype->{tiltakstypeNavn},
     tilgjengelighetsstatus
