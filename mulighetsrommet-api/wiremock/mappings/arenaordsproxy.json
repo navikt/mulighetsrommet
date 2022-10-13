@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/ords/arbeidsgiver/([\\d\\D]*)"
+    "urlPathPattern": "/ords/arbeidsgiver",
+    "queryParameters": {
+      "arbeidsgiverId": {
+        "matches": "[\\d\\D]*"
+      }
+    }
   },
   "response": {
     "status": 200,

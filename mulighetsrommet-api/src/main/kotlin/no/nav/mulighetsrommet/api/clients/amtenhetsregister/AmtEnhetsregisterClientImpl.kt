@@ -29,8 +29,6 @@ class AmtEnhetsregisterClientImpl(
                     )
                 )
             }
-
-            log.info("Virksomhetsinfo: ${response.body<String>()}")
             if (response.status == HttpStatusCode.OK) {
                 return response.body()
             }

@@ -6,8 +6,10 @@
   "response": {
     "status": 200,
     "jsonBody": {
-      "organisasjonsnummer": "123456789",
-      "navn": "Kul Bedrift"
+      "organisasjonsnummer": "974589311",
+      "navn": "BYDELSADM BYDEL GRUNERLØKKA",
+      "overordnetEnhetOrganisasjonsnummer": "870534612",
+      "overordnetEnhetNavn": "OSLO KOMMUNE BYDEL 2 GRUNERLØKKA"
     },
     "headers": {
       "Content-Type": "application/json"

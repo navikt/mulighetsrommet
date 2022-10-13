@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class VirksomhetDTO(
     val organisasjonsnummer: String,
     val navn: String,
-    val overordnetEnhet: String? = null
+    val overordnetEnhetOrganisasjonsnummer: String? = null,
+    val overordnetEnhetNavn: String? = null
 )
