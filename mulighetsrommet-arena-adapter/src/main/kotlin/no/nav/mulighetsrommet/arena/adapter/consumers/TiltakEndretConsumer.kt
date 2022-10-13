@@ -8,16 +8,22 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class TiltakEndretConsumer(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
+    private val tiltakstyper: TiltakstypeRepository,
+    private val arenaEntityMappings: ArenaEntityMappingRepository,
     private val client: MulighetsrommetApiClient
 ) : ArenaTopicConsumer(
     "SIAMO.TILTAK"
@@ -39,13 +45,20 @@ class TiltakEndretConsumer(
     override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
         val decoded = ArenaEventData.decode<ArenaTiltak>(event.payload)
 
-        val tiltakstype = decoded.data.toTiltakstype()
+        val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
+            ArenaEntityMapping.Tiltakstype(event.arenaTable, event.arenaId, UUID.randomUUID())
+        )
+
+        val tiltakstype = tiltakstyper.upsert(decoded.data.toTiltakstype(mapping.entityId))
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .bind()
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.sendRequest(method, "/api/v1/arena/tiltakstype", tiltakstype)
     }
 
-    private fun ArenaTiltak.toTiltakstype() = Tiltakstype(
+    private fun ArenaTiltak.toTiltakstype(id: UUID) = Tiltakstype(
+        id = id,
         navn = TILTAKSNAVN,
         innsatsgruppe = ProcessingUtils.toInnsatsgruppe(TILTAKSKODE),
         tiltakskode = TILTAKSKODE,

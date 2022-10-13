@@ -11,12 +11,17 @@ import io.ktor.client.plugins.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.models.Deltakerstatus
+import java.util.*
 
 class TiltakdeltakerEndretConsumerTest : FunSpec({
 
@@ -32,7 +37,44 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         listener.db.clean()
     }
 
+    context("when dependent events has not been processed") {
+        test("should save the event with status Pending when the dependent tiltaksgjennomføring is missing") {
+            val engine = MockEngine { respondOk() }
+
+            val event = createConsumer(listener.db, engine).processEvent(createEvent())
+
+            event.status shouldBe ArenaEvent.ConsumptionStatus.Pending
+        }
+    }
+
     context("when dependent events has been processed") {
+        beforeEach {
+            val saker = SakRepository(listener.db)
+            saker.upsert(Sak(sakId = 1, lopenummer = 123, aar = 2022))
+
+            val tiltakstyper = TiltakstypeRepository(listener.db)
+            tiltakstyper.upsert(
+                Tiltakstype(
+                    id = UUID.randomUUID(),
+                    navn = "Oppfølging",
+                    innsatsgruppe = 2,
+                    tiltakskode = "INDOPPFAG"
+                )
+            )
+
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
+            tiltaksgjennomforinger.upsert(
+                Tiltaksgjennomforing(
+                    id = UUID.randomUUID(),
+                    tiltaksgjennomforingId = 3,
+                    sakId = 1,
+                    tiltakskode = "INDOPPFAG",
+                    arrangorId = null,
+                    navn = null,
+                )
+            )
+        }
+
         test("should call api with mapped event payload") {
             val engine = MockEngine { respondOk() }
 
@@ -84,6 +126,8 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
     return TiltakdeltakerEndretConsumer(
         ConsumerConfig("deltaker", "deltaker"),
         ArenaEventRepository(db),
+        DeltakerRepository(db),
+        ArenaEntityMappingRepository(db),
         client
     )
 }

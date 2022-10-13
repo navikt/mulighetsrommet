@@ -10,7 +10,9 @@ import io.ktor.client.plugins.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -81,6 +83,8 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
     return TiltakEndretConsumer(
         ConsumerConfig("tiltakendret", "tiltakendret"),
         ArenaEventRepository(db),
+        TiltakstypeRepository(db),
+        ArenaEntityMappingRepository(db),
         client
     )
 }
