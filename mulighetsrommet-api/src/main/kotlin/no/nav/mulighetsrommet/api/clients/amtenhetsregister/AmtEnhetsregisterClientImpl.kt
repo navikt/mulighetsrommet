@@ -30,8 +30,8 @@ class AmtEnhetsregisterClientImpl(
                 )
             }
 
+            log.info("Virksomhetsinfo: ${response.body<VirksomhetDTO>()}")
             if (response.status == HttpStatusCode.OK) {
-                log.info("Virksomhetsinfo: ${response.body<VirksomhetDTO>()}")
                 return response.body()
             }
             null
