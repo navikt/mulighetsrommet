@@ -1,6 +1,22 @@
 package no.nav.mulighetsrommet.api.services
 
-/*
+import io.kotest.common.runBlocking
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.adapter.AdapterSak
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
+import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
+import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
+import java.time.LocalDateTime
+
 class HistorikkServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
@@ -78,4 +94,3 @@ class HistorikkServiceTest : FunSpec({
         ) shouldBe forventetHistorikk
     }
 })
-*/

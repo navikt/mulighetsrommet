@@ -4,12 +4,12 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.Integer.parseInt
 
 class HistorikkService(
     private val db: Database,
@@ -24,18 +24,7 @@ class HistorikkService(
             return emptyList()
         }
 
-        return listOf(
-            HistorikkForDeltaker(
-                id = "1",
-                fraDato = null,
-                tilDato = null,
-                status = Deltakerstatus.DELTAR,
-                tiltaksnavn = "TEst",
-                tiltaksnummer = "12312",
-                tiltakstype = "12213",
-                arrangorId = 326491
-            )
-        ).map {
+        return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {
             HistorikkForDeltakerDTO(
                 id = it.id,
                 fraDato = it.fraDato,
@@ -47,19 +36,6 @@ class HistorikkService(
                 arrangor = arrangorService.hentArrangorNavn(it.arrangorId)
             )
         }
-
-        /*return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {
-            HistorikkForDeltakerDTO(
-                id = it.id,
-                fraDato = it.fraDato,
-                tilDato = it.tilDato,
-                status = it.status,
-                tiltaksnavn = it.tiltaksnavn,
-                tiltaksnummer = it.tiltaksnummer,
-                tiltakstype = it.tiltakstype,
-                arrangor = arrangorService.hentArrangorNavn(it.arrangorId)
-            )
-        }*/
     }
 
     private fun getHistorikkForBrukerFromDb(person_id: Int): List<HistorikkForDeltaker> {
