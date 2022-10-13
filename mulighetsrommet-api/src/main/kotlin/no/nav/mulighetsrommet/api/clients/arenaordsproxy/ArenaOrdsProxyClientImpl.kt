@@ -34,9 +34,6 @@ class ArenaOrdsProxyClientImpl(
             if (response.status == HttpStatusCode.OK) {
                 return response.body()
             }
-            log.info("Arbeidsgiverinfo respons status: ${response.status}")
-            log.info("Arbeidsgiverinfo respons message: ${response.call}")
-            log.info("Arbeidsgiverinfo respons body: ${response.call.response.body<String>()}")
             null
         } catch (exe: Exception) {
             log.error("Klarte ikke hente arbeidsgiverinfo")
