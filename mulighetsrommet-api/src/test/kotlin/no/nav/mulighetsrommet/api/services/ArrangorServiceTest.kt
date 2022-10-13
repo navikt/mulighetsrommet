@@ -15,10 +15,9 @@ class ArrangorServiceTest : FunSpec({
     val arenaOrdsProxyClient: ArenaOrdsProxyClient = mockk()
     val amtEnhetsregister: AmtEnhetsregisterClient = mockk()
 
-    val arrangorService =
-        ArrangorService(arenaOrdsProxyClient, amtEnhetsregister)
+    val arrangorService = ArrangorService(arenaOrdsProxyClient, amtEnhetsregister)
 
-    test("henter navn på virksomhet basert på virksomhetsnummer") {
+    test("henter navn på arrangør basert på virksomhetsnummer tilhørende arrangør id") {
         every { runBlocking { arenaOrdsProxyClient.hentArbeidsgiver(1) } } returns ArbeidsgiverDTO(
             virksomhetsnummer = "111",
             organisasjonsnummerMorselskap = "456"
@@ -28,17 +27,17 @@ class ArrangorServiceTest : FunSpec({
             organisasjonsnummerMorselskap = "456"
         )
 
-        every { runBlocking { amtEnhetsregister.hentVirksomhetsNavn(any()) } } returns VirksomhetDTO(
-            organisasjonsnummer = "7891",
-            navn = "Bedrift 2",
-            overordnetEnhetOrganisasjonsnummer = "1011",
-            overordnetEnhetNavn = "Overordnetbedrift 2"
-        )
         every { runBlocking { amtEnhetsregister.hentVirksomhetsNavn(111) } } returns VirksomhetDTO(
             organisasjonsnummer = "789",
             navn = "Bedrift 1",
             overordnetEnhetOrganisasjonsnummer = "1011",
             overordnetEnhetNavn = "Overordnetbedrift 1"
+        )
+        every { runBlocking { amtEnhetsregister.hentVirksomhetsNavn(222) } } returns VirksomhetDTO(
+            organisasjonsnummer = "7891",
+            navn = "Bedrift 2",
+            overordnetEnhetOrganisasjonsnummer = "1011",
+            overordnetEnhetNavn = "Overordnetbedrift 2"
         )
 
         arrangorService.hentArrangorNavn(1) shouldBe "Bedrift 1"
