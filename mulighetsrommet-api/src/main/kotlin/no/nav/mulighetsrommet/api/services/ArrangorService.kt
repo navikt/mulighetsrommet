@@ -11,6 +11,6 @@ class ArrangorService(
         val arbeidsgiverInfo = arenaOrdsProxyClient.hentArbeidsgiver(arrangorId)
         val virksomhetInfo =
             arbeidsgiverInfo?.virksomhetsnummer?.let { amtEnhetsregisterClient.hentVirksomhetsNavn(it.toInt()) }
-        return virksomhetInfo?.navn
+        return virksomhetInfo?.overordnetEnhetNavn
     }
 }

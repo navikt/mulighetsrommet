@@ -40,7 +40,7 @@ class ArrangorServiceTest : FunSpec({
             overordnetEnhetNavn = "Overordnetbedrift 2"
         )
 
-        arrangorService.hentArrangorNavn(1) shouldBe "Bedrift 1"
-        arrangorService.hentArrangorNavn(2) shouldBe "Bedrift 2"
+        arrangorService.hentArrangorNavn(1) shouldBe "Overordnetbedrift 1"
+        arrangorService.hentArrangorNavn(2) shouldBe "Overordnetbedrift 2"
     }
 })
