@@ -1,26 +1,11 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
-import Switch from "react-switch";
-
+import { GrCircleInformation } from "react-icons/gr";
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
-
-function Firkant({ farge }) {
-  return (
-    <div
-      style={{
-        display: "inline-block",
-        background: farge,
-        height: "12px",
-        width: "12px",
-      }}
-    />
-  );
-}
 
 function Legend({ farge, children }) {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <Firkant farge={farge} />
       <small style={{ marginLeft: "4px", textAlign: "right" }}>
         {children}
       </small>
@@ -28,17 +13,37 @@ function Legend({ farge, children }) {
   );
 }
 
-const tiltaksfarge = "#00347D";
-const gjennomforingsfarge = "#881D0C";
+function MarginBottom({ children }) {
+  return <div style={{ marginBottom: "4rem" }}>{children}</div>;
+}
 
-export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
+function Infoboks({ children }) {
+  if (!children) return null;
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#ebfcff",
+        border: "1px solid black",
+        display: "flex",
+        alignItems: "baseline",
+        gap: "10px",
+        padding: "0px 10px",
+      }}
+    >
+      <GrCircleInformation />
+      <p>{children}</p>
+    </div>
+  );
+}
+
+export function TiltakstypePreview({ document }) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
-  const [fargekodet, setFargekodet] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await client.fetch(
-        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->}[0]`
+        `*[_type == "tiltakstype" && _id == "${document.displayed._id}"]{..., innsatsgruppe->}[0]`
       );
       setTiltaksdata(data);
     };
@@ -47,17 +52,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
   }, [document]);
 
   function TekstFraTiltakstype({ children }) {
-    return (
-      <p style={{ color: fargekodet ? tiltaksfarge : "black" }}>{children}</p>
-    );
-  }
-
-  function TekstFraGjennomforing({ children }) {
-    return (
-      <p style={{ color: fargekodet ? gjennomforingsfarge : "black" }}>
-        {children}
-      </p>
-    );
+    return <p>{children}</p>;
   }
 
   function tilListe(el) {
@@ -82,60 +77,11 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
     });
   }
 
-  function Verktoylinje() {
-    return (
-      <>
-        <div
-          style={{
-            display: "flex",
-            height: "20px",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <medium style={{ marginRight: "4px" }}>
-              Marker tekst fra tiltakstype og tiltaksgjennomføring
-            </medium>
-            <Switch
-              onChange={() => setFargekodet(!fargekodet)}
-              checked={fargekodet}
-              uncheckedIcon={false}
-              checkedIcon={false}
-              onColor={tiltaksfarge}
-              height={20}
-              width={36}
-            />
-          </div>
-          {fargekodet && (
-            <div
-              style={{
-                marginLeft: "16px",
-              }}
-            >
-              <div>
-                <Legend farge={tiltaksfarge}>Fra tiltakstype</Legend>
-              </div>
-              <Legend farge={gjennomforingsfarge}>
-                Fra tiltaksgjennomføring
-              </Legend>
-            </div>
-          )}
-        </div>
-      </>
-    );
-  }
-
   if (!tiltaksdata) return "Laster tiltaksdata...";
 
   const { displayed } = document;
   return (
     <div style={{ margin: "64px" }}>
-      <Verktoylinje />
       <div style={{ maxWidth: "600px" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
@@ -143,9 +89,9 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
           </h1>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <small style={{ paddingTop: "4px", paddingBottom: "4px" }}>
+          <p style={{ paddingTop: "4px", paddingBottom: "4px" }}>
             Tiltakstype: {tiltaksdata.tiltakstypeNavn}
-          </small>
+          </p>
           <small style={{ border: "1px dashed black", padding: "4px" }}>
             Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
           </small>
@@ -153,43 +99,36 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
         <div>
           <MarginBottom>
             <h3>Beskrivelse</h3>
-            {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
-              <TekstFraGjennomforing>
-                {displayed.beskrivelse}
-              </TekstFraGjennomforing>
-            )}
             <TekstFraTiltakstype>
               {tiltaksdata?.beskrivelse}
             </TekstFraTiltakstype>
           </MarginBottom>
           <MarginBottom>
             <h3>For hvem</h3>
+            <Infoboks>{displayed.faneinnhold?.forHvemInfoboks}</Infoboks>
             <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
             </TekstFraTiltakstype>
-            <TekstFraGjennomforing>
-              {displayed.faneinnhold?.forHvem?.map(tilListe)}
-            </TekstFraGjennomforing>
           </MarginBottom>
           <MarginBottom>
             <h3>Detaljer og innhold</h3>
+            <Infoboks>
+              {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
+            </Infoboks>
             <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
                 return tilListe(el);
               })}
             </TekstFraTiltakstype>
-            <TekstFraGjennomforing>
-              {displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}
-            </TekstFraGjennomforing>
           </MarginBottom>
           <MarginBottom>
             <h3>Påmelding og varighet</h3>
+            <Infoboks>
+              {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
+            </Infoboks>
             <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
             </TekstFraTiltakstype>
-            <TekstFraGjennomforing>
-              {displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
-            </TekstFraGjennomforing>
           </MarginBottom>
         </div>
       </div>
