@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 
-export function useGetTiltaksnummerFraUrl() {
+export function useGetTiltaksgjennomforingIdFraUrl() {
   const { tiltaksnummer = '' } = useParams();
   return tiltaksnummer;
 }

@@ -1,12 +1,12 @@
 import groq from 'groq';
 import { Tiltaksgjennomforing } from '../models';
-import { useGetTiltaksnummerFraUrl } from './useGetTiltaksnummerFraUrl';
+import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksnummerFraUrl';
 import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforingByTiltaksnummer() {
-  const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
   return useSanity<Tiltaksgjennomforing>(
-    groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) && tiltaksnummer.current == '${tiltaksnummer}'] {
+    groq`*[_type == "tiltaksgjennomforing" && _id == '${tiltaksgjennomforingId}' && !(_id in path("drafts.**"))] {
     _id,
     tiltaksgjennomforingNavn,
     beskrivelse,
