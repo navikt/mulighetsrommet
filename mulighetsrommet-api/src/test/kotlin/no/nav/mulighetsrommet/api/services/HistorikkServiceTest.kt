@@ -65,7 +65,7 @@ class HistorikkServiceTest : FunSpec({
         arenaService.updateTiltaksgjennomforingWithSak(sak)
     }
 
-    test("hei") {
+    test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
         every { runBlocking { arrangorService.hentArrangorNavn(1) } } returns bedriftsnavn
         every {
