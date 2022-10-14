@@ -3,11 +3,11 @@ import { useQuery } from 'react-query';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
-import { useGetTiltaksnummerFraUrl } from './useGetTiltaksnummerFraUrl';
+import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 import { useHentVeilederdata } from './useHentVeilederdata';
 
 export function useHentDeltMedBrukerStatus() {
-  const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const tiltaksnummer = useGetTiltaksgjennomforingIdFraUrl();
   const { data: veilederData } = useHentVeilederdata();
   const bruker_fnr = useHentFnrFraUrl();
   const { data: sistDeltMedBruker, refetch } = useQuery<DelMedBruker>(

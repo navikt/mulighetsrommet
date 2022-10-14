@@ -8,7 +8,7 @@ import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
 import { Tiltakstyper } from '../../core/api/models';
-import { useGetTiltaksnummerFraUrl } from '../../core/api/queries/useGetTiltaksnummerFraUrl';
+import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
@@ -33,7 +33,7 @@ function lenkeTilOpprettAvtaleForEnv(): string {
 }
 
 const ViewTiltakstypeDetaljer = () => {
-  const tiltaksnummer = useGetTiltaksnummerFraUrl();
+  const tiltaksnummer = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
