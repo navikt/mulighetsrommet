@@ -3,7 +3,7 @@ import { Rule } from "@sanity/types";
 
 export default {
   name: "regelverklenke",
-  title: "Regelverk lenke",
+  title: "Regelverkslenke",
   type: "document",
   icon: GrLink,
   fields: [
@@ -26,10 +26,20 @@ export default {
         ),
       hidden: ({ document }) => !document?.regelverkUrl,
     },
+    {
+      name: "beskrivelse",
+      title: "Valgfri beskrivelse av lenken",
+      description:
+        "En beskrivelse som forteller andre redaktører hva lenken brukes til eller omhandler. Beskrivelsen vises ikke til veiledere, den er kun for intern bruk her i Sanity.",
+      type: "text",
+      rows: 1,
+      validation: (Rule) => Rule.max(100),
+    },
   ],
   preview: {
     select: {
       title: "regelverkLenkeNavn",
+      subtitle: "beskrivelse",
     },
   },
 };

@@ -59,14 +59,8 @@ export default {
       type: "string",
     },
     {
-      name: "regelverkFiler",
-      title: "Regelverk filer",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "regelverkfil" }] }],
-    },
-    {
       name: "regelverkLenker",
-      title: "Regelverk lenker",
+      title: "Regelverkslenker",
       type: "array",
       of: [{ type: "reference", to: [{ type: "regelverklenke" }] }],
     },

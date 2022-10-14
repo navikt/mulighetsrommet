@@ -7,7 +7,6 @@ import tiltaksgjennomforing from "./tiltaksgjennomforing";
 import arrangor from "./arrangor";
 import kontaktperson from "./kontaktperson";
 import enhet from "./enhet";
-import regelverksfil from "./regelverkfil";
 import regelverklenke from "./regelverklenke";
 import innsatsgruppe from "./innsatsgruppe";
 import statistikkfil from "./statistikkfil";
@@ -27,7 +26,6 @@ export default createSchema({
     arrangor,
     kontaktperson,
     enhet,
-    regelverksfil,
     regelverklenke,
     innsatsgruppe,
     statistikkfil,
