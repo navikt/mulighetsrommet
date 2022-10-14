@@ -1,5 +1,6 @@
 plugins {
     application
+    jacoco
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.flywaydb.flyway")
