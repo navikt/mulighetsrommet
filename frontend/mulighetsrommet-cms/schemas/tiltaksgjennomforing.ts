@@ -62,7 +62,9 @@ export default {
       title: "Beskrivelse",
       description:
         "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
-      type: "string",
+      type: "text",
+      rows: 5,
+      validation: (Rule) => Rule.max(300),
     },
     {
       name: "tiltaksnummer",
