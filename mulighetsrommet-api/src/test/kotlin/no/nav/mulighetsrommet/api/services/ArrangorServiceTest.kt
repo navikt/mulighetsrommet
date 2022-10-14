@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.clients.amtenhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.clients.arenaordsproxy.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.api.domain.ArbeidsgiverDTO
@@ -17,7 +18,7 @@ class ArrangorServiceTest : FunSpec({
 
     val arrangorService = ArrangorService(arenaOrdsProxyClient, amtEnhetsregister)
 
-    test("henter navn på arrangør basert på virksomhetsnummer tilhørende arrangør id") {
+    beforeSpec {
         every { runBlocking { arenaOrdsProxyClient.hentArbeidsgiver(1) } } returns ArbeidsgiverDTO(
             virksomhetsnummer = "111",
             organisasjonsnummerMorselskap = "456"
@@ -39,8 +40,21 @@ class ArrangorServiceTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = "1011",
             overordnetEnhetNavn = "Overordnetbedrift 2"
         )
+    }
 
+    test("henter navn på arrangør basert på virksomhetsnummer tilhørende arrangør id") {
         arrangorService.hentArrangorNavn(1) shouldBe "Overordnetbedrift 1"
         arrangorService.hentArrangorNavn(2) shouldBe "Overordnetbedrift 2"
+    }
+
+    test("arrangør navn blir cachet basert på arrangør id") {
+        arrangorService.hentArrangorNavn(1)
+        arrangorService.hentArrangorNavn(1)
+        arrangorService.hentArrangorNavn(2)
+        arrangorService.hentArrangorNavn(2)
+        arrangorService.hentArrangorNavn(1)
+
+        verify(exactly = 2) { runBlocking { amtEnhetsregister.hentVirksomhetsNavn(any()) } }
+        verify(exactly = 2) { runBlocking { arenaOrdsProxyClient.hentArbeidsgiver(any()) } }
     }
 })
