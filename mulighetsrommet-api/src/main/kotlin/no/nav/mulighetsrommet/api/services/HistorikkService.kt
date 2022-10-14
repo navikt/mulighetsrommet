@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -33,8 +34,18 @@ class HistorikkService(
                 tiltaksnavn = it.tiltaksnavn,
                 tiltaksnummer = it.tiltaksnummer,
                 tiltakstype = it.tiltakstype,
-                arrangor = arrangorService.hentArrangorNavn(it.arrangorId)
+                arrangor = hentArrangorNavn(it.arrangorId)
             )
+        }
+    }
+
+    private suspend fun hentArrangorNavn(arrangorId: Int): String? {
+        return try {
+            arrangorService.hentArrangornavn(arrangorId)
+        } catch (e: Throwable) {
+            log.error("Feil oppstod ved henting arrangørnavn, sjekk securelogs")
+            SecureLog.logger.error("Feil oppstod ved henting arrangørnavn", e)
+            null
         }
     }
 

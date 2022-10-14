@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
@@ -23,9 +22,7 @@ class HistorikkServiceTest : FunSpec({
     val arrangorService: ArrangorService = mockk()
     val veilarbarenaClient: VeilarbarenaClient = mockk()
 
-    val listener = FlywayDatabaseListener(createApiDatabaseTestSchema())
-
-    register(listener)
+    val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
     beforeSpec {
         val arenaService = ArenaService(listener.db)
@@ -67,9 +64,12 @@ class HistorikkServiceTest : FunSpec({
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
-        every { runBlocking { arrangorService.hentArrangorNavn(1) } } returns bedriftsnavn
-        every {
-            runBlocking { veilarbarenaClient.hentPersonIdForFnr(any(), any()) }
+        coEvery { arrangorService.hentArrangornavn(1) } returns bedriftsnavn
+        coEvery {
+            veilarbarenaClient.hentPersonIdForFnr(
+                any(),
+                any()
+            )
         } returns "111"
 
         val historikkService =

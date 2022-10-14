@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.clients.amtenhetsregister.AmtEnhetsregisterClient
-import no.nav.mulighetsrommet.api.clients.arenaordsproxy.ArenaOrdsProxyClient
+import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClient
+import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import java.util.concurrent.TimeUnit
 
 class ArrangorService(
@@ -12,22 +12,22 @@ class ArrangorService(
 ) {
 
     val arrangorCache: Cache<Int, String> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
+        .expireAfterWrite(12, TimeUnit.HOURS)
+        .maximumSize(10000)
         .build()
 
-    suspend fun hentArrangorNavn(arrangorId: Int): String? {
-        val cahchedArrangorNavn = arrangorCache.getIfPresent(arrangorId)
+    suspend fun hentArrangornavn(arrangorId: Int): String? {
+        val cahchedArrangornavn = arrangorCache.getIfPresent(arrangorId)
 
-        if (cahchedArrangorNavn != null) return cahchedArrangorNavn
+        if (cahchedArrangornavn != null) return cahchedArrangornavn
 
-        val arbeidsgiverInfo = arenaOrdsProxyClient.hentArbeidsgiver(arrangorId)
-        val virksomhetInfo =
-            arbeidsgiverInfo?.virksomhetsnummer?.let { amtEnhetsregisterClient.hentVirksomhetsNavn(it.toInt()) }
+        val arrangor = arenaOrdsProxyClient.hentArbeidsgiver(arrangorId)
+        val virksomhet =
+            arrangor?.virksomhetsnummer?.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
 
-        val arrangorNavn = virksomhetInfo?.overordnetEnhetNavn
-        arrangorNavn.let { arrangorCache.put(arrangorId, it) }
+        val arrangornavn = virksomhet?.overordnetEnhetNavn
+        arrangornavn.let { arrangorCache.put(arrangorId, it) }
 
-        return arrangorNavn
+        return arrangornavn
     }
 }
