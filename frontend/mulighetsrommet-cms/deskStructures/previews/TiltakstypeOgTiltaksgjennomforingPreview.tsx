@@ -1,37 +1,14 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
 import Switch from "react-switch";
+import { Legend, MarginBottom, tilListe } from "./common";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
-
-function Firkant({ farge }) {
-  return (
-    <div
-      style={{
-        display: "inline-block",
-        background: farge,
-        height: "12px",
-        width: "12px",
-      }}
-    />
-  );
-}
-
-function Legend({ farge, children }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Firkant farge={farge} />
-      <small style={{ marginLeft: "4px", textAlign: "right" }}>
-        {children}
-      </small>
-    </div>
-  );
-}
 
 const tiltaksfarge = "#00347D";
 const gjennomforingsfarge = "#881D0C";
 
-export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
+export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
   const [fargekodet, setFargekodet] = useState(false);
 
@@ -60,28 +37,6 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
     );
   }
 
-  function tilListe(el) {
-    if (el.listItem === "bullet") {
-      const list = (
-        <ul>
-          {el.children?.map((ch, index) => {
-            return <li key={index}>{ch.text}</li>;
-          })}
-        </ul>
-      );
-      return list;
-    }
-
-    return el.children?.map((ch, index) => {
-      return (
-        <span key={index}>
-          {ch.text}
-          <br />
-        </span>
-      );
-    });
-  }
-
   function Verktoylinje() {
     return (
       <>
@@ -98,9 +53,9 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }) {
               alignItems: "center",
             }}
           >
-            <medium style={{ marginRight: "4px" }}>
+            <small style={{ marginRight: "4px" }}>
               Marker tekst fra tiltakstype og tiltaksgjennomføring
-            </medium>
+            </small>
             <Switch
               onChange={() => setFargekodet(!fargekodet)}
               checked={fargekodet}

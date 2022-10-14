@@ -1,43 +1,9 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
-import { GrCircleInformation } from "react-icons/gr";
+import { Infoboks, MarginBottom, tilListe } from "./common";
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
-function Legend({ farge, children }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <small style={{ marginLeft: "4px", textAlign: "right" }}>
-        {children}
-      </small>
-    </div>
-  );
-}
-
-function MarginBottom({ children }) {
-  return <div style={{ marginBottom: "4rem" }}>{children}</div>;
-}
-
-function Infoboks({ children }) {
-  if (!children) return null;
-
-  return (
-    <div
-      style={{
-        backgroundColor: "#ebfcff",
-        border: "1px solid black",
-        display: "flex",
-        alignItems: "baseline",
-        gap: "10px",
-        padding: "0px 10px",
-      }}
-    >
-      <GrCircleInformation />
-      <p>{children}</p>
-    </div>
-  );
-}
-
-export function TiltakstypePreview({ document }) {
+export function TiltakstypePreview({ document }: any) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
 
   useEffect(() => {
@@ -53,28 +19,6 @@ export function TiltakstypePreview({ document }) {
 
   function TekstFraTiltakstype({ children }) {
     return <p>{children}</p>;
-  }
-
-  function tilListe(el) {
-    if (el.listItem === "bullet") {
-      const list = (
-        <ul>
-          {el.children?.map((ch, index) => {
-            return <li key={index}>{ch.text}</li>;
-          })}
-        </ul>
-      );
-      return list;
-    }
-
-    return el.children?.map((ch, index) => {
-      return (
-        <span key={index}>
-          {ch.text}
-          <br />
-        </span>
-      );
-    });
   }
 
   if (!tiltaksdata) return "Laster tiltaksdata...";
