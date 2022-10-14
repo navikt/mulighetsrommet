@@ -9,6 +9,8 @@ ktlint {
 }
 
 dependencies {
+    implementation("io.arrow-kt:arrow-core:1.1.2")
+
     // Database
     api("org.flywaydb:flyway-core:8.5.5")
     api("com.zaxxer:HikariCP:5.0.1")
