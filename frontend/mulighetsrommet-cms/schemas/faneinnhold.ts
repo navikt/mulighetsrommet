@@ -1,6 +1,11 @@
 import { blockContentValidation } from "../validation/blockContentValidation";
 
 const MAKS_LENGDE_INNHOLD = 2500;
+const infoboksOptions = {
+  type: "text",
+  validation: (Rule) => Rule.max(300),
+  rows: 3,
+};
 
 export default {
   name: "faneinnhold",
@@ -30,7 +35,7 @@ export default {
       title: "For hvem - infoboks",
       description:
         "Hvis denne har innhold, vises det i en infoboks i fanen 'For hvem'",
-      type: "string",
+      ...infoboksOptions,
       group: "forHvem",
     },
     {
@@ -53,7 +58,7 @@ export default {
       title: "Detaljer og innhold - infoboks",
       description:
         "Hvis denne har innhold, vises det i en infoboks i fanen 'Detaljer og innhold'",
-      type: "string",
+      ...infoboksOptions,
       group: "detaljerOgInnhold",
     },
     {
@@ -76,7 +81,7 @@ export default {
       title: "Påmelding og varighet - infoboks",
       description:
         "Hvis denne har innhold, vises det i en infoboks i fanen 'Påmelding og varighet'",
-      type: "string",
+      ...infoboksOptions,
       group: "pameldingOgVarighet",
     },
     {
