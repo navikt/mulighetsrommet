@@ -1,6 +1,6 @@
 import groq from 'groq';
 import { Tiltaksgjennomforing } from '../models';
-import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksnummerFraUrl';
+import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforingByTiltaksnummer() {
