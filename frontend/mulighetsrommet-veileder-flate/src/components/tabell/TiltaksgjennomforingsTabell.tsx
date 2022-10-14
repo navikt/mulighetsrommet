@@ -195,7 +195,7 @@ const TiltaksgjennomforingsTabell = () => {
               <Table.Row key={_id}>
                 <Table.DataCell className={styles.tabell_tiltaksnavn}>
                   <Lenke
-                    to={`tiltak/${tiltaksnummer}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+                    to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
                     isInline
                     data-testid="tabell_tiltaksgjennomforing"
                   >

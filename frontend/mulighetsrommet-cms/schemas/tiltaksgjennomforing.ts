@@ -69,12 +69,30 @@ export default {
     {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
-      description: "Her skriver du inn tiltaksnummeret for gjennomføringen",
+      description:
+        "Her skriver du inn tiltaksnummeret for gjennomføringen. Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn tiltaksnummer.",
       type: "slug",
       validation: (Rule) =>
-        Rule.required().error(
-          "Tiltaksnummer må være unikt for alle tiltaksgjennomføringer"
-        ),
+        Rule.custom(async (tiltaksnummer, { document }) => {
+          if (!document?.tiltakstype) return true;
+
+          const tiltaksgruppe = await client.fetch(
+            "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
+            { tiltakstype: document.tiltakstype._ref }
+          );
+
+          if (tiltaksgruppe?.includes("individuelt")) {
+            return !tiltaksnummer
+              ? true
+              : "Tiltaksnummer skal ikke settes for individuelle tiltak";
+          }
+
+          if (!tiltaksnummer) {
+            return "Du må sette et tiltaksnummer";
+          }
+
+          return true;
+        }),
     },
     {
       name: "estimert_ventetid",
