@@ -38,7 +38,7 @@ class ArenaServiceTest : FunSpec({
             arrangorId = 1,
             tiltakskode = "ARBTREN",
             id = 123,
-            sakId = 123,
+            sakId = 123
         )
 
         val deltaker = AdapterTiltakdeltaker(
@@ -51,7 +51,7 @@ class ArenaServiceTest : FunSpec({
         val sak = AdapterSak(
             id = 123,
             lopenummer = 3,
-            aar = 2022,
+            aar = 2022
         )
 
         test("upsert tiltakstype") {

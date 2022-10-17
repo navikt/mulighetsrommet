@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.domain.models
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.DateSerializer
 import java.time.LocalDateTime
@@ -22,6 +21,19 @@ data class Deltaker(
 )
 
 @Serializable
+data class HistorikkForDeltakerDTO(
+    val id: String,
+    @Serializable(with = DateSerializer::class)
+    val fraDato: LocalDateTime? = null,
+    @Serializable(with = DateSerializer::class)
+    val tilDato: LocalDateTime? = null,
+    val status: Deltakerstatus,
+    val tiltaksnavn: String,
+    val tiltaksnummer: String,
+    val tiltakstype: String,
+    val arrangor: String?
+)
+
 data class HistorikkForDeltaker(
     val id: String,
     @Serializable(with = DateSerializer::class)
@@ -31,5 +43,6 @@ data class HistorikkForDeltaker(
     val status: Deltakerstatus,
     val tiltaksnavn: String,
     val tiltaksnummer: String,
-    val tiltakstype: String
+    val tiltakstype: String,
+    val arrangorId: Int
 )

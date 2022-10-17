@@ -60,3 +60,11 @@ app:
   poaoTilgang:
     url: http://poao-tilgang.poao
     scope: api://dev-gcp.poao.poao-tilgang/.default
+
+  amtEnhetsregister:
+    url: http://amt-enhetsregister.amt
+    scope: api://dev-gcp.amt.amt-enhetsregister/.default
+
+  arenaOrdsProxy:
+    url: https://amt-arena-ords-proxy.dev-fss-pub.nais.io/api
+    scope: api://dev-fss.amt.amt-arena-ords-proxy/.default

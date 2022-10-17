@@ -1,16 +1,19 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/proxy/veilarbarena/api/oppfolgingsbruker/hentPersonId",
+    "urlPathPattern": "/ords/arbeidsgiver",
     "queryParameters": {
-      "fnr": {
+      "arbeidsgiverId": {
         "matches": "[\\d\\D]*"
       }
     }
   },
   "response": {
     "status": 200,
-    "jsonBody": 4897255,
+    "jsonBody": {
+      "virksomhetsnummer": "123456789",
+      "organisasjonsnummerMorselskap": "9876543121"
+    },
     "headers": {
       "Content-Type": "application/json"
     }

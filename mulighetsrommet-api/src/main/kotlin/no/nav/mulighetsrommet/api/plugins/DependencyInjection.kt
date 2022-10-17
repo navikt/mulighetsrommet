@@ -9,8 +9,12 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
+import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClient
+import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
+import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
+import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -45,7 +49,9 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
-                veilarbarena(appConfig)
+                veilarbarena(appConfig),
+                arenaordsproxy(appConfig),
+                amtenhetsregister(appConfig)
             )
         )
     }
@@ -113,6 +119,22 @@ private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
     )
 }
 
+private fun arenaordsproxy(config: AppConfig): ArenaOrdsProxyClient {
+    return ArenaOrdsProxyClientImpl(
+        baseUrl = config.arenaOrdsProxy.url,
+        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
+        scope = config.arenaOrdsProxy.scope
+    )
+}
+
+private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
+    return AmtEnhetsregisterClientImpl(
+        baseUrl = config.amtEnhetsregister.url,
+        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
+        scope = config.amtEnhetsregister.scope
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (erLokalUtvikling()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -142,7 +164,9 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    veilarbarenaClient: VeilarbarenaClient
+    veilarbarenaClient: VeilarbarenaClient,
+    arenaOrdsProxyClient: ArenaOrdsProxyClient,
+    amtEnhetsregisterClient: AmtEnhetsregisterClient,
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
@@ -150,8 +174,9 @@ private fun services(
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
     single { InnsatsgruppeService(get()) }
-    single { HistorikkService(get(), veilarbarenaClient) }
+    single { HistorikkService(get(), veilarbarenaClient, get()) }
     single { SanityService(appConfig.sanity, get()) }
+    single { ArrangorService(arenaOrdsProxyClient, amtEnhetsregisterClient) }
     single {
         BrukerService(
             veilarboppfolgingClient = veilarboppfolging,

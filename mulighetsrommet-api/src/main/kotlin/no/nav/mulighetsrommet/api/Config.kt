@@ -25,6 +25,8 @@ data class AppConfig(
     val veilarbarenaConfig: VeilarbvarenaConfig,
     val poaoGcpProxy: PoaoGcpProxyConfig,
     val poaoTilgang: PoaoTilgangConfig,
+    val amtEnhetsregister: AmtEnhetsregisterConfig,
+    val arenaOrdsProxy: ArenaOrdsProxyConfig
 )
 
 data class AuthConfig(
@@ -91,5 +93,15 @@ data class PoaoGcpProxyConfig(
 
 data class PoaoTilgangConfig(
     val url: String,
-    val scope: String,
+    val scope: String
+)
+
+data class AmtEnhetsregisterConfig(
+    val url: String,
+    val scope: String
+)
+
+data class ArenaOrdsProxyConfig(
+    val url: String,
+    val scope: String
 )

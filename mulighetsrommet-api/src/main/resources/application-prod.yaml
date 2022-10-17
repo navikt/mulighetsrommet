@@ -57,3 +57,11 @@ app:
   poaoTilgang:
     url: http://poao-tilgang.poao
     scope: api://prod-gcp.poao.poao-tilgang/.default
+
+  amtEnhetsregister:
+    url: http://amt-enhetsregister.amt
+    scope: api://prod-gcp.amt.amt-enhetsregister/.default
+
+  arenaOrdsProxy:
+    url: https://amt-arena-ords-proxy.prod-fss-pub.nais.io/api
+    scope: api://prod-fss.amt.amt-arena-ords-proxy/.default

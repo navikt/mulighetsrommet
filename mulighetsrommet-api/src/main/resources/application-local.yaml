@@ -57,3 +57,11 @@ app:
   poaoTilgang:
     url: http://localhost:8090/poao-tilgang
     scope: default
+
+  amtEnhetsregister:
+    url: http://localhost:8090
+    scope: default
+
+  arenaOrdsProxy:
+    url: http://localhost:8090
+    scope: default

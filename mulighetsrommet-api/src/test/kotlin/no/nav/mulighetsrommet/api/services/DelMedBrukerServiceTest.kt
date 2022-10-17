@@ -56,9 +56,11 @@ class DelMedBrukerServiceTest : FunSpec({
             ).map {
                 assertThat(table).row(0)
                     .column("id").value().isEqualTo(1)
-                    .column("bruker_fnr").value().isEqualTo(it?.bruker_fnr ?: "")
+                    .column("bruker_fnr").value()
+                    .isEqualTo(it?.bruker_fnr ?: "")
                     .column("navident").value().isEqualTo(it?.navident ?: "")
-                    .column("tiltaksnummer").value().isEqualTo(it?.tiltaksnummer ?: "")
+                    .column("tiltaksnummer").value()
+                    .isEqualTo(it?.tiltaksnummer ?: "")
             }
         }
     }

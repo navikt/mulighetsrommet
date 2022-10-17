@@ -114,5 +114,5 @@ values  (1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
 
 insert into tiltaksgjennomforing(navn, tiltaksnummer, fra_dato, til_dato, tiltakskode, arrangor_id, arena_id, sak_id, sanity_id, aar, apent_for_innsok, antall_plasser, tilgjengelighet)
 values(
-       'Arbeidsrettet rehabilitering - Trondheim', '1234'
+       'Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 1, 1, 1, 2022, true, 500, 'Ledig'
       )
