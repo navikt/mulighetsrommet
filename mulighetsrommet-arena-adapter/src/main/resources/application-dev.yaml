@@ -7,9 +7,6 @@ app:
     mulighetsrommetApi:
       url: http://mulighetsrommet-api
       scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
-    arenaOrdsApi:
-      url: http://mulighetsrommet-arena-ords-proxy
-      scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-arena-ords-proxy/.default
     topicService:
       channelCapacity: 500
       numChannelConsumers: 50
