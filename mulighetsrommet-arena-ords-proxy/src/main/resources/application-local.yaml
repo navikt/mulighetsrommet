@@ -1,9 +1,0 @@
-server:
-  port: 8086
-  host: 0.0.0.0
-
-app:
-  ords:
-    url: http://localhost:9898
-    clientId: clientId
-    clientSecret: clientSecret
