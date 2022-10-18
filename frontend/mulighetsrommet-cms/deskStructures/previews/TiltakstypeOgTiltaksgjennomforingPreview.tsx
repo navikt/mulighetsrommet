@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
 import Switch from "react-switch";
-import { Legend, MarginBottom, tilListe } from "./common";
+import { Infoboks, Legend, MarginBottom, tilListe } from "./common";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
@@ -10,7 +10,7 @@ const gjennomforingsfarge = "#881D0C";
 
 export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
-  const [fargekodet, setFargekodet] = useState(false);
+  const [fargekodet, setFargekodet] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,13 +25,21 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
 
   function TekstFraTiltakstype({ children }) {
     return (
-      <p style={{ color: fargekodet ? tiltaksfarge : "black" }}>{children}</p>
+      <p
+        title="Tekst hentet fra informasjon om tiltakstypen"
+        style={{ color: fargekodet ? tiltaksfarge : "black" }}
+      >
+        {children}
+      </p>
     );
   }
 
   function TekstFraGjennomforing({ children }) {
     return (
-      <p style={{ color: fargekodet ? gjennomforingsfarge : "black" }}>
+      <p
+        title="Tekst hentet fra informasjon om tiltaksgjennomføringen"
+        style={{ color: fargekodet ? gjennomforingsfarge : "black" }}
+      >
         {children}
       </p>
     );
@@ -119,6 +127,8 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
           </MarginBottom>
           <MarginBottom>
             <h3>For hvem</h3>
+            <Infoboks>{tiltaksdata.faneinnhold?.forHvemInfoboks}</Infoboks>
+            <Infoboks>{displayed.faneinnhold?.forHvemInfoboks}</Infoboks>
             <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
             </TekstFraTiltakstype>
@@ -128,6 +138,12 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
           </MarginBottom>
           <MarginBottom>
             <h3>Detaljer og innhold</h3>
+            <Infoboks>
+              {tiltaksdata.faneinnhold?.detaljerOgInnholdInfoboks}
+            </Infoboks>
+            <Infoboks>
+              {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
+            </Infoboks>
             <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
                 return tilListe(el);
@@ -139,6 +155,12 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
           </MarginBottom>
           <MarginBottom>
             <h3>Påmelding og varighet</h3>
+            <Infoboks>
+              {tiltaksdata.faneinnhold?.pameldingOgVarighetInfoboks}
+            </Infoboks>
+            <Infoboks>
+              {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
+            </Infoboks>
             <TekstFraTiltakstype>
               {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
             </TekstFraTiltakstype>

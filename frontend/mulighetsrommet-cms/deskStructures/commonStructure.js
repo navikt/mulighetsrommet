@@ -86,9 +86,7 @@ export function commonStructure() {
                         '_type == "tiltaksgjennomforing" && $redaktorId in redaktor[]._ref'
                       )
                       .params({ redaktorId })
-                      .defaultOrdering([
-                        { field: "_createdAt", direction: "desc" },
-                      ])
+                      .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
                   )
               ),
             S.listItem()

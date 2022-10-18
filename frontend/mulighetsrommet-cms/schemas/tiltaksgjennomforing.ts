@@ -263,13 +263,15 @@ export default {
     select: {
       title: "tiltaksgjennomforingNavn",
       tiltakstypeNavn: "tiltakstype.tiltakstypeNavn",
-      fylke: "fylke.navn",
+      arrangornavn: "kontaktinfoArrangor.selskapsnavn",
     },
     prepare: (selection) => {
-      const { title, tiltakstypeNavn, fylke } = selection;
+      const { title, tiltakstypeNavn, arrangornavn } = selection;
       return {
         title,
-        subtitle: `${fylke} - ${tiltakstypeNavn}`,
+        subtitle: arrangornavn
+          ? `${arrangornavn} - ${tiltakstypeNavn}`
+          : `${tiltakstypeNavn}`,
       };
     },
   },

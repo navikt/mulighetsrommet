@@ -32,9 +32,10 @@ export default {
   fields: [
     {
       name: "forHvemInfoboks",
-      title: "For hvem - infoboks",
+      title:
+        'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "For hvem"',
       description:
-        "Hvis denne har innhold, vises det i en infoboks i fanen 'For hvem'",
+        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring for å få et inntrykk av hvordan det vil se ut."',
       ...infoboksOptions,
       group: "forHvem",
     },
@@ -55,9 +56,10 @@ export default {
     },
     {
       name: "detaljerOgInnholdInfoboks",
-      title: "Detaljer og innhold - infoboks",
+      title:
+        'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "Detaljer og innhold"',
       description:
-        "Hvis denne har innhold, vises det i en infoboks i fanen 'Detaljer og innhold'",
+        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring for å få et inntrykk av hvordan det vil se ut."',
       ...infoboksOptions,
       group: "detaljerOgInnhold",
     },
@@ -78,9 +80,10 @@ export default {
     },
     {
       name: "pameldingOgVarighetInfoboks",
-      title: "Påmelding og varighet - infoboks",
+      title:
+        'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "Påmelding og varighet"',
       description:
-        "Hvis denne har innhold, vises det i en infoboks i fanen 'Påmelding og varighet'",
+        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring for å få et inntrykk av hvordan det vil se ut."',
       ...infoboksOptions,
       group: "pameldingOgVarighet",
     },
