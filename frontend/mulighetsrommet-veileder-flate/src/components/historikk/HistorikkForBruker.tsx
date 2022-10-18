@@ -49,7 +49,7 @@ export function HistorikkForBruker() {
                   <span>{formaterDato(historikk.tilDato ?? '')}</span>
                 </p>
               </div>
-              <aside>
+              <aside style={{ justifySelf: 'end' }}>
                 <StatusBadge status={historikk.status} />
               </aside>
             </li>
