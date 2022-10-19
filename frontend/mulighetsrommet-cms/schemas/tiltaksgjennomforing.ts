@@ -259,17 +259,57 @@ export default {
       },
     },
   ],
+  orderings: [
+    {
+      title: "Tiltakstype A->Å",
+      by: [
+        {
+          field: "tiltakstype.tiltakstypeNavn",
+          direction: "asc",
+        },
+      ],
+    },
+    {
+      title: "Tiltakstype Å->A",
+      by: [
+        {
+          field: "tiltakstype.tiltakstypeNavn",
+          direction: "desc",
+        },
+      ],
+    },
+    {
+      title: "Tiltaksnavn A->Å",
+      by: [
+        {
+          field: "tiltaksgjennomforingNavn",
+          direction: "asc",
+        },
+      ],
+    },
+    {
+      title: "Tiltaksnavn Å->A",
+      by: [
+        {
+          field: "tiltaksgjennomforingNavn",
+          direction: "desc",
+        },
+      ],
+    },
+  ],
   preview: {
     select: {
       title: "tiltaksgjennomforingNavn",
       tiltakstypeNavn: "tiltakstype.tiltakstypeNavn",
-      fylke: "fylke.navn",
+      arrangornavn: "kontaktinfoArrangor.selskapsnavn",
     },
     prepare: (selection) => {
-      const { title, tiltakstypeNavn, fylke } = selection;
+      const { title, tiltakstypeNavn, arrangornavn } = selection;
       return {
         title,
-        subtitle: `${fylke} - ${tiltakstypeNavn}`,
+        subtitle: arrangornavn
+          ? `${arrangornavn} - ${tiltakstypeNavn}`
+          : `${tiltakstypeNavn}`,
       };
     },
   },
