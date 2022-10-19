@@ -15,13 +15,12 @@ data class AppConfig(
     val services: ServiceConfig,
     val database: DatabaseConfig,
     val kafka: KafkaConfig,
-    val sentry: SentryConfig? = null,
+    val sentry: SentryConfig? = null
 )
 
 data class ServiceConfig(
     val mulighetsrommetApi: AuthenticatedService,
-    val topicService: TopicService.Config,
-    val arenaOrdsApi: AuthenticatedService
+    val topicService: TopicService.Config
 )
 
 data class AuthenticatedService(
