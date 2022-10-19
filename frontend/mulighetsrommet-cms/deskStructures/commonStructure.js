@@ -47,6 +47,11 @@ export function commonStructure() {
                         '_type == "tiltaksgjennomforing" && $enhet in enheter[]._ref'
                       )
                       .params({ enhet })
+                      .menuItems([
+                        ...S.documentTypeList(
+                          "tiltaksgjennomforing"
+                        ).getMenuItems(),
+                      ])
                   )
               ),
             S.listItem()
@@ -70,6 +75,11 @@ export function commonStructure() {
                         '_type == "tiltaksgjennomforing" && ($enhet == fylke._ref)'
                       )
                       .params({ enhet })
+                      .menuItems([
+                        ...S.documentTypeList(
+                          "tiltaksgjennomforing"
+                        ).getMenuItems(),
+                      ])
                   )
               ),
 
@@ -87,6 +97,11 @@ export function commonStructure() {
                       )
                       .params({ redaktorId })
                       .defaultOrdering(ORDER_BY_CREATEDAT_FIELD)
+                      .menuItems([
+                        ...S.documentTypeList(
+                          "tiltaksgjennomforing"
+                        ).getMenuItems(),
+                      ])
                   )
               ),
             S.listItem()
