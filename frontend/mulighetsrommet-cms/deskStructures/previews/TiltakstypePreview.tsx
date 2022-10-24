@@ -60,7 +60,7 @@ export function TiltakstypePreview({ document }: any) {
               {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
             </Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
+              {tiltaksdata.faneinnhold.detaljerOgInnhold?.map((el) => {
                 return tilListe(el);
               })}
             </TekstFraTiltakstype>
