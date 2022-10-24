@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import sanityClient from "part:@sanity/base/client";
-import { Infoboks, MarginBottom, tilListe } from "./common";
+import { PortableText } from "@portabletext/react";
+import { Infoboks, MarginBottom } from "./common";
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
 export function TiltakstypePreview({ document }: any) {
@@ -17,7 +18,7 @@ export function TiltakstypePreview({ document }: any) {
     fetchData();
   }, [document]);
 
-  function TekstFraTiltakstype({ children }) {
+  function TekstFraTiltakstype({ children }: any) {
     return <p>{children}</p>;
   }
 
@@ -51,7 +52,7 @@ export function TiltakstypePreview({ document }: any) {
             <h3>For hvem</h3>
             <Infoboks>{displayed.faneinnhold?.forHvemInfoboks}</Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
+              <PortableText value={tiltaksdata.faneinnhold?.forHvem} />
             </TekstFraTiltakstype>
           </MarginBottom>
           <MarginBottom>
@@ -60,9 +61,7 @@ export function TiltakstypePreview({ document }: any) {
               {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
             </Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold.detaljerOgInnhold?.map((el) => {
-                return tilListe(el);
-              })}
+              <PortableText value={tiltaksdata.faneinnhold.detaljerOgInnhold} />
             </TekstFraTiltakstype>
           </MarginBottom>
           <MarginBottom>
@@ -71,7 +70,9 @@ export function TiltakstypePreview({ document }: any) {
               {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
             </Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+              <PortableText
+                value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
+              />
             </TekstFraTiltakstype>
           </MarginBottom>
         </div>

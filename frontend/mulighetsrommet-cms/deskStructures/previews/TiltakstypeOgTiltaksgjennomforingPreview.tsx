@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { PortableText } from "@portabletext/react";
 import sanityClient from "part:@sanity/base/client";
+import React, { useEffect, useState } from "react";
 import Switch from "react-switch";
-import { Infoboks, Legend, MarginBottom, tilListe } from "./common";
+import { Infoboks, Legend, MarginBottom } from "./common";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
@@ -23,7 +24,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     fetchData();
   }, [document]);
 
-  function TekstFraTiltakstype({ children }) {
+  function TekstFraTiltakstype({ children }: any) {
     return (
       <p
         title="Tekst hentet fra informasjon om tiltakstypen"
@@ -34,7 +35,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     );
   }
 
-  function TekstFraGjennomforing({ children }) {
+  function TekstFraGjennomforing({ children }: any) {
     return (
       <p
         title="Tekst hentet fra informasjon om tiltaksgjennomføringen"
@@ -130,10 +131,10 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
             <Infoboks>{tiltaksdata.faneinnhold?.forHvemInfoboks}</Infoboks>
             <Infoboks>{displayed.faneinnhold?.forHvemInfoboks}</Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold?.forHvem?.map(tilListe)}
+              <PortableText value={tiltaksdata.faneinnhold?.forHvem} />
             </TekstFraTiltakstype>
             <TekstFraGjennomforing>
-              {displayed.faneinnhold?.forHvem?.map(tilListe)}
+              <PortableText value={displayed.faneinnhold?.forHvem} />
             </TekstFraGjennomforing>
           </MarginBottom>
           <MarginBottom>
@@ -145,12 +146,10 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
               {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
             </Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold.detaljerOgInnhold?.map((el) => {
-                return tilListe(el);
-              })}
+              <PortableText value={tiltaksdata.faneinnhold.detaljerOgInnhold} />
             </TekstFraTiltakstype>
             <TekstFraGjennomforing>
-              {displayed.faneinnhold?.detaljerOgInnhold?.map(tilListe)}
+              <PortableText value={displayed.faneinnhold?.detaljerOgInnhold} />
             </TekstFraGjennomforing>
           </MarginBottom>
           <MarginBottom>
@@ -162,10 +161,14 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
               {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
             </Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+              <PortableText
+                value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
+              />
             </TekstFraTiltakstype>
             <TekstFraGjennomforing>
-              {displayed.faneinnhold?.pameldingOgVarighet?.map(tilListe)}
+              <PortableText
+                value={displayed.faneinnhold?.pameldingOgVarighet}
+              />
             </TekstFraGjennomforing>
           </MarginBottom>
         </div>
