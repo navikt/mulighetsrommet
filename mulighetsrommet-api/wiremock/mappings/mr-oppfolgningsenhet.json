@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/person/([\\d\\D]*)/oppfolgingsstatus"
+    "urlPattern": "/veilarboppfolging/api/person/([\\d\\D]*)/oppfolgingsstatus"
   },
   "response": {
     "status": 200,

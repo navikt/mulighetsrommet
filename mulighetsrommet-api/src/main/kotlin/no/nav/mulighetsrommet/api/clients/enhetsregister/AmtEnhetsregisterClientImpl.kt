@@ -32,6 +32,7 @@ class AmtEnhetsregisterClientImpl(
                 )
             )
         }
+
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {

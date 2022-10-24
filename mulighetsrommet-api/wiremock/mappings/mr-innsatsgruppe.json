@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/siste-14a-vedtak",
+    "urlPathPattern": "/veilarbvedtaksstotte/api/siste-14a-vedtak",
     "queryParameters": {
       "fnr": {
         "matches": "[\\d\\D]*"

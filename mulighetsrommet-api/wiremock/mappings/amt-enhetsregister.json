@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/api/enhet/([\\d\\D]*)"
+    "urlPattern": "/amt-enhetsregister/api/enhet/([\\d\\D]*)"
   },
   "response": {
     "status": 200,

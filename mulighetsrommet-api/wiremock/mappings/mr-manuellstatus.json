@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/v2/manuell/status",
+    "urlPathPattern": "/veilarboppfolging/api/v2/manuell/status",
     "queryParameters": {
       "fnr": {
         "matches": "[\\d\\D]*"

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/veileder/me"
+    "urlPathPattern": "/veilarbveileder/api/veileder/me"
   },
   "response": {
     "status": 200,
