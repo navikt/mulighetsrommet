@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/ords/arbeidsgiver",
+    "urlPathPattern": "/arena-ords-proxy/ords/arbeidsgiver",
     "queryParameters": {
       "arbeidsgiverId": {
         "matches": "[\\d\\D]*"

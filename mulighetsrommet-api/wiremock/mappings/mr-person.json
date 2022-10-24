@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/v2/person",
+    "urlPathPattern": "/veilarbperson/api/v2/person",
     "queryParameters": {
       "fnr": {
         "matches": "[\\d\\D]*"

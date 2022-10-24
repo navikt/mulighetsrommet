@@ -32,6 +32,9 @@ class AmtEnhetsregisterClientImpl(
                 )
             )
         }
+        println()
+        println("hei hei hei")
+        println(response.status)
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPathPattern": "/dialog",
+    "urlPathPattern": "/veilarbdialog/api/dialog",
     "queryParameters": {
       "fnr": {
         "matches": "[\\d\\D]*"
