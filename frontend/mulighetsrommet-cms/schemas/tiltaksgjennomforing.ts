@@ -51,22 +51,6 @@ export default {
       validation: (Rule: Rule) => Rule.required(),
     },
     {
-      name: "tiltaksgjennomforingNavn",
-      title: "Navn på tiltaksgjennomføring",
-      description: "Her legger du inn navn for tiltaksgjennomføringen",
-      type: "string",
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
-      name: "beskrivelse",
-      title: "Beskrivelse",
-      description:
-        "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
-      type: "text",
-      rows: 5,
-      validation: (Rule) => Rule.max(300),
-    },
-    {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description:
@@ -95,11 +79,11 @@ export default {
         }),
     },
     {
-      name: "estimert_ventetid",
-      title: "Estimert ventetid eller stengt til",
-      description:
-        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+      name: "tiltaksgjennomforingNavn",
+      title: "Navn på tiltaksgjennomføring",
+      description: "Her legger du inn navn for tiltaksgjennomføringen",
       type: "string",
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "kontaktinfoArrangor",
@@ -129,6 +113,24 @@ export default {
           return true;
         }),
     },
+    {
+      name: "beskrivelse",
+      title: "Beskrivelse",
+      description:
+        "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
+      type: "text",
+      rows: 5,
+      validation: (Rule) => Rule.max(300),
+    },
+
+    {
+      name: "estimert_ventetid",
+      title: "Estimert ventetid eller stengt til",
+      description:
+        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+      type: "string",
+    },
+
     {
       name: "lokasjon",
       title: "Lokasjon",
