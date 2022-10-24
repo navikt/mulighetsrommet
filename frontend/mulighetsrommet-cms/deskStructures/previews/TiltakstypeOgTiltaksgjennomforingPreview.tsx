@@ -116,14 +116,14 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
         <div>
           <MarginBottom>
             <h3>Beskrivelse</h3>
+            <TekstFraTiltakstype>
+              {tiltaksdata?.beskrivelse}
+            </TekstFraTiltakstype>
             {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
               <TekstFraGjennomforing>
                 {displayed.beskrivelse}
               </TekstFraGjennomforing>
             )}
-            <TekstFraTiltakstype>
-              {tiltaksdata?.beskrivelse}
-            </TekstFraTiltakstype>
           </MarginBottom>
           <MarginBottom>
             <h3>For hvem</h3>
@@ -145,7 +145,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
               {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
             </Infoboks>
             <TekstFraTiltakstype>
-              {tiltaksdata.faneinnhold.detaljerOgInnhold.map((el) => {
+              {tiltaksdata.faneinnhold.detaljerOgInnhold?.map((el) => {
                 return tilListe(el);
               })}
             </TekstFraTiltakstype>
