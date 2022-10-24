@@ -50,6 +50,14 @@ export default {
       to: [{ type: "tiltakstype" }],
       validation: (Rule: Rule) => Rule.required(),
     },
+
+    {
+      name: "tiltaksgjennomforingNavn",
+      title: "Navn på tiltaksgjennomføring",
+      description: "Her legger du inn navn for tiltaksgjennomføringen",
+      type: "string",
+      validation: (Rule: Rule) => Rule.required(),
+    },
     {
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
@@ -77,13 +85,6 @@ export default {
 
           return true;
         }),
-    },
-    {
-      name: "tiltaksgjennomforingNavn",
-      title: "Navn på tiltaksgjennomføring",
-      description: "Her legger du inn navn for tiltaksgjennomføringen",
-      type: "string",
-      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "kontaktinfoArrangor",
