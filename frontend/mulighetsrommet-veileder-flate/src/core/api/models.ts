@@ -9,6 +9,14 @@ export type Tiltakstyper =
   | 'Opplæring (Gruppe AMO)'
   | 'Midlertidig lønnstilskudd';
 
+export type IndividuellTiltaksType =
+  | 'ARBEIDSTRENING'
+  | 'MIDLERTIDIG_LONNSTILSKUDD'
+  | 'VARIG_LONNSTILSKUDD'
+  | 'MENTOR'
+  | 'INKLUDERINGSTILSKUDD'
+  | 'SOMMERJOBB';
+
 type Innsatsgrupper =
   | 'Standard innsats'
   | 'Situasjonsbestemt innsats'

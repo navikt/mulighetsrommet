@@ -7,7 +7,7 @@ import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import { Tiltakstyper } from '../../core/api/models';
+import { IndividuellTiltaksType, Tiltakstyper } from '../../core/api/models';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -20,16 +20,27 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { environments } from '../../env';
+import { logEvent } from '../../core/api/logger';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
+function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTiltaksType | '' {
+  switch (tiltakstype) {
+    case 'Midlertidig lønnstilskudd':
+      return 'MIDLERTIDIG_LONNSTILSKUDD';
+    default:
+      return '';
+  }
+}
 
-function lenkeTilOpprettAvtaleForEnv(): string {
+function lenkeTilOpprettAvtaleForEnv(fnr: string, tiltakstype: Tiltakstyper): string {
   const env: environments = import.meta.env.VITE_ENVIRONMENT;
   const baseUrl =
     env === 'production'
       ? 'https://tiltaksgjennomforing.intern.nav.no/'
       : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
-  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
+  return `${baseUrl}tiltaksgjennomforing/opprett-avtale?deltakerfnr=${fnr}&type=${tiltakstypeNavnTilUrlVerdi(
+    tiltakstype
+  )}`;
 }
 
 const ViewTiltakstypeDetaljer = () => {
@@ -92,7 +103,8 @@ const ViewTiltakstypeDetaljer = () => {
         {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && (
           <Button
             as="a"
-            href={lenkeTilOpprettAvtaleForEnv()}
+            href={lenkeTilOpprettAvtaleForEnv(fnr, tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
+            onClick={() => logEvent('mulighetsrommet.opprettAvtale')}
             target="_blank"
             variant="primary"
             className={styles.deleknapp}

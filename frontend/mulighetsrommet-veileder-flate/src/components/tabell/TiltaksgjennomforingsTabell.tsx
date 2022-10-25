@@ -205,7 +205,7 @@ const TiltaksgjennomforingsTabell = () => {
                 </Table.DataCell>
                 <Table.DataCell data-testid="tabell_tiltaksnummer" className={classNames(styles.tabell_tiltaksnummer)}>
                   <div className={styles.tabell_wrapper}>
-                    {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
+                    {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer?.toString()} dataTestId="tabell_knapp_kopier" />
                   </div>
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
