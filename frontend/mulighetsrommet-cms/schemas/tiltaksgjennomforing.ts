@@ -245,6 +245,7 @@ export default {
         "Dersom du har lenker som er interessant for tiltaksgjennomføringen kan det legges til her. PS: Per 05.10.2022 er dette feltet ikke synlig for veiledere enda.",
       type: "array",
       of: [lenke],
+      hidden: true, // Skjules per 25.10.22 etter ønske fra Marthe pga. forvirring for redaktørene.
     },
     {
       name: "tilgjengelighetsstatus",
