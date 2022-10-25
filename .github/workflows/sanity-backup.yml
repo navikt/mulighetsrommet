@@ -17,11 +17,11 @@ jobs:
         run: npm install @sanity/cli
       - name: Hent dagens dato
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "dagens_dato=date::$(date +'%Y-%m-%d')"" >> $GITHUB_ENV
       - name: Export dataset
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_READ_TOKEN_FOR_BACKUP_JOB }}
-        run: cd frontend/mulighetsrommet-cms && npx sanity dataset export production backups/backup-production-${{ steps.date.outputs.date }}.tar.gz --overwrite && npx sanity dataset export test backups/backup-test-${{ steps.date.outputs.date }}.tar.gz --overwrite
+        run: cd frontend/mulighetsrommet-cms && npx sanity dataset export production backups/backup-production-${{ env.dagens_dato }}.tar.gz --overwrite && npx sanity dataset export test backups/backup-test-${{ env.dagens_dato }}.tar.gz --overwrite
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0
         with:
@@ -30,3 +30,5 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
         run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups gs://team-mulighetsrommet-sanity-backup
+      - name: "Slett backup-filer fra repo"
+        run: rm -rf /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups/*
