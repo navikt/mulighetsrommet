@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs:
   backup-dataset:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Backup dataset for test og produksjon
     steps:
       - uses: actions/checkout@v2
