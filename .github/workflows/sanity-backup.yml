@@ -1,4 +1,4 @@
-name: Backup Routine
+name: Backup av Sanity
 on:
   schedule:
     # Runs at 04:00 UTC every day of the month
@@ -18,7 +18,7 @@ jobs:
       - name: Export dataset
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_READ_TOKEN_FOR_BACKUP_JOB }}
-        run: npx sanity dataset export production backups/backup-production.tar.gz && npx sanity dataset export test backups/backup-test.tar.gz
+        run: cd frontend/mulighetsrommet-cms && npx sanity dataset export production backups/backup-production.tar.gz && npx sanity dataset export test backups/backup-test.tar.gz
       - name: Upload backup-production.tar.gz
         uses: actions/upload-artifact@v2
         with:
