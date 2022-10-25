@@ -15,10 +15,13 @@ jobs:
           node-version: '16'
       - name: Install dependencies
         run: npm install @sanity/cli
+      - name: Hent dagens dato
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Export dataset
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_READ_TOKEN_FOR_BACKUP_JOB }}
-        run: cd frontend/mulighetsrommet-cms && npx sanity dataset export production backups/backup-production.tar.gz --overwrite && npx sanity dataset export test backups/backup-test.tar.gz --overwrite
+        run: cd frontend/mulighetsrommet-cms && npx sanity dataset export production backups/backup-production-${{ steps.date.outputs.date }}.tar.gz --overwrite && npx sanity dataset export test backups/backup-test-${{ steps.date.outputs.date }}.tar.gz --overwrite
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0
         with:
