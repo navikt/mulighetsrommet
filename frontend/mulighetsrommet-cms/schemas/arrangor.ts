@@ -17,12 +17,12 @@ export default {
       name: "telefonnummer",
       title: "Telefonnummer",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "epost",
       title: "E-post",
       type: "string",
+      hidden: true,
     },
     {
       name: "adresse",
@@ -30,11 +30,24 @@ export default {
       type: "string",
       validation: (Rule: Rule) => Rule.required(),
     },
+    {
+      name: "organisasjonsnummer",
+      title: "Organisasjonsnummer",
+      type: "slug",
+      validation: (Rule) => Rule.required(),
+    },
   ],
   preview: {
     select: {
       title: "selskapsnavn",
-      subtitle: "adresse",
+      adresse: "adresse",
+      orgnr: "organisasjonsnummer.current",
+    },
+    prepare({ title, adresse, orgnr }) {
+      return {
+        title,
+        subtitle: [orgnr, adresse].filter(Boolean).join(" - "),
+      };
     },
   },
 };
