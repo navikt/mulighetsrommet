@@ -8,7 +8,7 @@
     "start": "sanity start",
     "build": "sanity build",
     "deploy": "sanity deploy --no-build",
-    "backup": "sanity dataset export production backups/backup-production.tar.gz && sanity dataset export test backups/backup-test.tar.gz"
+    "backup": "sanity dataset export production backups/backup-production.tar.gz --overwrite && sanity dataset export test backups/backup-test.tar.gz --overwrite"
   },
   "keywords": [
     "sanity"
