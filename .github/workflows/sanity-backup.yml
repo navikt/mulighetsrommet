@@ -23,13 +23,13 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: backup-tarball-production
-          path: backups/backup-production.tar.gz
+          path: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups/backup-production.tar.gz
           # Fails the workflow if no files are found; defaults to 'warn'
           if-no-files-found: error
       - name: Upload backup-test.tar.gz
         uses: actions/upload-artifact@v2
         with:
           name: backup-tarball-test
-          path: backups/backup-test.tar.gz
+          path: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups/backup-test.tar.gz
           # Fails the workflow if no files are found; defaults to 'warn'
           if-no-files-found: error
