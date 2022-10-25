@@ -1,0 +1,35 @@
+name: Backup Routine
+on:
+  schedule:
+    # Runs at 04:00 UTC every day of the month
+    - cron: "0 4 */1 * *"
+  workflow_dispatch:
+jobs:
+  backup-dataset:
+    runs-on: ubuntu-18.04
+    name: Backup dataset for test og produksjon
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm install @sanity/cli
+      - name: Export dataset
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_READ_TOKEN_FOR_BACKUP_JOB }}
+        run: npx sanity dataset export production backups/backup-production.tar.gz && npx sanity dataset export test backups/backup-test.tar.gz
+      - name: Upload backup-production.tar.gz
+        uses: actions/upload-artifact@v2
+        with:
+          name: backup-tarball
+          path: backups/backup-production.tar.gz
+          # Fails the workflow if no files are found; defaults to 'warn'
+          if-no-files-found: error
+      - name: Upload backup-test.tar.gz
+        uses: actions/upload-artifact@v2
+        with:
+          name: backup-tarball
+          path: backups/backup-test.tar.gz
+          # Fails the workflow if no files are found; defaults to 'warn'
+          if-no-files-found: error
