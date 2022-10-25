@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs:
   backup-dataset:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Backup dataset for test og produksjon
     steps:
       - uses: actions/checkout@v2
@@ -22,14 +22,14 @@ jobs:
       - name: Upload backup-production.tar.gz
         uses: actions/upload-artifact@v2
         with:
-          name: backup-tarball
-          path: backups/backup-production.tar.gz
+          name: backup-tarball-production
+          path: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups/backup-production.tar.gz
           # Fails the workflow if no files are found; defaults to 'warn'
           if-no-files-found: error
       - name: Upload backup-test.tar.gz
         uses: actions/upload-artifact@v2
         with:
-          name: backup-tarball
-          path: backups/backup-test.tar.gz
+          name: backup-tarball-test
+          path: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-cms/backups/backup-test.tar.gz
           # Fails the workflow if no files are found; defaults to 'warn'
           if-no-files-found: error
