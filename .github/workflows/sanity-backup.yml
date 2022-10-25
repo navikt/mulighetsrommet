@@ -22,14 +22,14 @@ jobs:
       - name: Upload backup-production.tar.gz
         uses: actions/upload-artifact@v2
         with:
-          name: backup-tarball
+          name: backup-tarball-production
           path: backups/backup-production.tar.gz
           # Fails the workflow if no files are found; defaults to 'warn'
           if-no-files-found: error
       - name: Upload backup-test.tar.gz
         uses: actions/upload-artifact@v2
         with:
-          name: backup-tarball
+          name: backup-tarball-test
           path: backups/backup-test.tar.gz
           # Fails the workflow if no files are found; defaults to 'warn'
           if-no-files-found: error
