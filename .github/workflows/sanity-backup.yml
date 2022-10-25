@@ -17,7 +17,7 @@ jobs:
         run: npm install @sanity/cli
       - name: Hent dagens dato
         id: date
-        run: echo "dagens_dato=date::$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+        run: echo "dagens_dato=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       - name: Export dataset
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_READ_TOKEN_FOR_BACKUP_JOB }}
