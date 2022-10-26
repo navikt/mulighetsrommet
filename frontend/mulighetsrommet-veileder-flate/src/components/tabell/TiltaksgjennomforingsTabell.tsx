@@ -204,9 +204,12 @@ const TiltaksgjennomforingsTabell = () => {
                   <div>{kontaktinfoArrangor?.selskapsnavn}</div>
                 </Table.DataCell>
                 <Table.DataCell data-testid="tabell_tiltaksnummer" className={classNames(styles.tabell_tiltaksnummer)}>
-                  <div className={styles.tabell_wrapper}>
-                    {tiltaksnummer} <Kopiknapp kopitekst={tiltaksnummer!.toString()} dataTestId="tabell_knapp_kopier" />
-                  </div>
+                  {tiltaksnummer ? (
+                    <div className={styles.tabell_wrapper}>
+                      {tiltaksnummer}{' '}
+                      <Kopiknapp kopitekst={tiltaksnummer?.toString()} dataTestId="tabell_knapp_kopier" />
+                    </div>
+                  ) : null}
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.tiltakstypeNavn}</Table.DataCell>
                 <Table.DataCell>{lokasjon}</Table.DataCell>
