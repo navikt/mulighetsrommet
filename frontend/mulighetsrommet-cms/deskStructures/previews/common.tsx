@@ -16,14 +16,14 @@ export function Infoboks({ children }) {
         margin: "5px 0px",
       }}
     >
-      <GrCircleInformation />
+      <GrCircleInformation
+        style={{
+          alignSelf: "center",
+        }}
+      />
       <p>{children}</p>
     </div>
   );
-}
-
-export function MarginBottom({ children }) {
-  return <div style={{ marginBottom: "4rem" }}>{children}</div>;
 }
 
 export function Firkant({ farge }) {
@@ -46,6 +46,63 @@ export function Legend({ farge, children }) {
       <small style={{ marginLeft: "4px", textAlign: "right" }}>
         {children}
       </small>
+    </div>
+  );
+}
+
+export function PreviewContainer({ children }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function SidemenyDetaljerContainer({ children }) {
+  return (
+    <small
+      style={{
+        border: "1px dashed black",
+        padding: "4px 20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+      }}
+    >
+      {children}
+    </small>
+  );
+}
+
+export function SidemenyDetaljerRad({ navn, children }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        height: "auto",
+      }}
+    >
+      <h4
+        style={{
+          margin: "0",
+        }}
+      >
+        {navn}
+      </h4>
+      <p
+        style={{
+          margin: "0",
+        }}
+      >
+        {children}
+      </p>
     </div>
   );
 }

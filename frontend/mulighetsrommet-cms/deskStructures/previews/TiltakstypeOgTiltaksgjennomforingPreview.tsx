@@ -2,7 +2,13 @@ import { PortableText } from "@portabletext/react";
 import sanityClient from "part:@sanity/base/client";
 import React, { useEffect, useState } from "react";
 import Switch from "react-switch";
-import { Infoboks, Legend, MarginBottom } from "./common";
+import {
+  Infoboks,
+  Legend,
+  PreviewContainer,
+  SidemenyDetaljerContainer,
+  SidemenyDetaljerRad,
+} from "./common";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
@@ -11,168 +17,239 @@ const gjennomforingsfarge = "#881D0C";
 
 export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   const [tiltaksdata, setTiltaksdata] = useState(null);
+  const [gjennomforingsdata, setGjennomforingsdata] = useState(null);
   const [fargekodet, setFargekodet] = useState(true);
+  const { displayed } = document;
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await client.fetch(
-        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->}[0]`
+        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
+      );
+      const gjennomforingsdata = await client.fetch(
+        `*[_type == "tiltaksgjennomforing" && _id == "${document.displayed._id}"]{..., kontaktinfoArrangor->}[0]`
       );
       setTiltaksdata(data);
+      setGjennomforingsdata(gjennomforingsdata);
     };
-
     fetchData();
   }, [document]);
 
   function TekstFraTiltakstype({ children }: any) {
     return (
-      <p
+      <span
         title="Tekst hentet fra informasjon om tiltakstypen"
         style={{ color: fargekodet ? tiltaksfarge : "black" }}
       >
         {children}
-      </p>
+      </span>
     );
   }
 
   function TekstFraGjennomforing({ children }: any) {
     return (
-      <p
+      <span
         title="Tekst hentet fra informasjon om tiltaksgjennomføringen"
         style={{ color: fargekodet ? gjennomforingsfarge : "black" }}
       >
         {children}
-      </p>
+      </span>
+    );
+  }
+
+  function InfoboksTiltakstype({ children }: any) {
+    return (
+      <TekstFraTiltakstype>
+        <Infoboks>{children}</Infoboks>
+      </TekstFraTiltakstype>
+    );
+  }
+
+  function InfoboksGjennomforing({ children }: any) {
+    return (
+      <TekstFraGjennomforing>
+        <Infoboks>{children}</Infoboks>
+      </TekstFraGjennomforing>
     );
   }
 
   function Verktoylinje() {
     return (
-      <>
+      <div
+        style={{
+          display: "flex",
+          height: "20px",
+          alignItems: "center",
+        }}
+      >
         <div
           style={{
             display: "flex",
-            height: "20px",
             alignItems: "center",
           }}
         >
+          <small style={{ marginRight: "4px" }}>
+            Marker tekst fra tiltakstype og tiltaksgjennomføring
+          </small>
+          <Switch
+            onChange={() => setFargekodet(!fargekodet)}
+            checked={fargekodet}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            onColor={tiltaksfarge}
+            height={20}
+            width={36}
+          />
+        </div>
+        {fargekodet && (
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
+              marginLeft: "16px",
             }}
           >
-            <small style={{ marginRight: "4px" }}>
-              Marker tekst fra tiltakstype og tiltaksgjennomføring
-            </small>
-            <Switch
-              onChange={() => setFargekodet(!fargekodet)}
-              checked={fargekodet}
-              uncheckedIcon={false}
-              checkedIcon={false}
-              onColor={tiltaksfarge}
-              height={20}
-              width={36}
-            />
-          </div>
-          {fargekodet && (
-            <div
-              style={{
-                marginLeft: "16px",
-              }}
-            >
-              <div>
-                <Legend farge={tiltaksfarge}>Fra tiltakstype</Legend>
-              </div>
-              <Legend farge={gjennomforingsfarge}>
-                Fra tiltaksgjennomføring
-              </Legend>
+            <div>
+              <Legend farge={tiltaksfarge}>Fra tiltakstype</Legend>
             </div>
-          )}
-        </div>
-      </>
+            <Legend farge={gjennomforingsfarge}>
+              Fra tiltaksgjennomføring
+            </Legend>
+          </div>
+        )}
+      </div>
     );
   }
 
-  if (!tiltaksdata) return "Laster tiltaksdata...";
+  function Detaljvisning() {
+    return (
+      <SidemenyDetaljerContainer>
+        {displayed.tiltaksnummer.current && (
+          <TekstFraGjennomforing>
+            <SidemenyDetaljerRad navn="Tiltaksnummer">
+              {displayed.tiltaksnummer.current}
+            </SidemenyDetaljerRad>
+          </TekstFraGjennomforing>
+        )}
 
-  const { displayed } = document;
+        <TekstFraTiltakstype>
+          <SidemenyDetaljerRad navn="Tiltakstype">
+            {tiltaksdata?.tiltakstypeNavn}
+          </SidemenyDetaljerRad>
+        </TekstFraTiltakstype>
+
+        {gjennomforingsdata?.kontaktinfoArrangor && (
+          <TekstFraGjennomforing>
+            <SidemenyDetaljerRad navn="Arrangør">
+              {gjennomforingsdata?.kontaktinfoArrangor.selskapsnavn}
+            </SidemenyDetaljerRad>
+          </TekstFraGjennomforing>
+        )}
+
+        <TekstFraTiltakstype>
+          <SidemenyDetaljerRad navn="Innsatsgruppe">
+            {tiltaksdata?.innsatsgruppe?.beskrivelse}
+          </SidemenyDetaljerRad>
+        </TekstFraTiltakstype>
+
+        <TekstFraGjennomforing>
+          <SidemenyDetaljerRad navn="Oppstart">
+            {displayed.oppstart === "dato"
+              ? Intl.DateTimeFormat().format(new Date(displayed.oppstartsdato))
+              : "Løpende"}
+          </SidemenyDetaljerRad>
+        </TekstFraGjennomforing>
+        {tiltaksdata?.regelverkLenker && (
+          <TekstFraTiltakstype>
+            <SidemenyDetaljerRad navn="Regelverk">
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {tiltaksdata?.regelverkLenker.map((lenke) => {
+                  return (
+                    <a href={lenke.regelverkUrl}>{lenke.regelverkLenkeNavn}</a>
+                  );
+                })}
+              </div>
+            </SidemenyDetaljerRad>
+          </TekstFraTiltakstype>
+        )}
+      </SidemenyDetaljerContainer>
+    );
+  }
+
+  if (!tiltaksdata && !gjennomforingsdata) return "Laster...";
+
   return (
-    <div style={{ margin: "64px" }}>
+    <div style={{ margin: "40px 64px", maxWidth: "600px" }}>
       <Verktoylinje />
-      <div style={{ maxWidth: "600px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
-            {displayed.tiltaksgjennomforingNavn}
-          </h1>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <small style={{ paddingTop: "4px", paddingBottom: "4px" }}>
-            Tiltakstype: {tiltaksdata.tiltakstypeNavn}
-          </small>
-          <small style={{ border: "1px dashed black", padding: "4px" }}>
-            Boks med nøkkelinformasjon vises ikke i denne forhåndsvisningen
-          </small>
-        </div>
+      <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
+        {displayed.tiltaksgjennomforingNavn}
+      </h1>
+      <Detaljvisning />
+
+      <PreviewContainer>
         <div>
-          <MarginBottom>
-            <h3>Beskrivelse</h3>
-            <TekstFraTiltakstype>
-              {tiltaksdata?.beskrivelse}
-            </TekstFraTiltakstype>
-            {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
-              <TekstFraGjennomforing>
-                {displayed.beskrivelse}
-              </TekstFraGjennomforing>
-            )}
-          </MarginBottom>
-          <MarginBottom>
-            <h3>For hvem</h3>
-            <Infoboks>{tiltaksdata.faneinnhold?.forHvemInfoboks}</Infoboks>
-            <Infoboks>{displayed.faneinnhold?.forHvemInfoboks}</Infoboks>
-            <TekstFraTiltakstype>
-              <PortableText value={tiltaksdata.faneinnhold?.forHvem} />
-            </TekstFraTiltakstype>
+          <h2>Beskrivelse</h2>
+          <TekstFraTiltakstype>{tiltaksdata?.beskrivelse}</TekstFraTiltakstype>
+          {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
             <TekstFraGjennomforing>
-              <PortableText value={displayed.faneinnhold?.forHvem} />
+              {displayed.beskrivelse}
             </TekstFraGjennomforing>
-          </MarginBottom>
-          <MarginBottom>
-            <h3>Detaljer og innhold</h3>
-            <Infoboks>
-              {tiltaksdata.faneinnhold?.detaljerOgInnholdInfoboks}
-            </Infoboks>
-            <Infoboks>
-              {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
-            </Infoboks>
-            <TekstFraTiltakstype>
-              <PortableText value={tiltaksdata.faneinnhold.detaljerOgInnhold} />
-            </TekstFraTiltakstype>
-            <TekstFraGjennomforing>
-              <PortableText value={displayed.faneinnhold?.detaljerOgInnhold} />
-            </TekstFraGjennomforing>
-          </MarginBottom>
-          <MarginBottom>
-            <h3>Påmelding og varighet</h3>
-            <Infoboks>
-              {tiltaksdata.faneinnhold?.pameldingOgVarighetInfoboks}
-            </Infoboks>
-            <Infoboks>
-              {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
-            </Infoboks>
-            <TekstFraTiltakstype>
-              <PortableText
-                value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
-              />
-            </TekstFraTiltakstype>
-            <TekstFraGjennomforing>
-              <PortableText
-                value={displayed.faneinnhold?.pameldingOgVarighet}
-              />
-            </TekstFraGjennomforing>
-          </MarginBottom>
+          )}
         </div>
-      </div>
+
+        <div>
+          <h2>For hvem</h2>
+          <InfoboksTiltakstype>
+            {tiltaksdata.faneinnhold?.forHvemInfoboks}
+          </InfoboksTiltakstype>
+          <InfoboksGjennomforing>
+            {displayed.faneinnhold?.forHvemInfoboks}
+          </InfoboksGjennomforing>
+          <TekstFraTiltakstype>
+            <PortableText value={tiltaksdata.faneinnhold?.forHvem} />
+          </TekstFraTiltakstype>
+          <TekstFraGjennomforing>
+            <PortableText value={displayed.faneinnhold?.forHvem} />
+          </TekstFraGjennomforing>
+        </div>
+
+        <div>
+          <h2>Detaljer og innhold</h2>
+          <InfoboksTiltakstype>
+            {tiltaksdata.faneinnhold?.detaljerOgInnholdInfoboks}
+          </InfoboksTiltakstype>
+          <InfoboksGjennomforing>
+            {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
+          </InfoboksGjennomforing>
+          <TekstFraTiltakstype>
+            <PortableText value={tiltaksdata.faneinnhold.detaljerOgInnhold} />
+          </TekstFraTiltakstype>
+          <TekstFraGjennomforing>
+            <PortableText value={displayed.faneinnhold?.detaljerOgInnhold} />
+          </TekstFraGjennomforing>
+        </div>
+
+        <div>
+          <h2>Påmelding og varighet</h2>
+          <InfoboksTiltakstype>
+            {tiltaksdata.faneinnhold?.pameldingOgVarighetInfoboks}
+          </InfoboksTiltakstype>
+          <InfoboksGjennomforing>
+            {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
+          </InfoboksGjennomforing>
+          <TekstFraTiltakstype>
+            <PortableText
+              value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
+            />
+          </TekstFraTiltakstype>
+          <TekstFraGjennomforing>
+            <PortableText value={displayed.faneinnhold?.pameldingOgVarighet} />
+          </TekstFraGjennomforing>
+        </div>
+      </PreviewContainer>
     </div>
   );
 }
