@@ -46,7 +46,6 @@ spec:
         {
           "gcs": {
             "bucketName": "mulighetsrommet-veilederflate-dev",
-            "bucketContextPath": "/dist"
           },
           "auth": {
             "loginProvider": "AZURE_AD"

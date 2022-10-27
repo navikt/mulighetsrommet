@@ -78,15 +78,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev
-      - name: Create release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: release/dev@${{ github.sha }}
-          release_name: Release to dev
-          prerelease: true  
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev 
         
 
   build-and-test:
