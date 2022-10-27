@@ -4,9 +4,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.plugins.getNorskIdent
-import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
@@ -15,12 +12,9 @@ import org.slf4j.LoggerFactory
 fun Route.sanityRoutes() {
     val log = LoggerFactory.getLogger(this.javaClass)
     val sanityService: SanityService by inject()
-    val poaoTilgang: PoaoTilgangService by inject()
 
     route("/api/v1/sanity") {
         get {
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
-
             val query = call.request.queryParameters["query"]
                 ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
             log.debug("Query sanity with value: $query")

@@ -6,6 +6,7 @@ export const FEEDBACK = 'mulighetsrommet.feedback';
 export const VIS_HISTORIKK = 'mulighetsrommet.vis-historikk';
 export const LAGRE_DEL_TILTAK_MED_BRUKER = 'mulighetsrommet.lagre-del-tiltak-med-bruker';
 export const VIS_INNSIKTSFANE = 'mulighetsrommet.vis-innsiktsfane';
+export const ENABLE_PREVIEWFLATE = 'mulighetsrommet.enable-previewflate';
 
 export const ALL_TOGGLES = [
   ENABLE_ARBEIDSFLATE,
@@ -13,6 +14,7 @@ export const ALL_TOGGLES = [
   VIS_HISTORIKK,
   LAGRE_DEL_TILTAK_MED_BRUKER,
   VIS_INNSIKTSFANE,
+  ENABLE_PREVIEWFLATE,
 ];
 
 export interface Features {
@@ -21,6 +23,7 @@ export interface Features {
   [VIS_HISTORIKK]: boolean;
   [LAGRE_DEL_TILTAK_MED_BRUKER]: boolean;
   [VIS_INNSIKTSFANE]: boolean;
+  [ENABLE_PREVIEWFLATE]: boolean;
 }
 
 export const initialFeatures: Features = {
@@ -29,6 +32,7 @@ export const initialFeatures: Features = {
   [VIS_HISTORIKK]: false,
   [LAGRE_DEL_TILTAK_MED_BRUKER]: true,
   [VIS_INNSIKTSFANE]: false,
+  [ENABLE_PREVIEWFLATE]: false,
 };
 
 const toggles = ALL_TOGGLES.map(element => 'feature=' + element).join('&');
