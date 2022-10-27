@@ -45,12 +45,16 @@ spec:
       value: >
         {
           "gcs": {
-            "bucketName": "mulighetsrommet-veilederflate-dev"
+            "bucketName": "mulighetsrommet-veilederflate-dev",
+            "bucketContextPath": "/dist"
           },
           "auth": {
             "loginProvider": "AZURE_AD"
           },
-          "proxies": [
+          "cors": {
+            "origin": "https://veilarbpersonflate.dev.intern.nav.no"
+          },
+          "proxies": [  
             {
               "fromPath": "/mulighetsrommet-api",
               "toUrl": "http://mulighetsrommet-api",

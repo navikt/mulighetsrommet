@@ -71,31 +71,29 @@ jobs:
           channel_id: C026FHSRFEJ
           status: FAILED
           color: danger
-      - name: Build and publish Docker image
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        working-directory: frontend/mulighetsrommet-veileder-flate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE_DEV} .
-          docker push ${IMAGE_DEV}
-
+      
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
     needs: [ build-and-test-preprod ]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE_DEV }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml      
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+    - name: Set up gcloud
+      uses: google-github-actions/setup-gcloud@v0
+    - name: Upload files to GCS
+      run: gsutil -m rsync -r dist gs://mulighetsrommet-veilederflate-dev
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: release/dev@${{ github.sha }}
+        release_name: Release to dev
+        prerelease: true      
 
   build-and-test:
     name: Build and test for production
