@@ -57,7 +57,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     );
   }
 
-  function InfoboksTiltakstype({ children }: any) {
+  function InfoboksFraTiltakstype({ children }: any) {
     return (
       <TekstFraTiltakstype>
         <Infoboks>{children}</Infoboks>
@@ -65,7 +65,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     );
   }
 
-  function InfoboksGjennomforing({ children }: any) {
+  function InfoboksFraGjennomforing({ children }: any) {
     return (
       <TekstFraGjennomforing>
         <Infoboks>{children}</Infoboks>
@@ -202,12 +202,12 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
 
         <div>
           <h2>For hvem</h2>
-          <InfoboksTiltakstype>
+          <InfoboksFraTiltakstype>
             {tiltaksdata.faneinnhold?.forHvemInfoboks}
-          </InfoboksTiltakstype>
-          <InfoboksGjennomforing>
+          </InfoboksFraTiltakstype>
+          <InfoboksFraGjennomforing>
             {displayed.faneinnhold?.forHvemInfoboks}
-          </InfoboksGjennomforing>
+          </InfoboksFraGjennomforing>
           <TekstFraTiltakstype>
             <PortableText value={tiltaksdata.faneinnhold?.forHvem} />
           </TekstFraTiltakstype>
@@ -218,12 +218,12 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
 
         <div>
           <h2>Detaljer og innhold</h2>
-          <InfoboksTiltakstype>
+          <InfoboksFraTiltakstype>
             {tiltaksdata.faneinnhold?.detaljerOgInnholdInfoboks}
-          </InfoboksTiltakstype>
-          <InfoboksGjennomforing>
+          </InfoboksFraTiltakstype>
+          <InfoboksFraGjennomforing>
             {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
-          </InfoboksGjennomforing>
+          </InfoboksFraGjennomforing>
           <TekstFraTiltakstype>
             <PortableText value={tiltaksdata.faneinnhold.detaljerOgInnhold} />
           </TekstFraTiltakstype>
@@ -234,12 +234,12 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
 
         <div>
           <h2>Påmelding og varighet</h2>
-          <InfoboksTiltakstype>
+          <InfoboksFraTiltakstype>
             {tiltaksdata.faneinnhold?.pameldingOgVarighetInfoboks}
-          </InfoboksTiltakstype>
-          <InfoboksGjennomforing>
+          </InfoboksFraTiltakstype>
+          <InfoboksFraGjennomforing>
             {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
-          </InfoboksGjennomforing>
+          </InfoboksFraGjennomforing>
           <TekstFraTiltakstype>
             <PortableText
               value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
