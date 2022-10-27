@@ -26,8 +26,8 @@ env:
   TZ: Europe/Amsterdam
 
 jobs:
-  build-and-test-preprod:
-    name: Build and test for preprod
+  build-and-test-dev:
+    name: Build, test and deploy for dev
     runs-on: ubuntu-latest
     env:
       VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
@@ -71,29 +71,23 @@ jobs:
           channel_id: C026FHSRFEJ
           status: FAILED
           color: danger
-      
-  deploy-dev:
-    name: Deploy (dev)
-    runs-on: ubuntu-latest
-    needs: [ build-and-test-preprod ]
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-    steps:
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v0
-      with:
-        credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
-    - name: Set up gcloud
-      uses: google-github-actions/setup-gcloud@v0
-    - name: Upload files to GCS
-      run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev
-    - name: Create release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: release/dev@${{ github.sha }}
-        release_name: Release to dev
-        prerelease: true      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r dist gs://mulighetsrommet-veilederflate-dev
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: release/dev@${{ github.sha }}
+          release_name: Release to dev
+          prerelease: true  
+        
 
   build-and-test:
     name: Build and test for production
