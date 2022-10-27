@@ -56,7 +56,9 @@ export function TiltakstypePreview({ document }: any) {
             >
               {tiltaksdata?.regelverkLenker.map((lenke) => {
                 return (
-                  <a href={lenke.regelverkUrl}>{lenke.regelverkLenkeNavn}</a>
+                  <a target="_blank" href={lenke.regelverkUrl}>
+                    {lenke.regelverkLenkeNavn}
+                  </a>
                 );
               })}
             </div>
