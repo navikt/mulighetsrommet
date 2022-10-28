@@ -119,14 +119,14 @@ const ViewTiltakstypeDetaljer = () => {
           >
             {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
           </Button>
-          {harDeltMedBruker && !erPreview ? (
+          {harDeltMedBruker && !erPreview && (
             <div style={{ textAlign: 'center', marginTop: '1rem' }}>
               <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
                 Åpne i dialogen
                 <Dialog />
               </Link>
             </div>
-          ) : null}
+          )}
         </div>
         <TiltaksdetaljerFane />
         <Delemodal
