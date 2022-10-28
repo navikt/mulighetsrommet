@@ -11,10 +11,10 @@ spec:
   ingresses:
     - https://mulighetsrommet-veileder-flate.dev.intern.nav.no
   liveness:
-    path: /internal/isalive
+    path: /internal/alive
     initialDelay: 10
   readiness:
-    path: /internal/isready
+    path: /internal/ready
     initialDelay: 10
   replicas:
     min: 1
