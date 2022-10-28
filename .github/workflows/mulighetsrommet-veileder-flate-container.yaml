@@ -19,7 +19,7 @@ on:
           - dev_and_prod
 
 concurrency:
-  group: mulighetsrommet_frontend_container_dev
+  group: mulighetsrommet_frontend_container
   cancel-in-progress: true
 
 env:
