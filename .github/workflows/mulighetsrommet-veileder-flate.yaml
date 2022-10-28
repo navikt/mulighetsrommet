@@ -107,4 +107,4 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev 
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-prod
