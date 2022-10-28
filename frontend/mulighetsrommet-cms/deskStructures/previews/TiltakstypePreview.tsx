@@ -89,7 +89,6 @@ export function TiltakstypePreview({ document }: any) {
             <PortableText value={tiltaksdata.faneinnhold?.forHvem} />
           </div>
         )}
-        {/*{console.log(tiltaksdata)}*/}
         {(displayed.faneinnhold?.detaljerOgInnholdInfoboks ||
           tiltaksdata.faneinnhold?.detaljerOgInnhold) && (
           <div>
