@@ -45,7 +45,7 @@ spec:
       value: >
         {
           "gcs": {
-            "bucketName": "mulighetsrommet-veilederflate-dev",
+            "bucketName": "mulighetsrommet-veilederflate-dev"
           },
           "auth": {
             "loginProvider": "AZURE_AD"
