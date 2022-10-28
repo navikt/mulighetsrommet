@@ -32,6 +32,7 @@ spec:
       enabled: true
     sidecar:
       enabled: true
+      autoLogin: true
   gcp:
     buckets:
       - name: mulighetsrommet-veilederflate-dev
@@ -39,6 +40,9 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: poao-unleash
+          namespace: poao
+          cluster: dev-gcp
         - application: mulighetsrommet-api
   env:
     - name: JSON_CONFIG
@@ -53,7 +57,17 @@ spec:
           "cors": {
             "origin": "https://veilarbpersonflate.dev.intern.nav.no"
           },
-          "proxies": [  
+          "proxies": [ 
+            {
+              "fromPath": "/veilarbpersonflatefs",
+              "toUrl": "http://poao-unleash.poao.svc.cluster.local",
+              "preserveFromPath": false,
+               "toApp": {
+                "name": "poao-unleash",
+                "namespace": "poao",
+                "cluster": "dev-gcp"
+              }
+            }, 
             {
               "fromPath": "/mulighetsrommet-api",
               "toUrl": "http://mulighetsrommet-api",
