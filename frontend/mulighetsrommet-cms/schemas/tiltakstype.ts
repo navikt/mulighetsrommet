@@ -18,7 +18,7 @@ export default {
       title: "Beskrivelse",
       type: "text",
       rows: 5,
-      validation: (Rule) => Rule.max(300),
+      validation: (Rule) => Rule.max(500),
       description: "Her kan du skrive en beskrivelse av tiltakstypen",
     },
     {
