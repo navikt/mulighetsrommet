@@ -19,18 +19,9 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { environments } from '../../env';
+import { lenkeTilOpprettAvtaleForEnv } from '../CommonViews';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
-
-function lenkeTilOpprettAvtaleForEnv(): string {
-  const env: environments = import.meta.env.VITE_ENVIRONMENT;
-  const baseUrl =
-    env === 'production'
-      ? 'https://tiltaksgjennomforing.intern.nav.no/'
-      : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
-  return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
-}
 
 const ViewTiltakstypeDetaljer = () => {
   const tiltaksnummer = useGetTiltaksgjennomforingIdFraUrl();
