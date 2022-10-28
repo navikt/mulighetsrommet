@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-and-test:
-    name: Build and test
+    name: Build and test for Labs
     runs-on: ubuntu-latest
     env:
       VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
@@ -42,7 +42,7 @@ jobs:
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
-          headed: false
+          headed: true
           wait-on: http://localhost:3000
           start: npm start
           install: false
@@ -77,6 +77,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: labs-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
+          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-labs.yaml
           VAR: image=${{ env.IMAGE }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/labs-gcp.yaml

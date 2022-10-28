@@ -10,12 +10,8 @@ metadata:
 spec:
   image: {{image}}
   port: 8080
-  {{#if ingresses}}
   ingresses:
-    {{#each ingresses}}
-    - {{this}}
-    {{/each}}
-  {{/if}}
+    - https://mulighetsrommet-veileder-flate.labs.nais.io
   liveness:
     path: /internal/isalive
     initialDelay: 10
@@ -23,8 +19,8 @@ spec:
     path: /internal/isready
     initialDelay: 10
   replicas:
-    min: {{minReplicas}}
-    max: {{maxReplicas}}
+    min: 1
+    max: 1
     cpuThresholdPercentage: 75
   resources:
     limits:

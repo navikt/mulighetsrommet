@@ -1,5 +1,0 @@
-ingresses:
-  - https://mulighetsrommet-veileder-flate.dev.intern.nav.no
-minReplicas: 1
-maxReplicas: 1
-

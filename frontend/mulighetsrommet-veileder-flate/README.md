@@ -4,11 +4,23 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 
 # Innhold
 
+- [Deploy](#deploy)
 - [Teknologier](#teknologier)
 - [Kom i gang](#kom-i-gang)
 - [kodestil](#kodestil)
   - [Forutsetninger](#forutsetninger)
   - [Steg for steg](#steg-for-steg)
+
+# <a name="deploy"></a>Deploy
+Applikasjonen brukes base-image fra [poao-frontend](https://github.com/navikt/poao-frontend) og deployes via Github Actions når det skjer endringer i `./.nais/nais-<miljø>.yaml`-filene. 
+
+Man kan også deploye manuelt fra terminalen ved å autentisere mot nais med 
+1. `gcloud auth login` 
+2. `kubectl apply -f .nais/nais-dev.yaml` for dev eller 
+3. `kubectl apply -f .nais/nais-prod.yaml` for produksjon. 
+ 
+**PS: sjekk at du står i korrekt cluster og har riktig namespace (team-mulighetsrommet) før du deployer manuelt**
+
 
 # <a name="teknologier"></a>Teknologier
 
