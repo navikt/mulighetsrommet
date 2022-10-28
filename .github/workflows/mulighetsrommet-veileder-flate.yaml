@@ -26,8 +26,8 @@ env:
   TZ: Europe/Amsterdam
 
 jobs:
-  build-and-test-preprod:
-    name: Build and test for preprod
+  build-test-and-deploy-dev:
+    name: Build, test and deploy for dev
     runs-on: ubuntu-latest
     env:
       VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
@@ -44,24 +44,10 @@ jobs:
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
-          headed: false
+          headed: true
           wait-on: http://localhost:3000
           start: npm start
           install: false
-      - name: Lag deployment i Sentry
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' # Lag deployment hvis merge til main eller manuell trigger
-        continue-on-error: true
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://sentry.gc.nav.no
-          SENTRY_ORG: nav
-          SENTRY_PROJECT: mulighetsrommet-veileder-flate
-        with:
-          environment: dev-gcp
-          version: ${{ github.sha }}
-          set_commits: skip
-          sourcemaps: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist/assets
       - name: Notify slack fail
         if: failure()
         env:
@@ -71,35 +57,20 @@ jobs:
           channel_id: C026FHSRFEJ
           status: FAILED
           color: danger
-      - name: Build and publish Docker image
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        working-directory: frontend/mulighetsrommet-veileder-flate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE_DEV} .
-          docker push ${IMAGE_DEV}
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev 
+        
 
-  deploy-dev:
-    name: Deploy (dev)
+  build-test-and-deploy-prod:
+    name: Build, test and deploy for production
     runs-on: ubuntu-latest
-    needs: [ build-and-test-preprod ]
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE_DEV }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/dev-gcp.yaml      
-
-  build-and-test:
-    name: Build and test for production
-    runs-on: ubuntu-latest
+    needs: ["build-test-and-deploy-dev"]
     env:
       VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
       VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
@@ -116,24 +87,10 @@ jobs:
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
-          headed: false
+          headed: true
           wait-on: http://localhost:3000
           start: npm start
           install: false
-      - name: Lag deployment i Sentry
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' # Lag deployment hvis merge til main eller manuell trigger
-        continue-on-error: true
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://sentry.gc.nav.no
-          SENTRY_ORG: nav
-          SENTRY_PROJECT: mulighetsrommet-veileder-flate
-        with:
-          environment: prod-gcp
-          version: ${{ github.sha }}
-          set_commits: skip
-          sourcemaps: /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist/assets
       - name: Notify slack fail
         if: failure()
         env:
@@ -143,27 +100,11 @@ jobs:
           channel_id: C026FHSRFEJ
           status: FAILED
           color: danger
-      - name: Build and publish Docker image
-        working-directory: frontend/mulighetsrommet-veileder-flate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE_PROD} .
-          docker push ${IMAGE_PROD}
-
-  deploy-prod:
-    name: Deploy (prod)
-    runs-on: ubuntu-latest
-    needs: [ deploy-dev, build-and-test ]
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
-    steps:
-      - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais.yaml
-          VAR: image=${{ env.IMAGE_PROD }}
-          VARS: frontend/mulighetsrommet-veileder-flate/.nais/prod-gcp.yaml
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_PROD_GCP_BUCKET_FRONTEND }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-prod

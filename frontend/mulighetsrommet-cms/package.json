@@ -23,6 +23,7 @@
     "@sanity/desk-tool": "^2.35.0",
     "@sanity/eslint-config-studio": "^2.0.0",
     "@sanity/image-url": "^1.0.1",
+    "@sanity/production-preview": "^2.33.2",
     "@sanity/vision": "^2.35.0",
     "prop-types": "^15.8",
     "react": "^17.0.0",
