@@ -173,13 +173,13 @@ const Delemodal = ({
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDT_OK' && (
-        <Modal.Content className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
+        <Modal.Content className={delemodalStyles.delemodal_tilbakemelding}>
           <SuccessColored className={delemodalStyles.delemodal_svg} />
           <Heading level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
           <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
-          <div className={modalStyles.modal_btngroup}>
+          <div className={classNames(modalStyles.modal_btngroup, modalStyles.modal_btngroup_success)}>
             <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
               Gå til Dialogen
             </Button>
