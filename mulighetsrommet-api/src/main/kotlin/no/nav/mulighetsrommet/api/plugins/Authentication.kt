@@ -50,10 +50,6 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!poaoTilgangService.hasAccessToModia(credentials["NAVident"]!!)) {
-                    return@validate null
-                }
-
                 JWTPrincipal(credentials.payload)
             }
         }

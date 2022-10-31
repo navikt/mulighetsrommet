@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangClient
@@ -30,9 +31,14 @@ class PoaoTilgangService(
         }
     }
 
-    suspend fun hasAccessToModia(navIdent: String): Boolean {
-        return cachedResult(cache, navIdent) {
+    suspend fun verfiyAccessToModia(navIdent: String) {
+        val access = cachedResult(cache, navIdent) {
             client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navIdent)).getOrThrow().isPermit
+        }
+
+        if (!access) {
+            SecureLog.logger.warn("Veileder med navident $navIdent har ikke tilgang til modia")
+            throw StatusException(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til modia, se mer i secure logs")
         }
     }
 
