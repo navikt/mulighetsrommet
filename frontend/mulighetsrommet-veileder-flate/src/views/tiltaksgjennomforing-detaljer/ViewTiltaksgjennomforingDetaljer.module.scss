@@ -3,7 +3,7 @@
   margin: 0 auto;
 }
 
-.tiltakstypeDetaljer {
+.tiltakstype_detaljer {
   display: grid;
   grid-template-rows: auto auto;
   grid-template-columns: auto 23rem;
@@ -31,7 +31,7 @@
 }
 
 @media (max-width: 1200px) {
-  .tiltakstypeDetaljer {
+  .tiltakstype_detaljer {
     grid-template-columns: auto;
     grid-gap: 2rem;
 
@@ -43,11 +43,7 @@
       grid-column: initial;
     }
 
-    &__regelverk {
-      gap: 2rem;
-    }
-
-    .fane__root {
+    .fane_root {
       grid-row: 3;
     }
   }

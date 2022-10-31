@@ -39,13 +39,13 @@ const TiltaksdetaljerFane = () => {
       defaultValue={fane}
       size="medium"
       selectionFollowsFocus
-      className={styles.fane__root}
+      className={styles.fane_root}
       onChange={value => {
         logEvent('mulighetsrommet.faner', { value: tabValueTilFaneoverSkrifter[value] ?? value });
         setFane(value);
       }}
     >
-      <Tabs.List className={styles.fane__liste}>
+      <Tabs.List className={styles.fane_liste}>
         {faneoverskrifter
           .filter(fane => {
             if (!visInnsiktsfane && fane === 'Innsikt') {
@@ -59,7 +59,7 @@ const TiltaksdetaljerFane = () => {
               key={index}
               value={`tab${index + 1}`}
               label={fane}
-              className={styles.btn__tab}
+              className={styles.btn_tab}
               data-testid={`fane_${kebabCase(fane)}`}
             />
           ))}

@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
-import { Oppstart, Tilgjengelighetsstatus, Tiltaksgjennomforing } from '../../core/api/models';
+import { Oppstart, Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
@@ -13,7 +13,7 @@ import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { Feilmelding } from '../feilmelding/Feilmelding';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
-import styles from './tabell.module.scss';
+import styles from './Tabell.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
 
 const TiltaksgjennomforingsTabell = () => {

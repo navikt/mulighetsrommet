@@ -1,13 +1,13 @@
-.historikkForBruker {
+.historikk_for_bruker {
   color: var(--navds-global-color-semantic-text);
   padding-bottom: 10rem;
 }
 
-.historikkTextContent {
+.historikk_text_content {
   margin: 0;
 }
 
-.historikkDatoer {
+.historikk_datoer {
   width: 100%;
   display: grid;
   grid-template-columns: 5rem 1rem 5rem;
@@ -15,17 +15,17 @@
   text-align: center;
 }
 
-.historikkForBrukerListe {
+.historikk_for_bruker_liste {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.historikkForBrukerHeading {
+.historikk_for_bruker_heading {
   margin: 1rem 0rem 0rem 0rem;
 }
 
-.historikkForBrukerElement {
+.historikk_for_bruker_element {
   border-bottom: 2px solid var(--navds-semantic-color-border-inverted);
   display: grid;
   grid-template-columns: 90% 1fr;
@@ -33,7 +33,7 @@
   margin-bottom: 0.5rem;
 }
 
-.historikkForBrukerMetadata {
+.historikk_for_bruker_metadata {
   color: var(--navds-semantic-color-text-muted);
   min-width: 150px;
   display: grid;

@@ -10,8 +10,8 @@ const ViewTiltakstypeOversikt = () => {
   const visHistorikkKnapp = features.isSuccess && features.data[VIS_HISTORIKK];
 
   return (
-    <div className={styles.tiltakstypeOversikt} id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
-      <div className={styles.filtertagsOgHistorikk}>
+    <div className={styles.tiltakstype_oversikt} id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
+      <div className={styles.filtertags_og_historikk}>
         <Filtertags />
         {visHistorikkKnapp && <HistorikkButton />}
       </div>
