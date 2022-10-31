@@ -144,20 +144,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
   });
 
-  it('Sjekk at tiltaksnummer tilsvarer med url', () => {
-    cy.getByTestId('knapp_kopier').click();
-
-    // cy.on('window:alert', (text) => {
-    //   expect(text).to.contains('This is an alert!');
-    // });
-
-    cy.window().then(win => {
-      win.navigator.clipboard.readText().then(text => {
-        cy.url().should('include', text);
-      });
-    });
-  });
-
   it('Sjekk UU', () => {
     cy.checkPageA11y();
   });

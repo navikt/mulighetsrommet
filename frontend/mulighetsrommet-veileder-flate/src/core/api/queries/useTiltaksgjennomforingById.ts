@@ -7,9 +7,9 @@ import { erPreview } from '../../../utils/Utils';
 export default function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
   const preview = erPreview;
-  const ekskluderDrafts = preview ? '' : '&& !(_id in path("drafts.**"))';
-  return useSanity<Tiltaksgjennomforing>(
-    groq`*[_type == "tiltaksgjennomforing" && _id == '${tiltaksgjennomforingId}' ${ekskluderDrafts}] {
+  const matchIdForProdEllerDrafts = `(_id == '${tiltaksgjennomforingId}' || _id == 'drafts.${tiltaksgjennomforingId}')`;
+  const response = useSanity<Tiltaksgjennomforing>(
+    groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
     _id,
     tiltaksgjennomforingNavn,
     beskrivelse,
