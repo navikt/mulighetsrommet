@@ -4,6 +4,7 @@ import { InnsatsgruppeNokler } from '../../core/api/models';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
+import styles from './Filtermeny.module.scss';
 
 interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }> {
   accordionNavn: string;
@@ -37,13 +38,13 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
   };
 
   return (
-    <Accordion role="menu">
+    <Accordion role="menu" className={styles.accordion}>
       <Accordion.Item defaultOpen={defaultOpen}>
         <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
           {accordionNavn}
         </Accordion.Header>
         <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
-          {isLoading && <Loader className="filter-loader" size="xlarge" />}
+          {isLoading && <Loader size="xlarge" />}
           {data && (
             <RadioGroup
               legend=""

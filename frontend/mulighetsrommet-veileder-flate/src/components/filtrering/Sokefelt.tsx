@@ -1,22 +1,25 @@
 import React from 'react';
 import { TextField } from '@navikt/ds-react';
+import styles from './Filtermeny.module.scss';
 
 interface SokeFilterProps {
   sokefilter: string;
   setSokefilter: (sokefilter: string) => void;
 }
 
-const Searchfield = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
+const Sokefelt = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
   return (
     <TextField
-      label="Søk etter tiltakstype:"
+      label=""
+      placeholder="Søk etter tiltak"
       hideLabel
       onChange={(e: React.FormEvent<HTMLInputElement>) => setSokefilter(e.currentTarget.value)}
       value={sokefilter}
-      aria-label="Søk etter tiltakstype"
+      className={styles.sokefelt}
+      aria-label="Søk etter tiltak"
       data-testid="filter_sokefelt"
     />
   );
 };
 
-export default Searchfield;
+export default Sokefelt;
