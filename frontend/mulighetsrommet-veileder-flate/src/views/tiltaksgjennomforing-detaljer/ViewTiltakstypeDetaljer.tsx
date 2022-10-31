@@ -17,7 +17,7 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
-import { capitalize, formaterDato } from '../../utils/Utils';
+import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { environments } from '../../env';
 
@@ -79,62 +79,66 @@ const ViewTiltakstypeDetaljer = () => {
   };
 
   return (
-    <div className={styles.tiltakstypeDetaljer}>
-      <div>
-        <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
-        <TiltaksgjennomforingsHeader />
-        {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
-          <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
-        )}
-      </div>
-      <div className={styles.sidemeny}>
-        <SidemenyDetaljer />
-        {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && (
+    <>
+      <div className={styles.tiltakstypeDetaljer}>
+        <div>
+          {!erPreview && (
+            <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
+          )}
+          <TiltaksgjennomforingsHeader />
+          {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
+            <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
+          )}
+        </div>
+        <div className={styles.sidemeny}>
+          <SidemenyDetaljer />
+          {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) || !erPreview) && (
+            <Button
+              as="a"
+              href={lenkeTilOpprettAvtaleForEnv()}
+              target="_blank"
+              variant="primary"
+              className={styles.deleknapp}
+              aria-label="Opprett avtale"
+              data-testid="opprettavtaleknapp"
+              title={tooltip()}
+            >
+              Opprett avtale
+            </Button>
+          )}
           <Button
-            as="a"
-            href={lenkeTilOpprettAvtaleForEnv()}
-            target="_blank"
-            variant="primary"
+            onClick={handleClickApneModal}
+            variant="secondary"
             className={styles.deleknapp}
-            aria-label="Opprett avtale"
-            data-testid="opprettavtaleknapp"
+            aria-label="Dele"
+            data-testid="deleknapp"
+            disabled={!kanDeleMedBruker}
             title={tooltip()}
+            icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
+            iconPosition="left"
           >
-            Opprett avtale
+            {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
           </Button>
-        )}
-        <Button
-          onClick={handleClickApneModal}
-          variant="secondary"
-          className={styles.deleknapp}
-          aria-label="Dele"
-          data-testid="deleknapp"
-          disabled={!kanDeleMedBruker}
-          title={tooltip()}
-          icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
-          iconPosition="left"
-        >
-          {harDeltMedBruker ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
-        </Button>
-        {harDeltMedBruker ? (
-          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-            <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
-              Åpne i dialogen
-              <Dialog />
-            </Link>
-          </div>
-        ) : null}
+          {harDeltMedBruker && !erPreview && (
+            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
+                Åpne i dialogen
+                <Dialog />
+              </Link>
+            </div>
+          )}
+        </div>
+        <TiltaksdetaljerFane />
+        <Delemodal
+          modalOpen={delemodalApen}
+          setModalOpen={() => setDelemodalApen(false)}
+          tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
+          brukerNavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn ?? ''}
+          chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
+          veiledernavn={erPreview ? '{Veiledernavn}' : veiledernavn}
+        />
       </div>
-      <TiltaksdetaljerFane />
-      <Delemodal
-        modalOpen={delemodalApen}
-        setModalOpen={() => setDelemodalApen(false)}
-        tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
-        brukerNavn={brukerdata?.data?.fornavn ?? ''}
-        chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
-        veiledernavn={veiledernavn}
-      />
-    </div>
+    </>
   );
 };
 

@@ -5,7 +5,7 @@ import {
   PreviewContainer,
   SidemenyDetaljerContainer,
   SidemenyDetaljerRad,
-} from "./common";
+} from "./CommonPreview";
 import { PortableText } from "@portabletext/react";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });

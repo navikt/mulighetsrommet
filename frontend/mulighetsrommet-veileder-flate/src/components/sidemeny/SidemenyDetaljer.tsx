@@ -15,12 +15,14 @@ const SidemenyDetaljer = () => {
   return (
     <>
       <Panel>
-        <div className={styles.rad}>
-          <strong>Tiltaksnummer</strong>
-          <div className={styles.info}>
-            {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
+        {tiltaksnummer && (
+          <div className={styles.rad}>
+            <strong>Tiltaksnummer</strong>
+            <div className={styles.info}>
+              {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className={styles.rad}>
           <strong>Tiltakstype</strong>

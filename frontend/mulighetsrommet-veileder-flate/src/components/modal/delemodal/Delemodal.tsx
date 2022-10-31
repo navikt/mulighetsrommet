@@ -1,4 +1,4 @@
-import { BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
@@ -8,7 +8,7 @@ import { Actions, State } from './DelemodalActions';
 import Lenke from '../../lenke/Lenke';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
-import { capitalize } from '../../../utils/Utils';
+import { capitalize, erPreview } from '../../../utils/Utils';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
@@ -155,10 +155,11 @@ const Delemodal = ({
             <Button
               onClick={handleSend}
               data-testid="modal_btn-send"
-              disabled={senderTilDialogen || state.tekst.length === 0}
+              disabled={senderTilDialogen || state.tekst.length === 0 || erPreview}
             >
               {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
             </Button>
+
             <Button
               variant="secondary"
               onClick={() => clickCancel()}
@@ -168,16 +169,17 @@ const Delemodal = ({
               Avbryt
             </Button>
           </div>
+          {erPreview && <Alert variant="warning">Det er ikke mulig å dele tiltak med bruker i forhåndsvisning</Alert>}
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDT_OK' && (
-        <Modal.Content className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
+        <Modal.Content className={delemodalStyles.delemodal_tilbakemelding}>
           <SuccessColored className={delemodalStyles.delemodal_svg} />
           <Heading level="1" size="large" data-testid="modal_header">
             Meldingen er sendt
           </Heading>
           <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
-          <div className={modalStyles.modal_btngroup}>
+          <div className={classNames(modalStyles.modal_btngroup, modalStyles.modal_btngroup_success)}>
             <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
               Gå til Dialogen
             </Button>
