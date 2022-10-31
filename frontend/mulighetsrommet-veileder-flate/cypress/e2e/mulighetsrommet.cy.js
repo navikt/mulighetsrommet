@@ -52,7 +52,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   });
 
   it('Filtrer på individuelle eller gruppetiltak', () => {
-    cy.apneLukketFilterAccordion('gruppe-eller-individuelle-tiltak', true);
+    cy.apneLukketFilterAccordion('gruppe--eller-individuelle-tiltak', true);
     cy.velgFilter('gruppetiltak');
     cy.forventetAntallFiltertags(3);
 
@@ -63,7 +63,7 @@ describe('Tiltaksgjennomføringstabell', () => {
 
     cy.getByTestId('filter_checkbox_gruppetiltak').should('not.be.checked');
     cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
-    cy.apneLukketFilterAccordion('gruppe-eller-individuelle-tiltak', false);
+    cy.apneLukketFilterAccordion('gruppe--eller-individuelle-tiltak', false);
   });
 
   it('Filtrer på lokasjoner', () => {
