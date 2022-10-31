@@ -8,9 +8,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
-import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import org.koin.ktor.ext.inject
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -22,8 +20,6 @@ enum class AuthProvider {
 fun Application.configureAuthentication(
     auth: AuthConfig
 ) {
-    val poaoTilgangService: PoaoTilgangService by inject()
-
     val (azure) = auth
 
     val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL())
