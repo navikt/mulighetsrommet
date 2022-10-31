@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Button, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, ErrorMessage, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
@@ -26,7 +26,7 @@ interface DelemodalProps {
   modalOpen: boolean;
   setModalOpen: () => void;
   tiltaksgjennomforingsnavn: string;
-  brukerNavn: string;
+  brukernavn?: string;
   chattekst: string;
   veiledernavn?: string;
 }
@@ -59,17 +59,26 @@ function initInitialState(startTekst: string): State {
   };
 }
 
+function sySammenBrukerTekst(
+  chattekst: string,
+  tiltaksgjennomforingsnavn: string,
+  brukernavn?: string,
+  veiledernavn?: string
+) {
+  return `${chattekst
+    .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}${veiledernavn ? `\n\nHilsen ${veiledernavn}` : ''}`;
+}
+
 const Delemodal = ({
   modalOpen,
   setModalOpen,
   tiltaksgjennomforingsnavn,
-  brukerNavn,
+  brukernavn,
   chattekst,
-  veiledernavn = '',
+  veiledernavn,
 }: DelemodalProps) => {
-  const startText = `${chattekst
-    .replace('<Fornavn>', capitalize(brukerNavn))
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
+  const startText = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
   const [state, dispatch] = useReducer(reducer, startText, initInitialState);
   const fnr = useHentFnrFraUrl();
   const features = useFeatureToggles();
@@ -151,6 +160,12 @@ const Delemodal = ({
             maxLength={getAntallTegn()}
             error={handleError()}
           />
+          {!veiledernavn && (
+            <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
+          )}
+          {!brukernavn && (
+            <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente brukers navn</ErrorMessage>
+          )}
           <div className={modalStyles.modal_btngroup}>
             <Button
               onClick={handleSend}
