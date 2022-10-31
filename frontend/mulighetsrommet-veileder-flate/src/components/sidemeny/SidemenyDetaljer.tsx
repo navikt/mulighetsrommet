@@ -1,12 +1,12 @@
 import { Panel } from '@navikt/ds-react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
-import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
 
 const SidemenyDetaljer = () => {
-  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  const { data } = useTiltaksgjennomforingById();
   if (!data) return null;
 
   const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = data;

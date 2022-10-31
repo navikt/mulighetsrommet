@@ -2,14 +2,13 @@ import groq from 'groq';
 import { Tiltaksgjennomforing } from '../models';
 import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 import { useSanity } from './useSanity';
-import { useGetQueryParam } from '../../../hooks/useGetQueryParam';
+import { erPreview } from '../../../utils/Utils';
 
-export default function useTiltaksgjennomforingByTiltaksnummer() {
-  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
-  const preview = useGetQueryParam('preview') === 'true';
+export default function useTiltaksgjennomforingById() {
+  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
+  const preview = erPreview;
   const matchIdForProdEllerDrafts = `(_id == '${tiltaksgjennomforingId}' || _id == 'drafts.${tiltaksgjennomforingId}')`;
-
-  const response = useSanity<Tiltaksgjennomforing[]>(
+  const response = useSanity<Tiltaksgjennomforing>(
     groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
     _id,
     tiltaksgjennomforingNavn,
