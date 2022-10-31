@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {
     AzureAdMachineToMachine,
-    AzureAdModiaBruker,
+    AzureAdNavIdent,
 }
 
 fun Application.configureAuthentication(
@@ -42,7 +42,7 @@ fun Application.configureAuthentication(
                 JWTPrincipal(credentials.payload)
             }
         }
-        jwt(AuthProvider.AzureAdModiaBruker.name) {
+        jwt(AuthProvider.AzureAdNavIdent.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
             }
