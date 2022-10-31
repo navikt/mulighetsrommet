@@ -1,6 +1,5 @@
 import {
   ENABLE_ARBEIDSFLATE,
-  ENABLE_PREVIEWFLATE,
   Features,
   FEEDBACK,
   LAGRE_DEL_TILTAK_MED_BRUKER,
@@ -14,5 +13,4 @@ export const mockFeatures: Features = {
   [VIS_HISTORIKK]: true,
   [LAGRE_DEL_TILTAK_MED_BRUKER]: true,
   [VIS_INNSIKTSFANE]: true,
-  [ENABLE_PREVIEWFLATE]: true,
 };

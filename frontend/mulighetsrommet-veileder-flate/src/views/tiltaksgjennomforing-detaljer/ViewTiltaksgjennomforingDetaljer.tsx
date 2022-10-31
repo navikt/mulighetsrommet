@@ -112,7 +112,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             className={styles.deleknapp}
             aria-label="Dele"
             data-testid="deleknapp"
-            disabled={!kanDeleMedBruker}
+            disabled={!erPreview && !kanDeleMedBruker}
             title={tooltip()}
             icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
             iconPosition="left"
