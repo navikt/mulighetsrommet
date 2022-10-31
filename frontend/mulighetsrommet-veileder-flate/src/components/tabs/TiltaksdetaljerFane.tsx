@@ -2,7 +2,7 @@ import { Tabs } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { useFeatureToggles, VIS_INNSIKTSFANE } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
-import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import DetaljerFane from './detaljerFane';
@@ -11,7 +11,7 @@ import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import styles from './TiltaksdetaljerFane.module.scss';
 
 const TiltaksdetaljerFane = () => {
-  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  const { data } = useTiltaksgjennomforingById();
   const [fane, setFane] = useAtom(faneAtom);
   const features = useFeatureToggles();
   const visInnsiktsfane = features.isSuccess && features.data[VIS_INNSIKTSFANE];

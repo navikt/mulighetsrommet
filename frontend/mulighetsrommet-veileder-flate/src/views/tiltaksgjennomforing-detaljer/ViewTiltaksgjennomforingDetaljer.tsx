@@ -12,7 +12,7 @@ import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGe
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
-import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
@@ -33,10 +33,10 @@ function lenkeTilOpprettAvtaleForEnv(): string {
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
-  const tiltaksnummer = useGetTiltaksgjennomforingIdFraUrl();
+  const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
-  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingByTiltaksnummer();
+  const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
@@ -64,9 +64,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   }
 
   if (!tiltaksgjennomforing) {
-    return (
-      <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med tiltaksnummer "${tiltaksnummer}"`}</Alert>
-    );
+    return <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med id: "${gjennomforingsId}"`}</Alert>;
   }
 
   const tooltip = () => {

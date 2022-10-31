@@ -1,6 +1,7 @@
 import { DelMedBruker } from 'mulighetsrommet-api-client';
 import { useQuery } from 'react-query';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { erPreview } from '../../../utils/Utils';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
@@ -16,7 +17,8 @@ export function useHentDeltMedBrukerStatus() {
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
         fnr: bruker_fnr,
         tiltaksnummer,
-      })
+      }),
+    { enabled: !erPreview }
   );
 
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string) {
@@ -32,7 +34,6 @@ export function useHentDeltMedBrukerStatus() {
         // TODO What to do?
         throw new Error('Klarte ikke lagre info om deling av tiltak');
       }
-      const data = await res.json();
     } catch (error) {
       // TODO What to do? Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
     }
