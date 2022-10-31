@@ -13,7 +13,7 @@ const TiltaksgjennomforingsHeader = () => {
       <Heading
         level="1"
         size="xlarge"
-        className={styles.tiltaksgjennomforing__title}
+        className={styles.tiltaksgjennomforing_title}
         data-testid={`tiltaksgjennomforing-header_${kebabCase(tiltaksgjennomforingNavn)}`}
       >
         {tiltaksgjennomforingNavn}

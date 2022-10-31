@@ -32,7 +32,7 @@ function lenkeTilOpprettAvtaleForEnv(): string {
   return `${baseUrl}tiltaksgjennomforing/opprett-avtale`;
 }
 
-const ViewTiltakstypeDetaljer = () => {
+const ViewTiltaksgjennomforingDetaljer = () => {
   const tiltaksnummer = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
@@ -80,7 +80,7 @@ const ViewTiltakstypeDetaljer = () => {
 
   return (
     <>
-      <div className={styles.tiltakstypeDetaljer}>
+      <div className={styles.tiltakstype_detaljer}>
         <div>
           {!erPreview && (
             <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
@@ -142,4 +142,4 @@ const ViewTiltakstypeDetaljer = () => {
   );
 };
 
-export default ViewTiltakstypeDetaljer;
+export default ViewTiltaksgjennomforingDetaljer;
