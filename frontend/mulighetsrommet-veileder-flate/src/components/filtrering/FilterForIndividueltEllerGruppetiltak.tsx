@@ -18,7 +18,7 @@ export function FilterForIndividueltEllerGruppetiltak() {
 
   return (
     <CheckboxFilter
-      accordionNavn="Gruppe eller individuelle tiltak"
+      accordionNavn="Gruppe- eller individuelle tiltak"
       options={filter.tiltaksgruppe}
       setOptions={tiltaksgruppe => setFilter({ ...filter, tiltaksgruppe })}
       data={
