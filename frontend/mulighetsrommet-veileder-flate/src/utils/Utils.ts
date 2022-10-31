@@ -6,6 +6,8 @@ export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
 
+export const erPreview = inneholderUrl('/preview/');
+
 export function specialChar(string: string | { label: string }) {
   return string.toString().toLowerCase().split('æ').join('ae').split('ø').join('o').split('å').join('a');
 }
@@ -15,7 +17,7 @@ export function kebabCase(string: string | { label: string }) {
 }
 
 export function capitalize(text?: string): string {
-  return text ? text.slice(0,1).toUpperCase() + text.slice(1, text.length).toLowerCase() : ''
+  return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : '';
 }
 
 export function formaterDato(dato: string | Date, fallback = ''): string {

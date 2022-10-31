@@ -8,7 +8,7 @@ import {
   PreviewContainer,
   SidemenyDetaljerContainer,
   SidemenyDetaljerRad,
-} from "./common";
+} from "./CommonPreview";
 
 const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
 
