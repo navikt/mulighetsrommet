@@ -2,11 +2,11 @@ import groq from 'groq';
 import { Tiltaksgjennomforing } from '../models';
 import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 import { useSanity } from './useSanity';
-import { useGetQueryParam } from '../../../hooks/useGetQueryParam';
+import { erPreview } from '../../../utils/Utils';
 
-export default function useTiltaksgjennomforingByTiltaksnummer() {
+export default function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
-  const preview = useGetQueryParam('preview') === 'true';
+  const preview = erPreview;
   const ekskluderDrafts = preview ? '' : '&& !(_id in path("drafts.**"))';
   return useSanity<Tiltaksgjennomforing>(
     groq`*[_type == "tiltaksgjennomforing" && _id == '${tiltaksgjennomforingId}' ${ekskluderDrafts}] {

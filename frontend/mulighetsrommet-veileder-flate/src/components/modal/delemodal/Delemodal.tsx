@@ -169,7 +169,12 @@ const Delemodal = ({
               Avbryt
             </Button>
           </div>
-          {erPreview && <Alert variant="warning">Det er ikke mulig å dele tiltak med bruker i forhåndsvisning</Alert>}
+          {erPreview && (
+            <Alert variant="warning">
+              Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir
+              automatisk satt utenfor forhåndsvisningsmodus.
+            </Alert>
+          )}
         </Modal.Content>
       )}
       {state.sendtStatus === 'SENDT_OK' && (

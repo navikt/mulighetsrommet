@@ -1,10 +1,10 @@
 import { Heading, Ingress } from '@navikt/ds-react';
-import useTiltaksgjennomforingByTiltaksnummer from '../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingById from '../core/api/queries/useTiltaksgjennomforingById';
 import { kebabCase } from '../utils/Utils';
 import styles from './TiltaksgjennomforingsHeader.module.scss';
 
 const TiltaksgjennomforingsHeader = () => {
-  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  const { data } = useTiltaksgjennomforingById();
   if (!data) return null;
 
   const { tiltaksgjennomforingNavn, beskrivelse, tiltakstype } = data;
