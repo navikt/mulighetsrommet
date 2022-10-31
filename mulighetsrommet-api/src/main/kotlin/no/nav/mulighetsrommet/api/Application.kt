@@ -41,7 +41,7 @@ fun Application.configure(config: AppConfig) {
     routing {
         swaggerRoutes()
 
-        authenticate(AuthProvider.AzureAdNavIdent.name) {
+        authenticate(AuthProvider.AzureAdModiaBruker.name) {
             tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             innsatsgruppeRoutes()

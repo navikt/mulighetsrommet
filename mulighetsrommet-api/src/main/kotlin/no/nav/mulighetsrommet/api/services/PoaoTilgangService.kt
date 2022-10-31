@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
+import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import java.util.concurrent.TimeUnit
 
@@ -12,19 +13,26 @@ class PoaoTilgangService(
     val client: PoaoTilgangClient
 ) {
 
-    private val cache: Cache<NavidentOgNorskIdentCacheKey, Boolean> = Caffeine.newBuilder()
+    private val cache: Cache<String, Boolean> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .build()
 
     suspend fun verifyAccessToUserFromVeileder(navIdent: String, norskIdent: String) {
-        val access = cachedResult(cache, NavidentOgNorskIdentCacheKey(navIdent, norskIdent)) {
+        val access = cachedResult(cache, "$navIdent-$norskIdent") {
             // TODO Hør med Sondre ang. error handling ved kasting av feil
-            client.evaluatePolicy(NavAnsattTilgangTilEksternBrukerPolicyInput(navIdent, norskIdent)).getOrThrow().isPermit
+            client.evaluatePolicy(NavAnsattTilgangTilEksternBrukerPolicyInput(navIdent, norskIdent))
+                .getOrThrow().isPermit
         }
 
         if (!access) {
-            throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til Modia Arbeidsrettet oppfølging")
+            throw StatusException(HttpStatusCode.Forbidden, "Veileder mangler tilgang til bruker")
+        }
+    }
+
+    suspend fun hasAccessToModia(navIdent: String): Boolean {
+        return cachedResult(cache, navIdent) {
+            client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navIdent)).getOrThrow().isPermit
         }
     }
 
