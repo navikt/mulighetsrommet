@@ -5,7 +5,7 @@ import { useSanity } from './useSanity';
 import { erPreview } from '../../../utils/Utils';
 
 export default function useTiltaksgjennomforingById() {
-  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
+  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
   const preview = erPreview;
   const matchIdForProdEllerDrafts = `(_id == '${tiltaksgjennomforingId}' || _id == 'drafts.${tiltaksgjennomforingId}')`;
   const response = useSanity<Tiltaksgjennomforing>(
