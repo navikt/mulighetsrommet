@@ -33,6 +33,9 @@ spec:
     sidecar:
       enabled: true
       autoLogin: true
+      autoLoginIgnorePaths:
+        - /assets/*
+        - /asset-manifest.json
   gcp:
     buckets:
       - name: mulighetsrommet-veilederflate-prod
