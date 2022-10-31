@@ -161,14 +161,10 @@ const Delemodal = ({
             error={handleError()}
           />
           {!veiledernavn && (
-            <ErrorMessage className={delemodalStyles.feilmeldinger} size={'small'}>
-              • Kunne ikke hente veileders navn
-            </ErrorMessage>
+            <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
           )}
           {!brukernavn && (
-            <ErrorMessage className={delemodalStyles.feilmeldinger} size={'small'}>
-              • Kunne ikke hente brukers navn
-            </ErrorMessage>
+            <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente brukers navn</ErrorMessage>
           )}
           <div className={modalStyles.modal_btngroup}>
             <Button
