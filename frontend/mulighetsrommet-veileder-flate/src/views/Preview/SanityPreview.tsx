@@ -4,7 +4,9 @@ import ViewTiltaksgjennomforingDetaljer from '../tiltaksgjennomforing-detaljer/V
 export function SanityPreview() {
   return (
     <>
-      <Alert variant="warning">Forhåndsvisning av informasjon fra Sanity</Alert>
+      <Alert style={{ marginBottom: '2rem' }} variant="warning">
+        Forhåndsvisning av informasjon fra Sanity
+      </Alert>
       <ViewTiltaksgjennomforingDetaljer />
     </>
   );
