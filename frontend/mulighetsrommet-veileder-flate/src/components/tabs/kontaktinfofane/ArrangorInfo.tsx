@@ -1,9 +1,9 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
-import useTiltaksgjennomforingByTiltaksnummer from '../../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
 import styles from './Arrangorinfo.module.scss';
 
 const ArrangorInfo = () => {
-  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  const { data } = useTiltaksgjennomforingById();
   if (!data) return null;
 
   const { kontaktinfoArrangor } = data;
