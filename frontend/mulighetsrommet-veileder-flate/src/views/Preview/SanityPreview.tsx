@@ -1,11 +1,11 @@
 import { Alert } from '@navikt/ds-react';
-import ViewTiltakstypeDetaljer from '../tiltaksgjennomforing-detaljer/ViewTiltakstypeDetaljer';
+import ViewTiltaksgjennomforingDetaljer from '../tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer';
 
 export function SanityPreview() {
   return (
     <>
       <Alert variant="warning">Forhåndsvisning av informasjon fra Sanity</Alert>
-      <ViewTiltakstypeDetaljer />
+      <ViewTiltaksgjennomforingDetaljer />
     </>
   );
 }

@@ -1,9 +1,9 @@
 .fane {
-  &__root {
+  &_root {
     margin-bottom: 2rem;
   }
 
-  &__liste {
+  &_liste {
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid var(--navds-semantic-color-border-muted);
@@ -26,7 +26,7 @@
       }
     }
 
-    .btn__tab {
+    .btn_tab {
       width: fit-content;
     }
 
@@ -40,7 +40,7 @@
   }
 
   @media (max-width: 1200px) {
-    .fane__liste {
+    .fane_liste {
       justify-content: space-between;
     }
   }

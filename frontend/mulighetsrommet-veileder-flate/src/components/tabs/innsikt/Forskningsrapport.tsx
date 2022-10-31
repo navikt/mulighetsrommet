@@ -15,7 +15,7 @@ export function Forskningsrapport({ forskningsrapporter }: Props) {
           <div key={rapport._id}>
             <h2 className={styles.tiltaksdetaljer_innsiktheader}>{rapport.tittel}</h2>
             <PortableText value={rapport.beskrivelse} />
-            <ul className={forskningStyles.forskningsrapport__lenkeliste}>
+            <ul className={forskningStyles.forskningsrapport_lenkeliste}>
               {rapport.lenker?.map(({ lenke, lenkenavn }, index) => {
                 return (
                   <li key={index}>

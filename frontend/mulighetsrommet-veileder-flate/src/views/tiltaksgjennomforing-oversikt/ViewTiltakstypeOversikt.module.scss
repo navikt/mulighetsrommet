@@ -1,11 +1,11 @@
-.tiltakstypeOversikt {
+.tiltakstype_oversikt {
   display: grid;
   grid-template-columns: 15rem auto;
   grid-template-rows: minmax(3rem, min-content) minmax(min-content, 2rem) auto;
   grid-gap: 1rem;
   min-height: 86vh;
 
-  .filtertagsOgHistorikk {
+  .filtertags_og_historikk {
     display: flex;
     justify-content: space-between;
     grid-row: 1;
