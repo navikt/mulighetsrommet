@@ -92,15 +92,16 @@ const TiltaksgjennomforingsTabell = () => {
     })
     .slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  if (!brukerdata?.data?.oppfolgingsenhet) {
+  if (brukerdata?.data?.oppfolgingsenhet) {
     return (
-      <Feilmelding ikonvariant="warning">
-        <Ingress>Kunne ikke hente brukers oppfølgingsenhet</Ingress>
-        <BodyShort>
-          Vi kunne ikke hente oppfølgingsenhet for brukeren. Kontroller at brukeren er under oppfølging og finnes i
-          Arena.
-        </BodyShort>
-      </Feilmelding>
+      <Feilmelding
+        header={'Kunne ikke hente brukers oppfølgingsenhet'}
+        beskrivelse={
+          'Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena, og\n' +
+          '          forsøk på nytt'
+        }
+        ikonvariant="error"
+      />
     );
   }
 
