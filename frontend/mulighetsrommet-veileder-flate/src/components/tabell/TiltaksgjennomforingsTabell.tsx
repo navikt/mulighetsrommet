@@ -110,6 +110,24 @@ const TiltaksgjennomforingsTabell = () => {
     );
   }
 
+  if (!brukerdata?.data?.innsatsgruppe) {
+    return (
+      <Feilmelding
+        header={<>Kunne ikke hente brukers innsatsgruppe</>}
+        beskrivelse={
+          <>
+            <>
+              Vi kan ikke hente brukerens innsatsgruppe. Kontroller at brukeren er under oppfølging og finnes i Arena,
+              og&nbsp;
+            </>
+            {forsokPaNyttLink()}
+          </>
+        }
+        ikonvariant="error"
+      />
+    );
+  }
+
   if (tiltaksgjennomforinger.length == 0) {
     return (
       <Feilmelding
