@@ -92,7 +92,7 @@ const TiltaksgjennomforingsTabell = () => {
     })
     .slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  if (brukerdata?.data?.oppfolgingsenhet) {
+  if (!brukerdata?.data?.oppfolgingsenhet) {
     return (
       <Feilmelding
         header={<>Kunne ikke hente brukers oppfølgingsenhet</>}
@@ -112,10 +112,12 @@ const TiltaksgjennomforingsTabell = () => {
 
   if (tiltaksgjennomforinger.length == 0) {
     return (
-      <Feilmelding ikonvariant="warning">
+      <Feilmelding
+        ikonvariant="warning"
+        header={<>Ingen tiltaksgjennomføringer funnet</>}
+        beskrivelse={<>Prøv å justere søket eller filteret for å finne det du leter etter</>}
+      >
         <>
-          <Ingress>Ingen tiltaksgjennomføringer funnet</Ingress>
-          <BodyShort>Prøv å justere søket eller filteret for å finne det du leter etter</BodyShort>
           <Button
             variant="tertiary"
             onClick={() => {
