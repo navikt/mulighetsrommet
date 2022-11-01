@@ -34,6 +34,7 @@ export function DelMedBrukerContent({
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const tekstfeltRef = useRef<HTMLTextAreaElement | null>(null);
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
+  const tiltaksnummer = tiltaksgjennomforing?.tiltaksnummer?.toString();
   const features = useFeatureToggles();
   const skalLagreAtViDelerMedBruker =
     features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
@@ -61,8 +62,8 @@ export function DelMedBrukerContent({
     const { tekst } = state;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
-      if (skalLagreAtViDelerMedBruker) {
-        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforing?.tiltaksnummer?.toString());
+      if (skalLagreAtViDelerMedBruker && tiltaksnummer) {
+        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksnummer);
         refetchOmVeilederHarDeltMedBruker();
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
