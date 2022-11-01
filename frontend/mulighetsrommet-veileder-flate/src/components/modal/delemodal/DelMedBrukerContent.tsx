@@ -120,11 +120,11 @@ export function DelMedBrukerContent({
           </Button>
         </div>
         <div>
-          {state.redigererTekstfelt ? (
+          {state.redigererTekstfelt || state.tekst != state.malTekst ? ( //eller hvis tekst er endret
             <Button
               variant="tertiary"
               onClick={tilbakestillTekstfelt}
-              data-testid="modal_btn-cancel"
+              data-testid="del-med-bruker_btn_tilbakestill"
               disabled={senderTilDialogen}
             >
               Tilbakestill
@@ -133,7 +133,7 @@ export function DelMedBrukerContent({
             <Button
               variant="tertiary"
               onClick={fokuserTekstfelt}
-              data-testid="modal_btn-rediger"
+              data-testid="del-med-bruker_btn_rediger-melding"
               disabled={senderTilDialogen}
             >
               Rediger melding
