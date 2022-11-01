@@ -11,9 +11,11 @@
   text-align: center;
   gap: 0.5rem;
 
-  :global(svg) {
-    margin-bottom: 1rem;
-    width: 3rem;
-    height: auto;
+  :global(.mulighetsrommet-veileder-flate) {
+    :global(svg) {
+      margin-bottom: 1rem;
+      width: 3rem;
+      height: auto;
+    }
   }
 }

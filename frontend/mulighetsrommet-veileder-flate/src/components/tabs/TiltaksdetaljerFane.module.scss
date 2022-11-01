@@ -1,54 +1,56 @@
-.fane {
-  &_root {
-    margin-bottom: 2rem;
-  }
-
-  &_liste {
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid var(--navds-semantic-color-border-muted);
-    gap: 5%;
-    justify-content: start;
-
-    :global(.navds-label) {
-      font-weight: normal;
-      margin: 0 0.5rem;
-      color: var(--navds-semantic-color-text);
-    }
-
-    button {
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-
-      &:hover {
-        color: var(--navds-accordion-color-text-hover);
-      }
-    }
-
-    .btn_tab {
-      width: fit-content;
-    }
-
-    button[data-state='active'] {
-      .navds-label {
-        font-weight: bold;
-      }
-
-      border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
-    }
-  }
-
-  @media (max-width: 1200px) {
-    .fane_liste {
-      justify-content: space-between;
-    }
-  }
-}
-
 :global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-tabs__tablist-wrapper) {
-    width: 100%;
-    display: block !important;
+  .fane {
+    &_root {
+      margin-bottom: 2rem;
+    }
+
+    &_liste {
+      display: flex;
+      flex-direction: row;
+      border-bottom: 1px solid var(--navds-semantic-color-border-muted);
+      gap: 5%;
+      justify-content: start;
+
+      :global(.navds-label) {
+        font-weight: normal;
+        margin: 0 0.5rem;
+        color: var(--navds-semantic-color-text);
+      }
+
+      button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--navds-accordion-color-text-hover);
+        }
+      }
+
+      .btn_tab {
+        width: fit-content;
+      }
+
+      button[data-state='active'] {
+        .navds-label {
+          font-weight: bold;
+        }
+
+        border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .fane_liste {
+        justify-content: space-between;
+      }
+    }
+  }
+
+  :global(.mulighetsrommet-veileder-flate) {
+    :global(.navds-tabs__tablist-wrapper) {
+      width: 100%;
+      display: block !important;
+    }
   }
 }
