@@ -29,7 +29,7 @@ export function BrukersOppfolgingsenhet() {
       size="small"
       variant="error"
     >
-      Fant ingen oppfølgingsenhet
+      Enhet mangler
     </Alert>
   );
 }
