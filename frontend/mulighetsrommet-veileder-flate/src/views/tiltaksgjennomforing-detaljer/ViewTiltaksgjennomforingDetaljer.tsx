@@ -73,6 +73,8 @@ const ViewTiltaksgjennomforingDetaljer = () => {
       return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre.';
     else if (krrStatusErReservert)
       return 'Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
+    else if (!brukerdata.data?.manuellStatus)
+      return 'Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon';
     else if (!kanDeleMedBruker)
       return 'Brukeren får manuell oppfølging og kan derfor ikke benytte seg av de digitale tjenestene våre. Brukeren har også reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
     else if (harDeltMedBruker) return `Tiltaket ble sist delt med bruker ${datoSidenSistDelt}`;
@@ -120,6 +122,18 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           >
             {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
           </Button>
+          {!brukerdata.data?.manuellStatus && !erPreview && (
+            <Alert
+              title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+              key="alert-innsatsgruppe"
+              data-testid="alert-innsatsgruppe"
+              size="small"
+              variant="error"
+              className={styles.alert}
+            >
+              Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR)
+            </Alert>
+          )}
           {harDeltMedBruker && !erPreview && (
             <div style={{ textAlign: 'center', marginTop: '1rem' }}>
               <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
