@@ -21,7 +21,7 @@ class HistorikkService(
 
     suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltakerDTO>? {
         val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
-            log.info("Klarte ikke hente personId fra veilarbarena")
+            log.warn("Klarte ikke hente personId fra veilarbarena")
             null
         }
 
