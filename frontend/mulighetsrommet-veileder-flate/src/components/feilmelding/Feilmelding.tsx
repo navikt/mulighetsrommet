@@ -4,8 +4,8 @@ import { ErrorColored, InformationColored, WarningColored } from '@navikt/ds-ico
 import { BodyShort, Heading } from '@navikt/ds-react';
 
 interface FeilmeldingProps {
-  header?: ReactNode;
-  beskrivelse?: ReactNode;
+  header: ReactNode;
+  beskrivelse: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
 }
