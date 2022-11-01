@@ -74,7 +74,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     else if (krrStatusErReservert)
       return 'Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
     else if (manuellOppfolging && krrStatusErReservert)
-      return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre og har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
+      return 'Brukeren får manuell oppfølging og kan derfor ikke benytte seg av de digitale tjenestene våre. Brukeren har også reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
     else if (harDeltMedBruker) return `Tiltaket ble sist delt med bruker ${datoSidenSistDelt}`;
     else return 'Del tiltak med bruker';
   };
@@ -113,7 +113,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             className={styles.deleknapp}
             aria-label="Dele"
             data-testid="deleknapp"
-            disabled={!erPreview && !kanDeleMedBruker!}
+            disabled={!erPreview && !kanDeleMedBruker}
             title={tooltip()}
             icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
             iconPosition="left"
