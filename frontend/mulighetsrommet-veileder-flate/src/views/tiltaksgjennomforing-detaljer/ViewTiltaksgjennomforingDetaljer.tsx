@@ -45,8 +45,9 @@ const ViewTiltaksgjennomforingDetaljer = () => {
 
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
   const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
-  const kanDeleMedBruker =
-    !manuellOppfolging && !krrStatusErReservert && brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
+  const kanVarsles = brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
+  const kanDeleMedBruker = !manuellOppfolging && !krrStatusErReservert && kanVarsles;
+
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
   const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
 
@@ -71,7 +72,9 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     if (manuellOppfolging)
       return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre.';
     else if (krrStatusErReservert)
-      return 'Brukeren har  reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
+      return 'Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
+    else if (manuellOppfolging && krrStatusErReservert)
+      return 'Brukeren får manuell oppfølging og kan derfor ikke benytte seg av de digitale tjenestene våre. Brukeren har også reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
     else if (harDeltMedBruker) return `Tiltaket ble sist delt med bruker ${datoSidenSistDelt}`;
     else return 'Del tiltak med bruker';
   };
