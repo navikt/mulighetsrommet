@@ -110,7 +110,7 @@ const TiltaksgjennomforingsTabell = () => {
     );
   }
 
-  if (brukerdata?.data?.innsatsgruppe) {
+  if (!brukerdata?.data?.innsatsgruppe) {
     return (
       <Feilmelding
         header={<>Kunne ikke hente brukers innsatsgruppe</>}
