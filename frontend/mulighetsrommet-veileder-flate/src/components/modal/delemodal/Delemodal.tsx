@@ -1,8 +1,8 @@
-import { Modal } from '@navikt/ds-react';
+import { Alert, Modal } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
-import { capitalize } from '../../../utils/Utils';
+import { capitalize, erPreview } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
@@ -28,7 +28,7 @@ interface DelemodalProps {
   modalOpen: boolean;
   setModalOpen: () => void;
   tiltaksgjennomforingsnavn: string;
-  brukerNavn: string;
+  brukernavn?: string;
   chattekst: string;
   veiledernavn?: string;
 }
@@ -66,17 +66,26 @@ export function initInitialState(startTekst: string): State {
   };
 }
 
+function sySammenBrukerTekst(
+  chattekst: string,
+  tiltaksgjennomforingsnavn: string,
+  brukernavn?: string,
+  veiledernavn?: string
+) {
+  return `${chattekst
+    .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}${veiledernavn ? `\n\nHilsen ${veiledernavn}` : ''}`;
+}
+
 const Delemodal = ({
   modalOpen,
   setModalOpen,
   tiltaksgjennomforingsnavn,
-  brukerNavn,
+  brukernavn,
   chattekst,
-  veiledernavn = '',
+  veiledernavn,
 }: DelemodalProps) => {
-  const startTekst = `${chattekst
-    .replace('<Fornavn>', capitalize(brukerNavn))
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}\n\nHilsen ${veiledernavn}`;
+  const startTekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
   const [state, dispatch] = useReducer(reducer, startTekst, initInitialState);
 
   const clickCancel = (log = true) => {
@@ -104,10 +113,18 @@ const Delemodal = ({
               onCancel={clickCancel}
               state={state}
               dispatch={dispatch}
+              veiledernavn={veiledernavn}
+              brukernavn={brukernavn}
             />
             <Infomelding>
               Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen
             </Infomelding>
+            {erPreview && (
+              <Alert variant="warning">
+                Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir
+                automatisk satt utenfor forhåndsvisningsmodus.
+              </Alert>
+            )}
           </>
         )}
         {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}

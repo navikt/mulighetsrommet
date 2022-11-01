@@ -1,5 +1,6 @@
 .container {
   display: flex;
+  margin-top: 1.5rem;
 }
 
 .nokkelinfo {
@@ -10,26 +11,35 @@
   border-right: 1px solid var(--navds-semantic-color-border-muted);
   padding: 0.5rem 2% 0.5rem 0;
   margin-right: 1rem;
+  min-width: 250px;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
 }
 
 .heading {
   display: flex;
   flex-direction: row;
   gap: 1rem;
-
-  :global(.navds-heading) {
-    font-weight: unset;
-  }
+  color: var(--navds-semantic-color-text-muted);
 }
 
 .tekst {
   font-size: 30px;
   line-height: unset;
+  margin: 0;
+  padding: 0;
 }
 
 :global(.mulighetsrommet-veileder-flate) {
   :global(.navds-popover__content) {
     max-width: 400px;
+  }
+
+  :global(.navds-heading) {
+    font-weight: unset;
   }
 
   :global(.navds-popover__arrow::before) {

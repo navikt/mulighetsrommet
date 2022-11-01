@@ -131,7 +131,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           modalOpen={delemodalApen}
           setModalOpen={() => setDelemodalApen(false)}
           tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
-          brukerNavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn ?? ''}
+          brukernavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn}
           chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
           veiledernavn={erPreview ? '{Veiledernavn}' : veiledernavn}
         />

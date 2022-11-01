@@ -1,4 +1,4 @@
-import { Alert, Button, Heading, Textarea } from '@navikt/ds-react';
+import { Alert, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { Dispatch, useRef } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
@@ -17,9 +17,19 @@ interface Props {
   onCancel: () => void;
   state: State;
   dispatch: Dispatch<Actions>;
+  veiledernavn?: string;
+  brukernavn?: string;
 }
 
-export function DelMedBrukerContent({ tiltaksgjennomforingsnavn, startTekst, onCancel, state, dispatch }: Props) {
+export function DelMedBrukerContent({
+  tiltaksgjennomforingsnavn,
+  startTekst,
+  onCancel,
+  state,
+  dispatch,
+  veiledernavn,
+  brukernavn,
+}: Props) {
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const tekstfeltRef = useRef<HTMLTextAreaElement | null>(null);
   const features = useFeatureToggles();
@@ -89,6 +99,12 @@ export function DelMedBrukerContent({ tiltaksgjennomforingsnavn, startTekst, onC
         ref={tekstfeltRef}
         className={delemodalStyles.textarea}
       />
+      {!veiledernavn && (
+        <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
+      )}
+      {!brukernavn && (
+        <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente brukers navn</ErrorMessage>
+      )}
       <div className={modalStyles.modal_btngroup}>
         <div className={delemodalStyles.btn_row}>
           <Button
