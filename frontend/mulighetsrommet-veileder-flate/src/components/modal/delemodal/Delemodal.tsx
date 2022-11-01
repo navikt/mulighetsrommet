@@ -1,21 +1,23 @@
-import { Alert, BodyShort, Button, ErrorMessage, Heading, Ingress, Modal, Textarea } from '@navikt/ds-react';
+import { Alert, Modal } from '@navikt/ds-react';
+import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { capitalize, erPreview } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
-import Lenke from '../../lenke/Lenke';
-import { mulighetsrommetClient } from '../../../core/api/clients';
-import { ErrorColored, SuccessColored } from '@navikt/ds-icons';
-import { capitalize, erPreview } from '../../../utils/Utils';
-import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
-import { useFeatureToggles } from '../../../core/api/feature-toggles';
-import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
-import classNames from 'classnames';
+import { DelMedBrukerContent } from './DelMedBrukerContent';
+import { DelMedBrukerFeiletContent } from './DelMedBrukerFeiletContent';
+import { Infomelding } from './Infomelding';
+import { SendtOkContent } from './SendtOkContent';
 
 export const logDelMedbrukerEvent = (
-  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker'
+  action:
+    | 'Åpnet dialog'
+    | 'Delte med bruker'
+    | 'Del med bruker feilet'
+    | 'Avbrutt del med bruker'
+    | 'Redigerer tekstfelt'
 ) => {
   logEvent('mulighetsrommet.del-med-bruker', {
     value: action,
@@ -31,7 +33,7 @@ interface DelemodalProps {
   veiledernavn?: string;
 }
 
-function reducer(state: State, action: Actions): State {
+export function reducer(state: State, action: Actions): State {
   switch (action.type) {
     case 'Avbryt':
       return { ...state, sendtStatus: 'IKKE_SENDT', tekst: state.malTekst };
@@ -45,17 +47,22 @@ function reducer(state: State, action: Actions): State {
       return { ...state, tekst: action.payload, sendtStatus: 'IKKE_SENDT' };
     case 'Reset':
       return initInitialState(state.tekst);
+    case 'Redigerer tekstfelt':
+      return { ...state, redigererTekstfelt: true };
+    case 'Tilbakestill tekstfelt':
+      return initInitialState(state.malTekst);
     default:
       return state;
   }
 }
 
-function initInitialState(startTekst: string): State {
+export function initInitialState(startTekst: string): State {
   return {
     tekst: startTekst,
     sendtStatus: 'IKKE_SENDT',
     dialogId: '',
     malTekst: startTekst,
+    redigererTekstfelt: false,
   };
 }
 
@@ -78,57 +85,13 @@ const Delemodal = ({
   chattekst,
   veiledernavn,
 }: DelemodalProps) => {
-  const startText = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
-  const [state, dispatch] = useReducer(reducer, startText, initInitialState);
-  const fnr = useHentFnrFraUrl();
-  const features = useFeatureToggles();
-  const skalLagreAtViDelerMedBruker =
-    features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
-  const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
-    useHentDeltMedBrukerStatus();
-  const { navigerTilDialogen } = useNavigerTilDialogen();
-  const senderTilDialogen = state.sendtStatus === 'SENDER';
-
-  const getAntallTegn = () => {
-    if (startText.length === 0) {
-      return 750;
-    }
-    return startText.length + 200;
-  };
-
-  const handleError = () => {
-    if (state.tekst.length === 0) return 'Kan ikke sende tom melding.';
-  };
-
-  const handleSend = async () => {
-    if (state.tekst.trim().length > getAntallTegn()) return;
-    logDelMedbrukerEvent('Delte med bruker');
-
-    dispatch({ type: 'Send melding' });
-    const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
-    const { tekst } = state;
-    try {
-      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
-      if (skalLagreAtViDelerMedBruker) {
-        // TODO Fjern sjekk og toggle mulighetsrommet.lagre-del-tiltak-med-bruker når vi har avklart med jurister at det er ok å lagre fnr til bruker i db
-        await lagreVeilederHarDeltTiltakMedBruker(res.id);
-        refetchOmVeilederHarDeltMedBruker();
-      }
-      dispatch({ type: 'Sendt ok', payload: res.id });
-    } catch {
-      dispatch({ type: 'Sending feilet' });
-      logDelMedbrukerEvent('Del med bruker feilet');
-    }
-  };
+  const startTekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
+  const [state, dispatch] = useReducer(reducer, startTekst, initInitialState);
 
   const clickCancel = (log = true) => {
     setModalOpen();
     dispatch({ type: 'Avbryt' });
     log && logDelMedbrukerEvent('Avbrutt del med bruker');
-  };
-
-  const gaTilDialogen = () => {
-    navigerTilDialogen(fnr, state.dialogId);
   };
 
   return (
@@ -141,100 +104,34 @@ const Delemodal = ({
       aria-label="modal"
       data-testid="delemodal"
     >
-      {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
-        <Modal.Content>
-          <Heading size="large" level="1" data-testid="modal_header">
-            Del tiltak med bruker
-          </Heading>
-          <Ingress>{'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}</Ingress>
-          <BodyShort size="small">
-            Bruker blir varslet på SMS/e-post, og kan se informasjon om tiltaket i aktivitetsplanen på Min side.
-          </BodyShort>
-          <Textarea
-            value={state.tekst}
-            onChange={e => dispatch({ type: 'Sett tekst', payload: e.currentTarget.value })}
-            label=""
-            minRows={10}
-            maxRows={50}
-            data-testid="textarea_tilbakemelding"
-            maxLength={getAntallTegn()}
-            error={handleError()}
-          />
-          {!veiledernavn && (
-            <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
-          )}
-          {!brukernavn && (
-            <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente brukers navn</ErrorMessage>
-          )}
-          <div className={modalStyles.modal_btngroup}>
-            <Button
-              onClick={handleSend}
-              data-testid="modal_btn-send"
-              disabled={senderTilDialogen || state.tekst.length === 0 || erPreview}
-            >
-              {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
-            </Button>
-
-            <Button
-              variant="secondary"
-              onClick={() => clickCancel()}
-              data-testid="modal_btn-cancel"
-              disabled={senderTilDialogen}
-            >
-              Avbryt
-            </Button>
-          </div>
-          {erPreview && (
-            <Alert variant="warning">
-              Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir
-              automatisk satt utenfor forhåndsvisningsmodus.
-            </Alert>
-          )}
-        </Modal.Content>
-      )}
-      {state.sendtStatus === 'SENDT_OK' && (
-        <Modal.Content className={delemodalStyles.delemodal_tilbakemelding}>
-          <SuccessColored className={delemodalStyles.delemodal_svg} />
-          <Heading level="1" size="large" data-testid="modal_header">
-            Meldingen er sendt
-          </Heading>
-          <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
-          <div className={classNames(modalStyles.modal_btngroup, modalStyles.modal_btngroup_success)}>
-            <Button variant="primary" onClick={gaTilDialogen} data-testid="modal_btn-dialog">
-              Gå til Dialogen
-            </Button>
-            <Button variant="secondary" onClick={() => clickCancel(false)} data-testid="modal_btn-cancel">
-              Lukk
-            </Button>
-          </div>
-        </Modal.Content>
-      )}
-      {state.sendtStatus === 'SENDING_FEILET' && (
-        <Modal.Content className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
-          <ErrorColored className={delemodalStyles.delemodal_svg} />
-          <Heading level="1" size="large" data-testid="modal_header">
-            Tiltaket kunne ikke deles med brukeren
-          </Heading>
-          <BodyShort>
-            Vi kunne ikke dele informasjon digitalt med denne brukeren. Dette kan være fordi hen ikke ønsker eller kan
-            benytte de digitale tjenestene våre.{' '}
-            <Lenke
-              isExternal
-              to="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-arbeidsrettet-brukeroppfolging/SitePages/Manuell-oppf%C3%B8lging-i-Modia-arbeidsrettet-oppf%C3%B8lging.aspx"
-            >
-              Les mer om manuell oppfølging{' '}
-            </Lenke>
-          </BodyShort>
-          <div className={modalStyles.modal_btngroup}>
-            <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
-              Prøv på nytt
-            </Button>
-            <Button variant="secondary" onClick={() => clickCancel()} data-testid="modal_btn-cancel">
-              Lukk
-            </Button>
-          </div>
-        </Modal.Content>
-      )}
+      <Modal.Content>
+        {!['SENDT_OK', 'SENDING_FEILET'].includes(state.sendtStatus) && (
+          <>
+            <DelMedBrukerContent
+              tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
+              startTekst={startTekst}
+              onCancel={clickCancel}
+              state={state}
+              dispatch={dispatch}
+              veiledernavn={veiledernavn}
+              brukernavn={brukernavn}
+            />
+            <Infomelding>
+              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen
+            </Infomelding>
+            {erPreview && (
+              <Alert variant="warning">
+                Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir
+                automatisk satt utenfor forhåndsvisningsmodus.
+              </Alert>
+            )}
+          </>
+        )}
+        {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}
+        {state.sendtStatus === 'SENDING_FEILET' && (
+          <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
+        )}
+      </Modal.Content>
     </Modal>
   );
 };

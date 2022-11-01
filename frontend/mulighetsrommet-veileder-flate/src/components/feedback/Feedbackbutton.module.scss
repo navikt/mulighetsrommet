@@ -1,24 +1,26 @@
-:global(.navds-button).feedback_button {
-  box-shadow: 0 6px 10px 0 #6a6a6a;
-  transition: all 0.1s ease-in-out;
-  z-index: 1000;
-  text-align: center;
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  border-radius: 50%;
-  width: 4rem;
-  height: 4rem;
-  color: #000;
-  background-color: #fff;
+:global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-button).feedback_button {
+    box-shadow: 0 6px 10px 0 #6a6a6a;
+    transition: all 0.1s ease-in-out;
+    z-index: 1000;
+    text-align: center;
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    color: #000;
+    background-color: #fff;
 
-  &:hover {
-    width: 4.5rem;
-    height: 4.5rem;
+    &:hover {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
   }
-}
 
-.icon {
-  width: 2rem;
-  height: auto;
+  .icon {
+    width: 2rem;
+    height: auto;
+  }
 }
