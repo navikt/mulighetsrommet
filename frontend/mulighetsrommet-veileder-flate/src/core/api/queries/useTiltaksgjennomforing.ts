@@ -83,7 +83,7 @@ function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjennomforingsfiltergruppe<s
 
 function byggSokefilter(search: string | undefined) {
   return search
-    ? groq`&& [tiltaksgjennomforingNavn, string(tiltaksnummer), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
+    ? groq`&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
     : '';
 }
 
