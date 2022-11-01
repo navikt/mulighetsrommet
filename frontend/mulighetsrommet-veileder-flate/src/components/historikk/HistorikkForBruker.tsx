@@ -1,4 +1,4 @@
-import { Alert, Loader } from '@navikt/ds-react';
+import { ErrorMessage, Alert, Loader } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { HistorikkForBruker as IHistorikkForBruker } from 'mulighetsrommet-api-client';
 import { useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
@@ -10,7 +10,7 @@ export function HistorikkForBruker() {
   const { data, isLoading, isError } = useHentHistorikk();
   if (isLoading) return <Loader />;
 
-  if (isError) return <Alert variant="error">Klarte ikke hente historikk for bruker</Alert>;
+  if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
 
   if (data?.length! === 0) {
     return <Alert variant="info">Fant ikke historikk for bruker</Alert>;
@@ -42,7 +42,11 @@ export function HistorikkForBruker() {
                 </h1>
                 <div className={styles.historikk_for_bruker_metadata}>
                   <p className={styles.historikk_text_content}>{historikk.tiltakstype}</p>
-                  <p className={styles.historikk_text_content}>{historikk.arrangor}</p>
+                  {historikk.arrangor ? (
+                    <p className={styles.historikk_text_content}>{historikk.arrangor}</p>
+                  ) : (
+                    <ErrorMessage size="small">Tiltaksarrangør</ErrorMessage>
+                  )}
                 </div>
                 <p className={classNames(styles.historikk_text_content, styles.historikk_datoer)}>
                   <span> {formaterDato(historikk.fraDato ?? '')}</span> -{' '}
