@@ -10,7 +10,7 @@ import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomfor
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
-import { Feilmelding } from '../feilmelding/Feilmelding';
+import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import styles from './Tabell.module.scss';
@@ -95,10 +95,15 @@ const TiltaksgjennomforingsTabell = () => {
   if (brukerdata?.data?.oppfolgingsenhet) {
     return (
       <Feilmelding
-        header={'Kunne ikke hente brukers oppfølgingsenhet'}
+        header={<>Kunne ikke hente brukers oppfølgingsenhet</>}
         beskrivelse={
-          'Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena, og\n' +
-          '          forsøk på nytt'
+          <>
+            <>
+              Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena,
+              og&nbsp;
+            </>
+            {forsokPaNyttLink()}
+          </>
         }
         ikonvariant="error"
       />

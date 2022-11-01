@@ -4,11 +4,15 @@ import { ErrorColored, InformationColored, WarningColored } from '@navikt/ds-ico
 import { BodyShort, Heading } from '@navikt/ds-react';
 
 interface FeilmeldingProps {
-  header?: string;
-  beskrivelse?: string;
+  header?: ReactNode;
+  beskrivelse?: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
 }
+
+export const forsokPaNyttLink = () => {
+  return <a href=".">forsøk på nytt</a>;
+};
 
 export const Feilmelding = ({ header, beskrivelse, children, ikonvariant }: FeilmeldingProps) => {
   const ikon = () => {
