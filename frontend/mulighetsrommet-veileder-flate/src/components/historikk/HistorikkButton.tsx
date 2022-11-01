@@ -12,7 +12,7 @@ export function HistorikkButton() {
   return (
     <>
       <Button onClick={toggleModal} variant="tertiary" className={styles.historikk_knapp}>
-        <Historic />
+        <Historic aria-label="Historikk" />
       </Button>
       <StandardModal
         className={styles.historikk_modal}

@@ -1,4 +1,4 @@
-describe('Tiltaksgjennomføringstabell', () => {
+xdescribe('Tiltaksgjennomføringstabell', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
     cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
@@ -25,7 +25,8 @@ describe('Tiltaksgjennomføringstabell', () => {
       expect(antallTiltak).not.to.eq($navn.text());
     });
 
-    cy.getByTestId('filtertag_lukkeknapp_standardinnsats').click();
+    cy.fjernFilter('standardinnsats');
+
     cy.forventetAntallFiltertags(1);
     cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
   });
@@ -70,6 +71,8 @@ describe('Tiltaksgjennomføringstabell', () => {
     cy.apneLukketFilterAccordion('lokasjon', true);
     cy.getByTestId('checkboxgroup_lokasjon').children().children().last().click();
     cy.forventetAntallFiltertags(3);
+
+    cy.fjernFilter('situasjonsbestemt-innsats');
 
     cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
@@ -125,6 +128,7 @@ describe('Tiltaksgjennomføringstabell', () => {
   it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
     cy.getByTestId('filter_checkbox_standardinnsats').click();
     cy.forventetAntallFiltertags(2);
+    cy.wait(500);
     cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
     cy.tilbakeTilListevisning();
     cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
@@ -175,6 +179,12 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('textarea_tilbakemelding').type('Test');
     cy.get('.navds-error-message').should('not.exist');
     cy.getByTestId('modal_btn-send').should('not.be.disabled');
+
+    cy.getByTestId('del-med-bruker_btn_tilbakestill').click();
+
+    cy.getByTestId('textarea_tilbakemelding').should('not.contain', 'Test');
+    //klikk tilbakestill
+    // "Test" er ikke der lenger
 
     cy.getByTestId('modal_btn-send').click();
     cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');
