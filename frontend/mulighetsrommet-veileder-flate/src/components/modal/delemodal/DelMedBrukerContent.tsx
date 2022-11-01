@@ -4,6 +4,7 @@ import { Dispatch, useRef } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
+import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { erPreview } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
@@ -32,6 +33,7 @@ export function DelMedBrukerContent({
 }: Props) {
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const tekstfeltRef = useRef<HTMLTextAreaElement | null>(null);
+  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const features = useFeatureToggles();
   const skalLagreAtViDelerMedBruker =
     features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
@@ -60,7 +62,7 @@ export function DelMedBrukerContent({
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       if (skalLagreAtViDelerMedBruker) {
-        await lagreVeilederHarDeltTiltakMedBruker(res.id);
+        await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforing?.tiltaksnummer?.toString());
         refetchOmVeilederHarDeltMedBruker();
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
