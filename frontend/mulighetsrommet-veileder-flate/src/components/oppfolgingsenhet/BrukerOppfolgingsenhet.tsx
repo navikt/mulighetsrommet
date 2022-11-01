@@ -10,7 +10,7 @@ export function BrukersOppfolgingsenhet() {
     return null;
   }
 
-  return !brukersOppfolgingsenhet ? (
+  return brukersOppfolgingsenhet ? (
     <Tag
       className="cypress-tag"
       key={'navenhet'}
