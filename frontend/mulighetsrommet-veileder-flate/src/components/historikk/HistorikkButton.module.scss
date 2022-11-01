@@ -1,15 +1,21 @@
-.historikk_modal {
-  width: 50rem;
-  max-width: 70%;
-}
-
 .historikk_knapp {
-  padding: .5rem .5rem 0;
+  padding: 0 0.3rem 0 !important;
+  height: fit-content;
+
+
+  :global(.navds-label) {
+    padding-top: .5rem;
+  }
 
   svg {
     width: 1.5rem;
     height: auto;
     color: black;
   }
-
 }
+
+.historikk_modal {
+  width: 50rem;
+  max-width: 70%;
+}
+
