@@ -1,9 +1,9 @@
-.filter_loader {
-  display: block;
-  margin: 0 auto;
-}
-
 :global(.mulighetsrommet-veileder-flate) {
+  .filter_loader {
+    display: block;
+    margin: 0 auto;
+  }
+
   :global(.navds-table) {
     border: 1px solid var(--navds-semantic-color-border-muted);
 
@@ -11,47 +11,48 @@
       height: 4rem;
     }
   }
-}
 
-.tabell_wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  .tabell_wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-  :global(.kopiknapp:hover) {
-    background-color: transparent;
-  }
-}
-
-.tabell {
-  &_tiltaksnavn {
-    font-weight: bold;
-  }
-
-  &_tiltaksnummer {
-    padding-right: 1.5rem;
-
-    @media (max-width: 1400px) {
-      grid-template-columns: 40% auto;
+    :global(.kopiknapp:hover) {
+      background-color: transparent;
     }
   }
 
-  &_tiltaksnavn {
-    width: 25%;
-  }
-}
+  .tabell {
+    &_tiltaksnavn {
+      font-weight: bold;
+    }
 
-.under_tabell {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-}
-:global(.mulighetsrommet-veileder-flate) {
-  :global(.navds-table__header),
-  :global(.navds-table--zebra-stripes),
-  :global(.navds-table__body),
-  :global(.navds-table__row:nth-of-type(even):not(:hover):not(.navds-table__row--selected)) {
-    background-color: var(--navds-semantic-color-canvas-background-light);
+    &_tiltaksnummer {
+      padding-right: 1.5rem;
+
+      @media (max-width: 1400px) {
+        grid-template-columns: 40% auto;
+      }
+    }
+
+    &_tiltaksnavn {
+      width: 25%;
+    }
+  }
+
+  .under_tabell {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  :global(.mulighetsrommet-veileder-flate) {
+    :global(.navds-table__header),
+    :global(.navds-table--zebra-stripes),
+    :global(.navds-table__body),
+    :global(.navds-table__row:nth-of-type(even):not(:hover):not(.navds-table__row--selected)) {
+      background-color: var(--navds-semantic-color-canvas-background-light);
+    }
   }
 }
