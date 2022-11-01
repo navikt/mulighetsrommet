@@ -37,7 +37,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
-  const [delemodalApen, setDelemodalApen] = useState<boolean>(true); // TODO Sett tilbake til false
+  const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
   const { getUrlTilDialogen } = useNavigerTilDialogen();
