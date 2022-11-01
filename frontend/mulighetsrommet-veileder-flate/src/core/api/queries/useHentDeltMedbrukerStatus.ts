@@ -4,30 +4,31 @@ import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { erPreview } from '../../../utils/Utils';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
-import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 import { useHentVeilederdata } from './useHentVeilederdata';
+import useTiltaksgjennomforingById from './useTiltaksgjennomforingById';
 
 export function useHentDeltMedBrukerStatus() {
-  const tiltaksnummer = useGetTiltaksgjennomforingIdFraUrl();
+  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const { data: veilederData } = useHentVeilederdata();
-  const bruker_fnr = useHentFnrFraUrl();
+  const brukerFnr = useHentFnrFraUrl();
+
   const { data: sistDeltMedBruker, refetch } = useQuery<DelMedBruker>(
-    [QueryKeys.DeltMedBrukerStatus, bruker_fnr, tiltaksnummer],
+    [QueryKeys.DeltMedBrukerStatus, brukerFnr, tiltaksgjennomforing?._id],
     () =>
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
-        fnr: bruker_fnr,
-        tiltaksnummer,
+        fnr: brukerFnr,
+        tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer?.toString()!!,
       }),
-    { enabled: !erPreview }
+    { enabled: !erPreview || !tiltaksgjennomforing?.tiltaksnummer }
   );
 
-  async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string) {
+  async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, tiltaksnummer: string) {
     if (!veilederData?.ident) return;
 
     try {
       const res = await mulighetsrommetClient.delMedBruker.postDelMedBruker({
         tiltaksnummer,
-        requestBody: { bruker_fnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
+        requestBody: { bruker_fnr: brukerFnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
       });
 
       if (!res.ok) {
