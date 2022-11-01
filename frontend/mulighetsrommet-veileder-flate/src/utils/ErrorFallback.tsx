@@ -1,4 +1,3 @@
-import { BodyShort, Ingress } from '@navikt/ds-react';
 import { Feilmelding, forsokPaNyttLink } from '../components/feilmelding/Feilmelding';
 
 export function ErrorFallback({ error }: any) {
@@ -13,17 +12,13 @@ export function ErrorFallback({ error }: any) {
 
   if (error.status === 404) {
     feilmelding = (
-      <BodyShort>
-        Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg hit.
-      </BodyShort>
+      <>Beklager, siden kan være slettet eller flyttet, eller det var en feil i lenken som førte deg hit.</>
     );
   }
 
   if (error.status === 401 || error.status === 403) {
     feilmelding = (
-      <BodyShort>
-        Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis problemene vedvarer
-      </BodyShort>
+      <>Det oppstod en feil under behandlingen av forespørselen din. Ta kontakt med admin hvis problemene vedvarer</>
     );
   }
 
