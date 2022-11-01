@@ -10,7 +10,7 @@ import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomfor
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
-import { Feilmelding } from '../feilmelding/Feilmelding';
+import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Lenke from '../lenke/Lenke';
 import styles from './Tabell.module.scss';
@@ -94,22 +94,30 @@ const TiltaksgjennomforingsTabell = () => {
 
   if (!brukerdata?.data?.oppfolgingsenhet) {
     return (
-      <Feilmelding ikonvariant="warning">
-        <Ingress>Kunne ikke hente brukers oppfølgingsenhet</Ingress>
-        <BodyShort>
-          Vi kunne ikke hente oppfølgingsenhet for brukeren. Kontroller at brukeren er under oppfølging og finnes i
-          Arena.
-        </BodyShort>
-      </Feilmelding>
+      <Feilmelding
+        header={<>Kunne ikke hente brukers oppfølgingsenhet</>}
+        beskrivelse={
+          <>
+            <>
+              Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena,
+              og&nbsp;
+            </>
+            {forsokPaNyttLink()}
+          </>
+        }
+        ikonvariant="error"
+      />
     );
   }
 
   if (tiltaksgjennomforinger.length == 0) {
     return (
-      <Feilmelding ikonvariant="warning">
+      <Feilmelding
+        ikonvariant="warning"
+        header={<>Ingen tiltaksgjennomføringer funnet</>}
+        beskrivelse={<>Prøv å justere søket eller filteret for å finne det du leter etter</>}
+      >
         <>
-          <Ingress>Ingen tiltaksgjennomføringer funnet</Ingress>
-          <BodyShort>Prøv å justere søket eller filteret for å finne det du leter etter</BodyShort>
           <Button
             variant="tertiary"
             onClick={() => {
