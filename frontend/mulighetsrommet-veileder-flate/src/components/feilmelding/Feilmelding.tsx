@@ -28,7 +28,9 @@ export const Feilmelding = ({ header, beskrivelse, children, ikonvariant }: Feil
   return (
     <div data-testid="feilmelding-container" aria-live="assertive" className={styles.feilmelding_container}>
       {ikon()}
-      <Heading size={'small'}>{header}</Heading>
+      <Heading level="4" size={'small'} className={styles.header}>
+        {header}
+      </Heading>
       <BodyShort size={'small'} className={styles.beskrivelse}>
         {beskrivelse}
       </BodyShort>
