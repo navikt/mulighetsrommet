@@ -73,7 +73,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
       return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre.';
     else if (krrStatusErReservert)
       return 'Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
-    else if (manuellOppfolging && krrStatusErReservert)
+    else if (!kanDeleMedBruker)
       return 'Brukeren får manuell oppfølging og kan derfor ikke benytte seg av de digitale tjenestene våre. Brukeren har også reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
     else if (harDeltMedBruker) return `Tiltaket ble sist delt med bruker ${datoSidenSistDelt}`;
     else return 'Del tiltak med bruker';
