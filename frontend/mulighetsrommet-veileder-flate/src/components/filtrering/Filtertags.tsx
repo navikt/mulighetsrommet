@@ -2,7 +2,7 @@ import { BrukersOppfolgingsenhet } from '../oppfolgingsenhet/BrukerOppfolgingsen
 import FilterTag from '../tags/FilterTag';
 import SearchFieldTag from '../tags/SearchFieldTag';
 import Show from '../../utils/Show';
-import { Button } from '@navikt/ds-react';
+import { Alert, Button } from '@navikt/ds-react';
 import { RESET } from 'jotai/utils';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
@@ -36,6 +36,17 @@ export function Filtertags() {
   return (
     <div className={styles.filtertags} data-testid="filtertags">
       <BrukersOppfolgingsenhet />
+      {brukerdata.data?.innsatsgruppe && (
+        <Alert
+          title="Kontroller om brukeren er under oppfølging og finnes i Arena"
+          key="alert-innsatsgruppe"
+          data-testid="alert-innsatsgruppe"
+          size="small"
+          variant="error"
+        >
+          Innsatsgruppe mangler
+        </Alert>
+      )}
       {filter.innsatsgruppe && (
         <FilterTag
           options={[filter.innsatsgruppe]}
