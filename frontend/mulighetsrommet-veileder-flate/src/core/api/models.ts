@@ -15,6 +15,14 @@ type Innsatsgrupper =
   | 'Spesielt tilpasset innsats'
   | 'Varig tilpasset innsats';
 
+export type IndividuellTiltaksType =
+  | 'ARBEIDSTRENING'
+  | 'MIDLERTIDIG_LONNSTILSKUDD'
+  | 'VARIG_LONNSTILSKUDD'
+  | 'MENTOR'
+  | 'INKLUDERINGSTILSKUDD'
+  | 'SOMMERJOBB';
+
 export type Tilgjengelighetsstatus = 'Ledig' | 'Venteliste' | 'Stengt';
 export type Oppstart = 'dato' | 'lopende' | 'midlertidig_stengt';
 type Tiltaksgruppe = 'individuelt' | 'gruppe';
