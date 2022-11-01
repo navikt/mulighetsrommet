@@ -2,7 +2,7 @@ import { Tabs } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { useFeatureToggles, VIS_INNSIKTSFANE } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
-import useTiltaksgjennomforingByTiltaksnummer from '../../core/api/queries/useTiltaksgjennomforingByTiltaksnummer';
+import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import DetaljerFane from './detaljerFane';
@@ -11,7 +11,7 @@ import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import styles from './TiltaksdetaljerFane.module.scss';
 
 const TiltaksdetaljerFane = () => {
-  const { data } = useTiltaksgjennomforingByTiltaksnummer();
+  const { data } = useTiltaksgjennomforingById();
   const [fane, setFane] = useAtom(faneAtom);
   const features = useFeatureToggles();
   const visInnsiktsfane = features.isSuccess && features.data[VIS_INNSIKTSFANE];
@@ -39,13 +39,13 @@ const TiltaksdetaljerFane = () => {
       defaultValue={fane}
       size="medium"
       selectionFollowsFocus
-      className={styles.fane__root}
+      className={styles.fane_root}
       onChange={value => {
         logEvent('mulighetsrommet.faner', { value: tabValueTilFaneoverSkrifter[value] ?? value });
         setFane(value);
       }}
     >
-      <Tabs.List className={styles.fane__liste}>
+      <Tabs.List className={styles.fane_liste}>
         {faneoverskrifter
           .filter(fane => {
             if (!visInnsiktsfane && fane === 'Innsikt') {
@@ -59,7 +59,7 @@ const TiltaksdetaljerFane = () => {
               key={index}
               value={`tab${index + 1}`}
               label={fane}
-              className={styles.btn__tab}
+              className={styles.btn_tab}
               data-testid={`fane_${kebabCase(fane)}`}
             />
           ))}

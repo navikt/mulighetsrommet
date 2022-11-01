@@ -50,7 +50,6 @@ export default {
       to: [{ type: "tiltakstype" }],
       validation: (Rule: Rule) => Rule.required(),
     },
-
     {
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
@@ -121,7 +120,7 @@ export default {
         "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
       type: "text",
       rows: 5,
-      validation: (Rule) => Rule.max(300),
+      validation: (Rule) => Rule.max(500),
     },
 
     {

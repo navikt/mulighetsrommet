@@ -4,16 +4,23 @@
   align-items: center;
   flex-direction: column;
   background: white;
-  padding: 2rem;
+  padding: 2rem 5rem;
   width: 670px;
   min-height: 180px;
   margin: 2rem auto auto;
   text-align: center;
   gap: 0.5rem;
 
+  .header {
+    font-weight: 600;
+  }
+
+  .beskrivelse {
+    line-height: 1.5rem;
+  }
+
   :global(svg) {
-    margin-bottom: 1rem;
-    width: 3rem;
+    width: 2rem;
     height: auto;
   }
 }

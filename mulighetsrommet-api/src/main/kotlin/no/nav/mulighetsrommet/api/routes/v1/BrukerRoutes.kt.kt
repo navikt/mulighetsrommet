@@ -37,7 +37,11 @@ fun Route.brukerRoutes() {
                 status = HttpStatusCode.BadRequest
             )
             val accessToken = call.getAccessToken()
-            call.respond(historikkService.hentHistorikkForBruker(fnr, accessToken))
+            historikkService.hentHistorikkForBruker(fnr, accessToken)?.let { call.respond(it) }
+                ?: call.respondText(
+                    "Klarte ikke hente historikk for bruker",
+                    status = HttpStatusCode.InternalServerError
+                )
         }
     }
 }

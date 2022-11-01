@@ -1,54 +1,55 @@
-.filter_loader {
-  display: block;
-  margin: 0 auto;
-}
-
-.tiltakstypeDetaljer {
-  display: grid;
-  grid-template-rows: auto auto;
-  grid-template-columns: auto 23rem;
-  grid-gap: 2rem;
-  margin: 0 1rem;
-}
-
 :global(.mulighetsrommet-veileder-flate) {
+  .filter_loader {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .tiltakstype_detaljer {
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: auto 23rem;
+    grid-gap: 2rem;
+    margin: 0 1rem;
+  }
+
   :global(.navds-tabs__tablist-wrapper) {
     box-shadow: unset;
   }
-}
 
-.sidemeny {
-  height: fit-content;
-  margin-top: 3rem;
-  grid-row-start: 1;
-  grid-row-end: 3;
-  grid-column: 2;
-}
+  .alert {
+    margin-top: 0.5rem;
+    border-radius: 0;
+  }
 
-:global(.navds-button).deleknapp {
-  width: 100%;
-  margin-top: 1rem;
-}
+  .sidemeny {
+    height: fit-content;
+    margin-top: 3rem;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    grid-column: 2;
+  }
 
-@media (max-width: 1200px) {
-  .tiltakstypeDetaljer {
-    grid-template-columns: auto;
-    grid-gap: 2rem;
+  :global(.navds-button).deleknapp {
+    width: 100%;
+    margin-top: 1rem;
+  }
 
-    .sidemeny {
-      grid-row: 2;
-      margin-top: 0;
-      grid-row-start: initial;
-      grid-row-end: initial;
-      grid-column: initial;
-    }
+  @media (max-width: 1200px) {
+    .tiltakstype_detaljer {
+      grid-template-columns: auto;
+      grid-gap: 2rem;
 
-    &__regelverk {
-      gap: 2rem;
-    }
+      .sidemeny {
+        grid-row: 2;
+        margin-top: 0;
+        grid-row-start: initial;
+        grid-row-end: initial;
+        grid-column: initial;
+      }
 
-    .fane__root {
-      grid-row: 3;
+      .fane_root {
+        grid-row: 3;
+      }
     }
   }
 }

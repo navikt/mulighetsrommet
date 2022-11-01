@@ -19,10 +19,10 @@ class HistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
 
-    suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltakerDTO> {
+    suspend fun hentHistorikkForBruker(fnr: String, accessToken: String?): List<HistorikkForDeltakerDTO>? {
         val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
-            log.info("Klarte ikke hente personId fra veilarbarena")
-            return emptyList()
+            log.warn("Klarte ikke hente personId fra veilarbarena")
+            null
         }
 
         return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {

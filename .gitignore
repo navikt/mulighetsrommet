@@ -1,6 +1,7 @@
 # Env vars
 .env
 .envrc
+*.tar.gz
 
 # Backend specific mumbojumbo
 *.iml

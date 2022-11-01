@@ -9,9 +9,11 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.models.DelMedBruker
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
 
 class DelMedBrukerService(private val db: Database) {
     private val secureLog = SecureLog.logger
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun lagreDelMedBruker(data: DelMedBruker): QueryResult<DelMedBruker> = query {
         secureLog.info("Veileder (${data.navident}) deler tiltak med tiltaksnummer: '${data.tiltaksnummer}' med bruker (${data.bruker_fnr})")
@@ -26,6 +28,11 @@ class DelMedBrukerService(private val db: Database) {
                 "Veileders NAVident er tomt. Kan ikke lagre info om tiltak."
             )
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
+        }
+
+        if (data.tiltaksnummer.trim().isEmpty()) {
+            log.warn("Tiltaksnummer er ikke sendt med ved lagring av del med bruker. Kan derfor ikke lagre.")
+            throw BadRequestException("Tiltaksnummer må inkluderes")
         }
 
         @Language("PostgreSQL")

@@ -1,10 +1,28 @@
 .overstyrte_styles_fra_ds_modal {
-  width: 40rem;
+  min-width: 40rem;
   padding: 1rem;
 }
 
 .modal_btngroup {
   display: flex;
   gap: 1rem;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+  justify-content: space-between;
+}
+
+.modal_btngroup_success {
+  justify-content: space-evenly;
+}
+
+.muted {
+  color: var(--navds-semantic-color-text-muted);
+}
+
+.mt_0 {
+  margin-top: 0;
+}
+
+.mb_0 {
+  margin-bottom: 0;
 }

@@ -17,7 +17,9 @@ enum class AuthProvider {
     AzureAdNavIdent,
 }
 
-fun Application.configureAuthentication(auth: AuthConfig) {
+fun Application.configureAuthentication(
+    auth: AuthConfig
+) {
     val (azure) = auth
 
     val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL())

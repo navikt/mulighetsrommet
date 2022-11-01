@@ -3,6 +3,7 @@ export interface State {
   sendtStatus: Status;
   dialogId: string;
   malTekst: string;
+  redigererTekstfelt: boolean;
 }
 
 export type Status = 'IKKE_SENDT' | 'SENDER' | 'SENDT_OK' | 'SENDING_FEILET';
@@ -33,10 +34,20 @@ export interface RESET_ACTION {
   type: 'Reset';
 }
 
+export interface REDIGERER_TEKSTFELT_ACTION {
+  type: 'Redigerer tekstfelt';
+}
+
+export interface TILBAKESTILL_TEKSTFELT_ACTION {
+  type: 'Tilbakestill tekstfelt';
+}
+
 export type Actions =
   | SEND_MELDING_ACTION
   | SET_TEKST_ACTION
   | AVBRYT_ACTION
   | SENDT_OK_ACTION
   | SENDING_FEILET_ACTION
-  | RESET_ACTION;
+  | RESET_ACTION
+  | REDIGERER_TEKSTFELT_ACTION
+  | TILBAKESTILL_TEKSTFELT_ACTION;

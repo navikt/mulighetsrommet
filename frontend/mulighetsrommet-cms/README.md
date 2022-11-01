@@ -46,6 +46,14 @@ Legg så inn i Sanity per tiltakstype.
 
 For de tiltakstypene vi ikke har statistikk for er det bare å ikke legge inn nøkkeltall. Da vil vi heller ikke vise noe i frontend.
 
+## Backup
+Backup av Sanity kjøres som en cron-jobb på Github Actions hver natt kl. 04.00 og lagrer backup av både test- og produksjonsdatasettet i en bucket i prod-miljøet til Team mulighetsrommet.
+
+[Her finner man bucket for backups](https://console.cloud.google.com/storage/browser/team-mulighetsrommet-sanity-backup;tab=objects?prefix=&forceOnObjectsSortingFiltering=false&authuser=1)
+
+Man trenger følgende tilganger i IAM for å se innholdet:
+* Storage Admin
+
 ### 🔗 Nyttige lenker
 
 - [Sanity Studio Docs](https://www.sanity.io/docs/sanity-studio)

@@ -3,11 +3,11 @@
   "baseBranch": "origin/main",
   "pipeline": {
     "build": {
-      "dependsOn": [
-        "^build",
-        "$VITE_MULIGHETSROMMET_API_MOCK",
-        "$VITE_MULIGHETSROMMET_API_BASE",
-        "$mulighetsrommet-api/src/main/resources/web/openapi.yml"
+      "dependsOn": ["^build"],
+      "env": [
+        "VITE_MULIGHETSROMMET_API_MOCK",
+        "VITE_MULIGHETSROMMET_API_BASE",
+        "mulighetsrommet-api/src/main/resources/web/openapi.yml"
       ]
     },
     "mulighetsrommet-api-client#build": {
@@ -17,16 +17,15 @@
       "dependsOn": ["^build"]
     },
     "build:preprod": {
-      "dependsOn": [
-        "^build",
-        "$mulighetsrommet-api/src/main/resources/web/openapi.yml"
-      ]
+      "dependsOn": ["^build"],
+      "env": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
     "lint": {
       "outputs": []
     },
     "mulighetsrommet-cms#deploy": {
-      "dependsOn": ["build", "$SANITY_AUTH_TOKEN"]
+      "dependsOn": ["build"],
+      "env": ["SANITY_AUTH_TOKEN"]
     },
     "dev": {
       "cache": false

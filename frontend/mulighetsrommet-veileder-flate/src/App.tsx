@@ -15,6 +15,7 @@ import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
 import RoutesConfig from './RoutesConfig';
 import { ErrorFallback } from './utils/ErrorFallback';
 import styles from './App.module.scss';
+import { SanityPreview } from './views/Preview/SanityPreview';
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
 Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
@@ -49,6 +50,7 @@ function App() {
             <Router>
               <Routes>
                 <Route path=":fnr/*" element={<AppWrapper />} />
+                <Route path="preview/:tiltaksnummer" element={<SanityPreview />} />
                 <Route path="*" element={<Navigate to={`${fnr}`} />}>
                   {/* Fallback-rute dersom ingenting matcher. Returner bruker til startside */}
                 </Route>

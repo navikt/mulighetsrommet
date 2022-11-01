@@ -1,4 +1,4 @@
-import { Alert, Loader } from '@navikt/ds-react';
+import { ErrorMessage, Alert, Loader } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { HistorikkForBruker as IHistorikkForBruker } from 'mulighetsrommet-api-client';
 import { useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
@@ -10,7 +10,7 @@ export function HistorikkForBruker() {
   const { data, isLoading, isError } = useHentHistorikk();
   if (isLoading) return <Loader />;
 
-  if (isError) return <Alert variant="error">Klarte ikke hente historikk for bruker</Alert>;
+  if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
 
   if (data?.length! === 0) {
     return <Alert variant="info">Fant ikke historikk for bruker</Alert>;
@@ -31,20 +31,24 @@ export function HistorikkForBruker() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <div className={styles.historikkForBruker}>
-      <ul className={styles.historikkForBrukerListe}>
+    <div className={styles.historikk_for_bruker}>
+      <ul className={styles.historikk_for_bruker_liste}>
         {tiltak?.map(historikk => {
           return (
-            <li key={historikk.id} className={styles.historikkForBrukerElement}>
+            <li key={historikk.id} className={styles.historikk_for_bruker_element}>
               <div>
-                <h1 className={classNames(styles.historikkForBrukerHeading, 'navds-heading navds-heading--small')}>
+                <h1 className={classNames(styles.historikk_for_bruker_heading, 'navds-heading navds-heading--small')}>
                   {historikk.tiltaksnavn}
                 </h1>
-                <div className={styles.historikkForBrukerMetadata}>
-                  <p className={styles.historikkTextContent}>{historikk.tiltakstype}</p>
-                  <p className={styles.historikkTextContent}>{historikk.arrangor}</p>
+                <div className={styles.historikk_for_bruker_metadata}>
+                  <p className={styles.historikk_text_content}>{historikk.tiltakstype}</p>
+                  {historikk.arrangor ? (
+                    <p className={styles.historikk_text_content}>{historikk.arrangor}</p>
+                  ) : (
+                    <ErrorMessage size="small">Tiltaksarrangør</ErrorMessage>
+                  )}
                 </div>
-                <p className={classNames(styles.historikkTextContent, styles.historikkDatoer)}>
+                <p className={classNames(styles.historikk_text_content, styles.historikk_datoer)}>
                   <span> {formaterDato(historikk.fraDato ?? '')}</span> -{' '}
                   <span>{formaterDato(historikk.tilDato ?? '')}</span>
                 </p>
