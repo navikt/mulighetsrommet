@@ -19,7 +19,7 @@ export function DelMedBrukerFeiletContent({ dispatch, onCancel }: Props) {
         header={<>Tiltaket kunne ikke deles</>}
         beskrivelse={
           <>
-            Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. <a href=".">Forsøk på nytt</a> eller ta&nbsp;
+            Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta&nbsp;
             <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a> i Porten dersom du
             trenger mer hjelp.
           </>
@@ -28,11 +28,16 @@ export function DelMedBrukerFeiletContent({ dispatch, onCancel }: Props) {
       />
 
       <div className={modalStyles.modal_btngroup}>
-        <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
+        <Button
+          variant="primary"
+          onClick={() => dispatch({ type: 'Reset' })}
+          data-testid="modal_btn-reset"
+          size={'small'}
+        >
           Prøv på nytt
         </Button>
-        <Button variant="secondary" onClick={onCancel} data-testid="modal_btn-cancel">
-          Lukk
+        <Button variant="secondary" onClick={onCancel} data-testid="modal_btn-cancel" size={'small'}>
+          Avbryt
         </Button>
       </div>
     </div>
