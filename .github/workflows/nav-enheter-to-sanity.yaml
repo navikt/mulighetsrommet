@@ -42,7 +42,7 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE} .
+          docker build --pull -t ${IMAGE} .
           docker push ${IMAGE}
 
   deploy-dev:
