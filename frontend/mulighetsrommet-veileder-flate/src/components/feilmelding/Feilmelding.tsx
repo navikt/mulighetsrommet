@@ -8,13 +8,14 @@ interface FeilmeldingProps {
   beskrivelse: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
+  medContainer?: boolean;
 }
 
 export const forsokPaNyttLink = () => {
   return <a href=".">forsøk på nytt</a>;
 };
 
-export const Feilmelding = ({ header, beskrivelse, children, ikonvariant }: FeilmeldingProps) => {
+export const Feilmelding = ({ header, beskrivelse, children, ikonvariant, medContainer }: FeilmeldingProps) => {
   const ikon = () => {
     if (ikonvariant === 'info') {
       return <InformationColored />;
@@ -25,16 +26,26 @@ export const Feilmelding = ({ header, beskrivelse, children, ikonvariant }: Feil
     }
   };
 
-  return (
+  const innhold = () => {
+    return (
+      <>
+        {ikon()}
+        <Heading level="4" size={'small'} className={styles.header}>
+          {header}
+        </Heading>
+        <BodyShort size={'small'} className={styles.beskrivelse}>
+          {beskrivelse}
+        </BodyShort>
+        {children}
+      </>
+    );
+  };
+
+  return medContainer !== false ? (
     <div data-testid="feilmelding-container" aria-live="assertive" className={styles.feilmelding_container}>
-      {ikon()}
-      <Heading level="4" size={'small'} className={styles.header}>
-        {header}
-      </Heading>
-      <BodyShort size={'small'} className={styles.beskrivelse}>
-        {beskrivelse}
-      </BodyShort>
-      {children}
+      {innhold()}
     </div>
+  ) : (
+    <>{innhold()}</>
   );
 };

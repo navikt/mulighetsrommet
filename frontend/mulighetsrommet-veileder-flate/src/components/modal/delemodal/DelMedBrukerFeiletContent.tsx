@@ -1,11 +1,10 @@
-import { ErrorColored } from '@navikt/ds-icons';
-import { Heading, BodyShort, Button } from '@navikt/ds-react';
+import { Button } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { Dispatch } from 'react';
-import Lenke from '../../lenke/Lenke';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions } from './DelemodalActions';
+import { Feilmelding } from '../../feilmelding/Feilmelding';
 
 interface Props {
   dispatch: Dispatch<Actions>;
@@ -15,20 +14,22 @@ interface Props {
 export function DelMedBrukerFeiletContent({ dispatch, onCancel }: Props) {
   return (
     <div className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
-      <ErrorColored className={delemodalStyles.delemodal_svg} />
-      <Heading level="1" size="large" data-testid="modal_header">
-        Tiltaket kunne ikke deles med brukeren
-      </Heading>
-      <BodyShort>
-        Vi kunne ikke dele informasjon digitalt med denne brukeren. Dette kan være fordi hen ikke ønsker eller kan
-        benytte de digitale tjenestene våre.{' '}
-        <Lenke
-          isExternal
-          to="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-arbeidsrettet-brukeroppfolging/SitePages/Manuell-oppf%C3%B8lging-i-Modia-arbeidsrettet-oppf%C3%B8lging.aspx"
-        >
-          Les mer om manuell oppfølging{' '}
-        </Lenke>
-      </BodyShort>
+      <div style={{ padding: '0 5rem' }}>
+        <Feilmelding
+          ikonvariant={'error'}
+          header={<>Tiltaket kunne ikke deles</>}
+          beskrivelse={
+            <>
+              Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. <a href=".">Forsøk på nytt</a> eller
+              ta&nbsp;
+              <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a> i Porten dersom du
+              trenger mer hjelp.
+            </>
+          }
+          medContainer={false}
+        />
+      </div>
+
       <div className={modalStyles.modal_btngroup}>
         <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">
           Prøv på nytt
