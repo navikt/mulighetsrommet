@@ -5,16 +5,17 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.testcontainers.kafka.createStringStringProducer
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.createKafkaTestContainerSetup
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import org.apache.kafka.clients.producer.ProducerRecord
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalTime::class)
 class KafkaConsumerOrchestratorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
@@ -36,17 +37,17 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         consumerRepository = KafkaConsumerRepository(listener.db)
 
-        every { topicRepository.selectAll() } returns keys.mapIndexed { index, it ->
+        every { topicRepository.selectAll() } returns keys.mapIndexed { index, key ->
             Topic(
                 index,
-                it,
+                key,
                 topicNames[index],
                 TopicType.CONSUMER,
                 true
             )
         }
 
-        topicNames.forEachIndexed { index, it -> every { consumers[index].consumerConfig.topic } returns it }
+        topicNames.forEachIndexed { index, topic -> every { consumers[index].consumerConfig.topic } returns topic }
 
         coEvery { consumers[0].processEvent(any()) } returns Unit
         coEvery { consumers[1].processEvent(any()) } throws Exception()
@@ -61,12 +62,12 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             Long.MAX_VALUE
         )
 
-        values.forEachIndexed() { index, it -> producer.send(ProducerRecord(topicNames[index], keys[index], it)) }
+        values.forEachIndexed { index, value -> producer.send(ProducerRecord(topicNames[index], keys[index], value)) }
         producer.close()
     }
 
     test("consumers processes event from correct topic and inserts event into failed events on fail") {
-        eventually(Duration.Companion.seconds(3)) {
+        eventually(3.seconds) {
             coVerify(exactly = 1) {
                 consumers[0].processEvent(
                     ArenaJsonElementDeserializer().deserialize(
