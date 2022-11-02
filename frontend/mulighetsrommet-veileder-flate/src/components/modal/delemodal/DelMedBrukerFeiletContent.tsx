@@ -14,21 +14,18 @@ interface Props {
 export function DelMedBrukerFeiletContent({ dispatch, onCancel }: Props) {
   return (
     <div className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
-      <div style={{ padding: '0 5rem' }}>
-        <Feilmelding
-          ikonvariant={'error'}
-          header={<>Tiltaket kunne ikke deles</>}
-          beskrivelse={
-            <>
-              Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. <a href=".">Forsøk på nytt</a> eller
-              ta&nbsp;
-              <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a> i Porten dersom du
-              trenger mer hjelp.
-            </>
-          }
-          medContainer={false}
-        />
-      </div>
+      <Feilmelding
+        ikonvariant={'error'}
+        header={<>Tiltaket kunne ikke deles</>}
+        beskrivelse={
+          <>
+            Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. <a href=".">Forsøk på nytt</a> eller ta&nbsp;
+            <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a> i Porten dersom du
+            trenger mer hjelp.
+          </>
+        }
+        utenMargin={true}
+      />
 
       <div className={modalStyles.modal_btngroup}>
         <Button variant="primary" onClick={() => dispatch({ type: 'Reset' })} data-testid="modal_btn-reset">

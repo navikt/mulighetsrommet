@@ -2,20 +2,21 @@ import { ReactNode } from 'react';
 import styles from './Feilmelding.module.scss';
 import { ErrorColored, InformationColored, WarningColored } from '@navikt/ds-icons';
 import { BodyShort, Heading } from '@navikt/ds-react';
+import classNames from 'classnames';
 
 interface FeilmeldingProps {
   header: ReactNode;
   beskrivelse: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
-  medContainer?: boolean;
+  utenMargin?: boolean;
 }
 
 export const forsokPaNyttLink = () => {
   return <a href=".">forsøk på nytt</a>;
 };
 
-export const Feilmelding = ({ header, beskrivelse, children, ikonvariant, medContainer }: FeilmeldingProps) => {
+export const Feilmelding = ({ header, beskrivelse, children, ikonvariant, utenMargin }: FeilmeldingProps) => {
   const ikon = () => {
     if (ikonvariant === 'info') {
       return <InformationColored />;
@@ -41,11 +42,13 @@ export const Feilmelding = ({ header, beskrivelse, children, ikonvariant, medCon
     );
   };
 
-  return medContainer !== false ? (
-    <div data-testid="feilmelding-container" aria-live="assertive" className={styles.feilmelding_container}>
+  const classNamesArray = utenMargin
+    ? [styles.feilmelding_container]
+    : [styles.feilmelding_container, styles.feilmelding_margin];
+
+  return (
+    <div data-testid="feilmelding-container" aria-live="assertive" className={classNames(...classNamesArray)}>
       {innhold()}
     </div>
-  ) : (
-    <>{innhold()}</>
   );
 };

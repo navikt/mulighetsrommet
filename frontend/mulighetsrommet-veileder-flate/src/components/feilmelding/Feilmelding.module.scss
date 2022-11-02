@@ -4,12 +4,11 @@
   align-items: center;
   flex-direction: column;
   background: white;
-  padding: 2rem 5rem;
   width: 670px;
-  min-height: 180px;
-  margin: 2rem auto auto;
   text-align: center;
   gap: 0.5rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
 
   .header {
     font-weight: 600;
@@ -23,4 +22,10 @@
     width: 2rem;
     height: auto;
   }
+}
+
+.feilmelding_margin {
+  margin: 2rem auto auto;
+  padding: 2rem 5rem;
+  min-height: 180px;
 }

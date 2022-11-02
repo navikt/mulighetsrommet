@@ -92,7 +92,7 @@ const TiltaksgjennomforingsTabell = () => {
     })
     .slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  if (!brukerdata?.data?.oppfolgingsenhet) {
+  if (brukerdata?.data?.oppfolgingsenhet) {
     return (
       <Feilmelding
         header={<>Kunne ikke hente brukers oppfølgingsenhet</>}
