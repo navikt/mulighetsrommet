@@ -31,7 +31,7 @@ export const Feilmelding = ({ header, beskrivelse, children, ikonvariant, utenMa
     return (
       <>
         {ikon()}
-        <Heading level="4" size={'small'} className={styles.header}>
+        <Heading level="4" size={'small'}>
           {header}
         </Heading>
         <BodyShort size={'small'} className={styles.beskrivelse}>

@@ -127,8 +127,8 @@ const Delemodal = ({
             )}
           </>
         )}
-        {state.sendtStatus !== 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}
-        {state.sendtStatus !== 'SENDING_FEILET' && (
+        {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}
+        {state.sendtStatus === 'SENDING_FEILET' && (
           <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
         )}
       </Modal.Content>
