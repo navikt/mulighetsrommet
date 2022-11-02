@@ -36,7 +36,7 @@ export function Filtertags() {
   return (
     <div className={styles.filtertags} data-testid="filtertags">
       <BrukersOppfolgingsenhet />
-      {!brukerdata.data?.innsatsgruppe && (
+      {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && (
         <Alert
           title="Kontroller om brukeren er under oppfølging og finnes i Arena"
           key="alert-innsatsgruppe"
