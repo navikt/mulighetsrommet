@@ -15,6 +15,12 @@ npm install
 npm run start
 ```
 
+### Deploy Studio
+Studioet deployes automatisk ved endringer til Github og hostes på nais. 
+Du kan nå studioet via url'en her https://mulighetsrommet-sanity-studio.intern.nav.no
+
+**OBS** - Ikke bruk `sanity deploy` for å deploye studio til Sanity.
+
 ### 👨‍👩‍👦‍👦 Nye brukere
 
 Nye brukere som logger seg inn på Admin-panelet via NAV SSO vil automatisk få tildelt rollen `Viewer`.
