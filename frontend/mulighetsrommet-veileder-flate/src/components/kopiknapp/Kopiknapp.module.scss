@@ -1,11 +1,15 @@
 :global(.mulighetsrommet-veileder-flate) {
   :global(.navds-button).kopiknapp {
-    box-shadow: unset;
+    padding-top: 5px;
     vertical-align: bottom;
 
     :global(.navds-button--tertiary:hover) {
       background-color: transparent;
     }
+  }
+  :global(.navds-button--tertiary:focus) {
+    border: 2px solid var(--navds-button-color-tertiary-border-focus);
+    box-shadow: unset;
   }
 }
 

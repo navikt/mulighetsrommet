@@ -4,13 +4,14 @@ import styles from './Tilbakeknapp.module.scss';
 
 interface TilbakeknappProps {
   tilbakelenke: string;
+  tekst?: string;
 }
 
-const Tilbakeknapp = ({ tilbakelenke }: TilbakeknappProps) => {
+const Tilbakeknapp = ({ tilbakelenke, tekst = 'Tilbake' }: TilbakeknappProps) => {
   return (
     <Lenke className={styles.tilbakeknapp} to={tilbakelenke} data-testid="tilbakeknapp">
       <Back aria-label="Tilbakeknapp" />
-      <span>Tilbake</span>
+      <span>{tekst}</span>
     </Lenke>
   );
 };

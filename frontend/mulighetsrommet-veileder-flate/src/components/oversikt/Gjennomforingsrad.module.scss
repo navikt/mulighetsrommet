@@ -1,0 +1,26 @@
+.list_element {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  background-color: white;
+  margin: 10px 0;
+  padding: 5px;
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.gjennomforingContainer {
+  display: grid;
+  grid-template-columns: 40% repeat(4, 1fr);
+  align-items: center;
+  min-height: 4rem;
+}
+
+.muted {
+  color: var(--navds-semantic-color-text-muted);
+}

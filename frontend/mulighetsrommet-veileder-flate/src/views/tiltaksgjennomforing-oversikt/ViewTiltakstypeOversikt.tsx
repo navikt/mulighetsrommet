@@ -1,5 +1,5 @@
 import Filtermeny from '../../components/filtrering/Filtermeny';
-import TiltaksgjennomforingsTabell from '../../components/tabell/TiltaksgjennomforingsTabell';
+import Tiltaksgjennomforingsoversikt from '../../components/oversikt/Tiltaksgjennomforingsoversikt';
 import styles from './ViewTiltakstypeOversikt.module.scss';
 import { Filtertags } from '../../components/filtrering/Filtertags';
 import { HistorikkButton } from '../../components/historikk/HistorikkButton';
@@ -17,7 +17,7 @@ const ViewTiltakstypeOversikt = () => {
       </div>
       <Filtermeny />
       <div>
-        <TiltaksgjennomforingsTabell />
+        <Tiltaksgjennomforingsoversikt />
       </div>
     </div>
   );

@@ -93,11 +93,14 @@ const ViewTiltaksgjennomforingDetaljer = () => {
 
   return (
     <>
+      {!erPreview && (
+        <Tilbakeknapp
+          tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+          tekst="Tilbake til tiltaksoversikten"
+        />
+      )}
       <div className={styles.tiltakstype_detaljer}>
         <div>
-          {!erPreview && (
-            <Tilbakeknapp tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`} />
-          )}
           <TiltaksgjennomforingsHeader />
           {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
             <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
