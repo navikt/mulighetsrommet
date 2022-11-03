@@ -151,7 +151,7 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
           <Heading level="1" size="xsmall" data-testid="antall-tiltak-top">
             Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
