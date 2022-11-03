@@ -1,26 +1,50 @@
 .list_element {
   list-style: none;
-  padding: 0;
-  margin: 0;
   width: 100%;
   background-color: white;
   margin: 10px 0;
   padding: 5px;
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 12px;
+
+  a {
+    color: black;
+  }
 }
 
 .flex {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
 }
 
 .gjennomforingContainer {
   display: grid;
-  grid-template-columns: 40% repeat(4, 1fr);
+  grid-template-columns: 20% 1fr 1%;
   align-items: center;
   min-height: 4rem;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.infogrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 150px));
+  gap: 14px;
+  justify-content: space-evenly;
 }
 
 .muted {
   color: var(--navds-semantic-color-text-muted);
+  font-size: 14px;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.as_link {
+  color: #0067c5;
 }
