@@ -4,6 +4,11 @@
     margin: 0 auto;
   }
 
+  .container {
+    max-width: 1252px;
+    margin: 0 auto;
+  }
+
   .tiltakstype_detaljer {
     display: grid;
     grid-template-rows: auto auto;
@@ -14,8 +19,16 @@
     padding: 2rem;
   }
 
+  .tiltakstype_header_maksbredde {
+    max-width: 760px;
+  }
+
   :global(.navds-tabs__tablist-wrapper) {
     box-shadow: unset;
+  }
+
+  .nokkelinfo_container {
+    display: flex;
   }
 
   .alert {
@@ -29,15 +42,17 @@
     grid-row-start: 1;
     grid-row-end: 3;
     grid-column: 2;
+    max-width: 380px;
   }
 
   :global(.navds-panel) {
     background-color: var(--navds-semantic-color-canvas-background);
+    padding: 1.5rem;
   }
 
   :global(.navds-button).deleknapp {
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 2rem;
   }
 
   @media (max-width: 1200px) {

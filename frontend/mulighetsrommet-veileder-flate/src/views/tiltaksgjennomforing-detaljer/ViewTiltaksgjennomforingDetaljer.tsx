@@ -20,6 +20,7 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { environments } from '../../env';
+import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTiltaksType | '' {
@@ -93,78 +94,82 @@ const ViewTiltaksgjennomforingDetaljer = () => {
 
   return (
     <>
-      {!erPreview && (
-        <Tilbakeknapp
-          tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`}
-          tekst="Tilbake til tiltaksoversikten"
-        />
-      )}
-      <div className={styles.tiltakstype_detaljer}>
-        <div>
-          <TiltaksgjennomforingsHeader />
-          {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
-            <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
-          )}
-        </div>
-        <div className={styles.sidemeny}>
-          <SidemenyDetaljer />
-          {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) || !erPreview) && (
+      <div className={styles.container}>
+        {!erPreview && (
+          <Tilbakeknapp
+            tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+            tekst="Tilbake til tiltaksoversikten"
+          />
+        )}
+        <div className={styles.tiltakstype_detaljer}>
+          <div className={styles.tiltakstype_header_maksbredde}>
+            <TiltaksgjennomforingsHeader />
+            {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
+              <div className={styles.nokkelinfo_container}>
+                <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
+              </div>
+            )}
+          </div>
+          <div className={styles.sidemeny}>
+            <SidemenyDetaljer />
+            {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) || !erPreview) && (
+              <Button
+                as="a"
+                href={lenkeTilOpprettAvtaleForEnv(fnr, tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
+                target="_blank"
+                variant="primary"
+                className={styles.deleknapp}
+                aria-label="Opprett avtale"
+                data-testid="opprettavtaleknapp"
+                title={tooltip()}
+              >
+                Opprett avtale
+              </Button>
+            )}
             <Button
-              as="a"
-              href={lenkeTilOpprettAvtaleForEnv(fnr, tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
-              target="_blank"
-              variant="primary"
+              onClick={handleClickApneModal}
+              variant="secondary"
               className={styles.deleknapp}
-              aria-label="Opprett avtale"
-              data-testid="opprettavtaleknapp"
+              aria-label="Dele"
+              data-testid="deleknapp"
+              disabled={!erPreview && !kanDeleMedBruker}
               title={tooltip()}
+              icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
+              iconPosition="left"
             >
-              Opprett avtale
+              {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
             </Button>
-          )}
-          <Button
-            onClick={handleClickApneModal}
-            variant="secondary"
-            className={styles.deleknapp}
-            aria-label="Dele"
-            data-testid="deleknapp"
-            disabled={!erPreview && !kanDeleMedBruker}
-            title={tooltip()}
-            icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
-            iconPosition="left"
-          >
-            {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
-          </Button>
-          {!brukerdata.data?.manuellStatus && !erPreview && (
-            <Alert
-              title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
-              key="alert-innsatsgruppe"
-              data-testid="alert-innsatsgruppe"
-              size="small"
-              variant="error"
-              className={styles.alert}
-            >
-              Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR)
-            </Alert>
-          )}
-          {harDeltMedBruker && !erPreview && (
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
-                Åpne i dialogen
-                <Dialog />
-              </Link>
-            </div>
-          )}
+            {!brukerdata.data?.manuellStatus && !erPreview && (
+              <Alert
+                title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+                key="alert-innsatsgruppe"
+                data-testid="alert-innsatsgruppe"
+                size="small"
+                variant="error"
+                className={styles.alert}
+              >
+                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR)
+              </Alert>
+            )}
+            {harDeltMedBruker && !erPreview && (
+              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
+                  Åpne i dialogen
+                  <Dialog />
+                </Link>
+              </div>
+            )}
+          </div>
+          <TiltaksdetaljerFane />
+          <Delemodal
+            modalOpen={delemodalApen}
+            setModalOpen={() => setDelemodalApen(false)}
+            tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
+            brukernavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn}
+            chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
+            veiledernavn={erPreview ? '{Veiledernavn}' : veiledernavn}
+          />
         </div>
-        <TiltaksdetaljerFane />
-        <Delemodal
-          modalOpen={delemodalApen}
-          setModalOpen={() => setDelemodalApen(false)}
-          tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
-          brukernavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn}
-          chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}
-          veiledernavn={erPreview ? '{Veiledernavn}' : veiledernavn}
-        />
       </div>
     </>
   );
