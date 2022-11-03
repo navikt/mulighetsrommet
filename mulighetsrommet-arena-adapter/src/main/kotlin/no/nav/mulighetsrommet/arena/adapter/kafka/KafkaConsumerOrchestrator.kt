@@ -103,13 +103,15 @@ class KafkaConsumerOrchestrator(
         val currentTopics = topicRepository.selectAll()
 
         val topics = consumers.map { consumer ->
+            val (id, topic, initialRunningState) = consumer.consumerConfig
+
             val running = currentTopics
-                .firstOrNull { topic -> topic.id == consumer.consumerConfig.id }
-                .let { topic -> topic?.running ?: false }
+                .firstOrNull { it.id == id }
+                .let { it?.running ?: initialRunningState }
 
             Topic(
-                id = consumer.consumerConfig.id,
-                topic = consumer.consumerConfig.topic,
+                id = id,
+                topic = topic,
                 type = TopicType.CONSUMER,
                 running = running
             )

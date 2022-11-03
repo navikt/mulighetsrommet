@@ -48,5 +48,6 @@ data class TopicsConfig(
 
 data class ConsumerConfig(
     val id: String,
-    val topic: String
+    val topic: String,
+    val initialRunningState: Boolean = false,
 )
