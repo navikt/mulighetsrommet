@@ -12,5 +12,5 @@ export const mockFeatures: Features = {
   [FEEDBACK]: true,
   [VIS_HISTORIKK]: true,
   [LAGRE_DEL_TILTAK_MED_BRUKER]: true,
-  [VIS_INNSIKTSFANE]: true,
+  [VIS_INNSIKTSFANE]: false,
 };

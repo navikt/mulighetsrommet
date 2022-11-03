@@ -1,7 +1,7 @@
-xdescribe('Tiltaksgjennomføringstabell', () => {
+describe('Tiltaksgjennomføringsoversikt', () => {
   let antallTiltak;
-  it('Sjekk at det er tiltaksgjennomføringer i tabellen', () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').should('have.length.greaterThan', 1);
+  it('Sjekk at det er tiltaksgjennomføringer i oversikten', () => {
+    cy.getByTestId('oversikt_tiltaksgjennomforinger').children().should('have.length.greaterThan', 1);
   });
 
   it('Sjekk UU', () => {
@@ -129,7 +129,7 @@ xdescribe('Tiltaksgjennomføringstabell', () => {
     cy.getByTestId('filter_checkbox_standardinnsats').click();
     cy.forventetAntallFiltertags(2);
     cy.wait(500);
-    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
+    cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
     cy.tilbakeTilListevisning();
     cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');
     cy.forventetAntallFiltertags(2);
@@ -145,7 +145,7 @@ xdescribe('Tiltaksgjennomføringstabell', () => {
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå til en tiltaksgjennomføring', () => {
-    cy.getByTestId('tabell_tiltaksgjennomforing').first().click();
+    cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
   });
 
   it('Sjekk UU', () => {
@@ -195,6 +195,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
 
   it('Gå tilbake til tiltaksoversikten', () => {
     cy.tilbakeTilListevisning();
-    cy.getByTestId('tabell_tiltakstyper').children().children().should('have.length.greaterThan', 1);
+    cy.getByTestId('oversikt_tiltaksgjennomforinger').children().children().should('have.length.greaterThan', 1);
   });
 });

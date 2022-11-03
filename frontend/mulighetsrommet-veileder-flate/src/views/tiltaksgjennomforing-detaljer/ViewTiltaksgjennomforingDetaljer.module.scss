@@ -10,6 +10,8 @@
     grid-template-columns: auto 23rem;
     grid-gap: 2rem;
     margin: 0 1rem;
+    background-color: white;
+    padding: 2rem;
   }
 
   :global(.navds-tabs__tablist-wrapper) {
@@ -27,6 +29,10 @@
     grid-row-start: 1;
     grid-row-end: 3;
     grid-column: 2;
+  }
+
+  :global(.navds-panel) {
+    background-color: var(--navds-semantic-color-canvas-background);
   }
 
   :global(.navds-button).deleknapp {
