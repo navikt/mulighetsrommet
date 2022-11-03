@@ -4,16 +4,13 @@ import io.kotest.assertions.timing.eventually
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.testcontainers.kafka.createStringStringProducer
-import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
+import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.mockk
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
+import io.mockk.spyk
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.createKafkaTestContainerSetup
-import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
+import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import org.apache.kafka.clients.producer.ProducerRecord
 import kotlin.time.Duration.Companion.seconds
 
@@ -25,84 +22,47 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
     val producer = kafka.createStringStringProducer()
 
-    val keys = (0..2).map { "key$it" }
-    val topicNames = (0..2).map { "topic$it" }
-    val values = (0..1).map { "value$it" }
-
-    val topicRepository: TopicRepository = mockk(relaxed = true)
+    lateinit var topicRepository: TopicRepository
     lateinit var consumerRepository: KafkaConsumerRepository
 
-    val consumers = (0..2).map { mockk<TopicConsumer<Any>>() }
+    lateinit var consumer1: TestConsumer
+    lateinit var consumer2: TestConsumer
 
     beforeSpec {
+        consumer1 = spyk(TestConsumer("foo", EventRepository(listener.db)))
+        consumer2 = spyk(TestConsumer("bar", EventRepository(listener.db)))
 
+        topicRepository = TopicRepository(listener.db)
         consumerRepository = KafkaConsumerRepository(listener.db)
 
-        every { topicRepository.selectAll() } returns keys.mapIndexed { index, key ->
-            Topic(
-                key,
-                topicNames[index],
-                TopicType.CONSUMER,
-                true
-            )
-        }
-
-        consumers.forEachIndexed { index, consumer ->
-            every { consumer.consumerConfig } returns ConsumerConfig(keys[index], topicNames[index])
-        }
-
-        coEvery { consumers[0].processEvent(any()) } returns Unit
-        coEvery { consumers[1].processEvent(any()) } throws Exception()
-
-        KafkaConsumerOrchestrator(
+        val orchestrator = KafkaConsumerOrchestrator(
             consumerProperties,
             listener.db,
-            ConsumerGroup(
-                consumers
-            ),
+            ConsumerGroup(listOf(consumer1, consumer2)),
             topicRepository,
             Long.MAX_VALUE
         )
 
-        values.forEachIndexed { index, value -> producer.send(ProducerRecord(topicNames[index], keys[index], value)) }
+        producer.send(ProducerRecord("foo", """{ "success": true }"""))
+        producer.send(ProducerRecord("bar", """{ "success": false }"""))
         producer.close()
     }
 
-    test("consumers processes event from correct topic and inserts event into failed events on fail") {
-        eventually(3.seconds) {
-            coVerify(exactly = 1) {
-                consumers[0].processEvent(
-                    ArenaJsonElementDeserializer().deserialize(
-                        topicNames[0],
-                        values[0].toByteArray()
-                    )
-                )
-            }
+    test("consumer should process events from topic") {
+        eventually(10.seconds) {
+            coVerify { consumer1.processEvent(Json.parseToJsonElement("""{ "success": true }""")) }
+        }
+    }
 
-            coVerify(exactly = 1) {
-                consumers[1].processEvent(
-                    ArenaJsonElementDeserializer().deserialize(
-                        topicNames[1],
-                        values[1].toByteArray()
-                    )
-                )
-            }
+    test("failed events should be handled gracefully and kept in the topic consumer repository") {
+        eventually(10.seconds) {
+            coVerify { consumer2.processEvent(Json.parseToJsonElement("""{ "success": false }""")) }
 
-            coVerify(exactly = 0) {
-                consumers[2].processEvent(any())
-            }
-
-            consumerRepository.hasRecordWithKey(
-                topicNames[0],
+            consumerRepository.getRecords(
+                "bar",
                 0,
-                keys[0].toByteArray()
-            ) shouldBe false
-
-            consumerRepository.hasRecordWithKey(
-                topicNames[1],
-                0,
-                keys[1].toByteArray()
-            ) shouldBe true
+                1
+            ) shouldHaveSize 1
         }
     }
 })
