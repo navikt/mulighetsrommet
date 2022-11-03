@@ -18,7 +18,11 @@ export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ven
           <img src={StatusRod} alt="Rødt sirkelikon" />
           <div>Midlertidig stengt</div>
         </div>
-        {estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null}
+        {estimert_ventetid ? (
+          <small title={estimert_ventetid} className={styles.estimert_ventetid}>
+            {estimert_ventetid}
+          </small>
+        ) : null}
       </div>
     );
   }

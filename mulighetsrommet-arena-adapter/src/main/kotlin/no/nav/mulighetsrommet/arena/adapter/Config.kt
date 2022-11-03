@@ -34,11 +34,11 @@ data class KafkaConfig(
     val topics: TopicsConfig
 )
 
-fun KafkaConfig.getTopic(key: String): ConsumerConfig {
-    val topic = topics.consumer.getOrElse(key) {
-        throw RuntimeException("No topic configured for key '$key'")
+fun KafkaConfig.getTopic(id: String): ConsumerConfig {
+    val topic = topics.consumer.getOrElse(id) {
+        throw RuntimeException("No topic configured for id '$id'")
     }
-    return ConsumerConfig(key, topic)
+    return ConsumerConfig(id, topic)
 }
 
 data class TopicsConfig(
@@ -47,6 +47,7 @@ data class TopicsConfig(
 )
 
 data class ConsumerConfig(
-    val key: String,
-    val topic: String
+    val id: String,
+    val topic: String,
+    val initialRunningState: Boolean = false,
 )

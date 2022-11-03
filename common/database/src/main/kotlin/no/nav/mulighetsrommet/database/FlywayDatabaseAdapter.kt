@@ -14,6 +14,10 @@ class FlywayDatabaseAdapter(config: DatabaseConfig) : DatabaseAdapter(config) {
             }
             .load()
 
+        migrate()
+    }
+
+    fun migrate() {
         flyway.migrate()
     }
 

@@ -1,9 +1,11 @@
+import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { Oppstart, Tiltaksgjennomforing } from '../../core/api/models';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
+import { Next } from '@navikt/ds-icons';
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -39,27 +41,42 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
   } = tiltaksgjennomforing;
   return (
     <li className={styles.list_element}>
-      <div className={styles.gjennomforingContainer}>
-        <div className={styles.flex}>
-          <Lenke
-            to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
-            isInline
-            data-testid="lenke_tiltaksgjennomforing"
-          >
-            {tiltaksgjennomforingNavn}
-          </Lenke>
-          <span className={styles.muted}>{kontaktinfoArrangor?.selskapsnavn}</span>
-        </div>
+      <Lenke
+        to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+        isInline
+        data-testid="lenke_tiltaksgjennomforing"
+      >
+        <div className={styles.gjennomforingContainer}>
+          <div className={styles.flex}>
+            <span title={tiltaksgjennomforingNavn} className={classNames(styles.truncate, styles.as_link)}>
+              {tiltaksgjennomforingNavn}
+            </span>
+            <span title={kontaktinfoArrangor?.selskapsnavn} className={styles.muted}>
+              {kontaktinfoArrangor?.selskapsnavn}
+            </span>
+          </div>
 
-        <span>{tiltakstype.tiltakstypeNavn}</span>
-        <span>{lokasjon}</span>
-        <span>{visOppstartsdato(oppstart, oppstartsdato)}</span>
-        <TilgjengelighetsstatusComponent
-          oppstart={oppstart}
-          status={tilgjengelighetsstatus}
-          estimert_ventetid={estimert_ventetid}
-        />
-      </div>
+          <div className={styles.infogrid}>
+            <span title={tiltakstype.tiltakstypeNavn} className={styles.truncate}>
+              {tiltakstype.tiltakstypeNavn}
+            </span>
+            <span title={lokasjon} className={styles.truncate}>
+              {lokasjon}
+            </span>
+            <span title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
+              {visOppstartsdato(oppstart, oppstartsdato)}
+            </span>
+            <TilgjengelighetsstatusComponent
+              oppstart={oppstart}
+              status={tilgjengelighetsstatus}
+              estimert_ventetid={estimert_ventetid}
+            />
+          </div>
+          <div className={styles.as_link}>
+            <Next />
+          </div>
+        </div>
+      </Lenke>
     </li>
   );
 }

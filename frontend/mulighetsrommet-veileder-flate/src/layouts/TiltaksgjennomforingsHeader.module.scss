@@ -1,3 +1,10 @@
-.tiltaksgjennomforing_title {
-  margin-bottom: 1rem;
+:global(.mulighetsrommet-veileder-flate) {
+  .tiltaksgjennomforing_title {
+    margin-bottom: 1rem;
+  }
+
+  .beskrivelse {
+    margin: 1rem 0;
+    color: #3e3832;
+  }
 }

@@ -1,10 +1,12 @@
-.kontaktinfo {
-  display: grid;
-  margin: 18px 0;
-  grid-template-columns: auto auto;
-  gap: 2rem;
-}
+:global(.mulighetsrommet-veileder-flate) {
+  .kontaktinfo {
+    display: grid;
+    margin: 18px 0;
+    grid-template-columns: auto auto;
+    gap: 2rem;
+  }
 
-.header {
-  margin-bottom: 0.5rem;
+  .header {
+    margin-bottom: 1rem;
+  }
 }

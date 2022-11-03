@@ -21,7 +21,7 @@ const TiltaksgjennomforingsHeader = () => {
       {tiltakstype?.tiltakstypeNavn === 'Opplæring (Gruppe AMO)'
         ? beskrivelse && <Ingress>{beskrivelse}</Ingress>
         : null}
-      {tiltakstype.beskrivelse && <Ingress>{tiltakstype.beskrivelse}</Ingress>}
+      {tiltakstype.beskrivelse && <Ingress className={styles.beskrivelse}>{tiltakstype.beskrivelse}</Ingress>}
     </>
   );
 };
