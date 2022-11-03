@@ -24,7 +24,7 @@ jobs:
       - name: Setup frontend og installer avhengigheter
         uses: ./.github/actions/setup-frontend
       - name: Bygg studio
-        run: npm run build
+        run: npx turbo run build:preprod --filter=mulighetsrommet-cms
       - name: Build and publish Docker image
         working-directory: frontend/mulighetsrommet-cms
         env:
