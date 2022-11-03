@@ -1,4 +1,4 @@
-name: Deploy mulighetsrommet-cms
+name: Deploy Sanity Studio
 
 on:
   push:
