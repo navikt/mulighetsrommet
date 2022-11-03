@@ -12,6 +12,7 @@ import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
 import { DropdownCaption } from '@navikt/ds-react/esm/date/datepicker/caption';
+import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -40,25 +41,6 @@ const Tiltaksgjennomforingsoversikt = () => {
   if (isError) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
-
-  const DropDownMenySortering = () => {
-    return (
-      <Select
-        value={sortValue}
-        onChange={change => setSortValue(change.currentTarget.value)}
-        size="small"
-        label="Hvilket felt ønsker du å sortere listen på?"
-        hideLabel
-      >
-        <option value={'tiltakstypeNavn-ascending'}>Sorter etter</option>
-        <option value={'lokasjon-ascending'}>Lokasjon a-å</option>
-        <option value={'lokasjon-descending'}>Lokasjon å-a</option>
-        <option value={'tiltaksgjennomforingNavn-ascending'}>Tittel a-å</option>
-        <option value={'tiltaksgjennomforingNavn-descending'}>Tittel å-a</option>
-        <option value={'oppstart-descending'}>Oppstartsdato</option>
-      </Select>
-    );
-  };
 
   const gjennomforingerForSide = tiltaksgjennomforinger
     .sort((a, b) => {
@@ -158,7 +140,7 @@ const Tiltaksgjennomforingsoversikt = () => {
             {tiltaksgjennomforinger.length} tiltak
           </Heading>
         ) : null}
-        <DropDownMenySortering />
+        <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map(gjennomforing => {
