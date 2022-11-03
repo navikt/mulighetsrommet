@@ -9,6 +9,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.createKafkaTestContainerSetup
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
@@ -39,7 +40,6 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         every { topicRepository.selectAll() } returns keys.mapIndexed { index, key ->
             Topic(
-                index,
                 key,
                 topicNames[index],
                 TopicType.CONSUMER,
@@ -47,7 +47,9 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             )
         }
 
-        topicNames.forEachIndexed { index, topic -> every { consumers[index].consumerConfig.topic } returns topic }
+        consumers.forEachIndexed { index, consumer ->
+            every { consumer.consumerConfig } returns ConsumerConfig(keys[index], topicNames[index])
+        }
 
         coEvery { consumers[0].processEvent(any()) } returns Unit
         coEvery { consumers[1].processEvent(any()) } throws Exception()

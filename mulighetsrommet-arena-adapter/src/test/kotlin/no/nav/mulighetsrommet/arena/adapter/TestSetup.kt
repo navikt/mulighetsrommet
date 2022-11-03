@@ -12,9 +12,7 @@ import org.testcontainers.utility.DockerImageName
 import java.util.*
 
 fun FunSpec.createKafkaTestContainerSetup(): Triple<FlywayDatabaseListener, KafkaContainer, Properties> {
-    val listener =
-        FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema())
-    register(listener)
+    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
 
     val kafka = install(
         TestContainerExtension(
