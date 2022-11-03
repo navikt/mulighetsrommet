@@ -1,105 +1,150 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
 import io.kotest.assertions.timing.eventually
+import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
+import io.kotest.extensions.testcontainers.TestContainerExtension
 import io.kotest.extensions.testcontainers.kafka.createStringStringProducer
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.*
-import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.createKafkaTestContainerSetup
+import io.mockk.coVerify
+import io.mockk.spyk
+import kotlinx.serialization.json.Json
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.apache.kafka.clients.producer.ProducerRecord
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.utility.DockerImageName
+import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalTime::class)
 class KafkaConsumerOrchestratorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val (listener, kafka, consumerProperties) = createKafkaTestContainerSetup()
+    val database = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
 
-    val producer = kafka.createStringStringProducer()
+    val kafka = install(
+        TestContainerExtension(
+            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
+        )
+    ) { withEmbeddedZookeeper() }
 
-    val keys = (0..2).map { "key$it" }
-    val topicNames = (0..2).map { "topic$it" }
-    val values = (0..1).map { "value$it" }
+    fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
+        .withBrokerUrl(bootstrapServers)
+        .withBaseProperties()
+        .withConsumerGroupId("consumer")
+        .withDeserializers(
+            ByteArrayDeserializer::class.java,
+            ByteArrayDeserializer::class.java
+        )
+        .build()
 
-    val topicRepository: TopicRepository = mockk(relaxed = true)
-    lateinit var consumerRepository: KafkaConsumerRepository
+    beforeEach {
+        database.db.migrate()
+        kafka.start()
+    }
 
-    val consumers = (0..2).map { mockk<TopicConsumer<Any>>() }
+    afterEach {
+        kafka.close()
+        database.db.clean()
+    }
 
-    beforeSpec {
+    test("should store topics based on provided consumers during setup") {
+        val consumers = ConsumerGroup(listOf(TestConsumer("foo", EventRepository(database.db))))
 
-        consumerRepository = KafkaConsumerRepository(listener.db)
-
-        every { topicRepository.selectAll() } returns keys.mapIndexed { index, it ->
-            Topic(
-                index,
-                it,
-                topicNames[index],
-                TopicType.CONSUMER,
-                true
-            )
-        }
-
-        topicNames.forEachIndexed { index, it -> every { consumers[index].consumerConfig.topic } returns it }
-
-        coEvery { consumers[0].processEvent(any()) } returns Unit
-        coEvery { consumers[1].processEvent(any()) } throws Exception()
-
-        KafkaConsumerOrchestrator(
-            consumerProperties,
-            listener.db,
-            ConsumerGroup(
-                consumers
-            ),
-            topicRepository,
+        val orchestrator = KafkaConsumerOrchestrator(
+            kafka.getConsumerProperties(),
+            database.db,
+            consumers,
+            TopicRepository(database.db),
             Long.MAX_VALUE
         )
 
-        values.forEachIndexed() { index, it -> producer.send(ProducerRecord(topicNames[index], keys[index], it)) }
-        producer.close()
+        orchestrator.getTopics() shouldContainExactly listOf(
+            Topic(
+                id = "foo",
+                topic = "foo",
+                type = TopicType.CONSUMER,
+                running = true
+            )
+        )
     }
 
-    test("consumers processes event from correct topic and inserts event into failed events on fail") {
-        eventually(Duration.Companion.seconds(3)) {
-            coVerify(exactly = 1) {
-                consumers[0].processEvent(
-                    ArenaJsonElementDeserializer().deserialize(
-                        topicNames[0],
-                        values[0].toByteArray()
-                    )
-                )
-            }
+    test("should update the consumer running state based on the topic configuration") {
+        val consumers = ConsumerGroup(listOf(TestConsumer("foo", EventRepository(database.db))))
 
-            coVerify(exactly = 1) {
-                consumers[1].processEvent(
-                    ArenaJsonElementDeserializer().deserialize(
-                        topicNames[1],
-                        values[1].toByteArray()
-                    )
-                )
-            }
+        val orchestrator = KafkaConsumerOrchestrator(
+            kafka.getConsumerProperties(),
+            database.db,
+            consumers,
+            TopicRepository(database.db),
+            300
+        )
 
-            coVerify(exactly = 0) {
-                consumers[2].processEvent(any())
-            }
+        orchestrator.getConsumers().first().isRunning shouldBe true
 
-            consumerRepository.hasRecordWithKey(
-                topicNames[0],
-                0,
-                keys[0].toByteArray()
-            ) shouldBe false
+        orchestrator.updateRunningTopics(
+            orchestrator.getTopics().map { it.copy(running = false) }
+        )
 
-            consumerRepository.hasRecordWithKey(
-                topicNames[1],
-                0,
-                keys[1].toByteArray()
-            ) shouldBe true
+        eventually(3.seconds) {
+            orchestrator.getConsumers().first().isRunning shouldBe false
+        }
+    }
+
+    test("consumer should process events from topic") {
+        val consumerRepository = KafkaConsumerRepository(database.db)
+
+        val producer = kafka.createStringStringProducer()
+        producer.send(ProducerRecord("foo", """{ "success": true }"""))
+        producer.close()
+
+        val consumer = spyk(TestConsumer("foo", EventRepository(database.db)))
+
+        KafkaConsumerOrchestrator(
+            kafka.getConsumerProperties(),
+            database.db,
+            ConsumerGroup(listOf(consumer)),
+            TopicRepository(database.db),
+            Long.MAX_VALUE
+        )
+
+        eventually(3.seconds) {
+            coVerify { consumer.processEvent(Json.parseToJsonElement("""{ "success": true }""")) }
+
+            consumerRepository.getRecords("foo", 0, 1) shouldHaveSize 0
+        }
+    }
+
+    test("failed events should be handled gracefully and kept in the topic consumer repository") {
+        val consumerRepository = KafkaConsumerRepository(database.db)
+
+        val producer = kafka.createStringStringProducer()
+        producer.send(ProducerRecord("foo", """{ "success": false }"""))
+        producer.close()
+
+        val consumer = spyk(TestConsumer("foo", EventRepository(database.db)))
+
+        KafkaConsumerOrchestrator(
+            kafka.getConsumerProperties(),
+            database.db,
+            ConsumerGroup(listOf(consumer)),
+            TopicRepository(database.db),
+            Long.MAX_VALUE
+        )
+
+        eventually(10.seconds) {
+            coVerify { consumer.processEvent(Json.parseToJsonElement("""{ "success": false }""")) }
+
+            consumerRepository.getRecords("foo", 0, 1) shouldHaveSize 1
         }
     }
 })

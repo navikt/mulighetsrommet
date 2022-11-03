@@ -11,6 +11,7 @@ import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -75,6 +76,10 @@ class KafkaConsumerOrchestrator(
 
     fun getTopics() = topicRepository.selectAll()
 
+    fun getConsumers(): List<KafkaConsumerClient> {
+        return consumerClients.toList().map { it.second }
+    }
+
     fun updateRunningTopics(topics: List<Topic>): List<Topic> {
         val current = getTopics()
         topicRepository.updateRunning(topics)
@@ -98,7 +103,25 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun updateTopics(consumers: List<TopicConsumer<*>>) = topicRepository.upsertTopics(consumers)
+    private fun updateTopics(consumers: List<TopicConsumer<*>>) {
+        val currentTopics = topicRepository.selectAll()
+
+        val topics = consumers.map { consumer ->
+            val (id, topic, initialRunningState) = consumer.consumerConfig
+
+            val running = currentTopics
+                .firstOrNull { it.id == id }
+                .let { it?.running ?: initialRunningState }
+
+            Topic(
+                id = id,
+                topic = topic,
+                type = TopicType.CONSUMER,
+                running = running
+            )
+        }
+        topicRepository.upsertTopics(topics)
+    }
 
     private fun startConsumerClients() {
         val topics = getTopics().filter { it.running }.map { it.topic }
