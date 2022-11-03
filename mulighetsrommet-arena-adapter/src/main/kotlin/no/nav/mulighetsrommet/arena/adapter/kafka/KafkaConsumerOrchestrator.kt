@@ -76,6 +76,10 @@ class KafkaConsumerOrchestrator(
 
     fun getTopics() = topicRepository.selectAll()
 
+    fun getConsumers(): List<KafkaConsumerClient> {
+        return consumerClients.toList().map { it.second }
+    }
+
     fun updateRunningTopics(topics: List<Topic>): List<Topic> {
         val current = getTopics()
         topicRepository.updateRunning(topics)
