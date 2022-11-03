@@ -1,0 +1,50 @@
+name: Deploy Sanity Studio
+
+on:
+  push:
+    paths:
+      - .github/workflows/mulighetsrommet-cms.yaml
+      - package.json
+      - package-lock.json
+      - turbo.json
+      - frontend/mulighetsrommet-cms
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-cms:${{ github.sha }}
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  bygg-studio:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup frontend og installer avhengigheter
+        uses: ./.github/actions/setup-frontend
+      - name: Bygg studio
+        run: npx turbo run build:preprod --filter=mulighetsrommet-cms
+      - name: Build and publish Docker image
+        working-directory: frontend/mulighetsrommet-cms
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
+          docker build -t ${IMAGE} .
+          docker push ${IMAGE}
+
+  deploy-studio:
+    name: Deploy Sanity studio
+    runs-on: ubuntu-latest
+    needs: [ bygg-studio ]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: frontend/mulighetsrommet-cms/.nais/nais-prod.yaml
+          VAR: image=${{ env.IMAGE }}
