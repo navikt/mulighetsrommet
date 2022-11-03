@@ -119,12 +119,6 @@ const Delemodal = ({
             <Infomelding>
               Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen
             </Infomelding>
-            {erPreview && (
-              <Alert variant="warning">
-                Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir
-                automatisk satt utenfor forhåndsvisningsmodus.
-              </Alert>
-            )}
           </>
         )}
         {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}
