@@ -7,13 +7,13 @@ const KontaktinfoFane = () => {
   return (
     <div className={styles.kontaktinfo}>
       <div>
-        <Heading size="large" level="2" className={styles.header}>
+        <Heading size="medium" level="2" className={styles.header}>
           Arrangør
         </Heading>
         <ArrangorInfo />
       </div>
       <div>
-        <Heading size="large" level="2" className={styles.header}>
+        <Heading size="medium" level="2" className={styles.header}>
           Tiltaksansvarlig
         </Heading>
         <TiltaksansvarligInfo />
