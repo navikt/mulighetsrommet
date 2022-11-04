@@ -145,7 +145,7 @@ export function DelMedBrukerContent({
         </div>
       </div>
       {erPreview && (
-        <Alert variant="warning">
+        <Alert variant="warning" data-testid="alert-preview-del-med-bruker">
           Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn og veileders navn blir automatisk
           satt utenfor forhåndsvisningsmodus.
         </Alert>
