@@ -20,7 +20,6 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { environments } from '../../env';
-import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTiltaksType | '' {
