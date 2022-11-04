@@ -3,8 +3,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import FakeDoor from './components/fakedoor/FakeDoor';
 import Feedback from './components/feedback/Feedback';
 import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
@@ -56,17 +54,6 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
             <ReactQueryDevtools initialIsOpen={false} />
             <Feedback />
           </QueryClientProvider>
