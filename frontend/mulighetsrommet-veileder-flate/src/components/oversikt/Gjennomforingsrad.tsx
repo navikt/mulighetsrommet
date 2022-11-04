@@ -47,7 +47,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforingContainer}>
-          <div className={styles.flex}>
+          <div className={classNames(styles.flex, styles.navn)}>
             <span title={tiltaksgjennomforingNavn} className={classNames(styles.truncate, styles.as_link)}>
               {tiltaksgjennomforingNavn}
             </span>
@@ -55,8 +55,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
               {kontaktinfoArrangor?.selskapsnavn}
             </span>
           </div>
-
-          <div className={styles.infogrid}>
+          <div className={classNames(styles.infogrid, styles.metadata)}>
             <span title={tiltakstype.tiltakstypeNavn} className={styles.truncate}>
               {tiltakstype.tiltakstypeNavn}
             </span>
@@ -72,7 +71,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
               estimert_ventetid={estimert_ventetid}
             />
           </div>
-          <div className={styles.as_link}>
+          <div className={classNames(styles.as_link, styles.ikon)}>
             <Next />
           </div>
         </div>
