@@ -11,7 +11,7 @@
 
   .tiltakstype_detaljer {
     display: grid;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto 1fr;
     grid-template-columns: auto 23rem;
     grid-gap: 2rem;
     margin: 0 1rem;
