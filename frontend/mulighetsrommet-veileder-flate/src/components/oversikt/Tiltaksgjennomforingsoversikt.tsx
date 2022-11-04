@@ -1,7 +1,7 @@
 import { Alert, Button, Heading, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
@@ -11,6 +11,7 @@ import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
+import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -23,6 +24,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const brukerdata = useHentBrukerdata();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
+  const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
 
   useEffect(() => {
     if (tiltaksgjennomforinger.length <= elementsPerPage && !isFetching) {
@@ -40,37 +42,34 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   const gjennomforingerForSide = tiltaksgjennomforinger
-    // TODO Sortering kommer i https://trello.com/c/gfsrx6nS/402-dropdown-for-sorteringsvalg
-    // .sort((a, b) => {
-    //   const sortOrDefault = sort || {
-    //     orderBy: 'tiltakstypeNavn',
-    //     direction: 'ascending',
-    //   };
+    .sort((a, b) => {
+      const sort = {
+        orderBy: sortValue.split('-')[0],
+        direction: sortValue.split('-')[1],
+      };
 
-    //   const comparator = (a: any, b: any, orderBy: string | number) => {
-    //     const compare = (item1: any, item2: any) => {
-    //       if (item2 < item1 || item2 === undefined) {
-    //         return -1;
-    //       }
-    //       if (item2 > item1) {
-    //         return 1;
-    //       }
-    //       return 0;
-    //     };
-    //     if (orderBy === 'oppstart') {
-    //       const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
-    //       const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
-    //       return compare(dateA, dateB);
-    //     } else if (orderBy === 'tiltakstypeNavn') {
-    //       return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
-    //     } else {
-    //       return compare(a[orderBy], b[orderBy]);
-    //     }
-    //   };
-    //   return sortOrDefault.direction === 'ascending'
-    //     ? comparator(b, a, sortOrDefault.orderBy)
-    //     : comparator(a, b, sortOrDefault.orderBy);
-    // })
+      const comparator = (a: any, b: any, orderBy: string | number) => {
+        const compare = (item1: any, item2: any) => {
+          if (item2 < item1 || item2 === undefined) {
+            return -1;
+          }
+          if (item2 > item1) {
+            return 1;
+          }
+          return 0;
+        };
+        if (orderBy === 'oppstart') {
+          const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
+          const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
+          return compare(dateA, dateB);
+        } else if (orderBy === 'tiltakstypeNavn') {
+          return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
+        } else {
+          return compare(a[orderBy], b[orderBy]);
+        }
+      };
+      return sort.direction === 'ascending' ? comparator(b, a, sort.orderBy) : comparator(a, b, sort.orderBy);
+    })
     .slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
   if (!brukerdata?.data?.oppfolgingsenhet) {
@@ -133,12 +132,15 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      {tiltaksgjennomforinger.length > 0 ? (
-        <Heading level="1" size="xsmall" data-testid="antall-tiltak-top">
-          Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
-          {tiltaksgjennomforinger.length} tiltak
-        </Heading>
-      ) : null}
+      <div className={styles.overskrift_og_sorteringsmeny}>
+        {tiltaksgjennomforinger.length > 0 ? (
+          <Heading level="1" size="xsmall" data-testid="antall-tiltak-top">
+            Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
+            {tiltaksgjennomforinger.length} tiltak
+          </Heading>
+        ) : null}
+        <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
+      </div>
       <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map(gjennomforing => {
           return <Gjennomforingsrad key={gjennomforing._id} tiltaksgjennomforing={gjennomforing} />;
