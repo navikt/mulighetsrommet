@@ -1,4 +1,4 @@
-import { Select, Alert, Button, Heading, Loader, Pagination } from '@navikt/ds-react';
+import { Alert, Button, Heading, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
@@ -11,7 +11,6 @@ import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
-import { DropdownCaption } from '@navikt/ds-react/esm/date/datepicker/caption';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 
 const Tiltaksgjennomforingsoversikt = () => {
