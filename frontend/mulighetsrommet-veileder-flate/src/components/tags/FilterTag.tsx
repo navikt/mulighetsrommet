@@ -3,7 +3,6 @@ import { Tag } from '@navikt/ds-react';
 import { kebabCase } from '../../utils/Utils';
 import Ikonknapp from '../knapper/Ikonknapp';
 import styles from './Filtertag.module.scss';
-import classNames from 'classnames';
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
@@ -15,7 +14,12 @@ const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
     <>
       {options.map(filtertype => {
         return (
-          <Tag className="cypress-tag" key={filtertype.id} data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}>
+          <Tag
+            variant="info"
+            className="cypress-tag"
+            key={filtertype.id}
+            data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
+          >
             {filtertype.tittel}
             <Ikonknapp
               className={styles.overstyrt_ikon_knapp}
