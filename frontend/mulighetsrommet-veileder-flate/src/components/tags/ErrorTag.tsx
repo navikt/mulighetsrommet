@@ -6,16 +6,17 @@ import { ErrorColored } from '@navikt/ds-icons';
 interface Props {
   innhold: string;
   title: string;
+  dataTestId: string;
 }
 
-export const ErrorTag = ({ innhold, title }: Props) => {
+export const ErrorTag = ({ innhold, title, dataTestId }: Props) => {
   return (
     <Tag
       className={styles.alert_test}
       key={'navenhet'}
       variant="error"
       size="small"
-      data-testid={`${kebabCase('filtertag_navenhet')}`}
+      data-testid={`${kebabCase(dataTestId)}`}
       title={title}
     >
       <ErrorColored />

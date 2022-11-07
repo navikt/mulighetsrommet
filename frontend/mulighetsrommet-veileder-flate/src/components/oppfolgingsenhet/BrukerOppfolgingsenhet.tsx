@@ -23,6 +23,10 @@ export function BrukersOppfolgingsenhet() {
       {brukersOppfolgingsenhet}
     </Tag>
   ) : (
-    <ErrorTag innhold={'Enhet mangler'} title={'Kontroller om brukeren er under oppfølging og finnes i Arena'} />
+    <ErrorTag
+      innhold={'Enhet mangler'}
+      title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
+      dataTestId={'alert-navenhet'}
+    />
   );
 }

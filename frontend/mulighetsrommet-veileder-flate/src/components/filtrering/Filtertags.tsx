@@ -40,6 +40,7 @@ export function Filtertags() {
         <ErrorTag
           innhold={'Innsatsgruppe mangler'}
           title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
+          dataTestId={'alert-innsatsgruppe'}
         />
       )}
       {filter.innsatsgruppe && (
