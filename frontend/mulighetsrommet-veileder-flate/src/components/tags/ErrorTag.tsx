@@ -3,7 +3,12 @@ import styles from './ErrorTag.module.scss';
 import { kebabCase } from '../../utils/Utils';
 import { ErrorColored } from '@navikt/ds-icons';
 
-export const ErrorTag = () => {
+interface Props {
+  innhold: string;
+  title: string;
+}
+
+export const ErrorTag = ({ innhold, title }: Props) => {
   return (
     <Tag
       className={styles.alert_test}
@@ -11,10 +16,10 @@ export const ErrorTag = () => {
       variant="error"
       size="small"
       data-testid={`${kebabCase('filtertag_navenhet')}`}
-      title="Brukers oppfølgingsenhet"
+      title={title}
     >
       <ErrorColored />
-      <span style={{ marginLeft: '10px' }}>Enhet mangler</span>
+      <span style={{ marginLeft: '10px' }}>{innhold}</span>
     </Tag>
   );
 };
