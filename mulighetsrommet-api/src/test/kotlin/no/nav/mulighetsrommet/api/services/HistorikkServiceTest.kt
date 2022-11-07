@@ -47,6 +47,8 @@ class HistorikkServiceTest : FunSpec({
             id = 123,
             tiltaksgjennomforingId = 123,
             personId = 111,
+            fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
             status = Deltakerstatus.VENTER
         )
 
@@ -78,8 +80,8 @@ class HistorikkServiceTest : FunSpec({
         val forventetHistorikk = listOf(
             HistorikkForDeltakerDTO(
                 id = "1",
-                fraDato = null,
-                tilDato = null,
+                fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+                tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
                 tiltaksnummer = "3",
