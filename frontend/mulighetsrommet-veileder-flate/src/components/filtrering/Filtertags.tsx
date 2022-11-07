@@ -27,8 +27,7 @@ export function Filtertags() {
   const innsatsgrupper = useInnsatsgrupper();
 
   const skalResetteFilter =
-    filter.innsatsgruppe! === undefined ||
-    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
+    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe?.nokkel) ||
     filter.search !== '' ||
     filter.tiltakstyper.length > 0 ||
     filter.tiltaksgruppe.length > 0 ||
@@ -37,7 +36,7 @@ export function Filtertags() {
   return (
     <div className={styles.filtertags} data-testid="filtertags">
       <BrukersOppfolgingsenhet />
-      {!brukerdata.isLoading && brukerdata.data?.innsatsgruppe && (
+      {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && (
         <ErrorTag
           innhold={'Innsatsgruppe mangler'}
           title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
