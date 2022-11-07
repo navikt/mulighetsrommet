@@ -31,15 +31,13 @@ function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTilta
   }
 }
 
-function lenkeTilOpprettAvtaleForEnv(fnr: string, tiltakstype: Tiltakstyper): string {
+function lenkeTilOpprettAvtaleForEnv(tiltakstype: Tiltakstyper): string {
   const env: environments = import.meta.env.VITE_ENVIRONMENT;
   const baseUrl =
     env === 'production'
       ? 'https://tiltaksgjennomforing.intern.nav.no/'
       : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
-  return `${baseUrl}tiltaksgjennomforing/opprett-avtale?deltakerfnr=${fnr}&type=${tiltakstypeNavnTilUrlVerdi(
-    tiltakstype
-  )}`;
+  return `${baseUrl}tiltaksgjennomforing/opprett-avtale?type=${tiltakstypeNavnTilUrlVerdi(tiltakstype)}`;
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
@@ -114,7 +112,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) || !erPreview) && (
               <Button
                 as="a"
-                href={lenkeTilOpprettAvtaleForEnv(fnr, tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
+                href={lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
                 target="_blank"
                 variant="primary"
                 className={styles.deleknapp}
