@@ -1,5 +1,6 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
 import styles from './Arrangorinfo.module.scss';
+import { Tiltaksansvarlig } from '../../../core/api/models';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
@@ -13,7 +14,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
   return (
     <>
-      {tiltaksansvarlige.map((tiltaksansvarlig: any) => {
+      {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
             <Heading size="small" level="3" className={styles.navn}>
