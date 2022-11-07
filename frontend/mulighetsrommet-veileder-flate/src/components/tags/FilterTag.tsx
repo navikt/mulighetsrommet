@@ -15,10 +15,9 @@ const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
       {options.map(filtertype => {
         return (
           <Tag
+            variant="info"
             className="cypress-tag"
             key={filtertype.id}
-            variant="info"
-            size="small"
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
           >
             {filtertype.tittel}
