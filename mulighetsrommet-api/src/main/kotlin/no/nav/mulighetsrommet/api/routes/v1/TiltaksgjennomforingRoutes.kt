@@ -2,13 +2,15 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.routes.v1.responses.ListResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import org.koin.ktor.ext.inject
 
@@ -17,10 +19,7 @@ fun Route.tiltaksgjennomforingRoutes() {
 
     route("/api/v1/tiltaksgjennomforinger") {
         get() {
-            val paginationParams = PaginationParams(
-                page = call.parameters["page"]?.toIntOrNull(),
-                limit = call.parameters["size"]?.toIntOrNull()
-            )
+            val paginationParams = getPaginationParams()
             val data = tiltaksgjennomforingService.getTiltaksgjennomforinger(paginationParams)
             call.respond(
                 TiltaksgjennomforingerResponse(
