@@ -15,11 +15,7 @@ const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
     <>
       {options.map(filtertype => {
         return (
-          <Tag
-            className={classNames(styles.filterTagBlue, 'cypress-tag')}
-            key={filtertype.id}
-            data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
-          >
+          <Tag className="cypress-tag" key={filtertype.id} data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}>
             {filtertype.tittel}
             <Ikonknapp
               className={styles.overstyrt_ikon_knapp}
