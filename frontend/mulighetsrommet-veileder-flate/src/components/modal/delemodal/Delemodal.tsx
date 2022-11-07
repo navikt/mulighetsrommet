@@ -56,14 +56,15 @@ export function initInitialState(startHilsen: string): State {
   };
 }
 
-function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: string, brukernavn?: string) {
+function sySammenBrukerTekst(
+  chattekst: string,
+  tiltaksgjennomforingsnavn: string,
+  brukernavn?: string,
+  veiledernavn?: string
+) {
   return `${chattekst
     .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}`;
-}
-
-function sySammenHilsen(veiledernavn?: string) {
-  return veiledernavn ? `Hilsen ${veiledernavn}` : 'Hilsen ';
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}${veiledernavn ? `\n\nHilsen ${veiledernavn}` : ''}`;
 }
 
 const Delemodal = ({
@@ -74,9 +75,8 @@ const Delemodal = ({
   chattekst,
   veiledernavn,
 }: DelemodalProps) => {
-  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
-  const startHilsen = sySammenHilsen(veiledernavn);
-  const [state, dispatch] = useReducer(reducer, startHilsen, initInitialState);
+  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
+  const [state, dispatch] = useReducer(reducer, '', initInitialState);
 
   const clickCancel = (log = true) => {
     setModalOpen();

@@ -1,6 +1,6 @@
 import { Alert, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react';
 import classNames from 'classnames';
-import React, { Dispatch } from 'react';
+import React, { Dispatch, useState } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -33,6 +33,7 @@ export function DelMedBrukerContent({
   veiledernavn,
   brukernavn,
 }: Props) {
+  const [visPersonligMelding, setVisPersonligMelding] = useState(false);
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const tiltaksnummer = tiltaksgjennomforing?.tiltaksnummer?.toString();
@@ -47,8 +48,13 @@ export function DelMedBrukerContent({
     return state.hilsen.length;
   };
 
+  const togglePersonligMelding = () => {
+    dispatch({ type: 'Reset' });
+    setVisPersonligMelding(!visPersonligMelding);
+  };
+
   const handleError = () => {
-    if (state.hilsen.length === 0) return 'Kan ikke sende melding uten hilsen'; // TODO Sjekk med Tom S. om dette stemmer
+    if (state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN) return 'For mange tegn';
   };
 
   const handleSend = async () => {
@@ -87,15 +93,23 @@ export function DelMedBrukerContent({
       <p title="Teksten er hentet fra tiltakstypen og kan ikke redigeres." className={delemodalStyles.deletekst}>
         {deletekst}
       </p>
-      <Textarea
-        size="medium"
-        label="Skriv en hilsen..."
-        value={state.hilsen}
-        onChange={redigerHilsen}
-        maxLength={MAKS_ANTALL_TEGN_HILSEN}
-        data-testid="textarea_hilsen"
-        error={handleError()}
-      />
+      <Button data-testid="personlig_hilsen_btn" onClick={togglePersonligMelding} variant="tertiary">
+        Legg til personlig melding{' '}
+      </Button>
+      {visPersonligMelding ? (
+        <Textarea
+          className={delemodalStyles.personligHilsen}
+          size="medium"
+          value={state.hilsen}
+          label=""
+          hideLabel
+          onChange={redigerHilsen}
+          maxLength={MAKS_ANTALL_TEGN_HILSEN}
+          data-testid="textarea_hilsen"
+          error={handleError()}
+        />
+      ) : null}
+
       {!veiledernavn && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
       )}
@@ -107,7 +121,7 @@ export function DelMedBrukerContent({
           <Button
             onClick={handleSend}
             data-testid="modal_btn-send"
-            disabled={senderTilDialogen || state.hilsen.length === 0 || erPreview}
+            disabled={senderTilDialogen || state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN || erPreview}
           >
             {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
           </Button>

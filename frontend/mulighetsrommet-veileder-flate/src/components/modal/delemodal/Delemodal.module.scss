@@ -34,7 +34,11 @@
   margin-top: 1rem;
   max-width: 65ch;
   white-space: pre-wrap;
-  border: 1px solid var(--navds-semantic-color-text-muted);
   border-radius: 5px;
-  padding: 0.5rem;
+  padding: 1rem;
+  background-color: #f7f7f7;
+}
+
+.personligHilsen {
+  margin-top: 0.5rem;
 }
