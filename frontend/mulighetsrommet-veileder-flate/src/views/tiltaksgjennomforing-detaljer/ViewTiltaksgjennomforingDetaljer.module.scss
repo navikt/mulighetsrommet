@@ -1,76 +1,81 @@
+.filter_loader {
+  display: block;
+  margin: 0 auto;
+}
+
+.container {
+  max-width: 1252px;
+  margin: 0 auto;
+}
+
+.tiltakstype_detaljer {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: auto 23rem;
+  grid-gap: 2rem;
+  background-color: white;
+  padding: 2rem;
+}
+
+.tiltakstype_header_maksbredde {
+  max-width: 760px;
+}
+
+.nokkelinfo_container {
+  display: flex;
+}
+
+.alert {
+  margin-top: 0.5rem;
+  border-radius: 0;
+}
+
+.sidemeny {
+  height: fit-content;
+  margin-top: 3rem;
+  grid-row-start: 1;
+  grid-row-end: 3;
+  grid-column: 2;
+  max-width: 380px;
+}
+
 :global(.mulighetsrommet-veileder-flate) {
-  .filter_loader {
-    display: block;
-    margin: 0 auto;
+  :global(.navds-panel) {
+    padding: 1.5rem;
+    background-color: #f1f1f1;
   }
 
-  .container {
-    max-width: 1252px;
-    margin: 0 auto;
-  }
-
-  .tiltakstype_detaljer {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    grid-template-columns: auto 23rem;
-    grid-gap: 2rem;
-    margin: 0 1rem;
-    background-color: white;
-    padding: 2rem;
-  }
-
-  .tiltakstype_header_maksbredde {
-    max-width: 760px;
+  :global(.navds-button).deleknapp {
+    width: 100%;
+    margin-top: 1rem;
   }
 
   :global(.navds-tabs__tablist-wrapper) {
     box-shadow: unset;
   }
+}
 
-  .nokkelinfo_container {
-    display: flex;
-  }
+@media (max-width: 1200px) {
+  .tiltakstype_detaljer {
+    grid-template-columns: auto;
+    grid-gap: 2rem;
 
-  .alert {
-    margin-top: 0.5rem;
-    border-radius: 0;
-  }
+    .sidemeny {
+      grid-row: 2;
+      margin-top: 0;
+      grid-row-start: initial;
+      grid-row-end: initial;
+      grid-column: initial;
+      max-width: none;
+      padding: 0 10rem;
 
-  .sidemeny {
-    height: fit-content;
-    margin-top: 3rem;
-    grid-row-start: 1;
-    grid-row-end: 3;
-    grid-column: 2;
-    max-width: 380px;
-  }
-
-  :global(.navds-panel) {
-    background-color: var(--navds-semantic-color-canvas-background);
-    padding: 1.5rem;
-  }
-
-  :global(.navds-button).deleknapp {
-    width: 100%;
-    margin-top: 2rem;
-  }
-
-  @media (max-width: 1200px) {
-    .tiltakstype_detaljer {
-      grid-template-columns: auto;
-      grid-gap: 2rem;
-
-      .sidemeny {
-        grid-row: 2;
-        margin-top: 0;
-        grid-row-start: initial;
-        grid-row-end: initial;
-        grid-column: initial;
-      }
-
-      .fane_root {
-        grid-row: 3;
+      :global(.navds-panel) {
+        padding-bottom: 0;
       }
     }
+  }
+
+  .tiltakstype_header_maksbredde {
+    max-width: none;
   }
 }

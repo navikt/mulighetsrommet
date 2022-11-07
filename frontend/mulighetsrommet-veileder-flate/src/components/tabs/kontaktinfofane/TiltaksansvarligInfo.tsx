@@ -1,17 +1,19 @@
 import { BodyShort, Heading, Label } from '@navikt/ds-react';
-import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
 import styles from './Arrangorinfo.module.scss';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
-const TiltaksansvarligInfo = () => {
-  const { data } = useTiltaksgjennomforingById();
+interface TiltaksansvarligInfoProps {
+  data: any;
+}
+
+const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
   if (!data) return null;
 
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
   return (
     <>
-      {tiltaksansvarlige.map(tiltaksansvarlig => {
+      {tiltaksansvarlige.map((tiltaksansvarlig: any) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
             <Heading size="small" level="3" className={styles.navn}>
