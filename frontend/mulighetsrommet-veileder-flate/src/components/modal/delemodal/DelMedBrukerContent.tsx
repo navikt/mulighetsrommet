@@ -1,6 +1,6 @@
 import { Alert, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react';
 import classNames from 'classnames';
-import { Dispatch, useRef } from 'react';
+import React, { Dispatch } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -12,9 +12,11 @@ import { logDelMedbrukerEvent } from './Delemodal';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
 
+const MAKS_ANTALL_TEGN_HILSEN = 300;
+
 interface Props {
   tiltaksgjennomforingsnavn: string;
-  startTekst: string;
+  deletekst: string;
   onCancel: () => void;
   state: State;
   dispatch: Dispatch<Actions>;
@@ -24,7 +26,7 @@ interface Props {
 
 export function DelMedBrukerContent({
   tiltaksgjennomforingsnavn,
-  startTekst,
+  deletekst,
   onCancel,
   state,
   dispatch,
@@ -32,7 +34,6 @@ export function DelMedBrukerContent({
   brukernavn,
 }: Props) {
   const senderTilDialogen = state.sendtStatus === 'SENDER';
-  const tekstfeltRef = useRef<HTMLTextAreaElement | null>(null);
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const tiltaksnummer = tiltaksgjennomforing?.tiltaksnummer?.toString();
   const features = useFeatureToggles();
@@ -43,23 +44,20 @@ export function DelMedBrukerContent({
   const fnr = useHentFnrFraUrl();
 
   const getAntallTegn = () => {
-    if (startTekst.length === 0) {
-      return 750;
-    }
-    return startTekst.length + 200;
+    return state.hilsen.length;
   };
 
   const handleError = () => {
-    if (state.tekst.length === 0) return 'Kan ikke sende tom melding.';
+    if (state.hilsen.length === 0) return 'Kan ikke sende melding uten hilsen'; // TODO Sjekk med Tom S. om dette stemmer
   };
 
   const handleSend = async () => {
-    if (state.tekst.trim().length > getAntallTegn()) return;
+    if (state.hilsen.trim().length > getAntallTegn()) return;
     logDelMedbrukerEvent('Delte med bruker');
 
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
-    const { tekst } = state;
+    const tekst = `${deletekst}\n\n${state.hilsen}`;
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       if (skalLagreAtViDelerMedBruker && tiltaksnummer) {
@@ -72,17 +70,13 @@ export function DelMedBrukerContent({
       logDelMedbrukerEvent('Del med bruker feilet');
     }
   };
-  const fokuserTekstfelt = () => {
-    dispatch({ type: 'Redigerer tekstfelt' });
-    logDelMedbrukerEvent('Redigerer tekstfelt');
-    tekstfeltRef?.current?.focus();
+
+  const redigerHilsen = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    dispatch({ type: 'Sett hilsen', payload: e.currentTarget.value });
   };
 
-  const tilbakestillTekstfelt = () => {
-    dispatch({ type: 'Tilbakestill tekstfelt' });
-  };
   return (
-    <div>
+    <div className={delemodalStyles.container}>
       <p className={classNames(modalStyles.muted, modalStyles.mt_0)} data-testid="modal_header">
         Del med bruker
       </p>
@@ -90,17 +84,17 @@ export function DelMedBrukerContent({
         {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
       </Heading>
 
+      <p title="Teksten er hentet fra tiltakstypen og kan ikke redigeres." className={delemodalStyles.deletekst}>
+        {deletekst}
+      </p>
       <Textarea
-        value={state.tekst}
-        onChange={e => dispatch({ type: 'Sett tekst', payload: e.currentTarget.value })}
-        label=""
-        minRows={10}
-        maxRows={50}
-        data-testid="textarea_tilbakemelding"
-        maxLength={getAntallTegn()}
+        size="medium"
+        label="Skriv en hilsen..."
+        value={state.hilsen}
+        onChange={redigerHilsen}
+        maxLength={MAKS_ANTALL_TEGN_HILSEN}
+        data-testid="textarea_hilsen"
         error={handleError()}
-        ref={tekstfeltRef}
-        className={delemodalStyles.textarea}
       />
       {!veiledernavn && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
@@ -113,7 +107,7 @@ export function DelMedBrukerContent({
           <Button
             onClick={handleSend}
             data-testid="modal_btn-send"
-            disabled={senderTilDialogen || state.tekst.length === 0 || erPreview}
+            disabled={senderTilDialogen || state.hilsen.length === 0 || erPreview}
           >
             {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
           </Button>
@@ -121,27 +115,6 @@ export function DelMedBrukerContent({
           <Button variant="tertiary" onClick={onCancel} data-testid="modal_btn-cancel" disabled={senderTilDialogen}>
             Avbryt
           </Button>
-        </div>
-        <div>
-          {state.redigererTekstfelt || state.tekst != state.malTekst ? ( //eller hvis tekst er endret
-            <Button
-              variant="tertiary"
-              onClick={tilbakestillTekstfelt}
-              data-testid="del-med-bruker_btn_tilbakestill"
-              disabled={senderTilDialogen}
-            >
-              Tilbakestill
-            </Button>
-          ) : (
-            <Button
-              variant="tertiary"
-              onClick={fokuserTekstfelt}
-              data-testid="del-med-bruker_btn_rediger-melding"
-              disabled={senderTilDialogen}
-            >
-              Rediger melding
-            </Button>
-          )}
         </div>
       </div>
       {erPreview && (
