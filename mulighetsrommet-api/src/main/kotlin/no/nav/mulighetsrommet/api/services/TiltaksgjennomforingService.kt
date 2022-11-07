@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import org.intellij.lang.annotations.Language
@@ -30,13 +31,17 @@ class TiltaksgjennomforingService(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getTiltaksgjennomforinger(): List<Tiltaksgjennomforing> {
+    fun getTiltaksgjennomforinger(paginationParams: PaginationParams): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet
             from tiltaksgjennomforing_valid
+            limit ?
+            offset ?
         """.trimIndent()
-        val queryResult = queryOf(query).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
+        val queryResult = queryOf(query, paginationParams.limit, paginationParams.offset).map {
+            DatabaseMapper.toTiltaksgjennomforing(it)
+        }.asList
         return db.run(queryResult)
     }
 }

@@ -3,11 +3,14 @@ package no.nav.mulighetsrommet.api.routes.v1
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.routes.v1.responses.ListResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
@@ -16,7 +19,6 @@ fun Parameters.parseList(parameter: String): List<String> {
 }
 
 fun Route.tiltakstypeRoutes() {
-
     val tiltakstypeService: TiltakstypeService by inject()
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
@@ -27,7 +29,7 @@ fun Route.tiltakstypeRoutes() {
             val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
 
             val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search)
-            call.respond(items)
+            call.respond(TiltakstyperResponse(data = items))
         }
         get("{tiltakskode}") {
             runCatching {
@@ -53,3 +55,9 @@ fun Route.tiltakstypeRoutes() {
         }
     }
 }
+
+@Serializable
+data class TiltakstyperResponse(
+    override val data: List<Tiltakstype>,
+    override val pagination: Pagination? = null
+) : ListResponse
