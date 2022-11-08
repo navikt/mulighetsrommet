@@ -1,18 +1,10 @@
 package no.nav.mulighetsrommet.api.services
 
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.repositories.ArenaRepository
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
-import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 
 class ArenaService(private val arenaRepository: ArenaRepository) {
 
