@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ListResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.koin.ktor.ext.inject
 
@@ -28,8 +29,19 @@ fun Route.tiltakstypeRoutes() {
 
             val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
 
-            val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search)
-            call.respond(TiltakstyperResponse(data = items))
+            val paginationParams = getPaginationParams()
+
+            val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
+            call.respond(
+                TiltakstyperResponse(
+                    data = items,
+                    pagination = Pagination(
+                        totalCount = items.size,
+                        currentPage = paginationParams.page,
+                        pageSizeLimit = paginationParams.limit
+                    )
+                )
+            )
         }
         get("{tiltakskode}") {
             runCatching {
