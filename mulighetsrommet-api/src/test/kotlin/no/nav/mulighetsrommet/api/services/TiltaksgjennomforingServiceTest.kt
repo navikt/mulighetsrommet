@@ -213,99 +213,96 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             service.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
         }
-    }
-    context("pagination") {
-        listener.db.clean()
-        listener.db.migrate()
 
-        val arenaService = ArenaService(listener.db)
+        context("pagination") {
+            listener.db.clean()
+            listener.db.migrate()
 
-        val service = TiltaksgjennomforingService(listener.db)
-
-        arenaService.upsertTiltakstype(
-            AdapterTiltak(
-                navn = "Arbeidstrening",
-                innsatsgruppe = 1,
-                tiltakskode = "ARBTREN",
-                fraDato = LocalDateTime.now(),
-                tilDato = LocalDateTime.now().plusYears(1)
-            )
-        )
-        arenaService.upsertTiltakstype(
-            AdapterTiltak(
-                navn = "Oppfølging",
-                innsatsgruppe = 2,
-                tiltakskode = "INDOPPFOLG",
-                fraDato = LocalDateTime.now(),
-                tilDato = LocalDateTime.now().plusYears(1)
-            )
-        )
-
-        (1..105).forEach {
-            arenaService.upsertTiltaksgjennomforing(
-                AdapterTiltaksgjennomforing(
-                    navn = "Trening",
-                    arrangorId = 1,
+            arenaService.upsertTiltakstype(
+                AdapterTiltak(
+                    navn = "Arbeidstrening",
+                    innsatsgruppe = 1,
                     tiltakskode = "ARBTREN",
-                    id = it,
-                    sakId = it
+                    fraDato = LocalDateTime.now(),
+                    tilDato = LocalDateTime.now().plusYears(1)
                 )
             )
-            arenaService.updateTiltaksgjennomforingWithSak(
-                AdapterSak(
-                    id = it,
-                    lopenummer = it,
-                    aar = 2022
+            arenaService.upsertTiltakstype(
+                AdapterTiltak(
+                    navn = "Oppfølging",
+                    innsatsgruppe = 2,
+                    tiltakskode = "INDOPPFOLG",
+                    fraDato = LocalDateTime.now(),
+                    tilDato = LocalDateTime.now().plusYears(1)
                 )
             )
-        }
 
-        test("default pagination gets first 50 tiltak") {
-
-            val tiltaksgjennomforinger =
-                service.getTiltaksgjennomforinger()
-
-            tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
-            tiltaksgjennomforinger.first().id shouldBe 1
-            tiltaksgjennomforinger.last().id shouldBe 50
-        }
-
-        test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
-            val tiltaksgjennomforinger =
-                service.getTiltaksgjennomforinger(
-                    PaginationParams(
-                        4,
-                        20
+            (1..105).forEach {
+                arenaService.upsertTiltaksgjennomforing(
+                    AdapterTiltaksgjennomforing(
+                        navn = "Trening",
+                        arrangorId = 1,
+                        tiltakskode = "ARBTREN",
+                        id = it,
+                        sakId = it
                     )
                 )
-
-            tiltaksgjennomforinger.size shouldBe 20
-            tiltaksgjennomforinger.first().id shouldBe 61
-            tiltaksgjennomforinger.last().id shouldBe 80
-        }
-
-        test("pagination with page 3 default size should give tiltak with id 101-105") {
-            val tiltaksgjennomforinger =
-                service.getTiltaksgjennomforinger(
-                    PaginationParams(
-                        3
+                arenaService.updateTiltaksgjennomforingWithSak(
+                    AdapterSak(
+                        id = it,
+                        lopenummer = it,
+                        aar = 2022
                     )
                 )
-            tiltaksgjennomforinger.size shouldBe 5
-            tiltaksgjennomforinger.first().id shouldBe 101
-            tiltaksgjennomforinger.last().id shouldBe 105
-        }
+            }
 
-        test("pagination with default page and size 200 should give tiltak with id 1-105") {
-            val tiltaksgjennomforinger =
-                service.getTiltaksgjennomforinger(
-                    PaginationParams(
-                        nullableLimit = 200
+            test("default pagination gets first 50 tiltak") {
+
+                val tiltaksgjennomforinger =
+                    service.getTiltaksgjennomforinger()
+
+                tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
+                tiltaksgjennomforinger.first().id shouldBe 1
+                tiltaksgjennomforinger.last().id shouldBe 50
+            }
+
+            test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
+                val tiltaksgjennomforinger =
+                    service.getTiltaksgjennomforinger(
+                        PaginationParams(
+                            4,
+                            20
+                        )
                     )
-                )
-            tiltaksgjennomforinger.size shouldBe 105
-            tiltaksgjennomforinger.first().id shouldBe 1
-            tiltaksgjennomforinger.last().id shouldBe 105
+
+                tiltaksgjennomforinger.size shouldBe 20
+                tiltaksgjennomforinger.first().id shouldBe 61
+                tiltaksgjennomforinger.last().id shouldBe 80
+            }
+
+            test("pagination with page 3 default size should give tiltak with id 101-105") {
+                val tiltaksgjennomforinger =
+                    service.getTiltaksgjennomforinger(
+                        PaginationParams(
+                            3
+                        )
+                    )
+                tiltaksgjennomforinger.size shouldBe 5
+                tiltaksgjennomforinger.first().id shouldBe 101
+                tiltaksgjennomforinger.last().id shouldBe 105
+            }
+
+            test("pagination with default page and size 200 should give tiltak with id 1-105") {
+                val tiltaksgjennomforinger =
+                    service.getTiltaksgjennomforinger(
+                        PaginationParams(
+                            nullableLimit = 200
+                        )
+                    )
+                tiltaksgjennomforinger.size shouldBe 105
+                tiltaksgjennomforinger.first().id shouldBe 1
+                tiltaksgjennomforinger.last().id shouldBe 105
+            }
         }
     }
 })
