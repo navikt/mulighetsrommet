@@ -28,7 +28,7 @@ class ArenaService(private val arenaRepository: ArenaRepository) {
 
     fun remove(deltaker: AdapterTiltakdeltaker) = arenaRepository.deleteDeltaker(deltaker)
 
-    fun setTiltaksnummerFor(tiltaksgjennomforing: AdapterTiltaksgjennomforing, sak: AdapterSak) = arenaRepository.updateTiltaksgjennomforingWithSak(sak)
+    fun setTiltaksnummerWith(sak: AdapterSak) = arenaRepository.updateTiltaksgjennomforingWithSak(sak)
 
-    fun removeTiltaksnummerFor(tiltaksgjennomforing: AdapterTiltaksgjennomforing, sak: AdapterSak) = arenaRepository.unsetSakOnTiltaksgjennomforing(sak)
+    fun removeTiltaksnummerWith(sak: AdapterSak) = arenaRepository.unsetSakOnTiltaksgjennomforing(sak)
 }
