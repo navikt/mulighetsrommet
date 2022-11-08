@@ -31,7 +31,7 @@ class TiltaksgjennomforingService(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getTiltaksgjennomforinger(paginationParams: PaginationParams): List<Tiltaksgjennomforing> {
+    fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet

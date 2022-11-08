@@ -20,7 +20,7 @@ class TiltakstypeService(private val db: Database) {
     fun getTiltakstyper(
         innsatsgrupper: List<Int>? = null,
         search: String? = null,
-        paginationParams: PaginationParams
+        paginationParams: PaginationParams = PaginationParams()
     ): List<Tiltakstype> {
         val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 
