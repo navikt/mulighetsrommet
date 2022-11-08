@@ -35,11 +35,13 @@ class TiltakstypeService(private val db: Database) {
         val query = """
             select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato 
             from tiltakstype
-            limit :paginationLimit
-            offset :paginationOffset
         """
             .where(innsatsgrupperQuery, "(innsatsgruppe_id = any(:innsatsgrupper))")
             .andWhere(search, "(lower(navn) like lower(:navn))")
+        """
+            limit :paginationLimit
+            offset :paginationOffset
+        """
             .trimIndent()
 
         val result = queryOf(
