@@ -64,7 +64,8 @@ function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: strin
 }
 
 function sySammenHilsenTekst(veiledernavn?: string) {
-  const interessant = 'Høres dette tiltaket interessant ut for deg? Gi meg gjerne et ja/nei-svar her i dialogen.';
+  const interessant =
+    'Er dette tiltaket aktuelt for deg? Gi meg gjerne et ja/nei svar her i dialogen.\nDitt svar (ja/nei) vil ikke påvirke ditt forhold til NAV.';
   return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}\n\nHilsen `;
 }
 
