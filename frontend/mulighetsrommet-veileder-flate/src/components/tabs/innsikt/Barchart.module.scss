@@ -1,6 +1,6 @@
 .tooltip_container {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
   justify-content: center;
   align-items: center;
 
@@ -14,8 +14,8 @@
 }
 
 .tooltip_color_icon {
-  width: 10px;
-  height: 10px;
+  width: 0.5rem;
+  height: 0.5rem;
   display: inline-block;
   border-radius: 50%;
 }

@@ -4,7 +4,11 @@
   }
 
   &_maksbredde {
-    max-width: 100ch;
+    max-width: 600px;
+
+    @media (max-width: 1200px) {
+      max-width: none;
+    }
   }
 
   &_innsiktheader {
