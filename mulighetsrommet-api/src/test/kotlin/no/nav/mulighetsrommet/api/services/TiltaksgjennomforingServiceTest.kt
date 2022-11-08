@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
@@ -24,12 +25,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     register(listener)
 
     context("CRUD") {
-        val arenaService = ArenaService(listener.db)
+        val arenaRepository = ArenaRepository(listener.db)
 
         val service = TiltaksgjennomforingService(listener.db)
 
         beforeAny {
-            arenaService.upsertTiltakstype(
+            arenaRepository.upsertTiltakstype(
                 AdapterTiltak(
                     navn = "Arbeidstrening",
                     innsatsgruppe = 1,
@@ -38,7 +39,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     tilDato = LocalDateTime.now().plusYears(1)
                 )
             )
-            arenaService.upsertTiltakstype(
+            arenaRepository.upsertTiltakstype(
                 AdapterTiltak(
                     navn = "Oppfølging",
                     innsatsgruppe = 2,
@@ -69,17 +70,17 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("should return empty result when tiltak are missing tiltaksnummer") {
-            arenaService.upsertTiltaksgjennomforing(tiltak1)
-            arenaService.upsertTiltaksgjennomforing(tiltak2)
+            arenaRepository.upsertTiltaksgjennomforing(tiltak1)
+            arenaRepository.upsertTiltaksgjennomforing(tiltak2)
 
             service.getTiltaksgjennomforinger() shouldBe listOf()
         }
 
         test("should get tiltak when they have been assigned tiltaksnummer") {
-            arenaService.updateTiltaksgjennomforingWithSak(
+            arenaRepository.updateTiltaksgjennomforingWithSak(
                 AdapterSak(id = 1, lopenummer = 11, aar = 2022)
             )
-            arenaService.updateTiltaksgjennomforingWithSak(
+            arenaRepository.updateTiltaksgjennomforingWithSak(
                 AdapterSak(id = 2, lopenummer = 22, aar = 2022)
             )
 
@@ -121,11 +122,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         context("tilgjengelighetsstatus") {
             context("when tiltak is closed for applications") {
                 beforeAny {
-                    arenaService.upsertTiltaksgjennomforing(tiltak1.copy(apentForInnsok = false))
+                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(apentForInnsok = false))
                 }
 
                 afterAny {
-                    arenaService.upsertTiltaksgjennomforing(tiltak1.copy(apentForInnsok = true))
+                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(apentForInnsok = true))
                 }
 
                 test("should have tilgjengelighet set to STENGT") {
@@ -135,7 +136,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when there are no limits to available seats") {
                 beforeAny {
-                    arenaService.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = null))
+                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = null))
                 }
 
                 test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
@@ -145,7 +146,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when there are no available seats") {
                 beforeAny {
-                    arenaService.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 0))
+                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 0))
                 }
 
                 test("should have tilgjengelighet set to VENTELISTE") {
@@ -155,9 +156,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when all available seats are occupied by deltakelser with status DELTAR") {
                 beforeAny {
-                    arenaService.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 1))
+                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 1))
 
-                    arenaService.upsertDeltaker(
+                    arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
                             id = 1,
                             tiltaksgjennomforingId = tiltak1.id,
@@ -174,9 +175,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when deltakelser are no longer DELTAR") {
                 beforeAny {
-                    arenaService.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 1))
+                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 1))
 
-                    arenaService.upsertDeltaker(
+                    arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
                             id = 1,
                             tiltaksgjennomforingId = tiltak1.id,
@@ -193,7 +194,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("should delete tiltak") {
-            arenaService.deleteTiltaksgjennomforing(tiltak1)
+            arenaRepository.deleteTiltaksgjennomforing(tiltak1)
 
             service.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
         }
