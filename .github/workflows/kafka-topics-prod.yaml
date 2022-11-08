@@ -2,7 +2,7 @@ name: Deploy kafka topics to prod
 on:
   push:
     paths:
-      - "kafka-topics/prod/*.yaml"
+      - "iac/kafka-topics/prod/*.yaml"
 
 jobs:
   deploy-prod:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: List resource files
-        run: echo "RESOURCE_FILES=$(find kafka-topics/prod -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
+        run: echo "RESOURCE_FILES=$(find iac/kafka-topics/prod -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
       - name: Deploy kafka topics
         uses: nais/deploy/actions/deploy@v1
         env:
