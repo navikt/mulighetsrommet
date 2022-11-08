@@ -160,7 +160,7 @@ private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineTo
 }
 
 private fun repositories() = module {
-   single { ArenaRepository(get()) }
+    single { ArenaRepository(get()) }
 }
 
 private fun services(
