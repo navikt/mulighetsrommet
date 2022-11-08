@@ -25,7 +25,7 @@ fun Route.arenaRoutes() {
     route("/api/v1/arena/") {
         put("tiltakstype") {
             val tiltakstype = call.receive<AdapterTiltak>()
-            arenaService.upsertTiltakstype(tiltakstype)
+            arenaService.createOrUpdate(tiltakstype)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -35,7 +35,7 @@ fun Route.arenaRoutes() {
 
         delete("tiltakstype") {
             val tiltakstype = call.receive<AdapterTiltak>()
-            arenaService.deleteTiltakstype(tiltakstype)
+            arenaService.remove(tiltakstype)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -45,7 +45,7 @@ fun Route.arenaRoutes() {
 
         put("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
-            arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            arenaService.createOrUpdate(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -55,7 +55,7 @@ fun Route.arenaRoutes() {
 
         delete("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
-            arenaService.deleteTiltaksgjennomforing(tiltaksgjennomforing)
+            arenaService.remove(tiltaksgjennomforing)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -65,7 +65,7 @@ fun Route.arenaRoutes() {
 
         put("deltaker") {
             val deltaker = call.receive<AdapterTiltakdeltaker>()
-            arenaService.upsertDeltaker(deltaker)
+            arenaService.createOrUpdate(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
                     when (it) {
@@ -82,7 +82,7 @@ fun Route.arenaRoutes() {
 
         delete("deltaker") {
             val deltaker = call.receive<AdapterTiltakdeltaker>()
-            arenaService.deleteDeltaker(deltaker)
+            arenaService.remove(deltaker)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -92,7 +92,7 @@ fun Route.arenaRoutes() {
 
         put("sak") {
             val sak = call.receive<AdapterSak>()
-            arenaService.updateTiltaksgjennomforingWithSak(sak)
+            arenaService.setTiltaksnummerFor(sak)
                 .map {
                     val response = it ?: HttpStatusCode.Conflict
                     call.respond(response)
@@ -105,7 +105,7 @@ fun Route.arenaRoutes() {
 
         delete("sak") {
             val sak = call.receive<AdapterSak>()
-            arenaService.unsetSakOnTiltaksgjennomforing(sak)
+            arenaService.removeTiltaksnummerFor(sak)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
