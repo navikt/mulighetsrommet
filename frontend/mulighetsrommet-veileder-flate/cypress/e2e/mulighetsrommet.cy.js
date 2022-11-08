@@ -172,19 +172,11 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('deleknapp').click();
     cy.getByTestId('modal_header').should('be.visible');
 
-    cy.getByTestId('textarea_tilbakemelding').type('{selectall}{backspace}');
-    cy.getByTestId('modal_btn-send').should('be.disabled');
-    cy.get('.navds-error-message').should('be.visible');
+    cy.getByTestId('personlig_hilsen_btn').click();
 
-    cy.getByTestId('textarea_tilbakemelding').type('Test');
+    cy.getByTestId('textarea_hilsen').type('Test');
     cy.get('.navds-error-message').should('not.exist');
     cy.getByTestId('modal_btn-send').should('not.be.disabled');
-
-    cy.getByTestId('del-med-bruker_btn_tilbakestill').click();
-
-    cy.getByTestId('textarea_tilbakemelding').should('not.contain', 'Test');
-    //klikk tilbakestill
-    // "Test" er ikke der lenger
 
     cy.getByTestId('modal_btn-send').click();
     cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');

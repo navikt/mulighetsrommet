@@ -1,8 +1,8 @@
-import { Alert, Modal } from '@navikt/ds-react';
+import { Modal } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
-import { capitalize, erPreview } from '../../../utils/Utils';
+import { capitalize } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
@@ -12,12 +12,7 @@ import { Infomelding } from './Infomelding';
 import { SendtOkContent } from './SendtOkContent';
 
 export const logDelMedbrukerEvent = (
-  action:
-    | 'Åpnet dialog'
-    | 'Delte med bruker'
-    | 'Del med bruker feilet'
-    | 'Avbrutt del med bruker'
-    | 'Redigerer tekstfelt'
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Redigerer hilsen'
 ) => {
   logEvent('mulighetsrommet.del-med-bruker', {
     value: action,
@@ -36,45 +31,41 @@ interface DelemodalProps {
 export function reducer(state: State, action: Actions): State {
   switch (action.type) {
     case 'Avbryt':
-      return { ...state, sendtStatus: 'IKKE_SENDT', tekst: state.malTekst };
+      return { ...state, sendtStatus: 'IKKE_SENDT', hilsen: state.originalHilsen };
     case 'Send melding':
       return { ...state, sendtStatus: 'SENDER' };
     case 'Sendt ok':
-      return { ...state, sendtStatus: 'SENDT_OK', tekst: state.malTekst, dialogId: action.payload };
+      return { ...state, sendtStatus: 'SENDT_OK', dialogId: action.payload };
     case 'Sending feilet':
       return { ...state, sendtStatus: 'SENDING_FEILET' };
-    case 'Sett tekst':
-      return { ...state, tekst: action.payload, sendtStatus: 'IKKE_SENDT' };
+    case 'Sett hilsen':
+      return { ...state, hilsen: action.payload, sendtStatus: 'IKKE_SENDT' };
     case 'Reset':
-      return initInitialState(state.tekst);
-    case 'Redigerer tekstfelt':
-      return { ...state, redigererTekstfelt: true };
-    case 'Tilbakestill tekstfelt':
-      return initInitialState(state.malTekst);
+      return initInitialState({ originalHilsen: state.originalHilsen, deletekst: state.deletekst });
     default:
       return state;
   }
 }
 
-export function initInitialState(startTekst: string): State {
+export function initInitialState(tekster: { deletekst: string; originalHilsen: string }): State {
   return {
-    tekst: startTekst,
+    deletekst: tekster.deletekst,
+    originalHilsen: tekster.originalHilsen,
+    hilsen: tekster.originalHilsen,
     sendtStatus: 'IKKE_SENDT',
     dialogId: '',
-    malTekst: startTekst,
-    redigererTekstfelt: false,
   };
 }
 
-function sySammenBrukerTekst(
-  chattekst: string,
-  tiltaksgjennomforingsnavn: string,
-  brukernavn?: string,
-  veiledernavn?: string
-) {
+function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: string, brukernavn?: string) {
   return `${chattekst
     .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}${veiledernavn ? `\n\nHilsen ${veiledernavn}` : ''}`;
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}`;
+}
+
+function sySammenHilsenTekst(veiledernavn?: string) {
+  const interessant = 'Høres dette tiltaket interessant ut for deg? Gi meg gjerne et ja/nei-svar her i dialogen.';
+  return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}\n\nHilsen `;
 }
 
 const Delemodal = ({
@@ -85,8 +76,9 @@ const Delemodal = ({
   chattekst,
   veiledernavn,
 }: DelemodalProps) => {
-  const startTekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
-  const [state, dispatch] = useReducer(reducer, startTekst, initInitialState);
+  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
+  const originalHilsen = sySammenHilsenTekst(veiledernavn);
+  const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
 
   const clickCancel = (log = true) => {
     setModalOpen();
@@ -109,7 +101,6 @@ const Delemodal = ({
           <>
             <DelMedBrukerContent
               tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
-              startTekst={startTekst}
               onCancel={clickCancel}
               state={state}
               dispatch={dispatch}
