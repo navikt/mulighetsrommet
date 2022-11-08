@@ -8,7 +8,7 @@ metadata:
 spec:
   pool: nav-dev
   config:
-    cleanupPolicy: compaction
+    cleanupPolicy: compact
     minimumInSyncReplicas: 2
     partitions: 2
     replication: 3

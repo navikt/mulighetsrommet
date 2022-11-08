@@ -8,7 +8,7 @@ metadata:
 spec:
   pool: nav-prod
   config:
-    cleanupPolicy: compaction
+    cleanupPolicy: compact
     minimumInSyncReplicas: 2
     partitions: 2
     replication: 3
