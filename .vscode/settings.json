@@ -1,0 +1,11 @@
+{
+    "yaml.schemas": {
+        "https://storage.googleapis.com/nais-json-schema-2c91/nais-k8s-all.json": [
+            "nais.yaml",
+            "nais.yml",
+            "nais/*",
+            ".nais/*",
+            "file:///Users/sindre/Documents/nav/mulighetsrommet/kafka-topics/dev/siste-tiltaksgjennomforinger-v1.yaml"
+        ]
+    }
+}

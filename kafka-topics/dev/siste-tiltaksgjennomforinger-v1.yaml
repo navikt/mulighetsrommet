@@ -1,0 +1,24 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: siste-tiltaksgjennomforinger-v1
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: compaction
+    minimumInSyncReplicas: 2
+    partitions: 2
+    replication: 3
+  acl:
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-api
+      access: write
+    - team: amt
+      application: amt-tiltak
+      access: read
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-kafka-manager
+      access: read
