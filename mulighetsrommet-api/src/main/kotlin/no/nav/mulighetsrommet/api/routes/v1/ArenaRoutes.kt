@@ -92,7 +92,7 @@ fun Route.arenaRoutes() {
 
         put("sak") {
             val sak = call.receive<AdapterSak>()
-            arenaService.setTiltaksnummerFor(sak)
+            arenaService.setTiltaksnummerWith(sak)
                 .map {
                     val response = it ?: HttpStatusCode.Conflict
                     call.respond(response)
@@ -105,7 +105,7 @@ fun Route.arenaRoutes() {
 
         delete("sak") {
             val sak = call.receive<AdapterSak>()
-            arenaService.removeTiltaksnummerFor(sak)
+            arenaService.removeTiltaksnummerWith(sak)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
