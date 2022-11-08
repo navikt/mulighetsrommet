@@ -12,6 +12,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useErrorHandler } from 'react-error-boundary';
 import { InnsatsgruppeNokler } from '../../core/api/models';
 import styles from './Filtertags.module.scss';
+import { ErrorTag } from '../tags/ErrorTag';
 
 export function Filtertags() {
   const brukerdata = useHentBrukerdata();
@@ -26,8 +27,7 @@ export function Filtertags() {
   const innsatsgrupper = useInnsatsgrupper();
 
   const skalResetteFilter =
-    filter.innsatsgruppe! === undefined ||
-    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe.nokkel) ||
+    brukersInnsatsgruppeErIkkeValgt(filter.innsatsgruppe?.nokkel) ||
     filter.search !== '' ||
     filter.tiltakstyper.length > 0 ||
     filter.tiltaksgruppe.length > 0 ||
@@ -37,15 +37,11 @@ export function Filtertags() {
     <div className={styles.filtertags} data-testid="filtertags">
       <BrukersOppfolgingsenhet />
       {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && (
-        <Alert
-          title="Kontroller om brukeren er under oppfølging og finnes i Arena"
-          key="alert-innsatsgruppe"
-          data-testid="alert-innsatsgruppe"
-          size="small"
-          variant="error"
-        >
-          Innsatsgruppe mangler
-        </Alert>
+        <ErrorTag
+          innhold={'Innsatsgruppe mangler'}
+          title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
+          dataTestId={'alert-innsatsgruppe'}
+        />
       )}
       {filter.innsatsgruppe && (
         <FilterTag

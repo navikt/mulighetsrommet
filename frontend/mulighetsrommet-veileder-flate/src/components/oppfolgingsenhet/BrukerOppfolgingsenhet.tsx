@@ -1,6 +1,7 @@
 import { Tag, Alert } from '@navikt/ds-react';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
+import { ErrorTag } from '../tags/ErrorTag';
 
 export function BrukersOppfolgingsenhet() {
   const brukerdata = useHentBrukerdata();
@@ -14,22 +15,18 @@ export function BrukersOppfolgingsenhet() {
     <Tag
       className="cypress-tag"
       key={'navenhet'}
-      variant={brukersOppfolgingsenhet ? 'info' : 'error'}
       size="small"
       data-testid={`${kebabCase('filtertag_navenhet')}`}
       title="Brukers oppfølgingsenhet"
+      variant={'info'}
     >
       {brukersOppfolgingsenhet}
     </Tag>
   ) : (
-    <Alert
-      title="Kontroller om brukeren er under oppfølging og finnes i Arena"
-      key="alert-navenhet"
-      data-testid="alert-navenhet"
-      size="small"
-      variant="error"
-    >
-      Enhet mangler
-    </Alert>
+    <ErrorTag
+      innhold={'Enhet mangler'}
+      title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
+      dataTestId={'alert-navenhet'}
+    />
   );
 }

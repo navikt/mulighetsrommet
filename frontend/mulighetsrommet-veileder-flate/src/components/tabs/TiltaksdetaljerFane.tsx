@@ -5,7 +5,7 @@ import { logEvent } from '../../core/api/logger';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
-import DetaljerFane from './detaljerFane';
+import DetaljerFane from './DetaljerFane';
 import InnsiktsFane from './innsikt/InnsiktsFane';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import styles from './TiltaksdetaljerFane.module.scss';
@@ -37,7 +37,7 @@ const TiltaksdetaljerFane = () => {
   return (
     <Tabs
       defaultValue={fane}
-      size="medium"
+      size="small"
       selectionFollowsFocus
       className={styles.fane_root}
       onChange={value => {
@@ -48,11 +48,7 @@ const TiltaksdetaljerFane = () => {
       <Tabs.List className={styles.fane_liste}>
         {faneoverskrifter
           .filter(fane => {
-            if (!visInnsiktsfane && fane === 'Innsikt') {
-              return false;
-            }
-
-            return true;
+            return !(!visInnsiktsfane && fane === 'Innsikt');
           })
           .map((fane, index) => (
             <Tabs.Tab
@@ -64,38 +60,40 @@ const TiltaksdetaljerFane = () => {
             />
           ))}
       </Tabs.List>
-      <Tabs.Panel value="tab1" data-testid="tab1">
-        <DetaljerFane
-          tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
-          tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
-          tiltaksgjennomforing={faneinnhold?.forHvem}
-          tiltakstype={tiltakstype.faneinnhold?.forHvem}
-        />
-      </Tabs.Panel>
-      <Tabs.Panel value="tab2" data-testid="tab2">
-        <DetaljerFane
-          tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
-          tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
-          tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
-          tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
-        />
-      </Tabs.Panel>
-      <Tabs.Panel value="tab3" data-testid="tab3">
-        <DetaljerFane
-          tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
-          tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
-          tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
-          tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
-        />
-      </Tabs.Panel>
-      <Tabs.Panel value="tab4" data-testid="tab4">
-        <KontaktinfoFane />
-      </Tabs.Panel>
-      {visInnsiktsfane ? (
-        <Tabs.Panel value="tab5" data-testid="tab5">
-          <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
+      <div className={styles.fane_panel}>
+        <Tabs.Panel value="tab1" data-testid="tab1">
+          <DetaljerFane
+            tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
+            tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
+            tiltaksgjennomforing={faneinnhold?.forHvem}
+            tiltakstype={tiltakstype.faneinnhold?.forHvem}
+          />
         </Tabs.Panel>
-      ) : null}
+        <Tabs.Panel value="tab2" data-testid="tab2">
+          <DetaljerFane
+            tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
+            tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
+            tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
+            tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
+          />
+        </Tabs.Panel>
+        <Tabs.Panel value="tab3" data-testid="tab3">
+          <DetaljerFane
+            tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
+            tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
+            tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
+            tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
+          />
+        </Tabs.Panel>
+        <Tabs.Panel value="tab4" data-testid="tab4">
+          <KontaktinfoFane />
+        </Tabs.Panel>
+        {visInnsiktsfane ? (
+          <Tabs.Panel value="tab5" data-testid="tab5">
+            <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
+          </Tabs.Panel>
+        ) : null}
+      </div>
     </Tabs>
   );
 };

@@ -22,6 +22,7 @@ import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { environments } from '../../env';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
+
 function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTiltaksType | '' {
   switch (tiltakstype) {
     case 'Midlertidig lønnstilskudd':

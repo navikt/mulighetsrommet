@@ -56,7 +56,7 @@ class HistorikkService(
         from deltaker
         left join tiltaksgjennomforing gjennomforing on gjennomforing.arena_id = deltaker.tiltaksgjennomforing_id
         left join tiltakstype tiltakstype on tiltakstype.tiltakskode = gjennomforing.tiltakskode
-        where person_id = ?
+        where person_id = ? and deltaker.fra_dato >= '2017-12-04'::date
         order by deltaker.fra_dato desc nulls last;
         """.trimIndent()
         val queryResult = queryOf(query, person_id).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
