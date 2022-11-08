@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
+import { useEventListener } from '@navikt/ds-react';
+import { useRef, useState } from 'react';
+import { FEEDBACK, useFeatureToggles } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
 import FeedbackButton from './FeedbackButton';
-import { useEventListener } from '@navikt/ds-react';
 import FeedbackModalForms from './FeedbackModalForms';
-import { FEEDBACK, useFeatureToggles } from '../../core/api/feature-toggles';
 
 const Feedback = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -31,7 +31,7 @@ const Feedback = () => {
   return (
     <>
       {visFeedback && (
-        <div ref={wrapperRef}>
+        <div ref={wrapperRef} style={{ marginTop: '2rem' }}>
           <FeedbackButton handleClick={handleClick} isModalOpen={isModalOpen} />
           <FeedbackModalForms isModalOpen={isModalOpen} />
         </div>
