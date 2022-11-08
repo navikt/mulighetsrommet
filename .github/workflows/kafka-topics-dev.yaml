@@ -1,0 +1,23 @@
+name: Deploy kafka topics to dev
+on:
+  push:
+    paths:
+      - "iac/kafka-topics/dev/*.yaml"
+
+jobs:
+  deploy-dev:
+    name: Deploy kafka topics to dev
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: List resource files
+        run: echo "RESOURCE_FILES=$(find iac/kafka-topics/dev -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
+      - name: Deploy kafka topics
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: ${{ env.RESOURCE_FILES }}
+          PRINT_PAYLOAD: true
