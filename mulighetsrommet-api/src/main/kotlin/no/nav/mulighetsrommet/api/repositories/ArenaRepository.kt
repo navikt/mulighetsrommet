@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
-class ArenaRepository(val db: Database) {
+class ArenaRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -101,7 +101,7 @@ class ArenaRepository(val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun upsertTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): QueryResult<Unit> = query {
+    fun deleteTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): QueryResult<Unit> = query {
         logger.info("Sletter tiltak id=${tiltak.id}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
 
         @Language("PostgreSQL")
