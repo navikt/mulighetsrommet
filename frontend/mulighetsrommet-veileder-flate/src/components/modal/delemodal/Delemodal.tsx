@@ -31,7 +31,7 @@ interface DelemodalProps {
 export function reducer(state: State, action: Actions): State {
   switch (action.type) {
     case 'Avbryt':
-      return { ...state, sendtStatus: 'IKKE_SENDT', hilsen: state.malHilsen };
+      return { ...state, sendtStatus: 'IKKE_SENDT', hilsen: state.originalHilsen };
     case 'Send melding':
       return { ...state, sendtStatus: 'SENDER' };
     case 'Sendt ok':
@@ -41,30 +41,31 @@ export function reducer(state: State, action: Actions): State {
     case 'Sett hilsen':
       return { ...state, hilsen: action.payload, sendtStatus: 'IKKE_SENDT' };
     case 'Reset':
-      return initInitialState(state.malHilsen);
+      return initInitialState({ originalHilsen: state.originalHilsen, deletekst: state.deletekst });
     default:
       return state;
   }
 }
 
-export function initInitialState(startHilsen: string): State {
+export function initInitialState(tekster: { deletekst: string; originalHilsen: string }): State {
   return {
-    malHilsen: startHilsen,
-    hilsen: startHilsen,
+    deletekst: tekster.deletekst,
+    originalHilsen: tekster.originalHilsen,
+    hilsen: tekster.originalHilsen,
     sendtStatus: 'IKKE_SENDT',
     dialogId: '',
   };
 }
 
-function sySammenBrukerTekst(
-  chattekst: string,
-  tiltaksgjennomforingsnavn: string,
-  brukernavn?: string,
-  veiledernavn?: string
-) {
+function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: string, brukernavn?: string) {
   return `${chattekst
     .replace(' <Fornavn>', brukernavn ? ` ${capitalize(brukernavn)}` : '')
-    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}${veiledernavn ? `\n\nHilsen ${veiledernavn}` : ''}`;
+    .replace('<tiltaksnavn>', tiltaksgjennomforingsnavn)}`;
+}
+
+function sySammenHilsenTekst(veiledernavn?: string) {
+  const interessant = 'Høres dette tiltaket interessant ut for deg? Gi meg gjerne et ja/nei-svar her i dialogen.';
+  return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}\n\nHilsen `;
 }
 
 const Delemodal = ({
@@ -75,8 +76,9 @@ const Delemodal = ({
   chattekst,
   veiledernavn,
 }: DelemodalProps) => {
-  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn, veiledernavn);
-  const [state, dispatch] = useReducer(reducer, '', initInitialState);
+  const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
+  const originalHilsen = sySammenHilsenTekst(veiledernavn);
+  const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
 
   const clickCancel = (log = true) => {
     setModalOpen();
@@ -99,7 +101,6 @@ const Delemodal = ({
           <>
             <DelMedBrukerContent
               tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
-              deletekst={deletekst}
               onCancel={clickCancel}
               state={state}
               dispatch={dispatch}

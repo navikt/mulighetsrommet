@@ -1,6 +1,6 @@
 import { Alert, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react';
 import classNames from 'classnames';
-import React, { Dispatch, useState } from 'react';
+import React, { Dispatch, useEffect, useRef, useState } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -16,7 +16,6 @@ const MAKS_ANTALL_TEGN_HILSEN = 300;
 
 interface Props {
   tiltaksgjennomforingsnavn: string;
-  deletekst: string;
   onCancel: () => void;
   state: State;
   dispatch: Dispatch<Actions>;
@@ -26,7 +25,6 @@ interface Props {
 
 export function DelMedBrukerContent({
   tiltaksgjennomforingsnavn,
-  deletekst,
   onCancel,
   state,
   dispatch,
@@ -43,14 +41,23 @@ export function DelMedBrukerContent({
   const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
     useHentDeltMedBrukerStatus();
   const fnr = useHentFnrFraUrl();
+  const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    personligHilsenRef?.current?.focus();
+  }, [visPersonligMelding]);
 
   const getAntallTegn = () => {
     return state.hilsen.length;
   };
 
-  const togglePersonligMelding = () => {
-    dispatch({ type: 'Reset' });
-    setVisPersonligMelding(!visPersonligMelding);
+  const sySammenDeletekst = () => {
+    return `${state.deletekst}\n\n${state.hilsen}`;
+  };
+
+  const enablePersonligMelding = () => {
+    dispatch({ type: 'Sett hilsen', payload: state.originalHilsen });
+    setVisPersonligMelding(true);
   };
 
   const handleError = () => {
@@ -63,7 +70,7 @@ export function DelMedBrukerContent({
 
     dispatch({ type: 'Send melding' });
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
-    const tekst = `${deletekst}\n\n${state.hilsen}`;
+    const tekst = sySammenDeletekst();
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       if (skalLagreAtViDelerMedBruker && tiltaksnummer) {
@@ -91,13 +98,17 @@ export function DelMedBrukerContent({
       </Heading>
 
       <p title="Teksten er hentet fra tiltakstypen og kan ikke redigeres." className={delemodalStyles.deletekst}>
-        {deletekst}
+        {`${state.deletekst}${visPersonligMelding ? '' : `\n\n${state.hilsen}`}`}
       </p>
-      <Button data-testid="personlig_hilsen_btn" onClick={togglePersonligMelding} variant="tertiary">
-        Legg til personlig melding{' '}
-      </Button>
+      {visPersonligMelding ? null : (
+        <Button data-testid="personlig_hilsen_btn" onClick={enablePersonligMelding} variant="tertiary">
+          Legg til personlig melding{' '}
+        </Button>
+      )}
+
       {visPersonligMelding ? (
         <Textarea
+          ref={personligHilsenRef}
           className={delemodalStyles.personligHilsen}
           size="medium"
           value={state.hilsen}
@@ -109,7 +120,6 @@ export function DelMedBrukerContent({
           error={handleError()}
         />
       ) : null}
-
       {!veiledernavn && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
       )}

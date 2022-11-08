@@ -178,9 +178,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.get('.navds-error-message').should('not.exist');
     cy.getByTestId('modal_btn-send').should('not.be.disabled');
 
-    cy.getByTestId('personlig_hilsen_btn').click();
-    cy.getByTestId('textarea_hilsen').should('not.exist');
-
     cy.getByTestId('modal_btn-send').click();
     cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');
 

@@ -1,5 +1,6 @@
 export interface State {
-  malHilsen: string;
+  deletekst: string;
+  originalHilsen: string;
   hilsen: string;
   sendtStatus: Status;
   dialogId: string;
@@ -15,11 +16,6 @@ export interface AVBRYT_ACTION {
   type: 'Avbryt';
 }
 
-export interface SET_HILSEN_ACTION {
-  type: 'Sett hilsen';
-  payload: string;
-}
-
 export interface SENDT_OK_ACTION {
   type: 'Sendt ok';
   payload: string;
@@ -33,15 +29,20 @@ export interface RESET_ACTION {
   type: 'Reset';
 }
 
+export interface SET_HILSEN_ACTION {
+  type: 'Sett hilsen';
+  payload: string;
+}
+
 export interface REDIGERER_HILSEN_ACTION {
   type: 'Redigerer hilsen';
 }
 
 export type Actions =
   | SEND_MELDING_ACTION
-  | SET_HILSEN_ACTION
   | AVBRYT_ACTION
   | SENDT_OK_ACTION
   | RESET_ACTION
   | SENDING_FEILET_ACTION
+  | SET_HILSEN_ACTION
   | REDIGERER_HILSEN_ACTION;
