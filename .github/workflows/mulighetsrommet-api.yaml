@@ -35,15 +35,15 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:build
-      # - name: Notify slack fail
-      #   if: failure()
-      #   env:
-      #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-      #   uses: voxmedia/github-action-slack-notify-build@v1
-      #   with:
-      #     channel_id: C026FHSRFEJ
-      #     status: FAILED
-      #     color: danger
+      - name: Notify slack fail
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: C026FHSRFEJ
+          status: FAILED
+          color: danger
       - name: Build and push Docker image
         working-directory: mulighetsrommet-api
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
@@ -70,18 +70,6 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ env.IMAGE }}
-      - name: Lag deployment i Sentry
-        continue-on-error: true
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://sentry.gc.nav.no
-          SENTRY_ORG: nav
-          SENTRY_PROJECT: mulighetsrommet-api
-        with:
-          environment: dev-gcp
-          version: ${{ github.sha }}
-          set_commits: skip
 
   deploy-prod:
     name: Deploy (prod)
@@ -98,15 +86,3 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}
-      - name: Lag deployment i Sentry
-        continue-on-error: true
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://sentry.gc.nav.no
-          SENTRY_ORG: nav
-          SENTRY_PROJECT: mulighetsrommet-api
-        with:
-          environment: prod-gcp
-          version: ${{ github.sha }}
-          set_commits: skip
