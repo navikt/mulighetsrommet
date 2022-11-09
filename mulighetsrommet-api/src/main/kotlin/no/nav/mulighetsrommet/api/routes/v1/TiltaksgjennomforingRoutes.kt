@@ -39,7 +39,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
             val tiltaksgjennomforing =
                 tiltaksgjennomforingService.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
-                    "Det finner ikke noe tiltak med id $id",
+                    "Det finnes ikke noe tiltak med id $id",
                     status = HttpStatusCode.NotFound
                 )
             call.respond(tiltaksgjennomforing)
@@ -50,5 +50,5 @@ fun Route.tiltaksgjennomforingRoutes() {
 @Serializable
 data class TiltaksgjennomforingerResponse(
     override val pagination: Pagination? = null,
-    override val data: List<Tiltaksgjennomforing>,
+    override val data: List<Tiltaksgjennomforing>
 ) : ListResponse
