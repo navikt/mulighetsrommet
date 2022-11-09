@@ -46,15 +46,15 @@ jobs:
           wait-on: http://localhost:3000
           start: npm start
           install: false
-      - name: Notify slack fail
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C026FHSRFEJ
-          status: FAILED
-          color: danger
+      # - name: Notify slack fail
+      #   if: failure()
+      #   env:
+      #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+      #   uses: voxmedia/github-action-slack-notify-build@v1
+      #   with:
+      #     channel_id: C026FHSRFEJ
+      #     status: FAILED
+      #     color: danger
       - name: Build and publish Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         working-directory: frontend/mulighetsrommet-veileder-flate
