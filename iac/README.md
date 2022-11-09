@@ -6,6 +6,26 @@ I denne mappen man våre oppsett av kafka-topics og kafka-manager.
 ## Kafka topics
 Topics ligger i mappen `/kafka-topics` og inneholder konfigurasjon for dev-miljø og prod-miljø.
 
+### Jeg vil koble meg på topic lokalt for feilsøking - Hvordan gjør jeg det?
+For å koble seg på en topic lokalt kan man bruke [kcat](https://github.com/edenhill/kcat). Kcat trenger en kcat.conf-fil som man får på følgende måte:
+
+```bash
+nais aiven create kafka <username> team-mulighetsrommet -p <pool> -s <some-unique-secretname>
+```
+
+Følgende verdier må settes:
+- **username** -> Et username du selv velger. [Dette må matche med topicens acl-liste](https://doc.nais.io/cli/commands/aiven/#kafka)
+- **pool** -> enten nav-prod eller nav-dev
+- **some-unique-secretname** -> En eller annen tilfeldig tekststreng
+
+Når kommandoen over er kjørt får du en sti i terminalen du kan bruke for å referere til korrekt kcat.conf-fil.
+
+Eks: `kcat -F path/to/kcat.conf -t team-mulighetsrommet.<topic-navn>` der **topic-navn** er topicene du skal feilsøke.
+
+I tillegg må du konfigurere og deploye topic med oppdatert acl. [Mer info finner man her](https://doc.nais.io/cli/commands/aiven/#kafka).
+
+Når du er ferdig med feilsøking kjører du `nais aiven tidy` for å slette temp-filer.
+
 ### Deployment av topics
 Deployment av topic skjer automatisk via Github Actions når man merger kode relatert til topicens yaml-fil på main-branchen.
 
