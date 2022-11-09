@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
+import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
@@ -25,7 +26,7 @@ class HistorikkServiceTest : FunSpec({
     val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
     beforeSpec {
-        val arenaService = ArenaService(listener.db)
+        val arenaRepository = ArenaRepository(listener.db)
 
         val tiltakstype = AdapterTiltak(
             navn = "Arbeidstrening",
@@ -58,10 +59,10 @@ class HistorikkServiceTest : FunSpec({
             aar = 2022
         )
 
-        arenaService.upsertTiltakstype(tiltakstype)
-        arenaService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-        arenaService.upsertDeltaker(deltaker)
-        arenaService.updateTiltaksgjennomforingWithSak(sak)
+        arenaRepository.upsertTiltakstype(tiltakstype)
+        arenaRepository.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+        arenaRepository.upsertDeltaker(deltaker)
+        arenaRepository.updateTiltaksgjennomforingWithSak(sak)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {

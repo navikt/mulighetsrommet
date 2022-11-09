@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
+import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -42,6 +43,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
         modules(
             db(appConfig.database),
+            repositories(),
             services(
                 appConfig,
                 veilarbvedsstotte(appConfig),
@@ -155,6 +157,10 @@ private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineTo
             .buildMachineToMachineTokenClient()
         false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
     }
+}
+
+private fun repositories() = module {
+    single { ArenaRepository(get()) }
 }
 
 private fun services(

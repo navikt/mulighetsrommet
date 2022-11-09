@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
@@ -20,7 +21,7 @@ class TiltakstypeServiceTest : FunSpec({
     register(listener)
 
     beforeSpec {
-        val arenaService = ArenaService(listener.db)
+        val arenaRepository = ArenaRepository(listener.db)
 
         val tiltakstype = AdapterTiltak(
             navn = "Arbeidstrening",
@@ -38,8 +39,8 @@ class TiltakstypeServiceTest : FunSpec({
             tilDato = LocalDateTime.now().plusYears(1)
         )
 
-        arenaService.upsertTiltakstype(tiltakstype)
-        arenaService.upsertTiltakstype(tiltakstype2)
+        arenaRepository.upsertTiltakstype(tiltakstype)
+        arenaRepository.upsertTiltakstype(tiltakstype2)
     }
 
     context("CRUD") {
@@ -66,7 +67,7 @@ class TiltakstypeServiceTest : FunSpec({
             listener.db.clean()
             listener.db.migrate()
 
-            val arenaService = ArenaService(listener.db)
+            val arenaService = ArenaRepository(listener.db)
 
             (1..105).forEach {
                 arenaService.upsertTiltakstype(

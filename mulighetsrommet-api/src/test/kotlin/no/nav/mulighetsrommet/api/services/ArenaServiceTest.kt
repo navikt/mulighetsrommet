@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
+import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
@@ -23,7 +24,8 @@ class ArenaServiceTest : FunSpec({
     register(listener)
 
     context("ArenaService") {
-        val service = ArenaService(listener.db)
+        val repository = ArenaRepository(listener.db)
+        val service = ArenaService(repository)
 
         val tiltakstype = AdapterTiltak(
             navn = "Arbeidstrening",
@@ -57,8 +59,8 @@ class ArenaServiceTest : FunSpec({
         test("upsert tiltakstype") {
             val table = Table(listener.db.getDatasource(), "tiltakstype")
 
-            service.upsertTiltakstype(tiltakstype)
-            service.upsertTiltakstype(tiltakstype.copy(innsatsgruppe = 2))
+            service.createOrUpdate(tiltakstype)
+            service.createOrUpdate(tiltakstype.copy(innsatsgruppe = 2))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(1)
@@ -68,8 +70,8 @@ class ArenaServiceTest : FunSpec({
         test("upsert tiltaksgjennomføring") {
             val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
 
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
+            service.createOrUpdate(tiltaksgjennomforing)
+            service.createOrUpdate(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(1)
@@ -79,8 +81,8 @@ class ArenaServiceTest : FunSpec({
         test("upsert deltaker") {
             val table = Table(listener.db.getDatasource(), "deltaker")
 
-            service.upsertDeltaker(deltaker)
-            service.upsertDeltaker(deltaker.copy(status = Deltakerstatus.DELTAR))
+            service.createOrUpdate(deltaker)
+            service.createOrUpdate(deltaker.copy(status = Deltakerstatus.DELTAR))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(1)
@@ -91,7 +93,7 @@ class ArenaServiceTest : FunSpec({
             test("should update tiltaksnummer when sak references tiltaksgjennomføring") {
                 val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
 
-                service.updateTiltaksgjennomforingWithSak(sak)
+                service.setTiltaksnummerWith(sak)
 
                 assertThat(table).row(0)
                     .column("id").value().isEqualTo(1)
@@ -101,7 +103,7 @@ class ArenaServiceTest : FunSpec({
             test("should unset tiltaksnummer") {
                 val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
 
-                service.unsetSakOnTiltaksgjennomforing(sak)
+                service.removeTiltaksnummerWith(sak)
 
                 assertThat(table).row(0)
                     .column("id").value().isEqualTo(1)
@@ -110,8 +112,8 @@ class ArenaServiceTest : FunSpec({
             }
 
             test("should not do an update when the sak does not reference any tiltaksgjennomføring") {
-                service.updateTiltaksgjennomforingWithSak(sak.copy(id = 999)) shouldBeRight null
-                service.unsetSakOnTiltaksgjennomforing(sak.copy(id = 999)) shouldBeRight null
+                service.setTiltaksnummerWith(sak.copy(id = 999)) shouldBeRight null
+                service.removeTiltaksnummerWith(sak.copy(id = 999)) shouldBeRight null
             }
         }
     }
