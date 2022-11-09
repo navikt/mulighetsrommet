@@ -1,7 +1,7 @@
 :global(.mulighetsrommet-veileder-flate) {
-  .kontaktinfo {
-    display: flex;
-    flex-wrap: wrap;
+  .kontaktinfo_container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     margin: 1rem 0;
     gap: 3rem;
 
