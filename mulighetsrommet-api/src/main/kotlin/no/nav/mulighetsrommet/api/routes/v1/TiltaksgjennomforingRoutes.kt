@@ -49,6 +49,6 @@ fun Route.tiltaksgjennomforingRoutes() {
 
 @Serializable
 data class TiltaksgjennomforingerResponse(
+    override val pagination: Pagination? = null,
     override val data: List<Tiltaksgjennomforing>,
-    override val pagination: Pagination? = null
 ) : ListResponse

@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.routes.v1.responses
 import kotlinx.serialization.Serializable
 
 interface ListResponse {
-    val data: List<Any>
     val pagination: Pagination?
+    val data: List<Any>
 }
 
 @Serializable

@@ -70,6 +70,6 @@ fun Route.tiltakstypeRoutes() {
 
 @Serializable
 data class TiltakstyperResponse(
+    override val pagination: Pagination? = null,
     override val data: List<Tiltakstype>,
-    override val pagination: Pagination? = null
 ) : ListResponse
