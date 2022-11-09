@@ -52,10 +52,7 @@ class TiltakstypeServiceTest : FunSpec({
         test("should filter tiltakstyper by innsatsgruppe") {
             service.getTiltakstyper(innsatsgrupper = listOf(1)) shouldHaveSize 1
             service.getTiltakstyper(
-                innsatsgrupper = listOf(
-                    1,
-                    2
-                )
+                innsatsgrupper = listOf(1, 2)
             ) shouldHaveSize 2
             service.getTiltakstyper(innsatsgrupper = listOf(3)) shouldHaveSize 0
         }
@@ -68,7 +65,9 @@ class TiltakstypeServiceTest : FunSpec({
         context("pagination") {
             listener.db.clean()
             listener.db.migrate()
+
             val arenaService = ArenaService(listener.db)
+
             (1..105).forEach {
                 arenaService.upsertTiltakstype(
                     AdapterTiltak(
