@@ -48,13 +48,38 @@ class TiltakstypeServiceTest : FunSpec({
 
         test("should filter tiltakstyper by innsatsgruppe") {
             service.getTiltakstyper(innsatsgrupper = listOf(1)) shouldHaveSize 1
-            service.getTiltakstyper(innsatsgrupper = listOf(1, 2)) shouldHaveSize 2
+            service.getTiltakstyper(
+                innsatsgrupper = listOf(
+                    1,
+                    2
+                )
+            ) shouldHaveSize 2
             service.getTiltakstyper(innsatsgrupper = listOf(3)) shouldHaveSize 0
         }
 
         test("should filter tiltakstyper by search") {
             service.getTiltakstyper(search = "Førerhund") shouldHaveSize 0
             service.getTiltakstyper(search = "Arbeidstrening") shouldHaveSize 1
+        }
+
+        context("pagination") {
+            listener.db.clean()
+            listener.db.migrate()
+            val arenaService = ArenaService(listener.db)
+            (1..105).forEach {
+                arenaService.upsertTiltakstype(
+                    AdapterTiltak(
+                        navn = "Oppfølging",
+                        innsatsgruppe = 2,
+                        tiltakskode = "ABC$it",
+                        fraDato = LocalDateTime.now(),
+                        tilDato = LocalDateTime.now().plusYears(1)
+                    )
+                )
+            }
+            test("hei") {
+                service.getTiltakstyper() shouldHaveSize 2
+            }
         }
     }
 })

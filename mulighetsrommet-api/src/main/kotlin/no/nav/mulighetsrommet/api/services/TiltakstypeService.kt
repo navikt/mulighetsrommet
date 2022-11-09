@@ -25,10 +25,10 @@ class TiltakstypeService(private val db: Database) {
         val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 
         val parameters = mapOf(
-            "paginationLimit" to paginationParams.limit,
-            "paginationOffset" to paginationParams.offset,
             "innsatsgrupper" to innsatsgrupperQuery,
-            "navn" to "%$search%"
+            "navn" to "%$search%",
+            "paginationLimit" to paginationParams.limit,
+            "paginationOffset" to paginationParams.offset
         )
 
         @Language("PostgreSQL")
@@ -38,10 +38,12 @@ class TiltakstypeService(private val db: Database) {
         """
             .where(innsatsgrupperQuery, "(innsatsgruppe_id = any(:innsatsgrupper))")
             .andWhere(search, "(lower(navn) like lower(:navn))")
-        """
+            .plus(
+                """
             limit :paginationLimit
             offset :paginationOffset
         """
+            )
             .trimIndent()
 
         val result = queryOf(
