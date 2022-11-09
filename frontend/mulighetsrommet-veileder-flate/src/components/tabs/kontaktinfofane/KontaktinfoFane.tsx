@@ -10,7 +10,7 @@ const KontaktinfoFane = () => {
 
   return (
     <FaneTiltaksinformasjon harInnhold={!!data}>
-      <div className={styles.kontaktinfo}>
+      <div className={styles.kontaktinfo_container}>
         <div>
           <Heading size="medium" level="2" className={styles.header}>
             Arrangør
