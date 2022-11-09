@@ -21,4 +21,4 @@ spec:
       access: read
     - team: team-mulighetsrommet
       application: sndrem
-      access: write
+      access: readwrite
