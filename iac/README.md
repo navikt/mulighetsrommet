@@ -26,6 +26,11 @@ I tillegg må du konfigurere og deploye topic med oppdatert acl. [Mer info finne
 
 Når du er ferdig med feilsøking kjører du `nais aiven tidy` for å slette temp-filer.
 
+__Ressurser__:
+- https://docs.aiven.io/docs/products/kafka/howto/kcat.html
+- https://doc.nais.io/cli/commands/aiven/#kafka
+- https://doc.nais.io/persistence/kafka/
+
 ### Deployment av topics
 Deployment av topic skjer automatisk via Github Actions når man merger kode relatert til topicens yaml-fil på main-branchen.
 
