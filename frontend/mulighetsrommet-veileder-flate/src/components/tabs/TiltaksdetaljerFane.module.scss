@@ -34,10 +34,12 @@
       .navds-label {
         font-weight: bold;
       }
-
-      border-bottom: 3px solid var(--navds-semantic-color-interaction-primary);
     }
   }
+}
+
+.fane_panel {
+  margin-top: 24px;
 }
 
 @media (max-width: 1200px) {

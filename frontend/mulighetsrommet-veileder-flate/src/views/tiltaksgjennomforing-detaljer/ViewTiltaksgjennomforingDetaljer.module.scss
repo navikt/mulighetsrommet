@@ -37,6 +37,14 @@
   grid-row-end: 3;
   grid-column: 2;
   max-width: 380px;
+  color: var(--navds-semantic-color-text);
+}
+
+.deleknapp_container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 32px;
+  gap: 8px;
 }
 
 :global(.mulighetsrommet-veileder-flate) {
@@ -47,7 +55,6 @@
 
   :global(.navds-button).deleknapp {
     width: 100%;
-    margin-top: 1rem;
   }
 
   :global(.navds-tabs__tablist-wrapper) {

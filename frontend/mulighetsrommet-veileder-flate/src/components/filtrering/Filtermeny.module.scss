@@ -7,6 +7,10 @@
     border-bottom: 1px solid var(--navds-semantic-color-divider);
   }
 
+  :global(.navds-accordion__content navds-body-long) {
+    padding-left: 0;
+  }
+
   .tiltakstype_oversikt_filtermeny {
     border-right: 1px solid var(--navds-semantic-color-border-muted);
     padding: 1rem 0.5rem 1rem 0;
@@ -39,7 +43,7 @@
     }
 
     :global(.navds-accordion__content) {
-      padding: 0.5rem;
+      padding: 0;
     }
   }
 }

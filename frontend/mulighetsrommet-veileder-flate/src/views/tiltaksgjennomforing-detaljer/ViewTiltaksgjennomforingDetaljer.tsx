@@ -110,33 +110,36 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           </div>
           <div className={styles.sidemeny}>
             <SidemenyDetaljer />
-            {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) || !erPreview) && (
+            <div className={styles.deleknapp_container}>
+              {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) ||
+                !erPreview) && (
+                <Button
+                  as="a"
+                  href={lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
+                  target="_blank"
+                  variant="primary"
+                  className={styles.deleknapp}
+                  aria-label="Opprett avtale"
+                  data-testid="opprettavtaleknapp"
+                  title={tooltip()}
+                >
+                  Opprett avtale
+                </Button>
+              )}
               <Button
-                as="a"
-                href={lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
-                target="_blank"
-                variant="primary"
+                onClick={handleClickApneModal}
+                variant="secondary"
                 className={styles.deleknapp}
-                aria-label="Opprett avtale"
-                data-testid="opprettavtaleknapp"
+                aria-label="Dele"
+                data-testid="deleknapp"
+                disabled={!erPreview && !kanDeleMedBruker}
                 title={tooltip()}
+                icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
+                iconPosition="left"
               >
-                Opprett avtale
+                {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
               </Button>
-            )}
-            <Button
-              onClick={handleClickApneModal}
-              variant="secondary"
-              className={styles.deleknapp}
-              aria-label="Dele"
-              data-testid="deleknapp"
-              disabled={!erPreview && !kanDeleMedBruker}
-              title={tooltip()}
-              icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
-              iconPosition="left"
-            >
-              {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
-            </Button>
+            </div>
             {!brukerdata.data?.manuellStatus && !erPreview && (
               <Alert
                 title="Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
