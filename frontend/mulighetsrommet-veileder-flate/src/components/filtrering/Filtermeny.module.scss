@@ -1,4 +1,12 @@
 :global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-accordion__header) {
+    border-bottom: 1px solid var(--navds-semantic-color-divider);
+  }
+
+  :global(.navds-accordion__content) {
+    border-bottom: 1px solid var(--navds-semantic-color-divider);
+  }
+
   .tiltakstype_oversikt_filtermeny {
     border-right: 1px solid var(--navds-semantic-color-border-muted);
     padding: 1rem 0.5rem 1rem 0;
@@ -11,10 +19,10 @@
   }
 
   .sokefelt {
-    margin-bottom: 0.5rem;
-
+    padding-bottom: 0.8rem;
     :global(.navds-body-short) {
       font-size: 1rem;
+      min-height: initial;
     }
   }
 
