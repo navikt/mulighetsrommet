@@ -24,10 +24,6 @@ export function TiltakstypePreview({ document }: any) {
     fetchData();
   }, [document]);
 
-  function TekstFraTiltakstype({ children }: any) {
-    return <span>{children}</span>;
-  }
-
   function Detaljvisning() {
     return (
       <SidemenyDetaljerContainer>

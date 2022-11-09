@@ -1,9 +1,9 @@
 import { Alert, Loader } from '@navikt/ds-react';
 import useResizeObserver from 'use-resize-observer';
 import { useTiltakstyperMedTiltakstypenavn } from '../../../core/api/queries/useTiltakstypeMedTiltakstypenavn';
-import styles from '../Detaljerfane.module.scss';
 import BarChart from './BarChart';
 import { Forskningsrapport } from './Forskningsrapport';
+import FaneTiltaksinformasjon from '../FaneTiltaksinformasjon';
 
 export type InnsiktsFaneProps = {
   tiltakstype: string;
@@ -29,14 +29,20 @@ const InnsiktsFane = ({ tiltakstype }: InnsiktsFaneProps) => {
   }
 
   return (
-    <div className={styles.tiltaksdetaljer__maksbredde}>
-      {tiltakstyperMedStatistikk.includes(tiltakstype) ? (
-        <div style={{ marginBottom: '2rem' }} ref={ref}>
-          <BarChart tiltakstype={tiltakstype} width={width} height={300} />
-        </div>
-      ) : null}
-      {forskningsrapporter ? <Forskningsrapport forskningsrapporter={forskningsrapporter} /> : null}
-    </div>
+    <>
+      {tiltakstyperMedStatistikk || forskningsrapporter ? (
+        <FaneTiltaksinformasjon harInnhold={!!tiltakstyperMedStatistikk || !!forskningsrapporter}>
+          {tiltakstyperMedStatistikk.includes(tiltakstype) ? (
+            <div ref={ref}>
+              <BarChart tiltakstype={tiltakstype} width={width} height={300} />
+            </div>
+          ) : null}
+          {forskningsrapporter ? <Forskningsrapport forskningsrapporter={forskningsrapporter} /> : null}
+        </FaneTiltaksinformasjon>
+      ) : (
+        <></>
+      )}
+    </>
   );
 };
 

@@ -11,8 +11,8 @@ export function Infoboks({ children }) {
         border: "1px solid black",
         display: "flex",
         alignItems: "baseline",
-        gap: "10px",
-        padding: "0px 10px",
+        gap: "0.5rem",
+        padding: "0px 0.5rem",
         margin: "5px 0px",
       }}
     >
@@ -71,7 +71,7 @@ export function SidemenyDetaljerContainer({ children }) {
         padding: "4px 20px",
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
+        gap: "0.5rem",
       }}
     >
       {children}

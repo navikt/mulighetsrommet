@@ -1,21 +1,22 @@
-.historikk_knapp {
-  padding: 0 0.3rem 0 !important;
-  height: fit-content;
+:global(.mulighetsrommet-veileder-flate) {
+  .historikk_knapp {
+    padding: 0 0.3rem 0;
+    height: fit-content;
 
+    :global(.navds-label) {
+      padding-top: .5rem;
+    }
 
-  :global(.navds-label) {
-    padding-top: .5rem;
+    svg {
+      width: 1.5rem;
+      height: auto;
+      color: black;
+    }
   }
 
-  svg {
-    width: 1.5rem;
-    height: auto;
-    color: black;
+  .historikk_modal {
+    width: 50rem;
+    max-width: 70%;
   }
-}
-
-.historikk_modal {
-  width: 50rem;
-  max-width: 70%;
 }
 

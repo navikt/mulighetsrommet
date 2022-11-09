@@ -1,4 +1,8 @@
 .delemodal {
+  .container {
+    max-width: 65ch;
+  }
+
   &_tilbakemelding {
     text-align: center;
     display: flex;
@@ -26,6 +30,15 @@
   }
 }
 
-.textarea {
+.deletekst {
   margin-top: 1rem;
+  max-width: 65ch;
+  white-space: pre-wrap;
+  border-radius: 5px;
+  padding: 1rem;
+  background-color: #f7f7f7;
+}
+
+.personligHilsen {
+  margin-top: 0.5rem;
 }
