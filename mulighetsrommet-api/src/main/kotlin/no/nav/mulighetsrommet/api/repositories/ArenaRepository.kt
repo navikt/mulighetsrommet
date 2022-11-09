@@ -64,7 +64,8 @@ class ArenaRepository(private val db: Database) {
                                               tiltakskode,
                                               arena_id,
                                               fra_dato,
-                                              til_dato, sak_id,
+                                              til_dato,
+                                              sak_id,
                                               apent_for_innsok,
                                               antall_plasser)
             values (?, ?, ?, ?, ?, ?, ?, ?, ?)
