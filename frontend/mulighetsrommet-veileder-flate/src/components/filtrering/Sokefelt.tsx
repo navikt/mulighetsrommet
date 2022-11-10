@@ -19,6 +19,7 @@ const Sokefelt = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
       className={styles.sokefelt}
       aria-label="Søk etter tiltak"
       data-testid="filter_sokefelt"
+      size="small"
     />
   );
 };
