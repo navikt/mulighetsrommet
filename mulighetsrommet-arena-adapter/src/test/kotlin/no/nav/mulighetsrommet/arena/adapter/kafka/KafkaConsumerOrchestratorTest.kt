@@ -13,7 +13,6 @@ import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
@@ -58,12 +57,12 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("should store topics based on provided consumers during setup") {
-        val consumers = ConsumerGroup(listOf(TestConsumer("foo", EventRepository(database.db))))
+        val consumer = TestConsumer("foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
             database.db,
-            consumers,
+            ConsumerGroup(listOf(consumer)),
             TopicRepository(database.db),
             Long.MAX_VALUE
         )
@@ -79,12 +78,12 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("should update the consumer running state based on the topic configuration") {
-        val consumers = ConsumerGroup(listOf(TestConsumer("foo", EventRepository(database.db))))
+        val consumer = TestConsumer("foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
             database.db,
-            consumers,
+            ConsumerGroup(listOf(consumer)),
             TopicRepository(database.db),
             300
         )
@@ -107,7 +106,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord("foo", """{ "success": true }"""))
         producer.close()
 
-        val consumer = spyk(TestConsumer("foo", EventRepository(database.db)))
+        val consumer = spyk(TestConsumer("foo"))
 
         KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
@@ -118,7 +117,9 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         )
 
         eventually(3.seconds) {
-            coVerify { consumer.processEvent(Json.parseToJsonElement("""{ "success": true }""")) }
+            coVerify {
+                consumer.run(Json.parseToJsonElement("""{ "success": true }"""))
+            }
 
             consumerRepository.getRecords("foo", 0, 1) shouldHaveSize 0
         }
@@ -131,7 +132,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord("foo", """{ "success": false }"""))
         producer.close()
 
-        val consumer = spyk(TestConsumer("foo", EventRepository(database.db)))
+        val consumer = spyk(TestConsumer("foo"))
 
         KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
@@ -141,8 +142,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             Long.MAX_VALUE
         )
 
-        eventually(10.seconds) {
-            coVerify { consumer.processEvent(Json.parseToJsonElement("""{ "success": false }""")) }
+        eventually(3.seconds) {
+            coVerify {
+                consumer.run(Json.parseToJsonElement("""{ "success": false }"""))
+            }
 
             consumerRepository.getRecords("foo", 0, 1) shouldHaveSize 1
         }

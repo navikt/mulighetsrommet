@@ -4,25 +4,37 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.Event
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 
 class TopicServiceTest : FunSpec({
     val topic = "foo-topic"
 
-    val fooEventPayload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
-    val barEventPayload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
+    val fooEvent = ArenaEvent(
+        id = 1,
+        status = ArenaEvent.ConsumptionStatus.Processed,
+        topic = topic,
+        key = "1",
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
+    )
+    val barEvent = ArenaEvent(
+        id = 2,
+        status = ArenaEvent.ConsumptionStatus.Processed,
+        topic = topic,
+        key = "2",
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
+    )
 
     val events = mockk<EventRepository>()
-    val consumer = mockk<TopicConsumer<Any>>()
+    val consumer = mockk<ArenaTopicConsumer>()
 
     val service = TopicService(events, ConsumerGroup(listOf(consumer)))
 
     beforeEach {
-        every { consumer.consumerConfig.topic } answers { topic }
-        coEvery { consumer.replayEvent(any()) } just runs
+        every { consumer.config.topic } returns topic
+        coEvery { consumer.replayEvent(any()) } returnsArgument 0
     }
 
     afterEach {
@@ -41,17 +53,12 @@ class TopicServiceTest : FunSpec({
         }
 
         test("should replay event payload specified by id") {
-            every { events.get(1) } returns Event(
-                id = 1,
-                status = Event.ConsumptionStatus.Processed,
-                topic = topic,
-                payload = fooEventPayload.toString()
-            )
+            every { events.get(1) } returns fooEvent
 
             service.replayEvent(1)
 
             coVerify(exactly = 1) {
-                consumer.replayEvent(fooEventPayload)
+                consumer.replayEvent(fooEvent)
             }
         }
     }
@@ -71,18 +78,13 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getAll(topic, any(), any())
             } returns listOf(
-                Event(
-                    id = 1,
-                    status = Event.ConsumptionStatus.Processed,
-                    topic = topic,
-                    payload = fooEventPayload.toString()
-                )
+                fooEvent
             ) andThen listOf()
 
             service.replayEvents(topic)
 
             coVerify(exactly = 1) {
-                consumer.replayEvent(fooEventPayload)
+                consumer.replayEvent(fooEvent)
             }
         }
 
@@ -90,23 +92,13 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getAll(topic, any(), null)
             } returns listOf(
-                Event(
-                    id = 1,
-                    status = Event.ConsumptionStatus.Processed,
-                    topic = topic,
-                    payload = fooEventPayload.toString()
-                )
+                fooEvent
             )
 
             every {
                 events.getAll(topic, any(), 1)
             } returns listOf(
-                Event(
-                    id = 2,
-                    status = Event.ConsumptionStatus.Processed,
-                    topic = topic,
-                    payload = barEventPayload.toString()
-                )
+                barEvent
             )
 
             every { events.getAll(topic, any(), 2) } returns listOf()
@@ -114,8 +106,8 @@ class TopicServiceTest : FunSpec({
             service.replayEvents(topic)
 
             coVerify(exactly = 1) {
-                consumer.replayEvent(fooEventPayload)
-                consumer.replayEvent(barEventPayload)
+                consumer.replayEvent(fooEvent)
+                consumer.replayEvent(barEvent)
             }
         }
 
@@ -123,23 +115,13 @@ class TopicServiceTest : FunSpec({
             every {
                 events.getAll(topic, any(), null)
             } returns listOf(
-                Event(
-                    id = 1,
-                    status = Event.ConsumptionStatus.Processed,
-                    topic = topic,
-                    payload = fooEventPayload.toString()
-                )
+                fooEvent
             )
 
             every {
                 events.getAll(topic, any(), 1)
             } returns listOf(
-                Event(
-                    id = 2,
-                    status = Event.ConsumptionStatus.Processed,
-                    topic = topic,
-                    payload = barEventPayload.toString()
-                )
+                barEvent
             )
 
             every { events.getAll(topic, any(), 2) } returns listOf()
@@ -147,11 +129,11 @@ class TopicServiceTest : FunSpec({
             service.replayEvents(topic, 1)
 
             coVerify(exactly = 0) {
-                consumer.replayEvent(fooEventPayload)
+                consumer.replayEvent(fooEvent)
             }
 
             coVerify(exactly = 1) {
-                consumer.replayEvent(barEventPayload)
+                consumer.replayEvent(barEvent)
             }
         }
     }

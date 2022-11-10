@@ -55,7 +55,7 @@ class ArenaRepository(private val db: Database) {
     fun upsertTiltaksgjennomforing(
         tiltak: AdapterTiltaksgjennomforing
     ): QueryResult<AdapterTiltaksgjennomforing> = query {
-        logger.info("Lagrer tiltak id=${tiltak.id}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
+        logger.info("Lagrer tiltak id=${tiltak.tiltaksgjennomforingId}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -89,7 +89,7 @@ class ArenaRepository(private val db: Database) {
                     navn,
                     arrangorId,
                     tiltakskode,
-                    id,
+                    tiltaksgjennomforingId,
                     fraDato,
                     tilDato,
                     sakId,
@@ -103,7 +103,7 @@ class ArenaRepository(private val db: Database) {
     }
 
     fun deleteTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): QueryResult<Unit> = query {
-        logger.info("Sletter tiltak id=${tiltak.id}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
+        logger.info("Sletter tiltak id=${tiltak.tiltaksgjennomforingId}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -112,14 +112,14 @@ class ArenaRepository(private val db: Database) {
         """.trimIndent()
 
         query {
-            tiltak.run { queryOf(query, id) }
+            tiltak.run { queryOf(query, tiltaksgjennomforingId) }
                 .asExecute
                 .let { db.run(it) }
         }
     }
 
     fun upsertDeltaker(deltaker: AdapterTiltakdeltaker): QueryResult<AdapterTiltakdeltaker> = query {
-        logger.info("Lagrer deltaker id=${deltaker.id}, tiltak=${deltaker.tiltaksgjennomforingId}")
+        logger.info("Lagrer deltaker id=${deltaker.tiltaksdeltakerId}, tiltak=${deltaker.tiltaksgjennomforingId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -136,14 +136,24 @@ class ArenaRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        deltaker.run { queryOf(query, id, tiltaksgjennomforingId, personId, fraDato, tilDato, status.name) }
+        deltaker.run {
+            queryOf(
+                query,
+                tiltaksdeltakerId,
+                tiltaksgjennomforingId,
+                personId,
+                fraDato,
+                tilDato,
+                status.name
+            )
+        }
             .map { DatabaseMapper.toAdapterTiltakdeltaker(it) }
             .asSingle
             .let { db.run(it)!! }
     }
 
     fun deleteDeltaker(deltaker: AdapterTiltakdeltaker): QueryResult<Unit> = query {
-        logger.info("Sletter deltaker id=${deltaker.id}, tiltak=${deltaker.tiltaksgjennomforingId}")
+        logger.info("Sletter deltaker id=${deltaker.tiltaksdeltakerId}, tiltak=${deltaker.tiltaksgjennomforingId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -151,13 +161,13 @@ class ArenaRepository(private val db: Database) {
             where arena_id = ?
         """.trimIndent()
 
-        deltaker.run { queryOf(query, id) }
+        deltaker.run { queryOf(query, tiltaksdeltakerId) }
             .asExecute
             .let { db.run(it) }
     }
 
     fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): QueryResult<AdapterTiltaksgjennomforing?> = query {
-        logger.info("Oppdaterer tiltak med sak sakId=${sak.id} tiltaksnummer=${sak.lopenummer}")
+        logger.info("Oppdaterer tiltak med sak sakId=${sak.sakId} tiltaksnummer=${sak.lopenummer}")
 
         @Language("PostgreSQL")
         val query = """
@@ -166,14 +176,14 @@ class ArenaRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        sak.run { queryOf(query, lopenummer, aar, id) }
+        sak.run { queryOf(query, lopenummer, aar, sakId) }
             .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
             .asSingle
             .let { db.run(it) }
     }
 
     fun unsetSakOnTiltaksgjennomforing(sak: AdapterSak): QueryResult<AdapterTiltaksgjennomforing?> = query {
-        logger.info("Fjerner referanse til sak for tiltak sakId=${sak.id} tiltaksnummer=${sak.lopenummer}")
+        logger.info("Fjerner referanse til sak for tiltak sakId=${sak.sakId} tiltaksnummer=${sak.lopenummer}")
 
         @Language("PostgreSQL")
         val query = """
@@ -182,7 +192,7 @@ class ArenaRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        sak.run { queryOf(query, id) }
+        sak.run { queryOf(query, sakId) }
             .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
             .asSingle
             .let { db.run(it) }

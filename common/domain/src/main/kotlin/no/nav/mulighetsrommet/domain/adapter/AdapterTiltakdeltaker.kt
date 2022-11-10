@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Serializable
 data class AdapterTiltakdeltaker (
-    val id: Int,
+    val tiltaksdeltakerId: Int,
     val tiltaksgjennomforingId: Int,
     val personId: Int,
     @Serializable(with = DateSerializer::class)

@@ -56,15 +56,15 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             navn = "Oppfølging",
             arrangorId = 1,
             tiltakskode = "INDOPPFOLG",
-            id = 1,
-            sakId = 1
+            tiltaksgjennomforingId = 1,
+            sakId = 1,
         )
         val tiltak2 = AdapterTiltaksgjennomforing(
             navn = "Trening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
-            id = 2,
-            sakId = 2
+            tiltaksgjennomforingId = 2,
+            sakId = 2,
         )
 
         test("should return empty result when there are no created tiltak") {
@@ -80,10 +80,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("should get tiltak when they have been assigned tiltaksnummer") {
             arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(id = 1, lopenummer = 11, aar = 2022)
+                AdapterSak(sakId = 1, lopenummer = 11, aar = 2022)
             )
             arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(id = 2, lopenummer = 22, aar = 2022)
+                AdapterSak(sakId = 2, lopenummer = 22, aar = 2022)
             )
 
             service.getTiltaksgjennomforinger() shouldBe listOf(
@@ -107,7 +107,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("should get tiltak by id") {
-            service.getTiltaksgjennomforingById(tiltak1.id) shouldBe Tiltaksgjennomforing(
+            service.getTiltaksgjennomforingById(tiltak1.tiltaksgjennomforingId) shouldBe Tiltaksgjennomforing(
                 id = 1,
                 navn = "Oppfølging",
                 tiltakskode = "INDOPPFOLG",
@@ -182,8 +182,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
                     arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
-                            id = 1,
-                            tiltaksgjennomforingId = tiltak1.id,
+                            tiltaksdeltakerId = 1,
+                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
                             personId = 1,
                             status = Deltakerstatus.DELTAR
                         )
@@ -205,8 +205,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
                     arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
-                            id = 1,
-                            tiltaksgjennomforingId = tiltak1.id,
+                            tiltaksdeltakerId = 1,
+                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
                             personId = 1,
                             status = Deltakerstatus.AVSLUTTET
                         )
@@ -222,9 +222,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("should delete tiltak") {
             arenaRepository.deleteTiltaksgjennomforing(tiltak1)
 
-            service.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
+            service.getTiltaksgjennomforingById(tiltak1.tiltaksgjennomforingId) shouldBe null
         }
     }
+
     context("pagination") {
         listener.db.clean()
         listener.db.migrate()
@@ -248,13 +249,13 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     navn = "Trening",
                     arrangorId = 1,
                     tiltakskode = "ARBTREN",
-                    id = it,
+                    tiltaksgjennomforingId = it,
                     sakId = it
                 )
             )
             arenaRepository.updateTiltaksgjennomforingWithSak(
                 AdapterSak(
-                    id = it,
+                    sakId = it,
                     lopenummer = it,
                     aar = 2022
                 )

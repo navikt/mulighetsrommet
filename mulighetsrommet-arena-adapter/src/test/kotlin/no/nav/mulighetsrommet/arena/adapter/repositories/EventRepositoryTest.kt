@@ -1,10 +1,11 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.repositories
+package no.nav.mulighetsrommet.arena.adapter.repositories
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.assertj.db.api.Assertions
@@ -14,9 +15,7 @@ class EventRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener =
-        FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema())
-    register(listener)
+    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
 
     lateinit var eventRepository: EventRepository
     lateinit var table: Table
@@ -27,13 +26,22 @@ class EventRepositoryTest : FunSpec({
     }
 
     test("should save events") {
-        (0..4).forEach { eventRepository.upsert("topic", it.toString(), "{}") }
+        (0..4).forEach {
+            eventRepository.upsert(
+                ArenaEvent(
+                    topic = "topic",
+                    key = it.toString(),
+                    payload = Json.parseToJsonElement("{}"),
+                    status = ArenaEvent.ConsumptionStatus.Processed,
+                )
+            )
+        }
 
         Assertions.assertThat(table).hasNumberOfRows(5)
     }
 
     test("should retrieve 3 saved events") {
-        val events = eventRepository.getAll("topic", 3)
+        val events = eventRepository.getAll(topic = "topic", limit = 3)
 
         events shouldHaveSize 3
     }

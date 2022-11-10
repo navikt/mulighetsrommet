@@ -1,11 +1,12 @@
-package no.nav.mulighetsrommet.domain.adapter
+package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.DateSerializer
 import java.time.LocalDateTime
+import java.util.*
 
 @Serializable
-data class AdapterTiltaksgjennomforing(
+data class Tiltaksgjennomforing(
     val tiltaksgjennomforingId: Int,
     val sakId: Int,
     val tiltakskode: String,

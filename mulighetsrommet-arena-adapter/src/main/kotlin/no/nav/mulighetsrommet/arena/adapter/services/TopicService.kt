@@ -3,19 +3,18 @@ package no.nav.mulighetsrommet.arena.adapter.services
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.Event
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import org.slf4j.LoggerFactory
 
 class TopicService(
     private val events: EventRepository,
-    private val group: ConsumerGroup,
+    private val group: ConsumerGroup<ArenaTopicConsumer>,
     private val config: Config = Config(),
 ) {
-    private val logger = LoggerFactory.getLogger(TopicService::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
         val channelCapacity: Int = 1,
@@ -26,7 +25,7 @@ class TopicService(
         logger.info("Replaying event id=$id")
 
         return@coroutineScope events.get(id)?.also { event ->
-            val relevantConsumers = group.consumers.filter { it.consumerConfig.topic == event.topic }
+            val relevantConsumers = group.consumers.filter { it.config.topic == event.topic }
             replay(relevantConsumers, event)
         }
     }
@@ -48,7 +47,7 @@ class TopicService(
             close()
         }
 
-        val relevantConsumers = group.consumers.filter { it.consumerConfig.topic == topic }
+        val relevantConsumers = group.consumers.filter { it.config.topic == topic }
 
         // Create `numConsumers` coroutines to process the events simultaneously
         (0..config.numChannelConsumers)
@@ -62,11 +61,10 @@ class TopicService(
             .awaitAll()
     }
 
-    private suspend fun replay(relevantConsumers: List<TopicConsumer<out Any>>, event: Event) {
+    private suspend fun replay(relevantConsumers: List<ArenaTopicConsumer>, event: ArenaEvent) {
         relevantConsumers.forEach { consumer ->
             runCatching {
-                val payload = Json.parseToJsonElement(event.payload)
-                consumer.replayEvent(payload)
+                consumer.replayEvent(event)
             }.onFailure {
                 logger.warn("Failed to replay event ${event.id}", it)
                 throw it

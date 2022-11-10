@@ -46,6 +46,8 @@ dependencies {
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
 
+    implementation("io.arrow-kt:arrow-core:1.1.2")
+
     val ktorVersion = "2.1.1"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
