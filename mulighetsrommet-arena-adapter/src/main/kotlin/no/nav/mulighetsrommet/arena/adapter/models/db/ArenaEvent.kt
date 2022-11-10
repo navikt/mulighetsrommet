@@ -3,10 +3,8 @@ package no.nav.mulighetsrommet.arena.adapter.models.db
 import kotlinx.serialization.json.JsonElement
 
 data class ArenaEvent(
-    // TODO: handle default value differently..
-    val id: Int = -1,
-    val topic: String,
-    val key: String,
+    val arenaTable: String,
+    val arenaId: String,
     val payload: JsonElement,
     val status: ConsumptionStatus,
     val message: String? = null,

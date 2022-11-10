@@ -9,9 +9,9 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsum
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.arena.adapter.services.TopicService
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -67,12 +67,12 @@ private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
 }
 
 private fun repositories() = module {
-    single { EventRepository(get()) }
+    single { ArenaEventRepository(get()) }
     single { TopicRepository(get()) }
 }
 
 private fun services(services: ServiceConfig): Module = module {
-    single { TopicService(get(), get(), services.topicService) }
+    single { ArenaEventService(get(), get(), services.arenaEventService) }
 }
 
 private fun clients(serviceConfig: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient) = module {

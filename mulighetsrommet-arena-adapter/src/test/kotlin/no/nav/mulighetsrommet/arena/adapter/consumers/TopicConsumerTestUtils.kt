@@ -17,8 +17,8 @@ inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T {
 }
 
 fun createArenaInsertEvent(table: String, id: String, data: String) = ArenaEvent(
-    topic = table,
-    key = id,
+    arenaTable = table,
+    arenaId = id,
     payload = Json.parseToJsonElement(
         """{
                 "table": "$table",

@@ -11,7 +11,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -74,11 +74,9 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         "Bearer token"
     }
 
-    val events = EventRepository(db)
-
     return TiltakgjennomforingEndretConsumer(
         ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
-        events,
+        ArenaEventRepository(db),
         client
     )
 }

@@ -6,12 +6,12 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.Logger
 
-abstract class ArenaTopicConsumer : TopicConsumer() {
+abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
     abstract val logger: Logger
-    abstract val events: EventRepository
+    abstract val events: ArenaEventRepository
 
     override suspend fun run(event: JsonElement) {
         val data = decodeArenaData(event)
@@ -19,10 +19,10 @@ abstract class ArenaTopicConsumer : TopicConsumer() {
     }
 
     suspend fun processEvent(e: ArenaEvent): ArenaEvent {
-        logger.info("Persisting event: topic=${config.topic}, arena_id=${e.key}")
+        logger.info("Persisting data: table=${e.arenaTable}, arena_id=${e.arenaId}")
         val event = events.upsert(e)
 
-        logger.info("Handling event: topic=${config.topic}, key=${event.key}")
+        logger.info("Handling event: table=${e.arenaTable}, key=${event.arenaId}")
         val (status, message) = handleEvent(event)
             .map { Pair(ArenaEvent.ConsumptionStatus.Processed, null) }
             .getOrHandle {
@@ -34,7 +34,7 @@ abstract class ArenaTopicConsumer : TopicConsumer() {
     }
 
     suspend fun replayEvent(event: ArenaEvent): ArenaEvent {
-        logger.info("Replaying event: topic=${config.topic}, key=${event.key}")
+        logger.info("Replaying event: table=${event.arenaTable}, key=${event.arenaId}")
         val (status, message) = handleEvent(event)
             .map { Pair(ArenaEvent.ConsumptionStatus.Processed, null) }
             .getOrHandle {

@@ -11,26 +11,26 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatab
 import org.assertj.db.api.Assertions
 import org.assertj.db.type.Table
 
-class EventRepositoryTest : FunSpec({
+class ArenaEventRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
     val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
 
-    lateinit var eventRepository: EventRepository
+    lateinit var repository: ArenaEventRepository
     lateinit var table: Table
 
     beforeSpec {
-        eventRepository = EventRepository(listener.db)
-        table = Table(listener.db.getDatasource(), "events")
+        repository = ArenaEventRepository(listener.db)
+        table = Table(listener.db.getDatasource(), "arena_events")
     }
 
     test("should save events") {
-        (0..4).forEach {
-            eventRepository.upsert(
+        (1..5).forEach {
+            repository.upsert(
                 ArenaEvent(
-                    topic = "topic",
-                    key = it.toString(),
+                    arenaTable = "table",
+                    arenaId = it.toString(),
                     payload = Json.parseToJsonElement("{}"),
                     status = ArenaEvent.ConsumptionStatus.Processed,
                 )
@@ -41,15 +41,15 @@ class EventRepositoryTest : FunSpec({
     }
 
     test("should retrieve 3 saved events") {
-        val events = eventRepository.getAll(topic = "topic", limit = 3)
+        val events = repository.getAll(table = "table", limit = 3)
 
         events shouldHaveSize 3
     }
 
     test("should retrieve 3 saved events starting from id 2") {
-        val events = eventRepository.getAll("topic", 3, 2)
+        val events = repository.getAll("table", 3, "2")
 
         events shouldHaveSize 3
-        events.map { it.id } shouldContainInOrder listOf(3, 4, 5)
+        events.map { it.arenaId } shouldContainInOrder listOf("3", "4", "5")
     }
 })
