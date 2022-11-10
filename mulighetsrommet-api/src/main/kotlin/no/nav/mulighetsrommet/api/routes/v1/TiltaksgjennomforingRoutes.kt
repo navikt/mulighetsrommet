@@ -2,16 +2,12 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.routes.v1.responses.ListResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import org.koin.ktor.ext.inject
 
 fun Route.tiltaksgjennomforingRoutes() {
@@ -22,11 +18,11 @@ fun Route.tiltaksgjennomforingRoutes() {
             val paginationParams = getPaginationParams()
             val data = tiltaksgjennomforingService.getTiltaksgjennomforinger(paginationParams)
             call.respond(
-                TiltaksgjennomforingerResponse(
+                PaginatedResponse(
                     pagination = Pagination(
                         totalCount = data.size,
                         currentPage = paginationParams.page,
-                        pageSizeLimit = paginationParams.limit
+                        pageSize = paginationParams.limit
                     ),
                     data = data
                 )
@@ -46,9 +42,3 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
     }
 }
-
-@Serializable
-data class TiltaksgjennomforingerResponse(
-    override val pagination: Pagination? = null,
-    override val data: List<Tiltaksgjennomforing>
-) : ListResponse

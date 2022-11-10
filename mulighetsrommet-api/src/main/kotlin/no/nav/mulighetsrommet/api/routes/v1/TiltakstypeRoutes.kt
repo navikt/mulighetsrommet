@@ -5,13 +5,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.routes.v1.responses.ListResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
@@ -33,12 +31,12 @@ fun Route.tiltakstypeRoutes() {
 
             val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
             call.respond(
-                TiltakstyperResponse(
+                PaginatedResponse(
                     data = items,
                     pagination = Pagination(
                         totalCount = items.size,
                         currentPage = paginationParams.page,
-                        pageSizeLimit = paginationParams.limit
+                        pageSize = paginationParams.limit
                     )
                 )
             )
@@ -67,9 +65,3 @@ fun Route.tiltakstypeRoutes() {
         }
     }
 }
-
-@Serializable
-data class TiltakstyperResponse(
-    override val pagination: Pagination? = null,
-    override val data: List<Tiltakstype>,
-) : ListResponse

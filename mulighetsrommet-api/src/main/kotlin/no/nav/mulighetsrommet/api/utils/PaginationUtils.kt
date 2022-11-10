@@ -4,8 +4,8 @@ import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 
 class PaginationParams(
-    val nullablePage: Int? = null,
-    val nullableLimit: Int? = null
+    private val nullablePage: Int? = null,
+    private val nullableLimit: Int? = null
 ) {
     val page get() = nullablePage ?: 1
     val limit get() = nullableLimit ?: DEFAULT_PAGINATION_LIMIT
