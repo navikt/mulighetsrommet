@@ -2,8 +2,10 @@ package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import org.intellij.lang.annotations.Language
 
 class TiltakstypeService(private val db: Database) {
 
@@ -15,22 +17,39 @@ class TiltakstypeService(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getTiltakstyper(innsatsgrupper: List<Int>? = null, search: String? = null): List<Tiltakstype> {
+    fun getTiltakstyper(
+        innsatsgrupper: List<Int>? = null,
+        search: String? = null,
+        paginationParams: PaginationParams = PaginationParams()
+    ): List<Tiltakstype> {
         val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 
         val parameters = mapOf(
             "innsatsgrupper" to innsatsgrupperQuery,
-            "navn" to "%$search%"
+            "navn" to "%$search%",
+            "paginationLimit" to paginationParams.limit,
+            "paginationOffset" to paginationParams.offset
         )
 
+        @Language("PostgreSQL")
         val query = """
-            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato 
+            from tiltakstype
         """
             .where(innsatsgrupperQuery, "(innsatsgruppe_id = any(:innsatsgrupper))")
             .andWhere(search, "(lower(navn) like lower(:navn))")
+            .plus(
+                """
+            limit :paginationLimit
+            offset :paginationOffset
+        """
+            )
             .trimIndent()
 
-        val result = queryOf(query, parameters).map { DatabaseMapper.toTiltakstype(it) }.asList
+        val result = queryOf(
+            query,
+            parameters
+        ).map { DatabaseMapper.toTiltakstype(it) }.asList
         return db.run(result)
     }
 

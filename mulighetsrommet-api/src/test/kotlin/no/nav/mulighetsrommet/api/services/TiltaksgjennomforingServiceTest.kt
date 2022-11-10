@@ -5,6 +5,8 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.repositories.ArenaRepository
+import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
@@ -55,14 +57,14 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             arrangorId = 1,
             tiltakskode = "INDOPPFOLG",
             id = 1,
-            sakId = 1,
+            sakId = 1
         )
         val tiltak2 = AdapterTiltaksgjennomforing(
             navn = "Trening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
             id = 2,
-            sakId = 2,
+            sakId = 2
         )
 
         test("should return empty result when there are no created tiltak") {
@@ -100,7 +102,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     tiltaksnummer = 22,
                     aar = 2022,
                     tilgjengelighet = Tilgjengelighetsstatus.Ledig
-                ),
+                )
             )
         }
 
@@ -122,11 +124,19 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         context("tilgjengelighetsstatus") {
             context("when tiltak is closed for applications") {
                 beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(apentForInnsok = false))
+                    arenaRepository.upsertTiltaksgjennomforing(
+                        tiltak1.copy(
+                            apentForInnsok = false
+                        )
+                    )
                 }
 
                 afterAny {
-                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(apentForInnsok = true))
+                    arenaRepository.upsertTiltaksgjennomforing(
+                        tiltak1.copy(
+                            apentForInnsok = true
+                        )
+                    )
                 }
 
                 test("should have tilgjengelighet set to STENGT") {
@@ -136,7 +146,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when there are no limits to available seats") {
                 beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = null))
+                    arenaRepository.upsertTiltaksgjennomforing(
+                        tiltak1.copy(
+                            antallPlasser = null
+                        )
+                    )
                 }
 
                 test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
@@ -146,7 +160,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when there are no available seats") {
                 beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 0))
+                    arenaRepository.upsertTiltaksgjennomforing(
+                        tiltak1.copy(
+                            antallPlasser = 0
+                        )
+                    )
                 }
 
                 test("should have tilgjengelighet set to VENTELISTE") {
@@ -156,7 +174,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when all available seats are occupied by deltakelser with status DELTAR") {
                 beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 1))
+                    arenaRepository.upsertTiltaksgjennomforing(
+                        tiltak1.copy(
+                            antallPlasser = 1
+                        )
+                    )
 
                     arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
@@ -175,7 +197,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             context("when deltakelser are no longer DELTAR") {
                 beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(tiltak1.copy(antallPlasser = 1))
+                    arenaRepository.upsertTiltaksgjennomforing(
+                        tiltak1.copy(
+                            antallPlasser = 1
+                        )
+                    )
 
                     arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
@@ -197,6 +223,90 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             arenaRepository.deleteTiltaksgjennomforing(tiltak1)
 
             service.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
+        }
+    }
+    context("pagination") {
+        listener.db.clean()
+        listener.db.migrate()
+
+        val arenaRepository = ArenaRepository(listener.db)
+        val service = TiltaksgjennomforingService(listener.db)
+
+        arenaRepository.upsertTiltakstype(
+            AdapterTiltak(
+                navn = "Arbeidstrening",
+                innsatsgruppe = 1,
+                tiltakskode = "ARBTREN",
+                fraDato = LocalDateTime.now(),
+                tilDato = LocalDateTime.now().plusYears(1)
+            )
+        )
+
+        (1..105).forEach {
+            arenaRepository.upsertTiltaksgjennomforing(
+                AdapterTiltaksgjennomforing(
+                    navn = "Trening",
+                    arrangorId = 1,
+                    tiltakskode = "ARBTREN",
+                    id = it,
+                    sakId = it
+                )
+            )
+            arenaRepository.updateTiltaksgjennomforingWithSak(
+                AdapterSak(
+                    id = it,
+                    lopenummer = it,
+                    aar = 2022
+                )
+            )
+        }
+
+        test("default pagination gets first 50 tiltak") {
+
+            val tiltaksgjennomforinger =
+                service.getTiltaksgjennomforinger()
+
+            tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
+            tiltaksgjennomforinger.first().id shouldBe 1
+            tiltaksgjennomforinger.last().id shouldBe 50
+        }
+
+        test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
+            val tiltaksgjennomforinger =
+                service.getTiltaksgjennomforinger(
+                    PaginationParams(
+                        4,
+                        20
+                    )
+                )
+
+            tiltaksgjennomforinger.size shouldBe 20
+            tiltaksgjennomforinger.first().id shouldBe 61
+            tiltaksgjennomforinger.last().id shouldBe 80
+        }
+
+        test("pagination with page 3 default size should give tiltak with id 101-105") {
+            val tiltaksgjennomforinger =
+                service.getTiltaksgjennomforinger(
+                    PaginationParams(
+                        3
+                    )
+                )
+            tiltaksgjennomforinger.size shouldBe 5
+            tiltaksgjennomforinger.first().id shouldBe 101
+            tiltaksgjennomforinger.last().id shouldBe 105
+        }
+
+        test("pagination with default page and size 200 should give tiltak with id 1-105") {
+            val tiltaksgjennomforinger =
+                service.getTiltaksgjennomforinger(
+                    PaginationParams(
+                        nullableLimit = 200
+                    )
+                )
+            tiltaksgjennomforinger.size shouldBe 105
+            tiltaksgjennomforinger.first().id shouldBe 1
+            tiltaksgjennomforinger.last().id shouldBe 105
         }
     }
 })
