@@ -8,6 +8,11 @@
   margin: 0 auto;
 }
 
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .tiltakstype_detaljer {
   display: grid;
   grid-template-rows: auto 1fr;

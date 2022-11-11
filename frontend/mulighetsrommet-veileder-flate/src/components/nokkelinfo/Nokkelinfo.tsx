@@ -2,18 +2,23 @@ import { Heading, HelpText } from '@navikt/ds-react';
 import { NokkelinfoKomponenter } from '../../core/api/models';
 import styles from './Nokkelinfo.module.scss';
 
-interface NokkelinfoProps {
+export interface NokkelinfoProps {
   nokkelinfoKomponenter: NokkelinfoKomponenter[];
 }
 
-const Nokkelinfo = ({ nokkelinfoKomponenter }: NokkelinfoProps) => {
+const Nokkelinfo = ({ nokkelinfoKomponenter, ...rest }: NokkelinfoProps) => {
   return (
-    <div className={styles.container}>
+    <div className={styles.container} {...rest}>
       {nokkelinfoKomponenter.map((nokkelinfo: NokkelinfoKomponenter, index: number) => {
         return (
           <div className={styles.nokkelinfo} key={index}>
             <div className={styles.content}>
-              <p className={styles.tekst}>{nokkelinfo.innhold}</p>
+              {typeof nokkelinfo.innhold === 'string' ? (
+                <p className={styles.tekst}>{nokkelinfo.innhold}</p>
+              ) : (
+                <div className={styles.tekst}>{nokkelinfo.innhold}</div>
+              )}
+
               {nokkelinfo.hjelpetekst && (
                 <HelpText title="Se hvordan prosenten er regnet ut" placement="right" style={{ maxWidth: '400px' }}>
                   {nokkelinfo.hjelpetekst}
