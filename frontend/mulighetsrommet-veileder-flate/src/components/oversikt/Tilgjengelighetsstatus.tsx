@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { Oppstart, Tilgjengelighetsstatus } from '../../core/api/models';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';

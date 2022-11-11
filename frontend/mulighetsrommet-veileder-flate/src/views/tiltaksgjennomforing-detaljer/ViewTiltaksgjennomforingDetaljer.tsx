@@ -3,7 +3,7 @@ import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
-import Nokkelinfo from '../../components/nokkelinfo/Nokkelinfo';
+import Nokkelinfo, { NokkelinfoProps } from '../../components/nokkelinfo/Nokkelinfo';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
@@ -20,6 +20,7 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { environments } from '../../env';
+import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -90,6 +91,22 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     else return 'Del tiltak med bruker';
   };
 
+  const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
+    nokkelinfoKomponenter: [
+      {
+        _id: tiltaksgjennomforing._id,
+        innhold: (
+          <TilgjengelighetsstatusComponent
+            oppstart={tiltaksgjennomforing.oppstart}
+            status={tiltaksgjennomforing.tilgjengelighetsstatus}
+          />
+        ),
+        tittel: tiltaksgjennomforing.estimert_ventetid?.toString() ?? '',
+        hjelpetekst: 'Tilgjengelighetsstatusen er beregnet ut i fra data som kommer fra Arena',
+      },
+    ],
+  };
+
   return (
     <>
       <div className={styles.container}>
@@ -102,11 +119,17 @@ const ViewTiltaksgjennomforingDetaljer = () => {
         <div className={styles.tiltakstype_detaljer}>
           <div className={styles.tiltakstype_header_maksbredde}>
             <TiltaksgjennomforingsHeader />
-            {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
-              <div className={styles.nokkelinfo_container}>
-                <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
-              </div>
-            )}
+            <div className={styles.flex}>
+              {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
+                <div className={styles.nokkelinfo_container}>
+                  <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
+                </div>
+              )}
+              <Nokkelinfo
+                data-testid="tilgjengelighetsstatus_detaljside"
+                nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
+              />
+            </div>
           </div>
           <div className={styles.sidemeny}>
             <SidemenyDetaljer />
