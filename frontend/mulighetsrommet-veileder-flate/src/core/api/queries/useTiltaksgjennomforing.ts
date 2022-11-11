@@ -64,7 +64,7 @@ function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
   return groq`&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
 }
 
-function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler): InnsatsgruppeNokler[] {
+export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler): InnsatsgruppeNokler[] {
   switch (innsatsgruppe) {
     case 'STANDARD_INNSATS':
       return ['STANDARD_INNSATS'];
