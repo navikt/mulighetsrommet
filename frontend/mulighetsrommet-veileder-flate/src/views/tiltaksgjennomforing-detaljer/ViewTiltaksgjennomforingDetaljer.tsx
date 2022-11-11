@@ -67,7 +67,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   };
 
   if (isLoading) {
-    return <Loader className={styles.filter_loader} size="xlarge" />;
+    return (
+      <div className={styles.filter_loader}>
+        <Loader size="xlarge" />
+      </div>
+    );
   }
 
   if (isError) {
