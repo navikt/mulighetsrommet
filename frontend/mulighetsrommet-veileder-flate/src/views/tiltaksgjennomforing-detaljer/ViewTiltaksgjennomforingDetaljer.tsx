@@ -134,8 +134,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           <div className={styles.sidemeny}>
             <SidemenyDetaljer />
             <div className={styles.deleknapp_container}>
-              {(whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) ||
-                !erPreview) && (
+              {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && !erPreview && (
                 <Button
                   as="a"
                   href={lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
@@ -144,7 +143,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                   className={styles.deleknapp}
                   aria-label="Opprett avtale"
                   data-testid="opprettavtaleknapp"
-                  title={tooltip()}
                 >
                   Opprett avtale
                 </Button>
