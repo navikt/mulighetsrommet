@@ -4,6 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -37,6 +38,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.toTiltaksgjennomforing() }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun delete(tiltak: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> = query {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltaksgjennomforing
+            where id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, tiltak.id)
+            .asExecute
+            .let { db.run(it) }
+
+        tiltak
     }
 
     fun get(id: UUID): Tiltaksgjennomforing? {

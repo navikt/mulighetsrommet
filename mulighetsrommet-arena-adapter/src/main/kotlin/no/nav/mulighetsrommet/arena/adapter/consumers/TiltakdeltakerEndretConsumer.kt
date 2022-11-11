@@ -46,17 +46,24 @@ class TiltakdeltakerEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping.Tiltaksgjennomforing(arenaTable, event.arenaId, UUID.randomUUID())
+            ArenaEntityMapping.Deltaker(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
-        val deltaker = deltakere.upsert(decoded.data.toDeltaker(mapping.entityId))
+        val deltaker = decoded.data
+            .toDeltaker(mapping.entityId)
+            .let {
+                if (decoded.operation == ArenaEventData.Operation.Delete) {
+                    deltakere.delete(it)
+                } else {
+                    deltakere.upsert(it)
+                }
+            }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 
+        // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/deltaker", deltaker) {
-            status.isSuccess() || status == HttpStatusCode.Conflict
-        }
+        client.sendRequest(method, "/api/v1/arena/deltaker", deltaker)
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Deltaker(

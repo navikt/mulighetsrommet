@@ -32,6 +32,20 @@ class SakRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
+    fun delete(sak: Sak): QueryResult<Sak> = query {
+        @Language("PostgreSQL")
+        val query = """
+            delete from sak
+            where sak_id = ?
+        """.trimIndent()
+
+        queryOf(query, sak.sakId)
+            .asExecute
+            .let { db.run(it) }
+
+        sak
+    }
+
     fun get(id: Int): Sak? {
         logger.info("Henter sak id=$id")
 

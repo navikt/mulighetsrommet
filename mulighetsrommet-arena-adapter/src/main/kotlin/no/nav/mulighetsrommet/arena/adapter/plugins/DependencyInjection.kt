@@ -51,7 +51,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get()
             ),
             TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get(), get(), get()),
-            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get(), get()),
+            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
         )
         ConsumerGroup(consumers)
     }

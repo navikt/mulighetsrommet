@@ -50,10 +50,19 @@ class TiltakgjennomforingEndretConsumer(
             ArenaEntityMapping.Tiltaksgjennomforing(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
-        val tiltaksgjennomforing = tiltaksgjennomforinger.upsert(decoded.data.toTiltaksgjennomforing(mapping.entityId))
+        val tiltaksgjennomforing = decoded.data
+            .toTiltaksgjennomforing(mapping.entityId)
+            .let {
+                if (decoded.operation == ArenaEventData.Operation.Delete) {
+                    tiltaksgjennomforinger.delete(it)
+                } else {
+                    tiltaksgjennomforinger.upsert(it)
+                }
+            }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 
+        // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.sendRequest(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
     }

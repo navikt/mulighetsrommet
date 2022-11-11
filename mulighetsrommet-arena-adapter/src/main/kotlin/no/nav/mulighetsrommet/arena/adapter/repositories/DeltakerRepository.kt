@@ -4,6 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import org.intellij.lang.annotations.Language
@@ -35,6 +36,20 @@ class DeltakerRepository(private val db: Database) {
             .map { it.toDeltaker() }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun delete(deltaker: Deltaker): QueryResult<Deltaker> = query {
+        @Language("PostgreSQL")
+        val query = """
+            delete from deltaker
+            where id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, deltaker.id)
+            .asExecute
+            .let { db.run(it) }
+
+        deltaker
     }
 
     fun get(id: UUID): Deltaker? {

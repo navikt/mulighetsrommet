@@ -4,6 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -33,6 +34,20 @@ class TiltakstypeRepository(private val db: Database) {
             .map { it.toSak() }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun delete(tiltak: Tiltakstype): QueryResult<Tiltakstype> = query {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, tiltak.id)
+            .asExecute
+            .let { db.run(it) }
+
+        tiltak
     }
 
     fun get(id: UUID): Tiltakstype? {

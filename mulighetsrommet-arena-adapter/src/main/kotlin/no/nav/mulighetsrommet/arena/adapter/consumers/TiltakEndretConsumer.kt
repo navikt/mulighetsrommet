@@ -49,10 +49,19 @@ class TiltakEndretConsumer(
             ArenaEntityMapping.Tiltakstype(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
-        val tiltakstype = tiltakstyper.upsert(decoded.data.toTiltakstype(mapping.entityId))
+        val tiltakstype = decoded.data
+            .toTiltakstype(mapping.entityId)
+            .let {
+                if (decoded.operation == ArenaEventData.Operation.Delete) {
+                    tiltakstyper.delete(it)
+                } else {
+                    tiltakstyper.upsert(it)
+                }
+            }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 
+        // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.sendRequest(method, "/api/v1/arena/tiltakstype", tiltakstype)
     }
