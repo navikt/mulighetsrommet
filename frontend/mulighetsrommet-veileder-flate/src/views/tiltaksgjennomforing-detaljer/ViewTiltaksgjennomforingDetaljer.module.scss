@@ -1,11 +1,17 @@
 .filter_loader {
   display: block;
   margin: 0 auto;
+  text-align: center;
 }
 
 .container {
   max-width: 1252px;
   margin: 0 auto;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .tiltakstype_detaljer {

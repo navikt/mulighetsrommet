@@ -34,7 +34,11 @@ const Tiltaksgjennomforingsoversikt = () => {
   }, [tiltaksgjennomforinger]);
 
   if (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching) {
-    return <Loader size="xlarge" />;
+    return (
+      <div className={styles.filter_loader}>
+        <Loader size="xlarge" />
+      </div>
+    );
   }
 
   if (isError) {

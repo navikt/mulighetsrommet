@@ -14,6 +14,8 @@ export default function useTiltaksgjennomforingById() {
     tiltaksgjennomforingNavn,
     beskrivelse,
     "tiltaksnummer": tiltaksnummer.current,
+    tilgjengelighetsstatus,
+    estimert_ventetid,
     lokasjon,
     oppstart,
     oppstartsdato,
@@ -36,6 +38,7 @@ export default function useTiltaksgjennomforingById() {
       },
       regelverkLenker[]->,
       innsatsgruppe->,
+      
     }
   }`,
     {

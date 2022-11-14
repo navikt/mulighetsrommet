@@ -1,3 +1,5 @@
+import React from 'react';
+
 export type Tiltakstyper =
   | 'Digital jobbklubb'
   | 'AFT'
@@ -128,7 +130,7 @@ export interface StatistikkFil {
 export interface NokkelinfoKomponenter {
   _id: string;
   tittel: string;
-  innhold: string;
+  innhold: string | React.ReactNode;
   hjelpetekst?: string;
 }
 

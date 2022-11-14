@@ -11,8 +11,11 @@
     padding-left: 0;
   }
 
+  :global(.navds-accordion__item--open .navds-accordion__header) {
+    background-color: initial;
+  }
+
   .tiltakstype_oversikt_filtermeny {
-    border-right: 1px solid var(--navds-semantic-color-border-muted);
     padding: 1rem 0.5rem 1rem 0;
     transition: top 0.2s ease 0s, max-height 0.2s ease 0s;
     display: flex;
@@ -26,7 +29,6 @@
     padding-bottom: 0.8rem;
     :global(.navds-body-short) {
       font-size: 1rem;
-      min-height: initial;
     }
   }
 
