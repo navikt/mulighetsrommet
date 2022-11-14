@@ -86,51 +86,17 @@ class ArenaEventServiceTest : FunSpec({
             }
         }
 
-        test("should replay all events in the order of their id") {
-            every {
-                arenaData.getAll(table, any(), null)
-            } returns listOf(
-                fooEvent
-            )
+        test("should replay all events in order") {
+            every { arenaData.getAll(table, any(), 0) } returns listOf(fooEvent)
 
-            every {
-                arenaData.getAll(table, any(), "1")
-            } returns listOf(
-                barEvent
-            )
+            every { arenaData.getAll(table, any(), 1) } returns listOf(barEvent)
 
-            every { arenaData.getAll(table, any(), "2") } returns listOf()
+            every { arenaData.getAll(table, any(), 2) } returns listOf()
 
             service.replayEvents(table)
 
             coVerify(exactly = 1) {
                 consumer.replayEvent(fooEvent)
-                consumer.replayEvent(barEvent)
-            }
-        }
-
-        test("should only replay events after the specified id") {
-            every {
-                arenaData.getAll(table, any(), null)
-            } returns listOf(
-                fooEvent
-            )
-
-            every {
-                arenaData.getAll(table, any(), "1")
-            } returns listOf(
-                barEvent
-            )
-
-            every { arenaData.getAll(table, any(), "2") } returns listOf()
-
-            service.replayEvents(table, "1")
-
-            coVerify(exactly = 0) {
-                consumer.replayEvent(fooEvent)
-            }
-
-            coVerify(exactly = 1) {
                 consumer.replayEvent(barEvent)
             }
         }

@@ -38,36 +38,26 @@ class ArenaEventRepository(private val db: Database) {
         val query = """
             select arena_table, arena_id, payload, consumption_status, message
             from arena_events
-            where arena_table = ? and arena_id = ?
+            where arena_table = :arena_table and arena_id = :arena_id
         """.trimIndent()
 
-        return queryOf(query, table, id)
+        return queryOf(query, mapOf("arena_table" to table, "arena_id" to id))
             .map { it.toEvent() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun getAll(table: String, limit: Int, id: String? = null): List<ArenaEvent> {
-        logger.info("Getting data table=$table, limit=$limit, id=$id")
-
+    fun getAll(table: String? = null, limit: Int = 1000, offset: Int = 0): List<ArenaEvent> {
         @Language("PostgreSQL")
         val query = """
             select arena_table, arena_id, payload, consumption_status, message
             from arena_events
-            where arena_table = :arena_table
-              and arena_id > :arena_id
-            order by arena_id
+            ${table?.let { "where arena_table = :arena_table" } ?: ""}
             limit :limit
+            offset :offset
         """.trimIndent()
 
-        return queryOf(
-            query,
-            mapOf(
-                "arena_table" to table,
-                "limit" to limit,
-                "arena_id" to (id ?: "0"),
-            )
-        )
+        return queryOf(query, mapOf("arena_table" to table, "limit" to limit, "offset" to offset))
             .map { it.toEvent() }
             .asList
             .let { db.run(it) }

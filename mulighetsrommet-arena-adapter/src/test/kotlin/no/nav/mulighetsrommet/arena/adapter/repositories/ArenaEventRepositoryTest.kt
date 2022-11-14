@@ -46,8 +46,8 @@ class ArenaEventRepositoryTest : FunSpec({
         events shouldHaveSize 3
     }
 
-    test("should retrieve 3 saved events starting from id 2") {
-        val events = repository.getAll("table", 3, "2")
+    test("should get events specified by table, limit and offset") {
+        val events = repository.getAll(table = "table", limit = 3, offset = 2)
 
         events shouldHaveSize 3
         events.map { it.arenaId } shouldContainInOrder listOf("3", "4", "5")
