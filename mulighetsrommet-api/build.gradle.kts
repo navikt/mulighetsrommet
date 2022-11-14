@@ -74,8 +74,9 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
+    val navCommonModules = "2.2022.11.10_08.37-7216bb5b1ede"
     implementation("no.nav.common:token-client:$navCommonModules")
+    implementation("no.nav.common:audit-log:$navCommonModules")
 
     // Tilgangskontroll
     val poaoTilgangClient = "ce474aded50b50200827dba1ce319043f53d5e7f" // Full SHA fra git-commit

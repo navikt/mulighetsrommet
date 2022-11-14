@@ -38,4 +38,5 @@
     <logger name="no.nav.mulighetsrommet" level="INFO"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
 </configuration>

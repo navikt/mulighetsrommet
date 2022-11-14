@@ -20,6 +20,10 @@ dependencies {
     // Metrikker
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
 
+    // Audit-logging
+    val navCommonModules = "2.2022.11.10_08.37-7216bb5b1ede"
+    implementation("no.nav.common:audit-log:$navCommonModules")
+
     val hopliteVersion = "2.4.0"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     api("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
