@@ -43,17 +43,23 @@ fun Route.brukerRoutes() {
                 status = HttpStatusCode.BadRequest
             )
             val accessToken = call.getAccessToken()
-            auditLog.log(createAuditMessage())
-            historikkService.hentHistorikkForBruker(fnr, accessToken)?.let { call.respond(it) }
-                ?: call.respondText(
-                    "Klarte ikke hente historikk for bruker",
-                    status = HttpStatusCode.InternalServerError
-                )
+            auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøker å se på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
+            historikkService.hentHistorikkForBruker(fnr, accessToken)?.let {
+                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
+                call.respond(it)
+            }
+                ?: run {
+                    auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' fikk ikke sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
+                    call.respondText(
+                        "Klarte ikke hente historikk for bruker",
+                        status = HttpStatusCode.InternalServerError
+                    )
+                }
         }
     }
 }
 
-private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(): CefMessage? {
+private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(msg: String): CefMessage? {
     return CefMessage.builder()
         .applicationName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
@@ -64,7 +70,7 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(): CefMess
         .timeEnded(System.currentTimeMillis())
         .extension(
             "msg",
-            "NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."
+            msg
         )
         .build()
 }

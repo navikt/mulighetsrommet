@@ -32,15 +32,21 @@ fun Route.dialogRoutes() {
                 status = HttpStatusCode.BadRequest
             )
             val accessToken = call.getAccessToken()
-            auditLog.log(createAuditMessage(dialogRequest))
+            auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' prøver å dele informasjon om tiltaket '${dialogRequest.overskrift}' til bruker med ident: '${getNorskIdent()}'."))
             val response = dialogService.sendMeldingTilDialogen(fnr, accessToken, dialogRequest)
-            response?.let { call.respond(response) } ?: call.respond(HttpStatusCode.Conflict)
+            response?.let {
+                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har delt informasjon om tiltaket '${dialogRequest.overskrift}' til bruker med ident: '${getNorskIdent()}'."))
+                call.respond(response)
+            } ?: run {
+                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' fikke ikke delt informasjon om tiltaket '${dialogRequest.overskrift}' til bruker med ident: '${getNorskIdent()}'."))
+                call.respond(HttpStatusCode.Conflict)
+            }
         }
     }
 }
 
 private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(
-    dialogRequest: DialogRequest
+    msg: String
 ): CefMessage? {
     return CefMessage.builder()
         .applicationName("mulighetsrommet-api")
@@ -52,7 +58,7 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(
         .timeEnded(System.currentTimeMillis())
         .extension(
             "msg",
-            "NAV-ansatt med ident: '${getNavIdent()}' har delt informasjon om tiltaket '${dialogRequest.overskrift}' til bruker med ident: '${getNorskIdent()}'."
+            msg
         )
         .build()
 }
