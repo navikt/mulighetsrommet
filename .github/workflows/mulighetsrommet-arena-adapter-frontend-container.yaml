@@ -1,0 +1,37 @@
+name: POAO-frontend for mulighetsrommet-arena-adapter frontend
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/mulighetsrommet-arena-adapter-frontend-container.yaml'
+      - 'mulighetsrommet-arena-adapter/.nais/nais-frontend*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
+
+concurrency:
+  group: mulighetsrommet_arena_adapter_frontend_container
+  cancel-in-progress: true
+
+env:
+  APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: deploy gcp dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-frontend-dev.yaml
