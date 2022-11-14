@@ -1,7 +1,8 @@
 {
   "private": true,
   "workspaces": [
-    "frontend/*"
+    "frontend/*",
+    "mulighetsrommet-arena-adapter/src/web"
   ],
   "devDependencies": {
     "turbo": "^1.3.1"

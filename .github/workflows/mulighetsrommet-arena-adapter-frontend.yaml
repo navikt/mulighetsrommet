@@ -34,7 +34,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=web
+        run: npx turbo run build --filter=arena-adapter-management
       - name: Notify slack fail
         if: failure()
         env:
