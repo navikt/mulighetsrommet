@@ -1,11 +1,11 @@
-name: POAO-frontend for mulighetsrommet-arena-adapter frontend
+name: POAO-frontend for mulighetsrommet-arena-adapter-manager
 
 on:
   push:
     branches:
       - 'main'
     paths:
-      - '.github/workflows/mulighetsrommet-arena-adapter-frontend-container.yaml'
+      - '.github/workflows/mulighetsrommet-arena-adapter-manager-container.yaml'
       - 'mulighetsrommet-arena-adapter/.nais/nais-frontend*'
   workflow_dispatch:
     inputs:
@@ -19,7 +19,7 @@ on:
           - dev_and_prod
 
 concurrency:
-  group: mulighetsrommet_arena_adapter_frontend_container
+  group: mulighetsrommet_arena_adapter_manager_container
   cancel-in-progress: true
 
 env:

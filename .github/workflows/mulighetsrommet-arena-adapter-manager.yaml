@@ -1,9 +1,9 @@
-name: CI/CD (mulighetsrommet-arena-adapter-frontend)
+name: CI/CD (mulighetsrommet-arena-adapter-manager)
 
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-arena-adapter-frontend.yaml
+      - .github/workflows/mulighetsrommet-arena-adapter-manager.yaml
       - package.json
       - package-lock.json
       - turbo.json
@@ -46,10 +46,10 @@ jobs:
         uses: google-github-actions/auth@v0
         with:
           credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'push' github.event_name == 'workflow_dispatch'
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v0
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'push' github.event_name == 'workflow_dispatch'
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/mulighetsrommet-arena-adapter/src/web/dist gs://mulighetsrommet-arena-adapter-frontend-dev
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/mulighetsrommet-arena-adapter/src/web/dist gs://mulighetsrommet-arena-adapter-manager-dev
+        if: github.event_name == 'push' github.event_name == 'workflow_dispatch'

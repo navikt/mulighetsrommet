@@ -1,7 +1,7 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: mulighetsrommet-arena-adapter-frontend
+  name: mulighetsrommet-arena-adapter-manager
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -38,7 +38,7 @@ spec:
         - /asset-manifest.json
   gcp:
     buckets:
-      - name: mulighetsrommet-arena-adapter-frontend-dev
+      - name: mulighetsrommet-arena-adapter-manager-dev
         cascadingDelete: false
   accessPolicy:
     outbound:
@@ -49,7 +49,7 @@ spec:
       value: >
         {
           "gcs": {
-            "bucketName": "mulighetsrommet-arena-adapter-frontend-dev"
+            "bucketName": "mulighetsrommet-arena-adapter-manager-dev"
           },
           "auth": {
             "loginProvider": "AZURE_AD"
