@@ -6,7 +6,7 @@ on:
       - 'main'
     paths:
       - '.github/workflows/mulighetsrommet-arena-adapter-manager-container.yaml'
-      - 'mulighetsrommet-arena-adapter/.nais/nais-frontend*'
+      - 'frontend/arena-adapter-management/.nais/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -34,4 +34,4 @@ jobs:
         uses: nais/deploy/actions/deploy@v1
         env:
           CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-frontend-dev.yaml
+          RESOURCE: frontend/arena-adapter-management/.nais/nais-dev.yaml

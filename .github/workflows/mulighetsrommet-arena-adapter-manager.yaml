@@ -51,5 +51,5 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/mulighetsrommet-arena-adapter/src/web/dist gs://mulighetsrommet-arena-adapter-manager-dev
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/src/web/dist gs://mulighetsrommet-arena-adapter-manager-dev
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
