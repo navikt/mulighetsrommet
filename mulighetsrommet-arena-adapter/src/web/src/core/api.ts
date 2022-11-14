@@ -1,12 +1,12 @@
 import { Topic } from "../domain";
 
 export const getTopics = async () =>
-  fetch("/topics", {
+  fetch("/mulighetsrommet-arena-adapter/topics", {
     method: "GET",
   }).then((response) => response.json());
 
 export const putTopicRunningState = async (topics: Topic[]) => {
-  return fetch("/topics", {
+  return fetch("/mulighetsrommet-arena-adapter/topics", {
     method: "PUT",
     headers: {
       "content-type": "application/json",

@@ -1,0 +1,69 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: mulighetsrommet-arena-adapter-frontend
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2022.10.10_05.52-a9bb795e0ffe
+  port: 8080
+  ingresses:
+    - https://mulighetsrommet-arena-adapter-manager.dev.intern.nav.no
+  liveness:
+    path: /internal/alive
+    initialDelay: 10
+  readiness:
+    path: /internal/ready
+    initialDelay: 10
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 75
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  azure:
+    application:
+      enabled: true
+    sidecar:
+      enabled: true
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /assets/*
+        - /asset-manifest.json
+  gcp:
+    buckets:
+      - name: mulighetsrommet-arena-adapter-frontend-dev
+        cascadingDelete: false
+  accessPolicy:
+    outbound:
+      rules:
+        - application: mulighetsrommet-arena-adapter
+  env:
+    - name: JSON_CONFIG
+      value: >
+        {
+          "gcs": {
+            "bucketName": "mulighetsrommet-arena-adapter-frontend-dev"
+          },
+          "auth": {
+            "loginProvider": "AZURE_AD"
+          },
+          "proxies": [
+            {
+              "fromPath": "/mulighetsrommet-arena-adapter",
+              "toUrl": "http://mulighetsrommet-arena-adapter",
+              "preserveFromPath": false,
+               "toApp": {
+                "name": "mulighetsrommet-arena-adapter",
+                "namespace": "team-mulighetsrommet",
+                "cluster": "dev-gcp"
+              }
+            }
+          ]
+        }
