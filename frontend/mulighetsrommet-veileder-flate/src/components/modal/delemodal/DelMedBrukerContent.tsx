@@ -72,7 +72,7 @@ export function DelMedBrukerContent({
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const tekst = sySammenDeletekst();
     try {
-      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ requestBody: { overskrift, tekst } });
       if (skalLagreAtViDelerMedBruker && tiltaksnummer) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksnummer);
         refetchOmVeilederHarDeltMedBruker();

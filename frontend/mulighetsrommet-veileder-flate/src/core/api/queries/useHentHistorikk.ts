@@ -8,7 +8,7 @@ export function useHentHistorikk(prefetch: boolean = true) {
   const fnr = useHentFnrFraUrl();
   return useQuery<HistorikkForBruker[], any>(
     [QueryKeys.Historikk, fnr],
-    () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ fnr }),
+    () => mulighetsrommetClient.historikk.hentHistorikkForBruker(),
     { enabled: prefetch }
   );
 }
