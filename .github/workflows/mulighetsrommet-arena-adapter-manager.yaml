@@ -56,6 +56,8 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: dist
+      - run: pwd
+      - run: ls
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0
         with:
