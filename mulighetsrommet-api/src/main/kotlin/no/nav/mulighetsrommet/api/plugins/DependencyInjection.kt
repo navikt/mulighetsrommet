@@ -68,45 +68,47 @@ private fun db(databaseConfig: DatabaseConfig): Module {
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
     return VeilarbvedtaksstotteClientImpl(
         config.veilarbvedtaksstotteConfig.url,
-        tokenClientProvider(config),
-        config.veilarbvedtaksstotteConfig.scope,
-        config.veilarbvedtaksstotteConfig.httpClient
+        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarbvedtaksstotteConfig.scope, accessToken) }
     )
 }
 
 private fun veilarboppfolging(config: AppConfig): VeilarboppfolgingClient {
     return VeilarboppfolgingClientImpl(
         config.veilarboppfolgingConfig.url,
-        tokenClientProvider(config),
-        config.veilarboppfolgingConfig.scope,
-        config.veilarboppfolgingConfig.httpClient
+        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarboppfolgingConfig.scope, accessToken) }
     )
 }
 
 private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
     return VeilarbpersonClientImpl(
         config.veilarbpersonConfig.url,
-        tokenClientProvider(config),
-        config.veilarbpersonConfig.scope,
-        config.veilarbpersonConfig.httpClient
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarbpersonConfig.scope,
+                accessToken
+            )
+        }
+
     )
 }
 
 private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
     return VeilarbdialogClientImpl(
         config.veilarbdialogConfig.url,
-        tokenClientProvider(config),
-        config.veilarbdialogConfig.scope,
-        config.veilarbdialogConfig.httpClient
+        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarbdialogConfig.scope, accessToken) }
     )
 }
 
 private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     return VeilarbveilederClientImpl(
         config.veilarbveilederConfig.url,
-        tokenClientProvider(config),
-        config.veilarbveilederConfig.scope,
-        config.veilarbveilederConfig.httpClient
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarbveilederConfig.scope,
+                accessToken
+            )
+        }
+
     )
 }
 
@@ -116,24 +118,21 @@ private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
         tokenClientProviderForMachineToMachine(config),
         tokenClientProvider(config),
         config.veilarbarenaConfig.scope,
-        config.poaoGcpProxy.scope,
-        config.veilarbarenaConfig.httpClient
+        config.poaoGcpProxy.scope
     )
 }
 
 private fun arenaordsproxy(config: AppConfig): ArenaOrdsProxyClient {
     return ArenaOrdsProxyClientImpl(
         baseUrl = config.arenaOrdsProxy.url,
-        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
-        scope = config.arenaOrdsProxy.scope
+        machineToMachineTokenClient = { tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(config.arenaOrdsProxy.scope) }
     )
 }
 
 private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
     return AmtEnhetsregisterClientImpl(
         baseUrl = config.amtEnhetsregister.url,
-        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
-        scope = config.amtEnhetsregister.scope
+        machineToMachineTokenClient = { tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(config.amtEnhetsregister.scope) }
     )
 }
 
@@ -172,7 +171,7 @@ private fun services(
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient,
     arenaOrdsProxyClient: ArenaOrdsProxyClient,
-    amtEnhetsregisterClient: AmtEnhetsregisterClient,
+    amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 

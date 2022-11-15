@@ -2,14 +2,15 @@ package no.nav.mulighetsrommet.api.clients.arena
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.client.*
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
-import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -23,17 +24,18 @@ class VeilarbarenaClientImpl(
     private val oboTokenClient: AzureAdOnBehalfOfTokenClient,
     private val scope: String,
     private val proxyScope: String,
-    private val client: HttpClient = baseClient.config {
+    clientEngine: HttpClientEngine = CIO.create()
+) : VeilarbarenaClient {
+    val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
-) : VeilarbarenaClient {
 
-    val fnrTilpersonIdCache: Cache<String, String> = Caffeine.newBuilder()
+    private val fnrTilpersonIdCache: Cache<String, String> = Caffeine.newBuilder()
         .expireAfterWrite(24, TimeUnit.HOURS)
         .maximumSize(500)
         .build()
 
-    override suspend fun hentPersonIdForFnr(fnr: String, accessToken: String?): String? {
+    override suspend fun hentPersonIdForFnr(fnr: String, accessToken: String): String? {
         val cachedPersonIdForFnr = fnrTilpersonIdCache.getIfPresent(fnr)
 
         if (cachedPersonIdForFnr != null) return cachedPersonIdForFnr
