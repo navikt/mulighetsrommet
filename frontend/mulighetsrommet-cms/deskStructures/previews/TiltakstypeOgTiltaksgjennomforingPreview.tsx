@@ -154,7 +154,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
           <SidemenyDetaljerRad navn="Oppstart">
             {displayed.oppstart === "dato"
               ? Intl.DateTimeFormat().format(new Date(displayed.oppstartsdato))
-              : "Løpende"}
+              : "Løpende oppstart"}
           </SidemenyDetaljerRad>
         </TekstFraGjennomforing>
         {tiltaksdata?.regelverkLenker && (
