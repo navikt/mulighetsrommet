@@ -1,14 +1,11 @@
 :global(.mulighetsrommet-veileder-flate) {
   :global(.navds-accordion__header) {
     border-bottom: 1px solid var(--navds-semantic-color-divider);
+    padding-left: 0;
   }
 
   :global(.navds-accordion__content) {
     border-bottom: 1px solid var(--navds-semantic-color-divider);
-  }
-
-  :global(.navds-accordion__content navds-body-long) {
-    padding-left: 0;
   }
 
   :global(.navds-accordion__item--open .navds-accordion__header) {
@@ -16,7 +13,7 @@
   }
 
   .tiltakstype_oversikt_filtermeny {
-    padding: 1rem 0.5rem 1rem 0;
+    padding-left: 0.5rem;
     transition: top 0.2s ease 0s, max-height 0.2s ease 0s;
     display: flex;
     flex-direction: column;
@@ -27,6 +24,7 @@
 
   .sokefelt {
     padding-bottom: 0.8rem;
+
     :global(.navds-body-short) {
       font-size: 1rem;
     }

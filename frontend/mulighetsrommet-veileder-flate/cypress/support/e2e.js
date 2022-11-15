@@ -56,18 +56,6 @@ if (!app.document.head.querySelector('[data-hide-command-log-request]')) {
   app.document.head.appendChild(style);
 }
 
-before('Start server', () => {
-  cy.server();
-  cy.visit('/');
-  cy.url().should('include', '/');
-  Cypress.on('uncaught:exception', err => {
-    console.log(err);
-    return false;
-  });
-
-  cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
-});
-
 Cypress.Commands.add('resetSide', () => {
   cy.visit('/');
 });
