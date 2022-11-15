@@ -7,7 +7,7 @@ class VeilederService(
     private val veilarbveilederClient: VeilarbveilederClient
 ) {
 
-    suspend fun hentVeilederdata(accessToken: String?): VeilederData {
+    suspend fun hentVeilederdata(accessToken: String): VeilederData {
         val data = veilarbveilederClient.hentVeilederdata(accessToken)
         return VeilederData(
             etternavn = data?.etternavn,
