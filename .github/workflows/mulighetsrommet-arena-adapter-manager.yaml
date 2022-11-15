@@ -42,44 +42,48 @@ jobs:
           channel_id: C026FHSRFEJ
           status: FAILED
           color: danger
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v0
+      - uses: actions/upload-artifact@v3
         with:
-          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v0
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-      - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-dev
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-
-  build-test-and-deploy-prod:
-    name: Build, test and deploy for production
-    runs-on: ubuntu-latest
-    needs: [ "build-test-and-deploy-dev" ]
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup frontend
-        uses: ./.github/actions/setup-frontend
-      - name: Build
-        run: npx turbo run build --filter=arena-adapter-manager
-      - name: Notify slack fail
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C026FHSRFEJ
-          status: FAILED
-          color: danger
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v0
-        with:
-          credentials_json: ${{ secrets.DEPLOY_PROD_GCP_BUCKET_FRONTEND }}
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v0
-      - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-prod
+          name: mulighetsrommet-arena-adapter-manager
+          path: frontend/arena-adapter-manager/dist
+#      - name: Authenticate to Google Cloud
+#        uses: google-github-actions/auth@v0
+#        with:
+#          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+#        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+#      - name: Set up gcloud
+#        uses: google-github-actions/setup-gcloud@v0
+#        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+#      - name: Upload files to GCS
+#        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-dev
+#        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+#
+#  build-test-and-deploy-prod:
+#    name: Build, test and deploy for production
+#    runs-on: ubuntu-latest
+#    needs: [ "build-test-and-deploy-dev" ]
+#    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Setup frontend
+#        uses: ./.github/actions/setup-frontend
+#      - name: Build
+#        run: npx turbo run build --filter=arena-adapter-manager
+#      - name: Notify slack fail
+#        if: failure()
+#        env:
+#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+#        uses: voxmedia/github-action-slack-notify-build@v1
+#        with:
+#          channel_id: C026FHSRFEJ
+#          status: FAILED
+#          color: danger
+#      - name: Authenticate to Google Cloud
+#        uses: google-github-actions/auth@v0
+#        with:
+#          credentials_json: ${{ secrets.DEPLOY_PROD_GCP_BUCKET_FRONTEND }}
+#      - name: Set up gcloud
+#        uses: google-github-actions/setup-gcloud@v0
+#      - name: Upload files to GCS
+#        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-prod
 
