@@ -10,7 +10,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.SanityConfig
-import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,7 +32,7 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
 
     init {
         logger.debug("Init SanityHttpClient")
-        client = baseClient.config {
+        client = httpJsonClient().config {
             defaultRequest {
                 bearerAuth(sanityToken)
                 url(sanityBaseUrl)
@@ -40,14 +40,14 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
         }
     }
 
-    suspend fun executeQuery(query: String, fnr: String?, accessToken: String?): JsonElement? {
+    suspend fun executeQuery(query: String, fnr: String?, accessToken: String): JsonElement? {
         if (fnr !== null) {
             return getMedBrukerdata(query, fnr, accessToken)
         }
         return get(query)
     }
 
-    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String?): JsonElement? {
+    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): JsonElement? {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId)
         return get(query, brukerData.oppfolgingsenhet?.enhetId ?: "", fylkesId)

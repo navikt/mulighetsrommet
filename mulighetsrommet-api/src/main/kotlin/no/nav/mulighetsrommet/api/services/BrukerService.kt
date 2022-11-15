@@ -22,7 +22,7 @@ class BrukerService(
         .maximumSize(500)
         .build()
 
-    suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
+    suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
         val cachedBrukerdata = brukerCache.getIfPresent(fnr)
 
         if (cachedBrukerdata != null) return cachedBrukerdata

@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig

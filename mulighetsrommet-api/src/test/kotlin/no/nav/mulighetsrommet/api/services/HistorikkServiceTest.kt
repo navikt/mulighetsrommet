@@ -93,7 +93,7 @@ class HistorikkServiceTest : FunSpec({
 
         historikkService.hentHistorikkForBruker(
             "fnr",
-            null
+            ""
         ) shouldBe forventetHistorikk
     }
 })

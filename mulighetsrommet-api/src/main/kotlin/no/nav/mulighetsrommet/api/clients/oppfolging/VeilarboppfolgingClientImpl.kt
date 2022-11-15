@@ -1,14 +1,14 @@
 package no.nav.mulighetsrommet.api.clients.oppfolging
 
-import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.domain.ManuellStatusDTO
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsstatus
-import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
@@ -17,21 +17,17 @@ private val secureLog = SecureLog.logger
 
 class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
-    private val veilarboppfolgingTokenProvider: AzureAdOnBehalfOfTokenClient,
-    private val scope: String,
-    private val client: HttpClient = baseClient.config {
+    private val veilarboppfolgingTokenProvider: (accessToken: String) -> String,
+    clientEngine: HttpClientEngine = CIO.create()
+) : VeilarboppfolgingClient {
+    val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
-) : VeilarboppfolgingClient {
-
-    override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String?): Oppfolgingsstatus? {
+    override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String): Oppfolgingsstatus? {
         return try {
             val response = client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
                 bearerAuth(
-                    veilarboppfolgingTokenProvider.exchangeOnBehalfOfToken(
-                        scope,
-                        accessToken
-                    )
+                    veilarboppfolgingTokenProvider.invoke(accessToken)
                 )
             }
 
@@ -48,14 +44,11 @@ class VeilarboppfolgingClientImpl(
         }
     }
 
-    override suspend fun hentManuellStatus(fnr: String, accessToken: String?): ManuellStatusDTO? {
+    override suspend fun hentManuellStatus(fnr: String, accessToken: String): ManuellStatusDTO? {
         return try {
             val response = client.get("$baseUrl/v2/manuell/status?fnr=$fnr") {
                 bearerAuth(
-                    veilarboppfolgingTokenProvider.exchangeOnBehalfOfToken(
-                        scope,
-                        accessToken
-                    )
+                    veilarboppfolgingTokenProvider.invoke(accessToken)
                 )
             }
 

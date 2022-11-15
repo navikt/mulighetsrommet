@@ -1,14 +1,14 @@
 package no.nav.mulighetsrommet.api.clients.vedtak
 
-import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
-import no.nav.mulighetsrommet.api.setup.http.baseClient
+import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
@@ -17,21 +17,17 @@ private val secureLog = SecureLog.logger
 
 class VeilarbvedtaksstotteClientImpl(
     private val baseUrl: String,
-    private val veilarbvedtaksstotteTokenProvider: AzureAdOnBehalfOfTokenClient,
-    private val scope: String,
-    private val client: HttpClient = baseClient.config {
+    private val veilarbvedtaksstotteTokenProvider: (accessToken: String) -> String,
+    clientEngine: HttpClientEngine = CIO.create()
+) : VeilarbvedtaksstotteClient {
+    val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
-) : VeilarbvedtaksstotteClient {
-
-    override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String?): VedtakDTO? {
+    override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDTO? {
         return try {
             val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
                 bearerAuth(
-                    veilarbvedtaksstotteTokenProvider.exchangeOnBehalfOfToken(
-                        scope,
-                        accessToken
-                    )
+                    veilarbvedtaksstotteTokenProvider.invoke(accessToken)
                 )
             }
 
