@@ -7,7 +7,7 @@ on:
       - package.json
       - package-lock.json
       - turbo.json
-      - mulighetsrommet-arena-adapter/src/web/**
+      - frontend/arena-adapter-manager/**
   workflow_dispatch:
     inputs:
       environment:
