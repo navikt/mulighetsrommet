@@ -24,7 +24,7 @@ env:
   TZ: Europe/Amsterdam
 
 jobs:
-  build-test-and-deploy-dev:
+  build:
     name: Build, test and deploy for dev
     runs-on: ubuntu-latest
     steps:
@@ -44,20 +44,28 @@ jobs:
           color: danger
       - uses: actions/upload-artifact@v3
         with:
-          name: mulighetsrommet-arena-adapter-manager
+          name: dist
           path: frontend/arena-adapter-manager/dist
-#      - name: Authenticate to Google Cloud
-#        uses: google-github-actions/auth@v0
-#        with:
-#          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
-#        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-#      - name: Set up gcloud
-#        uses: google-github-actions/setup-gcloud@v0
-#        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-#      - name: Upload files to GCS
-#        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-dev
-#        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-#
+
+  deploy-dev:
+    name: Deploy to dev
+    runs-on: ubuntu-latest
+    needs: [ "build" ]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: dist
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-dev
+
 #  build-test-and-deploy-prod:
 #    name: Build, test and deploy for production
 #    runs-on: ubuntu-latest
