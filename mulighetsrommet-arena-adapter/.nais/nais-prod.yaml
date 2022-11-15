@@ -49,6 +49,9 @@ spec:
     application:
       enabled: true
   accessPolicy:
+    inbound:
+      rules:
+        - application: mulighetsrommet-arena-adapter-manager
     outbound:
       rules:
         - application: mulighetsrommet-api
