@@ -60,11 +60,10 @@ jobs:
         uses: google-github-actions/auth@v0
         with:
           credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
-
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-dev
+        run: gsutil -m rsync -r dist gs://mulighetsrommet-arena-adapter-manager-dev
 
 #  build-test-and-deploy-prod:
 #    name: Build, test and deploy for production
