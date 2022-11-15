@@ -81,5 +81,5 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-veilederflate-prod
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/arena-adapter-manager/dist gs://mulighetsrommet-arena-adapter-manager-prod
 

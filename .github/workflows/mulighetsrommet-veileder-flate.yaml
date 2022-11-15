@@ -66,14 +66,14 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-arena-adapter-manager-prod
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
 
 
   build-test-and-deploy-prod:
     name: Build, test and deploy for production
     runs-on: ubuntu-latest
-    needs: [ "build-test-and-deploy-dev" ]
+    needs: ["build-test-and-deploy-dev"]
     env:
       VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
       VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
@@ -110,4 +110,4 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-arena-adapter-manager-prod
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-prod
