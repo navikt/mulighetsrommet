@@ -11,7 +11,7 @@ sealed class ConsumptionError(val status: ArenaEvent.ConsumptionStatus, val mess
     )
 
     data class MissingDependency(val details: String) : ConsumptionError(
-        status = ArenaEvent.ConsumptionStatus.Pending,
+        status = ArenaEvent.ConsumptionStatus.Failed,
         message = "Dependent event has not yet been processed: $details"
     )
 

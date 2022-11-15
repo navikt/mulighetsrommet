@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter
 
+import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -42,6 +43,8 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClien
 
     val kafka: KafkaConsumerOrchestrator by inject()
 
+    val scheduler: Scheduler by inject()
+
     routing {
         apiRoutes()
         managerRoutes()
@@ -51,6 +54,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClien
         if (config.enableFailedRecordProcessor) {
             kafka.enableFailedRecordProcessor()
         }
+        scheduler.start()
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {

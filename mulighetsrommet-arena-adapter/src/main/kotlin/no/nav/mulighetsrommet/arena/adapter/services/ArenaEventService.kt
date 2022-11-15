@@ -30,14 +30,14 @@ class ArenaEventService(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun replayEvents(table: String? = null) = coroutineScope {
+    suspend fun replayEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
         logger.info("Replaying events from table=$table")
 
         // Produce events in a separate coroutine
         val events = produce(capacity = config.channelCapacity) {
             var offset = 0
             do {
-                val events = arenaEvents.getAll(table, limit = config.channelCapacity, offset = offset)
+                val events = arenaEvents.getAll(table = table, status = status, limit = config.channelCapacity, offset = offset)
 
                 events.forEach { send(it) }
 

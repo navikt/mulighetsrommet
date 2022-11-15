@@ -7,19 +7,20 @@ import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 
 class ArenaEventServiceTest : FunSpec({
     val table = "foo"
 
     val fooEvent = ArenaEvent(
-        status = ArenaEvent.ConsumptionStatus.Processed,
+        status = ConsumptionStatus.Processed,
         arenaTable = table,
         arenaId = "1",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
     )
     val barEvent = ArenaEvent(
-        status = ArenaEvent.ConsumptionStatus.Processed,
+        status = ConsumptionStatus.Processed,
         arenaTable = table,
         arenaId = "2",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
@@ -72,9 +73,9 @@ class ArenaEventServiceTest : FunSpec({
             }
         }
 
-        test("should replay event payload when events are available for the specified topic") {
+        test("should replay event payload when events are available for the specified table") {
             every {
-                arenaData.getAll(table, any(), any())
+                arenaData.getAll(table, any(), any(), any())
             } returns listOf(
                 fooEvent
             ) andThen listOf()
@@ -87,13 +88,13 @@ class ArenaEventServiceTest : FunSpec({
         }
 
         test("should replay all events in order") {
-            every { arenaData.getAll(table, any(), 0) } returns listOf(fooEvent)
+            every { arenaData.getAll(table, ConsumptionStatus.Processed, 1, 0) } returns listOf(fooEvent)
 
-            every { arenaData.getAll(table, any(), 1) } returns listOf(barEvent)
+            every { arenaData.getAll(table, ConsumptionStatus.Processed, 1, 1) } returns listOf(barEvent)
 
-            every { arenaData.getAll(table, any(), 2) } returns listOf()
+            every { arenaData.getAll(table, ConsumptionStatus.Processed, 1, 2) } returns listOf()
 
-            service.replayEvents(table)
+            service.replayEvents(table, ConsumptionStatus.Processed)
 
             coVerify(exactly = 1) {
                 consumer.replayEvent(fooEvent)
