@@ -27,30 +27,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
-node {
-    download.set(false)
-    workDir.set(File("src/web"))
-    npmWorkDir.set(File("src/web"))
-    nodeProjectDir.set(File("src/web"))
-}
-
-val npmBuild = tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
-    dependsOn(tasks.npmInstall)
-    npmCommand.set(listOf("run", "build"))
-    outputs.dir("src/web/dist")
-}
-
-tasks.withType<ProcessResources> {
-    dependsOn(npmBuild)
-    from("src/web/dist") {
-        into("web")
-    }
-}
-
-tasks.build {
-    dependsOn(npmBuild)
-}
-
 repositories {
     maven {
         url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
