@@ -27,13 +27,8 @@ fun Route.dialogRoutes() {
         post {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
             val dialogRequest = call.receive<DialogRequest>()
-            val fnr = call.request.queryParameters["fnr"] ?: return@post call.respondText(
-                "Mangler eller ugyldig fnr",
-                status = HttpStatusCode.BadRequest
-            )
             val accessToken = call.getAccessToken()
-            auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' prøver å dele informasjon om tiltaket '${dialogRequest.overskrift}' til bruker med ident: '${getNorskIdent()}'."))
-            val response = dialogService.sendMeldingTilDialogen(fnr, accessToken, dialogRequest)
+            val response = dialogService.sendMeldingTilDialogen(getNorskIdent(), accessToken, dialogRequest)
             response?.let {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har delt informasjon om tiltaket '${dialogRequest.overskrift}' til bruker med ident: '${getNorskIdent()}'."))
                 call.respond(response)
@@ -51,7 +46,7 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(
     return CefMessage.builder()
         .applicationName("mulighetsrommet-api")
         .event(CefMessageEvent.CREATE)
-        .name("Arbeidsmarkedstiltak")
+        .name("Arbeidsmarkedstiltak - Del med bruker")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId(getNavIdent())
         .destinationUserId(getNorskIdent())

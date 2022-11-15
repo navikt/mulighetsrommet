@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
 
 data class Config(
     val server: ServerConfig,
-    val app: AppConfig
+    val app: AppConfig,
 )
 
 data class AppConfig(

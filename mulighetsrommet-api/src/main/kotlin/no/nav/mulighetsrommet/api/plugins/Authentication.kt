@@ -63,5 +63,5 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNorskIdent(): String {
-    return call.request.header("nav-norskident") ?: ""
+    return call.request.header("nav-norskident") ?: throw StatusException(HttpStatusCode.BadRequest, "nav-norskident mangler i headers")
 }

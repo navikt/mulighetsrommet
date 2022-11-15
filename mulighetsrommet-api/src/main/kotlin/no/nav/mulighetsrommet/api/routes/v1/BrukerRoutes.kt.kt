@@ -38,13 +38,8 @@ fun Route.brukerRoutes() {
     route("/api/v1/bruker/historikk") {
         get {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
-            val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
-                "Mangler eller ugyldig fnr",
-                status = HttpStatusCode.BadRequest
-            )
             val accessToken = call.getAccessToken()
-            auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøker å se på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
-            historikkService.hentHistorikkForBruker(fnr, accessToken)?.let {
+            historikkService.hentHistorikkForBruker(getNorskIdent(), accessToken)?.let {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
                 call.respond(it)
             }
@@ -63,7 +58,7 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(msg: Strin
     return CefMessage.builder()
         .applicationName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
-        .name("Arbeidsmarkedstiltak")
+        .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId(getNavIdent())
         .destinationUserId(getNorskIdent())

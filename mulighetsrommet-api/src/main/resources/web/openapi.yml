@@ -229,12 +229,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/DialogRequest"
-      parameters:
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
       responses:
         200:
           description: Dialog response
@@ -254,12 +248,6 @@ paths:
       tags:
         - Historikk
       operationId: hentHistorikkForBruker
-      parameters:
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to fetch 'historikk' for user
       responses:
         200:
           description: Historical data about the user
