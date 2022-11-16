@@ -1,4 +1,4 @@
-import { Tag, Alert } from '@navikt/ds-react';
+import { Tag } from '@navikt/ds-react';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
 import { ErrorTag } from '../tags/ErrorTag';

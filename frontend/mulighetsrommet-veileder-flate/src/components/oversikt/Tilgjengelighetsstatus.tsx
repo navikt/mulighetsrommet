@@ -16,7 +16,7 @@ export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ven
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt sirkelikon" />
+          <img src={StatusRod} alt="Rødt ikon som representerer at tilgjenglighetsstatus er midlertidig stengt" />
           <div>Midlertidig stengt</div>
         </div>
         {estimert_ventetid ? (
@@ -32,7 +32,7 @@ export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ven
     return (
       <div>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGronn} alt="Tilgjengelighetsstatus åpent" />
+          <img src={StatusGronn} alt="Grønt ikon som representerer at tilgjenglighetsstatus er åpent" />
           <div>Åpent</div>
         </div>
       </div>
@@ -41,7 +41,7 @@ export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ven
     return (
       <div title={estimert_ventetid ?? ''}>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Tilgjengelighetsstatus stengt" />
+          <img src={StatusRod} alt="Rødt ikon som representerer at tilgjenglighetsstatus er stengt" />
           <div>Stengt</div>
         </div>
         {estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null}
@@ -51,7 +51,7 @@ export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ven
     return (
       <div title={estimert_ventetid ?? ''}>
         <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusGul} alt="Tilgjengelighetsstatus venteliste" />
+          <img src={StatusGul} alt="Gult ikon som representerer at tilgjenglighetsstatus er venteliste" />
           <div>Venteliste</div>
         </div>
         {estimert_ventetid ? <small className={styles.estimert_ventetid}>{estimert_ventetid}</small> : null}
