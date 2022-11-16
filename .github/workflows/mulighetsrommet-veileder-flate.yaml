@@ -68,7 +68,7 @@ jobs:
       - name: Upload files to GCS
         run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mulighetsrommet-veileder-flate/dist gs://mulighetsrommet-veilederflate-dev
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        
+
 
   build-test-and-deploy-prod:
     name: Build, test and deploy for production
