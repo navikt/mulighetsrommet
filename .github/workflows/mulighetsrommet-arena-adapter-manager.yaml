@@ -57,8 +57,6 @@ jobs:
         with:
           name: dist
           path: dist
-      - run: pwd
-      - run: ls
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0
         with:
@@ -68,6 +66,26 @@ jobs:
       - name: Upload files to GCS
         run: gsutil -m rsync -r dist gs://mulighetsrommet-arena-adapter-manager-dev
 
+  deploy-prod:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    needs: [ "build", "deploy-dev" ]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_PROD_GCP_BUCKET_FRONTEND }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r dist gs://mulighetsrommet-arena-adapter-manager-prod
+
+# && github.ref_name == 'main'
 #  build-test-and-deploy-prod:
 #    name: Build, test and deploy for production
 #    runs-on: ubuntu-latest
