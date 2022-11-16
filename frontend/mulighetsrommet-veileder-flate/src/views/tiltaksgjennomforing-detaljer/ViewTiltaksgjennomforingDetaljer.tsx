@@ -126,11 +126,15 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             <div className={styles.flex}>
               {tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter && (
                 <div className={styles.nokkelinfo_container}>
-                  <Nokkelinfo nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter} />
+                  <Nokkelinfo
+                    uuTitle="Se hvordan prosenten er regnet ut"
+                    nokkelinfoKomponenter={tiltaksgjennomforing.tiltakstype.nokkelinfoKomponenter}
+                  />
                 </div>
               )}
               <Nokkelinfo
                 data-testid="tilgjengelighetsstatus_detaljside"
+                uuTitle="Se hvor data om tilgjengelighetsstatusen er hentet fra"
                 nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
               />
             </div>

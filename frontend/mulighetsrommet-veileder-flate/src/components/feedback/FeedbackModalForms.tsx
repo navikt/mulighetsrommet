@@ -24,7 +24,6 @@ const FeedbackModalForms = ({ isModalOpen }: FeedbackModalProps) => {
             Hjelp oss å bygge en bedre tjeneste ved å gi oss dine innspill og tilbakemeldinger. Alle svar er anonyme.
           </BodyShort>
         </div>
-
         <Lenke
           isExternal
           to="https://forms.office.com/r/gGtRvL8Niv"
@@ -32,7 +31,6 @@ const FeedbackModalForms = ({ isModalOpen }: FeedbackModalProps) => {
         >
           Gi tilbakemelding
         </Lenke>
-
         <Detail>
           Dette er kun for tilbakemelding og overvåkes ikke av support. Trenger du hjelp? Ta kontakt med oss i{' '}
           <Lenke isExternal to="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">
