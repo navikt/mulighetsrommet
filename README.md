@@ -94,3 +94,8 @@ liste, blir oppdatert etter hvert som behovet oppstår):
 - Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør
   kommando `./gradlew addKtlintCheckGitPreCommitHook`
 
+# Henvendelser
+Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på github.
+
+## For NAV-ansatte
+Interne henvendelser kan sendes via Slack i kanalen #valp-brukerstøtte
