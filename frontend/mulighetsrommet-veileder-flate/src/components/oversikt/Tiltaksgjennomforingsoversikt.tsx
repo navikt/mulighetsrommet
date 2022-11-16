@@ -135,7 +135,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <>
       <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
           <Heading level="1" size="xsmall" data-testid="antall-tiltak-top">
@@ -168,7 +168,7 @@ const Tiltaksgjennomforingsoversikt = () => {
           </>
         ) : null}
       </div>
-    </div>
+    </>
   );
 };
 

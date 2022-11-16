@@ -132,6 +132,7 @@ export interface NokkelinfoKomponenter {
   tittel: string;
   innhold: string | React.ReactNode;
   hjelpetekst?: string;
+  uuTitle?: string;
 }
 
 export interface StatistikkFraCsvFil {

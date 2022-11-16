@@ -6,12 +6,11 @@ import { ExternalLink } from '@navikt/ds-icons';
 import styles from './Lenke.module.scss';
 
 interface LinkProps extends RouterLinkProps {
-  isInline?: boolean;
   isExternal?: boolean;
   children?: React.ReactNode;
 }
 
-function Lenke({ children, isExternal = false, isInline = false, to, className, ...others }: LinkProps) {
+function Lenke({ children, isExternal = false, to, className, ...others }: LinkProps) {
   return isExternal ? (
     <Link target="_blank" href={to.toString()} className={classNames('navds-link', className)} {...others}>
       {children}

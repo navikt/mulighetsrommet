@@ -4,9 +4,10 @@ import styles from './Nokkelinfo.module.scss';
 
 export interface NokkelinfoProps {
   nokkelinfoKomponenter: NokkelinfoKomponenter[];
+  uuTitle?: string;
 }
 
-const Nokkelinfo = ({ nokkelinfoKomponenter, ...rest }: NokkelinfoProps) => {
+const Nokkelinfo = ({ nokkelinfoKomponenter, uuTitle, ...rest }: NokkelinfoProps) => {
   return (
     <div className={styles.container} {...rest}>
       {nokkelinfoKomponenter.map((nokkelinfo: NokkelinfoKomponenter, index: number) => {
@@ -20,7 +21,7 @@ const Nokkelinfo = ({ nokkelinfoKomponenter, ...rest }: NokkelinfoProps) => {
               )}
 
               {nokkelinfo.hjelpetekst && (
-                <HelpText title="Se hvordan prosenten er regnet ut" placement="right" style={{ maxWidth: '400px' }}>
+                <HelpText title={uuTitle} placement="right" style={{ maxWidth: '400px' }}>
                   {nokkelinfo.hjelpetekst}
                 </HelpText>
               )}

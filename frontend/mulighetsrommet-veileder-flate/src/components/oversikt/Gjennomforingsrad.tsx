@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { Oppstart, Tiltaksgjennomforing } from '../../core/api/models';
@@ -40,7 +41,6 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
     <li className={styles.list_element}>
       <Lenke
         to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
-        isInline
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>
