@@ -8,7 +8,7 @@ export const ALL_TOGGLES = [ENABLE_ADMIN_FLATE] as const;
 export type Features = Record<typeof ALL_TOGGLES[number], boolean>;
 
 export const initialFeatures: Features = {
-  "mulighetsrommet.enable-admin-flate": true,
+  "mulighetsrommet.enable-admin-flate": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");
