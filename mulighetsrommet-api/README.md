@@ -68,7 +68,7 @@ Disse miljøvariablene må være satt opp:
 ```sh
 export DB_HOST=localhost
 export DB_PORT=5442
-export DB_DATABASE=mulighetsrommet-db
+export DB_DATABASE=mulighetsrommet-api-db
 export DB_USERNAME=valp
 export DB_PASSWORD=valp
 export DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}

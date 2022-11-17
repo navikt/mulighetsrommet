@@ -36,7 +36,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_14
         databases:
-          - name: mulighetsrommet-db
+          - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
               - name: sanity-sync-job
