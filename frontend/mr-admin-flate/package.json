@@ -2,24 +2,32 @@
   "name": "mr-admin-flate",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cy:run": "npx cypress run --e2e",
+    "cypress": "npx cypress open"
   },
   "dependencies": {
     "@navikt/ds-css": "^1.5.9",
     "@navikt/ds-react": "^1.5.9",
+    "@tanstack/react-query": "^4.16.1",
+    "@tanstack/react-query-devtools": "^4.16.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.4.3"
+    "react-router-dom": "^6.4.3",
+    "vite-plugin-require": "^1.0.8"
   },
   "devDependencies": {
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
-    "@vitejs/plugin-react": "^2.2.0",
+    "cypress": "^11.1.0",
+    "msw": "^0.48.3",
     "typescript": "^4.6.4",
     "vite": "^3.2.3"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
