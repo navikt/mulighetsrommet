@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "cy:run": "npx cypress run --e2e",
     "cypress": "npx cypress open",
-    "start": "cross-env VITE_ENVIRONMENT=localhost npm run dev"
+    "start": "cross-env VITE_ENVIRONMENT=localhost vite"
   },
   "dependencies": {
     "@navikt/ds-css": "^1.5.9",
