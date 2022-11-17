@@ -38,7 +38,7 @@ spec:
         diskAutoresize: true
         pointInTimeRecovery: true
         databases:
-          - name: mulighetsrommet-db
+          - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
               - name: sanity-sync-job
