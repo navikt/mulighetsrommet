@@ -1,0 +1,89 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: mr-admin-flate
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2022.10.10_05.52-a9bb795e0ffe
+  port: 8080
+  ingresses:
+    - https://mulighetsrommet-admin-flate.intern.nav.no
+  liveness:
+    path: /internal/alive
+    initialDelay: 10
+  readiness:
+    path: /internal/ready
+    initialDelay: 10
+  replicas:
+    min: 2
+    max: 3
+    cpuThresholdPercentage: 75
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
+      claims:
+        groups:
+          - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
+    sidecar:
+      enabled: true
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /assets/*
+        - /asset-manifest.json
+  gcp:
+    buckets:
+      - name: mr-admin-flate-prod
+        cascadingDelete: false
+  accessPolicy:
+    outbound:
+      rules:
+      - application: poao-unleash
+        namespace: poao
+        cluster: prod-gcp
+      - application: mulighetsrommet-api
+  env:
+    - name: JSON_CONFIG
+      value: >
+        {
+          "gcs": {
+            "bucketName": "mr-admin-flate-prod"
+          },
+          "auth": {
+            "loginProvider": "AZURE_AD"
+          },
+          "cors": {
+            "origin": "https://veilarbpersonflate.intern.nav.no"
+          },
+          "proxies": [
+            {
+              "fromPath": "/veilarbpersonflatefs",
+              "toUrl": "http://poao-unleash.poao.svc.cluster.local",
+              "preserveFromPath": false,
+               "toApp": {
+                "name": "poao-unleash",
+                "namespace": "poao",
+                "cluster": "prod-gcp"
+              }
+            },  
+            {
+              "fromPath": "/mulighetsrommet-api",
+              "toUrl": "http://mulighetsrommet-api",
+              "preserveFromPath": false,
+              "toApp": {
+                "name": "mulighetsrommet-api",
+                "namespace": "team-mulighetsrommet",
+                "cluster": "prod-gcp"
+              }
+            }
+          ]
+        }
