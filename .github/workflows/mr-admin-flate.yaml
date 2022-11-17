@@ -7,7 +7,7 @@ on:
       - package.json
       - package-lock.json
       - turbo.json
-      - frontend/**
+      - frontend/mr-admin-flate/**
   workflow_dispatch:
     inputs:
       environment:
