@@ -32,16 +32,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=arena-adapter-manager
-      - name: Notify slack fail
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: C026FHSRFEJ
-          status: FAILED
-          color: danger
+        run: npx turbo run build --filter=arena-adapter-manager 
       - uses: actions/upload-artifact@v3
         with:
           name: dist
