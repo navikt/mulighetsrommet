@@ -30,9 +30,6 @@ spec:
   azure:
     application:
       enabled: true
-      claims:
-        groups:
-          - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
     sidecar:
       enabled: true
       autoLogin: true
