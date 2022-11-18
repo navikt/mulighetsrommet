@@ -30,12 +30,10 @@ spec:
   azure:
     application:
       enabled: true
+      tenant: nav.no
     sidecar:
       enabled: true
       autoLogin: true
-      autoLoginIgnorePaths:
-        - /assets/*
-        - /asset-manifest.json
   gcp:
     buckets:
       - name: mulighetsrommet-arena-adapter-manager-dev
@@ -59,7 +57,7 @@ spec:
               "fromPath": "/mulighetsrommet-arena-adapter",
               "toUrl": "http://mulighetsrommet-arena-adapter",
               "preserveFromPath": false,
-               "toApp": {
+              "toApp": {
                 "name": "mulighetsrommet-arena-adapter",
                 "namespace": "team-mulighetsrommet",
                 "cluster": "dev-gcp"
