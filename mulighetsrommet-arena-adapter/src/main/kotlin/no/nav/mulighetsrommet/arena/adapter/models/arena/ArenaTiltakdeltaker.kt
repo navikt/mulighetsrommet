@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.domain.arena
+package no.nav.mulighetsrommet.arena.adapter.models.arena
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ArenaTiltakdeltaker (
+data class ArenaTiltakdeltaker(
     val TILTAKDELTAKER_ID: Int,
     val PERSON_ID: Int,
     val TILTAKGJENNOMFORING_ID: Int,

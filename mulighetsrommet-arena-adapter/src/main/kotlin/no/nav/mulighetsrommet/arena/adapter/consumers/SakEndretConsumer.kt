@@ -1,49 +1,60 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.continuations.either
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
-import no.nav.mulighetsrommet.domain.arena.ArenaSak
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaSak
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class SakEndretConsumer(
-    override val consumerConfig: ConsumerConfig,
-    override val events: EventRepository,
+    override val config: ConsumerConfig,
+    override val events: ArenaEventRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaEvent<ArenaSak>>() {
+) : ArenaTopicConsumer(
+    "SIAMO.SAK"
+) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaSak> = ArenaEventHelpers.decodeEvent(payload)
+    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
+        val decoded = ArenaEventData.decode<ArenaSak>(payload)
 
-    override fun shouldProcessEvent(event: ArenaEvent<ArenaSak>): Boolean {
-        return sakIsRelatedToTiltaksgjennomforing(event.data)
+        return ArenaEvent(
+            arenaTable = decoded.table,
+            arenaId = decoded.data.SAK_ID.toString(),
+            payload = payload,
+            status = ArenaEvent.ConsumptionStatus.Pending,
+        )
     }
 
-    override fun resolveKey(event: ArenaEvent<ArenaSak>): String {
-        return event.data.SAK_ID.toString()
-    }
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+        val decoded = ArenaEventData.decode<ArenaSak>(event.payload)
 
-    override suspend fun handleEvent(event: ArenaEvent<ArenaSak>) {
-        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/sak", event.data.toAdapterSak()) {
+        ensure(sakIsRelatedToTiltaksgjennomforing(decoded.data)) {
+            ConsumptionError.Ignored("""Sak ignorert fordi den ikke er en tiltakssak (SAKSKODE != "TILT")""")
+        }
+
+        val sak = decoded.data.toSak()
+
+        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.sendRequest(method, "/api/v1/arena/sak", sak) {
             status.isSuccess() || status == HttpStatusCode.Conflict
         }
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
 
-    private fun ArenaSak.toAdapterSak() = AdapterSak(
-        id = this.SAK_ID,
-        aar = this.AAR,
-        lopenummer = this.LOPENRSAK,
+    private fun ArenaSak.toSak() = Sak(
+        sakId = SAK_ID,
+        aar = AAR,
+        lopenummer = LOPENRSAK,
     )
 }

@@ -1,10 +1,9 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.arena.adapter.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
-import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.assertj.db.api.Assertions

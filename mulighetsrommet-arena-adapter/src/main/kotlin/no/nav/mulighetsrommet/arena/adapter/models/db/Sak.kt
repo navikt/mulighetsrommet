@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.domain.adapter
+package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AdapterSak(
+data class Sak(
     val sakId: Int,
     val lopenummer: Int,
     val aar: Int,

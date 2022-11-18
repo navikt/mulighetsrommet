@@ -20,7 +20,7 @@ import java.util.function.Consumer
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     db: Database,
-    private val group: ConsumerGroup,
+    private val group: ConsumerGroup<TopicConsumer>,
     private val topicRepository: TopicRepository,
     pollDelay: Long
 ) {
@@ -55,7 +55,7 @@ class KafkaConsumerOrchestrator(
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(consumerTopicsConfig))
             .build()
 
-        startConsumerClients()
+        updateClientRunningState()
 
         topicPoller = Poller(pollDelay) {
             updateClientRunningState()
@@ -103,11 +103,11 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun updateTopics(consumers: List<TopicConsumer<*>>) {
+    private fun updateTopics(consumers: List<TopicConsumer>) {
         val currentTopics = topicRepository.selectAll()
 
         val topics = consumers.map { consumer ->
-            val (id, topic, initialRunningState) = consumer.consumerConfig
+            val (id, topic, initialRunningState) = consumer.config
 
             val running = currentTopics
                 .firstOrNull { it.id == id }
@@ -123,12 +123,6 @@ class KafkaConsumerOrchestrator(
         topicRepository.upsertTopics(topics)
     }
 
-    private fun startConsumerClients() {
-        val topics = getTopics().filter { it.running }.map { it.topic }
-        val clients = consumerClients.filterKeys { it in topics }.values
-        clients.forEach { it.start() }
-    }
-
     private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) =
         updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
 
@@ -138,12 +132,12 @@ class KafkaConsumerOrchestrator(
                 .withStoreOnFailure(repository)
                 .withLogging()
                 .withConsumerConfig(
-                    consumer.consumerConfig.topic,
+                    consumer.config.topic,
                     stringDeserializer(),
                     ArenaJsonElementDeserializer(),
                     Consumer { event ->
                         runBlocking {
-                            consumer.processEvent(event.value())
+                            consumer.run(event.value())
                         }
                     }
                 )

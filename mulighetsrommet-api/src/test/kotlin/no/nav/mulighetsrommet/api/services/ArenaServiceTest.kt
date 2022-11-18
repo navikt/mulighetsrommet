@@ -39,19 +39,19 @@ class ArenaServiceTest : FunSpec({
             navn = "Arbeidstrening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
-            id = 123,
-            sakId = 123
+            tiltaksgjennomforingId = 123,
+            sakId = 123,
         )
 
         val deltaker = AdapterTiltakdeltaker(
-            id = 123,
+            tiltaksdeltakerId = 123,
             tiltaksgjennomforingId = 123,
             personId = 111,
             status = Deltakerstatus.VENTER
         )
 
         val sak = AdapterSak(
-            id = 123,
+            sakId = 123,
             lopenummer = 3,
             aar = 2022
         )
@@ -112,8 +112,8 @@ class ArenaServiceTest : FunSpec({
             }
 
             test("should not do an update when the sak does not reference any tiltaksgjennomføring") {
-                service.setTiltaksnummerWith(sak.copy(id = 999)) shouldBeRight null
-                service.removeTiltaksnummerWith(sak.copy(id = 999)) shouldBeRight null
+                service.setTiltaksnummerWith(sak.copy(sakId = 999)) shouldBeRight null
+                service.removeTiltaksnummerWith(sak.copy(sakId = 999)) shouldBeRight null
             }
         }
     }
