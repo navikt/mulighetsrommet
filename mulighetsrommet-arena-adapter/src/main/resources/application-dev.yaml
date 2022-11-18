@@ -7,7 +7,7 @@ app:
     mulighetsrommetApi:
       url: http://mulighetsrommet-api
       scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
-    topicService:
+    arenaEventService:
       channelCapacity: 500
       numChannelConsumers: 50
 

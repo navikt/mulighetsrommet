@@ -11,17 +11,18 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomfori
 import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class TiltakgjennomforingEndretConsumer(
     override val config: ConsumerConfig,
-    override val events: EventRepository,
+    override val events: ArenaEventRepository,
     private val client: MulighetsrommetApiClient
-) : ArenaTopicConsumer() {
+) : ArenaTopicConsumer(
+    "SIAMO.TILTAKGJENNOMFORING"
+) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -29,8 +30,8 @@ class TiltakgjennomforingEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(payload)
 
         return ArenaEvent(
-            topic = decoded.table,
-            key = decoded.data.SAK_ID.toString(),
+            arenaTable = decoded.table,
+            arenaId = decoded.data.SAK_ID.toString(),
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending,
         )

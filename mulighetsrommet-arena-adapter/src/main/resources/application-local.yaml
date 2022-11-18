@@ -7,7 +7,7 @@ app:
     mulighetsrommetApi:
       url: http://localhost:8080
       scope: default
-    topicService:
+    arenaEventService:
       channelCapacity: 10
       numChannelConsumers: 1
 

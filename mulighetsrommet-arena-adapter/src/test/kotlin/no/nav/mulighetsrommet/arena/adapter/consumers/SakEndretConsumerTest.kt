@@ -12,7 +12,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -101,11 +101,9 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): SakEndretCon
         "Bearer token"
     }
 
-    val events = EventRepository(db)
-
     return SakEndretConsumer(
         ConsumerConfig("sakendret", "sakendret"),
-        events,
+        ArenaEventRepository(db),
         client
     )
 }
