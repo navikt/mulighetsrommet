@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
@@ -72,7 +73,7 @@ private fun db(databaseConfig: DatabaseConfig): Module {
 }
 
 private fun kafka(kafkaConfig: KafkaConfig): KafkaProducerService<String, String> {
-    if (erLokalUtvikling()) {
+    if (NaisEnv.current().isLocal()) {
         return KafkaProducerService(
             KafkaProducerClientBuilder.builder<String, String>()
                 .withProperties(
@@ -166,7 +167,7 @@ private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
 }
 
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
-    return when (erLokalUtvikling()) {
+    return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
@@ -177,7 +178,7 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
 }
 
 private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
-    return when (erLokalUtvikling()) {
+    return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
@@ -233,10 +234,6 @@ private fun services(
     }
     single { DelMedBrukerService(get()) }
     single { kafka(appConfig.kafka) }
-}
-
-private fun erLokalUtvikling(): Boolean {
-    return System.getenv("NAIS_CLUSTER_NAME") == null
 }
 
 private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator
