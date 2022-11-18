@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureSentry
@@ -34,11 +33,9 @@ fun main() {
 }
 
 fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClient: AzureAdMachineToMachineTokenClient) {
-    val db by inject<Database>()
-
     configureDependencyInjection(config, kafkaPreset, tokenClient)
     configureSerialization()
-    configureMonitoring({ db.isHealthy() })
+    configureMonitoring()
     configureHTTP()
     configureSentry(config.sentry)
 
