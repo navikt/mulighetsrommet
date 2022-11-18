@@ -62,7 +62,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
-    val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
+    val navCommonModules = "2.2022.11.16_15.18-421ec713e2a0"
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
