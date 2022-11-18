@@ -5,7 +5,6 @@ plugins {
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
-    id("com.github.node-gradle.node") version "3.4.0"
 }
 
 application {
