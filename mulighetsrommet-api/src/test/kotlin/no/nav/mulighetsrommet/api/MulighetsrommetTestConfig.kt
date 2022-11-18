@@ -20,6 +20,7 @@ fun <R> withMulighetsrommetApp(
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createApiDatabaseTestSchema(),
     auth = createAuthConfig(oauth),
+    kafka = createKafkaConfig(),
     sanity = createSanityConfig(),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
@@ -32,6 +33,12 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
     arenaOrdsProxy = createServiceClientConfig("arenaordsproxy")
 )
+
+fun createKafkaConfig(): KafkaConfig {
+    return KafkaConfig(
+        "producer-id"
+    )
+}
 
 fun createServiceClientConfig(url: String): ServiceClientConfig {
     return ServiceClientConfig(
