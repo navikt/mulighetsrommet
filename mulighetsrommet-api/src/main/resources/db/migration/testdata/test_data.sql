@@ -109,7 +109,7 @@ values (1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
        (1, 'Videregående skole', 'VIDRSKOLE', '2001-01-01', '2009-01-01'),
        (1, 'Utdanningsvikariater', 'VIKARBLED', '2001-01-01', '2010-12-31'),
        (2, 'Varig vernet arbeid (VVA)', 'VV', '2001-01-01', '2099-01-01'),
-       (4, 'Sysselsettingstiltak for yrkeshemmede', 'YHEMMOFF', '2001-01-01', '2015-12-31')
+       (4, 'Sysselsettingstiltak for yrkeshemmede', 'YHEMMOFF', '2001-01-01', '2015-12-31');
 
 
 insert into tiltaksgjennomforing(navn, tiltaksnummer, fra_dato, til_dato, tiltakskode, arrangor_id, arena_id, sak_id, sanity_id, aar, apent_for_innsok,
@@ -131,4 +131,4 @@ values ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST',
        ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 15, 15, 1, 2022, true, 500, 'Ledig'),
        ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 16, 16, 1, 2022, true, 500, 'Ledig'),
        ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 17, 17, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 18, 18, 1, 2022, true, 500, 'Ledig')
+       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 18, 18, 1, 2022, true, 500, 'Ledig');
