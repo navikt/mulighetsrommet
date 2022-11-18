@@ -57,7 +57,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
 }
 
 private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
-    single<Database> { FlywayDatabaseAdapter(databaseConfig) }
+    single<Database> { FlywayDatabaseAdapter(databaseConfig, FlywayDatabaseAdapter.InitializationStrategy.MigrateAsync) }
 }
 
 private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
