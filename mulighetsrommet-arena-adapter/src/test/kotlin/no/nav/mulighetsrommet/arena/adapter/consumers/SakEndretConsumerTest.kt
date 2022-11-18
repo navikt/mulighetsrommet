@@ -1,26 +1,44 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.*
 import io.ktor.http.*
-import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 
 class SakEndretConsumerTest : FunSpec({
+
+    testOrder = TestCaseOrder.Sequential
+
+    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
+
+    beforeEach {
+        listener.db.migrate()
+    }
+
+    afterEach {
+        listener.db.clean()
+    }
+
     context("when sakskode is not TILT") {
-        test("should not api with mapped event payload") {
+        test("should ignore events") {
             val engine = MockEngine { respondOk() }
 
-            createConsumer(engine).processEvent(createEvent(sakskode = "NOT_TILT"))
+            val event = createConsumer(listener.db, engine).processEvent(createEvent(sakskode = "NOT_TILT"))
+
+            event.status shouldBe ArenaEvent.ConsumptionStatus.Ignored
 
             engine.requestHistory shouldHaveSize 0
         }
@@ -30,13 +48,15 @@ class SakEndretConsumerTest : FunSpec({
         test("should call api with mapped event payload") {
             val engine = MockEngine { respondOk() }
 
-            createConsumer(engine).processEvent(createEvent())
+            val event = createConsumer(listener.db, engine).processEvent(createEvent())
+
+            event.status shouldBe ArenaEvent.ConsumptionStatus.Processed
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
 
                 decodeRequestBody<AdapterSak>() shouldBe AdapterSak(
-                    id = 1,
+                    sakId = 1,
                     aar = 2022,
                     lopenummer = 2,
                 )
@@ -47,13 +67,13 @@ class SakEndretConsumerTest : FunSpec({
             test("should treat the result as successful") {
                 val engine = MockEngine { respondError(HttpStatusCode.Conflict) }
 
-                createConsumer(engine).processEvent(createEvent())
+                createConsumer(listener.db, engine).processEvent(createEvent())
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
 
                     decodeRequestBody<AdapterSak>() shouldBe AdapterSak(
-                        id = 1,
+                        sakId = 1,
                         aar = 2022,
                         lopenummer = 2,
                     )
@@ -64,6 +84,7 @@ class SakEndretConsumerTest : FunSpec({
         context("when api returns 500") {
             test("should treat the result as error") {
                 val consumer = createConsumer(
+                    listener.db,
                     MockEngine { respondError(HttpStatusCode.InternalServerError) }
                 )
 
@@ -75,12 +96,12 @@ class SakEndretConsumerTest : FunSpec({
     }
 })
 
-private fun createConsumer(engine: HttpClientEngine): SakEndretConsumer {
+private fun createConsumer(db: Database, engine: HttpClientEngine): SakEndretConsumer {
     val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
         "Bearer token"
     }
 
-    val events = mockk<EventRepository>(relaxed = true)
+    val events = EventRepository(db)
 
     return SakEndretConsumer(
         ConsumerConfig("sakendret", "sakendret"),
@@ -89,7 +110,9 @@ private fun createConsumer(engine: HttpClientEngine): SakEndretConsumer {
     )
 }
 
-private fun createEvent(sakskode: String = "TILT") = ArenaEvent.createInsertEvent(
+private fun createEvent(sakskode: String = "TILT") = createArenaInsertEvent(
+    "sak",
+    "1",
     """{
         "SAK_ID": 1,
         "SAKSKODE": "$sakskode",

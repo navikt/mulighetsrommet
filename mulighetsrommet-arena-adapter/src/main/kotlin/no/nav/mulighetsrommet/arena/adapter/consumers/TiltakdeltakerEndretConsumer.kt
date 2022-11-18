@@ -1,48 +1,57 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.continuations.either
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
 import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.arena.ArenaTiltakdeltaker
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class TiltakdeltakerEndretConsumer(
-    override val consumerConfig: ConsumerConfig,
+    override val config: ConsumerConfig,
     override val events: EventRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaEvent<ArenaTiltakdeltaker>>() {
+) : ArenaTopicConsumer() {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaTiltakdeltaker> =
-        ArenaEventHelpers.decodeEvent(payload)
+    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
+        val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(payload)
 
-    override fun resolveKey(event: ArenaEvent<ArenaTiltakdeltaker>): String {
-        return event.data.TILTAKDELTAKER_ID.toString()
+        return ArenaEvent(
+            topic = decoded.table,
+            key = decoded.data.TILTAKDELTAKER_ID.toString(),
+            payload = payload,
+            status = ArenaEvent.ConsumptionStatus.Pending,
+        )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent<ArenaTiltakdeltaker>) {
-        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/deltaker", event.data.toAdapterTiltakdeltaker()) {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+        val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
+
+        val deltaker = decoded.data.toDeltaker()
+
+        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.sendRequest(method, "/api/v1/arena/deltaker", deltaker) {
             status.isSuccess() || status == HttpStatusCode.Conflict
         }
     }
 
-    private fun ArenaTiltakdeltaker.toAdapterTiltakdeltaker() = AdapterTiltakdeltaker(
-        id = this.TILTAKDELTAKER_ID,
-        tiltaksgjennomforingId = this.TILTAKGJENNOMFORING_ID,
-        personId = this.PERSON_ID,
-        fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL),
-        status = ProcessingUtils.toDeltakerstatus(this.DELTAKERSTATUSKODE)
+    private fun ArenaTiltakdeltaker.toDeltaker() = Deltaker(
+        tiltaksdeltakerId = TILTAKDELTAKER_ID,
+        tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
+        personId = PERSON_ID,
+        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
+        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
+        status = ProcessingUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
     )
 }

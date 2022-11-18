@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.arena
+package no.nav.mulighetsrommet.arena.adapter.models.arena
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,5 +11,4 @@ enum class JaNeiStatus {
 
     @SerialName("N")
     Nei,
-
 }

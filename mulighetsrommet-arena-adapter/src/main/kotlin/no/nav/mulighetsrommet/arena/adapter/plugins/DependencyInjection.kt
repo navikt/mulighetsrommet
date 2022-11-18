@@ -44,7 +44,11 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
     single {
         val consumers = listOf(
             TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get()),
-            TiltakgjennomforingEndretConsumer(kafkaConfig.getTopic("tiltakgjennomforingendret"), get(), get()),
+            TiltakgjennomforingEndretConsumer(
+                kafkaConfig.getTopic("tiltakgjennomforingendret"),
+                get(),
+                get(),
+            ),
             TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get()),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
         )

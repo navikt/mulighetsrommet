@@ -1,5 +1,6 @@
 plugins {
     application
+    jacoco
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.flywaydb.flyway")
@@ -44,6 +45,8 @@ dependencies {
     implementation(project(":common:ktor"))
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
+
+    implementation("io.arrow-kt:arrow-core:1.1.2")
 
     val ktorVersion = "2.1.1"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")

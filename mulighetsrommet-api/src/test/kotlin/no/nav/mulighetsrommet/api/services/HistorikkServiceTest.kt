@@ -40,12 +40,12 @@ class HistorikkServiceTest : FunSpec({
             navn = "Arbeidstrening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
-            id = 123,
+            tiltaksgjennomforingId = 123,
             sakId = 123
         )
 
         val deltaker = AdapterTiltakdeltaker(
-            id = 123,
+            tiltaksdeltakerId = 123,
             tiltaksgjennomforingId = 123,
             personId = 111,
             fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
@@ -54,7 +54,7 @@ class HistorikkServiceTest : FunSpec({
         )
 
         val sak = AdapterSak(
-            id = 123,
+            sakId = 123,
             lopenummer = 3,
             aar = 2022
         )
