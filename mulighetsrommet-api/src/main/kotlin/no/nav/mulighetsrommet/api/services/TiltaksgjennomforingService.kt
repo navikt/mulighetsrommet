@@ -31,17 +31,21 @@ class TiltaksgjennomforingService(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): List<Tiltaksgjennomforing> {
+    fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet
+            select id, navn, tiltaksnummer, tiltakskode, aar, tilgjengelighet, count(*) OVER() AS full_count
             from tiltaksgjennomforing_valid
             limit ?
             offset ?
         """.trimIndent()
         val queryResult = queryOf(query, paginationParams.limit, paginationParams.offset).map {
-            DatabaseMapper.toTiltaksgjennomforing(it)
+            it.int("full_count") to DatabaseMapper.toTiltaksgjennomforing(it)
         }.asList
-        return db.run(queryResult)
+        val results = db.run(queryResult)
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 }

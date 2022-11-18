@@ -54,7 +54,7 @@ class TiltakstypeService(private val db: Database) {
         }.asList
         val results = db.run(result)
         val tiltakstyper = results.map { it.second }
-        val totaltAntall = results.map { it.first }.getOrElse(0) { 0 }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
     }
 
