@@ -20,6 +20,10 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-core:3.2.1")
     implementation("com.google.cloud.sql:postgres-socket-factory:1.6.3")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
+    implementation("org.slf4j:slf4j-api:2.0.0")
+
     // Test
     val kotestVersion = "5.3.1"
     testFixturesImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
