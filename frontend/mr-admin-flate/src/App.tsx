@@ -1,5 +1,6 @@
 import { Heading } from "@navikt/ds-react";
 import { useFeatureToggles } from "./api/features/feature-toggles";
+import { Oversikt } from "./pages/Oversikt";
 export function App() {
   const { data, isLoading } = useFeatureToggles();
 
@@ -18,6 +19,7 @@ export function App() {
       <Heading data-testid="admin-heading" size="xlarge">
         Hello World, admin-flate 💯
       </Heading>
+      <Oversikt />
     </main>
   );
 }

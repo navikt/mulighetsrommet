@@ -29,12 +29,13 @@ fun Route.tiltakstypeRoutes() {
 
             val paginationParams = getPaginationParams()
 
-            val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
+            val (totalCount, items) = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
+
             call.respond(
                 PaginatedResponse(
                     data = items,
                     pagination = Pagination(
-                        totalCount = items.size,
+                        totalCount = totalCount,
                         currentPage = paginationParams.page,
                         pageSize = paginationParams.limit
                     )
