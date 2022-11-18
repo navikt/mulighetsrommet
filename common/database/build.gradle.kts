@@ -27,4 +27,5 @@ dependencies {
     // Test
     val kotestVersion = "5.3.1"
     testFixturesImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testFixturesImplementation("org.assertj:assertj-db:2.0.2")
 }
