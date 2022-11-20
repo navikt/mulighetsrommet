@@ -9,8 +9,7 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsum
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -43,13 +42,15 @@ fun Application.configureDependencyInjection(
 private fun consumers(kafkaConfig: KafkaConfig) = module {
     single {
         val consumers = listOf(
-            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get()),
+            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get(), get(), get()),
             TiltakgjennomforingEndretConsumer(
                 kafkaConfig.getTopic("tiltakgjennomforingendret"),
                 get(),
                 get(),
+                get(),
+                get()
             ),
-            TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get()),
+            TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get(), get(), get()),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
         )
         ConsumerGroup(consumers)
@@ -69,6 +70,11 @@ private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
 private fun repositories() = module {
     single { ArenaEventRepository(get()) }
     single { TopicRepository(get()) }
+    single { TiltakstypeRepository(get()) }
+    single { SakRepository(get()) }
+    single { DeltakerRepository(get()) }
+    single { TiltaksgjennomforingRepository(get()) }
+    single { ArenaEntityMappingRepository(get()) }
 }
 
 private fun services(services: ServiceConfig): Module = module {

@@ -10,7 +10,12 @@ import io.ktor.client.plugins.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -30,45 +35,56 @@ class TiltakEndretConsumerTest : FunSpec({
         listener.db.clean()
     }
 
-    test("should call api with mapped event payload") {
+    test("CRUD") {
         val engine = MockEngine { respondOk() }
 
-        createConsumer(listener.db, engine).processEvent(createEvent())
+        val consumer = createConsumer(listener.db, engine)
 
-        engine.requestHistory.last().run {
-            method shouldBe HttpMethod.Put
+        val e1 = consumer.processEvent(createEvent(Insert, name = "Oppfølging 1"))
+        e1.status shouldBe Processed
+        listener.assertThat("tiltakstype")
+            .row().value("navn").isEqualTo("Oppfølging 1")
 
-            decodeRequestBody<AdapterTiltak>() shouldBe AdapterTiltak(
-                navn = "Oppfølging",
-                innsatsgruppe = 2,
-                tiltakskode = "INDOPPFAG",
-            )
-        }
+        val e2 = consumer.processEvent(createEvent(Update, name = "Oppfølging 2"))
+        e2.status shouldBe Processed
+        listener.assertThat("tiltakstype")
+            .row().value("navn").isEqualTo("Oppfølging 2")
+
+        val e3 = consumer.processEvent(createEvent(Delete))
+        e3.status shouldBe Processed
+        listener.assertThat("tiltakstype").isEmpty
     }
 
-    context("when api returns 409") {
-        test("should treat the result as error") {
-            val consumer = createConsumer(
-                listener.db,
-                MockEngine { respondError(HttpStatusCode.Conflict) }
-            )
+    context("api responses") {
+        test("should call api with mapped event payload") {
+            val engine = MockEngine { respondOk() }
 
-            shouldThrow<ResponseException> {
-                consumer.processEvent(createEvent())
+            createConsumer(listener.db, engine).processEvent(createEvent(Insert))
+
+            engine.requestHistory.last().run {
+                method shouldBe HttpMethod.Put
+
+                decodeRequestBody<AdapterTiltak>() shouldBe AdapterTiltak(
+                    navn = "Oppfølging",
+                    innsatsgruppe = 2,
+                    tiltakskode = "INDOPPFAG",
+                )
             }
         }
-    }
 
-    context("when api returns 500") {
-        test("should treat the result as error") {
+        test("should treat a 500 response as error") {
             val consumer = createConsumer(
                 listener.db,
                 MockEngine { respondError(HttpStatusCode.InternalServerError) }
             )
 
             shouldThrow<ResponseException> {
-                consumer.processEvent(createEvent())
+                consumer.processEvent(createEvent(Insert))
             }
+
+            listener.assertThat("arena_events")
+                .row()
+                .value("consumption_status").isEqualTo("Pending")
         }
     }
 })
@@ -81,17 +97,21 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
     return TiltakEndretConsumer(
         ConsumerConfig("tiltakendret", "tiltakendret"),
         ArenaEventRepository(db),
+        TiltakstypeRepository(db),
+        ArenaEntityMappingRepository(db),
         client
     )
 }
 
-private fun createEvent() = createArenaInsertEvent(
-    "tiltakstype",
-    "INDOPPFAG",
-    """{
-        "TILTAKSNAVN": "Oppfølging",
+private fun createEvent(operation: ArenaEventData.Operation = Insert, name: String = "Oppfølging") =
+    createArenaEvent(
+        "tiltakstype",
+        "INDOPPFAG",
+        operation,
+        """{
+        "TILTAKSNAVN": "$name",
         "TILTAKSKODE": "INDOPPFAG",
         "DATO_FRA": null,
         "DATO_TIL": null
     }"""
-)
+    )
