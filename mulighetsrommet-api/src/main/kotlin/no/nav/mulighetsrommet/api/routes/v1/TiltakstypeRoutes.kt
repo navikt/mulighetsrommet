@@ -42,6 +42,24 @@ fun Route.tiltakstypeRoutes() {
                 )
             )
         }
+        get("{id}") {
+            runCatching {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
+                    "Mangler eller ugyldig id",
+                    status = HttpStatusCode.BadRequest
+                )
+                tiltakstypeService.getTiltakstypeById(id)
+            }.onSuccess { fetchedTiltakstype ->
+                if (fetchedTiltakstype != null) {
+                    call.respond(fetchedTiltakstype)
+                }
+                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
+            }.onFailure {
+                call.application.environment.log.error(it.stackTraceToString())
+                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
+            }
+        }
+
         get("{tiltakskode}") {
             runCatching {
                 val tiltakskode = call.parameters["tiltakskode"]!!
