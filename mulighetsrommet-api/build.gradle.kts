@@ -80,7 +80,7 @@ dependencies {
     implementation("no.nav.common:kafka:$navCommonModules")
 
     // Tilgangskontroll
-    val poaoTilgangClient = "ce474aded50b50200827dba1ce319043f53d5e7f" // Full SHA fra git-commit
+    val poaoTilgangClient = "2022.11.16_12.33-b47efb13d79f" // Full SHA fra git-commit
     implementation("com.github.navikt.poao-tilgang:client:$poaoTilgangClient")
 
     // Test
