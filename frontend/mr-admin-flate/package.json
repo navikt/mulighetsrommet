@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "cy:run": "npx cypress run --e2e",
     "cypress": "npx cypress open",
-    "start": "cross-env VITE_ENVIRONMENT=localhost vite"
+    "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite"
   },
   "dependencies": {
     "@navikt/ds-css": "^1.5.9",
