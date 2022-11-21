@@ -73,4 +73,12 @@ class TiltakstypeService(private val db: Database) {
             }
         }
     }
+
+    fun getTiltakstypeById(id: Int): Tiltakstype? {
+        val query = """
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where id = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        return db.run(queryResult)
+    }
 }
