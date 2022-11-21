@@ -92,13 +92,11 @@ paths:
           explode: false
       responses:
         200:
-          description: Array of tiltaksgjennomføringer.
+          description: Object of paginated tiltaksgjennomføringer.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
   /api/v1/tiltaksgjennomforinger/{id}:
     parameters:
@@ -143,13 +141,11 @@ paths:
           explode: false
       responses:
         200:
-          description: Array of tiltakstyper.
+          description: Object of paginerte tiltakstyper.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltakstype"
+                $ref: "#/components/schemas/PaginertTiltakstype"
 
   /api/v1/tiltakstyper/{tiltakskode}:
     get:
@@ -374,6 +370,45 @@ components:
             erReservert:
               type: boolean
               nullable: true
+
+    Pagination:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            totalCount:
+              type: integer
+            currentPage:
+              type: integer
+            pageSize:
+              type: integer
+
+    PaginertTiltakstype:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakstype"
+        
+    PaginertTiltaksgjennomforing:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltaksgjennomforing"
 
     Tiltakstype:
       type: object
