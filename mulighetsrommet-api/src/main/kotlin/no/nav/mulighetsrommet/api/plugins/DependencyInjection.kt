@@ -208,7 +208,6 @@ private fun services(
     single { ArenaService(get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
-    single { InnsatsgruppeService(get()) }
     single { HistorikkService(get(), veilarbarenaClient, get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(arenaOrdsProxyClient, amtEnhetsregisterClient) }

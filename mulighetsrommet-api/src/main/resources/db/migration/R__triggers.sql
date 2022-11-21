@@ -22,3 +22,11 @@ CREATE TRIGGER set_timestamp
     ON tiltaksgjennomforing
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+DROP TRIGGER IF EXISTS set_timestamp ON deltaker;
+
+CREATE TRIGGER set_timestamp
+    BEFORE UPDATE
+    ON deltaker
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
