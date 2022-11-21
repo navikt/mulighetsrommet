@@ -32,7 +32,7 @@ spec:
       enabled: true
       claims:
         groups:
-          - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
+          - id: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
     sidecar:
       enabled: true
       autoLogin: true
