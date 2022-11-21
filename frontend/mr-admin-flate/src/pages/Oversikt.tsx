@@ -1,11 +1,11 @@
-import { Tiltakstyperoversikt } from "../components/Tiltakstyperoversikt";
+import { Tiltaksgjennomforingeroversikt } from "../components/Tiltaksgjennomforingeroversikt";
 
 export function Oversikt() {
   return (
-    <div>
+    <div >
       <h1>Oversikt</h1>
       <p>Her kan du se for deg at det kommer noe spennende i fremtiden 🤭</p>
-      <Tiltakstyperoversikt />
+      <Tiltaksgjennomforingeroversikt />
     </div>
   );
 }

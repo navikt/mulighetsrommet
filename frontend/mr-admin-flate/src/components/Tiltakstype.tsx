@@ -1,20 +1,25 @@
-import { Tiltakstype } from "../../../mulighetsrommet-api-client";
+import { Tiltaksgjennomforing } from "../../../mulighetsrommet-api-client";
+import { BodyLong, BodyShort } from "@navikt/ds-react";
 
 interface Props {
-  tiltakstype: Tiltakstype;
+  tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-export function Tiltakstyperad({ tiltakstype }: Props) {
+export function Tiltaksgjennomforingrad({ tiltaksgjennomforing }: Props) {
   return (
-    <div
+    <li
       style={{
         display: "grid",
-        gridTemplateColumns: "3fr 1fr 1fr",
+        gridTemplateColumns: "3fr 1fr 1fr 1fr 1fr",
       }}
     >
-      <div>{tiltakstype.navn}</div>
-      <div>{tiltakstype.tiltakskode}</div>
-      <div>{tiltakstype.innsatsgruppe}</div>
-    </div>
+      <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
+      <BodyShort size={"small"}>{tiltaksgjennomforing.tiltakskode}</BodyShort>
+      <BodyShort size={"small"}>{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+      <BodyShort size={"small"}>
+        {tiltaksgjennomforing.tilgjenglighet}
+      </BodyShort>
+      <BodyShort size={"small"}>{tiltaksgjennomforing.aar}</BodyShort>
+    </li>
   );
 }
