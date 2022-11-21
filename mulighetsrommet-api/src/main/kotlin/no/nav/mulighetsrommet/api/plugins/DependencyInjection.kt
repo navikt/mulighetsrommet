@@ -3,10 +3,14 @@ package no.nav.mulighetsrommet.api.plugins
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
 import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClient
@@ -25,10 +29,13 @@ import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
+import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -63,6 +70,29 @@ private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> { FlywayDatabaseAdapter(databaseConfig, FlywayDatabaseAdapter.InitializationStrategy.Migrate) }
     }
+}
+
+private fun kafka(kafkaConfig: KafkaConfig): KafkaProducerService<String, String> {
+    if (NaisEnv.current().isLocal()) {
+        return KafkaProducerService(
+            KafkaProducerClientBuilder.builder<String, String>()
+                .withProperties(
+                    KafkaPropertiesBuilder.producerBuilder()
+                        .withBrokerUrl(kafkaConfig.brokerUrl)
+                        .withBaseProperties()
+                        .withProducerId(kafkaConfig.producerId)
+                        .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
+                        .build()
+                )
+                .build()
+        )
+    }
+
+    return KafkaProducerService(
+        KafkaProducerClientBuilder.builder<String, String>()
+            .withProperties(KafkaPropertiesPreset.aivenDefaultProducerProperties(kafkaConfig.producerId))
+            .build()
+    )
 }
 
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
@@ -137,7 +167,7 @@ private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
 }
 
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
-    return when (erLokalUtvikling()) {
+    return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
@@ -148,7 +178,7 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
 }
 
 private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
-    return when (erLokalUtvikling()) {
+    return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
@@ -203,10 +233,7 @@ private fun services(
         PoaoTilgangService(poaoTilgangClient)
     }
     single { DelMedBrukerService(get()) }
-}
-
-private fun erLokalUtvikling(): Boolean {
-    return System.getenv("NAIS_CLUSTER_NAME") == null
+    single { kafka(appConfig.kafka) }
 }
 
 private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator

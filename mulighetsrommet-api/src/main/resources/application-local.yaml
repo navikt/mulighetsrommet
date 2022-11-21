@@ -11,6 +11,10 @@ app:
     password: valp
     maximumPoolSize: 10
 
+  kafka:
+    producerId: "mulighetsrommet-api-kafka-producer.v1"
+    brokerUrl: "http://localhost:29092"
+
   auth:
     azure:
       issuer: http://localhost:8081/azure
