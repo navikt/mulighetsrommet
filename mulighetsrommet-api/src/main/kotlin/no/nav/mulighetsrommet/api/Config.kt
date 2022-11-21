@@ -11,6 +11,7 @@ data class Config(
 
 data class AppConfig(
     val database: DatabaseConfig,
+    val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
     val sentry: SentryConfig? = null,
@@ -29,6 +30,11 @@ data class AppConfig(
 
 data class AuthConfig(
     val azure: AuthProvider
+)
+
+data class KafkaConfig(
+    val producerId: String,
+    val brokerUrl: String? = null
 )
 
 data class AuthProvider(
