@@ -74,13 +74,13 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
+    val navCommonModules = "2.2022.11.16_15.18-421ec713e2a0"
     implementation("no.nav.common:token-client:$navCommonModules")
     implementation("no.nav.common:audit-log:$navCommonModules")
     implementation("no.nav.common:kafka:$navCommonModules")
 
     // Tilgangskontroll
-    val poaoTilgangClient = "ce474aded50b50200827dba1ce319043f53d5e7f" // Full SHA fra git-commit
+    val poaoTilgangClient = "2022.11.16_12.33-b47efb13d79f" // Full SHA fra git-commit
     implementation("com.github.navikt.poao-tilgang:client:$poaoTilgangClient")
 
     // Test
