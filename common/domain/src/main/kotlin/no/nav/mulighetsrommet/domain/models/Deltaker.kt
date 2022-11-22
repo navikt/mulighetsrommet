@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.domain.models
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.DateSerializer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,9 +15,11 @@ enum class Deltakerstatus {
 
 @Serializable
 data class Deltaker(
-    val id: Int? = null,
-    val tiltaksgjennomforingId: Int,
-    val personId: Int,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltaksgjennomforingId: UUID,
+    val fnr: String,
     val status: Deltakerstatus
 )
 
