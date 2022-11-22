@@ -9,11 +9,12 @@ drop function update_tilgjengelighet_after_deltakelse();
 
 create table tiltakstype
 (
-    id         uuid primary key,
-    navn       text                    not null,
-    sanity_id  uuid,
-    created_at timestamp default now() not null,
-    updated_at timestamp default now() not null
+    id          uuid primary key,
+    navn        text                    not null,
+    sanity_id   uuid,
+    tiltakskode text                    not null,
+    created_at  timestamp default now() not null,
+    updated_at  timestamp default now() not null
 );
 
 create table tiltaksgjennomforing
@@ -22,6 +23,7 @@ create table tiltaksgjennomforing
     navn           text                    not null,
     sanity_id      uuid,
     tiltakstype_id uuid                    not null,
+    tiltaksnummer  text                    not null,
     created_at     timestamp default now() not null,
     updated_at     timestamp default now() not null,
     constraint fk_tiltakstype foreign key (tiltakstype_id) references tiltakstype (id)

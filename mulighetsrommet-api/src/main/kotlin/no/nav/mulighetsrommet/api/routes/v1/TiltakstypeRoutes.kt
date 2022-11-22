@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.api.utils.toUUID
 import org.koin.ktor.ext.inject
 
 // TODO: Må lage noe felles validering her etterhvert
@@ -43,44 +44,26 @@ fun Route.tiltakstypeRoutes() {
             )
         }
         get("{id}") {
-            runCatching {
-                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
-                    "Mangler eller ugyldig id",
-                    status = HttpStatusCode.BadRequest
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            val tiltakstype =
+                tiltakstypeService.getTiltakstypeById(id) ?: return@get call.respondText(
+                    "Det finnes ikke noe tiltakstype med id $id",
+                    status = HttpStatusCode.NotFound
                 )
-                tiltakstypeService.getTiltakstypeById(id)
-            }.onSuccess { fetchedTiltakstype ->
-                if (fetchedTiltakstype != null) {
-                    call.respond(fetchedTiltakstype)
-                }
-                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
-            }.onFailure {
-                call.application.environment.log.error(it.stackTraceToString())
-                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
-            }
+            call.respond(tiltakstype)
         }
+        get("{id}/tiltaksgjennomforinger") {
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            val tiltaksgjennomforinger =
+                tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakstypeId(id)
 
-        get("{tiltakskode}") {
-            runCatching {
-                val tiltakskode = call.parameters["tiltakskode"]!!
-                tiltakstypeService.getTiltakstypeByTiltakskode(tiltakskode)
-            }.onSuccess { fetchedTiltakstype ->
-                if (fetchedTiltakstype != null) {
-                    call.respond(fetchedTiltakstype)
-                }
-                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
-            }.onFailure {
-                call.application.environment.log.error(it.stackTraceToString())
-                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
-            }
-        }
-        get("{tiltakskode}/tiltaksgjennomforinger") {
-            runCatching {
-                val tiltakskode = call.parameters["tiltakskode"]!!
-                tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakskode(tiltakskode)
-            }.onSuccess { fetchedTiltaksgjennomforinger ->
-                call.respond(fetchedTiltaksgjennomforinger)
-            }.onFailure { call.respondText("Fant ikke tiltakstype", status = HttpStatusCode.NotFound) }
+            call.respond(tiltaksgjennomforinger)
         }
     }
 }

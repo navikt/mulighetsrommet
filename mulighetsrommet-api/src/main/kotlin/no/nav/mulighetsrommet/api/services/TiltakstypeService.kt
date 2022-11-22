@@ -6,10 +6,11 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.intellij.lang.annotations.Language
+import java.util.*
 
 class TiltakstypeService(private val db: Database) {
 
-    fun getTiltakstypeByTiltakskode(tiltakskode: String): Tiltakstype? {
+    fun getTiltakstypeById(id: UUID): Tiltakstype? {
         val query = """
             select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
         """.trimIndent()

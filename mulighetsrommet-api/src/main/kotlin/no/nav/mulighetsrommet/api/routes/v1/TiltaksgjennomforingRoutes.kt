@@ -38,7 +38,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
             val tiltaksgjennomforing =
                 tiltaksgjennomforingService.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
-                    "Det finnes ikke noe tiltak med id $id",
+                    "Det finnes ikke noe tiltaksgjennomføring med id $id",
                     status = HttpStatusCode.NotFound
                 )
             call.respond(tiltaksgjennomforing)

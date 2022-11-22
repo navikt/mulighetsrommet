@@ -10,6 +10,17 @@ import java.util.*
 
 class TiltaksgjennomforingService(private val db: Database) {
 
+    fun getTiltaksgjennomforingerByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakstype_id
+            from tiltaksgjennomforing
+            where tiltakstype_id = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
+        return db.run(queryResult)
+    }
+
     fun getTiltaksgjennomforingById(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
