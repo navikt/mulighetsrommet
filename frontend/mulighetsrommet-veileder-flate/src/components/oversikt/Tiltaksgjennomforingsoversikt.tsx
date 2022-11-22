@@ -4,7 +4,7 @@ import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
@@ -23,7 +23,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const [_, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
 
-  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
+  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforinger();
   const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
 
   useEffect(() => {

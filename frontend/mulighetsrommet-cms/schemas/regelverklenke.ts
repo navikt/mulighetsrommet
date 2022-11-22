@@ -16,7 +16,7 @@ export default {
     {
       name: "regelverkLenkeNavn",
       title: "Navn til lenke",
-      description: "Hvilket navn skal vises i lenken?",
+      description: "Her velger du hvilken tekst som skal vises i lenken.",
       type: "string",
       validation: (Rule: Rule) =>
         Rule.custom((field, context) =>
@@ -30,7 +30,7 @@ export default {
       name: "beskrivelse",
       title: "Valgfri beskrivelse av lenken",
       description:
-        "En beskrivelse som forteller andre redaktører hva lenken brukes til eller omhandler. Beskrivelsen vises ikke til veiledere, den er kun for intern bruk her i Sanity.",
+        "Her skriver du en beskrivelse om hva lenken brukes til eller omhandler. Beskrivelsen vises ikke til veiledere, den er kun for intern bruk i Sanity.",
       type: "text",
       rows: 1,
       validation: (Rule) => Rule.max(100),

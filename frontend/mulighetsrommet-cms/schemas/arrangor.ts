@@ -43,11 +43,5 @@ export default {
       adresse: "adresse",
       orgnr: "organisasjonsnummer.current",
     },
-    prepare({ title, adresse, orgnr }) {
-      return {
-        title,
-        subtitle: [orgnr, adresse].filter(Boolean).join(" - "),
-      };
-    },
   },
 };
