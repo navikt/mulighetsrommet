@@ -32,6 +32,8 @@ spec:
       enabled: true
       tenant: nav.no
       claims:
+        extra:
+          - NAVident
         groups:
           - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
     sidecar:
