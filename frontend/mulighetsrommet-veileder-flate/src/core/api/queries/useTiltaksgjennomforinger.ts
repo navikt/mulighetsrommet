@@ -5,7 +5,7 @@ import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
 import { useHentBrukerdata } from './useHentBrukerdata';
 import { useSanity } from './useSanity';
 
-export default function useTiltaksgjennomforing() {
+export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
 
