@@ -34,12 +34,5 @@ export default {
       title: "tittel",
       order: "order",
     },
-    prepare: (selection) => {
-      const { title, order } = selection;
-      return {
-        title,
-        subtitle: `Sorteringsrekkefølge = ${order}`,
-      };
-    },
   },
 };

@@ -276,6 +276,18 @@ paths:
             application/json:
               $ref: "#/components/schemas/HistorikkForBruker"
 
+  api/v1/ansatt:
+    get:
+      tags:
+        - Ansatt
+      operationId: hentInfoOmAnsatt
+      responses:
+        200:
+          description: Information about employy
+          content:
+            application/json:
+              $ref: "#/components/schemas/Ansatt"
+
   /logger/event:
     post:
       tags:
@@ -716,6 +728,10 @@ components:
           type: string
         updated_by:
           type: string
+    Ansatt:
+      type: object
+      properties:
+        navIdent: string
 
   examples:
     Tiltakstype:

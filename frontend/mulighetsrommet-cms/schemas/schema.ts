@@ -5,7 +5,7 @@ import blockContent from "./blockContent";
 import tiltakstype from "./tiltakstype";
 import tiltaksgjennomforing from "./tiltaksgjennomforing";
 import arrangor from "./arrangor";
-import kontaktperson from "./kontaktperson";
+import kontaktperson from "./navKontaktperson";
 import enhet from "./enhet";
 import regelverklenke from "./regelverklenke";
 import innsatsgruppe from "./innsatsgruppe";
