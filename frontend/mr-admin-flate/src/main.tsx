@@ -1,12 +1,13 @@
-import "@navikt/ds-css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import "./index.css";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import "@navikt/ds-css";
+import "@navikt/ds-css-internal";
+import "./index.css";
 
 const queryClient = new QueryClient();
 
