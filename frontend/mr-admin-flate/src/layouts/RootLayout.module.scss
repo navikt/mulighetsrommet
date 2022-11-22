@@ -1,4 +1,6 @@
 .container {
   height: 100vh;
-  background-color: var(--navds-semantic-color-canvas-background);
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0.5rem;
 }

@@ -1,15 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import { useFeatureToggles } from "./api/features/feature-toggles";
 import { Oversikt } from "./pages/Oversikt";
-import {
-  BrowserRouter as Router,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
-import { SanityPreview } from "mulighetsrommet-veileder-flate/src/views/Preview/SanityPreview";
-import ViewTiltakstypeOversikt from "mulighetsrommet-veileder-flate/src/views/tiltaksgjennomforing-oversikt/ViewTiltakstypeOversikt";
-import ViewTiltaksgjennomforingDetaljer from "mulighetsrommet-veileder-flate/src/views/tiltaksgjennomforing-detaljer/ViewTiltaksgjennomforingDetaljer";
+import { Route, Routes } from "react-router-dom";
 
 export function App() {
   const { data, isLoading } = useFeatureToggles();
