@@ -13,7 +13,7 @@ class TiltaksgjennomforingService(private val db: Database) {
     fun getTiltaksgjennomforingerByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id
+            select id, navn, tiltakstype_id, tiltaksnummer
             from tiltaksgjennomforing
             where tiltakstype_id = ?
         """.trimIndent()

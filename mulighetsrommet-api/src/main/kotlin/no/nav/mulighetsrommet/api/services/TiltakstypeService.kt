@@ -12,7 +12,7 @@ class TiltakstypeService(private val db: Database) {
 
     fun getTiltakstypeById(id: UUID): Tiltakstype? {
         val query = """
-            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
+            select id, navn, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
         """.trimIndent()
         val queryResult = queryOf(query, tiltakskode).map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.run(queryResult)

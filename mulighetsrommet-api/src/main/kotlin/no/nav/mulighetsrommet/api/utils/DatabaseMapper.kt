@@ -11,28 +11,23 @@ object DatabaseMapper {
 
     fun toTiltakstype(row: Row): Tiltakstype =
         Tiltakstype(
-            id = row.int("id"),
+            id = row.uuid("id"),
             navn = row.string("navn"),
-            innsatsgruppe = row.int("innsatsgruppe_id"),
             tiltakskode = row.string("tiltakskode")
         )
 
     fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
         Tiltaksgjennomforing(
-            id = row.int("id"),
+            id = row.uuid("id"),
             navn = row.string("navn"),
-            tiltaksnummer = row.int("tiltaksnummer"),
-            tiltakskode = row.string("tiltakskode"),
-            aar = row.int("aar"),
-            tilgjengelighet = Tilgjengelighetsstatus.valueOf(
-                row.string("tilgjengelighet")
-            )
+            tiltakstypeId = row.uuid("tiltakstype_id"),
+            tiltaksnummer = row.string("tiltaksnummer")
         )
 
     fun toDeltaker(row: Row): Deltaker = Deltaker(
-        id = row.int("id"),
-        tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
-        personId = row.int("person_id"),
+        id = row.uuid("id"),
+        tiltaksgjennomforingId = row.uuid("tiltaksgjennomforing_id"),
+        fnr = row.string("fnr"),
         status = Deltakerstatus.valueOf(row.string("status"))
     )
 

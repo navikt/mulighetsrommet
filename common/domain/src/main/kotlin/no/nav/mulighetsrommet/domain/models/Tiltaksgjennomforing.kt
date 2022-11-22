@@ -10,8 +10,7 @@ data class Tiltaksgjennomforing(
     val id: UUID,
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID
+    val tiltakstypeId: UUID,
+    val tiltaksnummer: String
 )
 

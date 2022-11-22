@@ -9,5 +9,6 @@ import java.util.UUID
 data class Tiltakstype(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val navn: String
+    val navn: String,
+    val tiltakskode: String
 )
