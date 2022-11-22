@@ -51,6 +51,7 @@ fun Application.configure(config: AppConfig) {
             frontendLoggerRoutes()
             dialogRoutes()
             delMedBrukerRoutes()
+            ansattRoute()
         }
         authenticate(AuthProvider.AzureAdMachineToMachine.name) {
             arenaRoutes()

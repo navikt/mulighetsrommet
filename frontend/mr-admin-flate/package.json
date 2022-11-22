@@ -12,24 +12,26 @@
     "start": "cross-env VITE_ENVIRONMENT=localhost VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite"
   },
   "dependencies": {
-    "@navikt/ds-css": "^1.5.9",
-    "@navikt/ds-react": "^1.5.9",
+    "@navikt/ds-css": "^2.0.0",
+    "@navikt/ds-css-internal": "^2.0.0",
+    "@navikt/ds-react": "^2.0.0",
+    "@navikt/ds-react-internal": "^2.0.0",
     "@tanstack/react-query": "^4.16.1",
     "@tanstack/react-query-devtools": "^4.16.1",
+    "mulighetsrommet-api-client": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.3",
-    "vite-plugin-require": "^1.0.8",
-    "mulighetsrommet-api-client": "*"
+    "vite-plugin-require": "^1.0.8"
   },
   "devDependencies": {
-    "@types/react": "^18.0.24",
-    "@types/react-dom": "^18.0.8",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
     "cross-env": "^7.0.3",
     "cypress": "^11.1.0",
-    "msw": "^0.48.3",
-    "typescript": "^4.6.4",
-    "vite": "^3.2.3"
+    "msw": "^0.49.0",
+    "typescript": "^4.9.3",
+    "vite": "^3.2.4"
   },
   "msw": {
     "workerDirectory": "public"
