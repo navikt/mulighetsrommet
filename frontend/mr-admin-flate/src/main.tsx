@@ -8,6 +8,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "@navikt/ds-css";
 import "@navikt/ds-css-internal";
 import "./index.css";
+import { AdministratorHeader } from "./components/AdministratorHeader";
+import { App } from "./App";
+import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 
 const queryClient = new QueryClient();
 
@@ -21,10 +24,24 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <Router>
+        <AdministratorHeader />
         <Routes>
           <Route
-            element={<RootLayout />}
+            element={
+              <RootLayout>
+                <App />
+              </RootLayout>
+            }
             path="/"
+            errorElement={<ErrorPage />}
+          />
+          <Route
+            element={
+              <RootLayout>
+                <TiltaksgjennomforingPage />
+              </RootLayout>
+            }
+            path="/:tiltaksgjennomforingId"
             errorElement={<ErrorPage />}
           />
         </Routes>
