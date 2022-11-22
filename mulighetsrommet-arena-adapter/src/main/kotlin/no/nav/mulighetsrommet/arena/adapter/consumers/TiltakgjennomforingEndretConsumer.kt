@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRep
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class TiltakgjennomforingEndretConsumer(
@@ -29,6 +31,15 @@ class TiltakgjennomforingEndretConsumer(
 ) : ArenaTopicConsumer(
     "SIAMO.TILTAKGJENNOMFORING"
 ) {
+
+    companion object {
+        val ArenaDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+        val AktivitetsplanenLaunchDate: LocalDateTime = LocalDateTime.parse(
+            "2017-12-04 00:00:00",
+            ArenaDateTimeFormatter
+        )
+    }
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -45,6 +56,10 @@ class TiltakgjennomforingEndretConsumer(
 
     override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
         val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
+
+        ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
+            ConsumptionError.Ignored("""Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen""")
+        }
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
             ArenaEntityMapping.Tiltaksgjennomforing(event.arenaTable, event.arenaId, UUID.randomUUID())
@@ -65,6 +80,10 @@ class TiltakgjennomforingEndretConsumer(
         // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.sendRequest(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
+    }
+
+    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
+        return LocalDateTime.parse(data.REG_DATO, ArenaDateTimeFormatter).isAfter(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Tiltaksgjennomforing(

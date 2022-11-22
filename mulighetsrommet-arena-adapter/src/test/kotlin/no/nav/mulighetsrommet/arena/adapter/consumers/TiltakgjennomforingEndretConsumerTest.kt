@@ -12,8 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Pending
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -110,6 +109,15 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             listener.assertThat("tiltaksgjennomforing").isEmpty
         }
 
+        test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
+            val engine = MockEngine { respondOk() }
+
+            val event = createConsumer(listener.db, engine)
+                .processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
+
+            event.status shouldBe Ignored
+        }
+
         test("should call api with mapped event payload") {
             val engine = MockEngine { respondOk() }
 
@@ -162,7 +170,11 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
     )
 }
 
-private fun createEvent(operation: ArenaEventData.Operation, name: String = "Testenavn") = createArenaEvent(
+private fun createEvent(
+    operation: ArenaEventData.Operation,
+    name: String = "Testenavn",
+    regDato: String = "2022-10-10 00:00:00"
+) = createArenaEvent(
     "tiltaksgjennomforing",
     "3780431",
     operation,
@@ -172,6 +184,7 @@ private fun createEvent(operation: ArenaEventData.Operation, name: String = "Tes
         "TILTAKSKODE": "INDOPPFAG",
         "ARBGIV_ID_ARRANGOR": 49612,
         "SAK_ID": 13572352,
+        "REG_DATO": "$regDato",
         "DATO_FRA": null,
         "DATO_TIL": null,
         "STATUS_TREVERDIKODE_INNSOKNING": "J",
