@@ -2,6 +2,8 @@
   display: grid;
   grid-template-columns: 3fr 1fr 1fr 1fr 1fr;
   background-color: white;
-  margin-bottom: 1rem;
-  padding: 2rem;
+  margin-bottom: 0.25rem;
+  padding: 2rem 1rem;
+  border-radius: 0.25rem;
+  align-items: center;
 }

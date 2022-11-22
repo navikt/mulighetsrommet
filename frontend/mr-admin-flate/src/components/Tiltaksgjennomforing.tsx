@@ -1,5 +1,5 @@
 import { Tiltaksgjennomforing } from "../../../mulighetsrommet-api-client";
-import { BodyLong, BodyShort } from "@navikt/ds-react";
+import { Link, BodyLong, BodyShort } from "@navikt/ds-react";
 import styles from "./Tiltaksgjennomforing.module.scss";
 
 interface Props {
@@ -9,7 +9,9 @@ interface Props {
 export function Tiltaksgjennomforingrad({ tiltaksgjennomforing }: Props) {
   return (
     <li className={styles.rad}>
-      <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
+      <Link>
+        <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
+      </Link>
       <BodyShort size={"small"}>{tiltaksgjennomforing.tiltakskode}</BodyShort>
       <BodyShort size={"small"}>{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
       <BodyShort size={"small"}>
