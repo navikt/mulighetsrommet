@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
-    "build": "tsc && vite build",
+    "build": "tsc && VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
     "preview": "vite preview",
     "cy:run": "npx cypress run --e2e",
     "cypress": "npx cypress open",
