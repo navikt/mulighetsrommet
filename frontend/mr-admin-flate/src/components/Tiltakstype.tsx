@@ -11,6 +11,9 @@ export function Tiltaksgjennomforingrad({ tiltaksgjennomforing }: Props) {
       style={{
         display: "grid",
         gridTemplateColumns: "3fr 1fr 1fr 1fr 1fr",
+        backgroundColor: "white",
+        marginBottom: "1rem",
+        padding: "2rem",
       }}
     >
       <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
