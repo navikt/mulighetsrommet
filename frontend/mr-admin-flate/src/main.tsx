@@ -24,7 +24,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Routes>
           <Route
             element={<RootLayout />}
-            path="/"
+            path="*"
             errorElement={<ErrorPage />}
           />
         </Routes>
