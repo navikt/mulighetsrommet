@@ -58,6 +58,7 @@ spec:
       rules:
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-veileder-flate
+        - application: mr-admin-flate
         - application: veilarbpersonflate
           namespace: poao
     outbound:
