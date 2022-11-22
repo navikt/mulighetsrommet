@@ -1,4 +1,4 @@
-import { Tiltaksgjennomforingrad } from "./Tiltakstype";
+import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import { useTiltaksgjennomforing } from "../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 
 export function Tiltaksgjennomforingeroversikt() {
@@ -14,7 +14,10 @@ export function Tiltaksgjennomforingeroversikt() {
   return (
     <ul>
       {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
-        <Tiltaksgjennomforingrad key={tiltaksgjennomforing.id} tiltaksgjennomforing={tiltaksgjennomforing} />
+        <Tiltaksgjennomforingrad
+          key={tiltaksgjennomforing.id}
+          tiltaksgjennomforing={tiltaksgjennomforing}
+        />
       ))}
     </ul>
   );
