@@ -165,36 +165,4 @@ class ArenaRepository(private val db: Database) {
             .asExecute
             .let { db.run(it) }
     }
-
-    fun updateTiltaksgjennomforingWithSak(sak: AdapterSak): QueryResult<AdapterTiltaksgjennomforing?> = query {
-        logger.info("Oppdaterer tiltak med sak sakId=${sak.sakId} tiltaksnummer=${sak.lopenummer}")
-
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing set tiltaksnummer = ?, aar = ?
-            where sak_id = ?
-            returning *
-        """.trimIndent()
-
-        sak.run { queryOf(query, lopenummer, aar, sakId) }
-            .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
-            .asSingle
-            .let { db.run(it) }
-    }
-
-    fun unsetSakOnTiltaksgjennomforing(sak: AdapterSak): QueryResult<AdapterTiltaksgjennomforing?> = query {
-        logger.info("Fjerner referanse til sak for tiltak sakId=${sak.sakId} tiltaksnummer=${sak.lopenummer}")
-
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing set tiltaksnummer = null, aar = null
-            where sak_id = ?
-            returning *
-        """.trimIndent()
-
-        sak.run { queryOf(query, sakId) }
-            .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
-            .asSingle
-            .let { db.run(it) }
-    }
 }
