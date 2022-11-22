@@ -8,6 +8,7 @@ data class ArenaTiltaksgjennomforing(
     val TILTAKGJENNOMFORING_ID: Int,
     val SAK_ID: Int,
     val TILTAKSKODE: String,
+    val REG_DATO: String,
     val DATO_FRA: String?,
     val DATO_TIL: String?,
     val LOKALTNAVN: String?,
