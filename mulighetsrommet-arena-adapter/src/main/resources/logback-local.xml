@@ -13,8 +13,8 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="org.apache.kafka" level="ERROR"/>
-    <logger name="org.eclipse.jetty" level="ERROR"/>
-    <logger name="io.netty" level="ERROR"/>
-    <logger name="io.ktor" level="ERROR"/>
+    <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="io.ktor" level="INFO"/>
 </included>
