@@ -29,11 +29,6 @@ object DatabaseMapper {
             )
         )
 
-    fun toInnsatsgruppe(row: Row): Innsatsgruppe = Innsatsgruppe(
-        id = row.int("id"),
-        navn = row.string("navn")
-    )
-
     fun toDeltaker(row: Row): Deltaker = Deltaker(
         id = row.int("id"),
         tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
