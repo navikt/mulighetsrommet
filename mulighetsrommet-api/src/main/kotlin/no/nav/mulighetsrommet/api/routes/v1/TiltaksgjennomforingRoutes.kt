@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.api.utils.toUUID
 import org.koin.ktor.ext.inject
 
 fun Route.tiltaksgjennomforingRoutes() {
@@ -31,7 +32,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
         }
         get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
@@ -44,3 +45,4 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
     }
 }
+
