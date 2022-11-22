@@ -34,7 +34,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=mr-admin-flate
+        run: npx turbo run build --force --filter=mr-admin-flate
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
@@ -67,7 +67,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=mr-admin-flate
+        run: npx turbo run build --force --filter=mr-admin-flate
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
