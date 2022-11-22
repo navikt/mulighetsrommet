@@ -22,7 +22,7 @@ export default {
     {
       name: "lenker",
       title: "Lenker",
-      description: "Legg til lenker til forskningen",
+      description: "Her legger du til lenker til forskningen.",
       type: "array",
       of: [{ type: "lenke" }],
     },
