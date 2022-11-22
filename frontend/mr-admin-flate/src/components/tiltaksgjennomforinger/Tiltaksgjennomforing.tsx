@@ -1,4 +1,4 @@
-import { Tiltaksgjennomforing } from "../../../mulighetsrommet-api-client";
+import { Tiltaksgjennomforing } from "../../../../mulighetsrommet-api-client";
 import { Link, BodyLong, BodyShort } from "@navikt/ds-react";
 import styles from "./Tiltaksgjennomforing.module.scss";
 

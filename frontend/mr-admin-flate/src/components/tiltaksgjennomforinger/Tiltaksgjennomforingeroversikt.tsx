@@ -1,5 +1,5 @@
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { useTiltaksgjennomforing } from "../api/tiltaksgjennomforing/useTiltaksgjennomforing";
+import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 
 export function Tiltaksgjennomforingeroversikt() {

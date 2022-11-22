@@ -1,4 +1,4 @@
-import { Tiltaksgjennomforingeroversikt } from "../components/Tiltaksgjennomforingeroversikt";
+import { Tiltaksgjennomforingeroversikt } from "../components/tiltaksgjennomforinger/Tiltaksgjennomforingeroversikt";
 import { BodyLong, Heading } from "@navikt/ds-react";
 import styles from "./Oversikt.module.scss";
 
