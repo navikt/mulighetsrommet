@@ -31,7 +31,7 @@ jobs:
           working-directory: frontend/mr-admin-flate
           browser: chrome
           headed: true
-          wait-on: http://localhost:3000
+          wait-on: http://localhost:5173
           start: npm start
           install: false
       - name: Build and publish Docker image
