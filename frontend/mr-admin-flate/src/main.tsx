@@ -21,45 +21,50 @@ if (
 ) {
   import("./mocks/browser").then(({ worker }) => {
     worker.start();
+    render();
   });
+} else {
+  render();
 }
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <AdministratorHeader />
-        <Routes>
-          <Route
-            element={
-              <RootLayout>
-                <App />
-              </RootLayout>
-            }
-            path="/"
-            errorElement={<ErrorPage />}
-          />
-          <Route
-            element={
-              <RootLayout>
-                <Oversikt />
-              </RootLayout>
-            }
-            path="oversikt"
-            errorElement={<ErrorPage />}
-          />
-          <Route
-            element={
-              <RootLayout>
-                <TiltaksgjennomforingPage />
-              </RootLayout>
-            }
-            path="oversikt/:tiltaksgjennomforingId"
-            errorElement={<ErrorPage />}
-          />
-        </Routes>
-      </Router>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+function render() {
+  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <AdministratorHeader />
+          <Routes>
+            <Route
+              element={
+                <RootLayout>
+                  <App />
+                </RootLayout>
+              }
+              path="/"
+              errorElement={<ErrorPage />}
+            />
+            <Route
+              element={
+                <RootLayout>
+                  <Oversikt />
+                </RootLayout>
+              }
+              path="oversikt"
+              errorElement={<ErrorPage />}
+            />
+            <Route
+              element={
+                <RootLayout>
+                  <TiltaksgjennomforingPage />
+                </RootLayout>
+              }
+              path="oversikt/:tiltaksgjennomforingId"
+              errorElement={<ErrorPage />}
+            />
+          </Routes>
+        </Router>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+}
