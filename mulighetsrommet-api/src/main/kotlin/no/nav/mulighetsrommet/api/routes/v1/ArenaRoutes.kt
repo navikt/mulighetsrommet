@@ -9,10 +9,6 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Deltaker
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
