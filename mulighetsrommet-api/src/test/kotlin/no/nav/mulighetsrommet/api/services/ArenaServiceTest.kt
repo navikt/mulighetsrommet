@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
-import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterSak

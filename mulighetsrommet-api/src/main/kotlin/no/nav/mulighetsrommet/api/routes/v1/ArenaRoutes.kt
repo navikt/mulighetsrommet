@@ -13,6 +13,9 @@ import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
@@ -24,7 +27,7 @@ fun Route.arenaRoutes() {
 
     route("/api/v1/arena/") {
         put("tiltakstype") {
-            val tiltakstype = call.receive<AdapterTiltak>()
+            val tiltakstype = call.receive<Tiltakstype>()
             arenaService.createOrUpdate(tiltakstype)
                 .map { call.respond(it) }
                 .mapLeft {
@@ -32,9 +35,8 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltakstype")
                 }
         }
-
         delete("tiltakstype") {
-            val tiltakstype = call.receive<AdapterTiltak>()
+            val tiltakstype = call.receive<Tiltakstype>()
             arenaService.remove(tiltakstype)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -42,9 +44,8 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakstype")
                 }
         }
-
         put("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
+            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
             arenaService.createOrUpdate(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
@@ -52,9 +53,8 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltak")
                 }
         }
-
         delete("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<AdapterTiltaksgjennomforing>()
+            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
             arenaService.remove(tiltaksgjennomforing)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -62,9 +62,8 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltak")
                 }
         }
-
         put("deltaker") {
-            val deltaker = call.receive<AdapterTiltakdeltaker>()
+            val deltaker = call.receive<Deltaker>()
             arenaService.createOrUpdate(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
@@ -79,37 +78,13 @@ fun Route.arenaRoutes() {
                     }
                 }
         }
-
         delete("deltaker") {
-            val deltaker = call.receive<AdapterTiltakdeltaker>()
+            val deltaker = call.receive<Deltaker>()
             arenaService.remove(deltaker)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette deltaker")
-                }
-        }
-
-        put("sak") {
-            val sak = call.receive<AdapterSak>()
-            arenaService.setTiltaksnummerWith(sak)
-                .map {
-                    val response = it ?: HttpStatusCode.Conflict
-                    call.respond(response)
-                }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
-                }
-        }
-
-        delete("sak") {
-            val sak = call.receive<AdapterSak>()
-            arenaService.removeTiltaksnummerWith(sak)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltak med sak")
                 }
         }
     }
