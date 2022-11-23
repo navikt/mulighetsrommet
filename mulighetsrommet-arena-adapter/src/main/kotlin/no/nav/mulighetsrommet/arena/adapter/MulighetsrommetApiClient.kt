@@ -14,10 +14,14 @@ import org.slf4j.LoggerFactory
 
 class MulighetsrommetApiClient(
     engine: HttpClientEngine = CIO.create(),
-    maxRetries: Int = 5,
+    config: Config = Config(),
     baseUri: String,
     private val getToken: () -> String,
 ) {
+
+    data class Config(
+        val maxRetries: Int = 0,
+    )
 
     private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
@@ -31,7 +35,7 @@ class MulighetsrommetApiClient(
                 level = LogLevel.INFO
             }
             install(HttpRequestRetry) {
-                retryIf(maxRetries) { _, response ->
+                retryIf(config.maxRetries) { _, response ->
                     response.status.value.let { it in 500..599 } || response.status == HttpStatusCode.Conflict
                 }
 

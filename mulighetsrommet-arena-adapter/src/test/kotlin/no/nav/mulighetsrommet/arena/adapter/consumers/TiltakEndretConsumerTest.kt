@@ -90,7 +90,7 @@ class TiltakEndretConsumerTest : FunSpec({
 })
 
 private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndretConsumer {
-    val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
+    val client = MulighetsrommetApiClient(engine, baseUri = "api") {
         "Bearer token"
     }
 
