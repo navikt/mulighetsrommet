@@ -16,6 +16,9 @@
     "build:mock": {
       "dependsOn": ["^build"]
     },
+    "build:labs": {
+      "dependsOn": ["^build"]
+    },
     "build:preprod": {
       "dependsOn": ["^build"],
       "env": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
