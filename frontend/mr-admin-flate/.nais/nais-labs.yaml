@@ -5,16 +5,18 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
+  annotations:
+     nais.io/read-only-file-system: "false"
 spec:
-  image: ghcr.io/navikt/poao-frontend/poao-frontend:2022.10.10_05.52-a9bb795e0ffe
+  image: {{image}}
   port: 8080
   ingresses:
-    - https://mulighetsrommet-admin-flate.labs.nais.no
+    - https://mulighetsrommet-admin-flate.labs.nais.io
   liveness:
-    path: /internal/alive
+    path: /internal/isalive
     initialDelay: 10
   readiness:
-    path: /internal/ready
+    path: /internal/isready
     initialDelay: 10
   replicas:
     min: 1
@@ -27,15 +29,6 @@ spec:
     requests:
       cpu: 250m
       memory: 256Mi
-  gcp:
-    buckets:
-      - name: mr-admin-flate-dev
-        cascadingDelete: false
   env:
-    - name: JSON_CONFIG
-      value: >
-        {
-          "gcs": {
-            "bucketName": "mr-admin-flate-dev"
-          }
-        }
+    - name: CORS_DOMAIN
+      value: "*"
