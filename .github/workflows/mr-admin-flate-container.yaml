@@ -15,7 +15,6 @@ on:
         required: true
         default: dev
         options:
-          - labs
           - dev
           - dev_and_prod
 
@@ -27,16 +26,6 @@ env:
   APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
 
 jobs:
-  deploy-labs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: deploy gcp dev
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          CLUSTER: dev-gcp
-          RESOURCE: frontend/mr-admin-flate/.nais/nais-labs.yaml
-
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
