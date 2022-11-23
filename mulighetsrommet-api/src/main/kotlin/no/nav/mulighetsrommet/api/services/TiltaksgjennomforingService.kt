@@ -24,7 +24,7 @@ class TiltaksgjennomforingService(private val db: Database) {
     fun getTiltaksgjennomforingById(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id
+            select id, navn, tiltakstype_id, tiltaksnummer
             from tiltaksgjennomforing
             where id = ?
         """.trimIndent()
@@ -35,7 +35,7 @@ class TiltaksgjennomforingService(private val db: Database) {
     fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id, count(*) OVER() AS full_count
+            select id, navn, tiltakstype_id, tiltaksnummer, count(*) OVER() AS full_count
             from tiltaksgjennomforing
             limit ?
             offset ?

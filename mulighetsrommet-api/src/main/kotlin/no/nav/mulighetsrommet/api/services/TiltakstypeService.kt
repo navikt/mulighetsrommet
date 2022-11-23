@@ -11,10 +11,13 @@ import java.util.*
 class TiltakstypeService(private val db: Database) {
 
     fun getTiltakstypeById(id: UUID): Tiltakstype? {
+        @Language("PostgreSQL")
         val query = """
-            select id, navn, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where tiltakskode = ?
+            select id, navn, tiltakskode
+            from tiltakstype
+            where id = ?
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltakstype(it) }.asSingle
         return db.run(queryResult)
     }
 
@@ -26,7 +29,6 @@ class TiltakstypeService(private val db: Database) {
         val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 
         val parameters = mapOf(
-            "innsatsgrupper" to innsatsgrupperQuery,
             "navn" to "%$search%",
             "paginationLimit" to paginationParams.limit,
             "paginationOffset" to paginationParams.offset
@@ -34,11 +36,10 @@ class TiltakstypeService(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, count(*) OVER() AS full_count
             from tiltakstype
         """
-            .where(innsatsgrupperQuery, "(innsatsgruppe_id = any(:innsatsgrupper))")
-            .andWhere(search, "(lower(navn) like lower(:navn))")
+            .where(search, "(lower(navn) like lower(:navn))")
             .plus(
                 """
             limit :paginationLimit

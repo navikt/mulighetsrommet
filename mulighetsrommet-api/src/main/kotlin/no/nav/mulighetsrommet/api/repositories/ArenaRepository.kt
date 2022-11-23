@@ -9,129 +9,108 @@ import no.nav.mulighetsrommet.domain.adapter.AdapterSak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class ArenaRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsertTiltakstype(tiltakstype: AdapterTiltak): QueryResult<AdapterTiltak> = query {
-        logger.info("Lagrer tiltakstype tiltakskode=${tiltakstype.tiltakskode}")
+    fun upsertTiltakstype(tiltakstype: Tiltakstype): QueryResult<Tiltakstype> = query {
+        logger.info("Lagrer tiltakstype id=${tiltakstype.id}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakstype (navn, innsatsgruppe_id, tiltakskode, fra_dato, til_dato)
-            values (?, ?, ?, ?, ?)
-            on conflict (tiltakskode)
+            insert into tiltakstype (id, navn, tiltakskode)
+            values (?, ?, ?)
+            on conflict (id)
                 do update set navn             = excluded.navn,
-                              innsatsgruppe_id = excluded.innsatsgruppe_id,
-                              tiltakskode      = excluded.tiltakskode,
-                              fra_dato         = excluded.fra_dato,
-                              til_dato         = excluded.til_dato
+                              tiltakskode      = excluded.tiltakskode
             returning *
         """.trimIndent()
 
-        tiltakstype.run { queryOf(query, navn, innsatsgruppe, tiltakskode, fraDato, tilDato) }
-            .map { DatabaseMapper.toAdapterTiltak(it) }
+        tiltakstype.run { queryOf(query, id, navn, tiltakskode) }
+            .map { DatabaseMapper.toTiltakstype(it) }
             .asSingle
             .let { db.run(it)!! }
     }
 
-    fun deleteTiltakstype(tiltakstype: AdapterTiltak): QueryResult<Unit> = query {
-        logger.info("Sletter tiltakstype tiltakskode=${tiltakstype.tiltakskode}")
+    fun deleteTiltakstype(id: UUID): QueryResult<Unit> = query {
+        logger.info("Sletter tiltakstype id=${id}")
 
         @Language("PostgreSQL")
         val query = """
             delete from tiltakstype
-            where tiltakskode = ?
+            where id = ?
         """.trimIndent()
 
-        tiltakstype.run { queryOf(query, tiltakskode) }
+        run { queryOf(query, id) }
             .asExecute
             .let { db.run(it) }
     }
 
     fun upsertTiltaksgjennomforing(
-        tiltak: AdapterTiltaksgjennomforing
-    ): QueryResult<AdapterTiltaksgjennomforing> = query {
-        logger.info("Lagrer tiltak id=${tiltak.tiltaksgjennomforingId}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
+        tiltaksgjennomforing: Tiltaksgjennomforing
+    ): QueryResult<Tiltaksgjennomforing> = query {
+        logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (navn,
-                                              arrangor_id,
-                                              tiltakskode,
-                                              arena_id,
-                                              fra_dato,
-                                              til_dato,
-                                              sak_id,
-                                              apent_for_innsok,
-                                              antall_plasser)
-            values (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            on conflict (arena_id)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer)
+            values (?, ?, ?, ?)
+            on conflict (id)
                 do update set navn             = excluded.navn,
-                              arrangor_id      = excluded.arrangor_id,
-                              tiltakskode      = excluded.tiltakskode,
-                              arena_id         = excluded.arena_id,
-                              fra_dato         = excluded.fra_dato,
-                              til_dato         = excluded.til_dato,
-                              sak_id           = excluded.sak_id,
-                              apent_for_innsok = excluded.apent_for_innsok,
-                              antall_plasser   = excluded.antall_plasser
+                              tiltakstype_id      = excluded.tiltakstype_id,
+                              tiltaksnummer      = excluded.tiltaksnummer
             returning *
         """.trimIndent()
 
-        tiltak
+        tiltaksgjennomforing
             .run {
                 queryOf(
                     query,
+                    id,
                     navn,
-                    arrangorId,
-                    tiltakskode,
-                    tiltaksgjennomforingId,
-                    fraDato,
-                    tilDato,
-                    sakId,
-                    apentForInnsok,
-                    antallPlasser
+                    tiltakstypeId,
+                    tiltaksnummer
                 )
             }
-            .map { DatabaseMapper.toAdapterTiltaksgjennomforing(it) }
+            .map { DatabaseMapper.toTiltaksgjennomforing(it) }
             .asSingle
             .let { db.run(it)!! }
     }
 
-    fun deleteTiltaksgjennomforing(tiltak: AdapterTiltaksgjennomforing): QueryResult<Unit> = query {
-        logger.info("Sletter tiltak id=${tiltak.tiltaksgjennomforingId}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
+    fun deleteTiltaksgjennomforing(id: UUID): QueryResult<Unit> = query {
+        logger.info("Sletter tiltaksgjennomføring id=${id}")
 
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing
-            where arena_id = ?
+            where id = ?
         """.trimIndent()
 
         query {
-            tiltak.run { queryOf(query, tiltaksgjennomforingId) }
+            run { queryOf(query, id) }
                 .asExecute
                 .let { db.run(it) }
         }
     }
 
-    fun upsertDeltaker(deltaker: AdapterTiltakdeltaker): QueryResult<AdapterTiltakdeltaker> = query {
-        logger.info("Lagrer deltaker id=${deltaker.tiltaksdeltakerId}, tiltak=${deltaker.tiltaksgjennomforingId}")
+    fun upsertDeltaker(deltaker: Deltaker): QueryResult<Deltaker> = query {
+        logger.info("Lagrer deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (arena_id, tiltaksgjennomforing_id, person_id, fra_dato, til_dato, status)
-            values (?, ?, ?, ?, ?, ?::deltakerstatus)
-            on conflict (arena_id)
+            insert into deltaker (id, tiltaksgjennomforing_id, fnr, status)
+            values (?, ?, ?, ?::deltakerstatus)
+            on conflict (id)
             do update set
-                arena_id = excluded.arena_id,
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
-                person_id = excluded.person_id,
-                fra_dato = excluded.fra_dato,
-                til_dato = excluded.til_dato,
+                fnr = excluded.fnr,
                 status = excluded.status
             returning *
         """.trimIndent()
@@ -139,29 +118,27 @@ class ArenaRepository(private val db: Database) {
         deltaker.run {
             queryOf(
                 query,
-                tiltaksdeltakerId,
+                id,
                 tiltaksgjennomforingId,
-                personId,
-                fraDato,
-                tilDato,
+                fnr,
                 status.name
             )
         }
-            .map { DatabaseMapper.toAdapterTiltakdeltaker(it) }
+            .map { DatabaseMapper.toDeltaker(it) }
             .asSingle
             .let { db.run(it)!! }
     }
 
-    fun deleteDeltaker(deltaker: AdapterTiltakdeltaker): QueryResult<Unit> = query {
-        logger.info("Sletter deltaker id=${deltaker.tiltaksdeltakerId}, tiltak=${deltaker.tiltaksgjennomforingId}")
+    fun deleteDeltaker(id: UUID): QueryResult<Unit> = query {
+        logger.info("Sletter deltaker id=${id}")
 
         @Language("PostgreSQL")
         val query = """
             delete from deltaker
-            where arena_id = ?
+            where id = ?
         """.trimIndent()
 
-        deltaker.run { queryOf(query, tiltaksdeltakerId) }
+        run { queryOf(query, id) }
             .asExecute
             .let { db.run(it) }
     }

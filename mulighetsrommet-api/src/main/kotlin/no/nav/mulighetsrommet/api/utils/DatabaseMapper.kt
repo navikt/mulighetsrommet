@@ -1,11 +1,7 @@
 package no.nav.mulighetsrommet.api.utils
 
 import kotliquery.Row
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.*
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing.Tilgjengelighetsstatus
 
 object DatabaseMapper {
 
