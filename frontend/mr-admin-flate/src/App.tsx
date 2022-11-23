@@ -1,7 +1,6 @@
 import { Heading } from "@navikt/ds-react";
 import { useFeatureToggles } from "./api/features/feature-toggles";
-import { Oversikt } from "./pages/Oversikt";
-import { Route, Routes } from "react-router-dom";
+import { Shortcuts } from "./components/shortcuts/Shortcuts";
 
 export function App() {
   const { data, isLoading } = useFeatureToggles();
@@ -17,22 +16,8 @@ export function App() {
   }
 
   return (
-    <Routes>
-      (
-      <>
-        <Route
-          path="/"
-          element={
-            <main>
-              <Heading data-testid="admin-heading" size="xlarge">
-                Hello World, admin-flate 💯
-              </Heading>
-            </main>
-          }
-        />
-        <Route path={"oversikt"} element={<Oversikt />} />
-      </>
-      )
-    </Routes>
+    <main>
+      <Shortcuts />
+    </main>
   );
 }

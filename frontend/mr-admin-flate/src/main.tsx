@@ -1,15 +1,16 @@
+import "@navikt/ds-css";
+import "@navikt/ds-css-internal";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { App } from "./App";
+import { AdministratorHeader } from "./components/AdministratorHeader";
+import "./index.css";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import "@navikt/ds-css";
-import "@navikt/ds-css-internal";
-import "./index.css";
-import { AdministratorHeader } from "./components/AdministratorHeader";
-import { App } from "./App";
+import { Oversikt } from "./pages/Oversikt";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 
 const queryClient = new QueryClient();
@@ -38,10 +39,19 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route
             element={
               <RootLayout>
+                <Oversikt />
+              </RootLayout>
+            }
+            path="oversikt"
+            errorElement={<ErrorPage />}
+          />
+          <Route
+            element={
+              <RootLayout>
                 <TiltaksgjennomforingPage />
               </RootLayout>
             }
-            path="/:tiltaksgjennomforingId"
+            path="oversikt/:tiltaksgjennomforingId"
             errorElement={<ErrorPage />}
           />
         </Routes>

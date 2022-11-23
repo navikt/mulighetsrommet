@@ -1,5 +1,6 @@
 import { TextField } from "@navikt/ds-react";
 import { Form, Formik, useField } from "formik";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 
@@ -38,6 +39,7 @@ const Tekstfelt = ({
 export function TiltaksgjennomforingPage() {
   return (
     <div>
+      <Link to="/oversikt">Tilbake til oversikt</Link>
       <h1>Opprett tiltaksgjennomføring</h1>
       <p>Her kan du opprette en gjennomføring</p>
       <Formik<Values>
