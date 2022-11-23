@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.models
 
+import io.ktor.client.plugins.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 
@@ -28,6 +29,10 @@ sealed class ConsumptionError(val status: ArenaEvent.ConsumptionStatus, val mess
         fun fromDatabaseOperationError(error: DatabaseOperationError): ConsumptionError = when (error) {
             is DatabaseOperationError.ForeignKeyViolation -> MissingDependency(error.error.localizedMessage)
             else -> ProcessingFailed(error.error.localizedMessage)
+        }
+
+        fun fromResponseException(exception: ResponseException): ConsumptionError {
+            return ProcessingFailed(exception.localizedMessage)
         }
     }
 }

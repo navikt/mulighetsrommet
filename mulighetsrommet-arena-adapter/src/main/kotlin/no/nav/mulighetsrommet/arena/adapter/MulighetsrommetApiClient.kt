@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter
 
+import arrow.core.Either
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
@@ -60,12 +61,12 @@ class MulighetsrommetApiClient(
         }
     }
 
-    internal suspend inline fun <reified T> sendRequest(
+    internal suspend inline fun <reified T> request(
         method: HttpMethod,
         requestUri: String,
         payload: T,
         isValidResponse: HttpResponse.() -> Boolean = { status.isSuccess() },
-    ): HttpResponse {
+    ): Either<ResponseException, HttpResponse> {
         val response = client.request(requestUri) {
             bearerAuth(getToken())
             this.method = method
@@ -73,9 +74,9 @@ class MulighetsrommetApiClient(
         }
 
         if (!isValidResponse(response)) {
-            throw ResponseException(response, response.bodyAsText())
+            return Either.Left(ResponseException(response, response.bodyAsText()))
         }
 
-        return response
+        return Either.Right(response)
     }
 }

@@ -63,7 +63,9 @@ class TiltakEndretConsumer(
 
         // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/tiltakstype", tiltakstype)
+        client.request(method, "/api/v1/arena/tiltakstype", tiltakstype)
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .bind()
     }
 
     private fun ArenaTiltak.toTiltakstype(id: UUID) = Tiltakstype(

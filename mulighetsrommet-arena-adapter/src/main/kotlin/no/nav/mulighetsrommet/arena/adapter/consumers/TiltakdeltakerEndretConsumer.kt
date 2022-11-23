@@ -63,7 +63,9 @@ class TiltakdeltakerEndretConsumer(
 
         // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/deltaker", deltaker)
+        client.request(method, "/api/v1/arena/deltaker", deltaker)
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .bind()
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Deltaker(
