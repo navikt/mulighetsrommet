@@ -27,6 +27,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
@@ -188,7 +191,9 @@ private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineTo
 }
 
 private fun repositories() = module {
-    single { ArenaRepository(get()) }
+    single { TiltaksgjennomforingRepository(get()) }
+    single { TiltakstypeRepository(get()) }
+    single { DeltakerRepository(get()) }
 }
 
 private fun services(
@@ -204,7 +209,7 @@ private fun services(
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
-    single { ArenaService(get()) }
+    single { ArenaService(get(), get(), get()) }
     single { TiltaksgjennomforingService(get()) }
     single { TiltakstypeService(get()) }
     single { HistorikkService(get(), veilarbarenaClient, get()) }

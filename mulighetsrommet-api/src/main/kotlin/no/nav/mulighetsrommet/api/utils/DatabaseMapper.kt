@@ -37,4 +37,16 @@ object DatabaseMapper {
         tiltakstype = row.string("tiltakstype"),
         arrangorId = row.int("arrangor_id")
     )
+
+    fun toDelMedBruker(row: Row): DelMedBruker = DelMedBruker(
+        id = row.string("id"),
+        bruker_fnr = row.string("bruker_fnr"),
+        navident = row.string("navident"),
+        tiltaksnummer = row.string("tiltaksnummer"),
+        dialogId = row.string("dialogId"),
+        created_at = row.localDateTime("created_at"),
+        updated_at = row.localDateTime("updated_at"),
+        created_by = row.string("created_by"),
+        updated_by = row.string("updated_by")
+    )
 }
