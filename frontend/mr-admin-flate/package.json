@@ -18,11 +18,14 @@
     "@navikt/ds-react-internal": "^2.0.0",
     "@tanstack/react-query": "^4.16.1",
     "@tanstack/react-query-devtools": "^4.16.1",
+    "formik": "^2.2.9",
     "mulighetsrommet-api-client": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.3",
-    "vite-plugin-require": "^1.0.8"
+    "vite-plugin-require": "^1.0.8",
+    "zod": "^3.19.1",
+    "zod-formik-adapter": "^1.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

@@ -1,14 +1,11 @@
+import { ReactNode } from "react";
 import { App } from "../App";
-import { AdministratorHeader } from "../components/AdministratorHeader";
 import styles from "./RootLayout.module.scss";
 
-export function RootLayout() {
+export function RootLayout({ children }: { children: ReactNode }) {
   return (
     <div>
-      <AdministratorHeader />
-      <main className={styles.container}>
-        <App />
-      </main>
+      <main className={styles.container}>{children}</main>
     </div>
   );
 }
