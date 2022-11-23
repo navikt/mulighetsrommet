@@ -33,8 +33,7 @@ fun Application.configureDependencyInjection(
             consumers(appConfig.kafka),
             kafka(appConfig.kafka, kafkaPreset),
             repositories(),
-            services(appConfig.services),
-            clients(appConfig.services, tokenClient)
+            services(appConfig.services, tokenClient),
         )
     }
 }
@@ -58,7 +57,12 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
 }
 
 private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
-    single<Database> { FlywayDatabaseAdapter(databaseConfig, FlywayDatabaseAdapter.InitializationStrategy.MigrateAsync) }
+    single<Database> {
+        FlywayDatabaseAdapter(
+            databaseConfig,
+            FlywayDatabaseAdapter.InitializationStrategy.MigrateAsync
+        )
+    }
 }
 
 private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
@@ -77,14 +81,16 @@ private fun repositories() = module {
     single { ArenaEntityMappingRepository(get()) }
 }
 
-private fun services(services: ServiceConfig): Module = module {
-    single { ArenaEventService(get(), get(), services.arenaEventService) }
-}
-
-private fun clients(serviceConfig: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient) = module {
+private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient): Module = module {
     single {
-        MulighetsrommetApiClient(baseUri = serviceConfig.mulighetsrommetApi.url) {
-            tokenClient.createMachineToMachineToken(serviceConfig.mulighetsrommetApi.scope)
+        ArenaEventService(get(), get(), services.arenaEventService)
+    }
+    single {
+        MulighetsrommetApiClient(
+            config = MulighetsrommetApiClient.Config(maxRetries = 5),
+            baseUri = services.mulighetsrommetApi.url
+        ) {
+            tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
         }
     }
 }

@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
@@ -26,19 +24,19 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
 
     beforeEach {
-        listener.db.migrate()
+        database.db.migrate()
     }
 
     afterEach {
-        listener.db.clean()
+        database.db.clean()
     }
 
     context("when dependent events has not been processed") {
         test("should save the event with status Pending when dependent tiltakstype is missing") {
-            val tiltakstyper = TiltakstypeRepository(listener.db)
+            val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(
                 Tiltakstype(
                     id = UUID.randomUUID(),
@@ -48,35 +46,33 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 )
             )
 
-            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = createConsumer(listener.db, engine).processEvent(createEvent(Insert))
+            val event = consumer.processEvent(createEvent(Insert))
 
             event.status shouldBe Pending
-
-            listener.assertThat("tiltaksgjennomforing").isEmpty
+            database.assertThat("tiltaksgjennomforing").isEmpty
         }
 
         test("should save the event with status Pending when dependent sak is missing") {
-            val saker = SakRepository(listener.db)
+            val saker = SakRepository(database.db)
             saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
 
-            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = createConsumer(listener.db, engine).processEvent(createEvent(Insert))
+            val event = consumer.processEvent(createEvent(Insert))
 
             event.status shouldBe Pending
-
-            listener.assertThat("tiltaksgjennomforing").isEmpty
+            database.assertThat("tiltaksgjennomforing").isEmpty
         }
     }
 
     context("when dependent events has been processed") {
         beforeEach {
-            val saker = SakRepository(listener.db)
+            val saker = SakRepository(database.db)
             saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
 
-            val tiltakstyper = TiltakstypeRepository(listener.db)
+            val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(
                 Tiltakstype(
                     id = UUID.randomUUID(),
@@ -88,40 +84,38 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         }
 
         test("CRUD") {
-            val engine = MockEngine { respondOk() }
-
-            val consumer = createConsumer(listener.db, engine)
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
             val e1 = consumer.processEvent(createEvent(Insert, name = "Navn 1"))
             e1.status shouldBe Processed
-            listener.assertThat("tiltaksgjennomforing")
+            database.assertThat("tiltaksgjennomforing")
                 .row()
                 .value("navn").isEqualTo("Navn 1")
 
             val e2 = consumer.processEvent(createEvent(Update, name = "Navn 2"))
             e2.status shouldBe Processed
-            listener.assertThat("tiltaksgjennomforing")
+            database.assertThat("tiltaksgjennomforing")
                 .row()
                 .value("navn").isEqualTo("Navn 2")
 
             val e3 = consumer.processEvent(createEvent(Delete))
             e3.status shouldBe Processed
-            listener.assertThat("tiltaksgjennomforing").isEmpty
+            database.assertThat("tiltaksgjennomforing").isEmpty
         }
 
         test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
-            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = createConsumer(listener.db, engine)
-                .processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
+            val event = consumer.processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
 
             event.status shouldBe Ignored
         }
 
         test("should call api with mapped event payload") {
             val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, engine)
 
-            createConsumer(listener.db, engine).processEvent(createEvent(Insert))
+            consumer.processEvent(createEvent(Insert))
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
@@ -141,23 +135,23 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         }
 
         test("should treat a 500 response as error") {
-            val engine = MockEngine { respondError(HttpStatusCode.InternalServerError) }
+            val consumer = createConsumer(
+                database.db,
+                MockEngine { respondError(HttpStatusCode.InternalServerError) }
+            )
 
-            val consumer = createConsumer(listener.db, engine)
+            val event = consumer.processEvent(createEvent(Insert))
 
-            shouldThrow<ResponseException> {
-                consumer.processEvent(createEvent(Insert))
-            }
-
-            listener.assertThat("arena_events")
+            event.status shouldBe Failed
+            database.assertThat("arena_events")
                 .row()
-                .value("consumption_status").isEqualTo("Pending")
+                .value("consumption_status").isEqualTo("Failed")
         }
     }
 })
 
 private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
-    val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
+    val client = MulighetsrommetApiClient(engine, baseUri = "api") {
         "Bearer token"
     }
 

@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.computations.ResultEffect.bind
 import arrow.core.continuations.either
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
@@ -79,7 +81,9 @@ class TiltakgjennomforingEndretConsumer(
 
         // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
+        client.request(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .bind()
     }
 
     private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
