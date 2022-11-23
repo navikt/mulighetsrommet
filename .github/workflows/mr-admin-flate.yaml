@@ -20,8 +20,6 @@ on:
           - dev_and_prod
 
 env:
-  IMAGE_DEV: ghcr.io/navikt/mulighetsrommet/mr-admin-flate-dev:${{ github.sha }}
-  IMAGE_PROD: ghcr.io/navikt/mulighetsrommet/mr-admin-flate-prod:${{ github.sha }}
   CI: true
   TZ: Europe/Amsterdam
 

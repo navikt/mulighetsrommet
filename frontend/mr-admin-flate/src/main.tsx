@@ -15,7 +15,10 @@ import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 
 const queryClient = new QueryClient();
 
-if (process.env.NODE_ENV === "development") {
+if (
+  process.env.NODE_ENV === "development" ||
+  import.meta.env.VITE_INCLUDE_MOCKS == "true"
+) {
   import("./mocks/browser").then(({ worker }) => {
     worker.start();
   });
