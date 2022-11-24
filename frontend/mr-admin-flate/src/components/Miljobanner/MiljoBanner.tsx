@@ -6,7 +6,7 @@ const WHITELIST_BANNER = ["labs.nais.io"] as const;
 
 export function MiljoBanner() {
   const [vis, setVis] = useState(true);
-  const url = window?.location?.host as typeof WHITELIST_BANNER[number];
+  const url = window?.location?.host;
 
   if (
     !WHITELIST_BANNER.find((el) => url.toLowerCase().includes(el.toLowerCase()))
@@ -14,11 +14,11 @@ export function MiljoBanner() {
     return null;
   }
 
-  const navnForMiljo = (url: typeof WHITELIST_BANNER[number]) => {
-    switch (url) {
-      case "labs.nais.io":
-        return "labs";
+  const navnForMiljo = (url: string) => {
+    if (url.includes("labs.nais.io")) {
+      return "labs";
     }
+    return "";
   };
 
   if (!vis) return null;
@@ -28,7 +28,7 @@ export function MiljoBanner() {
       <Alert variant="warning">
         <Heading spacing size="small">
           Dette er en demo-tjeneste i <code>{navnForMiljo(url)}</code>
-          -miljøet som er under utvikling
+          som er under utvikling
         </Heading>
         <p>
           Her eksperimenterer vi med ny funksjonalitet. Demoen inneholder ikke
