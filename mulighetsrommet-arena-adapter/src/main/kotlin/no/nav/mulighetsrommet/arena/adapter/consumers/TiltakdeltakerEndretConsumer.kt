@@ -45,19 +45,22 @@ class TiltakdeltakerEndretConsumer(
     override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
         val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
 
+        val tiltaksgjennomforing = events.get(
+            "SIAMO.TILTAKGJENNOMFORING",
+            decoded.data.TILTAKGJENNOMFORING_ID.toString()
+        )
+
+        ensure(tiltaksgjennomforingHasNotBeenIgnored(tiltaksgjennomforing)) {
+            ConsumptionError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
+        }
+
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
             ArenaEntityMapping.Deltaker(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
         val deltaker = decoded.data
             .toDeltaker(mapping.entityId)
-            .let {
-                if (decoded.operation == ArenaEventData.Operation.Delete) {
-                    deltakere.delete(it)
-                } else {
-                    deltakere.upsert(it)
-                }
-            }
+            .let { deltakere.upsert(it) }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 
@@ -66,6 +69,10 @@ class TiltakdeltakerEndretConsumer(
         client.request(method, "/api/v1/arena/deltaker", deltaker)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .bind()
+    }
+
+    private fun tiltaksgjennomforingHasNotBeenIgnored(tiltaksgjennomforing: ArenaEvent?): Boolean {
+        return tiltaksgjennomforing == null || tiltaksgjennomforing.status != ArenaEvent.ConsumptionStatus.Ignored
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Deltaker(

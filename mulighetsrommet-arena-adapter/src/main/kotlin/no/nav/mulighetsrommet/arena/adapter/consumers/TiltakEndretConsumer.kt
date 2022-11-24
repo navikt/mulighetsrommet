@@ -51,13 +51,7 @@ class TiltakEndretConsumer(
 
         val tiltakstype = decoded.data
             .toTiltakstype(mapping.entityId)
-            .let {
-                if (decoded.operation == ArenaEventData.Operation.Delete) {
-                    tiltakstyper.delete(it)
-                } else {
-                    tiltakstyper.upsert(it)
-                }
-            }
+            .let { tiltakstyper.upsert(it) }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 

@@ -83,24 +83,23 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             )
         }
 
-        test("CRUD") {
+        test("should treat all operations as upserts") {
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
             val e1 = consumer.processEvent(createEvent(Insert, name = "Navn 1"))
             e1.status shouldBe Processed
             database.assertThat("tiltaksgjennomforing")
-                .row()
-                .value("navn").isEqualTo("Navn 1")
+                .row().value("navn").isEqualTo("Navn 1")
 
             val e2 = consumer.processEvent(createEvent(Update, name = "Navn 2"))
             e2.status shouldBe Processed
             database.assertThat("tiltaksgjennomforing")
-                .row()
-                .value("navn").isEqualTo("Navn 2")
+                .row().value("navn").isEqualTo("Navn 2")
 
-            val e3 = consumer.processEvent(createEvent(Delete))
+            val e3 = consumer.processEvent(createEvent(Delete, name = "Navn 1"))
             e3.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing").isEmpty
+            database.assertThat("tiltaksgjennomforing")
+                .row().value("navn").isEqualTo("Navn 1")
         }
 
         test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
@@ -111,16 +110,12 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             event.status shouldBe Ignored
         }
 
-        test("should call api with mapped event payload") {
-            val engine = MockEngine { respondOk() }
-            val consumer = createConsumer(database.db, engine)
+        context("api responses") {
+            test("should call api with mapped event payload") {
+                val engine = MockEngine { respondOk() }
+                val consumer = createConsumer(database.db, engine)
 
-            consumer.processEvent(createEvent(Insert))
-
-            engine.requestHistory.last().run {
-                method shouldBe HttpMethod.Put
-
-                decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe AdapterTiltaksgjennomforing(
+                val gjennomforing = AdapterTiltaksgjennomforing(
                     tiltaksgjennomforingId = 3780431,
                     navn = "Testenavn",
                     tiltakskode = "INDOPPFAG",
@@ -131,21 +126,35 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                     apentForInnsok = true,
                     antallPlasser = 5,
                 )
+
+                consumer.processEvent(createEvent(Insert))
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Put
+                    decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe gjennomforing
+                }
+
+                consumer.processEvent(createEvent(Delete))
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Delete
+                    decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe gjennomforing
+                }
             }
-        }
 
-        test("should treat a 500 response as error") {
-            val consumer = createConsumer(
-                database.db,
-                MockEngine { respondError(HttpStatusCode.InternalServerError) }
-            )
+            test("should treat a 500 response as error") {
+                val consumer = createConsumer(
+                    database.db,
+                    MockEngine { respondError(HttpStatusCode.InternalServerError) }
+                )
 
-            val event = consumer.processEvent(createEvent(Insert))
+                val event = consumer.processEvent(createEvent(Insert))
 
-            event.status shouldBe Failed
-            database.assertThat("arena_events")
-                .row()
-                .value("consumption_status").isEqualTo("Failed")
+                event.status shouldBe Failed
+                database.assertThat("arena_events")
+                    .row()
+                    .value("consumption_status").isEqualTo("Failed")
+            }
         }
     }
 })

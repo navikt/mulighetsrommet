@@ -75,56 +75,65 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             )
         }
 
-        test("CRUD") {
+        test("should treat all operations as upserts") {
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
             val e1 = consumer.processEvent(createEvent(Insert, status = "GJENN"))
             e1.status shouldBe Processed
             database.assertThat("deltaker")
-                .row()
-                .value("status").isEqualTo("DELTAR")
+                .row().value("status").isEqualTo("DELTAR")
 
             val e2 = consumer.processEvent(createEvent(Update, status = "FULLF"))
             e2.status shouldBe Processed
             database.assertThat("deltaker")
-                .row()
-                .value("status").isEqualTo("AVSLUTTET")
+                .row().value("status").isEqualTo("AVSLUTTET")
 
-            val e3 = consumer.processEvent(createEvent(Delete))
+            val e3 = consumer.processEvent(createEvent(Delete, status = "FULLF"))
             e3.status shouldBe Processed
-            database.assertThat("deltaker").isEmpty
+            database.assertThat("deltaker")
+                .row().value("status").isEqualTo("AVSLUTTET")
         }
 
-        test("should call api with mapped event payload") {
-            val engine = MockEngine { respondOk() }
-            val consumer = createConsumer(database.db, engine)
+        context("api responses") {
+            test("should call api with mapped event payload") {
+                val engine = MockEngine { respondOk() }
+                val consumer = createConsumer(database.db, engine)
 
-            consumer.processEvent(createEvent(Insert))
-
-            engine.requestHistory.last().run {
-                method shouldBe HttpMethod.Put
-
-                decodeRequestBody<AdapterTiltakdeltaker>() shouldBe AdapterTiltakdeltaker(
+                val deltaker = AdapterTiltakdeltaker(
                     tiltaksdeltakerId = 1,
                     personId = 2,
                     tiltaksgjennomforingId = 3,
                     status = Deltakerstatus.DELTAR,
                 )
+
+                consumer.processEvent(createEvent(Insert))
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Put
+                    decodeRequestBody<AdapterTiltakdeltaker>() shouldBe deltaker
+                }
+
+                consumer.processEvent(createEvent(Delete))
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Delete
+                    decodeRequestBody<AdapterTiltakdeltaker>() shouldBe deltaker
+                }
             }
-        }
 
-        test("should treat a 500 response as error") {
-            val consumer = createConsumer(
-                database.db,
-                MockEngine { respondError(HttpStatusCode.InternalServerError) }
-            )
+            test("should treat a 500 response as error") {
+                val consumer = createConsumer(
+                    database.db,
+                    MockEngine { respondError(HttpStatusCode.InternalServerError) }
+                )
 
-            val event = consumer.processEvent(createEvent(Insert))
+                val event = consumer.processEvent(createEvent(Insert))
 
-            event.status shouldBe Failed
-            database.assertThat("arena_events")
-                .row()
-                .value("consumption_status").isEqualTo("Failed")
+                event.status shouldBe Failed
+                database.assertThat("arena_events")
+                    .row()
+                    .value("consumption_status").isEqualTo("Failed")
+            }
         }
     }
 })
