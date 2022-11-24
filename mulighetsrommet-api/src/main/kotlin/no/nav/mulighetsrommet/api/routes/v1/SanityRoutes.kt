@@ -4,7 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
@@ -18,7 +18,7 @@ fun Route.sanityRoutes() {
 
     route("/api/v1/sanity") {
         get {
-            poaoTilgangService.verfiyAccessToModia(getNavIdent())
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val query = call.request.queryParameters["query"]
                 ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
             log.debug("Query sanity with value: $query")

@@ -9,6 +9,7 @@ import io.ktor.util.pipeline.*
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.DialogRequest
@@ -25,7 +26,7 @@ fun Route.dialogRoutes() {
 
     route("/api/v1/dialog") {
         post {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val dialogRequest = call.receive<DialogRequest>()
             val accessToken = call.getAccessToken()
             val response = dialogService.sendMeldingTilDialogen(getNorskIdent(), accessToken, dialogRequest)

@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.secure_log.SecureLog
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangClient
+import no.nav.poao_tilgang.client.TilgangType
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class PoaoTilgangService(
@@ -19,10 +21,16 @@ class PoaoTilgangService(
         .maximumSize(10_000)
         .build()
 
-    suspend fun verifyAccessToUserFromVeileder(navIdent: String, norskIdent: String) {
-        val access = cachedResult(cache, "$navIdent-$norskIdent") {
+    suspend fun verifyAccessToUserFromVeileder(navAnsattAzureId: UUID, norskIdent: String) {
+        val access = cachedResult(cache, "$navAnsattAzureId-$norskIdent") {
             // TODO Hør med Sondre ang. error handling ved kasting av feil
-            client.evaluatePolicy(NavAnsattTilgangTilEksternBrukerPolicyInput(navIdent, norskIdent))
+            client.evaluatePolicy(
+                NavAnsattTilgangTilEksternBrukerPolicyInput(
+                    navAnsattAzureId,
+                    TilgangType.LESE,
+                    norskIdent
+                )
+            )
                 .getOrThrow().isPermit
         }
 
@@ -31,13 +39,13 @@ class PoaoTilgangService(
         }
     }
 
-    suspend fun verfiyAccessToModia(navIdent: String) {
-        val access = cachedResult(cache, navIdent) {
-            client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navIdent)).getOrThrow().isPermit
+    suspend fun verfiyAccessToModia(navAnsattAzureId: UUID) {
+        val access = cachedResult(cache, navAnsattAzureId.toString()) {
+            client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navAnsattAzureId)).getOrThrow().isPermit
         }
 
         if (!access) {
-            SecureLog.logger.warn("Veileder med navident $navIdent har ikke tilgang til modia")
+            SecureLog.logger.warn("Veileder med navAnsattAzureId $navAnsattAzureId har ikke tilgang til modia")
             throw StatusException(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til modia, se mer i secure logs")
         }
     }
