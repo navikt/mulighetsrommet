@@ -51,13 +51,7 @@ class TiltakdeltakerEndretConsumer(
 
         val deltaker = decoded.data
             .toDeltaker(mapping.entityId)
-            .let {
-                if (decoded.operation == ArenaEventData.Operation.Delete) {
-                    deltakere.delete(it)
-                } else {
-                    deltakere.upsert(it)
-                }
-            }
+            .let { deltakere.upsert(it) }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 

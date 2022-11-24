@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import arrow.core.computations.ResultEffect.bind
 import arrow.core.continuations.either
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
@@ -60,7 +58,7 @@ class TiltakgjennomforingEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
         ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
-            ConsumptionError.Ignored("""Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen""")
+            ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
@@ -69,13 +67,7 @@ class TiltakgjennomforingEndretConsumer(
 
         val tiltaksgjennomforing = decoded.data
             .toTiltaksgjennomforing(mapping.entityId)
-            .let {
-                if (decoded.operation == ArenaEventData.Operation.Delete) {
-                    tiltaksgjennomforinger.delete(it)
-                } else {
-                    tiltaksgjennomforinger.upsert(it)
-                }
-            }
+            .let { tiltaksgjennomforinger.upsert(it) }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 

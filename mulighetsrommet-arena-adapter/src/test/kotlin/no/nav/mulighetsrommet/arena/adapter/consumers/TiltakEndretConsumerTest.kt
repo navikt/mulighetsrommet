@@ -34,7 +34,7 @@ class TiltakEndretConsumerTest : FunSpec({
         database.db.clean()
     }
 
-    test("CRUD") {
+    test("should treat all operations as upserts") {
         val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
         val e1 = consumer.processEvent(createEvent(Insert, name = "Oppfølging 1"))
@@ -47,9 +47,10 @@ class TiltakEndretConsumerTest : FunSpec({
         database.assertThat("tiltakstype")
             .row().value("navn").isEqualTo("Oppfølging 2")
 
-        val e3 = consumer.processEvent(createEvent(Delete))
+        val e3 = consumer.processEvent(createEvent(Delete, name = "Oppfølging 1"))
         e3.status shouldBe Processed
-        database.assertThat("tiltakstype").isEmpty
+        database.assertThat("tiltakstype")
+            .row().value("navn").isEqualTo("Oppfølging 1")
     }
 
     context("api responses") {
@@ -57,16 +58,24 @@ class TiltakEndretConsumerTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
+            val tiltakstype = AdapterTiltak(
+                navn = "Oppfølging",
+                innsatsgruppe = 2,
+                tiltakskode = "INDOPPFAG",
+            )
+
             consumer.processEvent(createEvent(Insert))
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
+                decodeRequestBody<AdapterTiltak>() shouldBe tiltakstype
+            }
 
-                decodeRequestBody<AdapterTiltak>() shouldBe AdapterTiltak(
-                    navn = "Oppfølging",
-                    innsatsgruppe = 2,
-                    tiltakskode = "INDOPPFAG",
-                )
+            consumer.processEvent(createEvent(Delete))
+
+            engine.requestHistory.last().run {
+                method shouldBe HttpMethod.Delete
+                decodeRequestBody<AdapterTiltak>() shouldBe tiltakstype
             }
         }
 

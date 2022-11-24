@@ -21,7 +21,7 @@ class ArenaEventService(
         val numChannelConsumers: Int = 1,
     )
 
-    suspend fun replayEvent(table: String, id: Int) = coroutineScope {
+    suspend fun replayEvent(table: String, id: String) = coroutineScope {
         logger.info("Replaying event table=$table, id=$id")
 
         return@coroutineScope arenaEvents.get(table, id)?.also { data ->

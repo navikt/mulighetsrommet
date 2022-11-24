@@ -43,13 +43,7 @@ class SakEndretConsumer(
 
         val sak = decoded.data
             .toSak()
-            .let {
-                if (decoded.operation == ArenaEventData.Operation.Delete) {
-                    saker.delete(it)
-                } else {
-                    saker.upsert(it)
-                }
-            }
+            .let { saker.upsert(it) }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 

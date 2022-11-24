@@ -41,9 +41,9 @@ class ArenaEventServiceTest : FunSpec({
 
     context("replay event") {
         test("should run gracefully when specified event does not exist") {
-            every { arenaData.get(table, 1) } returns null
+            every { arenaData.get(table, "1") } returns null
 
-            service.replayEvent(table, 1)
+            service.replayEvent(table, "1")
 
             coVerify(exactly = 0) {
                 consumer.replayEvent(any())
@@ -51,9 +51,9 @@ class ArenaEventServiceTest : FunSpec({
         }
 
         test("should replay event payload specified by id") {
-            every { arenaData.get(table, 1) } returns fooEvent
+            every { arenaData.get(table, "1") } returns fooEvent
 
-            service.replayEvent(table, 1)
+            service.replayEvent(table, "1")
 
             coVerify(exactly = 1) {
                 consumer.replayEvent(fooEvent)
