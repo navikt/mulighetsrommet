@@ -13,7 +13,6 @@ class AnsattService(
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): VeilederData {
         val data = veilarbveilederClient.hentVeilederdata(accessToken)
         val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
-        print(azureAdGrupper)
         return VeilederData(
             etternavn = data?.etternavn,
             fornavn = data?.fornavn,
