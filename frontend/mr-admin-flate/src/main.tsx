@@ -7,6 +7,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { App } from "./App";
 import { AdministratorHeader } from "./components/AdministratorHeader";
+import { MiljoBanner } from "./components/Miljobanner/MiljoBanner";
 import "./index.css";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
@@ -31,6 +32,7 @@ function render() {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
+        <MiljoBanner />
         <Router>
           <AdministratorHeader />
           <Routes>
