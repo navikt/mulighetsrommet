@@ -5,10 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.secure_log.SecureLog
-import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
-import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
-import no.nav.poao_tilgang.client.PoaoTilgangClient
-import no.nav.poao_tilgang.client.TilgangType
+import no.nav.poao_tilgang.client.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -17,6 +14,11 @@ class PoaoTilgangService(
 ) {
 
     private val cache: Cache<String, Boolean> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .build()
+
+    private val brukerAzureIdToAdGruppeCache: Cache<String, List<AdGruppe>> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .build()
@@ -50,6 +52,12 @@ class PoaoTilgangService(
         }
     }
 
+    suspend fun hentAdGrupper(navAnsattAzureId: UUID): List<AdGruppe> {
+        return cachedResult(brukerAzureIdToAdGruppeCache, navAnsattAzureId.toString()) {
+            client.hentAdGrupper(navAnsattAzureId).getOrDefault { emptyList() }
+        }
+    }
+
     private suspend fun <K, V : Any> cachedResult(
         cache: Cache<K, V>,
         key: K,
@@ -65,8 +73,3 @@ class PoaoTilgangService(
         return value
     }
 }
-
-data class NavidentOgNorskIdentCacheKey(
-    val navident: String,
-    val norskident: String
-)

@@ -30,12 +30,13 @@ export const apiHandlers: RestHandler[] = [
     });
   }),
 
-  rest.get('*/api/v1/veileder', () => {
+  rest.get('*/api/v1/ansatt/me', () => {
     return ok({
       etternavn: 'VEILEDERSEN',
       fornavn: 'VEILEDER',
       ident: 'V12345',
       navn: 'Veiledersen, Veileder',
+      tilganger: [],
     });
   }),
 
