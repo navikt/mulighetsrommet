@@ -46,7 +46,10 @@ class HistorikkServiceTest : FunSpec({
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = tiltaksgjennomforing.id,
             fnr = "12345678910",
-            status = Deltakerstatus.VENTER
+            status = Deltakerstatus.VENTER,
+            fraDato = LocalDateTime.now(),
+            tilDato = LocalDateTime.now().plusYears(1),
+            virksomhetsnr = "123456789"
         )
 
         service.createOrUpdate(tiltakstype)

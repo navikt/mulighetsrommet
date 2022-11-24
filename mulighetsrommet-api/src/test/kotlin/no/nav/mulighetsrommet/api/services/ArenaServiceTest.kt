@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -48,7 +47,10 @@ class ArenaServiceTest : FunSpec({
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = tiltaksgjennomforing.id,
             fnr = "12345678910",
-            status = Deltakerstatus.VENTER
+            status = Deltakerstatus.VENTER,
+            fraDato = LocalDateTime.now(),
+            tilDato = LocalDateTime.now().plusYears(1),
+            virksomhetsnr = "123456789"
         )
 
         test("upsert tiltakstype") {

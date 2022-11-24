@@ -4,18 +4,16 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing.Tilgjengelighetsstatus
-import java.time.LocalDateTime
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import java.util.UUID
 
 class TiltaksgjennomforingServiceTest : FunSpec({
 
@@ -25,203 +23,167 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     register(listener)
 
-    context("CRUD") {
-        val arenaRepository = ArenaRepository(listener.db)
+    val tiltakstype1 = Tiltakstype(
+        id = UUID.randomUUID(),
+        navn = "Arbeidstrening",
+        tiltakskode = "ARBTREN"
+    )
 
-        val service = TiltaksgjennomforingService(listener.db)
+    val tiltakstype2 = Tiltakstype(
+        id = UUID.randomUUID(),
+        navn = "Oppfølging",
+        tiltakskode = "INDOPPFOLG"
+    )
+
+    val tiltak1 = Tiltaksgjennomforing(
+        id = UUID.randomUUID(),
+        navn = "Oppfølging",
+        tiltakstypeId = tiltakstype1.id,
+        tiltaksnummer = "12345"
+    )
+
+    val tiltak2 = Tiltaksgjennomforing(
+        id = UUID.randomUUID(),
+        navn = "Trening",
+        tiltakstypeId = tiltakstype2.id,
+        tiltaksnummer = "54321"
+    )
+
+    context("CRUD") {
+        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val deltakerRepository = DeltakerRepository(listener.db)
+        val arenaService = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
+
+        val tiltaksgjennomforingService = TiltaksgjennomforingService(listener.db)
+
 
         beforeAny {
-            arenaRepository.upsertTiltakstype(
-                AdapterTiltak(
-                    navn = "Arbeidstrening",
-                    innsatsgruppe = 1,
-                    tiltakskode = "ARBTREN",
-                    fraDato = LocalDateTime.now(),
-                    tilDato = LocalDateTime.now().plusYears(1)
-                )
-            )
-            arenaRepository.upsertTiltakstype(
-                AdapterTiltak(
-                    navn = "Oppfølging",
-                    innsatsgruppe = 2,
-                    tiltakskode = "INDOPPFOLG",
-                    fraDato = LocalDateTime.now(),
-                    tilDato = LocalDateTime.now().plusYears(1)
-                )
-            )
+            arenaService.createOrUpdate(tiltakstype1)
+            arenaService.createOrUpdate(tiltakstype2)
         }
 
-        val tiltak1 = AdapterTiltaksgjennomforing(
-            navn = "Oppfølging",
-            arrangorId = 1,
-            tiltakskode = "INDOPPFOLG",
-            tiltaksgjennomforingId = 1,
-            sakId = 1
-        )
-        val tiltak2 = AdapterTiltaksgjennomforing(
-            navn = "Trening",
-            arrangorId = 1,
-            tiltakskode = "ARBTREN",
-            tiltaksgjennomforingId = 2,
-            sakId = 2
-        )
-
         test("should return empty result when there are no created tiltak") {
-            service.getTiltaksgjennomforinger().second shouldBe listOf()
+            tiltaksgjennomforingService.getTiltaksgjennomforinger().second shouldBe listOf()
         }
 
         test("should return empty result when tiltak are missing tiltaksnummer") {
-            arenaRepository.upsertTiltaksgjennomforing(tiltak1)
-            arenaRepository.upsertTiltaksgjennomforing(tiltak2)
+            arenaService.createOrUpdate(tiltak1)
+            arenaService.createOrUpdate(tiltak2)
 
-            service.getTiltaksgjennomforinger().second shouldBe listOf()
-        }
-
-        test("should get tiltak when they have been assigned tiltaksnummer") {
-            arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(sakId = 1, lopenummer = 11, aar = 2022)
-            )
-            arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(sakId = 2, lopenummer = 22, aar = 2022)
-            )
-
-            service.getTiltaksgjennomforinger().second shouldBe listOf(
-                Tiltaksgjennomforing(
-                    id = 1,
-                    navn = "Oppfølging",
-                    tiltakskode = "INDOPPFOLG",
-                    tiltaksnummer = 11,
-                    aar = 2022,
-                    tilgjengelighet = Tilgjengelighetsstatus.Ledig
-                ),
-                Tiltaksgjennomforing(
-                    id = 2,
-                    navn = "Trening",
-                    tiltakskode = "ARBTREN",
-                    tiltaksnummer = 22,
-                    aar = 2022,
-                    tilgjengelighet = Tilgjengelighetsstatus.Ledig
-                )
-            )
+            tiltaksgjennomforingService.getTiltaksgjennomforinger().second shouldBe listOf()
         }
 
         test("should get tiltak by id") {
-            service.getTiltaksgjennomforingById(tiltak1.tiltaksgjennomforingId) shouldBe Tiltaksgjennomforing(
-                id = 1,
-                navn = "Oppfølging",
-                tiltakskode = "INDOPPFOLG",
-                tiltaksnummer = 11,
-                aar = 2022,
-                tilgjengelighet = Tilgjengelighetsstatus.Ledig
-            )
+            tiltaksgjennomforingService.getTiltaksgjennomforingById(tiltak1.id) shouldBe tiltak1
         }
 
-        test("should get tiltaksgjennomføringer by tiltakskode") {
-            service.getTiltaksgjennomforingerByTiltakskode("ARBTREN") shouldHaveSize 1
+        test("should get tiltaksgjennomføringer by tiltakstypeId") {
+            tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
         }
 
-        context("tilgjengelighetsstatus") {
-            context("when tiltak is closed for applications") {
-                beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(
-                        tiltak1.copy(
-                            apentForInnsok = false
-                        )
-                    )
-                }
-
-                afterAny {
-                    arenaRepository.upsertTiltaksgjennomforing(
-                        tiltak1.copy(
-                            apentForInnsok = true
-                        )
-                    )
-                }
-
-                test("should have tilgjengelighet set to STENGT") {
-                    service.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
-                }
-            }
-
-            context("when there are no limits to available seats") {
-                beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(
-                        tiltak1.copy(
-                            antallPlasser = null
-                        )
-                    )
-                }
-
-                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
-                    service.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
-                }
-            }
-
-            context("when there are no available seats") {
-                beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(
-                        tiltak1.copy(
-                            antallPlasser = 0
-                        )
-                    )
-                }
-
-                test("should have tilgjengelighet set to VENTELISTE") {
-                    service.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
-                }
-            }
-
-            context("when all available seats are occupied by deltakelser with status DELTAR") {
-                beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(
-                        tiltak1.copy(
-                            antallPlasser = 1
-                        )
-                    )
-
-                    arenaRepository.upsertDeltaker(
-                        AdapterTiltakdeltaker(
-                            tiltaksdeltakerId = 1,
-                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
-                            personId = 1,
-                            status = Deltakerstatus.DELTAR
-                        )
-                    )
-                }
-
-                test("should have tilgjengelighet set to VENTELISTE") {
-                    service.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
-                }
-            }
-
-            context("when deltakelser are no longer DELTAR") {
-                beforeAny {
-                    arenaRepository.upsertTiltaksgjennomforing(
-                        tiltak1.copy(
-                            antallPlasser = 1
-                        )
-                    )
-
-                    arenaRepository.upsertDeltaker(
-                        AdapterTiltakdeltaker(
-                            tiltaksdeltakerId = 1,
-                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
-                            personId = 1,
-                            status = Deltakerstatus.AVSLUTTET
-                        )
-                    )
-                }
-
-                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
-                    service.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
-                }
-            }
-        }
+//        context("tilgjengelighetsstatus") {
+//            context("when tiltak is closed for applications") {
+//                beforeAny {
+//                    arenaService.createOrUpdate(
+//                        tiltak1.copy(
+//                            apentForInnsok = false
+//                        )
+//                    )
+//                }
+//
+//                afterAny {
+//                    arenaService.upsertTiltaksgjennomforing(
+//                        tiltak1.copy(
+//                            apentForInnsok = true
+//                        )
+//                    )
+//                }
+//
+//                test("should have tilgjengelighet set to STENGT") {
+//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+//                }
+//            }
+//
+//            context("when there are no limits to available seats") {
+//                beforeAny {
+//                    arenaService.upsertTiltaksgjennomforing(
+//                        tiltak1.copy(
+//                            antallPlasser = null
+//                        )
+//                    )
+//                }
+//
+//                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
+//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+//                }
+//            }
+//
+//            context("when there are no available seats") {
+//                beforeAny {
+//                    arenaService.upsertTiltaksgjennomforing(
+//                        tiltak1.copy(
+//                            antallPlasser = 0
+//                        )
+//                    )
+//                }
+//
+//                test("should have tilgjengelighet set to VENTELISTE") {
+//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+//                }
+//            }
+//
+//            context("when all available seats are occupied by deltakelser with status DELTAR") {
+//                beforeAny {
+//                    arenaService.upsertTiltaksgjennomforing(
+//                        tiltak1.copy(
+//                            antallPlasser = 1
+//                        )
+//                    )
+//
+//                    arenaService.upsertDeltaker(
+//                        AdapterTiltakdeltaker(
+//                            tiltaksdeltakerId = 1,
+//                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
+//                            personId = 1,
+//                            status = Deltakerstatus.DELTAR
+//                        )
+//                    )
+//                }
+//
+//                test("should have tilgjengelighet set to VENTELISTE") {
+//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+//                }
+//            }
+//
+//            context("when deltakelser are no longer DELTAR") {
+//                beforeAny {
+//                    arenaService.upsertTiltaksgjennomforing(
+//                        tiltak1.copy(
+//                            antallPlasser = 1
+//                        )
+//                    )
+//
+//                    arenaService.upsertDeltaker(
+//                        AdapterTiltakdeltaker(
+//                            tiltaksdeltakerId = 1,
+//                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
+//                            personId = 1,
+//                            status = Deltakerstatus.AVSLUTTET
+//                        )
+//                    )
+//                }
+//
+//                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
+//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+//                }
+//            }
+//        }
 
         test("should delete tiltak") {
-            arenaRepository.deleteTiltaksgjennomforing(tiltak1)
+            arenaService.remove(tiltak1)
 
-            service.getTiltaksgjennomforingById(tiltak1.tiltaksgjennomforingId) shouldBe null
+            tiltaksgjennomforingService.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
         }
     }
 
@@ -229,34 +191,21 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         listener.db.clean()
         listener.db.migrate()
 
-        val arenaRepository = ArenaRepository(listener.db)
-        val service = TiltaksgjennomforingService(listener.db)
+        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val deltakerRepository = DeltakerRepository(listener.db)
+        val arenaService = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
+        val tiltaksgjennomforingService = TiltaksgjennomforingService(listener.db)
 
-        arenaRepository.upsertTiltakstype(
-            AdapterTiltak(
-                navn = "Arbeidstrening",
-                innsatsgruppe = 1,
-                tiltakskode = "ARBTREN",
-                fraDato = LocalDateTime.now(),
-                tilDato = LocalDateTime.now().plusYears(1)
-            )
-        )
+        arenaService.createOrUpdate(tiltakstype1)
 
         (1..105).forEach {
-            arenaRepository.upsertTiltaksgjennomforing(
-                AdapterTiltaksgjennomforing(
-                    navn = "Trening",
-                    arrangorId = 1,
-                    tiltakskode = "ARBTREN",
-                    tiltaksgjennomforingId = it,
-                    sakId = it
-                )
-            )
-            arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(
-                    sakId = it,
-                    lopenummer = it,
-                    aar = 2022
+            arenaService.createOrUpdate(
+                Tiltaksgjennomforing(
+                    id = UUID.randomUUID(),
+                    navn = "Trening${it}",
+                    tiltakstypeId = tiltakstype1.id,
+                    tiltaksnummer = "$it"
                 )
             )
         }
@@ -264,7 +213,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("default pagination gets first 50 tiltak") {
 
             val (totalCount, tiltaksgjennomforinger) =
-                service.getTiltaksgjennomforinger()
+                tiltaksgjennomforingService.getTiltaksgjennomforinger()
 
             tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
             tiltaksgjennomforinger.first().id shouldBe 1
@@ -275,7 +224,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
             val (totalCount, tiltaksgjennomforinger) =
-                service.getTiltaksgjennomforinger(
+                tiltaksgjennomforingService.getTiltaksgjennomforinger(
                     PaginationParams(
                         4,
                         20
@@ -291,7 +240,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("pagination with page 3 default size should give tiltak with id 101-105") {
             val (totalCount, tiltaksgjennomforinger) =
-                service.getTiltaksgjennomforinger(
+                tiltaksgjennomforingService.getTiltaksgjennomforinger(
                     PaginationParams(
                         3
                     )
@@ -305,7 +254,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
             val (totalCount, tiltaksgjennomforinger) =
-                service.getTiltaksgjennomforinger(
+                tiltaksgjennomforingService.getTiltaksgjennomforinger(
                     PaginationParams(
                         nullableLimit = 200
                     )

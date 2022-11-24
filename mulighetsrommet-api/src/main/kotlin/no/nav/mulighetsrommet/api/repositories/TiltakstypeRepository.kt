@@ -34,7 +34,7 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
-        logger.info("Sletter tiltakstype id=${id}")
+        logger.info("Sletter tiltakstype id=$id")
 
         @Language("PostgreSQL")
         val query = """

@@ -25,7 +25,7 @@ class HistorikkService(
             null
         }
 
-        //@TODO Flytt historikk til arena-adapter
+        // @TODO Flytt historikk til arena-adapter
         return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {
             HistorikkForDeltakerDTO(
                 id = it.id,

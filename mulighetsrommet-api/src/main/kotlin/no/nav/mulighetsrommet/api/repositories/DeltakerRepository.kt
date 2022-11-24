@@ -6,8 +6,6 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -52,7 +50,7 @@ class DeltakerRepository(private val db: Database) {
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
-        logger.info("Sletter deltaker id=${id}")
+        logger.info("Sletter deltaker id=$id")
 
         @Language("PostgreSQL")
         val query = """
@@ -64,5 +62,4 @@ class DeltakerRepository(private val db: Database) {
             .asExecute
             .let { db.run(it) }
     }
-
 }

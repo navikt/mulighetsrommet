@@ -4,12 +4,15 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import java.time.LocalDateTime
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import java.util.*
 
 class TiltakstypeServiceTest : FunSpec({
 
@@ -20,70 +23,70 @@ class TiltakstypeServiceTest : FunSpec({
     register(listener)
 
     beforeSpec {
-        val arenaRepository = ArenaRepository(listener.db)
+        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val deltakerRepository = DeltakerRepository(listener.db)
+        val arenaService = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
-        val tiltakstype = AdapterTiltak(
+        val tiltakstype1 = Tiltakstype(
+            id = UUID.randomUUID(),
             navn = "Arbeidstrening",
-            innsatsgruppe = 1,
-            tiltakskode = "ARBTREN",
-            fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1)
+            tiltakskode = "ARBTREN"
         )
 
-        val tiltakstype2 = AdapterTiltak(
+        val tiltakstype2 = Tiltakstype(
+            id = UUID.randomUUID(),
             navn = "Oppfølging",
-            innsatsgruppe = 2,
-            tiltakskode = "INDOPPFOLG",
-            fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1)
+            tiltakskode = "INDOPPFOLG"
         )
 
-        arenaRepository.upsertTiltakstype(tiltakstype)
-        arenaRepository.upsertTiltakstype(tiltakstype2)
+        arenaService.createOrUpdate(tiltakstype1)
+        arenaService.createOrUpdate(tiltakstype2)
     }
 
     context("CRUD") {
-        val service = TiltakstypeService(listener.db)
+        val tiltakstypeService = TiltakstypeService(listener.db)
 
         test("should read tiltakstyper") {
-            service.getTiltakstyper().second shouldHaveSize 2
+            tiltakstypeService.getTiltakstyper().second shouldHaveSize 2
         }
 
         test("should filter tiltakstyper by innsatsgruppe") {
-            service.getTiltakstyper(innsatsgrupper = listOf(1)).second shouldHaveSize 1
-            service.getTiltakstyper(
+            tiltakstypeService.getTiltakstyper(innsatsgrupper = listOf(1)).second shouldHaveSize 1
+            tiltakstypeService.getTiltakstyper(
                 innsatsgrupper = listOf(1, 2)
             ).second shouldHaveSize 2
-            service.getTiltakstyper(innsatsgrupper = listOf(3)).second shouldHaveSize 0
+            tiltakstypeService.getTiltakstyper(innsatsgrupper = listOf(3)).second shouldHaveSize 0
         }
 
         test("should filter tiltakstyper by search") {
-            service.getTiltakstyper(search = "Førerhund").second shouldHaveSize 0
-            service.getTiltakstyper(search = "Arbeidstrening").second shouldHaveSize 1
+            tiltakstypeService.getTiltakstyper(search = "Førerhund").second shouldHaveSize 0
+            tiltakstypeService.getTiltakstyper(search = "Arbeidstrening").second shouldHaveSize 1
         }
     }
     context("pagination") {
         listener.db.clean()
         listener.db.migrate()
 
-        val arenaService = ArenaRepository(listener.db)
-        val service = TiltakstypeService(listener.db)
+        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val deltakerRepository = DeltakerRepository(listener.db)
+        val arenaService = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
+        val tiltakstypeService = TiltakstypeService(listener.db)
 
         (1..105).forEach {
-            arenaService.upsertTiltakstype(
-                AdapterTiltak(
-                    navn = "Oppfølging",
-                    innsatsgruppe = 2,
-                    tiltakskode = "ABC$it",
-                    fraDato = LocalDateTime.now(),
-                    tilDato = LocalDateTime.now().plusYears(1)
+            arenaService.createOrUpdate(
+                Tiltakstype(
+                    id = UUID.randomUUID(),
+                    navn = "Oppfølging$it",
+                    tiltakskode = "ABC$it"
                 )
             )
         }
 
         test("default pagination gets first 50 tiltak") {
             val (totalCount, tiltakstyper) =
-                service.getTiltakstyper()
+                tiltakstypeService.getTiltakstyper()
 
             tiltakstyper.size shouldBe DEFAULT_PAGINATION_LIMIT
             tiltakstyper.first().id shouldBe 1
@@ -94,7 +97,7 @@ class TiltakstypeServiceTest : FunSpec({
 
         test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
             val (totalCount, tiltakstyper) =
-                service.getTiltakstyper(
+                tiltakstypeService.getTiltakstyper(
                     paginationParams = PaginationParams(
                         4,
                         20
@@ -110,7 +113,7 @@ class TiltakstypeServiceTest : FunSpec({
 
         test("pagination with page 3 default size should give tiltak with id 101-105") {
             val (totalCount, tiltakstyper) =
-                service.getTiltakstyper(
+                tiltakstypeService.getTiltakstyper(
                     paginationParams = PaginationParams(
                         3
                     )
@@ -124,7 +127,7 @@ class TiltakstypeServiceTest : FunSpec({
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
             val (totalCount, tiltakstyper) =
-                service.getTiltakstyper(
+                tiltakstypeService.getTiltakstyper(
                     paginationParams = PaginationParams(
                         nullableLimit = 200
                     )

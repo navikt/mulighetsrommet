@@ -38,7 +38,7 @@ private suspend fun synchronizeTilgjenglighetsstatus(db: Database, sanity: Sanit
         (0..channelCapacity / 2)
             .map {
                 async {
-                    writeTilgjenglighetsstatus(tiltak, db, sanity)
+//                    writeTilgjenglighetsstatus(tiltak, db, sanity)
                 }
             }
             .awaitAll()
@@ -62,44 +62,44 @@ private fun CoroutineScope.produceTiltak(capacity: Int, sanity: SanityClient): R
     }
 }
 
-private suspend fun writeTilgjenglighetsstatus(
-    channel: ReceiveChannel<Tiltak>,
-    db: Database,
-    sanity: SanityClient
-) {
-    channel.consumeEach { tiltak ->
-        val tilgjengelighet = queryOf(
-            """
-            select tilgjengelighet
-            from tiltaksgjennomforing_valid
-            where tiltaksnummer = ?
-            """.trimIndent(),
-            tiltak.tiltaksnummer
-        )
-            .map {
-                val value = it.string("tilgjengelighet")
-                Tiltaksgjennomforing.Tilgjengelighetsstatus.valueOf(value)
-            }
-            .asSingle
-            .let { db.run(it) }
-
-        tilgjengelighet?.let {
-            sanity.mutate(
-                """
-                {
-                    "mutations": [
-                        {
-                            "patch": {
-                                "id": "${tiltak._id}",
-                                "set": {
-                                    "tilgjengelighetsstatus": "$tilgjengelighet"
-                                }
-                            }
-                        }
-                    ]
-                }
-                """.trimIndent()
-            )
-        }
-    }
-}
+//private suspend fun writeTilgjenglighetsstatus(
+//    channel: ReceiveChannel<Tiltak>,
+//    db: Database,
+//    sanity: SanityClient
+//) {
+//    channel.consumeEach { tiltak ->
+//        val tilgjengelighet = queryOf(
+//            """
+//            select tilgjengelighet
+//            from tiltaksgjennomforing_valid
+//            where tiltaksnummer = ?
+//            """.trimIndent(),
+//            tiltak.tiltaksnummer
+//        )
+//            .map {
+//                val value = it.string("tilgjengelighet")
+//                Tiltaksgjennomforing.Tilgjengelighetsstatus.valueOf(value)
+//            }
+//            .asSingle
+//            .let { db.run(it) }
+//
+//        tilgjengelighet?.let {
+//            sanity.mutate(
+//                """
+//                {
+//                    "mutations": [
+//                        {
+//                            "patch": {
+//                                "id": "${tiltak._id}",
+//                                "set": {
+//                                    "tilgjengelighetsstatus": "$tilgjengelighet"
+//                                }
+//                            }
+//                        }
+//                    ]
+//                }
+//                """.trimIndent()
+//            )
+//        }
+//    }
+//}
