@@ -22,6 +22,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.utility.DockerImageName
+import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class KafkaConsumerOrchestratorTest : FunSpec({
@@ -46,13 +47,21 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         )
         .build()
 
-    beforeEach {
-        database.db.migrate()
+    fun uniqueTopicName() = UUID.randomUUID().toString()
+
+    beforeSpec {
         kafka.start()
     }
 
-    afterEach {
+    afterSpec {
         kafka.close()
+    }
+
+    beforeEach {
+        database.db.migrate()
+    }
+
+    afterEach {
         database.db.clean()
     }
 
@@ -101,12 +110,13 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
     test("consumer should process events from topic") {
         val consumerRepository = KafkaConsumerRepository(database.db)
+        val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
-        producer.send(ProducerRecord("foo", """{ "success": true }"""))
+        producer.send(ProducerRecord(topic, """{ "success": true }"""))
         producer.close()
 
-        val consumer = spyk(TestConsumer("foo"))
+        val consumer = spyk(TestConsumer(topic))
 
         KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
@@ -121,18 +131,19 @@ class KafkaConsumerOrchestratorTest : FunSpec({
                 consumer.run(Json.parseToJsonElement("""{ "success": true }"""))
             }
 
-            consumerRepository.getRecords("foo", 0, 1) shouldHaveSize 0
+            consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 0
         }
     }
 
     test("failed events should be handled gracefully and kept in the topic consumer repository") {
         val consumerRepository = KafkaConsumerRepository(database.db)
+        val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
-        producer.send(ProducerRecord("foo", """{ "success": false }"""))
+        producer.send(ProducerRecord(topic, """{ "success": false }"""))
         producer.close()
 
-        val consumer = spyk(TestConsumer("foo"))
+        val consumer = spyk(TestConsumer(topic))
 
         KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
@@ -147,7 +158,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
                 consumer.run(Json.parseToJsonElement("""{ "success": false }"""))
             }
 
-            consumerRepository.getRecords("foo", 0, 1) shouldHaveSize 1
+            consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 1
         }
     }
 })
