@@ -8,6 +8,7 @@ import io.ktor.util.pipeline.*
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.BrukerService
@@ -25,7 +26,7 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/bruker") {
         get {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr",
                 status = HttpStatusCode.BadRequest
@@ -37,7 +38,7 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/bruker/historikk") {
         get {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavIdent(), getNorskIdent())
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val accessToken = call.getAccessToken()
             historikkService.hentHistorikkForBruker(getNorskIdent(), accessToken)?.let {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
