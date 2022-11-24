@@ -27,8 +27,8 @@ export function MiljoBanner() {
     <div className={styles.miljobanner_container}>
       <Alert variant="warning">
         <Heading spacing size="small">
-          Dette er en demo-tjeneste i <code>{navnForMiljo(url)}</code>
-          som er under utvikling
+          Dette er en demo-tjeneste i <code>{navnForMiljo(url)}</code> som er
+          under utvikling
         </Heading>
         <p>
           Her eksperimenterer vi med ny funksjonalitet. Demoen inneholder ikke
