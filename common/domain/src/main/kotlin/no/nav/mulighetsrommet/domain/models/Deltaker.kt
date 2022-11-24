@@ -20,7 +20,12 @@ data class Deltaker(
     @Serializable(with = UUIDSerializer::class)
     val tiltaksgjennomforingId: UUID,
     val fnr: String,
-    val status: Deltakerstatus
+    val status: Deltakerstatus,
+    @Serializable(with = DateSerializer::class)
+    val fraDato: LocalDateTime,
+    @Serializable(with = DateSerializer::class)
+    val tilDato: LocalDateTime? = null,
+    val virksomhetsnr: String
 )
 
 @Serializable

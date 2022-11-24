@@ -24,7 +24,10 @@ object DatabaseMapper {
         id = row.uuid("id"),
         tiltaksgjennomforingId = row.uuid("tiltaksgjennomforing_id"),
         fnr = row.string("fnr"),
-        status = Deltakerstatus.valueOf(row.string("status"))
+        status = Deltakerstatus.valueOf(row.string("status")),
+        fraDato = row.localDateTime("fraDato"),
+        tilDato = row.localDateTimeOrNull("tilDato"),
+        virksomhetsnr = row.string("virksomhetsnr")
     )
 
     fun toBrukerHistorikk(row: Row): HistorikkForDeltaker = HistorikkForDeltaker(

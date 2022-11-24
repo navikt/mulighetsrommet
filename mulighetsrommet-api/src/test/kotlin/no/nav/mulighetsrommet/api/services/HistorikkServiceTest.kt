@@ -6,15 +6,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
+import no.nav.mulighetsrommet.domain.models.*
 import java.time.LocalDateTime
+import java.util.*
 
 class HistorikkServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
@@ -25,43 +24,34 @@ class HistorikkServiceTest : FunSpec({
     val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
     beforeSpec {
-        val arenaRepository = ArenaRepository(listener.db)
+        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val deltakerRepository = DeltakerRepository(listener.db)
+        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
-        val tiltakstype = AdapterTiltak(
+        val tiltakstype = Tiltakstype(
+            id = UUID.randomUUID(),
             navn = "Arbeidstrening",
-            innsatsgruppe = 1,
             tiltakskode = "ARBTREN",
-            fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1)
         )
 
-        val tiltaksgjennomforing = AdapterTiltaksgjennomforing(
+        val tiltaksgjennomforing = Tiltaksgjennomforing(
+            id = UUID.randomUUID(),
             navn = "Arbeidstrening",
-            arrangorId = 1,
-            tiltakskode = "ARBTREN",
-            tiltaksgjennomforingId = 123,
-            sakId = 123
+            tiltakstypeId = tiltakstype.id,
+            tiltaksnummer = "12345"
         )
 
-        val deltaker = AdapterTiltakdeltaker(
-            tiltaksdeltakerId = 123,
-            tiltaksgjennomforingId = 123,
-            personId = 111,
-            fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-            tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        val deltaker = Deltaker(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = tiltaksgjennomforing.id,
+            fnr = "12345678910",
             status = Deltakerstatus.VENTER
         )
 
-        val sak = AdapterSak(
-            sakId = 123,
-            lopenummer = 3,
-            aar = 2022
-        )
-
-        arenaRepository.upsertTiltakstype(tiltakstype)
-        arenaRepository.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-        arenaRepository.upsertDeltaker(deltaker)
-        arenaRepository.updateTiltaksgjennomforingWithSak(sak)
+        service.createOrUpdate(tiltakstype)
+        service.createOrUpdate(tiltaksgjennomforing)
+        service.createOrUpdate(deltaker)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {

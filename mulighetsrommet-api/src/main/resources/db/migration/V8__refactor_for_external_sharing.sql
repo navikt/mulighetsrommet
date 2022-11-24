@@ -35,6 +35,9 @@ create table deltaker
     tiltaksgjennomforing_id uuid                    not null,
     fnr                     varchar(11)             not null,
     status                  deltakerstatus          not null,
+    virksomhetsnr           text                    not null,
+    fra_dato                timestamp               not null,
+    til_dato                timestamp,
     created_at              timestamp default now() not null,
     updated_at              timestamp default now() not null,
     constraint fk_tiltaksgjennomforing foreign key (tiltaksgjennomforing_id) references tiltaksgjennomforing (id)
