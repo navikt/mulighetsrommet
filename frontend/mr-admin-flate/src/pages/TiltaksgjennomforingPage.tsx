@@ -28,10 +28,13 @@ const Tekstfelt = ({
     <div
       style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}
     >
-      <TextField size="small" label={label} {...field} {...props} />
-      {meta.touched && meta.error ? (
-        <div className="error">{meta.error}</div>
-      ) : null}
+      <TextField
+        size="small"
+        label={label}
+        {...field}
+        {...props}
+        error={meta.touched && meta.error ? meta.error : null}
+      />
     </div>
   );
 };

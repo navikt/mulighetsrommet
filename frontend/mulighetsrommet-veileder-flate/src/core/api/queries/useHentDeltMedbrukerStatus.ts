@@ -32,11 +32,10 @@ export function useHentDeltMedBrukerStatus() {
       });
 
       if (!res.ok) {
-        // TODO What to do?
         throw new Error('Klarte ikke lagre info om deling av tiltak');
       }
     } catch (error) {
-      // TODO What to do? Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
+      // Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
     }
   }
 

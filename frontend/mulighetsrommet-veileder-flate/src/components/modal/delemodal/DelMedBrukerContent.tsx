@@ -2,10 +2,8 @@ import { Alert, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react
 import classNames from 'classnames';
 import React, { Dispatch, useEffect, useRef, useState } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
-import { useFeatureToggles } from '../../../core/api/feature-toggles';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { erPreview } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import { logDelMedbrukerEvent } from './Delemodal';
@@ -35,12 +33,8 @@ export function DelMedBrukerContent({
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const tiltaksnummer = tiltaksgjennomforing?.tiltaksnummer?.toString();
-  const features = useFeatureToggles();
-  const skalLagreAtViDelerMedBruker =
-    features.isSuccess && features.data['mulighetsrommet.lagre-del-tiltak-med-bruker'];
   const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
     useHentDeltMedBrukerStatus();
-  const fnr = useHentFnrFraUrl();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -73,7 +67,7 @@ export function DelMedBrukerContent({
     const tekst = sySammenDeletekst();
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ requestBody: { overskrift, tekst } });
-      if (skalLagreAtViDelerMedBruker && tiltaksnummer) {
+      if (tiltaksnummer) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksnummer);
         refetchOmVeilederHarDeltMedBruker();
       }
