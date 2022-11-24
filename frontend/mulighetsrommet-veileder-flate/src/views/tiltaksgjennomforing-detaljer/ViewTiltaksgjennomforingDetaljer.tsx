@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import Nokkelinfo, { NokkelinfoProps } from '../../components/nokkelinfo/Nokkelinfo';
+import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
@@ -14,15 +15,13 @@ import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMe
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { environments } from '../../env';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
+import { useBrukerHarRettPaaTiltak } from '../../hooks/useUserHarRettPaaTiltak';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { environments } from '../../env';
-import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
-import { BrukerKvalifisererIkkeVarsel } from '../../components/BrukerKvalifisererIkkeVarsel';
-import { useBrukerHarRettPaaTiltak } from '../../hooks/useUserHarRettPaaTiltak';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -95,11 +94,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   };
 
   const kanBrukerFaaAvtale = () => {
-    if (!brukerHarRettPaaTiltak) {
-      alert('Bruker har ikke rett på dette tiltaket!');
-      return;
-    }
-
     const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
     window.open(url, '_blank');
   };
