@@ -4,15 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { App } from "./App";
-import { AdministratorHeader } from "./components/AdministratorHeader";
 import { MiljoBanner } from "./components/Miljobanner/MiljoBanner";
 import "./index.css";
-import { RootLayout } from "./layouts/RootLayout";
-import { ErrorPage } from "./pages/ErrorPage";
-import { Oversikt } from "./pages/Oversikt";
-import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
+import { App } from "./App";
+import { BrowserRouter as Router } from "react-router-dom";
+import { AdministratorHeader } from "./components/AdministratorHeader";
 
 const queryClient = new QueryClient();
 
@@ -35,35 +31,7 @@ function render() {
         <MiljoBanner />
         <Router>
           <AdministratorHeader />
-          <Routes>
-            <Route
-              element={
-                <RootLayout>
-                  <App />
-                </RootLayout>
-              }
-              path="/"
-              errorElement={<ErrorPage />}
-            />
-            <Route
-              element={
-                <RootLayout>
-                  <Oversikt />
-                </RootLayout>
-              }
-              path="oversikt"
-              errorElement={<ErrorPage />}
-            />
-            <Route
-              element={
-                <RootLayout>
-                  <TiltaksgjennomforingPage />
-                </RootLayout>
-              }
-              path="oversikt/:tiltaksgjennomforingId"
-              errorElement={<ErrorPage />}
-            />
-          </Routes>
+          <App />
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

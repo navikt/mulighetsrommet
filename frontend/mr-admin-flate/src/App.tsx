@@ -1,24 +1,16 @@
-import { Heading } from "@navikt/ds-react";
-import { useFeatureToggles } from "./api/features/feature-toggles";
-import { Shortcuts } from "./components/shortcuts/Shortcuts";
+import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
+import { AutentisertApp } from "./AutentisertApp";
+import { IkkeAutentisertApp } from "./IkkeAutentisertApp";
+import { ansattErTiltaksansvarlig } from "./tilgang/tilgang";
 
 export function App() {
-  const { data, isLoading } = useFeatureToggles();
+  const optionalAnsatt = useHentAnsatt();
 
-  if (!data || isLoading) return null;
+  if (optionalAnsatt.isFetching) return null;
 
-  if (!data["mulighetsrommet.enable-admin-flate"]) {
-    return (
-      <Heading data-testid="admin-heading" size="xlarge">
-        Admin-flate er skrudd av 💤
-      </Heading>
-    );
-  }
-
-  return (
-    <main>
-      <h1>Oversikt</h1>
-      <Shortcuts />
-    </main>
+  return ansattErTiltaksansvarlig(optionalAnsatt?.data) ? (
+    <AutentisertApp />
+  ) : (
+    <IkkeAutentisertApp />
   );
 }
