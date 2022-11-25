@@ -36,9 +36,6 @@ spec:
     sidecar:
       enabled: true
       autoLogin: true
-      autoLoginIgnorePaths:
-        - /assets/*
-        - /asset-manifest.json
   gcp:
     buckets:
       - name: mulighetsrommet-arena-adapter-manager-prod
@@ -62,7 +59,7 @@ spec:
               "fromPath": "/mulighetsrommet-arena-adapter",
               "toUrl": "http://mulighetsrommet-arena-adapter",
               "preserveFromPath": false,
-               "toApp": {
+              "toApp": {
                 "name": "mulighetsrommet-arena-adapter",
                 "namespace": "team-mulighetsrommet",
                 "cluster": "prod-gcp"
