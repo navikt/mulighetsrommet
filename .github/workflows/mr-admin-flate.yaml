@@ -32,7 +32,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Vitest
-        uses: npx turbo run test:ci --filter=mr-admin-flate 
+        run: npx turbo run test:ci --filter=mr-admin-flate 
       - name: Build
         run: npx turbo run build --filter=mr-admin-flate
       - name: Cypress run
