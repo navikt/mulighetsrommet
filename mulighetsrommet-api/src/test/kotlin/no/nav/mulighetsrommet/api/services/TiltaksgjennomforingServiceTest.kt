@@ -57,7 +57,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         val tiltaksgjennomforingService = TiltaksgjennomforingService(listener.db)
 
-
         beforeAny {
             arenaService.createOrUpdate(tiltakstype1)
             arenaService.createOrUpdate(tiltakstype2)
@@ -203,7 +202,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             arenaService.createOrUpdate(
                 Tiltaksgjennomforing(
                     id = UUID.randomUUID(),
-                    navn = "Trening${it}",
+                    navn = "Trening$it",
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it"
                 )
