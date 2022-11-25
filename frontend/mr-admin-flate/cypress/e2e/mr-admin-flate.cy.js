@@ -9,6 +9,6 @@ before("Start server", () => {
 describe("Forside", () => {
   it("Sjekk at navident til admin er i header", () => {
     cy.getByTestId("header-navident").should("exist");
-    cy.checkPageA11y();
+    cy.wait(1000).checkPageA11y();
   });
 });

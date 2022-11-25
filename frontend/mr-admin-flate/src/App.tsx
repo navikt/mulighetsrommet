@@ -6,6 +6,8 @@ import { ansattErTiltaksansvarlig } from "./tilgang/tilgang";
 export function App() {
   const optionalAnsatt = useHentAnsatt();
 
+  if (optionalAnsatt.isFetching) return null;
+
   return ansattErTiltaksansvarlig(optionalAnsatt?.data) ? (
     <AutentisertApp />
   ) : (

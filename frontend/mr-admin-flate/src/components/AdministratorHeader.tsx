@@ -7,7 +7,7 @@ export function AdministratorHeader() {
   const response = useHentAnsatt();
   return (
     <Header>
-      <Header.Title as="h1">
+      <Header.Title as="p">
         <Link style={{ textDecoration: "none" }} to="/">
           NAV arbeidsmarkedstiltak
         </Link>

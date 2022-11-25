@@ -16,9 +16,9 @@ export function Forside() {
   }
 
   return (
-    <main>
+    <>
       <h1>Oversikt</h1>
       <Shortcuts />
-    </main>
+    </>
   );
 }
