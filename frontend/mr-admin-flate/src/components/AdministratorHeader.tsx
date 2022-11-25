@@ -14,7 +14,9 @@ export function AdministratorHeader() {
       </Header.Title>
       <Header.User
         data-testid="header-navident"
-        name={`${capitalize(response?.data?.fornavn)} ${capitalize(response?.data?.etternavn)}` ?? "..."}
+        name={`${capitalize(response?.data?.fornavn)} ${capitalize(
+          response?.data?.etternavn
+        )}`}
         description={response?.data?.ident ?? "..."}
         style={{ marginLeft: "auto" }}
       />
