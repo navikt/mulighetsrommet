@@ -1,11 +1,11 @@
-import { Veileder } from 'mulighetsrommet-api-client';
+import { Ansatt } from 'mulighetsrommet-api-client';
 import { useQuery } from 'react-query';
 import { erPreview } from '../../../utils/Utils';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 
 export function useHentVeilederdata() {
-  return useQuery<Veileder, Error>([QueryKeys.Veilederdata], () => mulighetsrommetClient.veileder.getVeilederData(), {
+  return useQuery<Ansatt, Error>([QueryKeys.Veilederdata], () => mulighetsrommetClient.ansatt.hentInfoOmAnsatt(), {
     enabled: !erPreview,
   });
 }

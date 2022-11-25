@@ -47,11 +47,10 @@ fun Application.configure(config: AppConfig) {
             innsatsgruppeRoutes()
             sanityRoutes()
             brukerRoutes()
-            veilederRoutes()
+            ansattRoute()
             frontendLoggerRoutes()
             dialogRoutes()
             delMedBrukerRoutes()
-            ansattRoute()
         }
         authenticate(AuthProvider.AzureAdMachineToMachine.name) {
             arenaRoutes()

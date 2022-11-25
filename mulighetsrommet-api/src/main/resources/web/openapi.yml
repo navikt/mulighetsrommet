@@ -29,25 +29,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/veileder:
-    get:
-      tags:
-        - Veileder
-      operationId: getVeilederData
-      responses:
-        200:
-          description: Data about the 'veileder'
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Veileder"
-        404:
-          description: "Could not find data about 'veileder'"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/innsatsgrupper:
     get:
       tags:
@@ -276,17 +257,23 @@ paths:
             application/json:
               $ref: "#/components/schemas/HistorikkForBruker"
 
-  /api/v1/ansatt:
+  /api/v1/ansatt/me:
     get:
       tags:
         - Ansatt
       operationId: hentInfoOmAnsatt
       responses:
         200:
-          description: Information about employy
+          description: Information about employee
           content:
             application/json:
               $ref: "#/components/schemas/Ansatt"
+        404:
+          description: "Could not find data about 'ansatt'"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /logger/event:
     post:
@@ -617,7 +604,7 @@ components:
         - fnr
         - oppfolgingsenhet
 
-    Veileder:
+    Ansatt:
       type: object
       properties:
         etternavn:
@@ -628,6 +615,10 @@ components:
           type: string
         navn:
           type: string
+        tilganger:
+          type: array
+          items:
+            type: string
 
     Innsatsgruppe:
       type: string
@@ -728,10 +719,6 @@ components:
           type: string
         updated_by:
           type: string
-    Ansatt:
-      type: object
-      properties:
-        navIdent: string
 
   examples:
     Tiltakstype:
