@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "cy:run": "npx cypress run --e2e",
     "cypress": "npx cypress open",
-    "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite"
+    "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "test": "vitest",
+    "test:ci": "vitest run"
   },
   "dependencies": {
     "@navikt/ds-css": "^2.0.0",

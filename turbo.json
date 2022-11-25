@@ -13,6 +13,9 @@
     "mulighetsrommet-api-client#build": {
       "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
+    "test:ci": {
+      "dependsOn": ["^build"]
+    },
     "build:mock": {
       "dependsOn": ["^build"]
     },
