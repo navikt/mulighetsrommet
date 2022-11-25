@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/poao-tilgang/api/v1/ad-gruppe"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+            {
+              "id": "a961786c-6c00-11ed-a1eb-0242ac120002",
+              "name": "0000-GA-TILTAK-ANSVARLIG"
+            }
+          ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

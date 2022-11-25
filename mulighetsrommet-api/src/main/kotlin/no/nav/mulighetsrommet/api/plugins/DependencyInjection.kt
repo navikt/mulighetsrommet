@@ -221,8 +221,9 @@ private fun services(
     }
     single { DialogService(veilarbdialogClient) }
     single {
-        VeilederService(
-            veilarbveilederClient = veilarbveilerClient
+        AnsattService(
+            veilarbveilederClient = veilarbveilerClient,
+            poaoTilgangService = get()
         )
     }
     single {

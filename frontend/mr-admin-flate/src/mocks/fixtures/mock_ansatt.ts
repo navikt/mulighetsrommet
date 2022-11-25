@@ -1,3 +1,7 @@
 export const mock_ansatt = {
-  navIdent: "NAV123",
+  etternavn: "Tiltaksansvarlig",
+  fornavn: "Tilda",
+  ident: "T99876",
+  navn: "Tiltakansvarlig, Tilda",
+  tilganger: ["FLATE"],
 };

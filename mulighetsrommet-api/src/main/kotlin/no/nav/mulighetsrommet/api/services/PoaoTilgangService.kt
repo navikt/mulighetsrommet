@@ -5,10 +5,8 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.secure_log.SecureLog
-import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
-import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
-import no.nav.poao_tilgang.client.PoaoTilgangClient
-import no.nav.poao_tilgang.client.TilgangType
+import no.nav.poao_tilgang.client.*
+import no.nav.poao_tilgang.client.utils.CacheUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -16,13 +14,18 @@ class PoaoTilgangService(
     val client: PoaoTilgangClient
 ) {
 
-    private val cache: Cache<String, Boolean> = Caffeine.newBuilder()
+    private val tilgangCache: Cache<String, Boolean> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .build()
 
-    suspend fun verifyAccessToUserFromVeileder(navAnsattAzureId: UUID, norskIdent: String) {
-        val access = cachedResult(cache, "$navAnsattAzureId-$norskIdent") {
+    private val brukerAzureIdToAdGruppeCache: Cache<String, List<AdGruppe>> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .build()
+
+    fun verifyAccessToUserFromVeileder(navAnsattAzureId: UUID, norskIdent: String) {
+        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-$norskIdent") {
             // TODO Hør med Sondre ang. error handling ved kasting av feil
             client.evaluatePolicy(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
@@ -39,8 +42,8 @@ class PoaoTilgangService(
         }
     }
 
-    suspend fun verfiyAccessToModia(navAnsattAzureId: UUID) {
-        val access = cachedResult(cache, navAnsattAzureId.toString()) {
+    fun verfiyAccessToModia(navAnsattAzureId: UUID) {
+        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, navAnsattAzureId.toString()) {
             client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navAnsattAzureId)).getOrThrow().isPermit
         }
 
@@ -50,23 +53,9 @@ class PoaoTilgangService(
         }
     }
 
-    private suspend fun <K, V : Any> cachedResult(
-        cache: Cache<K, V>,
-        key: K,
-        supplier: suspend () -> V
-    ): V {
-        val cachedValue = cache.getIfPresent(key)
-        if (cachedValue != null) {
-            return cachedValue
+    fun hentAdGrupper(navAnsattAzureId: UUID): List<AdGruppe> {
+        return CacheUtils.tryCacheFirstNotNull(brukerAzureIdToAdGruppeCache, navAnsattAzureId.toString()) {
+            client.hentAdGrupper(navAnsattAzureId).getOrDefault { emptyList() }
         }
-
-        val value = supplier.invoke()
-        cache.put(key, value)
-        return value
     }
 }
-
-data class NavidentOgNorskIdentCacheKey(
-    val navident: String,
-    val norskident: String
-)

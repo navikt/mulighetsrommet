@@ -12,7 +12,7 @@ export const apiHandlers = [
     return res(ctx.status(200), ctx.json(mock_tiltaksgjennomforinger));
   }),
 
-  rest.get("*/api/v1/ansatt", (req, res, ctx) => {
+  rest.get("*/api/v1/ansatt/me", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(mock_ansatt));
   }),
 ];
