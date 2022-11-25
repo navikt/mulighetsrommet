@@ -10,10 +10,10 @@ class AnsattService(
     private val veilarbveilederClient: VeilarbveilederClient,
     private val poaoTilgangService: PoaoTilgangService
 ) {
-    suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): VeilederData {
+    suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val data = veilarbveilederClient.hentVeilederdata(accessToken, navAnsattAzureId)
         val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
-        return VeilederData(
+        return AnsattData(
             etternavn = data?.etternavn,
             fornavn = data?.fornavn,
             ident = data?.ident,
@@ -31,7 +31,7 @@ private fun mapAdGruppeTilTilgang(adGruppe: AdGruppe): Tilgang? {
 }
 
 @Serializable
-data class VeilederData(
+data class AnsattData(
     val etternavn: String?,
     val fornavn: String?,
     val ident: String?,

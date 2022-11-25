@@ -13,7 +13,7 @@ export function AdministratorHeader() {
       </Header.Title>
       <Header.User
         data-testid="header-navident"
-        name={response?.data?.ident ? response.data.ident : "..."}
+        name={response?.data?.navIdent ?? "..."}
         style={{ marginLeft: "auto" }}
       />
     </Header>
