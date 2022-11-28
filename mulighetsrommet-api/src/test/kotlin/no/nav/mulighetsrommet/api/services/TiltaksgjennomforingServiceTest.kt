@@ -39,14 +39,16 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
-        tiltaksnummer = "12345"
+        tiltaksnummer = "12345",
+        virksomhetsnr = "123456789"
     )
 
     val tiltak2 = Tiltaksgjennomforing(
         id = UUID.randomUUID(),
         navn = "Trening",
         tiltakstypeId = tiltakstype2.id,
-        tiltaksnummer = "54321"
+        tiltaksnummer = "54321",
+        virksomhetsnr = "123456789"
     )
 
     context("CRUD") {
@@ -81,6 +83,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
         }
 
+        // @TODO flytte til arena-adapter?
 //        context("tilgjengelighetsstatus") {
 //            context("when tiltak is closed for applications") {
 //                beforeAny {
@@ -204,7 +207,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Trening$it",
                     tiltakstypeId = tiltakstype1.id,
-                    tiltaksnummer = "$it"
+                    tiltaksnummer = "$it",
+                    virksomhetsnr = "123456789"
                 )
             )
         }

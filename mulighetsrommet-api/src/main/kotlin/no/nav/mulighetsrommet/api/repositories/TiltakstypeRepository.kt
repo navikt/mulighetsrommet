@@ -20,7 +20,7 @@ class TiltakstypeRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (id, navn, tiltakskode)
-            values (?, ?, ?)
+            values (?::uuid, ?, ?)
             on conflict (id)
                 do update set navn             = excluded.navn,
                               tiltakskode      = excluded.tiltakskode

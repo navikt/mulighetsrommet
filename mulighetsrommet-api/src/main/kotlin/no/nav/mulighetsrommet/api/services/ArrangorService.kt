@@ -12,16 +12,16 @@ class ArrangorService(
     private val amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) {
 
-    val arrangorCache: Cache<Int, String> = Caffeine.newBuilder()
+    val arrangorCache: Cache<String, String> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(10000)
         .build()
 
-    suspend fun hentArrangornavn(arrangorId: Int): String? {
-        return CacheUtils.tryCacheFirstNotNull(arrangorCache, arrangorId) {
-            val arrangor = arenaOrdsProxyClient.hentArbeidsgiver(arrangorId)
+    suspend fun hentArrangornavn(virksomhetsnr: String): String? {
+        return CacheUtils.tryCacheFirstNotNull(arrangorCache, virksomhetsnr) {
+//            val arrangor = arenaOrdsProxyClient.hentArbeidsgiver(arrangorId)
             val virksomhet =
-                arrangor?.virksomhetsnummer?.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
+                virksomhetsnr.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
 
             virksomhet?.overordnetEnhetNavn ?: ""
         }

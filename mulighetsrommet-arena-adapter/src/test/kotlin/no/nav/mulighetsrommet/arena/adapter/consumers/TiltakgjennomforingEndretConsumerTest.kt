@@ -117,15 +117,10 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 val consumer = createConsumer(database.db, engine)
 
                 val gjennomforing = Tiltaksgjennomforing(
-                    tiltaksgjennomforingId = 3780431,
+                    id = UUID.randomUUID(),
                     navn = "Testenavn",
-                    tiltakskode = "INDOPPFAG",
-                    arrangorId = 49612,
-                    sakId = 13572352,
-                    fraDato = null,
-                    tilDato = null,
-                    apentForInnsok = true,
-                    antallPlasser = 5,
+                    tiltaksnummer = "12345",
+                    tiltakstypeId = UUID.randomUUID()
                 )
 
                 consumer.processEvent(createEvent(Insert))

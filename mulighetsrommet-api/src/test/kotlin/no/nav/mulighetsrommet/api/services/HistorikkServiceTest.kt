@@ -23,34 +23,35 @@ class HistorikkServiceTest : FunSpec({
 
     val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
+
+    val tiltakstype = Tiltakstype(
+        id = UUID.randomUUID(),
+        navn = "Arbeidstrening",
+        tiltakskode = "ARBTREN",
+    )
+
+    val tiltaksgjennomforing = Tiltaksgjennomforing(
+        id = UUID.randomUUID(),
+        navn = "Arbeidstrening",
+        tiltakstypeId = tiltakstype.id,
+        tiltaksnummer = "12345",
+        virksomhetsnr = "123456789"
+    )
+
+    val deltaker = Deltaker(
+        id = UUID.randomUUID(),
+        tiltaksgjennomforingId = tiltaksgjennomforing.id,
+        fnr = "12345678910",
+        status = Deltakerstatus.VENTER,
+        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0)
+    )
+
     beforeSpec {
         val tiltakstypeRepository = TiltakstypeRepository(listener.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
         val deltakerRepository = DeltakerRepository(listener.db)
         val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
-
-        val tiltakstype = Tiltakstype(
-            id = UUID.randomUUID(),
-            navn = "Arbeidstrening",
-            tiltakskode = "ARBTREN",
-        )
-
-        val tiltaksgjennomforing = Tiltaksgjennomforing(
-            id = UUID.randomUUID(),
-            navn = "Arbeidstrening",
-            tiltakstypeId = tiltakstype.id,
-            tiltaksnummer = "12345"
-        )
-
-        val deltaker = Deltaker(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = tiltaksgjennomforing.id,
-            fnr = "12345678910",
-            status = Deltakerstatus.VENTER,
-            fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1),
-            virksomhetsnr = "123456789"
-        )
 
         service.createOrUpdate(tiltakstype)
         service.createOrUpdate(tiltaksgjennomforing)
@@ -59,7 +60,7 @@ class HistorikkServiceTest : FunSpec({
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
-        coEvery { arrangorService.hentArrangornavn(1) } returns bedriftsnavn
+        coEvery { arrangorService.hentArrangornavn(any()) } returns bedriftsnavn
         coEvery {
             veilarbarenaClient.hentPersonIdForFnr(
                 any(),
@@ -72,19 +73,19 @@ class HistorikkServiceTest : FunSpec({
 
         val forventetHistorikk = listOf(
             HistorikkForDeltakerDTO(
-                id = "1",
+                id = deltaker.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
-                tiltaksnummer = "3",
+                tiltaksnummer = "12345",
                 tiltakstype = "Arbeidstrening",
                 arrangor = bedriftsnavn
             )
         )
 
         historikkService.hentHistorikkForBruker(
-            "fnr",
+            "12345678910",
             ""
         ) shouldBe forventetHistorikk
     }

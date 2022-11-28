@@ -17,7 +17,8 @@ object DatabaseMapper {
             id = row.uuid("id"),
             navn = row.string("navn"),
             tiltakstypeId = row.uuid("tiltakstype_id"),
-            tiltaksnummer = row.string("tiltaksnummer")
+            tiltaksnummer = row.string("tiltaksnummer"),
+            virksomhetsnr = row.string("virksomhetsnr")
         )
 
     fun toDeltaker(row: Row): Deltaker = Deltaker(
@@ -27,18 +28,17 @@ object DatabaseMapper {
         status = Deltakerstatus.valueOf(row.string("status")),
         fraDato = row.localDateTime("fraDato"),
         tilDato = row.localDateTimeOrNull("tilDato"),
-        virksomhetsnr = row.string("virksomhetsnr")
     )
 
     fun toBrukerHistorikk(row: Row): HistorikkForDeltaker = HistorikkForDeltaker(
-        id = row.string("id"),
+        id = row.uuid("id"),
         fraDato = row.localDateTimeOrNull("fra_dato"),
         tilDato = row.localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(row.string("status")),
         tiltaksnavn = row.string("navn"),
         tiltaksnummer = row.string("tiltaksnummer"),
         tiltakstype = row.string("tiltakstype"),
-        arrangorId = row.int("arrangor_id")
+        virksomhetsnr = row.string("virksomhetsnr")
     )
 
     fun toDelMedBruker(row: Row): DelMedBruker = DelMedBruker(

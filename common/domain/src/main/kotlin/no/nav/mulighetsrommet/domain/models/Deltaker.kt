@@ -24,13 +24,13 @@ data class Deltaker(
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime,
     @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime? = null,
-    val virksomhetsnr: String
+    val tilDato: LocalDateTime? = null
 )
 
 @Serializable
 data class HistorikkForDeltakerDTO(
-    val id: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
@@ -43,7 +43,8 @@ data class HistorikkForDeltakerDTO(
 )
 
 data class HistorikkForDeltaker(
-    val id: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
@@ -52,5 +53,5 @@ data class HistorikkForDeltaker(
     val tiltaksnavn: String,
     val tiltaksnummer: String,
     val tiltakstype: String,
-    val arrangorId: Int
+    val virksomhetsnr: String
 )

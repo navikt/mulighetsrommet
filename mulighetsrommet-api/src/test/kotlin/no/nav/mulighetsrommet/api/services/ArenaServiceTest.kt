@@ -40,7 +40,8 @@ class ArenaServiceTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "Arbeidstrening",
             tiltakstypeId = tiltakstype.id,
-            tiltaksnummer = "12345"
+            tiltaksnummer = "12345",
+            virksomhetsnr = "123456789"
         )
 
         val deltaker = Deltaker(
@@ -50,7 +51,6 @@ class ArenaServiceTest : FunSpec({
             status = Deltakerstatus.VENTER,
             fraDato = LocalDateTime.now(),
             tilDato = LocalDateTime.now().plusYears(1),
-            virksomhetsnr = "123456789"
         )
 
         test("upsert tiltakstype") {
@@ -60,7 +60,7 @@ class ArenaServiceTest : FunSpec({
             service.createOrUpdate(tiltakstype.copy(navn = "Arbeidsovertrening"))
 
             assertThat(table).row(0)
-                .column("id").value().isEqualTo(1)
+                .column("id").value().isEqualTo(tiltakstype.id)
                 .column("navn").value().isEqualTo("Arbeidsovertrening")
         }
 
@@ -71,7 +71,7 @@ class ArenaServiceTest : FunSpec({
             service.createOrUpdate(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
 
             assertThat(table).row(0)
-                .column("id").value().isEqualTo(1)
+                .column("id").value().isEqualTo(tiltaksgjennomforing.id)
                 .column("navn").value().isEqualTo("Oppdatert arbeidstrening")
         }
 
@@ -82,7 +82,7 @@ class ArenaServiceTest : FunSpec({
             service.createOrUpdate(deltaker.copy(status = Deltakerstatus.DELTAR))
 
             assertThat(table).row(0)
-                .column("id").value().isEqualTo(1)
+                .column("id").value().isEqualTo(deltaker.id)
                 .column("status").value().isEqualTo("DELTAR")
         }
     }

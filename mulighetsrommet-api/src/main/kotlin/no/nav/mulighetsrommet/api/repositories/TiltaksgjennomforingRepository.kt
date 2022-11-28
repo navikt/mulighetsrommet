@@ -21,12 +21,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer)
-            values (?, ?, ?, ?)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnr)
+            values (?::uuid, ?, ?::uuid, ?, ?)
             on conflict (id)
                 do update set navn             = excluded.navn,
                               tiltakstype_id      = excluded.tiltakstype_id,
-                              tiltaksnummer      = excluded.tiltaksnummer
+                              tiltaksnummer      = excluded.tiltaksnummer,
+                              virksomhetsnr     = excluded.virksomhetsnr
             returning *
         """.trimIndent()
 
@@ -37,7 +38,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     id,
                     navn,
                     tiltakstypeId,
-                    tiltaksnummer
+                    tiltaksnummer,
+                    virksomhetsnr
                 )
             }
             .map { DatabaseMapper.toTiltaksgjennomforing(it) }

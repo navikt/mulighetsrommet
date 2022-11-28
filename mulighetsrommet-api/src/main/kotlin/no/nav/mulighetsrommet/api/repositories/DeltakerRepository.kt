@@ -19,16 +19,15 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, fnr, status, fra_dato, til_dato, virksomhetsnr)
-            values (?, ?, ?, ?::deltakerstatus, ?, ?, ?)
+            insert into deltaker (id, tiltaksgjennomforing_id, fnr, status, fra_dato, til_dato)
+            values (?::uuid, ?::uuid, ?, ?::deltakerstatus, ?, ?)
             on conflict (id)
             do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                 fnr = excluded.fnr,
                 status = excluded.status,
                 fra_dato = excluded.fra_dato,
-                til_dato = excluded.til_dato,
-                virksomhetsnr = excluded.virksomhetsnr
+                til_dato = excluded.til_dato
             returning *
         """.trimIndent()
 
@@ -41,7 +40,6 @@ class DeltakerRepository(private val db: Database) {
                 status.name,
                 fraDato,
                 tilDato,
-                virksomhetsnr
             )
         }
             .map { DatabaseMapper.toDeltaker(it) }

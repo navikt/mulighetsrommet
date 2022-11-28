@@ -20,13 +20,13 @@ class HistorikkService(
     val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
 
     suspend fun hentHistorikkForBruker(fnr: String, accessToken: String): List<HistorikkForDeltakerDTO>? {
-        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
-            log.warn("Klarte ikke hente personId fra veilarbarena")
-            null
-        }
+//        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
+//            log.warn("Klarte ikke hente personId fra veilarbarena")
+//            null
+//        }
 
         // @TODO Flytt historikk til arena-adapter
-        return getHistorikkForBrukerFromDb(parseInt(personId, 10)).map {
+        return getHistorikkForBrukerFromDb(fnr).map {
             HistorikkForDeltakerDTO(
                 id = it.id,
                 fraDato = it.fraDato,
@@ -35,14 +35,14 @@ class HistorikkService(
                 tiltaksnavn = it.tiltaksnavn,
                 tiltaksnummer = it.tiltaksnummer,
                 tiltakstype = it.tiltakstype,
-                arrangor = hentArrangorNavn(it.arrangorId)
+                arrangor = hentArrangorNavn(it.virksomhetsnr)
             )
         }
     }
 
-    private suspend fun hentArrangorNavn(arrangorId: Int): String? {
+    private suspend fun hentArrangorNavn(virksomhetsnr: String): String? {
         return try {
-            arrangorService.hentArrangornavn(arrangorId)
+            arrangorService.hentArrangornavn(virksomhetsnr)
         } catch (e: Throwable) {
             log.error("Feil oppstod ved henting arrangørnavn, sjekk securelogs")
             SecureLog.logger.error("Feil oppstod ved henting arrangørnavn", e)
@@ -50,17 +50,18 @@ class HistorikkService(
         }
     }
 
-    private fun getHistorikkForBrukerFromDb(person_id: Int): List<HistorikkForDeltaker> {
+    private fun getHistorikkForBrukerFromDb(fnr: String): List<HistorikkForDeltaker> {
         @Language("PostgreSQL")
         val query = """
-        select deltaker.id, deltaker.fra_dato, deltaker.til_dato, status, gjennomforing.navn, gjennomforing.arrangor_id, tiltaksnummer, tiltakstype.navn tiltakstype
+        select deltaker.id, deltaker.fra_dato, deltaker.til_dato, deltaker.status, gjennomforing.navn, 
+            gjennomforing.virksomhetsnr, gjennomforing.tiltaksnummer, tiltakstype.navn tiltakstype
         from deltaker
-        left join tiltaksgjennomforing gjennomforing on gjennomforing.arena_id = deltaker.tiltaksgjennomforing_id
-        left join tiltakstype tiltakstype on tiltakstype.tiltakskode = gjennomforing.tiltakskode
-        where person_id = ? and deltaker.fra_dato >= '2017-12-04'::date
+        left join tiltaksgjennomforing gjennomforing on gjennomforing.id = deltaker.tiltaksgjennomforing_id
+        left join tiltakstype tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+        where fnr = ?
         order by deltaker.fra_dato desc nulls last;
         """.trimIndent()
-        val queryResult = queryOf(query, person_id).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
+        val queryResult = queryOf(query, fnr).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
         return db.run(queryResult)
     }
 }

@@ -24,6 +24,7 @@ create table tiltaksgjennomforing
     sanity_id      uuid,
     tiltakstype_id uuid                    not null,
     tiltaksnummer  text                    not null,
+    virksomhetsnr  text                    not null,
     created_at     timestamp default now() not null,
     updated_at     timestamp default now() not null,
     constraint fk_tiltakstype foreign key (tiltakstype_id) references tiltakstype (id)
@@ -35,7 +36,6 @@ create table deltaker
     tiltaksgjennomforing_id uuid                    not null,
     fnr                     varchar(11)             not null,
     status                  deltakerstatus          not null,
-    virksomhetsnr           text                    not null,
     fra_dato                timestamp               not null,
     til_dato                timestamp,
     created_at              timestamp default now() not null,
