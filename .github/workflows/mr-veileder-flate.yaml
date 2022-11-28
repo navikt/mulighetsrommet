@@ -1,9 +1,9 @@
-name: CI/CD (mulighetsrommet-veileder-flate)
+name: CI/CD (mr-veileder-flate)
 
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-veileder-flate.yaml
+      - .github/workflows/mr-veileder-flate.yaml
       - package.json
       - package-lock.json
       - turbo.json

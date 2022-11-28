@@ -3,7 +3,7 @@ name: Deploy Sanity Studio
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-cms.yaml
+      - .github/workflows/mr-sanity-studio.yaml
       - package.json
       - package-lock.json
       - turbo.json

@@ -1,12 +1,12 @@
-name: POAO-frontend for mulighetsrommet-veileder-flate
+name: POAO-frontend (mr-arena-adapter-manager)
 
 on:
   push:
     branches:
-      - 'main'
+      - main
     paths:
-      - '.github/workflows/mulighetsrommet-veileder-flate-container.yaml'
-      - 'frontend/mulighetsrommet-veileder-flate/.nais/**'
+      - .github/workflows/mr-arena-adapter-manager-container.yaml
+      - frontend/arena-adapter-manager/.nais/**
   workflow_dispatch:
     inputs:
       environment:
@@ -19,7 +19,7 @@ on:
           - dev_and_prod
 
 concurrency:
-  group: mulighetsrommet_frontend_container
+  group: mr_arena_adapter_manager_container
   cancel-in-progress: true
 
 env:
@@ -34,7 +34,7 @@ jobs:
         uses: nais/deploy/actions/deploy@v1
         env:
           CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-dev.yaml
+          RESOURCE: frontend/arena-adapter-manager/.nais/nais-dev.yaml
 
   deploy-prod:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
@@ -46,4 +46,4 @@ jobs:
         uses: nais/deploy/actions/deploy@v1
         env:
           CLUSTER: prod-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-prod.yaml
+          RESOURCE: frontend/arena-adapter-manager/.nais/nais-prod.yaml
