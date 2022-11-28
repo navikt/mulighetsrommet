@@ -25,7 +25,6 @@ fun Application.configureDependencyInjection(
     kafkaPreset: Properties,
     tokenClient: AzureAdMachineToMachineTokenClient
 ) {
-
     install(Koin) {
         SLF4JLogger()
         modules(
@@ -33,7 +32,7 @@ fun Application.configureDependencyInjection(
             consumers(appConfig.kafka),
             kafka(appConfig.kafka, kafkaPreset),
             repositories(),
-            services(appConfig.services, tokenClient),
+            services(appConfig.services, tokenClient)
         )
     }
 }
@@ -50,7 +49,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get()
             ),
             TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get(), get(), get()),
-            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
+            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get())
         )
         ConsumerGroup(consumers)
     }

@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.ktor.plugins.configureSentry
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -40,7 +39,6 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClien
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
-    configureSentry(config.sentry)
 
     val kafka: KafkaConsumerOrchestrator by inject()
 

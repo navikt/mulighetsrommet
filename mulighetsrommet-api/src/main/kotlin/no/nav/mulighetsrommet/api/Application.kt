@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.ktor.plugins.configureSentry
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
@@ -35,7 +34,6 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
     configureWebjars(config.swagger)
-    configureSentry(config.sentry)
     configureStatusPagesForStatusException()
 
     routing {

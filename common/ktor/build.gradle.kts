@@ -27,7 +27,4 @@ dependencies {
     val hopliteVersion = "2.4.0"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     api("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
-
-    // Sentry error logging
-    implementation("io.sentry:sentry:6.1.0")
 }

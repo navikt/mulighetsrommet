@@ -26,9 +26,6 @@ app:
     projectId: ${SANITY_PROJECT_ID}
     authToken: ${SANITY_AUTH_TOKEN}
 
-  sentry:
-    dsn: https://658d2a7841654209b04b77e2c179d224@sentry.gc.nav.no/134
-
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
     scope: api://prod-fss.pto.veilarbvedtaksstotte/.default
