@@ -84,8 +84,7 @@ class HistorikkServiceTest : FunSpec({
         )
 
         historikkService.hentHistorikkForBruker(
-            "12345678910",
-            ""
+            "12345678910"
         ) shouldBe forventetHistorikk
     }
 })

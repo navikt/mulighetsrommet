@@ -53,7 +53,7 @@ class DeltakerRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             delete from deltaker
-            where id = ?
+            where id = ?::uuid
         """.trimIndent()
 
         run { queryOf(query, id) }

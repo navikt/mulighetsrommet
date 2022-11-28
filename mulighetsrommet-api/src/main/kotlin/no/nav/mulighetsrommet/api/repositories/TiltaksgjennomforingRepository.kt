@@ -53,7 +53,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing
-            where id = ?
+            where id = ?::uuid
         """.trimIndent()
 
         query {
