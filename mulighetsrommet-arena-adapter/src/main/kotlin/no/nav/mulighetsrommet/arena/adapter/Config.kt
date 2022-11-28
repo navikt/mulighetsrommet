@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
-import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
 
 data class Config(
     val server: ServerConfig,
@@ -15,7 +14,6 @@ data class AppConfig(
     val services: ServiceConfig,
     val database: DatabaseConfig,
     val kafka: KafkaConfig,
-    val sentry: SentryConfig? = null
 )
 
 data class ServiceConfig(
