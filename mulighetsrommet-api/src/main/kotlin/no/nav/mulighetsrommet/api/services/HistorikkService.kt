@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.Integer.parseInt
 
 class HistorikkService(
     private val db: Database,

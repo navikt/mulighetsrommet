@@ -23,7 +23,6 @@ class HistorikkServiceTest : FunSpec({
 
     val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
-
     val tiltakstype = Tiltakstype(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
