@@ -50,8 +50,8 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 | --------------- | ----------------------------------------------------------------------------------- |
 | Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate> |
 | README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (test-datasett) | <https://mulighetsrommet.sanity.studio/test/desk> |
-| Url (prod-datasett) | <https://mulighetsrommet.sanity.studio/production/desk> |
+| Url (test-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk> |
+| Url (prod-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/production/desk> |
 
 ### `mulighetsrommet-api`
 
@@ -70,6 +70,17 @@ detaljer.
 | --------------- | ----------------------------------------------------------------------------------- |
 | README | <https://github.com/navikt/kafka-manager> |
 | Url (dev-miljø) | <https://mulighetsrommet-kafka-manager.dev.intern.nav.no/> |
+
+### `mr-admin-flate`
+
+Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltakstyper og tiltaksgjennomføringer.
+
+|                 |                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------- |
+| README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mr-admin-flate/README.md> |
+| Demo-miljø | <https://mulighetsrommet-admin-flate.labs.nais.io> |
+| Url (dev-miljø) | <https://mulighetsrommet-admin-flate.dev.intern.nav.no> |
+| Url (prod-miljø) | <https://mulighetsrommet-admin-flate.intern.nav.no> |
 
 ## Oppsett
 
