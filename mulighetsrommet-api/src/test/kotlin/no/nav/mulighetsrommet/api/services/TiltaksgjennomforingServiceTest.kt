@@ -56,37 +56,37 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             navn = "Oppfølging",
             arrangorId = 1,
             tiltakskode = "INDOPPFOLG",
-            id = 1,
+            tiltaksgjennomforingId = 1,
             sakId = 1
         )
         val tiltak2 = AdapterTiltaksgjennomforing(
             navn = "Trening",
             arrangorId = 1,
             tiltakskode = "ARBTREN",
-            id = 2,
+            tiltaksgjennomforingId = 2,
             sakId = 2
         )
 
         test("should return empty result when there are no created tiltak") {
-            service.getTiltaksgjennomforinger() shouldBe listOf()
+            service.getTiltaksgjennomforinger().second shouldBe listOf()
         }
 
         test("should return empty result when tiltak are missing tiltaksnummer") {
             arenaRepository.upsertTiltaksgjennomforing(tiltak1)
             arenaRepository.upsertTiltaksgjennomforing(tiltak2)
 
-            service.getTiltaksgjennomforinger() shouldBe listOf()
+            service.getTiltaksgjennomforinger().second shouldBe listOf()
         }
 
         test("should get tiltak when they have been assigned tiltaksnummer") {
             arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(id = 1, lopenummer = 11, aar = 2022)
+                AdapterSak(sakId = 1, lopenummer = 11, aar = 2022)
             )
             arenaRepository.updateTiltaksgjennomforingWithSak(
-                AdapterSak(id = 2, lopenummer = 22, aar = 2022)
+                AdapterSak(sakId = 2, lopenummer = 22, aar = 2022)
             )
 
-            service.getTiltaksgjennomforinger() shouldBe listOf(
+            service.getTiltaksgjennomforinger().second shouldBe listOf(
                 Tiltaksgjennomforing(
                     id = 1,
                     navn = "Oppfølging",
@@ -107,7 +107,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("should get tiltak by id") {
-            service.getTiltaksgjennomforingById(tiltak1.id) shouldBe Tiltaksgjennomforing(
+            service.getTiltaksgjennomforingById(tiltak1.tiltaksgjennomforingId) shouldBe Tiltaksgjennomforing(
                 id = 1,
                 navn = "Oppfølging",
                 tiltakskode = "INDOPPFOLG",
@@ -182,8 +182,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
                     arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
-                            id = 1,
-                            tiltaksgjennomforingId = tiltak1.id,
+                            tiltaksdeltakerId = 1,
+                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
                             personId = 1,
                             status = Deltakerstatus.DELTAR
                         )
@@ -205,8 +205,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
                     arenaRepository.upsertDeltaker(
                         AdapterTiltakdeltaker(
-                            id = 1,
-                            tiltaksgjennomforingId = tiltak1.id,
+                            tiltaksdeltakerId = 1,
+                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
                             personId = 1,
                             status = Deltakerstatus.AVSLUTTET
                         )
@@ -222,9 +222,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("should delete tiltak") {
             arenaRepository.deleteTiltaksgjennomforing(tiltak1)
 
-            service.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
+            service.getTiltaksgjennomforingById(tiltak1.tiltaksgjennomforingId) shouldBe null
         }
     }
+
     context("pagination") {
         listener.db.clean()
         listener.db.migrate()
@@ -248,13 +249,13 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     navn = "Trening",
                     arrangorId = 1,
                     tiltakskode = "ARBTREN",
-                    id = it,
+                    tiltaksgjennomforingId = it,
                     sakId = it
                 )
             )
             arenaRepository.updateTiltaksgjennomforingWithSak(
                 AdapterSak(
-                    id = it,
+                    sakId = it,
                     lopenummer = it,
                     aar = 2022
                 )
@@ -263,16 +264,18 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         test("default pagination gets first 50 tiltak") {
 
-            val tiltaksgjennomforinger =
+            val (totalCount, tiltaksgjennomforinger) =
                 service.getTiltaksgjennomforinger()
 
             tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
             tiltaksgjennomforinger.first().id shouldBe 1
             tiltaksgjennomforinger.last().id shouldBe 50
+
+            totalCount shouldBe 105
         }
 
         test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
-            val tiltaksgjennomforinger =
+            val (totalCount, tiltaksgjennomforinger) =
                 service.getTiltaksgjennomforinger(
                     PaginationParams(
                         4,
@@ -283,10 +286,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforinger.size shouldBe 20
             tiltaksgjennomforinger.first().id shouldBe 61
             tiltaksgjennomforinger.last().id shouldBe 80
+
+            totalCount shouldBe 105
         }
 
         test("pagination with page 3 default size should give tiltak with id 101-105") {
-            val tiltaksgjennomforinger =
+            val (totalCount, tiltaksgjennomforinger) =
                 service.getTiltaksgjennomforinger(
                     PaginationParams(
                         3
@@ -295,10 +300,12 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforinger.size shouldBe 5
             tiltaksgjennomforinger.first().id shouldBe 101
             tiltaksgjennomforinger.last().id shouldBe 105
+
+            totalCount shouldBe 105
         }
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
-            val tiltaksgjennomforinger =
+            val (totalCount, tiltaksgjennomforinger) =
                 service.getTiltaksgjennomforinger(
                     PaginationParams(
                         nullableLimit = 200
@@ -307,6 +314,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforinger.size shouldBe 105
             tiltaksgjennomforinger.first().id shouldBe 1
             tiltaksgjennomforinger.last().id shouldBe 105
+
+            totalCount shouldBe 105
         }
     }
 })

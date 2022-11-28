@@ -1,0 +1,45 @@
+{
+  "name": "mr-admin-flate",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "build": "tsc && VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
+    "build:labs": "tsc && cross-env VITE_INCLUDE_MOCKS=true VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite build",
+    "preview": "vite preview",
+    "cy:run": "npx cypress run --e2e",
+    "cypress": "npx cypress open",
+    "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "test": "vitest",
+    "test:ci": "vitest run"
+  },
+  "dependencies": {
+    "@navikt/ds-css": "^2.0.0",
+    "@navikt/ds-css-internal": "^2.0.0",
+    "@navikt/ds-react": "^2.0.0",
+    "@navikt/ds-react-internal": "^2.0.0",
+    "@tanstack/react-query": "^4.16.1",
+    "@tanstack/react-query-devtools": "^4.16.1",
+    "formik": "^2.2.9",
+    "mulighetsrommet-api-client": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.3",
+    "vite-plugin-require": "^1.0.8",
+    "zod": "^3.19.1",
+    "zod-formik-adapter": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "cross-env": "^7.0.3",
+    "cypress": "^11.1.0",
+    "msw": "^0.49.0",
+    "typescript": "^4.9.3",
+    "vite": "^3.2.4"
+  },
+  "msw": {
+    "workerDirectory": "public"
+  }
+}

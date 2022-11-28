@@ -1,48 +1,87 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.continuations.either
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.arena.ArenaTiltakdeltaker
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class TiltakdeltakerEndretConsumer(
-    override val consumerConfig: ConsumerConfig,
-    override val events: EventRepository,
+    override val config: ConsumerConfig,
+    override val events: ArenaEventRepository,
+    private val deltakere: DeltakerRepository,
+    private val arenaEntityMappings: ArenaEntityMappingRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaEvent<ArenaTiltakdeltaker>>() {
+) : ArenaTopicConsumer(
+    "SIAMO.TILTAKDELTAKER"
+) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaTiltakdeltaker> =
-        ArenaEventHelpers.decodeEvent(payload)
+    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
+        val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(payload)
 
-    override fun resolveKey(event: ArenaEvent<ArenaTiltakdeltaker>): String {
-        return event.data.TILTAKDELTAKER_ID.toString()
+        return ArenaEvent(
+            arenaTable = decoded.table,
+            arenaId = decoded.data.TILTAKDELTAKER_ID.toString(),
+            payload = payload,
+            status = ArenaEvent.ConsumptionStatus.Pending,
+        )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent<ArenaTiltakdeltaker>) {
-        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/deltaker", event.data.toAdapterTiltakdeltaker()) {
-            status.isSuccess() || status == HttpStatusCode.Conflict
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+        val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
+
+        val tiltaksgjennomforing = events.get(
+            "SIAMO.TILTAKGJENNOMFORING",
+            decoded.data.TILTAKGJENNOMFORING_ID.toString()
+        )
+
+        ensure(tiltaksgjennomforingHasNotBeenIgnored(tiltaksgjennomforing)) {
+            ConsumptionError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
         }
+
+        val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
+            ArenaEntityMapping.Deltaker(event.arenaTable, event.arenaId, UUID.randomUUID())
+        )
+
+        val deltaker = decoded.data
+            .toDeltaker(mapping.entityId)
+            .let { deltakere.upsert(it) }
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .bind()
+
+        // TODO: oppdater til ny api-modell
+        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.request(method, "/api/v1/arena/deltaker", deltaker)
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .bind()
     }
 
-    private fun ArenaTiltakdeltaker.toAdapterTiltakdeltaker() = AdapterTiltakdeltaker(
-        id = this.TILTAKDELTAKER_ID,
-        tiltaksgjennomforingId = this.TILTAKGJENNOMFORING_ID,
-        personId = this.PERSON_ID,
-        fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL),
-        status = ProcessingUtils.toDeltakerstatus(this.DELTAKERSTATUSKODE)
+    private fun tiltaksgjennomforingHasNotBeenIgnored(tiltaksgjennomforing: ArenaEvent?): Boolean {
+        return tiltaksgjennomforing == null || tiltaksgjennomforing.status != ArenaEvent.ConsumptionStatus.Ignored
+    }
+
+    private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Deltaker(
+        id = id,
+        tiltaksdeltakerId = TILTAKDELTAKER_ID,
+        tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
+        personId = PERSON_ID,
+        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
+        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
+        status = ProcessingUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
     )
 }

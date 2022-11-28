@@ -36,7 +36,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_14
         databases:
-          - name: mulighetsrommet-db
+          - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
               - name: sanity-sync-job
@@ -56,6 +56,7 @@ spec:
       rules:
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-veileder-flate
+        - application: mr-admin-flate
         - application: veilarbpersonflate
           namespace: poao
     outbound:

@@ -29,25 +29,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/veileder:
-    get:
-      tags:
-        - Veileder
-      operationId: getVeilederData
-      responses:
-        200:
-          description: Data about the 'veileder'
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Veileder"
-        404:
-          description: "Could not find data about 'veileder'"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/innsatsgrupper:
     get:
       tags:
@@ -92,13 +73,11 @@ paths:
           explode: false
       responses:
         200:
-          description: Array of tiltaksgjennomføringer.
+          description: Object of paginated tiltaksgjennomføringer.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
   /api/v1/tiltaksgjennomforinger/{id}:
     parameters:
@@ -143,13 +122,36 @@ paths:
           explode: false
       responses:
         200:
-          description: Array of tiltakstyper.
+          description: Object of paginerte tiltakstyper.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltakstype"
+                $ref: "#/components/schemas/PaginertTiltakstype"
+
+  /api/v1/tiltakstyper/{id}:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getTiltakstypeById
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          description: Id for tiltakstype
+      responses:
+        200:
+          description: the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltakstype"
+        404:
+          description: "The specified tiltakstype was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /api/v1/tiltakstyper/{tiltakskode}:
     get:
@@ -229,12 +231,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/DialogRequest"
-      parameters:
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to filter based on the users 'oppfølgingsenhet'
       responses:
         200:
           description: Dialog response
@@ -254,18 +250,30 @@ paths:
       tags:
         - Historikk
       operationId: hentHistorikkForBruker
-      parameters:
-        - in: query
-          name: fnr
-          schema:
-            type: string
-          description: SSN for the user which will be used to fetch 'historikk' for user
       responses:
         200:
           description: Historical data about the user
           content:
             application/json:
               $ref: "#/components/schemas/HistorikkForBruker"
+
+  /api/v1/ansatt/me:
+    get:
+      tags:
+        - Ansatt
+      operationId: hentInfoOmAnsatt
+      responses:
+        200:
+          description: Information about employee
+          content:
+            application/json:
+              $ref: "#/components/schemas/Ansatt"
+        404:
+          description: "Could not find data about 'ansatt'"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /logger/event:
     post:
@@ -386,6 +394,45 @@ components:
             erReservert:
               type: boolean
               nullable: true
+
+    Pagination:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            totalCount:
+              type: integer
+            currentPage:
+              type: integer
+            pageSize:
+              type: integer
+
+    PaginertTiltakstype:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakstype"
+        
+    PaginertTiltaksgjennomforing:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltaksgjennomforing"
 
     Tiltakstype:
       type: object
@@ -559,7 +606,7 @@ components:
         - fnr
         - oppfolgingsenhet
 
-    Veileder:
+    Ansatt:
       type: object
       properties:
         etternavn:
@@ -570,6 +617,10 @@ components:
           type: string
         navn:
           type: string
+        tilganger:
+          type: array
+          items:
+            type: string
 
     Innsatsgruppe:
       type: string

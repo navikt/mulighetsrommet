@@ -46,14 +46,14 @@ export default {
       title: "Tiltakstype",
       type: "reference",
       description:
-        "Her velger du hvilken tiltakstype gjennomføringen gjelder for",
+        "Her velger du hvilken tiltakstype gjennomføringen gjelder for.",
       to: [{ type: "tiltakstype" }],
       validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
-      description: "Her legger du inn navn for tiltaksgjennomføringen",
+      description: "Her legger du inn navn for tiltaksgjennomføringen.",
       type: "string",
       validation: (Rule: Rule) => Rule.required(),
     },
@@ -75,11 +75,11 @@ export default {
           if (tiltaksgruppe?.includes("individuelt")) {
             return !tiltaksnummer
               ? true
-              : "Tiltaksnummer skal ikke settes for individuelle tiltak";
+              : "Tiltaksnummer skal ikke settes for individuelle tiltak.";
           }
 
           if (!tiltaksnummer) {
-            return "Du må sette et tiltaksnummer";
+            return "Du må sette et tiltaksnummer.";
           }
 
           return true;
@@ -89,7 +89,7 @@ export default {
       name: "kontaktinfoArrangor",
       title: "Arrangør",
       description:
-        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak",
+        "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak.",
       type: "reference",
       to: [{ type: "arrangor" }],
       validation: (Rule) =>
@@ -101,13 +101,13 @@ export default {
 
           if (tiltaksgruppe?.includes("individuelt")) {
             if (arrangor) {
-              return "Individuelle tiltak skal ikke ha noen arrangør";
+              return "Individuelle tiltak skal ikke ha noen arrangør.";
             }
             return true;
           }
 
           if (!arrangor) {
-            return "For tiltak som ikke er individuelle må man velge en arrangør";
+            return "For tiltak som ikke er individuelle må man velge en arrangør.";
           }
 
           return true;
@@ -117,7 +117,7 @@ export default {
       name: "beskrivelse",
       title: "Beskrivelse",
       description:
-        "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen",
+        "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen.",
       type: "text",
       rows: 5,
       validation: (Rule) => Rule.max(500),
@@ -127,7 +127,7 @@ export default {
       name: "estimert_ventetid",
       title: "Estimert ventetid eller stengt til",
       description:
-        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status stengt så kan du skrive her hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status 'stengt' kan du skrive hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
       type: "string",
     },
 
@@ -135,14 +135,14 @@ export default {
       name: "lokasjon",
       title: "Lokasjon",
       description:
-        "Her skriver du inn hvor i tiltaket gjelder. Feks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
+        "Her skriver du inn hvor i tiltaket gjelder, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
       validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "fylke",
       title: "Fylke",
-      description: "I hvilken region gjelder dette tiltaket?",
+      description: "Her velger du hvilket fylke tiltaket gjelder for.",
       type: "reference",
       to: [{ type: "enhet" }],
       options: {
@@ -158,8 +158,9 @@ export default {
       name: "enheter",
       title: "Enheter",
       description:
-        "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
+        "Her velger du hvilke enheter som kan benytte seg av dette tiltaket. Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
+
       hidden: ({ document }) => {
         return !document.fylke;
       },
@@ -197,7 +198,7 @@ export default {
 
           return !paths.length
             ? true
-            : { message: "Alle enheter må tilhøre valgt fylke", paths };
+            : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
     },
     {
@@ -209,7 +210,7 @@ export default {
       options: {
         list: [
           { title: "Dato", value: "dato" },
-          { title: "Løpende", value: "lopende" },
+          { title: "Løpende oppstart", value: "lopende" },
           { title: "Midlertidig stengt", value: "midlertidig_stengt" },
         ],
       },
@@ -232,7 +233,7 @@ export default {
       name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
       description:
-        "Her velger du en eller flere tiltaksansvarlige for tiltaksgjennomføringen",
+        "Her velger du en eller flere tiltaksansvarlige for tiltaksgjennomføringen.",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       validation: (Rule: Rule) => Rule.required().min(1).unique(),
@@ -305,15 +306,6 @@ export default {
       title: "tiltaksgjennomforingNavn",
       tiltakstypeNavn: "tiltakstype.tiltakstypeNavn",
       arrangornavn: "kontaktinfoArrangor.selskapsnavn",
-    },
-    prepare: (selection) => {
-      const { title, tiltakstypeNavn, arrangornavn } = selection;
-      return {
-        title,
-        subtitle: arrangornavn
-          ? `${arrangornavn} - ${tiltakstypeNavn}`
-          : `${tiltakstypeNavn}`,
-      };
     },
   },
 };

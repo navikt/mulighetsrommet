@@ -1,0 +1,88 @@
+name: CI/CD (mr-admin-flate)
+
+on:
+  push:
+    paths:
+      - .github/workflows/mr-admin-flate.yaml
+      - package.json
+      - package-lock.json
+      - turbo.json
+      - frontend/mr-admin-flate/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
+
+env:
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  build-test-and-deploy-dev:
+    name: Build, test and deploy for dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Vitest
+        run: npx turbo run test:ci --filter=mr-admin-flate 
+      - name: Build
+        run: npx turbo run build --filter=mr-admin-flate
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          working-directory: frontend/mr-admin-flate
+          browser: chrome
+          headed: true
+          wait-on: http://localhost:5173
+          start: npm start
+          install: false
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mr-admin-flate/dist gs://mr-admin-flate-dev
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+
+
+  build-test-and-deploy-prod:
+    name: Build, test and deploy for production
+    runs-on: ubuntu-latest
+    needs: ["build-test-and-deploy-dev"]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Build
+        run: npx turbo run build --filter=mr-admin-flate
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          working-directory: frontend/mr-admin-flate
+          browser: chrome
+          headed: true
+          wait-on: http://localhost:5173
+          start: npm start
+          install: false
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_PROD_GCP_BUCKET_FRONTEND }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mr-admin-flate/dist gs://mr-admin-flate-prod

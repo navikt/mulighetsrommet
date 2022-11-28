@@ -16,15 +16,17 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("/api/v1/tiltaksgjennomforinger") {
         get() {
             val paginationParams = getPaginationParams()
-            val data = tiltaksgjennomforingService.getTiltaksgjennomforinger(paginationParams)
+            val (totalCount, tiltaksgjennomforinger) = tiltaksgjennomforingService.getTiltaksgjennomforinger(
+                paginationParams
+            )
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(
-                        totalCount = data.size,
+                        totalCount = totalCount,
                         currentPage = paginationParams.page,
                         pageSize = paginationParams.limit
                     ),
-                    data = data
+                    data = tiltaksgjennomforinger
                 )
             )
         }

@@ -1,90 +1,196 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.*
 import io.ktor.http.*
-import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
-    test("should call api with mapped event payload") {
-        val engine = MockEngine { respondOk() }
+    testOrder = TestCaseOrder.Sequential
 
-        val event = createEvent(antallDeltakere = 5)
-        createConsumer(engine).processEvent(event)
+    val database = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
 
-        engine.requestHistory.last().run {
-            method shouldBe HttpMethod.Put
+    beforeEach {
+        database.db.migrate()
+    }
 
-            decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe AdapterTiltaksgjennomforing(
-                id = 3780431,
-                navn = "Testenavn",
-                tiltakskode = "INDOPPFAG",
-                arrangorId = 49612,
-                sakId = 13572352,
-                fraDato = null,
-                tilDato = null,
-                apentForInnsok = true,
-                antallPlasser = 5,
+    afterEach {
+        database.db.clean()
+    }
+
+    context("when dependent events has not been processed") {
+        test("should save the event with status Pending when dependent tiltakstype is missing") {
+            val tiltakstyper = TiltakstypeRepository(database.db)
+            tiltakstyper.upsert(
+                Tiltakstype(
+                    id = UUID.randomUUID(),
+                    navn = "Oppfølging",
+                    innsatsgruppe = 2,
+                    tiltakskode = "INDOPPFAG"
+                )
             )
+
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val event = consumer.processEvent(createEvent(Insert))
+
+            event.status shouldBe Pending
+            database.assertThat("tiltaksgjennomforing").isEmpty
+        }
+
+        test("should save the event with status Pending when dependent sak is missing") {
+            val saker = SakRepository(database.db)
+            saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
+
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val event = consumer.processEvent(createEvent(Insert))
+
+            event.status shouldBe Pending
+            database.assertThat("tiltaksgjennomforing").isEmpty
         }
     }
 
-    test("should decode ANTALL_DELTAKERE as nearest integer") {
-        val engine = MockEngine { respondOk() }
+    context("when dependent events has been processed") {
+        beforeEach {
+            val saker = SakRepository(database.db)
+            saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
 
-        val event = createEvent(antallDeltakere = 5.5)
-        createConsumer(engine).processEvent(event)
-
-        engine.requestHistory.last().decodeRequestBody<AdapterTiltaksgjennomforing>().antallPlasser shouldBe 6
-    }
-
-    context("when api returns 500") {
-        test("should treat the result as error") {
-            val consumer = createConsumer(
-                MockEngine { respondError(HttpStatusCode.InternalServerError) }
+            val tiltakstyper = TiltakstypeRepository(database.db)
+            tiltakstyper.upsert(
+                Tiltakstype(
+                    id = UUID.randomUUID(),
+                    navn = "Oppfølging",
+                    innsatsgruppe = 2,
+                    tiltakskode = "INDOPPFAG"
+                )
             )
+        }
 
-            shouldThrow<ResponseException> {
-                consumer.processEvent(createEvent())
+        test("should treat all operations as upserts") {
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val e1 = consumer.processEvent(createEvent(Insert, name = "Navn 1"))
+            e1.status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing")
+                .row().value("navn").isEqualTo("Navn 1")
+
+            val e2 = consumer.processEvent(createEvent(Update, name = "Navn 2"))
+            e2.status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing")
+                .row().value("navn").isEqualTo("Navn 2")
+
+            val e3 = consumer.processEvent(createEvent(Delete, name = "Navn 1"))
+            e3.status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing")
+                .row().value("navn").isEqualTo("Navn 1")
+        }
+
+        test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val event = consumer.processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
+
+            event.status shouldBe Ignored
+        }
+
+        context("api responses") {
+            test("should call api with mapped event payload") {
+                val engine = MockEngine { respondOk() }
+                val consumer = createConsumer(database.db, engine)
+
+                val gjennomforing = AdapterTiltaksgjennomforing(
+                    tiltaksgjennomforingId = 3780431,
+                    navn = "Testenavn",
+                    tiltakskode = "INDOPPFAG",
+                    arrangorId = 49612,
+                    sakId = 13572352,
+                    fraDato = null,
+                    tilDato = null,
+                    apentForInnsok = true,
+                    antallPlasser = 5,
+                )
+
+                consumer.processEvent(createEvent(Insert))
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Put
+                    decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe gjennomforing
+                }
+
+                consumer.processEvent(createEvent(Delete))
+
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Delete
+                    decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe gjennomforing
+                }
+            }
+
+            test("should treat a 500 response as error") {
+                val consumer = createConsumer(
+                    database.db,
+                    MockEngine { respondError(HttpStatusCode.InternalServerError) }
+                )
+
+                val event = consumer.processEvent(createEvent(Insert))
+
+                event.status shouldBe Failed
+                database.assertThat("arena_events")
+                    .row()
+                    .value("consumption_status").isEqualTo("Failed")
             }
         }
     }
 })
 
-private fun createConsumer(engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
-    val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
+private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
+    val client = MulighetsrommetApiClient(engine, baseUri = "api") {
         "Bearer token"
     }
 
-    val events = mockk<EventRepository>(relaxed = true)
-
     return TiltakgjennomforingEndretConsumer(
         ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
-        events,
+        ArenaEventRepository(db),
+        TiltaksgjennomforingRepository(db),
+        ArenaEntityMappingRepository(db),
         client
     )
 }
 
-private fun createEvent(antallDeltakere: Number = 5) = ArenaEvent.createInsertEvent(
+private fun createEvent(
+    operation: ArenaEventData.Operation,
+    name: String = "Testenavn",
+    regDato: String = "2022-10-10 00:00:00"
+) = createArenaEvent(
+    "tiltaksgjennomforing",
+    "3780431",
+    operation,
     """{
         "TILTAKGJENNOMFORING_ID": 3780431,
-        "LOKALTNAVN": "Testenavn",
+        "LOKALTNAVN": "$name",
         "TILTAKSKODE": "INDOPPFAG",
         "ARBGIV_ID_ARRANGOR": 49612,
         "SAK_ID": 13572352,
+        "REG_DATO": "$regDato",
         "DATO_FRA": null,
         "DATO_TIL": null,
         "STATUS_TREVERDIKODE_INNSOKNING": "J",
-        "ANTALL_DELTAKERE": $antallDeltakere
+        "ANTALL_DELTAKERE": 5
     }"""
 )

@@ -5,7 +5,7 @@ import { historikk } from '../fixtures/historikk';
 import { DelMedBruker } from '../../../../mulighetsrommet-api-client/build/models/DelMedBruker';
 
 export const apiHandlers: RestHandler[] = [
-  rest.get('*/api/v1/bruker', (req, res, ctx) => {
+  rest.get('*/api/v1/bruker', req => {
     const fnr = req.url.searchParams.get('fnr');
 
     if (typeof fnr !== 'string') {
@@ -32,16 +32,17 @@ export const apiHandlers: RestHandler[] = [
     });
   }),
 
-  rest.get('*/api/v1/veileder', (req, res, ctx) => {
+  rest.get('*/api/v1/ansatt/me', () => {
     return ok({
       etternavn: 'VEILEDERSEN',
       fornavn: 'VEILEDER',
       ident: 'V12345',
       navn: 'Veiledersen, Veileder',
+      tilganger: [],
     });
   }),
 
-  rest.post('*/api/v1/dialog', (req, res, ctx) => {
+  rest.post('*/api/v1/dialog', () => {
     return ok({
       id: '12345',
     });
@@ -60,13 +61,7 @@ export const apiHandlers: RestHandler[] = [
     return ok(result);
   }),
 
-  rest.get('*/api/v1/bruker/historikk', async req => {
-    const fnr = req.url.searchParams.get('fnr');
-
-    if (!(typeof fnr === 'string')) {
-      return badReq("'fnr' must be specified");
-    }
-
+  rest.get('*/api/v1/bruker/historikk', () => {
     return ok(historikk);
   }),
 

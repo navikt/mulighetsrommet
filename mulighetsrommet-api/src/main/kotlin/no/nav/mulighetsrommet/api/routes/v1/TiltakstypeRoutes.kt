@@ -29,18 +29,37 @@ fun Route.tiltakstypeRoutes() {
 
             val paginationParams = getPaginationParams()
 
-            val items = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
+            val (totalCount, items) = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
+
             call.respond(
                 PaginatedResponse(
                     data = items,
                     pagination = Pagination(
-                        totalCount = items.size,
+                        totalCount = totalCount,
                         currentPage = paginationParams.page,
                         pageSize = paginationParams.limit
                     )
                 )
             )
         }
+        get("{id}") {
+            runCatching {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
+                    "Mangler eller ugyldig id",
+                    status = HttpStatusCode.BadRequest
+                )
+                tiltakstypeService.getTiltakstypeById(id)
+            }.onSuccess { fetchedTiltakstype ->
+                if (fetchedTiltakstype != null) {
+                    call.respond(fetchedTiltakstype)
+                }
+                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
+            }.onFailure {
+                call.application.environment.log.error(it.stackTraceToString())
+                call.respondText(text = "Fant ikke tiltakstype", status = HttpStatusCode.NotFound)
+            }
+        }
+
         get("{tiltakskode}") {
             runCatching {
                 val tiltakskode = call.parameters["tiltakskode"]!!

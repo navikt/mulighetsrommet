@@ -5,6 +5,9 @@ import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import org.assertj.db.api.Assertions
+import org.assertj.db.api.TableAssert
+import org.assertj.db.type.Table
 
 class FlywayDatabaseListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: FlywayDatabaseAdapter? = null
@@ -13,10 +16,15 @@ class FlywayDatabaseListener(private val config: DatabaseConfig) : BeforeSpecLis
         get() = delegate ?: throw RuntimeException("Database has not yet been initialized")
 
     override suspend fun beforeSpec(spec: Spec) {
-        delegate = FlywayDatabaseAdapter(config)
+        delegate = FlywayDatabaseAdapter(config, FlywayDatabaseAdapter.InitializationStrategy.Migrate)
     }
 
     override suspend fun afterSpec(spec: Spec) {
         delegate?.clean()
+    }
+
+    fun assertThat(tableName: String): TableAssert {
+        val table = Table(db.getDatasource(), tableName)
+        return Assertions.assertThat(table)
     }
 }

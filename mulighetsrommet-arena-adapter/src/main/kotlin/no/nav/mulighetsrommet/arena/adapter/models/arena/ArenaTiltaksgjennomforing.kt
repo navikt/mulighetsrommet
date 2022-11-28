@@ -1,0 +1,19 @@
+package no.nav.mulighetsrommet.arena.adapter.models.arena
+
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.serializers.FloatToIntSerializer
+
+@Serializable
+data class ArenaTiltaksgjennomforing(
+    val TILTAKGJENNOMFORING_ID: Int,
+    val SAK_ID: Int,
+    val TILTAKSKODE: String,
+    val REG_DATO: String,
+    val DATO_FRA: String?,
+    val DATO_TIL: String?,
+    val LOKALTNAVN: String?,
+    val ARBGIV_ID_ARRANGOR: Int?,
+    val STATUS_TREVERDIKODE_INNSOKNING: JaNeiStatus?,
+    @Serializable(with = FloatToIntSerializer::class)
+    val ANTALL_DELTAKERE: Int?
+)

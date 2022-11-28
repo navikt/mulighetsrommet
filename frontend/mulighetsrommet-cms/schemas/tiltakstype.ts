@@ -10,7 +10,7 @@ export default {
       name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
       type: "string",
-      description: "Fyll inn navnet på tiltakstypen her",
+      description: "Her legger du inn navn for tiltakstypen.",
       validation: (Rule) => Rule.required().min(2).max(200),
     },
     {
@@ -19,12 +19,14 @@ export default {
       type: "text",
       rows: 5,
       validation: (Rule) => Rule.max(500),
-      description: "Her kan du skrive en beskrivelse av tiltakstypen",
+      description:
+        "Her kan du legge til en tekstlig beskrivelse av tiltakstypen.",
     },
     {
       name: "tiltaksgruppe",
-      title: "Individuelt eller gruppetiltak?",
-      description: "Er tiltaket et individuelt- eller et gruppetiltak?",
+      title: "Individuelt- eller gruppetiltak?",
+      description:
+        "Her velger du om tiltaket er et individuelt- eller et gruppetiltak.",
       type: "string",
       options: {
         list: [
@@ -34,7 +36,7 @@ export default {
       },
       layout: "radio",
       validation: (Rule) =>
-        Rule.required().error("Du må velge ett av alternativene"),
+        Rule.required().error("Du må velge ett av alternativene."),
     },
     {
       name: "nokkelinfoKomponenter",
@@ -45,7 +47,8 @@ export default {
     {
       name: "innsatsgruppe",
       title: "Innsatsgruppe",
-      description: "Hvilken innsatsgruppe gjelder tiltakstypen for?",
+      description:
+        "Her velger du hvilken innsatsgruppe tiltakstypen er ment for.",
       type: "reference",
       options: {
         disableNew: true,
@@ -55,7 +58,7 @@ export default {
     {
       name: "varighet",
       title: "Varighet",
-      description: "Om tiltakstypen har en varighet kan du legge det inn her",
+      description: "Her kan du legge til hvor lang varighet tiltakstypen har.",
       type: "string",
     },
     {
@@ -81,7 +84,7 @@ export default {
       name: "delingMedBruker",
       title: "Informasjon til å dele med bruker",
       description:
-        "Dette er teksten som veileder kan dele med bruker via 'Del med bruker'-knapp",
+        "Dette er teksten som veileder kan dele med bruker via 'Del med bruker'-knapp.",
       type: "text",
     },
   ],

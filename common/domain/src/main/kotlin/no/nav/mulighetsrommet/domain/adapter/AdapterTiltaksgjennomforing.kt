@@ -6,11 +6,11 @@ import java.time.LocalDateTime
 
 @Serializable
 data class AdapterTiltaksgjennomforing(
-    val id: Int,
-    val navn: String?,
+    val tiltaksgjennomforingId: Int,
+    val sakId: Int,
     val tiltakskode: String,
     val arrangorId: Int?,
-    val sakId: Int,
+    val navn: String?,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)

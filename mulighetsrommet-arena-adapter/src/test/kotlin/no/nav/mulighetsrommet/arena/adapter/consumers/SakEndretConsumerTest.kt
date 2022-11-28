@@ -1,99 +1,88 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.*
-import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.*
-import io.ktor.http.*
-import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
-import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
 class SakEndretConsumerTest : FunSpec({
+
+    testOrder = TestCaseOrder.Sequential
+
+    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
+
+    beforeEach {
+        listener.db.migrate()
+    }
+
+    afterEach {
+        listener.db.clean()
+    }
+
     context("when sakskode is not TILT") {
-        test("should not api with mapped event payload") {
-            val engine = MockEngine { respondOk() }
+        test("should ignore events") {
+            val event = createConsumer(listener.db).processEvent(
+                createEvent(
+                    sakskode = "NOT_TILT",
+                    operation = Insert
+                )
+            )
 
-            createConsumer(engine).processEvent(createEvent(sakskode = "NOT_TILT"))
-
-            engine.requestHistory shouldHaveSize 0
+            event.status shouldBe Ignored
         }
     }
 
     context("when sakskode is TILT") {
-        test("should call api with mapped event payload") {
-            val engine = MockEngine { respondOk() }
+        test("should treat all operations as upserts") {
+            val consumer = createConsumer(listener.db)
 
-            createConsumer(engine).processEvent(createEvent())
+            val e1 = consumer.processEvent(createEvent(Insert, lopenummer = 1))
+            e1.status shouldBe Processed
+            listener.assertThat("sak")
+                .row().value("lopenummer").isEqualTo(1)
 
-            engine.requestHistory.last().run {
-                method shouldBe HttpMethod.Put
+            val e2 = consumer.processEvent(createEvent(Update, lopenummer = 2))
+            e2.status shouldBe Processed
+            listener.assertThat("sak")
+                .row().value("lopenummer").isEqualTo(2)
 
-                decodeRequestBody<AdapterSak>() shouldBe AdapterSak(
-                    id = 1,
-                    aar = 2022,
-                    lopenummer = 2,
-                )
-            }
-        }
-
-        context("when api returns 409") {
-            test("should treat the result as successful") {
-                val engine = MockEngine { respondError(HttpStatusCode.Conflict) }
-
-                createConsumer(engine).processEvent(createEvent())
-
-                engine.requestHistory.last().run {
-                    method shouldBe HttpMethod.Put
-
-                    decodeRequestBody<AdapterSak>() shouldBe AdapterSak(
-                        id = 1,
-                        aar = 2022,
-                        lopenummer = 2,
-                    )
-                }
-            }
-        }
-
-        context("when api returns 500") {
-            test("should treat the result as error") {
-                val consumer = createConsumer(
-                    MockEngine { respondError(HttpStatusCode.InternalServerError) }
-                )
-
-                shouldThrow<ResponseException> {
-                    consumer.processEvent(createEvent())
-                }
-            }
+            val e3 = consumer.processEvent(createEvent(Delete, lopenummer = 1))
+            e3.status shouldBe Processed
+            listener.assertThat("sak")
+                .row().value("lopenummer").isEqualTo(1)
         }
     }
 })
 
-private fun createConsumer(engine: HttpClientEngine): SakEndretConsumer {
-    val client = MulighetsrommetApiClient(engine, maxRetries = 0, baseUri = "api") {
-        "Bearer token"
-    }
-
-    val events = mockk<EventRepository>(relaxed = true)
-
+private fun createConsumer(db: Database): SakEndretConsumer {
     return SakEndretConsumer(
         ConsumerConfig("sakendret", "sakendret"),
-        events,
-        client
+        ArenaEventRepository(db),
+        SakRepository(db),
     )
 }
 
-private fun createEvent(sakskode: String = "TILT") = ArenaEvent.createInsertEvent(
+private fun createEvent(
+    operation: ArenaEventData.Operation,
+    sakskode: String = "TILT",
+    lopenummer: Int = 1
+) = createArenaEvent(
+    "sak",
+    "1",
+    operation,
     """{
         "SAK_ID": 1,
         "SAKSKODE": "$sakskode",
         "AAR": 2022,
-        "LOPENRSAK": 2
+        "LOPENRSAK": $lopenummer
     }"""
 )

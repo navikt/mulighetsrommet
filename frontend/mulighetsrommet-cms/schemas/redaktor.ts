@@ -11,8 +11,6 @@ export default {
     {
       name: "navn",
       title: "Navn",
-      description:
-        "Brukes for å filtrere på tiltaksgjennomføringene du oppretter.",
       type: "string",
       validation: (Rule: Rule) => Rule.required().min(2).max(200),
       initialValue: async () => {
@@ -33,7 +31,7 @@ export default {
     {
       name: "enhet",
       title: "NAV-enhet",
-      description: "Hvilken NAV-enhet du tilhører",
+      description: "Her velger du hvilken NAV-enhet du tilhører",
       type: "string",
       validation: (Rule: Rule) => Rule.required().min(2).max(200),
     },

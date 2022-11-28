@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AdapterSak(
-    val id: Int,
+    val sakId: Int,
     val lopenummer: Int,
     val aar: Int,
 )

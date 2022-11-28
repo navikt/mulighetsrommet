@@ -9,9 +9,8 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsum
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.arena.adapter.services.TopicService
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -34,8 +33,7 @@ fun Application.configureDependencyInjection(
             consumers(appConfig.kafka),
             kafka(appConfig.kafka, kafkaPreset),
             repositories(),
-            services(appConfig.services),
-            clients(appConfig.services, tokenClient)
+            services(appConfig.services, tokenClient),
         )
     }
 }
@@ -43,9 +41,15 @@ fun Application.configureDependencyInjection(
 private fun consumers(kafkaConfig: KafkaConfig) = module {
     single {
         val consumers = listOf(
-            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get()),
-            TiltakgjennomforingEndretConsumer(kafkaConfig.getTopic("tiltakgjennomforingendret"), get(), get()),
-            TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get()),
+            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get(), get(), get()),
+            TiltakgjennomforingEndretConsumer(
+                kafkaConfig.getTopic("tiltakgjennomforingendret"),
+                get(),
+                get(),
+                get(),
+                get()
+            ),
+            TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get(), get(), get()),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
         )
         ConsumerGroup(consumers)
@@ -53,7 +57,12 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
 }
 
 private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
-    single<Database> { FlywayDatabaseAdapter(databaseConfig) }
+    single<Database> {
+        FlywayDatabaseAdapter(
+            databaseConfig,
+            FlywayDatabaseAdapter.InitializationStrategy.MigrateAsync
+        )
+    }
 }
 
 private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
@@ -63,18 +72,25 @@ private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
 }
 
 private fun repositories() = module {
-    single { EventRepository(get()) }
+    single { ArenaEventRepository(get()) }
     single { TopicRepository(get()) }
+    single { TiltakstypeRepository(get()) }
+    single { SakRepository(get()) }
+    single { DeltakerRepository(get()) }
+    single { TiltaksgjennomforingRepository(get()) }
+    single { ArenaEntityMappingRepository(get()) }
 }
 
-private fun services(services: ServiceConfig): Module = module {
-    single { TopicService(get(), get(), services.topicService) }
-}
-
-private fun clients(serviceConfig: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient) = module {
+private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient): Module = module {
     single {
-        MulighetsrommetApiClient(baseUri = serviceConfig.mulighetsrommetApi.url) {
-            tokenClient.createMachineToMachineToken(serviceConfig.mulighetsrommetApi.scope)
+        ArenaEventService(get(), get(), services.arenaEventService)
+    }
+    single {
+        MulighetsrommetApiClient(
+            config = MulighetsrommetApiClient.Config(maxRetries = 5),
+            baseUri = services.mulighetsrommetApi.url
+        ) {
+            tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
         }
     }
 }

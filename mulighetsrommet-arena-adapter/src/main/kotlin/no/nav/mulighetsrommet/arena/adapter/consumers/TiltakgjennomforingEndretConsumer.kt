@@ -1,50 +1,97 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.continuations.either
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaEventHelpers
-import no.nav.mulighetsrommet.arena.adapter.consumers.helpers.ArenaOperation
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
-import no.nav.mulighetsrommet.arena.adapter.repositories.EventRepository
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.arena.ArenaTiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.arena.JaNeiStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class TiltakgjennomforingEndretConsumer(
-    override val consumerConfig: ConsumerConfig,
-    override val events: EventRepository,
+    override val config: ConsumerConfig,
+    override val events: ArenaEventRepository,
+    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val arenaEntityMappings: ArenaEntityMappingRepository,
     private val client: MulighetsrommetApiClient
-) : TopicConsumer<ArenaEvent<ArenaTiltaksgjennomforing>>() {
+) : ArenaTopicConsumer(
+    "SIAMO.TILTAKGJENNOMFORING"
+) {
+
+    companion object {
+        val ArenaDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+        val AktivitetsplanenLaunchDate: LocalDateTime = LocalDateTime.parse(
+            "2017-12-04 00:00:00",
+            ArenaDateTimeFormatter
+        )
+    }
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeEvent(payload: JsonElement): ArenaEvent<ArenaTiltaksgjennomforing> =
-        ArenaEventHelpers.decodeEvent(payload)
+    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
+        val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(payload)
 
-    override fun resolveKey(event: ArenaEvent<ArenaTiltaksgjennomforing>): String {
-        return event.data.TILTAKGJENNOMFORING_ID.toString()
+        return ArenaEvent(
+            arenaTable = decoded.table,
+            arenaId = decoded.data.TILTAKGJENNOMFORING_ID.toString(),
+            payload = payload,
+            status = ArenaEvent.ConsumptionStatus.Pending,
+        )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent<ArenaTiltaksgjennomforing>) {
-        val method = if (event.operation == ArenaOperation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.sendRequest(method, "/api/v1/arena/tiltaksgjennomforing", event.data.toAdapterTiltaksgjennomforing())
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+        val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
+
+        ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
+            ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
+        }
+
+        val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
+            ArenaEntityMapping.Tiltaksgjennomforing(event.arenaTable, event.arenaId, UUID.randomUUID())
+        )
+
+        val tiltaksgjennomforing = decoded.data
+            .toTiltaksgjennomforing(mapping.entityId)
+            .let { tiltaksgjennomforinger.upsert(it) }
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .bind()
+
+        // TODO: oppdater til ny api-modell
+        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.request(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .bind()
     }
 
-    private fun ArenaTiltaksgjennomforing.toAdapterTiltaksgjennomforing() = AdapterTiltaksgjennomforing(
-        id = this.TILTAKGJENNOMFORING_ID,
-        navn = this.LOKALTNAVN,
-        tiltakskode = this.TILTAKSKODE,
-        fraDato = ProcessingUtils.getArenaDateFromTo(this.DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(this.DATO_TIL),
-        arrangorId = this.ARBGIV_ID_ARRANGOR,
-        sakId = this.SAK_ID,
-        apentForInnsok = this.STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
-        antallPlasser = this.ANTALL_DELTAKERE,
+    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
+        return LocalDateTime.parse(data.REG_DATO, ArenaDateTimeFormatter).isAfter(AktivitetsplanenLaunchDate)
+    }
+
+    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Tiltaksgjennomforing(
+        id = id,
+        tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
+        sakId = SAK_ID,
+        tiltakskode = TILTAKSKODE,
+        arrangorId = ARBGIV_ID_ARRANGOR,
+        navn = LOKALTNAVN,
+        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
+        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
+        apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
+        antallPlasser = ANTALL_DELTAKERE,
     )
 }

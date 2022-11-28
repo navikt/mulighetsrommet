@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.client.*
-import no.nav.mulighetsrommet.api.setup.http.baseClient
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
@@ -13,24 +11,30 @@ data class Config(
 
 data class AppConfig(
     val database: DatabaseConfig,
+    val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
     val sentry: SentryConfig? = null,
     val swagger: SwaggerConfig? = null,
-    val veilarboppfolgingConfig: VeilarboppfolgingConfig,
-    val veilarbvedtaksstotteConfig: VeilarbvedtaksstotteConfig,
-    val veilarbpersonConfig: VeilarbpersonConfig,
-    val veilarbdialogConfig: VeilarbdialogConfig,
-    val veilarbveilederConfig: VeilarbveilederConfig,
-    val veilarbarenaConfig: VeilarbvarenaConfig,
-    val poaoGcpProxy: PoaoGcpProxyConfig,
-    val poaoTilgang: PoaoTilgangConfig,
-    val amtEnhetsregister: AmtEnhetsregisterConfig,
-    val arenaOrdsProxy: ArenaOrdsProxyConfig
+    val veilarboppfolgingConfig: ServiceClientConfig,
+    val veilarbvedtaksstotteConfig: ServiceClientConfig,
+    val veilarbpersonConfig: ServiceClientConfig,
+    val veilarbdialogConfig: ServiceClientConfig,
+    val veilarbveilederConfig: ServiceClientConfig,
+    val veilarbarenaConfig: ServiceClientConfig,
+    val poaoGcpProxy: ServiceClientConfig,
+    val poaoTilgang: ServiceClientConfig,
+    val amtEnhetsregister: ServiceClientConfig,
+    val arenaOrdsProxy: ServiceClientConfig
 )
 
 data class AuthConfig(
     val azure: AuthProvider
+)
+
+data class KafkaConfig(
+    val producerId: String,
+    val brokerUrl: String? = null
 )
 
 data class AuthProvider(
@@ -50,58 +54,7 @@ data class SwaggerConfig(
     val enable: Boolean
 )
 
-data class VeilarboppfolgingConfig(
-    val url: String,
-    val scope: String,
-    val httpClient: HttpClient = baseClient
-)
-
-data class VeilarbvedtaksstotteConfig(
-    val url: String,
-    val scope: String,
-    val httpClient: HttpClient = baseClient
-)
-
-data class VeilarbpersonConfig(
-    val url: String,
-    val scope: String,
-    val httpClient: HttpClient = baseClient
-)
-
-data class VeilarbdialogConfig(
-    val url: String,
-    val scope: String,
-    val httpClient: HttpClient = baseClient
-)
-
-data class VeilarbveilederConfig(
-    val url: String,
-    val scope: String,
-    val httpClient: HttpClient = baseClient
-)
-
-data class VeilarbvarenaConfig(
-    val url: String,
-    val scope: String,
-    val httpClient: HttpClient = baseClient
-)
-
-data class PoaoGcpProxyConfig(
-    val url: String,
-    val scope: String
-)
-
-data class PoaoTilgangConfig(
-    val url: String,
-    val scope: String
-)
-
-data class AmtEnhetsregisterConfig(
-    val url: String,
-    val scope: String
-)
-
-data class ArenaOrdsProxyConfig(
+data class ServiceClientConfig(
     val url: String,
     val scope: String
 )

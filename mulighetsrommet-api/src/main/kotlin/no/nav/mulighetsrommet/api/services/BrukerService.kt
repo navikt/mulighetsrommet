@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.ManuellStatusDTO
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsenhet
+import no.nav.poao_tilgang.client.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class BrukerService(
@@ -22,35 +23,31 @@ class BrukerService(
         .maximumSize(500)
         .build()
 
-    suspend fun hentBrukerdata(fnr: String, accessToken: String?): Brukerdata {
-        val cachedBrukerdata = brukerCache.getIfPresent(fnr)
+    suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
+        return CacheUtils.tryCacheFirstNotNull(brukerCache, fnr) {
+            val oppfolgingsstatus = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
+            val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
+            val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
+            val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
 
-        if (cachedBrukerdata != null) return cachedBrukerdata
-
-        val oppfolgingsstatus = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
-        val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
-        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
-        val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
-
-        val brukerdata = Brukerdata(
-            fnr = fnr,
-            oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
-            servicegruppe = oppfolgingsstatus?.servicegruppe,
-            innsatsgruppe = sisteVedtak?.innsatsgruppe,
-            fornavn = personInfo?.fornavn,
-            manuellStatus = manuellStatus
-        )
-        brukerCache.put(fnr, brukerdata)
-        return brukerdata
+            Brukerdata(
+                fnr = fnr,
+                oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet,
+                servicegruppe = oppfolgingsstatus?.servicegruppe,
+                innsatsgruppe = sisteVedtak?.innsatsgruppe,
+                fornavn = personInfo?.fornavn,
+                manuellStatus = manuellStatus
+            )
+        }
     }
-}
 
-@Serializable
-data class Brukerdata(
-    val fnr: String,
-    val innsatsgruppe: Innsatsgruppe?,
-    val oppfolgingsenhet: Oppfolgingsenhet?,
-    val servicegruppe: String?,
-    val fornavn: String?,
-    val manuellStatus: ManuellStatusDTO?
-)
+    @Serializable
+    data class Brukerdata(
+        val fnr: String,
+        val innsatsgruppe: Innsatsgruppe?,
+        val oppfolgingsenhet: Oppfolgingsenhet?,
+        val servicegruppe: String?,
+        val fornavn: String?,
+        val manuellStatus: ManuellStatusDTO?
+    )
+}

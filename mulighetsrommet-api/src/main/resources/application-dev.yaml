@@ -11,6 +11,9 @@ app:
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
 
+  kafka:
+    producerId: "mulighetsrommet-api-kafka-producer.v1"
+
   auth:
     azure:
       issuer: ${AZURE_OPENID_CONFIG_ISSUER}

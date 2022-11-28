@@ -10,6 +10,7 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {
@@ -62,6 +63,20 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
         ?: throw StatusException(HttpStatusCode.Forbidden, "NAVident mangler i JWTPrincipal")
 }
 
+/**
+ * Gets a NavAnsattAzureId from the underlying [JWTPrincipal], or throws a [StatusException]
+ * if the claim is not available.
+ */
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
+    return call.principal<JWTPrincipal>()
+        ?.get("oid")
+        ?.let { UUID.fromString(it) }
+        ?: throw StatusException(HttpStatusCode.Forbidden, "NavAnsattAzureId mangler i JWTPrincipal")
+}
+
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNorskIdent(): String {
-    return call.request.header("nav-norskident") ?: ""
+    return call.request.header("nav-norskident") ?: throw StatusException(
+        HttpStatusCode.BadRequest,
+        "nav-norskident mangler i headers"
+    )
 }

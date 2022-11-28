@@ -3,10 +3,14 @@ package no.nav.mulighetsrommet.api.plugins
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
 import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClient
@@ -25,10 +29,13 @@ import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.repositories.ArenaRepository
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
+import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -61,52 +68,77 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
 private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
-        single<Database> { FlywayDatabaseAdapter(databaseConfig) }
+        single<Database> { FlywayDatabaseAdapter(databaseConfig, FlywayDatabaseAdapter.InitializationStrategy.Migrate) }
     }
+}
+
+private fun kafka(kafkaConfig: KafkaConfig): KafkaProducerService<String, String> {
+    if (NaisEnv.current().isLocal()) {
+        return KafkaProducerService(
+            KafkaProducerClientBuilder.builder<String, String>()
+                .withProperties(
+                    KafkaPropertiesBuilder.producerBuilder()
+                        .withBrokerUrl(kafkaConfig.brokerUrl)
+                        .withBaseProperties()
+                        .withProducerId(kafkaConfig.producerId)
+                        .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
+                        .build()
+                )
+                .build()
+        )
+    }
+
+    return KafkaProducerService(
+        KafkaProducerClientBuilder.builder<String, String>()
+            .withProperties(KafkaPropertiesPreset.aivenDefaultProducerProperties(kafkaConfig.producerId))
+            .build()
+    )
 }
 
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
     return VeilarbvedtaksstotteClientImpl(
         config.veilarbvedtaksstotteConfig.url,
-        tokenClientProvider(config),
-        config.veilarbvedtaksstotteConfig.scope,
-        config.veilarbvedtaksstotteConfig.httpClient
+        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarbvedtaksstotteConfig.scope, accessToken) }
     )
 }
 
 private fun veilarboppfolging(config: AppConfig): VeilarboppfolgingClient {
     return VeilarboppfolgingClientImpl(
         config.veilarboppfolgingConfig.url,
-        tokenClientProvider(config),
-        config.veilarboppfolgingConfig.scope,
-        config.veilarboppfolgingConfig.httpClient
+        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarboppfolgingConfig.scope, accessToken) }
     )
 }
 
 private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
     return VeilarbpersonClientImpl(
         config.veilarbpersonConfig.url,
-        tokenClientProvider(config),
-        config.veilarbpersonConfig.scope,
-        config.veilarbpersonConfig.httpClient
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarbpersonConfig.scope,
+                accessToken
+            )
+        }
+
     )
 }
 
 private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
     return VeilarbdialogClientImpl(
         config.veilarbdialogConfig.url,
-        tokenClientProvider(config),
-        config.veilarbdialogConfig.scope,
-        config.veilarbdialogConfig.httpClient
+        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarbdialogConfig.scope, accessToken) }
     )
 }
 
 private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     return VeilarbveilederClientImpl(
         config.veilarbveilederConfig.url,
-        tokenClientProvider(config),
-        config.veilarbveilederConfig.scope,
-        config.veilarbveilederConfig.httpClient
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarbveilederConfig.scope,
+                accessToken
+            )
+        }
+
     )
 }
 
@@ -116,29 +148,26 @@ private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
         tokenClientProviderForMachineToMachine(config),
         tokenClientProvider(config),
         config.veilarbarenaConfig.scope,
-        config.poaoGcpProxy.scope,
-        config.veilarbarenaConfig.httpClient
+        config.poaoGcpProxy.scope
     )
 }
 
 private fun arenaordsproxy(config: AppConfig): ArenaOrdsProxyClient {
     return ArenaOrdsProxyClientImpl(
         baseUrl = config.arenaOrdsProxy.url,
-        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
-        scope = config.arenaOrdsProxy.scope
+        machineToMachineTokenClient = { tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(config.arenaOrdsProxy.scope) }
     )
 }
 
 private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
     return AmtEnhetsregisterClientImpl(
         baseUrl = config.amtEnhetsregister.url,
-        machineToMachineTokenClient = tokenClientProviderForMachineToMachine(config),
-        scope = config.amtEnhetsregister.scope
+        machineToMachineTokenClient = { tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(config.amtEnhetsregister.scope) }
     )
 }
 
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
-    return when (erLokalUtvikling()) {
+    return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
@@ -149,7 +178,7 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
 }
 
 private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
-    return when (erLokalUtvikling()) {
+    return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
@@ -172,7 +201,7 @@ private fun services(
     veilarbveilerClient: VeilarbveilederClient,
     veilarbarenaClient: VeilarbarenaClient,
     arenaOrdsProxyClient: ArenaOrdsProxyClient,
-    amtEnhetsregisterClient: AmtEnhetsregisterClient,
+    amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
@@ -192,8 +221,9 @@ private fun services(
     }
     single { DialogService(veilarbdialogClient) }
     single {
-        VeilederService(
-            veilarbveilederClient = veilarbveilerClient
+        AnsattService(
+            veilarbveilederClient = veilarbveilerClient,
+            poaoTilgangService = get()
         )
     }
     single {
@@ -204,10 +234,7 @@ private fun services(
         PoaoTilgangService(poaoTilgangClient)
     }
     single { DelMedBrukerService(get()) }
-}
-
-private fun erLokalUtvikling(): Boolean {
-    return System.getenv("NAIS_CLUSTER_NAME") == null
+    single { kafka(appConfig.kafka) }
 }
 
 private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator

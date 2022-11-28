@@ -1,3 +1,14 @@
+before('Start server', () => {
+  cy.server();
+  cy.visit('/');
+  cy.url().should('include', '/');
+  Cypress.on('uncaught:exception', err => {
+    console.log(err);
+    return false;
+  });
+
+  cy.getByTestId('tiltakstype-oversikt').children().should('have.length.greaterThan', 1);
+});
 describe('Tiltaksgjennomføringsoversikt', () => {
   let antallTiltak;
   it('Sjekk at det er tiltaksgjennomføringer i oversikten', () => {
@@ -192,21 +203,5 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå tilbake til tiltaksoversikten', () => {
     cy.tilbakeTilListevisning();
     cy.getByTestId('oversikt_tiltaksgjennomforinger').children().children().should('have.length.greaterThan', 1);
-  });
-});
-
-describe('Preview-funksjonalitet for redaktører', () => {
-  before(() => {
-    cy.visit('/preview/11888');
-  });
-  it('Skal vise en warning på siden om at man er i Preview-modus', () => {
-    cy.getByTestId('sanity-preview-alert').should('exist');
-  });
-
-  it('Skal kunne åpne del med bruker, men send via Dialog-knapp er disabled', () => {
-    cy.getByTestId('deleknapp').should('exist').click();
-    cy.getByTestId('modal_btn-send').should('be.disabled');
-    cy.getByTestId('alert-preview-del-med-bruker').should('exist');
-    cy.getByTestId('modal_btn-cancel').click();
   });
 });

@@ -15,8 +15,4 @@ export default defineConfig({
     },
     baseUrl: 'http://localhost:3000',
   },
-  // component: {
-  //   setupNodeEvents(on, config) {},
-  //   specPattern: 'src/.*/__tests__/.*spec.tsx',
-  // },
 });

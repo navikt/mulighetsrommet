@@ -20,57 +20,29 @@ fun <R> withMulighetsrommetApp(
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createApiDatabaseTestSchema(),
     auth = createAuthConfig(oauth),
+    kafka = createKafkaConfig(),
     sanity = createSanityConfig(),
-    veilarboppfolgingConfig = createVeilarboppfolgingConfig(),
-    veilarbvedtaksstotteConfig = createVeilarbvedsstotteConfig(),
-    veilarbpersonConfig = createVeilarbpersonConfig(),
-    veilarbveilederConfig = createVeilarbveilederConfig(),
-    veilarbdialogConfig = createVeilarbdialogConfig(),
-    veilarbarenaConfig = createVeilarbarenaConfig(),
-    poaoGcpProxy = createPoaoGcpProxyConfig(),
-    poaoTilgang = PoaoTilgangConfig("", ""),
-    amtEnhetsregister = createAmtEnhetsregisterConfig(),
-    arenaOrdsProxy = createArenaOrdsProxyConfig()
+    veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
+    veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
+    veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
+    veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
+    veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
+    veilarbarenaConfig = createServiceClientConfig("veilarbarena"),
+    poaoGcpProxy = createServiceClientConfig("poaogcpproxy"),
+    poaoTilgang = createServiceClientConfig("poaotilgang"),
+    amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
+    arenaOrdsProxy = createServiceClientConfig("arenaordsproxy")
 )
 
-fun createVeilarbarenaConfig(): VeilarbvarenaConfig {
-    return VeilarbvarenaConfig(
-        url = "",
-        scope = ""
+fun createKafkaConfig(): KafkaConfig {
+    return KafkaConfig(
+        "producer-id"
     )
 }
 
-fun createVeilarboppfolgingConfig(): VeilarboppfolgingConfig {
-    return VeilarboppfolgingConfig(
-        url = "",
-        scope = ""
-    )
-}
-
-fun createVeilarbvedsstotteConfig(): VeilarbvedtaksstotteConfig {
-    return VeilarbvedtaksstotteConfig(
-        url = "",
-        scope = ""
-    )
-}
-
-fun createVeilarbpersonConfig(): VeilarbpersonConfig {
-    return VeilarbpersonConfig(
-        url = "",
-        scope = ""
-    )
-}
-
-fun createVeilarbveilederConfig(): VeilarbveilederConfig {
-    return VeilarbveilederConfig(
-        url = "",
-        scope = ""
-    )
-}
-
-fun createVeilarbdialogConfig(): VeilarbdialogConfig {
-    return VeilarbdialogConfig(
-        url = "",
+fun createServiceClientConfig(url: String): ServiceClientConfig {
+    return ServiceClientConfig(
+        url = url,
         scope = ""
     )
 }
@@ -97,26 +69,5 @@ fun createSanityConfig(): SanityConfig {
         projectId = "",
         authToken = "",
         dataset = ""
-    )
-}
-
-fun createPoaoGcpProxyConfig(): PoaoGcpProxyConfig {
-    return PoaoGcpProxyConfig(
-        url = "",
-        scope = ""
-    )
-}
-
-fun createAmtEnhetsregisterConfig(): AmtEnhetsregisterConfig {
-    return AmtEnhetsregisterConfig(
-        url = "",
-        scope = ""
-    )
-}
-
-fun createArenaOrdsProxyConfig(): ArenaOrdsProxyConfig {
-    return ArenaOrdsProxyConfig(
-        url = "",
-        scope = ""
     )
 }

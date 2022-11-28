@@ -21,7 +21,7 @@ class TiltakstypeService(private val db: Database) {
         innsatsgrupper: List<Int>? = null,
         search: String? = null,
         paginationParams: PaginationParams = PaginationParams()
-    ): List<Tiltakstype> {
+    ): Pair<Int, List<Tiltakstype>> {
         val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 
         val parameters = mapOf(
@@ -33,7 +33,7 @@ class TiltakstypeService(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato 
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato, count(*) OVER() AS full_count
             from tiltakstype
         """
             .where(innsatsgrupperQuery, "(innsatsgruppe_id = any(:innsatsgrupper))")
@@ -49,8 +49,13 @@ class TiltakstypeService(private val db: Database) {
         val result = queryOf(
             query,
             parameters
-        ).map { DatabaseMapper.toTiltakstype(it) }.asList
-        return db.run(result)
+        ).map {
+            it.int("full_count") to DatabaseMapper.toTiltakstype(it)
+        }.asList
+        val results = db.run(result)
+        val tiltakstyper = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+        return Pair(totaltAntall, tiltakstyper)
     }
 
     private fun List<Int>.toPostgresIntArray() = if (isNullOrEmpty()) null else db.createArrayOf("int4", this)
@@ -67,5 +72,13 @@ class TiltakstypeService(private val db: Database) {
                 this.where(v, query)
             }
         }
+    }
+
+    fun getTiltakstypeById(id: Int): Tiltakstype? {
+        val query = """
+            select id, navn, innsatsgruppe_id, sanity_id, tiltakskode, fra_dato, til_dato from tiltakstype where id = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        return db.run(queryResult)
     }
 }

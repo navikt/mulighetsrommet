@@ -62,7 +62,7 @@ object DatabaseMapper {
     )
 
     fun toAdapterTiltaksgjennomforing(row: Row): AdapterTiltaksgjennomforing = AdapterTiltaksgjennomforing(
-        id = row.int("arena_id"),
+        tiltaksgjennomforingId = row.int("arena_id"),
         navn = row.stringOrNull("navn"),
         tiltakskode = row.string("tiltakskode"),
         fraDato = row.localDateTimeOrNull("fra_dato"),
@@ -74,7 +74,7 @@ object DatabaseMapper {
     )
 
     fun toAdapterTiltakdeltaker(row: Row): AdapterTiltakdeltaker = AdapterTiltakdeltaker(
-        id = row.int("arena_id"),
+        tiltaksdeltakerId = row.int("arena_id"),
         tiltaksgjennomforingId = row.int("tiltaksgjennomforing_id"),
         personId = row.int("person_id"),
         fraDato = row.localDateTimeOrNull("fra_dato"),

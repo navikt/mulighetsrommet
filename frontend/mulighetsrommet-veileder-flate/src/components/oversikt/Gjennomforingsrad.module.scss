@@ -3,7 +3,6 @@
   width: 100%;
   background-color: white;
   margin: 0.5rem 0;
-  padding: 5px;
   border-radius: 4px;
   font-size: 16px;
   padding: 12px;
@@ -18,7 +17,7 @@
   flex-direction: column;
 }
 
-.gjennomforingContainer {
+.gjennomforing_container {
   display: grid;
   grid-template-columns: 20% 1fr 1%;
   grid-template-areas: 'navn metadata ikon';
@@ -27,7 +26,7 @@
   gap: 2rem;
   justify-content: space-between;
 
-  @media screen and (max-width: 1000px) {
+  @media (width <= 1000px) {
     align-items: flex-start;
     justify-content: flex-start;
     grid-template-rows: auto;
@@ -51,11 +50,11 @@
 
 .infogrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 150px));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 10rem));
+  gap: 1rem;
   justify-content: space-evenly;
 
-  @media screen and (max-width: 1000px) {
+  @media (width <= 1000px) {
     gap: 5px;
     justify-content: initial;
   }

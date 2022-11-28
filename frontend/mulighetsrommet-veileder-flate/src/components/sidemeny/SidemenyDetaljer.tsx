@@ -4,6 +4,7 @@ import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjenno
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
+import { formaterDato } from '../../utils/Utils';
 
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingById();
@@ -58,8 +59,7 @@ const SidemenyDetaljer = () => {
 
 function resolveOppstart({ oppstart, oppstartsdato }: Tiltaksgjennomforing) {
   if (oppstart === 'midlertidig_stengt') return 'Midlertidig stengt';
-
-  return oppstart === 'dato' && oppstartsdato ? new Intl.DateTimeFormat().format(new Date(oppstartsdato)) : 'Løpende';
+  return oppstart === 'dato' && oppstartsdato ? formaterDato(oppstartsdato) : 'Løpende';
 }
 
 export default SidemenyDetaljer;

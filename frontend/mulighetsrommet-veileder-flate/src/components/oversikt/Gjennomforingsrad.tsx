@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { Oppstart, Tiltaksgjennomforing } from '../../core/api/models';
@@ -6,6 +7,7 @@ import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
 import { Next } from '@navikt/ds-icons';
+import { formaterDato } from '../../utils/Utils';
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -14,13 +16,9 @@ interface Props {
 const visOppstartsdato = (oppstart: Oppstart, oppstartsdato?: string) => {
   switch (oppstart) {
     case 'dato':
-      return new Date(oppstartsdato!).toLocaleString('no-NO', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
+      return formaterDato(oppstartsdato!);
     case 'lopende':
-      return 'Løpende';
+      return 'Løpende oppstart';
     case 'midlertidig_stengt':
       return 'Midlertidig stengt';
   }
@@ -43,10 +41,9 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
     <li className={styles.list_element}>
       <Lenke
         to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
-        isInline
         data-testid="lenke_tiltaksgjennomforing"
       >
-        <div className={styles.gjennomforingContainer}>
+        <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
             <span title={tiltaksgjennomforingNavn} className={classNames(styles.truncate, styles.as_link)}>
               {tiltaksgjennomforingNavn}

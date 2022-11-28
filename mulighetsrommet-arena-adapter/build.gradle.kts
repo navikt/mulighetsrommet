@@ -1,11 +1,11 @@
 plugins {
     application
+    jacoco
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.flywaydb.flyway")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
-    id("com.github.node-gradle.node") version "3.4.0"
 }
 
 application {
@@ -27,30 +27,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
-node {
-    download.set(false)
-    workDir.set(File("src/web"))
-    npmWorkDir.set(File("src/web"))
-    nodeProjectDir.set(File("src/web"))
-}
-
-val npmBuild = tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmBuild") {
-    dependsOn(tasks.npmInstall)
-    npmCommand.set(listOf("run", "build"))
-    outputs.dir("src/web/dist")
-}
-
-tasks.withType<ProcessResources> {
-    dependsOn(npmBuild)
-    from("src/web/dist") {
-        into("web")
-    }
-}
-
-tasks.build {
-    dependsOn(npmBuild)
-}
-
 repositories {
     maven {
         url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
@@ -69,6 +45,8 @@ dependencies {
     implementation(project(":common:ktor"))
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
+
+    implementation("io.arrow-kt:arrow-core:1.1.2")
 
     val ktorVersion = "2.1.1"
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")

@@ -4,7 +4,7 @@ import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
-import useTiltaksgjennomforing from '../../core/api/queries/useTiltaksgjennomforing';
+import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
@@ -23,7 +23,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const [_, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
 
-  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforing();
+  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforinger();
   const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
 
   useEffect(() => {
@@ -34,7 +34,11 @@ const Tiltaksgjennomforingsoversikt = () => {
   }, [tiltaksgjennomforinger]);
 
   if (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching) {
-    return <Loader size="xlarge" />;
+    return (
+      <div className={styles.filter_loader}>
+        <Loader size="xlarge" />
+      </div>
+    );
   }
 
   if (isError) {
@@ -131,7 +135,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <>
       <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
           <Heading level="1" size="xsmall" data-testid="antall-tiltak-top">
@@ -164,7 +168,7 @@ const Tiltaksgjennomforingsoversikt = () => {
           </>
         ) : null}
       </div>
-    </div>
+    </>
   );
 };
 
