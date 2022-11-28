@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
@@ -116,7 +116,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 val engine = MockEngine { respondOk() }
                 val consumer = createConsumer(database.db, engine)
 
-                val gjennomforing = AdapterTiltaksgjennomforing(
+                val gjennomforing = Tiltaksgjennomforing(
                     tiltaksgjennomforingId = 3780431,
                     navn = "Testenavn",
                     tiltakskode = "INDOPPFAG",
@@ -132,14 +132,14 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
-                    decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe gjennomforing
+                    decodeRequestBody<Tiltaksgjennomforing>() shouldBe gjennomforing
                 }
 
                 consumer.processEvent(createEvent(Delete))
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
-                    decodeRequestBody<AdapterTiltaksgjennomforing>() shouldBe gjennomforing
+                    decodeRequestBody<Tiltaksgjennomforing>() shouldBe gjennomforing
                 }
             }
 

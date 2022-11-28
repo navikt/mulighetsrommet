@@ -19,7 +19,8 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import java.util.*
 
 class TiltakEndretConsumerTest : FunSpec({
 
@@ -59,9 +60,9 @@ class TiltakEndretConsumerTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val tiltakstype = AdapterTiltak(
+            val tiltakstype = Tiltakstype(
+                id = UUID.randomUUID(),
                 navn = "Oppfølging",
-                innsatsgruppe = 2,
                 tiltakskode = "INDOPPFAG",
             )
 
@@ -69,14 +70,14 @@ class TiltakEndretConsumerTest : FunSpec({
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
-                decodeRequestBody<AdapterTiltak>() shouldBe tiltakstype
+                decodeRequestBody<Tiltakstype>() shouldBe tiltakstype
             }
 
             consumer.processEvent(createEvent(Delete))
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Delete
-                decodeRequestBody<AdapterTiltak>() shouldBe tiltakstype
+                decodeRequestBody<Tiltakstype>() shouldBe tiltakstype
             }
         }
 
