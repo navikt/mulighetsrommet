@@ -1,4 +1,4 @@
-export const mock_tiltakstyper = {
+export const mockTiltakstyper = {
   pagination: {
     totalCount: 104,
     currentPage: 1,

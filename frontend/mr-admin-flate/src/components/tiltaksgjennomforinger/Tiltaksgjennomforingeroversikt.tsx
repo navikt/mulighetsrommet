@@ -10,7 +10,7 @@ export function Tiltaksgjennomforingeroversikt() {
   if (!data) {
     return null;
   }
-  const { data: tiltaksgjennomforinger, pagination: paginering } = data;
+  const { data: tiltaksgjennomforinger } = data;
 
   return (
     <ul className={styles.oversikt}>
