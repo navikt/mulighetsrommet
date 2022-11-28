@@ -4,24 +4,11 @@ import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import { Pagination } from "@navikt/ds-react";
 import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
-import { UseQueryResult } from "@tanstack/react-query";
-import { PaginertTiltaksgjennomforing } from "../../../../mulighetsrommet-api-client";
+import { PAGE_SIZE } from "../../constants";
 
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforing();
   const [page, setPage] = useAtom(paginationAtom);
-  /*const [queryResult, setData] =
-    useState<UseQueryResult<PaginertTiltaksgjennomforing>>();
-  setData(useTiltaksgjennomforing(page));*/
-  /*useEffect(() => {
-    const fetchData = async () => {
-      const data = await useTiltaksgjennomforing(page);
-      setData(data);
-    };
-    fetchData();
-  }, [page]);
-*/
   if (isLoading) {
     return null;
   }
@@ -45,7 +32,7 @@ export function Tiltaksgjennomforingeroversikt() {
         data-testid="paginering"
         page={page}
         onPageChange={setPage}
-        count={25}
+        count={Math.ceil((paginering?.totalCount ?? PAGE_SIZE) / PAGE_SIZE)}
         data-version="v1"
       />
     </>

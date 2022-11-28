@@ -408,15 +408,12 @@ components:
     Pagination:
       type: object
       properties:
-        pagination:
-          type: object
-          properties:
-            totalCount:
-              type: integer
-            currentPage:
-              type: integer
-            pageSize:
-              type: integer
+        totalCount:
+          type: integer
+        currentPage:
+          type: integer
+        pageSize:
+          type: integer
 
     PaginertTiltakstype:
       type: object
