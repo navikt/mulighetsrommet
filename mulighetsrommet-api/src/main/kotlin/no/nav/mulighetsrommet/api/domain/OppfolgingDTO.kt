@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Oppfolgingsstatus(
-    val oppfolgingsenhet: Oppfolgingsenhet?
+    val oppfolgingsenhet: Oppfolgingsenhet?,
+    val servicegruppe: String?
 )
 
 @Serializable

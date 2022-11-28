@@ -27,14 +27,15 @@ class BrukerService(
 
         if (cachedBrukerdata != null) return cachedBrukerdata
 
-        val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
+        val oppfolgingsstatus = veilarboppfolgingClient.hentOppfolgingsstatus(fnr, accessToken)
         val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
         val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
         val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
 
         val brukerdata = Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet,
+            oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
+            servicegruppe = oppfolgingsstatus?.servicegruppe,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
             fornavn = personInfo?.fornavn,
             manuellStatus = manuellStatus
@@ -49,6 +50,7 @@ data class Brukerdata(
     val fnr: String,
     val innsatsgruppe: Innsatsgruppe?,
     val oppfolgingsenhet: Oppfolgingsenhet?,
+    val servicegruppe: String?,
     val fornavn: String?,
     val manuellStatus: ManuellStatusDTO?
 )

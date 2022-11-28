@@ -22,6 +22,8 @@ import { useBrukerHarRettPaaTiltak } from '../../hooks/useUserHarRettPaaTiltak';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
+import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -123,7 +125,8 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             tekst="Tilbake til tiltaksoversikten"
           />
         )}
-        {/* <BrukerKvalifisererIkkeVarsel /> */}
+        <BrukerKvalifisererIkkeVarsel />
+        <BrukerHarIkke14aVedtakVarsel />
         <div className={styles.tiltakstype_detaljer}>
           <div className={styles.tiltakstype_header_maksbredde}>
             <TiltaksgjennomforingsHeader />
