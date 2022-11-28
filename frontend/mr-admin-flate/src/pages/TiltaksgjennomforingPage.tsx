@@ -1,8 +1,9 @@
-import { TextField } from "@navikt/ds-react";
+import { Alert, Tag, TextField } from "@navikt/ds-react";
 import { Form, Formik, useField } from "formik";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 
 const Schema = z.object({
   tiltakgjennomforingId: z.string({
@@ -40,11 +41,39 @@ const Tekstfelt = ({
 };
 
 export function TiltaksgjennomforingPage() {
+  const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
+
+  if (optionalTiltaksgjennomforing.isFetching) {
+    return null;
+  }
+
+  if (!optionalTiltaksgjennomforing.data) {
+    return (
+      <Alert variant="warning">Klarte ikke finne tiltaksgjennomføring</Alert>
+    );
+  }
+
+  const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
     <div>
       <Link to="/oversikt">Tilbake til oversikt</Link>
-      <h1>Opprett tiltaksgjennomføring</h1>
-      <p>Her kan du opprette en gjennomføring</p>
+      <p>
+        <Tag variant="info">{tiltaksgjennomforing.tilgjengelighet}</Tag>
+      </p>
+      <h1>
+        {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
+      </h1>
+      <dl>
+        <dt>År:</dt>
+        <dd>{tiltaksgjennomforing.aar}</dd>
+        <dt>Tiltakskode</dt>
+        <dd>{tiltaksgjennomforing.tiltakskode}</dd>
+      </dl>
+
+      {/**
+       * TODO Implementere skjema for opprettelse av tiltaksgjennomføring
+       */}
+      {/* <p>Her kan du opprette en gjennomføring</p>
       <Formik<Values>
         initialValues={{
           tiltakgjennomforingId: "",
@@ -66,10 +95,10 @@ export function TiltaksgjennomforingPage() {
               label="ID for tiltaksgjennomføring"
             />
             <Tekstfelt name="sakId" type="text" label="ID for sak" />
-            <button type="submit">Submit</button>
+            <button type="submit">Opprett</button>
           </Form>
         )}
-      </Formik>
+      </Formik> */}
     </div>
   );
 }

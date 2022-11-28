@@ -1,9 +1,9 @@
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
+import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 
 export function Tiltaksgjennomforingeroversikt() {
-  const { data, isLoading } = useTiltaksgjennomforing();
+  const { data, isLoading } = useTiltaksgjennomforinger();
   if (isLoading) {
     return null;
   }
