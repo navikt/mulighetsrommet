@@ -68,14 +68,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingService.getTiltaksgjennomforinger().second shouldBe listOf()
         }
 
-        test("should return empty result when tiltak are missing tiltaksnummer") {
+        test("should get tiltak by id") {
             arenaService.createOrUpdate(tiltak1)
             arenaService.createOrUpdate(tiltak2)
-
-            tiltaksgjennomforingService.getTiltaksgjennomforinger().second shouldBe listOf()
-        }
-
-        test("should get tiltak by id") {
             tiltaksgjennomforingService.getTiltaksgjennomforingById(tiltak1.id) shouldBe tiltak1
         }
 
@@ -205,7 +200,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             arenaService.createOrUpdate(
                 Tiltaksgjennomforing(
                     id = UUID.randomUUID(),
-                    navn = "Trening$it",
+                    navn = "$it",
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
                     virksomhetsnr = "123456789"
@@ -219,8 +214,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltaksgjennomforingService.getTiltaksgjennomforinger()
 
             tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
-            tiltaksgjennomforinger.first().id shouldBe 1
-            tiltaksgjennomforinger.last().id shouldBe 50
+            tiltaksgjennomforinger.first().navn shouldBe "1"
+            tiltaksgjennomforinger.last().navn shouldBe "50"
 
             totalCount shouldBe 105
         }
@@ -235,8 +230,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 )
 
             tiltaksgjennomforinger.size shouldBe 20
-            tiltaksgjennomforinger.first().id shouldBe 61
-            tiltaksgjennomforinger.last().id shouldBe 80
+            tiltaksgjennomforinger.first().navn shouldBe "61"
+            tiltaksgjennomforinger.last().navn shouldBe "80"
 
             totalCount shouldBe 105
         }
@@ -249,8 +244,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     )
                 )
             tiltaksgjennomforinger.size shouldBe 5
-            tiltaksgjennomforinger.first().id shouldBe 101
-            tiltaksgjennomforinger.last().id shouldBe 105
+            tiltaksgjennomforinger.first().navn shouldBe "101"
+            tiltaksgjennomforinger.last().navn shouldBe "105"
 
             totalCount shouldBe 105
         }
@@ -263,8 +258,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     )
                 )
             tiltaksgjennomforinger.size shouldBe 105
-            tiltaksgjennomforinger.first().id shouldBe 1
-            tiltaksgjennomforinger.last().id shouldBe 105
+            tiltaksgjennomforinger.first().navn shouldBe "1"
+            tiltaksgjennomforinger.last().navn shouldBe "105"
 
             totalCount shouldBe 105
         }

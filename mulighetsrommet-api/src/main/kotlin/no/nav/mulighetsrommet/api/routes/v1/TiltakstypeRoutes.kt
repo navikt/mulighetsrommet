@@ -26,11 +26,11 @@ fun Route.tiltakstypeRoutes() {
         get() {
             val search = call.request.queryParameters["search"]
 
-            val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
+//            val innsatsgrupper = call.request.queryParameters.parseList("innsatsgrupper").map { Integer.parseInt(it) }
 
             val paginationParams = getPaginationParams()
 
-            val (totalCount, items) = tiltakstypeService.getTiltakstyper(innsatsgrupper, search, paginationParams)
+            val (totalCount, items) = tiltakstypeService.getTiltakstyper(search, paginationParams)
 
             call.respond(
                 PaginatedResponse(

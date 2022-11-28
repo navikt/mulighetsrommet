@@ -51,13 +51,13 @@ class TiltakstypeServiceTest : FunSpec({
             tiltakstypeService.getTiltakstyper().second shouldHaveSize 2
         }
 
-        test("should filter tiltakstyper by innsatsgruppe") {
-            tiltakstypeService.getTiltakstyper(innsatsgrupper = listOf(1)).second shouldHaveSize 1
-            tiltakstypeService.getTiltakstyper(
-                innsatsgrupper = listOf(1, 2)
-            ).second shouldHaveSize 2
-            tiltakstypeService.getTiltakstyper(innsatsgrupper = listOf(3)).second shouldHaveSize 0
-        }
+//        test("should filter tiltakstyper by innsatsgruppe") {
+//            tiltakstypeService.getTiltakstyper(innsatsgrupper = listOf(1)).second shouldHaveSize 1
+//            tiltakstypeService.getTiltakstyper(
+//                innsatsgrupper = listOf(1, 2)
+//            ).second shouldHaveSize 2
+//            tiltakstypeService.getTiltakstyper(innsatsgrupper = listOf(3)).second shouldHaveSize 0
+//        }
 
         test("should filter tiltakstyper by search") {
             tiltakstypeService.getTiltakstyper(search = "Førerhund").second shouldHaveSize 0
@@ -78,8 +78,8 @@ class TiltakstypeServiceTest : FunSpec({
             arenaService.createOrUpdate(
                 Tiltakstype(
                     id = UUID.randomUUID(),
-                    navn = "Oppfølging$it",
-                    tiltakskode = "ABC$it"
+                    navn = "$it",
+                    tiltakskode = "$it"
                 )
             )
         }
@@ -89,8 +89,8 @@ class TiltakstypeServiceTest : FunSpec({
                 tiltakstypeService.getTiltakstyper()
 
             tiltakstyper.size shouldBe DEFAULT_PAGINATION_LIMIT
-            tiltakstyper.first().id shouldBe 1
-            tiltakstyper.last().id shouldBe 50
+            tiltakstyper.first().navn shouldBe "1"
+            tiltakstyper.last().navn shouldBe "50"
 
             totalCount shouldBe 105
         }
@@ -105,8 +105,8 @@ class TiltakstypeServiceTest : FunSpec({
                 )
 
             tiltakstyper.size shouldBe 20
-            tiltakstyper.first().id shouldBe 61
-            tiltakstyper.last().id shouldBe 80
+            tiltakstyper.first().navn shouldBe "61"
+            tiltakstyper.last().navn shouldBe "80"
 
             totalCount shouldBe 105
         }
@@ -119,8 +119,8 @@ class TiltakstypeServiceTest : FunSpec({
                     )
                 )
             tiltakstyper.size shouldBe 5
-            tiltakstyper.first().id shouldBe 101
-            tiltakstyper.last().id shouldBe 105
+            tiltakstyper.first().navn shouldBe "101"
+            tiltakstyper.last().navn shouldBe "105"
 
             totalCount shouldBe 105
         }
@@ -133,8 +133,8 @@ class TiltakstypeServiceTest : FunSpec({
                     )
                 )
             tiltakstyper.size shouldBe 105
-            tiltakstyper.first().id shouldBe 1
-            tiltakstyper.last().id shouldBe 105
+            tiltakstyper.first().navn shouldBe "1"
+            tiltakstyper.last().navn shouldBe "105"
 
             totalCount shouldBe 105
         }

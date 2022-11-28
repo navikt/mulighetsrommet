@@ -22,11 +22,9 @@ class TiltakstypeService(private val db: Database) {
     }
 
     fun getTiltakstyper(
-        innsatsgrupper: List<Int>? = null,
         search: String? = null,
         paginationParams: PaginationParams = PaginationParams()
     ): Pair<Int, List<Tiltakstype>> {
-        val innsatsgrupperQuery = innsatsgrupper?.toPostgresIntArray()
 
         val parameters = mapOf(
             "navn" to "%$search%",

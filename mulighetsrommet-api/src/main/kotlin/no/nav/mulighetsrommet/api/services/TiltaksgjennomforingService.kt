@@ -13,9 +13,9 @@ class TiltaksgjennomforingService(private val db: Database) {
     fun getTiltaksgjennomforingerByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id, tiltaksnummer
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnr
             from tiltaksgjennomforing
-            where tiltakstype_id = ?
+            where tiltakstype_id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asList
         return db.run(queryResult)
@@ -24,9 +24,9 @@ class TiltaksgjennomforingService(private val db: Database) {
     fun getTiltaksgjennomforingById(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id, tiltaksnummer
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnr
             from tiltaksgjennomforing
-            where id = ?
+            where id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltaksgjennomforing(it) }.asSingle
         return db.run(queryResult)
@@ -35,7 +35,7 @@ class TiltaksgjennomforingService(private val db: Database) {
     fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id, tiltaksnummer, count(*) OVER() AS full_count
+            select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnr, count(*) OVER() AS full_count
             from tiltaksgjennomforing
             limit ?
             offset ?

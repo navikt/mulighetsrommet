@@ -39,7 +39,7 @@ class TiltakstypeRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             delete from tiltakstype
-            where id = ?
+            where id = ?::uuid
         """.trimIndent()
 
         run { queryOf(query, id) }

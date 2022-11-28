@@ -22,7 +22,7 @@ class ArenaService(
     fun createOrUpdate(deltaker: Deltaker) = deltakerRepository.save(deltaker)
 
     fun remove(tiltaksgjennomforing: Tiltaksgjennomforing) =
-        tiltakstypeRepository.delete(tiltaksgjennomforing.id)
+        tiltaksgjennomforingRepository.delete(tiltaksgjennomforing.id)
 
     fun remove(tiltakstype: Tiltakstype) = tiltakstypeRepository.delete(tiltakstype.id)
 
