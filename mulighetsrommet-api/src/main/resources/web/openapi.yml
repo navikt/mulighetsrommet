@@ -465,7 +465,7 @@ components:
           type: integer
         aar:
           type: integer
-        tilgjenglighet:
+        tilgjengelighet:
           type: string
           enum:
             - Ledig
