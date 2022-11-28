@@ -1,13 +1,13 @@
-name: CI/CD (mulighetsrommet-arena-adapter)
+name: CI/CD (mr-api)
 
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-arena-adapter.yaml
+      - .github/workflows/mr-api.yaml
       - build.gradle.kts
       - settings.gradle.kts
       - common/**
-      - mulighetsrommet-arena-adapter/**
+      - mulighetsrommet-api/**
   workflow_dispatch:
     inputs:
       environment:
@@ -20,7 +20,7 @@ on:
           - dev_and_prod
 
 env:
-  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-arena-adapter:${{ github.sha }}
+  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-api:${{ github.sha }}
   CI: true
   TZ: Europe/Amsterdam
 
@@ -34,9 +34,9 @@ jobs:
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
-        run: ./gradlew :mulighetsrommet-arena-adapter:build
+        run: ./gradlew :mulighetsrommet-api:build
       - name: Build and push Docker image
-        working-directory: mulighetsrommet-arena-adapter
+        working-directory: mulighetsrommet-api
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-dev.yaml
+          RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
           VAR: image=${{ env.IMAGE }}
 
   deploy-prod:
@@ -75,5 +75,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-prod.yaml
+          RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
           VAR: image=${{ env.IMAGE }}

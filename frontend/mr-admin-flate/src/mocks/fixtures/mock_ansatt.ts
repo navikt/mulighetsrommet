@@ -1,4 +1,4 @@
-export const mock_ansatt = {
+export const mockAnsatt = {
   etternavn: "Tiltaksansvarlig",
   fornavn: "Tilda",
   ident: "T99876",

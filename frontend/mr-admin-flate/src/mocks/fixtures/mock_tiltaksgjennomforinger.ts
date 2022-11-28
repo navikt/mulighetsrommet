@@ -1,4 +1,4 @@
-export const mock_tiltaksgjennomforinger = {
+export const mockTiltaksgjennomforinger = {
   pagination: {
     totalCount: 18,
     currentPage: 1,
