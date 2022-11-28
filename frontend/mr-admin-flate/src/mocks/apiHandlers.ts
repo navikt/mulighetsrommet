@@ -18,7 +18,7 @@ export const apiHandlers = [
     return res(
       ctx.status(200),
       ctx.json(
-        mock_tiltaksgjennomforinger.data.find((gj) => gj.id === parseInt(id))
+        mockTiltaksgjennomforinger.data.find((gj) => gj.id === parseInt(id))
       )
     );
   }),
