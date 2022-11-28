@@ -1,44 +1,6 @@
-import { Alert, Tag, TextField } from "@navikt/ds-react";
-import { Form, Formik, useField } from "formik";
+import { Alert, Tag } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
-import { z } from "zod";
-import { toFormikValidationSchema } from "zod-formik-adapter";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-
-const Schema = z.object({
-  tiltakgjennomforingId: z.string({
-    required_error: "ID for tiltaksgjennføring må settes",
-  }),
-  sakId: z.string({
-    required_error: "ID for sak må settes",
-  }),
-});
-
-type Values = z.infer<typeof Schema>;
-
-const Tekstfelt = ({
-  label,
-  ...props
-}: {
-  label: string;
-  name: keyof Values;
-  type: "text";
-}) => {
-  const [field, meta] = useField(props);
-  return (
-    <div
-      style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}
-    >
-      <TextField
-        size="small"
-        label={label}
-        {...field}
-        {...props}
-        error={meta.touched && meta.error ? meta.error : null}
-      />
-    </div>
-  );
-};
 
 export function TiltaksgjennomforingPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
