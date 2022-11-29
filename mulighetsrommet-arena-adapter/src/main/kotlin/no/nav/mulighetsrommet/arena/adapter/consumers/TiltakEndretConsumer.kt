@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -26,7 +27,7 @@ class TiltakEndretConsumer(
     private val arenaEntityMappings: ArenaEntityMappingRepository,
     private val client: MulighetsrommetApiClient
 ) : ArenaTopicConsumer(
-    "SIAMO.TILTAK"
+    ArenaTables.Tiltakstype
 ) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)

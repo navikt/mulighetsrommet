@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
@@ -178,7 +179,7 @@ private fun createEvent(
     name: String = "Testenavn",
     regDato: String = "2022-10-10 00:00:00"
 ) = createArenaEvent(
-    "tiltaksgjennomforing",
+    ArenaTables.Tiltaksgjennomforing,
     "3780431",
     operation,
     """{
