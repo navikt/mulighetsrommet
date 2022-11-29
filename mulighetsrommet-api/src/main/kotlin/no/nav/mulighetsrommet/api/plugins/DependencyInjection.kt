@@ -11,8 +11,6 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
-import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
@@ -58,7 +56,6 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
-                arenaordsproxy(appConfig),
                 amtenhetsregister(appConfig)
             )
         )
@@ -156,17 +153,6 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     )
 }
 
-private fun arenaordsproxy(config: AppConfig): ArenaOrdsProxyClient {
-    return ArenaOrdsProxyClientImpl(
-        baseUrl = config.arenaOrdsProxy.url,
-        machineToMachineTokenClient = {
-            tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(
-                config.arenaOrdsProxy.scope
-            )
-        }
-    )
-}
-
 private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
     return AmtEnhetsregisterClientImpl(
         baseUrl = config.amtEnhetsregister.url,
@@ -215,7 +201,6 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    arenaOrdsProxyClient: ArenaOrdsProxyClient,
     amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
@@ -223,7 +208,7 @@ private fun services(
     single { ArenaService(get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
-    single { ArrangorService(arenaOrdsProxyClient, amtEnhetsregisterClient) }
+    single { ArrangorService(amtEnhetsregisterClient) }
     single {
         BrukerService(
             veilarboppfolgingClient = veilarboppfolging,

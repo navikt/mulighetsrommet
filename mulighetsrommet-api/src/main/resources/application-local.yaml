@@ -61,7 +61,3 @@ app:
   amtEnhetsregister:
     url: http://localhost:8090/amt-enhetsregister
     scope: default
-
-  arenaOrdsProxy:
-    url: http://localhost:8090/arena-ords-proxy
-    scope: default

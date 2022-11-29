@@ -30,7 +30,6 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     poaoGcpProxy = createServiceClientConfig("poaogcpproxy"),
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
-    arenaOrdsProxy = createServiceClientConfig("arenaordsproxy")
 )
 
 fun createKafkaConfig(): KafkaConfig {
