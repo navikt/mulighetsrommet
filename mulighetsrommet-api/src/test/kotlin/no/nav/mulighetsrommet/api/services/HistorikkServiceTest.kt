@@ -34,7 +34,7 @@ class HistorikkServiceTest : FunSpec({
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
-        virksomhetsnr = "123456789"
+        virksomhetsnummer = "123456789"
     )
 
     val deltaker = Deltaker(

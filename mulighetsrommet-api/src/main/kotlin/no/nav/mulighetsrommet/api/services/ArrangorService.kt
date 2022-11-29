@@ -17,12 +17,10 @@ class ArrangorService(
         .maximumSize(10000)
         .build()
 
-    suspend fun hentArrangornavn(virksomhetsnr: String): String? {
-        return CacheUtils.tryCacheFirstNotNull(arrangorCache, virksomhetsnr) {
+    suspend fun hentArrangornavn(virksomhetsnummer: String): String? {
+        return CacheUtils.tryCacheFirstNotNull(arrangorCache, virksomhetsnummer) {
 //            val arrangor = arenaOrdsProxyClient.hentArbeidsgiver(arrangorId)
-            val virksomhet =
-                virksomhetsnr.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
-
+            val virksomhet = virksomhetsnummer.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
             virksomhet?.overordnetEnhetNavn ?: ""
         }
     }

@@ -18,7 +18,7 @@ object DatabaseMapper {
             navn = row.string("navn"),
             tiltakstypeId = row.uuid("tiltakstype_id"),
             tiltaksnummer = row.string("tiltaksnummer"),
-            virksomhetsnr = row.string("virksomhetsnr")
+            virksomhetsnummer = row.string("virksomhetsnummer")
         )
 
     fun toDeltaker(row: Row): Deltaker = Deltaker(
@@ -38,7 +38,7 @@ object DatabaseMapper {
         tiltaksnavn = row.string("navn"),
         tiltaksnummer = row.string("tiltaksnummer"),
         tiltakstype = row.string("tiltakstype"),
-        virksomhetsnr = row.string("virksomhetsnr")
+        virksomhetsnummer = row.string("virksomhetsnummer")
     )
 
     fun toDelMedBruker(row: Row): DelMedBruker = DelMedBruker(

@@ -22,7 +22,7 @@ data class Deltaker(
     val fnr: String,
     val status: Deltakerstatus,
     @Serializable(with = DateSerializer::class)
-    val fraDato: LocalDateTime,
+    val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null
 )
@@ -53,5 +53,5 @@ data class HistorikkForDeltaker(
     val tiltaksnavn: String,
     val tiltaksnummer: String,
     val tiltakstype: String,
-    val virksomhetsnr: String
+    val virksomhetsnummer: String
 )

@@ -34,14 +34,14 @@ class HistorikkService(
                 tiltaksnavn = it.tiltaksnavn,
                 tiltaksnummer = it.tiltaksnummer,
                 tiltakstype = it.tiltakstype,
-                arrangor = hentArrangorNavn(it.virksomhetsnr)
+                arrangor = hentArrangorNavn(it.virksomhetsnummer)
             )
         }
     }
 
-    private suspend fun hentArrangorNavn(virksomhetsnr: String): String? {
+    private suspend fun hentArrangorNavn(virksomhetsnummer: String): String? {
         return try {
-            arrangorService.hentArrangornavn(virksomhetsnr)
+            arrangorService.hentArrangornavn(virksomhetsnummer)
         } catch (e: Throwable) {
             log.error("Feil oppstod ved henting arrangørnavn, sjekk securelogs")
             SecureLog.logger.error("Feil oppstod ved henting arrangørnavn", e)
@@ -52,13 +52,19 @@ class HistorikkService(
     private fun getHistorikkForBrukerFromDb(fnr: String): List<HistorikkForDeltaker> {
         @Language("PostgreSQL")
         val query = """
-        select deltaker.id, deltaker.fra_dato, deltaker.til_dato, deltaker.status, gjennomforing.navn, 
-            gjennomforing.virksomhetsnr, gjennomforing.tiltaksnummer, tiltakstype.navn tiltakstype
-        from deltaker
-        left join tiltaksgjennomforing gjennomforing on gjennomforing.id = deltaker.tiltaksgjennomforing_id
-        left join tiltakstype tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-        where fnr = ?
-        order by deltaker.fra_dato desc nulls last;
+            select deltaker.id,
+                   deltaker.fra_dato,
+                   deltaker.til_dato,
+                   deltaker.status,
+                   gjennomforing.navn,
+                   gjennomforing.virksomhetsnummer,
+                   gjennomforing.tiltaksnummer,
+                   tiltakstype.navn as tiltakstype
+            from deltaker
+                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = deltaker.tiltaksgjennomforing_id
+                     left join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+            where fnr = ?
+            order by deltaker.fra_dato desc nulls last;
         """.trimIndent()
         val queryResult = queryOf(query, fnr).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
         return db.run(queryResult)

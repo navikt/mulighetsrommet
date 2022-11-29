@@ -108,7 +108,6 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     fnr = "123456",
                     fraDato = LocalDateTime.now(),
                     tilDato = LocalDateTime.now().plusYears(1),
-                    virksomhetsnr = "12345",
                     status = Deltakerstatus.DELTAR,
                 )
 
