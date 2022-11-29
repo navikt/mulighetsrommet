@@ -8,7 +8,7 @@ export function Oversikt() {
     <div>
       <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size={"medium"}>
-        Min oversikt
+        Oversikt over tiltaksgjennomføringer
       </Heading>
       <BodyLong className={styles.body} size={"small"}>
         Her finner du dine aktive gjennomføringer.

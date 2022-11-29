@@ -1,9 +1,9 @@
-name: CI/CD (mulighetsrommet-arena-adapter-manager)
+name: CI/CD (mr-arena-adapter-manager)
 
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-arena-adapter-manager.yaml
+      - .github/workflows/mr-arena-adapter-manager.yaml
       - package.json
       - package-lock.json
       - turbo.json
@@ -32,7 +32,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=arena-adapter-manager 
+        run: npx turbo run build --filter=arena-adapter-manager
       - uses: actions/upload-artifact@v3
         with:
           name: dist
@@ -75,4 +75,3 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
       - name: Upload files to GCS
         run: gsutil -m rsync -r dist gs://mulighetsrommet-arena-adapter-manager-prod
-

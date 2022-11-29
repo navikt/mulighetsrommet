@@ -35,7 +35,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     }
 
     context("when dependent events has not been processed") {
-        test("should save the event with status Pending when dependent tiltakstype is missing") {
+        test("should save the event with status Failed when dependent tiltakstype is missing") {
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(
                 Tiltakstype(
@@ -50,11 +50,11 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
             val event = consumer.processEvent(createEvent(Insert))
 
-            event.status shouldBe Pending
+            event.status shouldBe Failed
             database.assertThat("tiltaksgjennomforing").isEmpty
         }
 
-        test("should save the event with status Pending when dependent sak is missing") {
+        test("should save the event with status Failed when dependent sak is missing") {
             val saker = SakRepository(database.db)
             saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
 
@@ -62,7 +62,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
             val event = consumer.processEvent(createEvent(Insert))
 
-            event.status shouldBe Pending
+            event.status shouldBe Failed
             database.assertThat("tiltaksgjennomforing").isEmpty
         }
     }

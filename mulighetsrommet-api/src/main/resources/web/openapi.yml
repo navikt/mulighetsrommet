@@ -71,6 +71,16 @@ paths:
           description: Tiltakstypefilter
           style: form
           explode: false
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
       responses:
         200:
           description: Object of paginated tiltaksgjennomføringer.
@@ -398,15 +408,12 @@ components:
     Pagination:
       type: object
       properties:
-        pagination:
-          type: object
-          properties:
-            totalCount:
-              type: integer
-            currentPage:
-              type: integer
-            pageSize:
-              type: integer
+        totalCount:
+          type: integer
+        currentPage:
+          type: integer
+        pageSize:
+          type: integer
 
     PaginertTiltakstype:
       type: object
@@ -420,7 +427,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Tiltakstype"
-        
+
     PaginertTiltaksgjennomforing:
       type: object
       required:
@@ -465,7 +472,7 @@ components:
           type: integer
         aar:
           type: integer
-        tilgjenglighet:
+        tilgjengelighet:
           type: string
           enum:
             - Ledig

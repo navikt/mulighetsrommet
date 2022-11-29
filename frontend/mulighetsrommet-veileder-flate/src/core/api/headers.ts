@@ -24,7 +24,7 @@ export function toRecord(headers: Headers) {
  * @returns norskident for bruker fra url
  */
 function getNorskidentFraUrl() {
-  const fnrRegex = new RegExp(/\/(\d*)/g);
+  const fnrRegex = /\/(\d*)/g;
   const regexMatches = fnrRegex.exec(window.location.pathname);
   return regexMatches?.at(1) ?? '';
 }

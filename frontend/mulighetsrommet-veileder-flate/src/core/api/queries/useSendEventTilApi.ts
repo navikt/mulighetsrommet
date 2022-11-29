@@ -1,15 +1,14 @@
 import { FrontendEvent } from 'mulighetsrommet-api-client';
 import { mulighetsrommetClient } from '../clients';
 
-const credentials = 'same-origin';
-
 const MED_CREDENTIALS: RequestInit = {
-  credentials,
+  credentials: 'same-origin',
   headers: {
     'Nav-Consumer-Id': 'mulighetsrommet',
     'Content-Type': 'application/json',
   },
 };
+
 export function useSendEventTilApi(event: FrontendEvent) {
   mulighetsrommetClient.internal.logFrontendEvent({ requestBody: event });
 }

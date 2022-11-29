@@ -88,4 +88,5 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
+    implementation("com.github.kagkarlsson:db-scheduler:11.5")
 }

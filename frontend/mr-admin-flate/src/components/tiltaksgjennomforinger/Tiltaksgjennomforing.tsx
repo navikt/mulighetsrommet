@@ -17,7 +17,7 @@ export function Tiltaksgjennomforingrad({ tiltaksgjennomforing }: Props) {
       <BodyShort size={"small"}>{tiltaksgjennomforing.tiltakskode}</BodyShort>
       <BodyShort size={"small"}>{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
       <BodyShort size={"small"}>
-        {tiltaksgjennomforing.tilgjenglighet}
+        {tiltaksgjennomforing.tilgjengelighet}
       </BodyShort>
       <BodyShort size={"small"}>{tiltaksgjennomforing.aar}</BodyShort>
       <div className={styles.pil}>

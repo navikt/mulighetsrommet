@@ -20,7 +20,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
   };
-  const [_, setFilter] = useAtom(tiltaksgjennomforingsfilter);
+  const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforinger();

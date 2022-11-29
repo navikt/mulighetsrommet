@@ -25,50 +25,51 @@ class ArenaEventService(
         logger.info("Replaying event table=$table, id=$id")
 
         return@coroutineScope arenaEvents.get(table, id)?.also { data ->
-            val relevantConsumers = group.consumers.filter { it.arenaTable == data.arenaTable }
-            replay(relevantConsumers, data)
+            replay(group.consumers, data)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun replayEvents(table: String, id: String? = null) = coroutineScope {
-        logger.info("Replaying events from topic=$table, id=$id")
+    suspend fun replayEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
+        logger.info("Replaying events from table=$table")
 
         // Produce events in a separate coroutine
         val events = produce(capacity = config.channelCapacity) {
-            var prevEventId: String? = id
+            var offset = 0
             do {
-                arenaEvents.getAll(table, limit = config.channelCapacity, id = prevEventId)
-                    .also { prevEventId = it.lastOrNull()?.arenaId }
-                    .forEach { send(it) }
-            } while (isActive && prevEventId != null)
+                val events = arenaEvents.getAll(table = table, status = status, limit = config.channelCapacity, offset = offset)
+
+                events.forEach { send(it) }
+
+                offset += events.size
+            } while (isActive && events.isNotEmpty())
 
             logger.info("All events produced, closing channel...")
             close()
         }
-
-        val relevantConsumers = group.consumers.filter { it.arenaTable == table }
 
         // Create `numConsumers` coroutines to process the events simultaneously
         (0..config.numChannelConsumers)
             .map {
                 async {
                     events.consumeEach { event ->
-                        replay(relevantConsumers, event)
+                        replay(group.consumers, event)
                     }
                 }
             }
             .awaitAll()
     }
 
-    private suspend fun replay(relevantConsumers: List<ArenaTopicConsumer>, event: ArenaEvent) {
-        relevantConsumers.forEach { consumer ->
-            runCatching {
-                consumer.replayEvent(event)
-            }.onFailure {
-                logger.warn("Failed to replay event ${event.arenaId}", it)
-                throw it
+    private suspend fun replay(consumers: List<ArenaTopicConsumer>, event: ArenaEvent) {
+        consumers
+            .filter { it.arenaTable == event.arenaTable }
+            .forEach { consumer ->
+                runCatching {
+                    consumer.replayEvent(event)
+                }.onFailure {
+                    logger.warn("Failed to replay event ${event.arenaId}", it)
+                    throw it
+                }
             }
-        }
     }
 }

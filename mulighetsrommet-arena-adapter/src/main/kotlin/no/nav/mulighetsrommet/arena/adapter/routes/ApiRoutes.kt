@@ -17,7 +17,7 @@ fun Route.apiRoutes() {
         val request = call.receive<ReplayTopicEventsRequest>()
 
         JobRunners.executeBackgroundJob {
-            arenaEventService.replayEvents(table = request.table, id = request.id)
+            arenaEventService.replayEvents(table = request.table)
         }
 
         call.respond(HttpStatusCode.Created)
@@ -26,6 +26,5 @@ fun Route.apiRoutes() {
 
 @Serializable
 data class ReplayTopicEventsRequest(
-    val table: String,
-    val id: String? = null,
+    val table: String?,
 )

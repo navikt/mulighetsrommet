@@ -1,12 +1,12 @@
-name: POAO-frontend for mulighetsrommet-veileder-flate
+name: POAO-frontend (mr-veileder-flate)
 
 on:
   push:
     branches:
-      - 'main'
+      - main
     paths:
-      - '.github/workflows/mulighetsrommet-veileder-flate-container.yaml'
-      - 'frontend/mulighetsrommet-veileder-flate/.nais/**'
+      - .github/workflows/mr-veileder-flate-container.yaml
+      - frontend/mulighetsrommet-veileder-flate/.nais/**
   workflow_dispatch:
     inputs:
       environment:
@@ -19,7 +19,7 @@ on:
           - dev_and_prod
 
 concurrency:
-  group: mulighetsrommet_frontend_container
+  group: mr_veileder_flate_container
   cancel-in-progress: true
 
 env:
@@ -39,7 +39,7 @@ jobs:
   deploy-prod:
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     runs-on: ubuntu-latest
-    needs: ["deploy-dev"]
+    needs: [ deploy-dev ]
     steps:
       - uses: actions/checkout@v3
       - name: deploy gcp prod

@@ -1,4 +1,4 @@
-export const mock_tiltaksgjennomforinger = {
+export const mockTiltaksgjennomforinger = {
   pagination: {
     totalCount: 18,
     currentPage: 1,
@@ -7,7 +7,7 @@ export const mock_tiltaksgjennomforinger = {
   data: [
     {
       id: 1,
-      navn: "Arbeidsrettet rehabilitering - Trondheim",
+      navn: "Yrkesnorsk med praksis",
       tiltakskode: "ABIST",
       tiltaksnummer: 1234,
       aar: 2022,
@@ -15,7 +15,7 @@ export const mock_tiltaksgjennomforinger = {
     },
     {
       id: 2,
-      navn: "Arbeidsrettet rehabilitering - Trondheim",
+      navn: "Spillbasert kvalifisering",
       tiltakskode: "ABIST",
       tiltaksnummer: 1234,
       aar: 2022,
@@ -23,7 +23,7 @@ export const mock_tiltaksgjennomforinger = {
     },
     {
       id: 3,
-      navn: "Arbeidsrettet rehabilitering - Trondheim",
+      navn: "Midlertidig lønnstilskudd",
       tiltakskode: "ABIST",
       tiltaksnummer: 1234,
       aar: 2022,
@@ -31,7 +31,7 @@ export const mock_tiltaksgjennomforinger = {
     },
     {
       id: 4,
-      navn: "Arbeidsrettet rehabilitering - Trondheim",
+      navn: "AFT - Unikom",
       tiltakskode: "ABIST",
       tiltaksnummer: 1234,
       aar: 2022,
@@ -39,7 +39,7 @@ export const mock_tiltaksgjennomforinger = {
     },
     {
       id: 5,
-      navn: "Arbeidsrettet rehabilitering - Trondheim",
+      navn: "Varig lønnstilskudd",
       tiltakskode: "ABIST",
       tiltaksnummer: 1234,
       aar: 2022,
