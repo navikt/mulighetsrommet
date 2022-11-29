@@ -16,8 +16,8 @@ class HistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
 
-    suspend fun hentHistorikkForBruker(fnr: String): List<HistorikkForDeltakerDTO> {
-        return getHistorikkForBrukerFromDb(fnr).map {
+    suspend fun hentHistorikkForBruker(norskIdent: String): List<HistorikkForDeltakerDTO> {
+        return getHistorikkForBrukerFromDb(norskIdent).map {
             HistorikkForDeltakerDTO(
                 id = it.id,
                 fraDato = it.fraDato,
@@ -41,7 +41,7 @@ class HistorikkService(
         }
     }
 
-    private fun getHistorikkForBrukerFromDb(fnr: String): List<HistorikkForDeltaker> {
+    private fun getHistorikkForBrukerFromDb(norskIdent: String): List<HistorikkForDeltaker> {
         @Language("PostgreSQL")
         val query = """
             select deltaker.id,
@@ -55,10 +55,10 @@ class HistorikkService(
             from deltaker
                      left join tiltaksgjennomforing gjennomforing on gjennomforing.id = deltaker.tiltaksgjennomforing_id
                      left join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-            where fnr = ?
+            where norsk_ident = ?
             order by deltaker.fra_dato desc nulls last;
         """.trimIndent()
-        val queryResult = queryOf(query, fnr).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
+        val queryResult = queryOf(query, norskIdent).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
         return db.run(queryResult)
     }
 }

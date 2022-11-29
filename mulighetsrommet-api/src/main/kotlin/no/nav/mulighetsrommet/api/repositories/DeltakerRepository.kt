@@ -20,11 +20,11 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, fnr, status, fra_dato, til_dato)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :fnr, :status::deltakerstatus, :fra_dato, :til_dato)
+            insert into deltaker (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :fra_dato, :til_dato)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
-                              fnr                     = excluded.fnr,
+                              norsk_ident             = excluded.norsk_ident,
                               status                  = excluded.status,
                               fra_dato                = excluded.fra_dato,
                               til_dato                = excluded.til_dato
@@ -54,7 +54,7 @@ class DeltakerRepository(private val db: Database) {
     private fun Deltaker.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "fnr" to fnr,
+        "norsk_ident" to norskIdent,
         "status" to status.name,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
@@ -63,7 +63,7 @@ class DeltakerRepository(private val db: Database) {
     private fun Row.toDeltaker() = Deltaker(
         id = uuid("id"),
         tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
-        fnr = string("fnr"),
+        norskIdent = string("norsk_ident"),
         status = Deltakerstatus.valueOf(string("status")),
         fraDato = localDateTime("fraDato"),
         tilDato = localDateTimeOrNull("tilDato"),

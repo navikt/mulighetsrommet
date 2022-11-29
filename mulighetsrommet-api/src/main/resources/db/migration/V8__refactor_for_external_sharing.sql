@@ -34,7 +34,7 @@ create table deltaker
 (
     id                      uuid primary key,
     tiltaksgjennomforing_id uuid                    not null,
-    fnr                     varchar(11)             not null,
+    norsk_ident             varchar(11)             not null,
     status                  deltakerstatus          not null,
     fra_dato                timestamp,
     til_dato                timestamp,

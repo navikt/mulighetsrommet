@@ -47,7 +47,7 @@ class ArenaServiceTest : FunSpec({
         val deltaker = Deltaker(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = tiltaksgjennomforing.id,
-            fnr = "12345678910",
+            norskIdent = "12345678910",
             status = Deltakerstatus.VENTER,
             fraDato = LocalDateTime.now(),
             tilDato = LocalDateTime.now().plusYears(1),

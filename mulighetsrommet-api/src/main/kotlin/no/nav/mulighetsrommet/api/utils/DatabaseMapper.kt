@@ -15,7 +15,7 @@ object DatabaseMapper {
     fun toDeltaker(row: Row): Deltaker = Deltaker(
         id = row.uuid("id"),
         tiltaksgjennomforingId = row.uuid("tiltaksgjennomforing_id"),
-        fnr = row.string("fnr"),
+        norskIdent = row.string("fnr"),
         status = Deltakerstatus.valueOf(row.string("status")),
         fraDato = row.localDateTime("fraDato"),
         tilDato = row.localDateTimeOrNull("tilDato"),

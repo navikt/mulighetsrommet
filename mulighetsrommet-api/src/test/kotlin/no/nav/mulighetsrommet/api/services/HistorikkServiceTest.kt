@@ -38,7 +38,7 @@ class HistorikkServiceTest : FunSpec({
     val deltaker = Deltaker(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
-        fnr = "12345678910",
+        norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0)
