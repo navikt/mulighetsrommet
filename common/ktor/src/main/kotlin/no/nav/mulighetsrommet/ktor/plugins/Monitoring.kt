@@ -15,11 +15,13 @@ fun interface MonitoredResource {
     fun isAvailable(): Boolean
 }
 
-fun Application.configureMonitoring(vararg resources: MonitoredResource) {
+object Metrikker {
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+}
 
+fun Application.configureMonitoring(vararg resources: MonitoredResource) {
     install(MicrometerMetrics) {
-        registry = appMicrometerRegistry
+        registry = Metrikker.appMicrometerRegistry
     }
 
     install(CallLogging) {
@@ -62,7 +64,7 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
         }
 
         get("/internal/prometheus") {
-            call.respond(appMicrometerRegistry.scrape())
+            call.respond(Metrikker.appMicrometerRegistry.scrape())
         }
     }
 }
