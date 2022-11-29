@@ -17,8 +17,19 @@ export function Tiltaksgjennomforingeroversikt() {
   }
   const { data: tiltaksgjennomforinger, pagination: paginering } = data;
 
+  const PagineringsOversikt = () => {
+    return (
+      <Heading level="1" size="xsmall" data-testid="antall-tiltak">
+        Viser {(page - 1) * PAGE_SIZE + 1}-
+        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av{" "}
+        {paginering?.totalCount} tiltak
+      </Heading>
+    );
+  };
+
   return (
     <>
+      <PagineringsOversikt />
       <ul className={styles.oversikt}>
         {tiltaksgjennomforinger.length === 0 ? (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
@@ -33,11 +44,7 @@ export function Tiltaksgjennomforingeroversikt() {
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
-            <Heading level="1" size="xsmall" data-testid="antall-tiltak">
-              Viser {(page - 1) * PAGE_SIZE + 1}-
-              {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av{" "}
-              {paginering?.totalCount} tiltak
-            </Heading>
+            <PagineringsOversikt />
             <Pagination
               size="small"
               data-testid="paginering"
