@@ -16,7 +16,6 @@ const ViewTiltakstypeOversikt = () => {
   const brukerData = useHentBrukerdata();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
-  // console.log(brukerData);
   return (
     <div className={styles.tiltakstype_oversikt} id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
       <div className={styles.filtertags_og_historikk}>
