@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
@@ -76,7 +77,7 @@ private fun createEvent(
     sakskode: String = "TILT",
     lopenummer: Int = 1
 ) = createArenaEvent(
-    "sak",
+    ArenaTables.Sak,
     "1",
     operation,
     """{
