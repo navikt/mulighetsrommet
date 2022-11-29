@@ -7,7 +7,7 @@ import { PAGE_SIZE } from "../../constants";
 
 export function useTiltaksgjennomforinger() {
   const [page] = useAtom(paginationAtom);
-  return useQuery([QueryKeys.tiltaksgjennomforinger, page], () =>
+  return useQuery(QueryKeys.tiltaksgjennomforinger(page), () =>
     mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({
       page: page,
       size: PAGE_SIZE,
