@@ -7,8 +7,10 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.domain.VeilederDTO
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
+import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.poao_tilgang.client.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -19,6 +21,7 @@ private val log = LoggerFactory.getLogger(VeilarbveilederClientImpl::class.java)
 private val cache: Cache<String, VeilederDTO> = Caffeine.newBuilder()
     .expireAfterWrite(1, TimeUnit.HOURS)
     .maximumSize(10_000)
+    .recordStats()
     .build()
 
 class VeilarbveilederClientImpl(
@@ -26,6 +29,12 @@ class VeilarbveilederClientImpl(
     private val veilarbVeilederTokenProvider: (accessToken: String) -> String,
     clientEngine: HttpClientEngine = CIO.create()
 ) : VeilarbveilederClient {
+
+    init {
+        val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
+        cacheMetrics.addCache("veilederCache", cache)
+    }
+
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }

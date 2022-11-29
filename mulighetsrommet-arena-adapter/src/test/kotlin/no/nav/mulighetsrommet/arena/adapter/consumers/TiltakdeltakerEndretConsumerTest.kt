@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
@@ -154,7 +155,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
 }
 
 private fun createEvent(operation: ArenaEventData.Operation, status: String = "GJENN") = createArenaEvent(
-    "deltaker",
+    ArenaTables.Deltaker,
     "1",
     operation,
     """{
