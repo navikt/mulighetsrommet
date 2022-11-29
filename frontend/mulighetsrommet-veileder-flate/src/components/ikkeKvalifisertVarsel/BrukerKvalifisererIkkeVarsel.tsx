@@ -13,7 +13,7 @@ export function BrukerKvalifisererIkkeVarsel() {
 
   const brukerdata = useHentBrukerdata();
 
-  return !brukerHarRettPaaTiltak && !brukerdata.data?.servicegruppe ? (
+  return !brukerHarRettPaaTiltak && brukerdata.data?.innsatsgruppe ? (
     <Alert variant="warning" className={styles.varsel}>
       Brukeren tilhører innsatsgruppen <code className={styles.code}>{brukersInnsatsgruppe?.replaceAll('_', ' ')}</code>
       , men tiltaksgjennomføringen gjelder for{' '}
