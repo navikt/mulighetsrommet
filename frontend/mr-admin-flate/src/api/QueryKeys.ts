@@ -1,6 +1,7 @@
 export const QueryKeys = {
   tiltakstyper: ["tiltakstyper"],
-  tiltaksgjennomforinger: ["tiltaksgjennomforinger"],
-  tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"],
-  ansatt: ["ansatt"],
+  tiltaksgjennomforinger: (page?: number) =>
+    [page, "tiltaksgjennomforinger"] as const,
+  tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
+  ansatt: ["ansatt"] as const,
 };
