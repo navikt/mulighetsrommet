@@ -41,7 +41,7 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
       <BrukersOppfolgingsenhet />
       {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && !brukerdata.data?.servicegruppe && (
         <ErrorTag
-          innhold="Innsatsgruppe mangler"
+          innhold="Innsatsgruppe og servicegruppe mangler"
           title="Kontroller om brukeren er under oppfølging og finnes i Arena"
           dataTestId="alert-innsatsgruppe"
         />
