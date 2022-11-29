@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.domain.models.Deltaker
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
-import java.util.*
 
 class ArenaService(
     private val tiltakstypeRepository: TiltakstypeRepository,

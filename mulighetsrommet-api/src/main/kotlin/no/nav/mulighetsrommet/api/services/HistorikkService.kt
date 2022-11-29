@@ -1,8 +1,9 @@
 package no.nav.mulighetsrommet.api.services
 
+import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
 import no.nav.mulighetsrommet.secure_log.SecureLog
@@ -58,7 +59,18 @@ class HistorikkService(
             where norsk_ident = ?
             order by deltaker.fra_dato desc nulls last;
         """.trimIndent()
-        val queryResult = queryOf(query, norskIdent).map { DatabaseMapper.toBrukerHistorikk(it) }.asList
+        val queryResult = queryOf(query, norskIdent).map { it.toHistorikkForDeltaker() }.asList
         return db.run(queryResult)
     }
+
+    private fun Row.toHistorikkForDeltaker(): HistorikkForDeltaker = HistorikkForDeltaker(
+        id = uuid("id"),
+        fraDato = localDateTimeOrNull("fra_dato"),
+        tilDato = localDateTimeOrNull("til_dato"),
+        status = Deltakerstatus.valueOf(string("status")),
+        tiltaksnavn = string("navn"),
+        tiltaksnummer = string("tiltaksnummer"),
+        tiltakstype = string("tiltakstype"),
+        virksomhetsnummer = string("virksomhetsnummer")
+    )
 }

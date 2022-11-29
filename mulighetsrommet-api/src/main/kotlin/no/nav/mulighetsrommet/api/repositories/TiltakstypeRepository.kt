@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -42,7 +41,7 @@ class TiltakstypeRepository(private val db: Database) {
             from tiltakstype
             where id = ?
         """.trimIndent()
-        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        val queryResult = queryOf(query, id).map { it.toTiltakstype() }.asSingle
         return db.run(queryResult)
     }
 
@@ -72,7 +71,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val results = queryOf(query, parameters)
             .map {
-                it.int("full_count") to DatabaseMapper.toTiltakstype(it)
+                it.int("full_count") to it.toTiltakstype()
             }
             .asList
             .let { db.run(it) }
