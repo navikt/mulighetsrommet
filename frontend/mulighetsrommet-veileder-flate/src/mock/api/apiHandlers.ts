@@ -14,7 +14,9 @@ export const apiHandlers: RestHandler[] = [
 
     return ok({
       fnr,
-      innsatsgruppe: 'SITUASJONSBESTEMT_INNSATS',
+      //En bruker har enten servicegruppe eller innsatsgruppe. Denne kan endres ved behov
+      // innsatsgruppe: 'SITUASJONSBESTEMT_INNSATS',
+      servicegruppe: 'IKKE_VURDERT',
       oppfolgingsenhet: {
         navn: 'NAV Lerkendal',
         enhetId: '5702',

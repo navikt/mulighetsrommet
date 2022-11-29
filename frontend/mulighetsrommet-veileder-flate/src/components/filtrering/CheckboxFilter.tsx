@@ -63,7 +63,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
               hideLegend
               size="small"
               value={valgteTypeIDer.map(String)}
-              data-testId={`checkboxgroup_${kebabCaseAccordionNavn}`}
+              data-testid={`checkboxgroup_${kebabCaseAccordionNavn}`}
             >
               {sortert ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox) : data.map(checkbox)}
             </CheckboxGroup>

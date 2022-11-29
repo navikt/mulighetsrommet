@@ -4,8 +4,7 @@ import SearchFieldTag from '../tags/SearchFieldTag';
 import Show from '../../utils/Show';
 import { Button } from '@navikt/ds-react';
 import { RESET } from 'jotai/utils';
-import { useAtom } from 'jotai';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { Tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
@@ -14,14 +13,18 @@ import { InnsatsgruppeNokler } from '../../core/api/models';
 import styles from './Filtertags.module.scss';
 import { ErrorTag } from '../tags/ErrorTag';
 
-export function Filtertags() {
+interface FiltertagsProps {
+  filter: Tiltaksgjennomforingsfilter;
+  setFilter: any;
+}
+
+export function Filtertags({ filter, setFilter }: FiltertagsProps) {
   const brukerdata = useHentBrukerdata();
   useErrorHandler(brukerdata?.error);
   const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: InnsatsgruppeNokler) => {
     return innsatsgruppe !== brukerdata?.data?.innsatsgruppe;
   };
 
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
 
   const innsatsgrupper = useInnsatsgrupper();
@@ -36,11 +39,11 @@ export function Filtertags() {
   return (
     <div className={styles.filtertags} data-testid="filtertags">
       <BrukersOppfolgingsenhet />
-      {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && (
+      {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && !brukerdata.data?.servicegruppe && (
         <ErrorTag
-          innhold={'Innsatsgruppe mangler'}
-          title={'Kontroller om brukeren er under oppfølging og finnes i Arena'}
-          dataTestId={'alert-innsatsgruppe'}
+          innhold="Innsatsgruppe mangler"
+          title="Kontroller om brukeren er under oppfølging og finnes i Arena"
+          dataTestId="alert-innsatsgruppe"
         />
       )}
       {filter.innsatsgruppe && (

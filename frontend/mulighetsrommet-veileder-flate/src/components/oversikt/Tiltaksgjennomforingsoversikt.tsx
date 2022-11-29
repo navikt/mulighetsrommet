@@ -94,15 +94,15 @@ const Tiltaksgjennomforingsoversikt = () => {
     );
   }
 
-  if (!brukerdata?.data?.innsatsgruppe) {
+  if (!brukerdata?.data?.innsatsgruppe && !brukerdata?.data?.servicegruppe) {
     return (
       <Feilmelding
-        header={<>Kunne ikke hente brukers innsatsgruppe</>}
+        header={<>Kunne ikke hente brukers innsatsgruppe eller servicegruppe</>}
         beskrivelse={
           <>
             <>
-              Vi kan ikke hente brukerens innsatsgruppe. Kontroller at brukeren er under oppfølging og finnes i Arena,
-              og&nbsp;
+              Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er under oppfølging
+              og finnes i Arena, og&nbsp;
             </>
             {forsokPaNyttLink()}
           </>

@@ -21,7 +21,8 @@ class BrukerServiceTest : FunSpec({
 
     beforeSpec {
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(FNR, any()) } returns Oppfolgingsstatus(
-            mockOppfolgingsenhet()
+            oppfolgingsenhet = mockOppfolgingsenhet(),
+            servicegruppe = "IKKE_VURDERT"
         )
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(FNR, any()) } returns mockManuellStatus()
@@ -35,7 +36,8 @@ class BrukerServiceTest : FunSpec({
         )
 
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(FNR_2, any()) } returns Oppfolgingsstatus(
-            mockOppfolgingsenhet()
+            oppfolgingsenhet = mockOppfolgingsenhet(),
+            servicegruppe = "IKKE_VURDERT"
         )
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(FNR_2, any()) } returns mockManuellStatus()
