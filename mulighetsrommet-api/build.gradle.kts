@@ -67,8 +67,11 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
     // Cache
-    val caffeineVersion = "3.1.1"
-    implementation("com.github.ben-manes.caffeine:jcache:$caffeineVersion")
+    val caffeineVersion = "3.1.2"
+    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
+    implementation("io.prometheus:simpleclient_caffeine:0.16.0")
+
+    implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
 
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")

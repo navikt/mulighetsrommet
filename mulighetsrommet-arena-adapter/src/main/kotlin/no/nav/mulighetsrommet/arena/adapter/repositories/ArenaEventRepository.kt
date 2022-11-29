@@ -63,6 +63,7 @@ class ArenaEventRepository(private val db: Database) {
             select arena_table, arena_id, payload, consumption_status, message
             from arena_events
             $where
+            order by arena_id
             limit :limit
             offset :offset
         """.trimIndent()

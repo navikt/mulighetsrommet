@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaSak
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
@@ -18,7 +19,7 @@ class SakEndretConsumer(
     override val events: ArenaEventRepository,
     private val saker: SakRepository,
 ) : ArenaTopicConsumer(
-    "SIAMO.SAK"
+    ArenaTables.Sak
 ) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
