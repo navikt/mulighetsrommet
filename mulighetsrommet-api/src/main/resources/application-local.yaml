@@ -50,10 +50,6 @@ app:
     url: http://localhost:8090/veilarbdialog/api
     scope: default
 
-  veilarbarenaConfig:
-    url: http://localhost:8090/veilarbarena/api
-    scope: default
-
   poaoGcpProxy:
     url: http://localhost:8090
     scope: default

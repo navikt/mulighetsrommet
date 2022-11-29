@@ -19,7 +19,6 @@ data class AppConfig(
     val veilarbpersonConfig: ServiceClientConfig,
     val veilarbdialogConfig: ServiceClientConfig,
     val veilarbveilederConfig: ServiceClientConfig,
-    val veilarbarenaConfig: ServiceClientConfig,
     val poaoGcpProxy: ServiceClientConfig,
     val poaoTilgang: ServiceClientConfig,
     val amtEnhetsregister: ServiceClientConfig,

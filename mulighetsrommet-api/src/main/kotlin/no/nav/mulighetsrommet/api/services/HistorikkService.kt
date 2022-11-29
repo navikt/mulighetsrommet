@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
@@ -13,18 +12,11 @@ import org.slf4j.LoggerFactory
 
 class HistorikkService(
     private val db: Database,
-    private val veilarbarenaClient: VeilarbarenaClient,
     private val arrangorService: ArrangorService
 ) {
     val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
 
-    suspend fun hentHistorikkForBruker(fnr: String): List<HistorikkForDeltakerDTO>? {
-//        val personId = veilarbarenaClient.hentPersonIdForFnr(fnr, accessToken) ?: run {
-//            log.warn("Klarte ikke hente personId fra veilarbarena")
-//            null
-//        }
-
-        // @TODO Flytt historikk til arena-adapter
+    suspend fun hentHistorikkForBruker(fnr: String): List<HistorikkForDeltakerDTO> {
         return getHistorikkForBrukerFromDb(fnr).map {
             HistorikkForDeltakerDTO(
                 id = it.id,

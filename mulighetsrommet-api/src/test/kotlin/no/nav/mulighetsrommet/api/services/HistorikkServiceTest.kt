@@ -5,7 +5,6 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -19,7 +18,6 @@ class HistorikkServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
     val arrangorService: ArrangorService = mockk()
-    val veilarbarenaClient: VeilarbarenaClient = mockk()
 
     val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
@@ -60,15 +58,9 @@ class HistorikkServiceTest : FunSpec({
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
         coEvery { arrangorService.hentArrangornavn(any()) } returns bedriftsnavn
-        coEvery {
-            veilarbarenaClient.hentPersonIdForFnr(
-                any(),
-                any()
-            )
-        } returns "111"
 
         val historikkService =
-            HistorikkService(listener.db, veilarbarenaClient, arrangorService)
+            HistorikkService(listener.db, arrangorService)
 
         val forventetHistorikk = listOf(
             HistorikkForDeltakerDTO(

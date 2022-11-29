@@ -49,10 +49,6 @@ app:
     url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
     scope: api://dev-fss.pto.veilarbdialog/.default
 
-  veilarbarenaConfig:
-    url: https://veilarbarena.dev-fss-pub.nais.io/veilarbarena/api
-    scope: api://dev-fss.pto.veilarbarena/.default
-
   poaoGcpProxy:
     url: https://poao-gcp-proxy.dev-fss-pub.nais.io
     scope: api://dev-fss.pto.poao-gcp-proxy/.default
