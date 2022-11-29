@@ -19,6 +19,10 @@ app:
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
 
+  tasks:
+    processFailedEvents:
+      delayOfMinutes: 15
+
   enableFailedRecordProcessor: true
 
   kafka:

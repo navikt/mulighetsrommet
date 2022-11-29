@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.ProcessFailedEventsTask
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -11,9 +12,14 @@ data class Config(
 
 data class AppConfig(
     val enableFailedRecordProcessor: Boolean,
+    val tasks: TaskConfig,
     val services: ServiceConfig,
     val database: DatabaseConfig,
     val kafka: KafkaConfig,
+)
+
+data class TaskConfig(
+    val processFailedEvents: ProcessFailedEventsTask.Config
 )
 
 data class ServiceConfig(

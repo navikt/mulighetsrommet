@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.plugins
 
+import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
@@ -11,6 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.ProcessFailedEventsTask
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -32,7 +34,8 @@ fun Application.configureDependencyInjection(
             consumers(appConfig.kafka),
             kafka(appConfig.kafka, kafkaPreset),
             repositories(),
-            services(appConfig.services, tokenClient)
+            services(appConfig.services, tokenClient),
+            tasks(appConfig.tasks)
         )
     }
 }
@@ -52,6 +55,20 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get())
         )
         ConsumerGroup(consumers)
+    }
+}
+
+private fun tasks(tasks: TaskConfig) = module {
+    single {
+        val runPendingEvents = ProcessFailedEventsTask(tasks.processFailedEvents, get())
+
+        val db: Database by inject()
+
+        Scheduler
+            .create(db.getDatasource())
+            .startTasks(runPendingEvents.toTask())
+            .registerShutdownHook()
+            .build()
     }
 }
 
