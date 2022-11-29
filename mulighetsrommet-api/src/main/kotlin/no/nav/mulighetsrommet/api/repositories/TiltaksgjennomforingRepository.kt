@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -33,6 +34,52 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.toTiltaksgjennomforing() }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun getTiltaksgjennomforingerByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
+        @Language("PostgreSQL")
+        val query = """
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
+            from tiltaksgjennomforing
+            where tiltakstype_id = ?::uuid
+        """.trimIndent()
+        return queryOf(query, id)
+            .map { it.toTiltaksgjennomforing() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getTiltaksgjennomforingById(id: UUID): Tiltaksgjennomforing? {
+        @Language("PostgreSQL")
+        val query = """
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
+            from tiltaksgjennomforing
+            where id = ?::uuid
+        """.trimIndent()
+        return queryOf(query, id)
+            .map { it.toTiltaksgjennomforing() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
+    fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, count(*) OVER() AS full_count
+            from tiltaksgjennomforing
+            limit ?
+            offset ?
+        """.trimIndent()
+        val results = queryOf(query, paginationParams.limit, paginationParams.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforing()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {

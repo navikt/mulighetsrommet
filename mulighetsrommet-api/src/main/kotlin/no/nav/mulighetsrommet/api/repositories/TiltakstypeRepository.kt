@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.utils.DatabaseMapper
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -33,6 +35,52 @@ class TiltakstypeRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
+    fun getTiltakstypeById(id: UUID): Tiltakstype? {
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakskode
+            from tiltakstype
+            where id = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, id).map { DatabaseMapper.toTiltakstype(it) }.asSingle
+        return db.run(queryResult)
+    }
+
+    fun getTiltakstyper(
+        search: String? = null,
+        paginationParams: PaginationParams = PaginationParams()
+    ): Pair<Int, List<Tiltakstype>> {
+
+        val parameters = mapOf(
+            "search" to "%$search%",
+            "limit" to paginationParams.limit,
+            "offset" to paginationParams.offset
+        )
+
+        val where = andWhereParameterNotNull(
+            search to "(lower(navn) like lower(:search))",
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakskode, count(*) OVER() AS full_count
+            from tiltakstype
+            $where
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val results = queryOf(query, parameters)
+            .map {
+                it.int("full_count") to DatabaseMapper.toTiltakstype(it)
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltakstyper = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+        return Pair(totaltAntall, tiltakstyper)
+    }
+
     fun delete(id: UUID): QueryResult<Unit> = query {
         logger.info("Sletter tiltakstype id=$id")
 
@@ -46,6 +94,13 @@ class TiltakstypeRepository(private val db: Database) {
             .asExecute
             .let { db.run(it) }
     }
+
+    private fun andWhereParameterNotNull(vararg parts: Pair<Any?, String>): String = parts
+        .filter { it.first != null }
+        .map { it.second }
+        .reduceOrNull { where, part -> "$where and $part" }
+        ?.let { "where $it" }
+        ?: ""
 
     private fun Tiltakstype.toSqlParameters() = mapOf(
         "id" to id,

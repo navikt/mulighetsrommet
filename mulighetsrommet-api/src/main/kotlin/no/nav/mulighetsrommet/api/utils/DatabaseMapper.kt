@@ -12,15 +12,6 @@ object DatabaseMapper {
             tiltakskode = row.string("tiltakskode")
         )
 
-    fun toTiltaksgjennomforing(row: Row): Tiltaksgjennomforing =
-        Tiltaksgjennomforing(
-            id = row.uuid("id"),
-            navn = row.string("navn"),
-            tiltakstypeId = row.uuid("tiltakstype_id"),
-            tiltaksnummer = row.string("tiltaksnummer"),
-            virksomhetsnummer = row.string("virksomhetsnummer")
-        )
-
     fun toDeltaker(row: Row): Deltaker = Deltaker(
         id = row.uuid("id"),
         tiltaksgjennomforingId = row.uuid("tiltaksgjennomforing_id"),

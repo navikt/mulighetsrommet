@@ -210,8 +210,6 @@ private fun services(
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
     single { ArenaService(get(), get(), get()) }
-    single { TiltaksgjennomforingService(get()) }
-    single { TiltakstypeService(get()) }
     single { HistorikkService(get(), veilarbarenaClient, get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(arenaOrdsProxyClient, amtEnhetsregisterClient) }

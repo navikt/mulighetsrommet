@@ -1,21 +1,18 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
-import java.util.UUID
+import java.util.*
 
-class TiltaksgjennomforingServiceTest : FunSpec({
+class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
@@ -52,33 +49,29 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     )
 
     context("CRUD") {
-        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
-        val deltakerRepository = DeltakerRepository(listener.db)
-        val arenaService = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
-
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(listener.db)
-
         beforeAny {
-            arenaService.createOrUpdate(tiltakstype1)
-            arenaService.createOrUpdate(tiltakstype2)
+            val tiltakstyper = TiltakstypeRepository(listener.db)
+            tiltakstyper.save(tiltakstype1)
+            tiltakstyper.save(tiltakstype2)
         }
 
-        test("should return empty result when there are no created tiltak") {
-            tiltaksgjennomforingService.getTiltaksgjennomforinger().second shouldBe listOf()
-        }
+        test("CRUD") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
 
-        test("should get tiltak by id") {
-            arenaService.createOrUpdate(tiltak1)
-            arenaService.createOrUpdate(tiltak2)
-            tiltaksgjennomforingService.getTiltaksgjennomforingById(tiltak1.id) shouldBe tiltak1
-        }
+            tiltaksgjennomforinger.save(tiltak1)
+            tiltaksgjennomforinger.save(tiltak2)
 
-        test("should get tiltaksgjennomføringer by tiltakstypeId") {
-            tiltaksgjennomforingService.getTiltaksgjennomforingerByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
-        }
+            tiltaksgjennomforinger.getTiltaksgjennomforinger().second shouldHaveSize 2
+            tiltaksgjennomforinger.getTiltaksgjennomforingById(tiltak1.id) shouldBe tiltak1
+            tiltaksgjennomforinger.getTiltaksgjennomforingerByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
 
-        // @TODO flytte til arena-adapter?
+            tiltaksgjennomforinger.delete(tiltak1.id)
+
+            tiltaksgjennomforinger.getTiltaksgjennomforinger().second shouldHaveSize 1
+        }
+    }
+
+//        TODO: implementer på nytt
 //        context("tilgjengelighetsstatus") {
 //            context("when tiltak is closed for applications") {
 //                beforeAny {
@@ -177,27 +170,16 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 //            }
 //        }
 
-        test("should delete tiltak") {
-            arenaService.remove(tiltak1)
-
-            tiltaksgjennomforingService.getTiltaksgjennomforingById(tiltak1.id) shouldBe null
-        }
-    }
-
     context("pagination") {
         listener.db.clean()
         listener.db.migrate()
 
-        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
-        val deltakerRepository = DeltakerRepository(listener.db)
-        val arenaService = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(listener.db)
+        val tiltakstyper = TiltakstypeRepository(listener.db)
+        tiltakstyper.save(tiltakstype1)
 
-        arenaService.createOrUpdate(tiltakstype1)
-
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
         (1..105).forEach {
-            arenaService.createOrUpdate(
+            tiltaksgjennomforinger.save(
                 Tiltaksgjennomforing(
                     id = UUID.randomUUID(),
                     navn = "$it",
@@ -209,57 +191,54 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("default pagination gets first 50 tiltak") {
+            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger()
 
-            val (totalCount, tiltaksgjennomforinger) =
-                tiltaksgjennomforingService.getTiltaksgjennomforinger()
-
-            tiltaksgjennomforinger.size shouldBe DEFAULT_PAGINATION_LIMIT
-            tiltaksgjennomforinger.first().navn shouldBe "1"
-            tiltaksgjennomforinger.last().navn shouldBe "50"
+            items.size shouldBe DEFAULT_PAGINATION_LIMIT
+            items.first().navn shouldBe "1"
+            items.last().navn shouldBe "50"
 
             totalCount shouldBe 105
         }
 
         test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
-            val (totalCount, tiltaksgjennomforinger) =
-                tiltaksgjennomforingService.getTiltaksgjennomforinger(
-                    PaginationParams(
-                        4,
-                        20
-                    )
+            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+                PaginationParams(
+                    4,
+                    20
                 )
+            )
 
-            tiltaksgjennomforinger.size shouldBe 20
-            tiltaksgjennomforinger.first().navn shouldBe "61"
-            tiltaksgjennomforinger.last().navn shouldBe "80"
+            items.size shouldBe 20
+            items.first().navn shouldBe "61"
+            items.last().navn shouldBe "80"
 
             totalCount shouldBe 105
         }
 
         test("pagination with page 3 default size should give tiltak with id 101-105") {
-            val (totalCount, tiltaksgjennomforinger) =
-                tiltaksgjennomforingService.getTiltaksgjennomforinger(
-                    PaginationParams(
-                        3
-                    )
+            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+                PaginationParams(
+                    3
                 )
-            tiltaksgjennomforinger.size shouldBe 5
-            tiltaksgjennomforinger.first().navn shouldBe "101"
-            tiltaksgjennomforinger.last().navn shouldBe "105"
+            )
+
+            items.size shouldBe 5
+            items.first().navn shouldBe "101"
+            items.last().navn shouldBe "105"
 
             totalCount shouldBe 105
         }
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
-            val (totalCount, tiltaksgjennomforinger) =
-                tiltaksgjennomforingService.getTiltaksgjennomforinger(
-                    PaginationParams(
-                        nullableLimit = 200
-                    )
+            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+                PaginationParams(
+                    nullableLimit = 200
                 )
-            tiltaksgjennomforinger.size shouldBe 105
-            tiltaksgjennomforinger.first().navn shouldBe "1"
-            tiltaksgjennomforinger.last().navn shouldBe "105"
+            )
+
+            items.size shouldBe 105
+            items.first().navn shouldBe "1"
+            items.last().navn shouldBe "105"
 
             totalCount shouldBe 105
         }
