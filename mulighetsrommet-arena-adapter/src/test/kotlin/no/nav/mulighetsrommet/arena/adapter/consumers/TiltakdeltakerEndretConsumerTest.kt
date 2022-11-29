@@ -10,7 +10,8 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
@@ -37,12 +38,12 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
     }
 
     context("when dependent events has not been processed") {
-        test("should save the event with status Pending when the dependent tiltaksgjennomføring is missing") {
+        test("should save the event with status Failed when the dependent tiltaksgjennomføring is missing") {
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
             val event = consumer.processEvent(createEvent(Insert))
 
-            event.status shouldBe Pending
+            event.status shouldBe Failed
             database.assertThat("deltaker").isEmpty
         }
     }

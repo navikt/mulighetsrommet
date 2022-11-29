@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
-import no.nav.mulighetsrommet.ktor.plugins.SentryConfig
 
 data class Config(
     val server: ServerConfig,
@@ -14,7 +13,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
-    val sentry: SentryConfig? = null,
     val swagger: SwaggerConfig? = null,
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,

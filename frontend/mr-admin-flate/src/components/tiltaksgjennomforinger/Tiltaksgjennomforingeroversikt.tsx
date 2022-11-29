@@ -1,13 +1,14 @@
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { useTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforing";
+import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import { Pagination } from "@navikt/ds-react";
 import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
+import { Alert } from "@navikt/ds-react";
 
 export function Tiltaksgjennomforingeroversikt() {
-  const { data, isLoading } = useTiltaksgjennomforing();
+  const { data, isLoading } = useTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
   if (isLoading) {
     return null;
@@ -20,6 +21,9 @@ export function Tiltaksgjennomforingeroversikt() {
   return (
     <>
       <ul className={styles.oversikt}>
+        {tiltaksgjennomforinger.length === 0 ? (
+          <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
+        ) : null}
         {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
           <Tiltaksgjennomforingrad
             key={tiltaksgjennomforing.id}

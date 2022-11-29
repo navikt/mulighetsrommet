@@ -5,7 +5,7 @@ import { useAtom } from "jotai";
 import { paginationAtom } from "../atoms";
 import { PAGE_SIZE } from "../../constants";
 
-export function useTiltaksgjennomforing() {
+export function useTiltaksgjennomforinger() {
   const [page] = useAtom(paginationAtom);
   return useQuery([QueryKeys.tiltaksgjennomforinger, page], () =>
     mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger({

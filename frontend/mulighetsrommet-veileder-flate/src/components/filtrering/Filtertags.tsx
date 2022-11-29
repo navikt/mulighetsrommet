@@ -2,7 +2,7 @@ import { BrukersOppfolgingsenhet } from '../oppfolgingsenhet/BrukerOppfolgingsen
 import FilterTag from '../tags/FilterTag';
 import SearchFieldTag from '../tags/SearchFieldTag';
 import Show from '../../utils/Show';
-import { Alert, Button } from '@navikt/ds-react';
+import { Button } from '@navikt/ds-react';
 import { RESET } from 'jotai/utils';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';

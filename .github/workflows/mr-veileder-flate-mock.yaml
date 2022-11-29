@@ -1,9 +1,9 @@
-name: CI/CD (mulighetsrommet-veileder-flate-mock)
+name: CI/CD (mr-veileder-flate-mock)
 
 on:
   push:
     paths:
-      - .github/workflows/mulighetsrommet-veileder-flate-mock.yaml
+      - .github/workflows/mr-veileder-flate-mock.yaml
       - package.json
       - package-lock.json
       - turbo.json
@@ -27,16 +27,10 @@ jobs:
   build-and-test:
     name: Build and test for Labs
     runs-on: ubuntu-latest
-    env:
-      VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
-      VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
-      VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_TEST_DATA_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
-      - name: Build
-        run: npx turbo run build:mock --filter=mulighetsrommet-veileder-flate
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
@@ -46,6 +40,13 @@ jobs:
           wait-on: http://localhost:3000
           start: npm start
           install: false
+        env:
+          VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+          VITE_SANITY_ACCESS_TOKEN: ${{ secrets.SANITY_TEST_DATA_AUTH_TOKEN }}
+      - name: Build
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        run: npx turbo run build:mock --filter=mulighetsrommet-veileder-flate
       - name: Build and publish Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         working-directory: frontend/mulighetsrommet-veileder-flate

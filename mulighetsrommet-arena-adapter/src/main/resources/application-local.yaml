@@ -19,6 +19,10 @@ app:
     password: valp
     maximumPoolSize: 10
 
+  tasks:
+    processFailedEvents:
+      delayOfMinutes: 1
+
   enableFailedRecordProcessor: true
 
   kafka:

@@ -34,7 +34,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
               <div className={styles.rad}>
                 <Label size="small">Teams</Label>
                 <BodyShort>
-                  <a target="_blank" href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}>
+                  <a target="_blank" rel="noreferrer" href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}>
                     Kontakt {tiltaksansvarlig.navn} på Teams
                   </a>
                 </BodyShort>
