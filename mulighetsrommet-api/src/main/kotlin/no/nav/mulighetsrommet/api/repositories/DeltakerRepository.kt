@@ -1,11 +1,12 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -20,29 +21,18 @@ class DeltakerRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker (id, tiltaksgjennomforing_id, fnr, status, fra_dato, til_dato)
-            values (?::uuid, ?::uuid, ?, ?::deltakerstatus, ?, ?)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :fnr, :status::deltakerstatus, :fra_dato, :til_dato)
             on conflict (id)
-            do update set
-                tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
-                fnr = excluded.fnr,
-                status = excluded.status,
-                fra_dato = excluded.fra_dato,
-                til_dato = excluded.til_dato
+                do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
+                              fnr                     = excluded.fnr,
+                              status                  = excluded.status,
+                              fra_dato                = excluded.fra_dato,
+                              til_dato                = excluded.til_dato
             returning *
         """.trimIndent()
 
-        deltaker.run {
-            queryOf(
-                query,
-                id,
-                tiltaksgjennomforingId,
-                fnr,
-                status.name,
-                fraDato,
-                tilDato,
-            )
-        }
-            .map { DatabaseMapper.toDeltaker(it) }
+        queryOf(query, deltaker.toSqlParameters())
+            .map { it.toDeltaker() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -60,4 +50,22 @@ class DeltakerRepository(private val db: Database) {
             .asExecute
             .let { db.run(it) }
     }
+
+    private fun Deltaker.toSqlParameters() = mapOf(
+        "id" to id,
+        "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
+        "fnr" to fnr,
+        "status" to status.name,
+        "fra_dato" to fraDato,
+        "til_dato" to tilDato,
+    )
+
+    private fun Row.toDeltaker() = Deltaker(
+        id = uuid("id"),
+        tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
+        fnr = string("fnr"),
+        status = Deltakerstatus.valueOf(string("status")),
+        fraDato = localDateTime("fraDato"),
+        tilDato = localDateTimeOrNull("tilDato"),
+    )
 }

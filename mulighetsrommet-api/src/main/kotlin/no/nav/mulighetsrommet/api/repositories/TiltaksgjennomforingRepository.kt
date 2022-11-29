@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -14,15 +14,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun save(
-        tiltaksgjennomforing: Tiltaksgjennomforing
-    ): QueryResult<Tiltaksgjennomforing> = query {
+    fun save(tiltaksgjennomforing: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
         @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer)
-            values (?::uuid, ?, ?::uuid, ?, ?)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
@@ -31,18 +29,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        tiltaksgjennomforing
-            .run {
-                queryOf(
-                    query,
-                    id,
-                    navn,
-                    tiltakstypeId,
-                    tiltaksnummer,
-                    virksomhetsnummer
-                )
-            }
-            .map { DatabaseMapper.toTiltaksgjennomforing(it) }
+        queryOf(query, tiltaksgjennomforing.toSqlParameters())
+            .map { it.toTiltaksgjennomforing() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -56,10 +44,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        query {
-            run { queryOf(query, id) }
-                .asExecute
-                .let { db.run(it) }
-        }
+        queryOf(query, id)
+            .asExecute
+            .let { db.run(it) }
     }
+
+    private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(
+        "id" to id,
+        "navn" to navn,
+        "tiltakstype_id" to tiltakstypeId,
+        "tiltaksnummer" to tiltaksnummer,
+        "virksomhetsnummer" to virksomhetsnummer,
+    )
+
+    private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
+        id = uuid("id"),
+        navn = string("navn"),
+        tiltakstypeId = uuid("tiltakstype_id"),
+        tiltaksnummer = string("tiltaksnummer"),
+        virksomhetsnummer = string("virksomhetsnummer")
+    )
 }

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -20,15 +20,15 @@ class TiltakstypeRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (id, navn, tiltakskode)
-            values (?::uuid, ?, ?)
+            values (:id::uuid, :navn, :tiltakskode)
             on conflict (id)
-                do update set navn             = excluded.navn,
-                              tiltakskode      = excluded.tiltakskode
+                do update set navn        = excluded.navn,
+                              tiltakskode = excluded.tiltakskode
             returning *
         """.trimIndent()
 
-        tiltakstype.run { queryOf(query, id, navn, tiltakskode) }
-            .map { DatabaseMapper.toTiltakstype(it) }
+        queryOf(query, tiltakstype.toSqlParameters())
+            .map { it.toTiltakstype() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -42,8 +42,20 @@ class TiltakstypeRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        run { queryOf(query, id) }
+        queryOf(query, id)
             .asExecute
             .let { db.run(it) }
     }
+
+    private fun Tiltakstype.toSqlParameters() = mapOf(
+        "id" to id,
+        "navn" to navn,
+        "tiltakskode" to tiltakskode,
+    )
+
+    private fun Row.toTiltakstype() = Tiltakstype(
+        id = uuid("id"),
+        navn = string("navn"),
+        tiltakskode = string("tiltakskode")
+    )
 }
