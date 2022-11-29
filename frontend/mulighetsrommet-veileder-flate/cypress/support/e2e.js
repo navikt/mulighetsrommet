@@ -56,6 +56,10 @@ if (!app.document.head.querySelector('[data-hide-command-log-request]')) {
   app.document.head.appendChild(style);
 }
 
+before('Start server', () => {
+  cy.server();
+});
+
 Cypress.Commands.add('resetSide', () => {
   cy.visit('/');
 });
@@ -106,6 +110,14 @@ Cypress.Commands.add('sortering', testId => {
   cy.getByTestId(testId).click();
 
   cy.getByTestId(testId).should('have.attr', 'aria-sort', 'none');
+});
+
+Cypress.Commands.add('antallFiltertagsKvalifiseringsgruppe', (kvalifiseringsgruppe, antallFilter) => {
+  if (kvalifiseringsgruppe === 'service') {
+    cy.forventetAntallFiltertags(antallFilter);
+  } else {
+    cy.forventetAntallFiltertags(antallFilter + 1);
+  }
 });
 
 function terminalLog(violations) {

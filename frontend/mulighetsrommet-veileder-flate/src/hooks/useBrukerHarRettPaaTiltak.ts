@@ -1,6 +1,6 @@
 import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 import { useHentBrukerdata } from '../core/api/queries/useHentBrukerdata';
-import { utledInnsatsgrupperFraInnsatsgruppe } from '../core/api/queries/useTiltaksgjennomforing';
+import { utledInnsatsgrupperFraInnsatsgruppe } from '../core/api/queries/useTiltaksgjennomforinger';
 import useTiltaksgjennomforingById from '../core/api/queries/useTiltaksgjennomforingById';
 
 export function useBrukerHarRettPaaTiltak() {

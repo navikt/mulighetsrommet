@@ -1,5 +1,5 @@
 import { Alert } from '@navikt/ds-react';
-import { useBrukerHarRettPaaTiltak } from '../../hooks/useUserHarRettPaaTiltak';
+import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
 import styles from './BrukerKvalifisererIkkeVarsel.module.scss';
 import { Innsatsgruppe } from '../../../../mulighetsrommet-api-client/build/models/Innsatsgruppe';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';

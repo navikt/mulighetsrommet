@@ -6,7 +6,7 @@ export function BrukerHarIkke14aVedtakVarsel() {
   const brukerdata = useHentBrukerdata();
 
   return !brukerdata.data?.innsatsgruppe && brukerdata.data?.servicegruppe ? (
-    <Alert variant="warning" className={styles.varsel}>
+    <Alert variant="warning" className={styles.varsel} data-testid="varsel_servicesgruppe">
       Brukeren har ikke fått §14 a-vedtak enda, og kan derfor ikke meldes på noen tiltak.
     </Alert>
   ) : (

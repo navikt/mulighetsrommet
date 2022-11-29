@@ -32,7 +32,7 @@ class BrukerService(
 
             Brukerdata(
                 fnr = fnr,
-                oppfolgingsenhet = oppfolgingsenhet?.oppfolgingsenhet,
+                oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
                 servicegruppe = oppfolgingsstatus?.servicegruppe,
                 innsatsgruppe = sisteVedtak?.innsatsgruppe,
                 fornavn = personInfo?.fornavn,
