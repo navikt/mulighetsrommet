@@ -67,7 +67,7 @@ private fun db(databaseConfig: DatabaseConfig): Module {
         single<Database> {
             FlywayDatabaseAdapter(
                 databaseConfig,
-                FlywayDatabaseAdapter.InitializationStrategy.RepairAndMigrate
+                FlywayDatabaseAdapter.InitializationStrategy.Migrate
             )
         }
     }
