@@ -14,7 +14,7 @@ class ArenaService(
 ) {
 
     fun createOrUpdate(tiltaksgjennomforing: Tiltaksgjennomforing) =
-        tiltaksgjennomforingRepository.save(tiltaksgjennomforing)
+        tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
 
     fun createOrUpdate(tiltakstype: Tiltakstype) = tiltakstypeRepository.save(tiltakstype)
 
