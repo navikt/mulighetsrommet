@@ -1,134 +1,83 @@
--- For manual insertion
-insert into innsatsgruppe (id, navn)
-values (1, 'Standardinnsats'),
-       (2, 'Situasjonsbestemt innsats'),
-       (3, 'Spesielt tilpasset innsats'),
-       (4, 'Varig tilpasset innsats');
+-- TILTAKSTYPER
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('634817ca-849c-46cd-9c6d-051a6e586eca', 'Tiltakstype 1', '2022-05-19 14:22:54.155226',
+        '2022-08-04 13:37:45.382136', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('01c43141-a99b-4cd6-bb4d-89e06e8a0006', 'Tiltakstype 2', '2022-05-19 14:22:53.603055',
+        '2022-08-04 13:37:43.893975', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('78457173-bc7e-4113-bafc-cdf295d7e7f5', 'Tiltakstype 3', '2022-05-19 14:22:52.881132',
+        '2022-08-04 13:37:43.471029', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('4bda9407-3a50-4fd4-b534-0f521db065cf', 'Tiltakstype 4', '2022-05-19 14:22:53.664768',
+        '2022-08-04 13:37:43.979626', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('a095bbda-6f72-451c-9ca9-2760c0111c2f', 'Tiltakstype 4', '2022-05-19 14:22:53.784776',
+        '2022-08-04 13:37:44.181316', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('a355522c-6849-4274-93c4-ed8d6df7ff5b', 'Tiltakstype 5', '2022-05-19 14:22:53.836169',
+        '2022-08-04 13:37:44.289915', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('8f182f5f-c847-4408-a624-51680babc07c', 'Tiltakstype 6', '2022-05-19 14:22:53.543614',
+        '2022-08-04 13:37:43.785037', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('f2cc4af5-f9ee-439f-91ab-c70f72079bf4', 'Tiltakstype 7', '2022-05-19 14:22:53.726842',
+        '2022-08-04 13:37:44.092230', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('a13231fc-02ea-4b0b-90ff-c53e9b01b4c1', 'Tiltakstype 8', '2022-05-19 14:22:53.887873',
+        '2022-08-04 13:37:44.928550', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('c8a1a209-03c6-4e69-b0c8-401df45d0409', 'Tiltakstype 9', '2022-05-19 14:22:54.058364',
+        '2022-08-04 13:37:45.269005', null);
+INSERT INTO public.tiltakstype (id, navn, created_at, updated_at,
+                                sanity_id)
+VALUES ('e6932f3f-e501-4927-b355-6ce70a926bb3', 'Tiltakstype 10', '2022-05-19 14:22:54.058364',
+        '2022-08-04 13:37:45.269005', null);
 
-insert into tiltakstype (innsatsgruppe_id, navn, tiltakskode, fra_dato, til_dato)
-values (1, 'Arbeid med Bistand (AB)', 'ABIST', '2001-01-01', '2019-12-31'),
-       (2, 'Arbeid med bistand A oppfølging', 'ABOPPF', '2008-08-01', '2013-12-31'),
-       (2, 'Arbeid med bistand B', 'ABTBOPPF', '2008-08-01', '2013-12-31'),
-       (3, 'Arbeid med bistand A utvidet oppfølging', 'ABUOPPF', '2008-08-01', '2013-12-31'),
-       (4, 'AMB Avklaring (fase 1)', 'AMBF1', '2001-01-01', '2010-12-31'),
-       (1, 'Kvalifisering i arbeidsmarkedsbedrift', 'AMBF2', '2001-01-01', '2099-01-01'),
-       (1, 'Tilrettelagt arbeid i arbeidsmarkedsbedrift', 'AMBF3', '2001-01-01', '2019-12-31'),
-       (1, 'Arbeidsmarkedsopplæring (AMO)', 'AMO', '2001-01-01', '2019-06-30'),
-       (1, 'Arbeidsmarkedsopplæring (AMO) i bedrift', 'AMOB', '2009-11-20', '2015-12-31'),
-       (1, 'Arbeidsmarkedsopplæring (AMO) enkeltplass', 'AMOE', '2001-01-01', '2019-06-30'),
-       (1, 'Arbeidsmarkedsopplæring (AMO) yrkeshemmede', 'AMOY', '2001-01-01', '2009-01-01'),
-       (2, 'Annen utdanning', 'ANNUTDANN', '2001-01-01', '2009-01-01'),
-       (2, 'Arbeidsrettet rehabilitering (døgn) - sykmeldt arbeidstaker', 'ARBDOGNSM', '2012-01-01', '2019-12-31'),
-       (2, 'Arbeidsforberedende trening (AFT)', 'ARBFORB', '2016-01-01', '2099-01-01'),
-       (3, 'Arbeidsrettet rehabilitering (dag) - sykmeldt arbeidstaker', 'ARBRDAGSM', '2012-01-01', '2019-12-31'),
-       (3, 'Arbeidsrettet rehabilitering (døgn)', 'ARBRRDOGN', '2012-01-01', '2019-12-31'),
-       (4, 'Arbeidsrettet rehabilitering', 'ARBRRHBAG', '2009-01-01', '2019-12-31'),
-       (1, 'Arbeidsrettet rehabilitering - sykmeldt arbeidstaker', 'ARBRRHBSM', '2009-01-01', '2019-12-31'),
-       (1, 'Arbeidsrettet rehabilitering (dag)', 'ARBRRHDAG', '2012-01-01', '2099-01-01'),
-       (1, 'Arbeidstrening', 'ARBTREN', '2016-01-01', '2099-01-01'),
-       (1, 'Arbeidssamvirke (ASV)', 'ASV', '2001-01-01', '2010-12-31'),
-       (1, 'Arbeidstreningsgrupper', 'ATG', '2001-01-01', '2010-12-31'),
-       (1, 'Avklaring', 'AVKLARAG', '2009-01-01', '2099-01-01'),
-       (1, 'Avklaring av kortere varighet', 'AVKLARKV', '2008-03-01', '2009-07-01'),
-       (1, 'Avklaring - sykmeldt arbeidstaker', 'AVKLARSP', '2009-01-01', '2019-12-31'),
-       (1, 'Avklaring i skjermet virksomhet', 'AVKLARSV', '2006-01-01', '2019-12-31'),
-       (1, 'Avklaring', 'AVKLARUS', '2005-12-17', '2010-12-31'),
-       (1, 'Bedriftsintern attføring', 'BIA', '2001-01-01', '2004-12-20'),
-       (1, 'Bedriftsintern opplæring (BIO)', 'BIO', '2001-01-01', '2099-01-01'),
-       (1, 'Brevkurs', 'BREVKURS', '2001-01-01', '2009-01-01'),
-       (1, 'Digitalt oppfølgingstiltak for arbeidsledige (jobbklubb)', 'DIGIOPPARB', '2021-01-01', '2099-01-01'),
-       (1, 'Diverse tiltak', 'DIVTILT', '2001-01-01', '2002-10-07'),
-       (1, 'Ekspertbistand', 'EKSPEBIST', '2019-09-01', '2099-01-01'),
-       (1, 'Enkeltplass AMO', 'ENKELAMO', '2019-07-01', '2099-01-01'),
-       (1, 'Enkeltplass Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning', 'ENKFAGYRKE', '2019-07-01', '2099-01-01'),
-       (1, 'Egenetablering', 'ETAB', '2001-01-01', '2099-01-01'),
-       (1, 'Fleksibel jobb - lønnstilskudd av lengre varighet', 'FLEKSJOBB', '2001-01-01', '2005-12-31'),
-       (1, 'Forsøk AMO enkeltplass', 'FORSAMOENK', '2020-01-01', '2099-01-01'),
-       (1, 'Forsøk AMO gruppe', 'FORSAMOGRU', '2020-01-01', '2099-01-01'),
-       (1, 'Forsøk fag- og yrkesopplæring enkeltplass', 'FORSFAGENK', '2020-01-01', '2099-01-01'),
-       (1, 'Forsøk fag- og yrkesopplæring gruppe', 'FORSFAGGRU', '2020-01-01', '2099-01-01'),
-       (1, 'Forsøk høyere utdanning', 'FORSHOYUTD', '2020-01-01', '2099-01-01'),
-       (1, 'Funksjonsassistanse', 'FUNKSJASS', '2012-01-01', '2099-01-01'),
-       (1, 'Gruppe Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning', 'GRUFAGYRKE', '2019-07-01', '2099-01-01'),
-       (1, 'Grunnskole', 'GRUNNSKOLE', '2001-01-01', '2009-01-01'),
-       (1, 'Gruppe AMO', 'GRUPPEAMO', '2019-07-01', '2099-01-01'),
-       (1, 'Høyere utdanning', 'HOYEREUTD', '2019-07-01', '2099-01-01'),
-       (1, 'Høyskole/Universitet', 'HOYSKOLE', '2001-01-01', '2009-01-01'),
-       (1, 'Individuell jobbstøtte (IPS)', 'INDJOBSTOT', '2018-03-17', '2099-01-01'),
-       (1, 'Oppfølging', 'INDOPPFAG', '2009-01-01', '2099-01-01'),
-       (1, 'Individuelt oppfølgingstiltak', 'INDOPPFOLG', '2008-03-01', '2009-07-01'),
-       (2, 'Oppfølging - sykmeldt arbeidstaker', 'INDOPPFSP', '2009-01-01', '2019-12-31'),
-       (2, 'Resultatbasert finansiering av formidlingsbistand', 'INDOPPRF', '2013-07-01', '2099-01-01'),
-       (2, 'Inkluderingstilskudd', 'INKLUTILS', '2016-01-01', '2099-01-01'),
-       (3, 'Nye plasser institusjonelle tiltak', 'INST_S', '2001-01-01', '2009-01-01'),
-       (3, 'Individuell karrierestøtte (IPS Ung)', 'IPSUNG', '2021-04-01', '2099-01-01'),
-       (1, 'Integreringstilskudd', 'ITGRTILS', '2001-01-01', '2010-12-31'),
-       (1, 'Jobbklubb med bonusordning', 'JOBBBONUS', '2003-10-10', '2010-12-31'),
-       (2, 'Jobbfokus/Utvidet formidlingsbistand', 'JOBBFOKUS', '2005-01-01', '2013-12-31'),
-       (4, 'Jobbklubb', 'JOBBK', '2003-10-10', '2099-01-01'),
-       (4, 'Intern jobbklubb', 'JOBBKLUBB', '2001-01-01', '2013-12-31'),
-       (4, 'Jobbskapingsprosjekter', 'JOBBSKAP', '2001-01-01', '2015-12-31'),
-       (4, 'Formidlingstjenester', 'KAT', '2002-12-01', '2005-12-31'),
-       (4, 'Andre kurs', 'KURS', '2001-01-01', '2009-01-01'),
-       (1, 'Tidsbegrenset lønnstilskudd', 'LONNTIL', '2009-01-01', '2019-12-31'),
-       (1, 'Arbeidsavklaringspenger som lønnstilskudd', 'LONNTILAAP', '2013-01-01', '2099-01-01'),
-       (1, 'Lønnstilskudd av lengre varighet', 'LONNTILL', '2005-12-18', '2010-12-31'),
-       (1, 'Lønnstilskudd', 'LONNTILS', '2001-01-01', '2010-12-31'),
-       (1, 'Mentor', 'MENTOR', '2012-01-01', '2099-01-01'),
-       (2, 'Midlertidig lønnstilskudd', 'MIDLONTIL', '2016-01-01', '2099-01-01'),
-       (2, 'Nettbasert arbeidsmarkedsopplæring (AMO)', 'NETTAMO', '2005-01-01', '2019-06-30'),
-       (3, 'Nettkurs', 'NETTKURS', '2001-01-01', '2009-01-01'),
-       (3, '2-årig opplæringstiltak', 'OPPLT2AAR', '2016-01-01', '2019-06-30'),
-       (2, 'Arbeidspraksis i skjermet virksomhet', 'PRAKSKJERM', '2001-01-01', '2019-12-31'),
-       (2, 'Arbeidspraksis i ordinær virksomhet', 'PRAKSORD', '2001-01-01', '2019-12-31'),
-       (2, 'Produksjonsverksted (PV)', 'PV', '2001-01-01', '2099-01-01'),
-       (2, 'Lønnstilskudd - reaktivisering av uførepensjonister', 'REAKTUFOR', '2001-01-01', '2009-01-01'),
-       (1, 'Resultatbasert finansiering av oppfølging', 'REFINO', '2018-03-17', '2099-01-01'),
-       (1, 'Spa prosjekter', 'SPA', '2001-01-01', '2010-12-31'),
-       (1, 'Lærlinger i statlige etater', 'STATLAERL', '2001-01-01', '2002-09-12'),
-       (1, 'Supported Employment', 'SUPPEMP', '2014-01-01', '2099-01-01'),
-       (1, 'Sysselsettingstiltak for langtidsledige', 'SYSSLANG', '2001-01-01', '2009-01-01'),
-       (1, 'Sysselsettingstiltak i offentlig sektor for yrkeshemmede', 'SYSSOFF', '2001-01-01', '2015-12-31'),
-       (1, 'Tidsubestemt lønnstilskudd', 'TIDSUBLONN', '2007-04-01', '2099-01-01'),
-       (1, 'Tilretteleggingstilskudd for arbeidssøker', 'TILPERBED', '2012-01-01', '2099-01-01'),
-       (1, 'Tilrettelegging for arbeidstaker', 'TILRETTEL', '2003-07-13', '2004-12-31'),
-       (1, 'Forebyggings- og tilretteleggingstilskudd IA virksomheter og BHT-honorar', 'TILRTILSK', '2009-01-01', '2099-01-01'),
-       (1, 'Tilskudd til sommerjobb', 'TILSJOBB', '2021-04-01', '2021-08-31'),
-       (4, 'Uførepensjon som lønnstilskudd', 'UFØREPENLØ', '2005-01-01', '2009-01-01'),
-       (4, 'Utredning/behandling lettere psykiske lidelser', 'UTBHLETTPS', '2012-01-01', '2019-12-31'),
-       (3, 'Utredning/behandling lettere psykiske og sammensatte lidelser', 'UTBHPSLD', '2009-01-01', '2019-12-31'),
-       (3, 'Utredning/behandling sammensatte lidelser', 'UTBHSAMLI', '2012-01-01', '2019-12-31'),
-       (2, 'Utdanningspermisjoner', 'UTDPERMVIK', '2007-09-01', '2010-12-31'),
-       (1, 'Utdanning', 'UTDYRK', '2001-01-01', '2019-06-30'),
-       (1, 'Utvidet oppfølging i NAV', 'UTVAOONAV', '2013-12-09', '2099-01-01'),
-       (1, 'Utvidet oppfølging i opplæring', 'UTVOPPFOPL', '2021-03-19', '2099-01-01'),
-       (1, 'Formidlingstjenester - Ventelønn', 'VALS', '2003-01-01', '2005-12-31'),
-       (1, 'Varig lønnstilskudd', 'VARLONTIL', '2016-01-01', '2099-01-01'),
-       (1, 'Varig tilrettelagt arbeid i skjermet virksomhet', 'VASV', '2001-01-01', '2099-01-01'),
-       (1, 'Varig tilrettelagt arbeid i ordinær virksomhet', 'VATIAROR', '2006-01-01', '2099-01-01'),
-       (1, 'Videregående skole', 'VIDRSKOLE', '2001-01-01', '2009-01-01'),
-       (1, 'Utdanningsvikariater', 'VIKARBLED', '2001-01-01', '2010-12-31'),
-       (2, 'Varig vernet arbeid (VVA)', 'VV', '2001-01-01', '2099-01-01'),
-       (4, 'Sysselsettingstiltak for yrkeshemmede', 'YHEMMOFF', '2001-01-01', '2015-12-31');
-
-
-insert into tiltaksgjennomforing(navn, tiltaksnummer, fra_dato, til_dato, tiltakskode, arrangor_id, arena_id, sak_id, sanity_id, aar, apent_for_innsok,
-                                 antall_plasser, tilgjengelighet)
-values ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 19, 19, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 2, 2, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 3, 3, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 4, 4, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 5, 5, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 6, 6, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 7, 7, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 8, 8, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 9, 9, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 10, 10, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 11, 11, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 12, 12, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 13, 13, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 14, 14, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 15, 15, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 16, 16, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 17, 17, 1, 2022, true, 500, 'Ledig'),
-       ('Arbeidsrettet rehabilitering - Trondheim', '1234', null, null, 'ABIST', 1, 18, 18, 1, 2022, true, 500, 'Ledig');
+-- TILTAKSGJENNOMFØRINGER
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('afb69ca8-ddff-45be-9fd0-8f968519468d', 'Tiltaksgjennomføring 1', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, 'c8a1a209-03c6-4e69-b0c8-401df45d0409');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('a7d63fb0-4366-412c-84b7-7c15518ee36c', 'Tiltaksgjennomføring 2', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, 'c8a1a209-03c6-4e69-b0c8-401df45d0409');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('186df85f-c773-4f34-8904-1983787a3caf', 'Tiltaksgjennomføring 3', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, 'e6932f3f-e501-4927-b355-6ce70a926bb3');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('f9b46e0d-674c-42bd-89f6-a3180df0541c', 'Tiltaksgjennomføring 4', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, 'e6932f3f-e501-4927-b355-6ce70a926bb3');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('1e0c8f23-8ab2-4faf-bd9a-d2be60b60980', 'Tiltaksgjennomføring 5', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '634817ca-849c-46cd-9c6d-051a6e586eca');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('20454cc4-fa45-45ae-b1eb-74c88007cdd4', 'Tiltaksgjennomføring 6', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '634817ca-849c-46cd-9c6d-051a6e586eca');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('ea14a874-7ebd-478e-82e1-1c045c29463f', 'Tiltaksgjennomføring 7', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '01c43141-a99b-4cd6-bb4d-89e06e8a0006');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb', 'Tiltaksgjennomføring 8', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '01c43141-a99b-4cd6-bb4d-89e06e8a0006');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('d4b523a8-e6ed-4106-9090-a7c8537bfb63', 'Tiltaksgjennomføring 9', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '78457173-bc7e-4113-bafc-cdf295d7e7f5');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('9b9225ac-4edb-4af2-8811-7448679f82e7', 'Tiltaksgjennomføring 10', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '78457173-bc7e-4113-bafc-cdf295d7e7f5');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('3e07fa5f-3fad-456b-967c-9a72d8d30e5a', 'Tiltaksgjennomføring 11', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '78457173-bc7e-4113-bafc-cdf295d7e7f5');
+insert into public.tiltaksgjennomforing (id, navn, created_at, updated_at, sanity_id, tiltakstype_id)
+values ('9b6f86d7-0544-4ae3-a8fa-24c0c8e6923a', 'Tiltaksgjennomføring 12', '2017-09-01 00:00:00.000000',
+        '2021-06-30 00:00:00.000000', null, '78457173-bc7e-4113-bafc-cdf295d7e7f5');

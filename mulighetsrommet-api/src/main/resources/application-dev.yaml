@@ -49,10 +49,6 @@ app:
     url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
     scope: api://dev-fss.pto.veilarbdialog/.default
 
-  veilarbarenaConfig:
-    url: https://veilarbarena.dev-fss-pub.nais.io/veilarbarena/api
-    scope: api://dev-fss.pto.veilarbarena/.default
-
   poaoGcpProxy:
     url: https://poao-gcp-proxy.dev-fss-pub.nais.io
     scope: api://dev-fss.pto.poao-gcp-proxy/.default
@@ -64,7 +60,3 @@ app:
   amtEnhetsregister:
     url: http://amt-enhetsregister.amt
     scope: api://dev-gcp.amt.amt-enhetsregister/.default
-
-  arenaOrdsProxy:
-    url: https://amt-arena-ords-proxy.dev-fss-pub.nais.io/api
-    scope: api://dev-fss.amt.amt-arena-ords-proxy/.default

@@ -1,12 +1,14 @@
 package no.nav.mulighetsrommet.domain.models
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Serializable
 data class Tiltakstype(
-    val id: Int? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val navn: String,
-    val innsatsgruppe: Int,
-    val tiltakskode: String,
+    val tiltakskode: String
 )

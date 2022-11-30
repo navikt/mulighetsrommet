@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.server.plugins.*
+import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.DatabaseMapper
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -41,10 +41,18 @@ class DelMedBrukerService(private val db: Database) {
             values(?, ?, ?, ?, ?, ?)
             returning *
         """.trimIndent()
-        data.run { queryOf(query, data.bruker_fnr, data.navident, data.tiltaksnummer, data.dialogId, data.navident, data.navident) }
-            .map {
-                DatabaseMapper.toDelMedBruker(it)
-            }
+        data.run {
+            queryOf(
+                query,
+                data.bruker_fnr,
+                data.navident,
+                data.tiltaksnummer,
+                data.dialogId,
+                data.navident,
+                data.navident
+            )
+        }
+            .map { it.toDelMedBruker() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -58,6 +66,18 @@ class DelMedBrukerService(private val db: Database) {
             query,
             fnr,
             tiltaksnummer
-        ).map { DatabaseMapper.toDelMedBruker(it) }.asSingle.let { db.run(it) }
+        ).map { it.toDelMedBruker() }.asSingle.let { db.run(it) }
     }
+
+    private fun Row.toDelMedBruker(): DelMedBruker = DelMedBruker(
+        id = string("id"),
+        bruker_fnr = string("bruker_fnr"),
+        navident = string("navident"),
+        tiltaksnummer = string("tiltaksnummer"),
+        dialogId = string("dialogId"),
+        created_at = localDateTime("created_at"),
+        updated_at = localDateTime("updated_at"),
+        created_by = string("created_by"),
+        updated_by = string("updated_by")
+    )
 }

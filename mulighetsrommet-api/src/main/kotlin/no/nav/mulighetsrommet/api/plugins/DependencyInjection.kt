@@ -11,10 +11,6 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
-import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
-import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClientImpl
-import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.api.clients.arena_ords_proxy.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
@@ -27,7 +23,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
-import no.nav.mulighetsrommet.api.repositories.ArenaRepository
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
@@ -58,8 +56,6 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
-                veilarbarena(appConfig),
-                arenaordsproxy(appConfig),
                 amtenhetsregister(appConfig)
             )
         )
@@ -98,14 +94,24 @@ private fun kafka(kafkaConfig: KafkaConfig): KafkaProducerService<String, String
 private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
     return VeilarbvedtaksstotteClientImpl(
         config.veilarbvedtaksstotteConfig.url,
-        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarbvedtaksstotteConfig.scope, accessToken) }
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarbvedtaksstotteConfig.scope,
+                accessToken
+            )
+        }
     )
 }
 
 private fun veilarboppfolging(config: AppConfig): VeilarboppfolgingClient {
     return VeilarboppfolgingClientImpl(
         config.veilarboppfolgingConfig.url,
-        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarboppfolgingConfig.scope, accessToken) }
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarboppfolgingConfig.scope,
+                accessToken
+            )
+        }
     )
 }
 
@@ -125,7 +131,12 @@ private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
 private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
     return VeilarbdialogClientImpl(
         config.veilarbdialogConfig.url,
-        { accessToken -> tokenClientProvider(config).exchangeOnBehalfOfToken(config.veilarbdialogConfig.scope, accessToken) }
+        { accessToken ->
+            tokenClientProvider(config).exchangeOnBehalfOfToken(
+                config.veilarbdialogConfig.scope,
+                accessToken
+            )
+        }
     )
 }
 
@@ -142,27 +153,14 @@ private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
     )
 }
 
-private fun veilarbarena(config: AppConfig): VeilarbarenaClient {
-    return VeilarbarenaClientImpl(
-        config.poaoGcpProxy.url,
-        tokenClientProviderForMachineToMachine(config),
-        tokenClientProvider(config),
-        config.veilarbarenaConfig.scope,
-        config.poaoGcpProxy.scope
-    )
-}
-
-private fun arenaordsproxy(config: AppConfig): ArenaOrdsProxyClient {
-    return ArenaOrdsProxyClientImpl(
-        baseUrl = config.arenaOrdsProxy.url,
-        machineToMachineTokenClient = { tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(config.arenaOrdsProxy.scope) }
-    )
-}
-
 private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
     return AmtEnhetsregisterClientImpl(
         baseUrl = config.amtEnhetsregister.url,
-        machineToMachineTokenClient = { tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(config.amtEnhetsregister.scope) }
+        machineToMachineTokenClient = {
+            tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(
+                config.amtEnhetsregister.scope
+            )
+        }
     )
 }
 
@@ -173,6 +171,7 @@ private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
             .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
             .buildOnBehalfOfTokenClient()
+
         false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
     }
 }
@@ -184,12 +183,15 @@ private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineTo
             .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
             .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
             .buildMachineToMachineTokenClient()
+
         false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
     }
 }
 
 private fun repositories() = module {
-    single { ArenaRepository(get()) }
+    single { TiltaksgjennomforingRepository(get()) }
+    single { TiltakstypeRepository(get()) }
+    single { DeltakerRepository(get()) }
 }
 
 private fun services(
@@ -199,19 +201,14 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    veilarbarenaClient: VeilarbarenaClient,
-    arenaOrdsProxyClient: ArenaOrdsProxyClient,
     amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
-    single { ArenaService(get()) }
-    single { TiltaksgjennomforingService(get()) }
-    single { TiltakstypeService(get()) }
-    single { InnsatsgruppeService(get()) }
-    single { HistorikkService(get(), veilarbarenaClient, get()) }
+    single { ArenaService(get(), get(), get()) }
+    single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
-    single { ArrangorService(arenaOrdsProxyClient, amtEnhetsregisterClient) }
+    single { ArrangorService(amtEnhetsregisterClient) }
     single {
         BrukerService(
             veilarboppfolgingClient = veilarboppfolging,

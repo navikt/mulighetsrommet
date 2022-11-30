@@ -27,11 +27,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
     veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
     veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
-    veilarbarenaConfig = createServiceClientConfig("veilarbarena"),
     poaoGcpProxy = createServiceClientConfig("poaogcpproxy"),
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
-    arenaOrdsProxy = createServiceClientConfig("arenaordsproxy")
 )
 
 fun createKafkaConfig(): KafkaConfig {
