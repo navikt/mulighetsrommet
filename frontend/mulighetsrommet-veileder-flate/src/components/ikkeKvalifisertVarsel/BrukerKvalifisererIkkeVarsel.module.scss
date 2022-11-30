@@ -1,0 +1,15 @@
+.code {
+  text-transform: lowercase;
+  font-weight: bolder;
+}
+
+:global(.mulighetsrommet-veileder-flate) {
+  .varsel {
+    margin-bottom: .5rem;
+    margin-top: .5rem;
+
+    :global(.navds-alert__wrapper) {
+      max-width: none;
+    }
+  }
+}

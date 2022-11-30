@@ -1,22 +1,23 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
-import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.api.utils.toUUID
 import org.koin.ktor.ext.inject
 
 fun Route.tiltaksgjennomforingRoutes() {
-    val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
+    val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
 
     route("/api/v1/tiltaksgjennomforinger") {
-        get() {
+        get {
             val paginationParams = getPaginationParams()
-            val (totalCount, tiltaksgjennomforinger) = tiltaksgjennomforingService.getTiltaksgjennomforinger(
+            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
                 paginationParams
             )
             call.respond(
@@ -26,18 +27,19 @@ fun Route.tiltaksgjennomforingRoutes() {
                         currentPage = paginationParams.page,
                         pageSize = paginationParams.limit
                     ),
-                    data = tiltaksgjennomforinger
+                    data = items
                 )
             )
         }
+
         get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondText(
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
             val tiltaksgjennomforing =
-                tiltaksgjennomforingService.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
-                    "Det finnes ikke noe tiltak med id $id",
+                tiltaksgjennomforinger.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
+                    "Det finnes ikke noe tiltaksgjennomføring med id $id",
                     status = HttpStatusCode.NotFound
                 )
             call.respond(tiltaksgjennomforing)

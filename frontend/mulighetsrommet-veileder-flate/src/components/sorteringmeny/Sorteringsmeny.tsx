@@ -19,9 +19,9 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
       <option value="tiltakstypeNavn-ascending">Sorter etter:</option>
       <option value="lokasjon-ascending">Lokasjon a-å</option>
       <option value="lokasjon-descending">Lokasjon å-a</option>
+      <option value="oppstart-asscending">Oppstartsdato</option>
       <option value="tiltaksgjennomforingNavn-ascending">Tittel a-å</option>
       <option value="tiltaksgjennomforingNavn-descending">Tittel å-a</option>
-      <option value="oppstart-asscending">Oppstartsdato</option>
     </Select>
   );
 };

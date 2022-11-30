@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseAdapter
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 
 @Serializable
@@ -78,7 +77,8 @@ private suspend fun writeTilgjenglighetsstatus(
         )
             .map {
                 val value = it.string("tilgjengelighet")
-                Tiltaksgjennomforing.Tilgjengelighetsstatus.valueOf(value)
+                // TODO: map denne til tilgjenglighetsstatus
+                value
             }
             .asSingle
             .let { db.run(it) }

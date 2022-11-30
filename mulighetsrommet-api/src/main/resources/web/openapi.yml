@@ -601,6 +601,8 @@ components:
           type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
+        servicegruppe:
+          type: string
         oppfolgingsenhet:
           $ref: "#/components/schemas/Oppfolgingsenhet"
         fornavn:

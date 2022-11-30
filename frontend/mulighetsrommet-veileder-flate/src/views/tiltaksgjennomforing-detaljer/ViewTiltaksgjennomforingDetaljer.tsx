@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import Nokkelinfo, { NokkelinfoProps } from '../../components/nokkelinfo/Nokkelinfo';
+import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
@@ -14,13 +15,15 @@ import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMe
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { environments } from '../../env';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
+import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { environments } from '../../env';
-import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
+import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
+import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -52,6 +55,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const veilederdata = useHentVeilederdata();
   const { getUrlTilDialogen } = useNavigerTilDialogen();
   const veiledernavn = `${capitalize(veilederdata?.data?.fornavn)} ${capitalize(veilederdata?.data?.etternavn)}`;
+  const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
 
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
   const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
@@ -95,6 +99,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     else return 'Del tiltak med bruker';
   };
 
+  const kanBrukerFaaAvtale = () => {
+    const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
+    window.open(url, '_blank');
+  };
+
   const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
     nokkelinfoKomponenter: [
       {
@@ -120,6 +129,8 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             tekst="Tilbake til tiltaksoversikten"
           />
         )}
+        <BrukerKvalifisererIkkeVarsel />
+        <BrukerHarIkke14aVedtakVarsel />
         <div className={styles.tiltakstype_detaljer}>
           <div className={styles.tiltakstype_header_maksbredde}>
             <TiltaksgjennomforingsHeader />
@@ -144,13 +155,12 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             <div className={styles.deleknapp_container}>
               {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && !erPreview && (
                 <Button
-                  as="a"
-                  href={lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)}
-                  target="_blank"
+                  onClick={kanBrukerFaaAvtale}
                   variant="primary"
                   className={styles.deleknapp}
                   aria-label="Opprett avtale"
                   data-testid="opprettavtaleknapp"
+                  disabled={!brukerHarRettPaaTiltak}
                 >
                   Opprett avtale
                 </Button>
