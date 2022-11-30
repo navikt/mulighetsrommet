@@ -22,6 +22,8 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing.Tilgjengelighetsstatus.Ledig
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing.Tilgjengelighetsstatus.Stengt
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -131,5 +133,7 @@ class TiltakgjennomforingEndretConsumer(
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = sak.lopenummer.toString(),
             virksomhetsnummer = virksomhetsnummer,
+            tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
+            antallPlasser = antallPlasser
         )
 }

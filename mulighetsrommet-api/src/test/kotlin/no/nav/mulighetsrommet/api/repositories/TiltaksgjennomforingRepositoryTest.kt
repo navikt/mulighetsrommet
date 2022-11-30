@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -8,7 +9,10 @@ import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.models.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import java.util.*
 
@@ -37,7 +41,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+        antallPlasser = null
     )
 
     val tiltak2 = Tiltaksgjennomforing(
@@ -45,7 +51,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Trening",
         tiltakstypeId = tiltakstype2.id,
         tiltaksnummer = "54321",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+        antallPlasser = null
     )
 
     context("CRUD") {
@@ -58,8 +66,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
 
-            tiltaksgjennomforinger.upsert(tiltak1)
-            tiltaksgjennomforinger.upsert(tiltak2)
+            tiltaksgjennomforinger.upsert(tiltak1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(tiltak2).shouldBeRight()
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
             tiltaksgjennomforinger.get(tiltak1.id) shouldBe tiltak1
@@ -71,104 +79,101 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-//        TODO: implementer på nytt
-//        context("tilgjengelighetsstatus") {
-//            context("when tiltak is closed for applications") {
-//                beforeAny {
-//                    arenaService.createOrUpdate(
-//                        tiltak1.copy(
-//                            apentForInnsok = false
-//                        )
-//                    )
-//                }
-//
-//                afterAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            apentForInnsok = true
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to STENGT") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
-//                }
-//            }
-//
-//            context("when there are no limits to available seats") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = null
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
-//                }
-//            }
-//
-//            context("when there are no available seats") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = 0
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to VENTELISTE") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
-//                }
-//            }
-//
-//            context("when all available seats are occupied by deltakelser with status DELTAR") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = 1
-//                        )
-//                    )
-//
-//                    arenaService.upsertDeltaker(
-//                        AdapterTiltakdeltaker(
-//                            tiltaksdeltakerId = 1,
-//                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
-//                            personId = 1,
-//                            status = Deltakerstatus.DELTAR
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to VENTELISTE") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
-//                }
-//            }
-//
-//            context("when deltakelser are no longer DELTAR") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = 1
-//                        )
-//                    )
-//
-//                    arenaService.upsertDeltaker(
-//                        AdapterTiltakdeltaker(
-//                            tiltaksdeltakerId = 1,
-//                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
-//                            personId = 1,
-//                            status = Deltakerstatus.AVSLUTTET
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
-//                }
-//            }
-//        }
+    context("tilgjengelighetsstatus") {
+        listener.db.clean()
+        listener.db.migrate()
+
+        val tiltakstyper = TiltakstypeRepository(listener.db)
+        tiltakstyper.save(tiltakstype1)
+
+        val deltakere = DeltakerRepository(listener.db)
+        val deltaker = Deltaker(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = tiltak1.id,
+            norskIdent = "12345678910",
+            status = Deltakerstatus.DELTAR,
+        )
+
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
+
+        context("when tilgjengelighet is set to Stengt") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    tiltak1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Stengt
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Stengt") {
+                tiltaksgjennomforinger.get(tiltak1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+            }
+        }
+
+        context("when there are no limits to available seats") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    tiltak1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = null
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Ledig") {
+                tiltaksgjennomforinger.get(tiltak1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+            }
+        }
+
+        context("when there are no available seats") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    tiltak1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = 0
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Venteliste") {
+                tiltaksgjennomforinger.get(tiltak1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+            }
+        }
+
+        context("when all available seats are occupied by deltakelser with status DELTAR") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    tiltak1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = 1
+                    )
+                ).shouldBeRight()
+
+                deltakere.save(deltaker.copy(status = Deltakerstatus.DELTAR))
+            }
+
+            test("should have tilgjengelighet set to Venteliste") {
+                tiltaksgjennomforinger.get(tiltak1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+            }
+        }
+
+        context("when deltakelser are no longer DELTAR") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    tiltak1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = 1
+                    )
+                ).shouldBeRight()
+
+                deltakere.save(deltaker.copy(status = Deltakerstatus.AVSLUTTET))
+            }
+
+            test("should have tilgjengelighet set to Ledig") {
+                tiltaksgjennomforinger.get(tiltak1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+            }
+        }
+    }
 
     context("pagination") {
         listener.db.clean()
@@ -185,7 +190,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     navn = "$it",
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
-                    virksomhetsnummer = "123456789"
+                    virksomhetsnummer = "123456789",
+                    Tilgjengelighetsstatus.Ledig,
+                    antallPlasser = null
                 )
             )
         }

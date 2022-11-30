@@ -41,7 +41,9 @@ class ArenaServiceTest : FunSpec({
             navn = "Arbeidstrening",
             tiltakstypeId = tiltakstype.id,
             tiltaksnummer = "12345",
-            virksomhetsnummer = "123456789"
+            virksomhetsnummer = "123456789",
+            tilgjengelighet = Tiltaksgjennomforing.Tilgjengelighetsstatus.Ledig,
+            antallPlasser = null
         )
 
         val deltaker = Deltaker(

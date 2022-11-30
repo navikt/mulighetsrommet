@@ -12,5 +12,13 @@ data class Tiltaksgjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val tiltaksnummer: String,
-    val virksomhetsnummer: String?
-)
+    val virksomhetsnummer: String?,
+    val tilgjengelighet: Tilgjengelighetsstatus,
+    val antallPlasser: Int?,
+) {
+    enum class Tilgjengelighetsstatus {
+        Ledig,
+        Venteliste,
+        Stengt,
+    }
+}
