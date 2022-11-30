@@ -1,26 +1,29 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.repositories.ArenaRepository
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
 
-class ArenaService(private val arenaRepository: ArenaRepository) {
+class ArenaService(
+    private val tiltakstypeRepository: TiltakstypeRepository,
+    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
+    private val deltakerRepository: DeltakerRepository
+) {
 
-    fun createOrUpdate(tiltaksgjennomforing: AdapterTiltaksgjennomforing) = arenaRepository.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+    fun createOrUpdate(tiltaksgjennomforing: Tiltaksgjennomforing) =
+        tiltaksgjennomforingRepository.save(tiltaksgjennomforing)
 
-    fun createOrUpdate(tiltakstype: AdapterTiltak) = arenaRepository.upsertTiltakstype(tiltakstype)
+    fun createOrUpdate(tiltakstype: Tiltakstype) = tiltakstypeRepository.save(tiltakstype)
 
-    fun createOrUpdate(deltaker: AdapterTiltakdeltaker) = arenaRepository.upsertDeltaker(deltaker)
+    fun createOrUpdate(deltaker: Deltaker) = deltakerRepository.save(deltaker)
 
-    fun remove(tiltaksgjennomforing: AdapterTiltaksgjennomforing) = arenaRepository.deleteTiltaksgjennomforing(tiltaksgjennomforing)
+    fun remove(tiltaksgjennomforing: Tiltaksgjennomforing) =
+        tiltaksgjennomforingRepository.delete(tiltaksgjennomforing.id)
 
-    fun remove(tiltakstype: AdapterTiltak) = arenaRepository.deleteTiltakstype(tiltakstype)
+    fun remove(tiltakstype: Tiltakstype) = tiltakstypeRepository.delete(tiltakstype.id)
 
-    fun remove(deltaker: AdapterTiltakdeltaker) = arenaRepository.deleteDeltaker(deltaker)
-
-    fun setTiltaksnummerWith(sak: AdapterSak) = arenaRepository.updateTiltaksgjennomforingWithSak(sak)
-
-    fun removeTiltaksnummerWith(sak: AdapterSak) = arenaRepository.unsetSakOnTiltaksgjennomforing(sak)
+    fun remove(deltaker: Deltaker) = deltakerRepository.delete(deltaker.id)
 }

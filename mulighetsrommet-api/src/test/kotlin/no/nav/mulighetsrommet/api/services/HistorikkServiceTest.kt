@@ -5,95 +5,78 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.arena.VeilarbarenaClient
-import no.nav.mulighetsrommet.api.repositories.ArenaRepository
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.adapter.AdapterSak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltak
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltakdeltaker
-import no.nav.mulighetsrommet.domain.adapter.AdapterTiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
+import no.nav.mulighetsrommet.domain.models.*
 import java.time.LocalDateTime
+import java.util.*
 
 class HistorikkServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
     val arrangorService: ArrangorService = mockk()
-    val veilarbarenaClient: VeilarbarenaClient = mockk()
 
     val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
 
+    val tiltakstype = Tiltakstype(
+        id = UUID.randomUUID(),
+        navn = "Arbeidstrening",
+        tiltakskode = "ARBTREN",
+    )
+
+    val tiltaksgjennomforing = Tiltaksgjennomforing(
+        id = UUID.randomUUID(),
+        navn = "Arbeidstrening",
+        tiltakstypeId = tiltakstype.id,
+        tiltaksnummer = "12345",
+        virksomhetsnummer = "123456789"
+    )
+
+    val deltaker = Deltaker(
+        id = UUID.randomUUID(),
+        tiltaksgjennomforingId = tiltaksgjennomforing.id,
+        norskIdent = "12345678910",
+        status = Deltakerstatus.VENTER,
+        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0)
+    )
+
     beforeSpec {
-        val arenaRepository = ArenaRepository(listener.db)
+        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val deltakerRepository = DeltakerRepository(listener.db)
+        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
-        val tiltakstype = AdapterTiltak(
-            navn = "Arbeidstrening",
-            innsatsgruppe = 1,
-            tiltakskode = "ARBTREN",
-            fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1)
-        )
-
-        val tiltaksgjennomforing = AdapterTiltaksgjennomforing(
-            navn = "Arbeidstrening",
-            arrangorId = 1,
-            tiltakskode = "ARBTREN",
-            tiltaksgjennomforingId = 123,
-            sakId = 123
-        )
-
-        val deltaker = AdapterTiltakdeltaker(
-            tiltaksdeltakerId = 123,
-            tiltaksgjennomforingId = 123,
-            personId = 111,
-            fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-            tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-            status = Deltakerstatus.VENTER
-        )
-
-        val sak = AdapterSak(
-            sakId = 123,
-            lopenummer = 3,
-            aar = 2022
-        )
-
-        arenaRepository.upsertTiltakstype(tiltakstype)
-        arenaRepository.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-        arenaRepository.upsertDeltaker(deltaker)
-        arenaRepository.updateTiltaksgjennomforingWithSak(sak)
+        service.createOrUpdate(tiltakstype)
+        service.createOrUpdate(tiltaksgjennomforing)
+        service.createOrUpdate(deltaker)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
-        coEvery { arrangorService.hentArrangornavn(1) } returns bedriftsnavn
-        coEvery {
-            veilarbarenaClient.hentPersonIdForFnr(
-                any(),
-                any()
-            )
-        } returns "111"
+        coEvery { arrangorService.hentArrangornavn(any()) } returns bedriftsnavn
 
         val historikkService =
-            HistorikkService(listener.db, veilarbarenaClient, arrangorService)
+            HistorikkService(listener.db, arrangorService)
 
         val forventetHistorikk = listOf(
             HistorikkForDeltakerDTO(
-                id = "1",
+                id = deltaker.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
-                tiltaksnummer = "3",
+                tiltaksnummer = "12345",
                 tiltakstype = "Arbeidstrening",
                 arrangor = bedriftsnavn
             )
         )
 
         historikkService.hentHistorikkForBruker(
-            "fnr",
-            ""
+            "12345678910"
         ) shouldBe forventetHistorikk
     }
 })

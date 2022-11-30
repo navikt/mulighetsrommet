@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.domain.models
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.DateSerializer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,15 +15,22 @@ enum class Deltakerstatus {
 
 @Serializable
 data class Deltaker(
-    val id: Int? = null,
-    val tiltaksgjennomforingId: Int,
-    val personId: Int,
-    val status: Deltakerstatus
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltaksgjennomforingId: UUID,
+    val norskIdent: String,
+    val status: Deltakerstatus,
+    @Serializable(with = DateSerializer::class)
+    val fraDato: LocalDateTime? = null,
+    @Serializable(with = DateSerializer::class)
+    val tilDato: LocalDateTime? = null
 )
 
 @Serializable
 data class HistorikkForDeltakerDTO(
-    val id: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
@@ -35,7 +43,8 @@ data class HistorikkForDeltakerDTO(
 )
 
 data class HistorikkForDeltaker(
-    val id: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
@@ -44,5 +53,5 @@ data class HistorikkForDeltaker(
     val tiltaksnavn: String,
     val tiltaksnummer: String,
     val tiltakstype: String,
-    val arrangorId: Int
+    val virksomhetsnummer: String
 )

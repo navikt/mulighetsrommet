@@ -10,7 +10,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 class AuthenticationTest : FunSpec({
 
     val oauth = MockOAuth2Server()
-    val apiUrl = "/api/v1/innsatsgrupper"
+    val apiUrl = "/api/v1/tiltakstyper"
 
     beforeSpec {
         oauth.start()
