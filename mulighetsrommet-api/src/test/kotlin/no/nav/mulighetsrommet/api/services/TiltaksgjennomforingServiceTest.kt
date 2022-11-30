@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,7 +45,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 virksomhetsnummer = "976663934",
                 enhet = "",
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                startDato = LocalDate.of(2022, 1, 1)
+                startDato = LocalDate.of(2022, 1, 1),
+                tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                antallPlasser = null,
             )
         )
     }

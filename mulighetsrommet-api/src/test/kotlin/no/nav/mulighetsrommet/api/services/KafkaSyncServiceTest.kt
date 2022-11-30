@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -56,7 +57,9 @@ class KafkaSyncServiceTest : FunSpec({
             startDato = startDato,
             sluttDato = sluttDato,
             enhet = "2990",
-            avslutningsstatus = avslutningsstatus
+            avslutningsstatus = avslutningsstatus,
+            tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+            antallPlasser = null,
         )
     }
 

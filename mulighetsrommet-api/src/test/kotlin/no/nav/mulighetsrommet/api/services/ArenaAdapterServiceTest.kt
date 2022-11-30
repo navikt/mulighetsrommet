@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -61,7 +62,9 @@ class ArenaAdapterServiceTest : FunSpec({
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
         enhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+        antallPlasser = null,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -109,7 +112,9 @@ class ArenaAdapterServiceTest : FunSpec({
             startDato = startDato,
             sluttDato = sluttDato,
             enhet = enhet,
-            status = Tiltaksgjennomforingsstatus.AVSLUTTET
+            status = Tiltaksgjennomforingsstatus.AVSLUTTET,
+            tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+            antallPlasser = null,
         )
     }
 

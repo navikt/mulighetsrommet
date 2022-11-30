@@ -19,6 +19,8 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
@@ -138,6 +140,8 @@ class TiltakgjennomforingEventProcessor(
             startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
             enhet = sak.enhet,
-            avslutningsstatus = Avslutningsstatus.fromArenastatus(status)
+            avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
+            tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
+            antallPlasser = antallPlasser,
         )
 }
