@@ -25,8 +25,16 @@ class FlywayDatabaseAdapter(
             .load()
 
         when (strategy) {
-            InitializationStrategy.Migrate -> migrate()
+            InitializationStrategy.Migrate -> {
+                migrate()
+            }
+
             InitializationStrategy.MigrateAsync -> runAsync {
+                migrate()
+            }
+
+            InitializationStrategy.RepairAndMigrate -> {
+                repair()
                 migrate()
             }
         }
@@ -35,6 +43,11 @@ class FlywayDatabaseAdapter(
     enum class InitializationStrategy {
         Migrate,
         MigrateAsync,
+        RepairAndMigrate,
+    }
+
+    fun repair() {
+        flyway.repair()
     }
 
     fun migrate() {

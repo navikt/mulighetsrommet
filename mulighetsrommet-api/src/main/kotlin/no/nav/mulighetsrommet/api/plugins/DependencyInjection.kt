@@ -64,7 +64,12 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
 private fun db(databaseConfig: DatabaseConfig): Module {
     return module(createdAtStart = true) {
-        single<Database> { FlywayDatabaseAdapter(databaseConfig, FlywayDatabaseAdapter.InitializationStrategy.Migrate) }
+        single<Database> {
+            FlywayDatabaseAdapter(
+                databaseConfig,
+                FlywayDatabaseAdapter.InitializationStrategy.Migrate
+            )
+        }
     }
 }
 
