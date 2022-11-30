@@ -14,7 +14,7 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.secure_log.SecureLog
-import no.nav.poao_tilgang.client.utils.CacheUtils
+import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -45,8 +45,8 @@ class VeilarbarenaClientImpl(
     }
 
     override suspend fun hentPersonIdForFnr(fnr: String, accessToken: String): String? {
-        return CacheUtils.tryCacheFirstNotNull(fnrTilpersonIdCache, fnr) {
-            return try {
+        return CacheUtils.tryCacheFirstNullable(fnrTilpersonIdCache, fnr) {
+            try {
                 val response = client.get("$baseUrl/proxy/veilarbarena/api/oppfolgingsbruker/hentPersonId") {
                     bearerAuth(
                         machineToMachineTokenClient.createMachineToMachineToken(

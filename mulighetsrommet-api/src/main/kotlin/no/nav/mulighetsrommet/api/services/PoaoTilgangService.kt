@@ -7,8 +7,8 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.poao_tilgang.client.*
-import no.nav.poao_tilgang.client.utils.CacheUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
 

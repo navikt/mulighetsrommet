@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.domain.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.ManuellStatusDTO
 import no.nav.mulighetsrommet.api.domain.Oppfolgingsenhet
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
-import no.nav.poao_tilgang.client.utils.CacheUtils
+import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class BrukerService(
