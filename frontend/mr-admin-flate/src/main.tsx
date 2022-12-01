@@ -31,7 +31,6 @@ function render() {
         <MiljoBanner />
         <Router basename={import.meta.env.BASE_URL}>
           <AdministratorHeader />
-          <h1>Vi tester noe spennende</h1>
           <App />
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
