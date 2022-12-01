@@ -120,6 +120,11 @@ export function DelMedBrukerContent({
       {!brukernavn && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente brukers navn</ErrorMessage>
       )}
+      {!tiltaksgjennomforing?.tiltakstype?.delingMedBruker && (
+        <ErrorMessage className={delemodalStyles.feilmeldinger}>
+          • Klarte ikke hente preutfylt tekst om tiltaket{' '}
+        </ErrorMessage>
+      )}
       <div className={modalStyles.modal_btngroup}>
         <div className={delemodalStyles.btn_row}>
           <Button
