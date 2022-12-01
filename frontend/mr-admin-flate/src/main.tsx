@@ -31,6 +31,7 @@ function render() {
         <MiljoBanner />
         <Router>
           <AdministratorHeader />
+          <h1>Vi tester noe spennende</h1>
           <App />
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
