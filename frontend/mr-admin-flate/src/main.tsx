@@ -29,7 +29,7 @@ function render() {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
-        <Router>
+        <Router basename={import.meta.env.VITE_BASE}>
           <AdministratorHeader />
           <App />
         </Router>
