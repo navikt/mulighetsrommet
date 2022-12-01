@@ -23,11 +23,12 @@ data class TaskConfig(
 )
 
 data class ServiceConfig(
-    val mulighetsrommetApi: AuthenticatedService,
-    val arenaEventService: ArenaEventService.Config
+    val mulighetsrommetApi: ServiceClientConfig,
+    val arenaEventService: ArenaEventService.Config,
+    val arenaOrdsProxy: ServiceClientConfig,
 )
 
-data class AuthenticatedService(
+data class ServiceClientConfig(
     val url: String,
     val scope: String
 )
