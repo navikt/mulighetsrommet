@@ -35,20 +35,19 @@ class SakEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
         val decoded = ArenaEventData.decode<ArenaSak>(event.payload)
 
         ensure(sakIsRelatedToTiltaksgjennomforing(decoded.data)) {
             ConsumptionError.Ignored("""Sak ignorert fordi den ikke er en tiltakssak (SAKSKODE != "TILT")""")
         }
 
-        val sak = decoded.data
+        decoded.data
             .toSak()
             .let { saker.upsert(it) }
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
-
-        logger.info("Sak prosessert id=${sak.sakId}")
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"

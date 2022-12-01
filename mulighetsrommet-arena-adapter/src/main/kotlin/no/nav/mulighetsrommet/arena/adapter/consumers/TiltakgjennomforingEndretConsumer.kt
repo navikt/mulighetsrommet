@@ -55,7 +55,7 @@ class TiltakgjennomforingEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
         val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
         ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
@@ -76,6 +76,7 @@ class TiltakgjennomforingEndretConsumer(
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.request(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
             .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
 

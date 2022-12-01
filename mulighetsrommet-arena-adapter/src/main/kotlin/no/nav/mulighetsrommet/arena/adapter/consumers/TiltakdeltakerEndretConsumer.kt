@@ -43,7 +43,7 @@ class TiltakdeltakerEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
         val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
 
         val tiltaksgjennomforing = events.get(
@@ -69,6 +69,7 @@ class TiltakdeltakerEndretConsumer(
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.request(method, "/api/v1/arena/deltaker", deltaker)
             .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
 
