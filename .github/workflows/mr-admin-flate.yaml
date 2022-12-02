@@ -10,7 +10,7 @@ on:
       - frontend/mr-admin-flate/**
   pull_request:
     paths:
-      - .github/workflows/mr-admin-pr-deploy.yaml
+      - .github/workflows/mr-admin-flate.yaml
       - frontend/mr-admin-flate/**
     branches:
       - main
