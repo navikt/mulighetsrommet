@@ -24,6 +24,10 @@ dependencies {
     val navCommonModules = "2.2022.11.10_08.37-7216bb5b1ede"
     implementation("no.nav.common:audit-log:$navCommonModules")
 
+    // Cache
+    val caffeineVersion = "3.1.2"
+    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
+
     val hopliteVersion = "2.4.0"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     api("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
