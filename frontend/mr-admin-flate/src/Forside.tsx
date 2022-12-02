@@ -17,7 +17,7 @@ export function Forside() {
 
   return (
     <>
-      <h1>Oversikt</h1>
+      <h1 style={{ color: "red" }}>Oversikt</h1>
       <Shortcuts />
     </>
   );
