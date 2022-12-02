@@ -34,9 +34,8 @@ class PoaoTilgangService(
         cacheMetrics.addCache("tilgangCache", tilgangCache)
     }
 
-    fun verifyAccessToUserFromVeileder(navAnsattAzureId: UUID, norskIdent: String) {
+    suspend fun verifyAccessToUserFromVeileder(navAnsattAzureId: UUID, norskIdent: String, errorBlock: (suspend () -> Unit)? = null) {
         val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-$norskIdent") {
-            // TODO Hør med Sondre ang. error handling ved kasting av feil
             client.evaluatePolicy(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
                     navAnsattAzureId,
@@ -44,10 +43,11 @@ class PoaoTilgangService(
                     norskIdent
                 )
             )
-                .getOrThrow().isPermit
+                .getOrDefault(Decision.Deny("Veileder har ikke tilgang til bruker", "")).isPermit
         }
 
         if (!access) {
+            errorBlock?.invoke()
             throw StatusException(HttpStatusCode.Forbidden, "Veileder mangler tilgang til bruker")
         }
     }
