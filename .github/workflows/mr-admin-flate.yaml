@@ -52,7 +52,7 @@ jobs:
           install: false
 
   deploy-pull-request-branch:
-    if: ${{ github.event_name == 'pull_request' && contains(github.event.head_commit.message, '[pr-branch]') }}
+    if: github.event_name == 'pull_request'
     name: Deploy Pull Request Branch
     needs: [ setup-frontend-and-test ]
     runs-on: ubuntu-latest
