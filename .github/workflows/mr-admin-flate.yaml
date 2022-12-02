@@ -52,15 +52,14 @@ jobs:
           install: false
 
   deploy-pull-request-branch:
-    # if: github.event_name == 'pull_request' && github.ref_name == 'main'
+    if: github.event_name == 'pull_request'
     name: Deploy Pull Request Branch
+    needs: [ build-and-test ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
-      - name: Print commit message
-        run: echo ${{ github.event.head_commit.message }}
       - name: Build
         env:
          VITE_BASE: /pr-${{ github.event.number }}/
