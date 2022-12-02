@@ -1,6 +1,9 @@
 name: Rydd applikasjon for PR
 on:
   pull_request:
+    paths:
+      - .github/workflows/mr-admin-pr-cleanup.yaml
+      - frontend/mr-admin-flate/**
     branches:
       - main
     types:

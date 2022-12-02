@@ -1,6 +1,9 @@
 name: Opprett lenke til test applikasjon for PR
 on:
   pull_request:
+    paths:
+      - .github/workflows/mr-admin-pr-comment-link.yaml
+      - frontend/mr-admin-flate/**
     branches:
       - main
     types:
