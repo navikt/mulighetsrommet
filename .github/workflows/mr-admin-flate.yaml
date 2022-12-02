@@ -8,6 +8,12 @@ on:
       - package-lock.json
       - turbo.json
       - frontend/mr-admin-flate/**
+  pull_request:
+    paths:
+      - .github/workflows/mr-admin-pr-deploy.yaml
+      - frontend/mr-admin-flate/**
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -24,8 +30,8 @@ env:
   TZ: Europe/Amsterdam
 
 jobs:
-  build-and-test:
-    name: Build and test
+  setup-frontend-and-test:
+    name: Setup frontend and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -45,10 +51,33 @@ jobs:
           start: npm start
           install: false
 
+  deploy-pull-request-branch:
+    if: github.event_name == 'pull_request'
+    name: Deploy Pull Request Branch
+    needs: [ setup-frontend-and-test ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Build
+        env:
+         VITE_BASE: /pr-${{ github.event.number }}/
+        run: npx turbo run build --filter=mr-admin-flate
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.DEPLOY_DEV_GCP_BUCKET_FRONTEND }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Upload files to GCS
+        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mr-admin-flate/dist gs://mr-admin-flate-dev/pr-${{ github.event.number }}
+
+
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
-    needs: [ build-and-test ]
+    needs: [ setup-frontend-and-test ]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
@@ -68,7 +97,7 @@ jobs:
   deploy-prod:
     name: Deploy (prod)
     runs-on: ubuntu-latest
-    needs: [ build-and-test, deploy-dev ]
+    needs: [ setup-frontend-and-test, deploy-dev ]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - uses: actions/checkout@v3

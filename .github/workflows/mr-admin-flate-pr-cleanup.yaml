@@ -1,0 +1,23 @@
+name: Rydd applikasjon for PR
+on:
+  pull_request:
+    paths:
+      - .github/workflows/mr-admin-pr-cleanup.yaml
+      - frontend/mr-admin-flate/**
+    branches:
+      - main
+    types:
+      - closed
+jobs:
+  cleanup-pr:
+    name: Rydd applikasjon for PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCS_SA_KEY_DEV }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Delete files on GCS
+        run: gsutil rm -r gs://mr-admin-flate-dev/pr-${{ github.event.number }}

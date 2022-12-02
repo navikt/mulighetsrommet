@@ -9,7 +9,7 @@ export function AutentisertApp() {
   return (
     <Routes>
       <Route
-        path="/"
+        path="/*"
         element={
           <RootLayout>
             <Forside />
