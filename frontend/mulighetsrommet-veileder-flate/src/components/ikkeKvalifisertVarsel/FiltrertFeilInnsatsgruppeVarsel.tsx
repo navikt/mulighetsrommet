@@ -1,5 +1,6 @@
 import { Alert } from '@navikt/ds-react';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
+import appStyles from '../../App.module.scss';
 import styles from './BrukerKvalifisererIkkeVarsel.module.scss';
 import { Tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { Innsatsgruppe } from '../../../../mulighetsrommet-api-client/build/models/Innsatsgruppe';
@@ -29,8 +30,8 @@ export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsg
       {(standardInnsatsBruker || situasjonsbestemtInnsatsBruker || spesieltTilpassetInnsats) && (
         <Alert variant="warning" className={styles.varsel}>
           Du ser nå en oversikt over tiltak for innsatsgruppen{' '}
-          <code className={styles.code}>{innsatsgruppeFiltrertNavn}</code>, og det vises derfor tiltak som valgt bruker
-          ikke kvalifiserer til i listen.
+          <strong className={appStyles.lowercase}>{innsatsgruppeFiltrertNavn}</strong>, og det vises derfor tiltak som
+          valgt bruker ikke kvalifiserer til i listen.
         </Alert>
       )}
     </>
