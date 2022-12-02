@@ -38,18 +38,17 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/bruker/historikk") {
         get {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
-            historikkService.hentHistorikkForBruker(getNorskIdent())?.let {
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent()) {
+                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
+                call.respondText(
+                    "Klarte ikke hente historikk for bruker",
+                    status = HttpStatusCode.InternalServerError
+                )
+            }
+            historikkService.hentHistorikkForBruker(getNorskIdent()).let {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
                 call.respond(it)
             }
-                ?: run {
-                    auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' fikk ikke sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
-                    call.respondText(
-                        "Klarte ikke hente historikk for bruker",
-                        status = HttpStatusCode.InternalServerError
-                    )
-                }
         }
     }
 }
