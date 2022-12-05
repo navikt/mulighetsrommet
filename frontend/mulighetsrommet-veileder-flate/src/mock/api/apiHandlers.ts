@@ -92,7 +92,6 @@ function getSanityClient() {
     apiVersion: '2022-06-20',
     projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
     dataset: import.meta.env.VITE_SANITY_DATASET,
-    token: import.meta.env.VITE_SANITY_ACCESS_TOKEN,
   });
 
   return cachedClient;
