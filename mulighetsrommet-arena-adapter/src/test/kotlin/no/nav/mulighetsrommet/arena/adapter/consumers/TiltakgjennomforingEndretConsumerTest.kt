@@ -89,7 +89,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
             val mappings = ArenaEntityMappingRepository(database.db)
             mappings.insert(
-                ArenaEntityMapping.Tiltakstype(
+                ArenaEntityMapping(
                     ArenaTables.Tiltakstype,
                     tiltakstype.tiltakskode,
                     tiltakstype.id

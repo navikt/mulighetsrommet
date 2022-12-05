@@ -64,7 +64,7 @@ class TiltakdeltakerEndretConsumer(
         }
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping.Deltaker(event.arenaTable, event.arenaId, UUID.randomUUID())
+            ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
         val deltaker = decoded.data
             .toDeltaker(mapping.entityId)

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
@@ -9,11 +10,7 @@ import org.intellij.lang.annotations.Language
 class ArenaEntityMappingRepository(private val db: Database) {
 
     fun insert(mapping: ArenaEntityMapping): ArenaEntityMapping {
-        val column = when (mapping) {
-            is ArenaEntityMapping.Tiltakstype -> "tiltakstype_id"
-            is ArenaEntityMapping.Tiltaksgjennomforing -> "tiltaksgjennomforing_id"
-            is ArenaEntityMapping.Deltaker -> "deltaker_id"
-        }
+        val column = getEntityIdColumn(mapping.arenaTable)
 
         @Language("PostgreSQL")
         val query = """
@@ -42,22 +39,19 @@ class ArenaEntityMappingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    private fun getEntityIdColumn(arenaTable: String) = when (arenaTable) {
+        ArenaTables.Tiltakstype -> "tiltakstype_id"
+        ArenaTables.Tiltaksgjennomforing -> "tiltaksgjennomforing_id"
+        ArenaTables.Deltaker -> "deltaker_id"
+        else -> throw IllegalStateException("The table '$arenaTable' is not mapped to an Arena entity")
+    }
+
     private fun Row.toMapping(): ArenaEntityMapping {
-        val arenaTable = string("arena_table")
-        val arenaId = string("arena_id")
-
-        uuidOrNull("tiltakstype_id")?.let {
-            return ArenaEntityMapping.Tiltakstype(arenaTable, arenaId, it)
-        }
-
-        uuidOrNull("tiltaksgjennomforing_id")?.let {
-            return ArenaEntityMapping.Tiltaksgjennomforing(arenaTable, arenaId, it)
-        }
-
-        uuidOrNull("deltaker_id")?.let {
-            return ArenaEntityMapping.Deltaker(arenaTable, arenaId, it)
-        }
-
-        throw IllegalStateException("ResultSet could not be mapped to ArenaEventToEntity: Relation to entity is missing")
+        val table = string("arena_table")
+        return ArenaEntityMapping(
+            arenaTable = table,
+            arenaId = string("arena_id"),
+            entityId = uuid(getEntityIdColumn(table))
+        )
     }
 }

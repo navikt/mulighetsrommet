@@ -71,7 +71,7 @@ class TiltakgjennomforingEndretConsumer(
         }
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping.Tiltaksgjennomforing(event.arenaTable, event.arenaId, UUID.randomUUID())
+            ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
         val tiltaksgjennomforing = decoded.data

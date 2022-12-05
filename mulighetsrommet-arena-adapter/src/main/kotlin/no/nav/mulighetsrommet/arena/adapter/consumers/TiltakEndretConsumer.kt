@@ -48,7 +48,7 @@ class TiltakEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltak>(event.payload)
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping.Tiltakstype(event.arenaTable, event.arenaId, UUID.randomUUID())
+            ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
         val tiltakstype = decoded.data
