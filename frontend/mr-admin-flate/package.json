@@ -16,10 +16,11 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
-    "@navikt/ds-css": "^2.0.0",
-    "@navikt/ds-css-internal": "^2.0.0",
-    "@navikt/ds-react": "^2.0.0",
-    "@navikt/ds-react-internal": "^2.0.0",
+    "@navikt/ds-css": "2.0.5",
+    "@navikt/ds-css-internal": "2.0.5",
+    "@navikt/ds-icons": "^2.0.5",
+    "@navikt/ds-react": "2.0.5",
+    "@navikt/ds-react-internal": "2.0.5",
     "@tanstack/react-query": "^4.16.1",
     "@tanstack/react-query-devtools": "^4.16.1",
     "formik": "^2.2.9",
@@ -32,7 +33,7 @@
     "zod-formik-adapter": "^1.1.1"
   },
   "devDependencies": {
-    "@types/react": "^18.0.25",
+    "@types/react": "18.0.25",
     "@types/react-dom": "^18.0.9",
     "cross-env": "^7.0.3",
     "cypress": "^11.1.0",
