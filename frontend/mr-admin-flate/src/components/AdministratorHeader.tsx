@@ -8,7 +8,7 @@ export function AdministratorHeader() {
   return (
     <Header>
       <Header.Title as="p">
-        <Link style={{ textDecoration: "none" }} to="/">
+        <Link style={{ textDecoration: "none", color: "white" }} to="/">
           NAV arbeidsmarkedstiltak
         </Link>
       </Header.Title>
