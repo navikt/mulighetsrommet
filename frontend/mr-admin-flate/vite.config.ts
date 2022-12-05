@@ -8,7 +8,7 @@ export default defineConfig({
     host: "127.0.0.1",
   },
   plugins: [react(), vitePluginRequire()],
-  base: process.env.VITE_BASE || "./",
+  base: process.env.VITE_BASE || "/",
   build: {
     manifest: "asset-manifest.json",
     chunkSizeWarningLimit: 1400,
