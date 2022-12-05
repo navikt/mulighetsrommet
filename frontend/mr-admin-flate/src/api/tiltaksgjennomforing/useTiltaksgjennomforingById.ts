@@ -14,7 +14,7 @@ export function useTiltaksgjennomforingById() {
 
   return useQuery(QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
     mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
-      id: parseInt(tiltaksgjennomforingId!!),
+      id: tiltaksgjennomforingId!!,
     })
   );
 }

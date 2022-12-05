@@ -14,4 +14,3 @@ data class Tiltaksgjennomforing(
     val tiltaksnummer: String,
     val virksomhetsnummer: String
 )
-
