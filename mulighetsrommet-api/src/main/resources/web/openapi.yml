@@ -29,48 +29,12 @@ paths:
               schema:
                 type: string
 
-  /api/v1/innsatsgrupper:
-    get:
-      tags:
-        - Innsatsgrupper
-      operationId: getInnsatsgrupper
-      responses:
-        200:
-          description: An array of innsatsgrupper
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Innsatsgruppe"
-
   /api/v1/tiltaksgjennomforinger:
     get:
       tags:
         - Tiltaksgjennomforinger
       operationId: getTiltaksgjennomforinger
       parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for tiltaksgjennomføringer
-        - in: query
-          name: innsatsgrupper
-          schema:
-            type: array
-            items:
-              type: number
-          description: Innsatsgruppefilter
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              type: number
-          description: Tiltakstypefilter
-          style: form
-          explode: false
         - in: query
           name: page
           schema:
@@ -122,14 +86,15 @@ paths:
             type: string
           description: Search for tiltakstyper
         - in: query
-          name: innsatsgrupper
+          name: page
           schema:
-            type: array
-            items:
-              type: number
-          description: Innsatsgruppefilter
-          style: form
-          explode: false
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
       responses:
         200:
           description: Object of paginerte tiltakstyper.
@@ -445,15 +410,11 @@ components:
       type: object
       required:
         - id
-        - innsatsgruppe
         - navn
         - tiltakskode
       properties:
         id:
           type: integer
-        innsatsgruppe:
-          type: number
-          nullable: true
         navn:
           type: string
         tiltakskode:
@@ -735,7 +696,6 @@ components:
       value:
         id: null
         navn: "Ny tiltakstype"
-        innsatsgruppe: 1
         tiltakskode: "SPA"
 
     Tiltaksgjennomforing:

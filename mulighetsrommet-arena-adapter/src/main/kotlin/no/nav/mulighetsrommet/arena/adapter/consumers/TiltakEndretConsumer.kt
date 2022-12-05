@@ -66,7 +66,6 @@ class TiltakEndretConsumer(
     private fun ArenaTiltak.toTiltakstype(id: UUID) = Tiltakstype(
         id = id,
         navn = TILTAKSNAVN,
-        innsatsgruppe = ProcessingUtils.toInnsatsgruppe(TILTAKSKODE),
         tiltakskode = TILTAKSKODE,
         fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL)

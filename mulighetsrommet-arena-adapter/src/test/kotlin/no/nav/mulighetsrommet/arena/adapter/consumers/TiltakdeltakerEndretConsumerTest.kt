@@ -57,7 +57,6 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 Tiltakstype(
                     id = UUID.randomUUID(),
                     navn = "Oppfølging",
-                    innsatsgruppe = 2,
                     tiltakskode = "INDOPPFAG"
                 )
             )

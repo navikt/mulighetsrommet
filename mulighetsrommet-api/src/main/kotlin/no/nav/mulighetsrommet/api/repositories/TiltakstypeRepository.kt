@@ -49,7 +49,6 @@ class TiltakstypeRepository(private val db: Database) {
         search: String? = null,
         paginationParams: PaginationParams = PaginationParams()
     ): Pair<Int, List<Tiltakstype>> {
-
         val parameters = mapOf(
             "search" to "%$search%",
             "limit" to paginationParams.limit,
@@ -57,7 +56,7 @@ class TiltakstypeRepository(private val db: Database) {
         )
 
         val where = andWhereParameterNotNull(
-            search to "(lower(navn) like lower(:search))",
+            search to "(lower(navn) like lower(:search))"
         )
 
         @Language("PostgreSQL")
@@ -104,7 +103,7 @@ class TiltakstypeRepository(private val db: Database) {
     private fun Tiltakstype.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to tiltakskode,
+        "tiltakskode" to tiltakskode
     )
 
     private fun Row.toTiltakstype() = Tiltakstype(
