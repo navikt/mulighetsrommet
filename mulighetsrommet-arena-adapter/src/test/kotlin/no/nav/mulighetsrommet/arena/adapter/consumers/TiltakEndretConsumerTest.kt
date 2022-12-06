@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.ktor.decodeRequestBody
 
 class TiltakEndretConsumerTest : FunSpec({
 
