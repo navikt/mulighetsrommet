@@ -1,16 +1,16 @@
 import { Alert, Heading, Button } from "@navikt/ds-react";
 import { useState } from "react";
+import { useVisForMiljo } from "../../hooks/useVisForMiljo";
 import styles from "./MiljoBanner.module.scss";
 
-const WHITELIST_BANNER = ["labs.nais.io"] as const;
+const WHITELIST_BANNER = ["labs.nais.io"];
 
 export function MiljoBanner() {
   const [vis, setVis] = useState(true);
+  const visForMiljo = useVisForMiljo(WHITELIST_BANNER);
   const url = window?.location?.host;
 
-  if (
-    !WHITELIST_BANNER.find((el) => url.toLowerCase().includes(el.toLowerCase()))
-  ) {
+  if (!visForMiljo) {
     return null;
   }
 
