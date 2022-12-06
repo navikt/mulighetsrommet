@@ -13,9 +13,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -103,11 +102,19 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
         "Bearer token"
     }
 
+    val entities = ArenaEntityService(
+        events = ArenaEventRepository(db),
+        mappings = ArenaEntityMappingRepository(db),
+        tiltakstyper = TiltakstypeRepository(db),
+        saker = SakRepository(db),
+        tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
+        deltakere = DeltakerRepository(db),
+    )
+
     return TiltakEndretConsumer(
         ConsumerConfig("tiltakendret", "tiltakendret"),
         ArenaEventRepository(db),
-        TiltakstypeRepository(db),
-        ArenaEntityMappingRepository(db),
+        entities,
         client
     )
 }

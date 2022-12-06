@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -200,11 +201,19 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
         Either.Right("12345678910")
     }
 
+    val entities = ArenaEntityService(
+        events = ArenaEventRepository(db),
+        mappings = ArenaEntityMappingRepository(db),
+        tiltakstyper = TiltakstypeRepository(db),
+        saker = SakRepository(db),
+        tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
+        deltakere = DeltakerRepository(db),
+    )
+
     return TiltakdeltakerEndretConsumer(
         ConsumerConfig("deltaker", "deltaker"),
         ArenaEventRepository(db),
-        DeltakerRepository(db),
-        ArenaEntityMappingRepository(db),
+        entities,
         client,
         ords,
     )
