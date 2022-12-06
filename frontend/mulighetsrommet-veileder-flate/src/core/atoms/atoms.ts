@@ -1,4 +1,4 @@
-import { atomWithHash } from 'jotai/utils';
+import { atomWithHash } from 'jotai-location';
 import { InnsatsgruppeNokler } from '../api/models';
 
 export interface Tiltaksgjennomforingsfilter {
@@ -23,7 +23,10 @@ export const initialTiltaksgjennomforingsfilter = {
   lokasjoner: [],
 };
 
-export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>('filter', initialTiltaksgjennomforingsfilter);
+export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
+  'filter',
+  initialTiltaksgjennomforingsfilter
+);
 
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');

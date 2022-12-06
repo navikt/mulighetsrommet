@@ -17,9 +17,7 @@ export const apiHandlers = [
     const { id } = req.params as { id: string };
     return res(
       ctx.status(200),
-      ctx.json(
-        mockTiltaksgjennomforinger.data.find((gj) => gj.id === parseInt(id))
-      )
+      ctx.json(mockTiltaksgjennomforinger.data.find((gj) => gj.id === id))
     );
   }),
 

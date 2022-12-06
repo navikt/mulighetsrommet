@@ -58,16 +58,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
 
-            tiltaksgjennomforinger.save(tiltak1)
-            tiltaksgjennomforinger.save(tiltak2)
+            tiltaksgjennomforinger.upsert(tiltak1)
+            tiltaksgjennomforinger.upsert(tiltak2)
 
-            tiltaksgjennomforinger.getTiltaksgjennomforinger().second shouldHaveSize 2
-            tiltaksgjennomforinger.getTiltaksgjennomforingById(tiltak1.id) shouldBe tiltak1
-            tiltaksgjennomforinger.getTiltaksgjennomforingerByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
+            tiltaksgjennomforinger.getAll().second shouldHaveSize 2
+            tiltaksgjennomforinger.get(tiltak1.id) shouldBe tiltak1
+            tiltaksgjennomforinger.getByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
 
             tiltaksgjennomforinger.delete(tiltak1.id)
 
-            tiltaksgjennomforinger.getTiltaksgjennomforinger().second shouldHaveSize 1
+            tiltaksgjennomforinger.getAll().second shouldHaveSize 1
         }
     }
 
@@ -179,7 +179,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
         (1..105).forEach {
-            tiltaksgjennomforinger.save(
+            tiltaksgjennomforinger.upsert(
                 Tiltaksgjennomforing(
                     id = UUID.randomUUID(),
                     navn = "$it",
@@ -191,7 +191,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger()
+            val (totalCount, items) = tiltaksgjennomforinger.getAll()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "1"
@@ -201,7 +201,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
-            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     4,
                     20
@@ -216,7 +216,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("pagination with page 3 default size should give tiltak with id 101-105") {
-            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     3
                 )
@@ -230,7 +230,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
-            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     nullableLimit = 200
                 )

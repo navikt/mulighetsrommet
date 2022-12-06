@@ -50,12 +50,12 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   };
 
   return (
-    <Accordion role="menu">
+    <Accordion>
       <Accordion.Item defaultOpen={defaultOpen}>
         <Accordion.Header data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}>
           {accordionNavn}
         </Accordion.Header>
-        <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
+        <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
           {isLoading && <Loader size="xlarge" />}
           {data && (
             <CheckboxGroup

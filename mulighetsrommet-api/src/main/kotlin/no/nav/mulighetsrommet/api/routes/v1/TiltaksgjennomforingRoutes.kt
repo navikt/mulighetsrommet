@@ -17,7 +17,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("/api/v1/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforinger.getTiltaksgjennomforinger(
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 paginationParams
             )
             call.respond(
@@ -38,7 +38,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 status = HttpStatusCode.BadRequest
             )
             val tiltaksgjennomforing =
-                tiltaksgjennomforinger.getTiltaksgjennomforingById(id) ?: return@get call.respondText(
+                tiltaksgjennomforinger.get(id) ?: return@get call.respondText(
                     "Det finnes ikke noe tiltaksgjennomføring med id $id",
                     status = HttpStatusCode.NotFound
                 )

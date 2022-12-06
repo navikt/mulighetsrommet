@@ -19,17 +19,17 @@ export function TiltaksgjennomforingPage() {
   return (
     <div>
       <Link to="/oversikt">Tilbake til oversikt</Link>
-      <p>
-        <Tag variant="info">{tiltaksgjennomforing.tilgjengelighet}</Tag>
-      </p>
       <h1>
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </h1>
       <dl>
-        <dt>År:</dt>
-        <dd>{tiltaksgjennomforing.aar}</dd>
-        <dt>Tiltakskode</dt>
-        <dd>{tiltaksgjennomforing.tiltakskode}</dd>
+        <dt>Tiltakstype:</dt>
+        {/**
+         * TODO Bytte ut med navn
+         */}
+        <dd>{tiltaksgjennomforing.tiltakstypeId}</dd>
+        <dt>Virksomhetsnummer</dt>
+        <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
       </dl>
 
       {/**

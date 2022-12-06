@@ -59,9 +59,7 @@ describe('Tiltaksoversikt', () => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
 
-      cy.fjernFilter('standardinnsats');
-
-      cy.forventetAntallFiltertags(1);
+      cy.forventetAntallFiltertags(2);
       cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
     }
   });
@@ -108,10 +106,6 @@ describe('Tiltaksoversikt', () => {
 
     cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 2);
 
-    if (kvalifiseringsgruppe === innsatsgruppe) {
-      cy.fjernFilter('situasjonsbestemt-innsats');
-    }
-
     cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
       expect(antallTiltak).not.to.eq($navn.text());
@@ -125,10 +119,10 @@ describe('Tiltaksoversikt', () => {
 
   it('Filtrer på søkefelt', () => {
     if (kvalifiseringsgruppe === innsatsgruppe) {
-      cy.fjernFilter('situasjonsbestemt-innsats');
+      cy.velgFilter('varig-tilpasset-innsats');
     }
     cy.getByTestId('filter_sokefelt').type('AFT');
-    cy.forventetAntallFiltertags(2);
+    cy.forventetAntallFiltertags(3);
 
     cy.wait(1000);
     cy.getByTestId('antall-tiltak').then($navn => {
@@ -136,14 +130,12 @@ describe('Tiltaksoversikt', () => {
     });
 
     cy.getByTestId('filter_sokefelt').clear();
-    cy.forventetAntallFiltertags(1);
+    cy.forventetAntallFiltertags(2);
   });
 
   it('Skal vise tilbakestill filter-knapp når filter utenfor normalen hvis brukeren har innsatsgruppe', () => {
     if (kvalifiseringsgruppe === innsatsgruppe) {
-      cy.velgFilter('situasjonsbestemt-innsats');
-      cy.getByTestId('knapp_tilbakestill-filter').should('not.exist');
-      cy.fjernFilter('situasjonsbestemt-innsats');
+      cy.velgFilter('standardinnsats');
       cy.getByTestId('knapp_tilbakestill-filter').should('exist');
     }
   });

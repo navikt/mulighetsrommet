@@ -109,7 +109,6 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("consumer should process events from topic") {
-        val consumerRepository = KafkaConsumerRepository(database.db)
         val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
@@ -126,12 +125,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             Long.MAX_VALUE
         )
 
-        eventually(3.seconds) {
+        eventually(5.seconds) {
             coVerify {
                 consumer.run(Json.parseToJsonElement("""{ "success": true }"""))
             }
-
-            consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 0
         }
     }
 
@@ -153,7 +150,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             Long.MAX_VALUE
         )
 
-        eventually(3.seconds) {
+        eventually(5.seconds) {
             coVerify {
                 consumer.run(Json.parseToJsonElement("""{ "success": false }"""))
             }

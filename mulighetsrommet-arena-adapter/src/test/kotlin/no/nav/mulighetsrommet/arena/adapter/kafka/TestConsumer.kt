@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -11,9 +12,12 @@ class TestConsumer(name: String) : TopicConsumer() {
     override suspend fun run(event: JsonElement) {
         val data = Json.decodeFromJsonElement<TestEvent>(event)
 
-        assert(data.success)
+        if (!data.success) {
+            throw RuntimeException("success must be true")
+        }
     }
 
+    @Serializable
     data class TestEvent(
         val success: Boolean
     )

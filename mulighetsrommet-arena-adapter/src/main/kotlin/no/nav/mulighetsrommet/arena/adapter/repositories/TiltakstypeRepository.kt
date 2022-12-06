@@ -19,11 +19,10 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakstype (id, navn, innsatsgruppe, tiltakskode, fra_dato, til_dato)
-            values (:id::uuid, :navn, :innsatsgruppe, :tiltakskode, :fra_dato, :til_dato)
+            insert into tiltakstype (id, navn, tiltakskode, fra_dato, til_dato)
+            values (:id::uuid, :navn, :tiltakskode, :fra_dato, :til_dato)
             on conflict (id)
                 do update set navn          = excluded.navn,
-                              innsatsgruppe = excluded.innsatsgruppe,
                               tiltakskode   = excluded.tiltakskode,
                               fra_dato      = excluded.fra_dato,
                               til_dato      = excluded.til_dato
@@ -55,7 +54,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, innsatsgruppe, tiltakskode, fra_dato, til_dato
+            select id, navn, tiltakskode, fra_dato, til_dato
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -69,7 +68,6 @@ class TiltakstypeRepository(private val db: Database) {
     private fun Tiltakstype.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "innsatsgruppe" to innsatsgruppe,
         "tiltakskode" to tiltakskode,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
@@ -78,7 +76,6 @@ class TiltakstypeRepository(private val db: Database) {
     private fun Row.toSak() = Tiltakstype(
         id = uuid("id"),
         navn = string("navn"),
-        innsatsgruppe = int("innsatsgruppe"),
         tiltakskode = string("tiltakskode"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato")

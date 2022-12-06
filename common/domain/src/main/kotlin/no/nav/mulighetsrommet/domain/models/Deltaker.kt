@@ -36,7 +36,7 @@ data class HistorikkForDeltakerDTO(
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null,
     val status: Deltakerstatus,
-    val tiltaksnavn: String,
+    val tiltaksnavn: String?,
     val tiltaksnummer: String,
     val tiltakstype: String,
     val arrangor: String?
@@ -50,8 +50,8 @@ data class HistorikkForDeltaker(
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null,
     val status: Deltakerstatus,
-    val tiltaksnavn: String,
+    val tiltaksnavn: String?,
     val tiltaksnummer: String,
     val tiltakstype: String,
-    val virksomhetsnummer: String
+    val virksomhetsnummer: String?
 )

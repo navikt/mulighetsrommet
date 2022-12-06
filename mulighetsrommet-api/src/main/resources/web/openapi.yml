@@ -29,48 +29,12 @@ paths:
               schema:
                 type: string
 
-  /api/v1/innsatsgrupper:
-    get:
-      tags:
-        - Innsatsgrupper
-      operationId: getInnsatsgrupper
-      responses:
-        200:
-          description: An array of innsatsgrupper
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Innsatsgruppe"
-
   /api/v1/tiltaksgjennomforinger:
     get:
       tags:
         - Tiltaksgjennomforinger
       operationId: getTiltaksgjennomforinger
       parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for tiltaksgjennomføringer
-        - in: query
-          name: innsatsgrupper
-          schema:
-            type: array
-            items:
-              type: number
-          description: Innsatsgruppefilter
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              type: number
-          description: Tiltakstypefilter
-          style: form
-          explode: false
         - in: query
           name: page
           schema:
@@ -122,14 +86,15 @@ paths:
             type: string
           description: Search for tiltakstyper
         - in: query
-          name: innsatsgrupper
+          name: page
           schema:
-            type: array
-            items:
-              type: number
-          description: Innsatsgruppefilter
-          style: form
-          explode: false
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
       responses:
         200:
           description: Object of paginerte tiltakstyper.
@@ -372,7 +337,8 @@ components:
       description: ID
       required: true
       schema:
-        type: integer
+        type: string
+        format: uuid
     Tiltakskode:
       name: tiltakskode
       in: path
@@ -445,15 +411,12 @@ components:
       type: object
       required:
         - id
-        - innsatsgruppe
         - navn
         - tiltakskode
       properties:
         id:
-          type: integer
-        innsatsgruppe:
-          type: number
-          nullable: true
+          type: string
+          format: uuid
         navn:
           type: string
         tiltakskode:
@@ -463,28 +426,24 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
         navn:
           type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
         tiltaksnummer:
-          type: integer
-        aar:
-          type: integer
-        tilgjengelighet:
           type: string
-          enum:
-            - Ledig
-            - Venteliste
-            - Stengt
+        tiltakstypeId:
+          type: string
+          format: uuid
+        virksomhetsnummer:
+          type: string
       required:
         - id
         - navn
         - tiltakskode
         - tiltaksnummer
-        - aar
-        - tilgjengelighet
+        - tiltakstypeId
+        - virksomhetsnummer
 
     Tiltakskode:
       type: string
@@ -702,10 +661,12 @@ components:
           type: string
         tiltaksnavn:
           type: string
+          nullable: true
         tiltakstype:
           type: string
         arrangor:
           type: string
+          nullable: true
 
     DelMedBruker:
       type: object
@@ -733,9 +694,8 @@ components:
     Tiltakstype:
       summary: "Tiltakstype eksempel"
       value:
-        id: null
+        id: "afb69ca8-ddff-45be-9fd0-8f968519468d"
         navn: "Ny tiltakstype"
-        innsatsgruppe: 1
         tiltakskode: "SPA"
 
     Tiltaksgjennomforing:
@@ -743,7 +703,6 @@ components:
       value:
         id: null
         navn: "Ny tiltaksgjennomføring"
-        tiltakskode: "SPA"
+        tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d"
         tiltaksnummer: 1234
-        aar: 2022
-        tilgjengelighet: "Ledig"
+        virksomhetsnummer: '2022'

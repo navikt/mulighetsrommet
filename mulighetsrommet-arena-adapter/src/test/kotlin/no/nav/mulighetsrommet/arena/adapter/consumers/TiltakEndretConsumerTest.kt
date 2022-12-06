@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
 
 class TiltakEndretConsumerTest : FunSpec({
 
@@ -60,16 +61,24 @@ class TiltakEndretConsumerTest : FunSpec({
 
             consumer.processEvent(createEvent(Insert))
 
-            engine.requestHistory.last().run {
+            val generatedId = engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
-                // TODO: assert payload?
+
+                val tiltakstype = decodeRequestBody<Tiltakstype>().apply {
+                    navn shouldBe "Oppfølging"
+                }
+
+                tiltakstype.id
             }
 
             consumer.processEvent(createEvent(Delete))
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Delete
-                // TODO: assert payload?
+
+                decodeRequestBody<Tiltakstype>().apply {
+                    id shouldBe generatedId
+                }
             }
         }
 

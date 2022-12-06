@@ -14,12 +14,12 @@ export function Tiltaksgjennomforingrad({ tiltaksgjennomforing }: Props) {
       <Link to={`${tiltaksgjennomforing.id}`}>
         <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>
-      <BodyShort size={"small"}>{tiltaksgjennomforing.tiltakskode}</BodyShort>
       <BodyShort size={"small"}>{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+      {/*TODO: Hente navn på tiltakstype her*/}
+      <BodyShort size={"small"}>{tiltaksgjennomforing.tiltakstypeId}</BodyShort>
       <BodyShort size={"small"}>
-        {tiltaksgjennomforing.tilgjengelighet}
+        {tiltaksgjennomforing.virksomhetsnummer}
       </BodyShort>
-      <BodyShort size={"small"}>{tiltaksgjennomforing.aar}</BodyShort>
       <div className={styles.pil}>
         <Next />
       </div>

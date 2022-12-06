@@ -1,23 +1,30 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.Either
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import io.mockk.coEvery
+import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.models.dto.Arrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
@@ -41,7 +48,6 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 Tiltakstype(
                     id = UUID.randomUUID(),
                     navn = "Oppfølging",
-                    innsatsgruppe = 2,
                     tiltakskode = "INDOPPFAG"
                 )
             )
@@ -68,17 +74,25 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     }
 
     context("when dependent events has been processed") {
+        val tiltakstype = Tiltakstype(
+            id = UUID.randomUUID(),
+            navn = "Oppfølging",
+            tiltakskode = "INDOPPFAG"
+        )
+
         beforeEach {
             val saker = SakRepository(database.db)
             saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
 
             val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(
-                Tiltakstype(
-                    id = UUID.randomUUID(),
-                    navn = "Oppfølging",
-                    innsatsgruppe = 2,
-                    tiltakskode = "INDOPPFAG"
+            tiltakstyper.upsert(tiltakstype)
+
+            val mappings = ArenaEntityMappingRepository(database.db)
+            mappings.insert(
+                ArenaEntityMapping(
+                    ArenaTables.Tiltakstype,
+                    tiltakstype.tiltakskode,
+                    tiltakstype.id
                 )
             )
         }
@@ -117,16 +131,26 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
                 consumer.processEvent(createEvent(Insert))
 
-                engine.requestHistory.last().run {
+                val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
-                    // TODO: assert payload?
+
+                    val tiltaksgjennomforing = decodeRequestBody<Tiltaksgjennomforing>().apply {
+                        tiltakstypeId shouldBe tiltakstype.id
+                        tiltaksnummer shouldBe "123"
+                        virksomhetsnummer shouldBe "123456"
+                    }
+
+                    tiltaksgjennomforing.id
                 }
 
                 consumer.processEvent(createEvent(Delete))
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
-                    // TODO: assert payload?
+
+                    decodeRequestBody<Tiltaksgjennomforing>().apply {
+                        id shouldBe generatedId
+                    }
                 }
             }
 
@@ -152,18 +176,27 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         "Bearer token"
     }
 
+    val ords = mockk<ArenaOrdsProxyClient>()
+    coEvery {
+        ords.getArbeidsgiver(any())
+    } answers {
+        Either.Right(Arrangor("123456", "123456"))
+    }
+
     return TiltakgjennomforingEndretConsumer(
         ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
         ArenaEventRepository(db),
-        TiltaksgjennomforingRepository(db),
         ArenaEntityMappingRepository(db),
-        client
+        TiltaksgjennomforingRepository(db),
+        SakRepository(db),
+        client,
+        ords,
     )
 }
 
 private fun createEvent(
     operation: ArenaEventData.Operation,
-    name: String = "Testenavn",
+    name: String = "Navn",
     regDato: String = "2022-10-10 00:00:00"
 ) = createArenaEvent(
     ArenaTables.Tiltaksgjennomforing,

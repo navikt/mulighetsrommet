@@ -16,10 +16,12 @@ import no.nav.mulighetsrommet.api.services.HistorikkService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.audit_log.AuditLog
+import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.koin.ktor.ext.inject
 
 fun Route.brukerRoutes() {
     val auditLog = AuditLog.auditLogger
+    val secureLog = SecureLog.logger
     val brukerService: BrukerService by inject()
     val historikkService: HistorikkService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
@@ -38,18 +40,14 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/bruker/historikk") {
         get {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
-            historikkService.hentHistorikkForBruker(getNorskIdent())?.let {
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent()) {
+                auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
+                secureLog.warn("NAV-ansatt med ident: '${getNavIdent()}' har ikke tilgang til bruker med ident: '${getNorskIdent()}'")
+            }
+            historikkService.hentHistorikkForBruker(getNorskIdent()).let {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' har sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
                 call.respond(it)
             }
-                ?: run {
-                    auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' fikk ikke sett på tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
-                    call.respondText(
-                        "Klarte ikke hente historikk for bruker",
-                        status = HttpStatusCode.InternalServerError
-                    )
-                }
         }
     }
 }

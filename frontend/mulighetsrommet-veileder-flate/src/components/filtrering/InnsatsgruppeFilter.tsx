@@ -38,12 +38,12 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
   };
 
   return (
-    <Accordion role="menu" className={styles.accordion}>
+    <Accordion className={styles.accordion}>
       <Accordion.Item defaultOpen={defaultOpen}>
         <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
           {accordionNavn}
         </Accordion.Header>
-        <Accordion.Content role="menuitem" data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
+        <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
           {isLoading && <Loader size="xlarge" />}
           {data && (
             <RadioGroup
@@ -72,7 +72,6 @@ function InnsatsgruppeFilter() {
     <InnsatsgruppeAccordion
       accordionNavn="Innsatsgruppe"
       option={filter.innsatsgruppe?.nokkel}
-      key={filter.innsatsgruppe?.nokkel}
       setOption={innsatsgruppe => {
         const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
         if (foundInnsatsgruppe) {

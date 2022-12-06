@@ -1,18 +1,24 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.Either
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import io.mockk.coEvery
+import io.mockk.mockk
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
@@ -20,6 +26,7 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.models.Deltaker
 import java.util.*
 
 class TiltakdeltakerEndretConsumerTest : FunSpec({
@@ -48,29 +55,52 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
     }
 
     context("when dependent events has been processed") {
-        beforeEach {
-            val saker = SakRepository(database.db)
-            saker.upsert(Sak(sakId = 1, lopenummer = 123, aar = 2022))
+        val tiltakstype = Tiltakstype(
+            id = UUID.randomUUID(),
+            navn = "Oppfølging",
+            tiltakskode = "INDOPPFAG"
+        )
+        val sak = Sak(
+            sakId = 1,
+            lopenummer = 123,
+            aar = 2022
+        )
+        val tiltaksgjennomforing = Tiltaksgjennomforing(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = 3,
+            sakId = 1,
+            tiltakskode = "INDOPPFAG",
+            arrangorId = null,
+            navn = null,
+        )
 
+        beforeEach {
             val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(
-                Tiltakstype(
-                    id = UUID.randomUUID(),
-                    navn = "Oppfølging",
-                    innsatsgruppe = 2,
-                    tiltakskode = "INDOPPFAG"
+            tiltakstyper.upsert(tiltakstype)
+
+            val saker = SakRepository(database.db)
+            saker.upsert(sak)
+
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+
+            val mappings = ArenaEntityMappingRepository(database.db)
+            mappings.insert(
+                ArenaEntityMapping(
+                    ArenaTables.Tiltaksgjennomforing,
+                    tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
+                    tiltaksgjennomforing.id
                 )
             )
 
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(
-                Tiltaksgjennomforing(
-                    id = UUID.randomUUID(),
-                    tiltaksgjennomforingId = 3,
-                    sakId = 1,
-                    tiltakskode = "INDOPPFAG",
-                    arrangorId = null,
-                    navn = null,
+            val events = ArenaEventRepository(database.db)
+            events.upsert(
+                createArenaEvent(
+                    ArenaTables.Tiltaksgjennomforing,
+                    tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
+                    operation = Insert,
+                    data = Json.encodeToString(tiltaksgjennomforing),
+                    status = Processed
                 )
             )
         }
@@ -94,6 +124,24 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 .row().value("status").isEqualTo("AVSLUTTET")
         }
 
+        test("should be ignored when dependent tiltaksgjennomforing is ignored") {
+            val events = ArenaEventRepository(database.db)
+            events.upsert(
+                createArenaEvent(
+                    ArenaTables.Tiltaksgjennomforing,
+                    tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
+                    operation = Insert,
+                    data = Json.encodeToString(tiltaksgjennomforing),
+                    status = Ignored
+                )
+            )
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val e = consumer.processEvent(createEvent(Insert, status = "FULLF"))
+
+            e.status shouldBe Ignored
+        }
+
         context("api responses") {
             test("should call api with mapped event payload") {
                 val engine = MockEngine { respondOk() }
@@ -101,16 +149,25 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
                 consumer.processEvent(createEvent(Insert))
 
-                engine.requestHistory.last().run {
+                val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
-                    // TODO: assert payload?
+
+                    val deltaker = decodeRequestBody<Deltaker>().apply {
+                        tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
+                        norskIdent shouldBe "12345678910"
+                    }
+
+                    deltaker.id
                 }
 
                 consumer.processEvent(createEvent(Delete))
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
-                    // TODO: assert payload?
+
+                    decodeRequestBody<Deltaker>().apply {
+                        id shouldBe generatedId
+                    }
                 }
             }
 
@@ -136,12 +193,20 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
         "Bearer token"
     }
 
+    val ords = mockk<ArenaOrdsProxyClient>()
+    coEvery {
+        ords.getFnr(any())
+    } answers {
+        Either.Right("12345678910")
+    }
+
     return TiltakdeltakerEndretConsumer(
         ConsumerConfig("deltaker", "deltaker"),
         ArenaEventRepository(db),
         DeltakerRepository(db),
         ArenaEntityMappingRepository(db),
-        client
+        client,
+        ords,
     )
 }
 
