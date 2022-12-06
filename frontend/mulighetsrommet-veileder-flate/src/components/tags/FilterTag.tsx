@@ -6,10 +6,11 @@ import styles from './Filtertag.module.scss';
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
-  handleClick: (id: string) => void;
+  handleClick?: (id: string) => void;
+  skjulIkon?: boolean;
 }
 
-const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
+const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps) => {
   return (
     <>
       {options.map(filtertype => {
@@ -21,19 +22,21 @@ const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
           >
             {filtertype.tittel}
-            <Ikonknapp
-              className={styles.overstyrt_ikon_knapp}
-              handleClick={() => handleClick(filtertype.id)}
-              ariaLabel="Lukke"
-              data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
-              icon={
-                <Close
-                  data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
-                  className={styles.ikon}
-                  aria-label="Lukke"
-                />
-              }
-            />
+            {skjulIkon ? null : (
+              <Ikonknapp
+                className={styles.overstyrt_ikon_knapp}
+                handleClick={() => handleClick?.(filtertype.id)}
+                ariaLabel="Lukke"
+                data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
+                icon={
+                  <Close
+                    data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
+                    className={styles.ikon}
+                    aria-label="Lukke"
+                  />
+                }
+              />
+            )}
           </Tag>
         );
       })}
