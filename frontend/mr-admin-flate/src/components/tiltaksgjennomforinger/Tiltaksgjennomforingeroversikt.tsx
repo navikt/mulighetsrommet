@@ -29,7 +29,8 @@ export function Tiltaksgjennomforingeroversikt() {
 
   return (
     <>
-      <PagineringsOversikt />
+      {tiltaksgjennomforinger.length > 0 ? <PagineringsOversikt /> : null}
+
       <ul className={styles.oversikt}>
         {tiltaksgjennomforinger.length === 0 ? (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
