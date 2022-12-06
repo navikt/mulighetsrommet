@@ -17,7 +17,13 @@ inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T {
     return json.decodeFromString(T::class.serializer(), (body as TextContent).text)
 }
 
-fun createArenaEvent(table: String, id: String, operation: ArenaEventData.Operation, data: String): ArenaEvent {
+fun createArenaEvent(
+    table: String,
+    id: String,
+    operation: ArenaEventData.Operation,
+    data: String,
+    status: ArenaEvent.ConsumptionStatus = ArenaEvent.ConsumptionStatus.Pending
+): ArenaEvent {
     val before = if (operation == ArenaEventData.Operation.Delete) {
         data
     } else {
@@ -44,6 +50,6 @@ fun createArenaEvent(table: String, id: String, operation: ArenaEventData.Operat
             }
             """
         ),
-        status = ArenaEvent.ConsumptionStatus.Pending
+        status = status
     )
 }

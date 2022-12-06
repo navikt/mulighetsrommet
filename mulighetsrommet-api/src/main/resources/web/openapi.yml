@@ -661,10 +661,12 @@ components:
           type: string
         tiltaksnavn:
           type: string
+          nullable: true
         tiltakstype:
           type: string
         arrangor:
           type: string
+          nullable: true
 
     DelMedBruker:
       type: object

@@ -19,6 +19,7 @@ class HistorikkService(
 
     suspend fun hentHistorikkForBruker(norskIdent: String): List<HistorikkForDeltakerDTO> {
         return getHistorikkForBrukerFromDb(norskIdent).map {
+            val arrangor = it.virksomhetsnummer?.let { virksomhetsnummer -> hentArrangorNavn(virksomhetsnummer) }
             HistorikkForDeltakerDTO(
                 id = it.id,
                 fraDato = it.fraDato,
@@ -27,7 +28,7 @@ class HistorikkService(
                 tiltaksnavn = it.tiltaksnavn,
                 tiltaksnummer = it.tiltaksnummer,
                 tiltakstype = it.tiltakstype,
-                arrangor = hentArrangorNavn(it.virksomhetsnummer)
+                arrangor = arrangor
             )
         }
     }
@@ -68,9 +69,9 @@ class HistorikkService(
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
-        tiltaksnavn = string("navn"),
+        tiltaksnavn = stringOrNull("navn"),
         tiltaksnummer = string("tiltaksnummer"),
         tiltakstype = string("tiltakstype"),
-        virksomhetsnummer = string("virksomhetsnummer")
+        virksomhetsnummer = stringOrNull("virksomhetsnummer")
     )
 }

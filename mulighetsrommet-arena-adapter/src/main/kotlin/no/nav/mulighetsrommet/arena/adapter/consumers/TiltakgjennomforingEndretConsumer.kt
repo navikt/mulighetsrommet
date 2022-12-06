@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import arrow.core.continuations.either
+import arrow.core.continuations.ensureNotNull
+import arrow.core.leftIfNull
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
@@ -12,9 +15,11 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomfori
 import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
@@ -22,13 +27,16 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing as MrTiltaksgjennomforing
 
 class TiltakgjennomforingEndretConsumer(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
-    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val arenaEntityMappings: ArenaEntityMappingRepository,
-    private val client: MulighetsrommetApiClient
+    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val saker: SakRepository,
+    private val client: MulighetsrommetApiClient,
+    private val ords: ArenaOrdsProxyClient,
 ) : ArenaTopicConsumer(
     ArenaTables.Tiltaksgjennomforing
 ) {
@@ -55,7 +63,7 @@ class TiltakgjennomforingEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
         val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
         ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
@@ -63,7 +71,7 @@ class TiltakgjennomforingEndretConsumer(
         }
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping.Tiltaksgjennomforing(event.arenaTable, event.arenaId, UUID.randomUUID())
+            ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
         val tiltaksgjennomforing = decoded.data
@@ -72,10 +80,30 @@ class TiltakgjennomforingEndretConsumer(
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 
-        // TODO: oppdater til ny api-modell
+        val tiltakstypeMapping = arenaEntityMappings.get(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+        ensureNotNull(tiltakstypeMapping) {
+            ConsumptionError.MissingDependency("Tiltakstype med kode=${tiltaksgjennomforing.tiltakskode} mangler")
+        }
+
+        val sak = saker.get(tiltaksgjennomforing.sakId)
+        ensureNotNull(sak) {
+            ConsumptionError.MissingDependency("Sak med id=${tiltaksgjennomforing.sakId} mangler")
+        }
+
+        val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+            ords.getArbeidsgiver(id)
+                .mapLeft { ConsumptionError.fromResponseException(it) }
+                .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke arrangør i Arena ORDS for arrangorId=${tiltaksgjennomforing.arrangorId}") }
+                .map { it.virksomhetsnummer }
+                .bind()
+        }
+
+        val mrTiltaksgjennomforing = tiltaksgjennomforing.toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
+
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/arena/tiltaksgjennomforing", tiltaksgjennomforing)
+        client.request(method, "/api/v1/arena/tiltaksgjennomforing", mrTiltaksgjennomforing)
             .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
 
@@ -95,4 +123,13 @@ class TiltakgjennomforingEndretConsumer(
         apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
         antallPlasser = ANTALL_DELTAKERE,
     )
+
+    private fun Tiltaksgjennomforing.toDomain(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
+        MrTiltaksgjennomforing(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstypeId,
+            tiltaksnummer = sak.lopenummer.toString(),
+            virksomhetsnummer = virksomhetsnummer,
+        )
 }

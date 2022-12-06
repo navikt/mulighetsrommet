@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
+import no.nav.mulighetsrommet.domain.models.Tiltakstype as MrTiltakstype
 
 class TiltakEndretConsumer(
     override val config: ConsumerConfig,
@@ -43,11 +44,11 @@ class TiltakEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, Unit> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
         val decoded = ArenaEventData.decode<ArenaTiltak>(event.payload)
 
         val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping.Tiltakstype(event.arenaTable, event.arenaId, UUID.randomUUID())
+            ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID())
         )
 
         val tiltakstype = decoded.data
@@ -56,10 +57,10 @@ class TiltakEndretConsumer(
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
             .bind()
 
-        // TODO: oppdater til ny api-modell
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/arena/tiltakstype", tiltakstype)
+        client.request(method, "/api/v1/arena/tiltakstype", tiltakstype.toDomain())
             .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
 
@@ -69,5 +70,11 @@ class TiltakEndretConsumer(
         tiltakskode = TILTAKSKODE,
         fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL)
+    )
+
+    private fun Tiltakstype.toDomain() = MrTiltakstype(
+        id = id,
+        navn = navn,
+        tiltakskode = tiltakskode,
     )
 }

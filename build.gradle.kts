@@ -28,8 +28,8 @@ allprojects {
         testLogging {
             showCauses = true
             showExceptions = true
-            exceptionFormat = TestExceptionFormat.FULL
-            events(TestLogEvent.FAILED)
+            exceptionFormat = TestExceptionFormat.SHORT
+            events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
         }
     }
 

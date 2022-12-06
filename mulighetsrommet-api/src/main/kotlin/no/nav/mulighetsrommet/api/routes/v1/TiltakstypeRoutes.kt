@@ -53,7 +53,7 @@ fun Route.tiltakstypeRoutes() {
                 status = HttpStatusCode.BadRequest
             )
 
-            val items = tiltaksgjennomforinger.getTiltaksgjennomforingerByTiltakstypeId(id)
+            val items = tiltaksgjennomforinger.getByTiltakstypeId(id)
 
             call.respond(items)
         }

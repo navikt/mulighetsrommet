@@ -24,7 +24,7 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
 
         logger.info("Handling event: table=${e.arenaTable}, key=${event.arenaId}")
         val (status, message) = handleEvent(event)
-            .map { Pair(ArenaEvent.ConsumptionStatus.Processed, null) }
+            .map { Pair(it, null) }
             .getOrHandle {
                 logger.info("Event consumption failed: ${it.message}")
                 Pair(it.status, it.message)
@@ -36,7 +36,7 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
     suspend fun replayEvent(event: ArenaEvent): ArenaEvent {
         logger.info("Replaying event: table=${event.arenaTable}, key=${event.arenaId}")
         val (status, message) = handleEvent(event)
-            .map { Pair(ArenaEvent.ConsumptionStatus.Processed, null) }
+            .map { Pair(it, null) }
             .getOrHandle {
                 logger.info("Failed to replay event: ${it.message}")
                 Pair(it.status, it.message)
@@ -47,5 +47,5 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
 
     abstract fun decodeArenaData(payload: JsonElement): ArenaEvent
 
-    abstract suspend fun handleEvent(event: ArenaEvent): Either<ConsumptionError, Unit>
+    abstract suspend fun handleEvent(event: ArenaEvent): Either<ConsumptionError, ArenaEvent.ConsumptionStatus>
 }

@@ -4,6 +4,7 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
@@ -49,9 +50,18 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get(),
                 get(),
                 get(),
+                get(),
+                get(),
+                get(),
+            ),
+            TiltakdeltakerEndretConsumer(
+                kafkaConfig.getTopic("tiltakdeltakerendret"),
+                get(),
+                get(),
+                get(),
+                get(),
                 get()
             ),
-            TiltakdeltakerEndretConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get(), get(), get(), get()),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get())
         )
         ConsumerGroup(consumers)
@@ -104,6 +114,11 @@ private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachi
             baseUri = services.mulighetsrommetApi.url
         ) {
             tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
+        }
+    }
+    single {
+        ArenaOrdsProxyClientImpl(baseUrl = services.arenaOrdsProxy.url) {
+            tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
         }
     }
 }

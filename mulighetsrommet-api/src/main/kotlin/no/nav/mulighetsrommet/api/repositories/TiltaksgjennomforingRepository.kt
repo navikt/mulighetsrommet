@@ -15,7 +15,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun save(tiltaksgjennomforing: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> = query {
+    fun upsert(tiltaksgjennomforing: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
         @Language("PostgreSQL")
@@ -36,7 +36,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getTiltaksgjennomforingerByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
+    fun getByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
             select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
@@ -49,7 +49,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTiltaksgjennomforingById(id: UUID): Tiltaksgjennomforing? {
+    fun get(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
@@ -62,7 +62,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTiltaksgjennomforinger(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
+    fun getAll(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, count(*) OVER() AS full_count
