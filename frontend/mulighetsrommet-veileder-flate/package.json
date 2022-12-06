@@ -41,6 +41,7 @@
     "date-fns": "^2.29.3",
     "groq": "^2.33.2",
     "jotai": "^1.11.0",
+    "jotai-location": "^0.3.0",
     "mulighetsrommet-api-client": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

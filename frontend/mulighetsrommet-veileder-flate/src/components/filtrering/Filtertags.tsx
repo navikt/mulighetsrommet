@@ -46,17 +46,7 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
           dataTestId="alert-innsatsgruppe"
         />
       )}
-      {filter.innsatsgruppe && (
-        <FilterTag
-          options={[filter.innsatsgruppe]}
-          handleClick={() => {
-            setFilter({
-              ...filter,
-              innsatsgruppe: undefined,
-            });
-          }}
-        />
-      )}
+      {filter.innsatsgruppe && <FilterTag skjulIkon options={[filter.innsatsgruppe]} />}
       <FilterTag
         options={filter.tiltakstyper!}
         handleClick={(id: string) =>
