@@ -138,10 +138,10 @@ const Tiltaksgjennomforingsoversikt = () => {
     <>
       <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
-          <Heading level="1" size="xsmall" data-testid="antall-tiltak-top">
+          <p data-testid="antall-tiltak-top">
             Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
             {tiltaksgjennomforinger.length} tiltak
-          </Heading>
+          </p>
         ) : null}
         <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
@@ -153,10 +153,10 @@ const Tiltaksgjennomforingsoversikt = () => {
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
-            <Heading level="1" size="xsmall" data-testid="antall-tiltak">
+            <p data-testid="antall-tiltak">
               Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
               {tiltaksgjennomforinger.length} tiltak
-            </Heading>
+            </p>
             <Pagination
               size="small"
               data-testid="paginering"
