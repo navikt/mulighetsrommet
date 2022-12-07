@@ -4,6 +4,7 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
@@ -114,7 +115,7 @@ private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachi
             tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
         }
     }
-    single {
+    single<ArenaOrdsProxyClient> {
         ArenaOrdsProxyClientImpl(baseUrl = services.arenaOrdsProxy.url) {
             tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
         }
