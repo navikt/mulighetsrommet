@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import styles from "./Shortcuts.module.scss";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 
-export function Shortcuts() {
+export function ShortcutsFagansvarlig() {
   return (
     <div>
       <ul className={styles.shortcuts_container}>
         <li className={styles.shortcut}>
-          <Link to="/oversikt">
-            <span>Min oversikt</span>
+          <Link to="/tiltakstyper">
+            <span>Mine tiltakstyper</span>
             <HiOutlineDocumentDuplicate />
           </Link>
         </li>

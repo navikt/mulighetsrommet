@@ -1,16 +1,20 @@
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
-import { AutentisertApp } from "./AutentisertApp";
+import { AutentisertTiltaksansvarligApp } from "./AutentisertTiltaksansvarligApp";
 import { IkkeAutentisertApp } from "./IkkeAutentisertApp";
-import { ansattErTiltaksansvarlig } from "./tilgang/tilgang";
+import { hentAnsattsRolle } from "./tilgang/tilgang";
+import { AutentisertFagansvarligApp } from "./AutentisertFagansvarligApp";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
 
   if (optionalAnsatt.isFetching) return null;
 
-  return ansattErTiltaksansvarlig(optionalAnsatt?.data) ? (
-    <AutentisertApp />
-  ) : (
-    <IkkeAutentisertApp />
-  );
+  switch (hentAnsattsRolle(optionalAnsatt?.data)) {
+    case "TILTAKSANSVARLIG":
+      return <AutentisertFagansvarligApp />; //<AutentisertTiltaksansvarligApp />;
+    case "FAGANSVARLIG":
+      return <AutentisertFagansvarligApp />;
+    default:
+      return <IkkeAutentisertApp />;
+  }
 }

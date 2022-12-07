@@ -32,7 +32,7 @@ export function Tiltakstyperoversikt() {
       <PagineringsOversikt />
       <ul className={styles.oversikt}>
         {tiltakstyper.length === 0 ? (
-          <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
+          <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
         ) : null}
         {tiltakstyper.map((tiltakstype) => (
           <Tiltakstyperad key={tiltakstype.id} tiltakstype={tiltakstype} />

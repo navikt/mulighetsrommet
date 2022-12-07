@@ -31,7 +31,7 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
         <EndreRolleVedLokalUtvikling
-          gjelderForMiljo={["127.0.0.1", "labs.nais.io"]}
+          gjelderForMiljo={["127.0.0.1", "localhost", "labs.nais.io"]}
         />
         <Router basename={import.meta.env.BASE_URL}>
           <AdministratorHeader />

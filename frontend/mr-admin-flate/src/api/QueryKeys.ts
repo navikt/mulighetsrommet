@@ -1,4 +1,5 @@
 export const QueryKeys = {
+  tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
   tiltakstyper: (page?: number) => [page, "tiltakstyper"] as const,
   tiltaksgjennomforinger: (page?: number) =>
     [page, "tiltaksgjennomforinger"] as const,
