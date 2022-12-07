@@ -1,17 +1,14 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
-import arrow.core.Either
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import io.mockk.coEvery
-import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
@@ -21,10 +18,14 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.models.dto.Arrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.respondJson
 import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
@@ -97,8 +98,21 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             )
         }
 
-        test("should treat all operations as upserts") {
+        test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val event = consumer.processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
+
+            event.status shouldBe Ignored
+        }
+
+        test("should treat all operations as upserts") {
+            val engine = createMockEngine(
+                "/ords/arbeidsgiver" to { respondJson(Arrangor("123456", "000000")) },
+                "/api/v1/arena/tiltaksgjennomforing" to { respondOk() },
+            )
+
+            val consumer = createConsumer(database.db, engine)
 
             val e1 = consumer.processEvent(createEvent(Insert, name = "Navn 1"))
             e1.status shouldBe Processed
@@ -116,17 +130,49 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 .row().value("navn").isEqualTo("Navn 1")
         }
 
-        test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
-            val consumer = createConsumer(database.db, MockEngine { respondOk() })
-
-            val event = consumer.processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
-
-            event.status shouldBe Ignored
-        }
-
         context("api responses") {
-            test("should call api with mapped event payload") {
-                val engine = MockEngine { respondOk() }
+            test("should mark the event as Failed when arena ords proxy responds with an error") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to { respondError(HttpStatusCode.InternalServerError) },
+                )
+
+                val consumer = createConsumer(database.db, engine)
+                val event = consumer.processEvent(createEvent(Insert))
+
+                event.status shouldBe Failed
+            }
+
+            // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
+            test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to { respondError(HttpStatusCode.NotFound) },
+                )
+
+                val consumer = createConsumer(database.db, engine)
+
+                val event = consumer.processEvent(createEvent(Insert))
+
+                event.status shouldBe Invalid
+            }
+
+            test("should mark the event as Failed when api responds with an error") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to { respondJson(Arrangor("123456", "000000")) },
+                    "/api/v1/arena/tiltaksgjennomforing" to { respondError(HttpStatusCode.InternalServerError) },
+                )
+
+                val consumer = createConsumer(database.db, engine)
+                val event = consumer.processEvent(createEvent(Insert))
+
+                event.status shouldBe Failed
+            }
+
+            test("should call api with mapped event payload when all services responds with success") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to { respondJson(Arrangor("123456", "000000")) },
+                    "/api/v1/arena/tiltaksgjennomforing" to { respondOk() },
+                )
+
                 val consumer = createConsumer(database.db, engine)
 
                 consumer.processEvent(createEvent(Insert))
@@ -153,20 +199,6 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                     }
                 }
             }
-
-            test("should treat a 500 response as error") {
-                val consumer = createConsumer(
-                    database.db,
-                    MockEngine { respondError(HttpStatusCode.InternalServerError) }
-                )
-
-                val event = consumer.processEvent(createEvent(Insert))
-
-                event.status shouldBe Failed
-                database.assertThat("arena_events")
-                    .row()
-                    .value("consumption_status").isEqualTo("Failed")
-            }
         }
     }
 })
@@ -176,19 +208,23 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         "Bearer token"
     }
 
-    val ords = mockk<ArenaOrdsProxyClient>()
-    coEvery {
-        ords.getArbeidsgiver(any())
-    } answers {
-        Either.Right(Arrangor("123456", "123456"))
+    val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
+        "Bearer token"
     }
+
+    val entities = ArenaEntityService(
+        events = ArenaEventRepository(db),
+        mappings = ArenaEntityMappingRepository(db),
+        tiltakstyper = TiltakstypeRepository(db),
+        saker = SakRepository(db),
+        tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
+        deltakere = DeltakerRepository(db),
+    )
 
     return TiltakgjennomforingEndretConsumer(
         ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
         ArenaEventRepository(db),
-        ArenaEntityMappingRepository(db),
-        TiltaksgjennomforingRepository(db),
-        SakRepository(db),
+        entities,
         client,
         ords,
     )

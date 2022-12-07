@@ -10,14 +10,14 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class SakEndretConsumer(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
-    private val saker: SakRepository,
+    private val entities: ArenaEntityService,
 ) : ArenaTopicConsumer(
     ArenaTables.Sak
 ) {
@@ -44,8 +44,7 @@ class SakEndretConsumer(
 
         decoded.data
             .toSak()
-            .let { saker.upsert(it) }
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .let { entities.upsertSak(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }

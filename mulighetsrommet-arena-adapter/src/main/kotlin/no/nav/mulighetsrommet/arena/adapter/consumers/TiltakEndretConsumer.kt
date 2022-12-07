@@ -9,12 +9,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,9 +22,8 @@ import no.nav.mulighetsrommet.domain.models.Tiltakstype as MrTiltakstype
 class TiltakEndretConsumer(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
-    private val tiltakstyper: TiltakstypeRepository,
-    private val arenaEntityMappings: ArenaEntityMappingRepository,
-    private val client: MulighetsrommetApiClient
+    private val entities: ArenaEntityService,
+    private val client: MulighetsrommetApiClient,
 ) : ArenaTopicConsumer(
     ArenaTables.Tiltakstype
 ) {
@@ -47,14 +44,10 @@ class TiltakEndretConsumer(
     override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
         val decoded = ArenaEventData.decode<ArenaTiltak>(event.payload)
 
-        val mapping = arenaEntityMappings.get(event.arenaTable, event.arenaId) ?: arenaEntityMappings.insert(
-            ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID())
-        )
-
+        val mapping = entities.getOrCreateMapping(event)
         val tiltakstype = decoded.data
             .toTiltakstype(mapping.entityId)
-            .let { tiltakstyper.upsert(it) }
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .let { entities.upsertTiltakstype(it) }
             .bind()
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
