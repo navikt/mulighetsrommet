@@ -25,7 +25,7 @@ app:
 
   tasks:
     retryFailedEvents:
-      delayOfMinutes: 60
+      delayOfMinutes: 5
 
   enableFailedRecordProcessor: true
 

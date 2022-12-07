@@ -95,7 +95,7 @@ class ArenaEventService(
                 offset += events.size
             } while (isActive && events.isNotEmpty())
 
-            logger.info("All events produced, closing channel...")
+            logger.info("Produced $offset events, closing channel...")
             close()
         }
 
