@@ -4,9 +4,6 @@ import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { OversiktTiltaksgjennomforinger } from "./pages/OversiktTiltaksgjennomforinger";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
-import { Tiltakstyperoversikt } from "./components/tiltakstyper/Tiltakstyperoversikt";
-import { TiltakstypePage } from "./pages/TiltakstypePage";
-import { OversiktTiltakstyper } from "./pages/OversiktTiltakstyper";
 
 export function AutentisertTiltaksansvarligApp() {
   return (

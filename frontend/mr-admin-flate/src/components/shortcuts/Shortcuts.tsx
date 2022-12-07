@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import styles from "./Shortcuts.module.scss";
-import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 
 export type Shortcut = { navn: string; url: string };
 
