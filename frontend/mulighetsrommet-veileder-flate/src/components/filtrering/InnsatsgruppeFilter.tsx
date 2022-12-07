@@ -72,7 +72,6 @@ function InnsatsgruppeFilter() {
     <InnsatsgruppeAccordion
       accordionNavn="Innsatsgruppe"
       option={filter.innsatsgruppe?.nokkel}
-      key={filter.innsatsgruppe?.nokkel}
       setOption={innsatsgruppe => {
         const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
         if (foundInnsatsgruppe) {

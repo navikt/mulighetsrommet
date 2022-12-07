@@ -9,6 +9,7 @@ import "./index.css";
 import { App } from "./App";
 import { BrowserRouter as Router } from "react-router-dom";
 import { AdministratorHeader } from "./components/AdministratorHeader";
+import { EndreRolleVedLokalUtvikling } from "./components/EndreRolle/EndreRolleVedLokalUtvikling";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,9 @@ function render() {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
+        <EndreRolleVedLokalUtvikling
+          gjelderForMiljo={["127.0.0.1", "labs.nais.io"]}
+        />
         <Router basename={import.meta.env.BASE_URL}>
           <AdministratorHeader />
           <App />
