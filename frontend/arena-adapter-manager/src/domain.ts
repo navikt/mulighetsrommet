@@ -4,8 +4,7 @@ export enum TopicType {
 }
 
 export interface Topic {
-  id: number;
-  key: string;
+  id: string;
   type: TopicType;
   topic: string;
   running: boolean;
