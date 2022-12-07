@@ -45,7 +45,7 @@ dependencies {
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
     implementation("io.arrow-kt:arrow-core:1.1.2")
 
-    val ktorVersion = "2.1.1"
+    val ktorVersion = "2.1.3"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")

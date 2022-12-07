@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -65,10 +65,19 @@ class SakEndretConsumerTest : FunSpec({
 })
 
 private fun createConsumer(db: Database): SakEndretConsumer {
+    val entities = ArenaEntityService(
+        events = ArenaEventRepository(db),
+        mappings = ArenaEntityMappingRepository(db),
+        tiltakstyper = TiltakstypeRepository(db),
+        saker = SakRepository(db),
+        tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
+        deltakere = DeltakerRepository(db),
+    )
+
     return SakEndretConsumer(
         ConsumerConfig("sakendret", "sakendret"),
         ArenaEventRepository(db),
-        SakRepository(db),
+        entities,
     )
 }
 

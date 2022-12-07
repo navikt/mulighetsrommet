@@ -4,6 +4,7 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
 import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
@@ -12,6 +13,7 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretC
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ProcessFailedEventsTask
 import no.nav.mulighetsrommet.database.Database
@@ -44,11 +46,9 @@ fun Application.configureDependencyInjection(
 private fun consumers(kafkaConfig: KafkaConfig) = module {
     single {
         val consumers = listOf(
-            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get(), get(), get()),
+            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get(), get()),
             TiltakgjennomforingEndretConsumer(
                 kafkaConfig.getTopic("tiltakgjennomforingendret"),
-                get(),
-                get(),
                 get(),
                 get(),
                 get(),
@@ -60,7 +60,6 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get(),
                 get(),
                 get(),
-                get()
             ),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get())
         )
@@ -116,9 +115,12 @@ private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachi
             tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
         }
     }
-    single {
+    single<ArenaOrdsProxyClient> {
         ArenaOrdsProxyClientImpl(baseUrl = services.arenaOrdsProxy.url) {
             tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
         }
+    }
+    single {
+        ArenaEntityService(get(), get(), get(), get(), get(), get())
     }
 }
