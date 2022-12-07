@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 
-class ProcessFailedEventsTask(private val config: Config, private val arenaEventService: ArenaEventService) {
+class RetryFailedEvents(private val config: Config, private val arenaEventService: ArenaEventService) {
 
     data class Config(
         val delayOfMinutes: Int
@@ -15,7 +15,7 @@ class ProcessFailedEventsTask(private val config: Config, private val arenaEvent
 
     fun toTask(): RecurringTask<Void> {
         return Tasks
-            .recurring("process-failed-events", FixedDelay.ofMinutes(config.delayOfMinutes))
+            .recurring("retry-failed-events", FixedDelay.ofMinutes(config.delayOfMinutes))
             .execute { _, _ ->
                 runBlocking {
                     arenaEventService.replayEvents(status = ArenaEvent.ConsumptionStatus.Failed)

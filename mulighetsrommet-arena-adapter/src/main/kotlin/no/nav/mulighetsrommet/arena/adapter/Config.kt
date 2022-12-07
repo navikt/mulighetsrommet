@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
-import no.nav.mulighetsrommet.arena.adapter.tasks.ProcessFailedEventsTask
+import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -19,7 +19,7 @@ data class AppConfig(
 )
 
 data class TaskConfig(
-    val processFailedEvents: ProcessFailedEventsTask.Config
+    val retryFailedEvents: RetryFailedEvents.Config
 )
 
 data class ServiceConfig(

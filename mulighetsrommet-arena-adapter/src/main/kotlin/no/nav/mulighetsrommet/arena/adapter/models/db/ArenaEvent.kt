@@ -8,6 +8,7 @@ data class ArenaEvent(
     val payload: JsonElement,
     val status: ConsumptionStatus,
     val message: String? = null,
+    val retries: Int = 0,
 ) {
     enum class ConsumptionStatus {
         /** Event processing is pending and will be started (or retried) on the next schedule */

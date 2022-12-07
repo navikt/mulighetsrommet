@@ -18,12 +18,13 @@ app:
     arenaEventService:
       channelCapacity: 10
       numChannelConsumers: 1
+      maxRetries: 1
     arenaOrdsProxy:
       url: http://localhost:8090/arena-ords-proxy
       scope: default
 
   tasks:
-    processFailedEvents:
+    retryFailedEvents:
       delayOfMinutes: 1
 
   enableFailedRecordProcessor: true
