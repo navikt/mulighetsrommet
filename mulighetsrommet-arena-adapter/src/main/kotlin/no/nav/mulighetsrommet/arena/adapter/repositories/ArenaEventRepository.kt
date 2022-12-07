@@ -15,13 +15,14 @@ class ArenaEventRepository(private val db: Database) {
     fun upsert(event: ArenaEvent): ArenaEvent {
         @Language("PostgreSQL")
         val query = """
-            insert into arena_events(arena_table, arena_id, payload, consumption_status, message)
-            values (:arena_table, :arena_id, :payload::jsonb, :status::consumption_status, :message)
+            insert into arena_events(arena_table, arena_id, payload, consumption_status, message, retries)
+            values (:arena_table, :arena_id, :payload::jsonb, :status::consumption_status, :message, :retries)
             on conflict (arena_table, arena_id)
             do update set
                 payload            = excluded.payload,
                 consumption_status = excluded.consumption_status,
-                message            = excluded.message
+                message            = excluded.message,
+                retries            = excluded.retries
             returning *
         """.trimIndent()
 
@@ -36,7 +37,7 @@ class ArenaEventRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select arena_table, arena_id, payload, consumption_status, message
+            select arena_table, arena_id, payload, consumption_status, message, retries
             from arena_events
             where arena_table = :arena_table and arena_id = :arena_id
         """.trimIndent()
@@ -50,17 +51,19 @@ class ArenaEventRepository(private val db: Database) {
     fun getAll(
         table: String? = null,
         status: ArenaEvent.ConsumptionStatus? = null,
+        maxRetries: Int? = null,
         limit: Int = 1000,
         offset: Int = 0
     ): List<ArenaEvent> {
         val where = andWhereParameterNotNull(
             table to "arena_table = :arena_table",
-            status to "consumption_status = :status::consumption_status"
+            status to "consumption_status = :status::consumption_status",
+            maxRetries to "retries < :max_retries",
         )
 
         @Language("PostgreSQL")
         val query = """
-            select arena_table, arena_id, payload, consumption_status, message
+            select arena_table, arena_id, payload, consumption_status, message, retries
             from arena_events
             $where
             order by arena_id
@@ -70,7 +73,13 @@ class ArenaEventRepository(private val db: Database) {
 
         return queryOf(
             query,
-            mapOf("arena_table" to table, "status" to status?.name, "limit" to limit, "offset" to offset)
+            mapOf(
+                "arena_table" to table,
+                "status" to status?.name,
+                "max_retries" to maxRetries,
+                "limit" to limit,
+                "offset" to offset
+            )
         )
             .map { it.toEvent() }
             .asList
@@ -89,7 +98,8 @@ class ArenaEventRepository(private val db: Database) {
         "arena_id" to arenaId,
         "payload" to payload.toString(),
         "status" to status.name,
-        "message" to message
+        "message" to message,
+        "retries" to retries,
     )
 
     private fun Row.toEvent() = ArenaEvent(
@@ -98,5 +108,6 @@ class ArenaEventRepository(private val db: Database) {
         payload = Json.parseToJsonElement(string("payload")),
         status = ArenaEvent.ConsumptionStatus.valueOf(string("consumption_status")),
         message = stringOrNull("message"),
+        retries = int("retries"),
     )
 }
