@@ -53,7 +53,7 @@ function TopicOverview() {
           <Tbody>
             {topics.map((topic) => (
               <Tr key={topic.id}>
-                <Td>{topic.key}</Td>
+                <Td>{topic.id}</Td>
                 <Td>{topic.type}</Td>
                 <Td>
                   <strong>{topic.topic}</strong>
