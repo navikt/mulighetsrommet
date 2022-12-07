@@ -4,6 +4,7 @@ import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { Oversikt } from "./pages/Oversikt";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
+import { Tiltakstyperoversikt } from "./components/tiltakstyper/Tiltakstyperoversikt";
 
 export function AutentisertApp() {
   return (
@@ -22,6 +23,15 @@ export function AutentisertApp() {
         element={
           <RootLayout>
             <Oversikt />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltakstyper"
+        element={
+          <RootLayout>
+            <Tiltakstyperoversikt />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

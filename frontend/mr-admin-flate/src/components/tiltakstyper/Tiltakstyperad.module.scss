@@ -1,0 +1,14 @@
+.rad {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1%;
+  background-color: white;
+  margin-bottom: 0.25rem;
+  padding: 2rem 1rem;
+  border-radius: 0.25rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pil {
+  color: #0067c5;
+}

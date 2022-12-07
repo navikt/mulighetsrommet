@@ -11,6 +11,10 @@ export function Shortcuts() {
             <span>Min oversikt</span>
             <HiOutlineDocumentDuplicate />
           </Link>
+          <Link to="/tiltakstyper">
+            <span>Mine tiltakstyper</span>
+            <HiOutlineDocumentDuplicate />
+          </Link>
         </li>
       </ul>
     </div>
