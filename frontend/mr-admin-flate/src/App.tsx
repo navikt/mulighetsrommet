@@ -11,7 +11,7 @@ export function App() {
 
   switch (hentAnsattsRolle(optionalAnsatt?.data)) {
     case "TILTAKSANSVARLIG":
-      return <AutentisertFagansvarligApp />; //<AutentisertTiltaksansvarligApp />;
+      return <AutentisertTiltaksansvarligApp />;
     case "FAGANSVARLIG":
       return <AutentisertFagansvarligApp />;
     default:

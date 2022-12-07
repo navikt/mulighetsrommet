@@ -3,7 +3,7 @@ import { BodyLong, Heading } from "@navikt/ds-react";
 import styles from "./Oversikt.module.scss";
 import { Link } from "react-router-dom";
 
-export function Oversikt() {
+export function OversiktTiltaksgjennomforinger() {
   return (
     <div>
       <Link to="/">Hjem</Link>

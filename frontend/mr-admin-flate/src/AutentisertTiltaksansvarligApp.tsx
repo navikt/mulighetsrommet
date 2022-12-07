@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { ForsideTiltaksansvarlig } from "./ForsideTiltaksansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
-import { Oversikt } from "./pages/Oversikt";
+import { OversiktTiltaksgjennomforinger } from "./pages/OversiktTiltaksgjennomforinger";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 import { Tiltakstyperoversikt } from "./components/tiltakstyper/Tiltakstyperoversikt";
 import { TiltakstypePage } from "./pages/TiltakstypePage";
@@ -24,7 +24,7 @@ export function AutentisertTiltaksansvarligApp() {
         path="oversikt"
         element={
           <RootLayout>
-            <Oversikt />
+            <OversiktTiltaksgjennomforinger />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

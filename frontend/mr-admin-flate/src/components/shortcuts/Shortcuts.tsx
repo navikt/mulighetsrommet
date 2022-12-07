@@ -2,16 +2,23 @@ import { Link } from "react-router-dom";
 import styles from "./Shortcuts.module.scss";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 
-export function Shortcuts() {
+export type Shortcut = { navn: string; url: string };
+
+interface Props {
+  shortcuts: Shortcut[];
+}
+
+export function Shortcuts({ shortcuts }: Props) {
   return (
     <div>
       <ul className={styles.shortcuts_container}>
-        <li className={styles.shortcut}>
-          <Link to="/oversikt">
-            <span>Min oversikt</span>
-            <HiOutlineDocumentDuplicate />
-          </Link>
-        </li>
+        {shortcuts.map(({ url, navn }) => (
+          <li key={url + navn} className={styles.shortcut}>
+            <Link to={url}>
+              <span>{navn}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
     </div>
   );

@@ -1,6 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import { useFeatureToggles } from "./api/features/feature-toggles";
-import { ShortcutsFagansvarlig } from "./components/shortcuts/ShortcutsFagansvarlig";
+import { Shortcuts } from "./components/shortcuts/Shortcuts";
+import { shortcutsForFagansvarlig } from "./constants";
 
 export function ForsideFagansvarlig() {
   const { data, isLoading } = useFeatureToggles();
@@ -18,7 +19,7 @@ export function ForsideFagansvarlig() {
   return (
     <>
       <h1>Oversikt</h1>
-      <ShortcutsFagansvarlig />
+      <Shortcuts shortcuts={shortcutsForFagansvarlig} />
     </>
   );
 }
