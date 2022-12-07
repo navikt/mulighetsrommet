@@ -29,7 +29,7 @@ export function Tiltakstyperoversikt() {
 
   return (
     <>
-      <PagineringsOversikt />
+      {tiltakstyper.length > 0 ? <PagineringsOversikt /> : null}
       <ul className={styles.oversikt}>
         {tiltakstyper.length === 0 ? (
           <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
