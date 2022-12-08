@@ -1,13 +1,12 @@
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
-import { IkkeAutentisertApp } from "./IkkeAutentisertApp";
 import { hentAnsattsRolle } from "./tilgang/tilgang";
-import { AutentisertFagansvarligApp } from "./AutentisertFagansvarligApp";
 import { lazy, Suspense } from "react";
+import { Loader } from "@navikt/ds-react";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
 
-  if (optionalAnsatt.isFetching) return null;
+  if (optionalAnsatt.isFetching) return <Loader size="xlarge" />;
 
   const AutentisertTiltaksansvarligApp = lazy(
     () => import("./AutentisertTiltaksansvarligApp")
@@ -20,20 +19,20 @@ export function App() {
   switch (hentAnsattsRolle(optionalAnsatt?.data)) {
     case "TILTAKSANSVARLIG":
       return (
-        <Suspense fallback={<p>Laster...</p>}>
+        <Suspense fallback={<Loader size="xlarge" />}>
           {" "}
           <AutentisertTiltaksansvarligApp />
         </Suspense>
       );
     case "FAGANSVARLIG":
       return (
-        <Suspense fallback={<p>Laster...</p>}>
+        <Suspense fallback={<Loader size="xlarge" />}>
           <AutentisertFagansvarligApp />
         </Suspense>
       );
     default:
       return (
-        <Suspense fallback={<p>Laster...</p>}>
+        <Suspense fallback={<Loader size="xlarge" />}>
           <IkkeAutentisertApp />
         </Suspense>
       );
