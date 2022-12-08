@@ -1,4 +1,3 @@
-import { withRouterHOC } from "@sanity/base/router";
 import { Flex } from "@sanity/ui";
 import React from "react";
 import styled from "styled-components";
@@ -11,7 +10,7 @@ const ToolRoot = styled(Flex)`
   flex-direction: column;
 `;
 
-function Samtykke(props) {
+export function Samtykke(props) {
   return (
     <ToolRoot>
       <div style={{ maxWidth: "65ch" }}>
@@ -50,5 +49,3 @@ function Samtykke(props) {
     </ToolRoot>
   );
 }
-
-export default withRouterHOC(Samtykke);

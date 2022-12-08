@@ -1,59 +1,55 @@
-import { Rule } from "@sanity/types";
-import { ConditionalPropertyCallbackContext } from "@sanity/types/src/schema/types";
-import { CustomValidatorResult } from "@sanity/types/src/validation/types";
 import { ImOffice } from "react-icons/im";
+import { defineType, defineField } from "sanity";
 
 export enum EnhetType {
   Fylke = "Fylke",
   Lokal = "Lokal",
 }
 
-export default {
+export const enhet = defineType({
   name: "enhet",
   title: "Enhet",
   type: "document",
   icon: ImOffice,
   readOnly: true,
   fields: [
-    {
+    defineField({
       name: "navn",
       title: "Navn",
       type: "string",
-      validation: (rule: Rule) => rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "nummer",
       title: "Enhetsnummer",
       type: "slug",
-      validation: (rule: Rule) =>
-        rule
-          .required()
-          .custom<{ current?: string }>((value): CustomValidatorResult => {
-            return (
-              /[0-9]{4}/.test(value.current) ||
-              "Enhetsnummer is not formatted correctly."
-            );
-          }),
-    },
-    {
+      validation: (rule) =>
+        rule.required().custom((value) => {
+          return (
+            /[0-9]{4}/.test(value.current) ||
+            "Enhetsnummer is not formatted correctly."
+          );
+        }),
+    }),
+    defineField({
       name: "type",
       title: "Type",
       type: "string",
       options: {
         list: Object.values(EnhetType),
       },
-      validation: (rule: Rule) => rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "status",
       title: "Status",
       type: "string",
       options: {
         list: ["Aktiv", "Nedlagt", "Under utvikling", "Under avvikling"],
       },
-      validation: (rule: Rule) => rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "fylke",
       title: "Fylke",
       type: "reference",
@@ -64,10 +60,10 @@ export default {
           type: EnhetType.Fylke,
         },
       },
-      hidden: ({ document }: ConditionalPropertyCallbackContext) => {
+      hidden: ({ document }) => {
         return document.type !== EnhetType.Lokal;
       },
-    },
+    }),
   ],
   preview: {
     select: {
@@ -75,4 +71,4 @@ export default {
       subtitle: "type",
     },
   },
-};
+});

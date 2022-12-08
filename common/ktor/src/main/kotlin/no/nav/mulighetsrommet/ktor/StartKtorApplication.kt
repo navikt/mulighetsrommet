@@ -6,10 +6,12 @@ import io.ktor.server.netty.*
 import org.slf4j.LoggerFactory
 
 fun startKtorApplication(config: ServerConfig, configure: Application.() -> Unit) {
+    val loggerName = configure.javaClass.name.split('$').first()
+
     val server = embeddedServer(
         Netty,
         environment = applicationEngineEnvironment {
-            log = LoggerFactory.getLogger("ktor.application")
+            log = LoggerFactory.getLogger(loggerName)
 
             module(configure)
 
@@ -19,5 +21,6 @@ fun startKtorApplication(config: ServerConfig, configure: Application.() -> Unit
             }
         }
     )
+
     server.start(true)
 }

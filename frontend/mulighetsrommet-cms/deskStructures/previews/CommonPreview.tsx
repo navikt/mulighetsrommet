@@ -96,13 +96,13 @@ export function SidemenyDetaljerRad({ navn, children }) {
       >
         {navn}
       </h4>
-      <p
+      <div
         style={{
           margin: "0",
         }}
       >
         {children}
-      </p>
+      </div>
     </div>
   );
 }

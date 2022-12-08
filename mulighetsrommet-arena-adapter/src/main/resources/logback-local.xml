@@ -12,9 +12,6 @@
     <logger name="secureLogger" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-
     <logger name="org.apache.kafka" level="INFO"/>
-    <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
-    <logger name="io.ktor" level="INFO"/>
 </included>
