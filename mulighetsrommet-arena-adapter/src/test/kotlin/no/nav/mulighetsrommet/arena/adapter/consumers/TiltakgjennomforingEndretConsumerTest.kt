@@ -26,13 +26,18 @@ import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(
+        FlywayDatabaseListener(
+            createArenaAdapterDatabaseTestSchema()
+        )
+    )
 
     beforeEach {
         database.db.migrate()
@@ -53,7 +58,10 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 )
             )
 
-            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+            val consumer = createConsumer(
+                database.db,
+                MockEngine { respondOk() }
+            )
 
             val event = consumer.processEvent(createEvent(Insert))
 
@@ -63,9 +71,18 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
         test("should save the event with status Failed when dependent sak is missing") {
             val saker = SakRepository(database.db)
-            saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
+            saker.upsert(
+                Sak(
+                    sakId = 13572352,
+                    lopenummer = 123,
+                    aar = 2022
+                )
+            )
 
-            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+            val consumer = createConsumer(
+                database.db,
+                MockEngine { respondOk() }
+            )
 
             val event = consumer.processEvent(createEvent(Insert))
 
@@ -83,12 +100,19 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
         beforeEach {
             val saker = SakRepository(database.db)
-            saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022))
+            saker.upsert(
+                Sak(
+                    sakId = 13572352,
+                    lopenummer = 123,
+                    aar = 2022
+                )
+            )
 
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstype)
 
-            val mappings = ArenaEntityMappingRepository(database.db)
+            val mappings =
+                ArenaEntityMappingRepository(database.db)
             mappings.insert(
                 ArenaEntityMapping(
                     ArenaTables.Tiltakstype,
@@ -99,32 +123,62 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         }
 
         test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
-            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+            val consumer = createConsumer(
+                database.db,
+                MockEngine { respondOk() }
+            )
 
-            val event = consumer.processEvent(createEvent(Insert, regDato = "2017-12-03 23:59:59"))
+            val event = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    regDato = "2017-12-03 23:59:59"
+                )
+            )
 
             event.status shouldBe Ignored
         }
 
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
-                "/ords/arbeidsgiver" to { respondJson(Arrangor("123456", "000000")) },
-                "/api/v1/arena/tiltaksgjennomforing" to { respondOk() },
+                "/ords/arbeidsgiver" to {
+                    respondJson(
+                        Arrangor(
+                            "123456",
+                            "000000"
+                        )
+                    )
+                },
+                "/api/v1/arena/tiltaksgjennomforing" to { respondOk() }
             )
 
             val consumer = createConsumer(database.db, engine)
 
-            val e1 = consumer.processEvent(createEvent(Insert, name = "Navn 1"))
+            val e1 = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    name = "Navn 1"
+                )
+            )
             e1.status shouldBe Processed
             database.assertThat("tiltaksgjennomforing")
                 .row().value("navn").isEqualTo("Navn 1")
 
-            val e2 = consumer.processEvent(createEvent(Update, name = "Navn 2"))
+            val e2 = consumer.processEvent(
+                createEvent(
+                    Update,
+                    name = "Navn 2"
+                )
+            )
             e2.status shouldBe Processed
             database.assertThat("tiltaksgjennomforing")
                 .row().value("navn").isEqualTo("Navn 2")
 
-            val e3 = consumer.processEvent(createEvent(Delete, name = "Navn 1"))
+            val e3 = consumer.processEvent(
+                createEvent(
+                    Delete,
+                    name = "Navn 1"
+                )
+            )
             e3.status shouldBe Processed
             database.assertThat("tiltaksgjennomforing")
                 .row().value("navn").isEqualTo("Navn 1")
@@ -133,11 +187,16 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         context("api responses") {
             test("should mark the event as Failed when arena ords proxy responds with an error") {
                 val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to { respondError(HttpStatusCode.InternalServerError) },
+                    "/ords/arbeidsgiver" to {
+                        respondError(
+                            HttpStatusCode.InternalServerError
+                        )
+                    }
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event = consumer.processEvent(createEvent(Insert))
+                val event =
+                    consumer.processEvent(createEvent(Insert))
 
                 event.status shouldBe Failed
             }
@@ -145,49 +204,95 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to { respondError(HttpStatusCode.NotFound) },
+                    "/ords/arbeidsgiver" to {
+                        respondError(
+                            HttpStatusCode.NotFound
+                        )
+                    }
                 )
 
                 val consumer = createConsumer(database.db, engine)
 
-                val event = consumer.processEvent(createEvent(Insert))
+                val event =
+                    consumer.processEvent(createEvent(Insert))
 
                 event.status shouldBe Invalid
             }
 
             test("should mark the event as Failed when api responds with an error") {
                 val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to { respondJson(Arrangor("123456", "000000")) },
-                    "/api/v1/arena/tiltaksgjennomforing" to { respondError(HttpStatusCode.InternalServerError) },
+                    "/ords/arbeidsgiver" to {
+                        respondJson(
+                            Arrangor(
+                                "123456",
+                                "000000"
+                            )
+                        )
+                    },
+                    "/api/v1/arena/tiltaksgjennomforing" to {
+                        respondError(
+                            HttpStatusCode.InternalServerError
+                        )
+                    }
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event = consumer.processEvent(createEvent(Insert))
+                val event =
+                    consumer.processEvent(createEvent(Insert))
 
                 event.status shouldBe Failed
             }
 
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to { respondJson(Arrangor("123456", "000000")) },
-                    "/api/v1/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/ords/arbeidsgiver" to {
+                        respondJson(
+                            Arrangor(
+                                "123456",
+                                "000000"
+                            )
+                        )
+                    },
+                    "/api/v1/arena/tiltaksgjennomforing" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
 
-                consumer.processEvent(createEvent(Insert))
+                consumer.processEvent(
+                    createEvent(
+                        Insert,
+                        fraDato = "2022-11-11 00:00:00",
+                        tilDato = "2023-11-11 00:00:00"
+                    )
+                )
 
-                val generatedId = engine.requestHistory.last().run {
-                    method shouldBe HttpMethod.Put
+                val generatedId =
+                    engine.requestHistory.last().run {
+                        method shouldBe HttpMethod.Put
 
-                    val tiltaksgjennomforing = decodeRequestBody<Tiltaksgjennomforing>().apply {
-                        tiltakstypeId shouldBe tiltakstype.id
-                        tiltaksnummer shouldBe "123"
-                        virksomhetsnummer shouldBe "123456"
+                        val tiltaksgjennomforing =
+                            decodeRequestBody<Tiltaksgjennomforing>().apply {
+                                tiltakstypeId shouldBe tiltakstype.id
+                                tiltaksnummer shouldBe "123"
+                                virksomhetsnummer shouldBe "123456"
+                                fraDato shouldBe LocalDateTime.of(
+                                    2022,
+                                    11,
+                                    11,
+                                    0,
+                                    0
+                                )
+                                tilDato shouldBe LocalDateTime.of(
+                                    2023,
+                                    11,
+                                    11,
+                                    0,
+                                    0
+                                )
+                            }
+
+                        tiltaksgjennomforing.id
                     }
-
-                    tiltaksgjennomforing.id
-                }
 
                 consumer.processEvent(createEvent(Delete))
 
@@ -218,7 +323,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-        deltakere = DeltakerRepository(db),
+        deltakere = DeltakerRepository(db)
     )
 
     return TiltakgjennomforingEndretConsumer(
@@ -226,14 +331,16 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         ArenaEventRepository(db),
         entities,
         client,
-        ords,
+        ords
     )
 }
 
 private fun createEvent(
     operation: ArenaEventData.Operation,
     name: String = "Navn",
-    regDato: String = "2022-10-10 00:00:00"
+    regDato: String = "2022-10-10 00:00:00",
+    fraDato: String? = null,
+    tilDato: String? = null
 ) = createArenaEvent(
     ArenaTables.Tiltaksgjennomforing,
     "3780431",
@@ -245,8 +352,8 @@ private fun createEvent(
         "ARBGIV_ID_ARRANGOR": 49612,
         "SAK_ID": 13572352,
         "REG_DATO": "$regDato",
-        "DATO_FRA": null,
-        "DATO_TIL": null,
+        "DATO_FRA": ${fraDato?.let { "\"$fraDato\"" }},
+        "DATO_TIL": ${tilDato?.let { "\"$tilDato\"" }},
         "STATUS_TREVERDIKODE_INNSOKNING": "J",
         "ANTALL_DELTAKERE": 5
     }"""

@@ -26,14 +26,19 @@ class ArenaServiceTest : FunSpec({
 
     context("ArenaService") {
         val tiltakstypeRepository = TiltakstypeRepository(listener.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
+        val tiltaksgjennomforingRepository =
+            TiltaksgjennomforingRepository(listener.db)
         val deltakerRepository = DeltakerRepository(listener.db)
-        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
+        val service = ArenaService(
+            tiltakstypeRepository,
+            tiltaksgjennomforingRepository,
+            deltakerRepository
+        )
 
         val tiltakstype = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Arbeidstrening",
-            tiltakskode = "ARBTREN",
+            tiltakskode = "ARBTREN"
         )
 
         val tiltaksgjennomforing = Tiltaksgjennomforing(
@@ -41,7 +46,9 @@ class ArenaServiceTest : FunSpec({
             navn = "Arbeidstrening",
             tiltakstypeId = tiltakstype.id,
             tiltaksnummer = "12345",
-            virksomhetsnummer = "123456789"
+            virksomhetsnummer = "123456789",
+            fraDato = LocalDateTime.of(2022, 11, 11, 0, 0),
+            tilDato = LocalDateTime.of(2023, 11, 11, 0, 0)
         )
 
         val deltaker = Deltaker(
@@ -50,7 +57,7 @@ class ArenaServiceTest : FunSpec({
             norskIdent = "12345678910",
             status = Deltakerstatus.VENTER,
             fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1),
+            tilDato = LocalDateTime.now().plusYears(1)
         )
 
         test("upsert tiltakstype") {
@@ -73,6 +80,13 @@ class ArenaServiceTest : FunSpec({
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(tiltaksgjennomforing.id)
                 .column("navn").value().isEqualTo("Oppdatert arbeidstrening")
+                .column("tiltakstype_id").value().isEqualTo(tiltakstype.id)
+                .column("tiltaksnummer").value().isEqualTo("12345")
+                .column("virksomhetsnummer").value().isEqualTo("123456789")
+                .column("fra_dato").value()
+                .isEqualTo(LocalDateTime.of(2022, 11, 11, 0, 0))
+                .column("til_dato").value()
+                .isEqualTo(LocalDateTime.of(2023, 11, 11, 0, 0))
         }
 
         test("upsert deltaker") {

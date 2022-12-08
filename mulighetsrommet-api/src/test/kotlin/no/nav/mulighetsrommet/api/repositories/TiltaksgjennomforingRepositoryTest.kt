@@ -10,13 +10,15 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = FlywayDatabaseListener(createApiDatabaseTestSchema())
+    val listener =
+        FlywayDatabaseListener(createApiDatabaseTestSchema())
 
     register(listener)
 
@@ -37,7 +39,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        fraDato = LocalDateTime.of(2022, 1, 1, 8, 0),
+        tilDato = LocalDateTime.of(2022, 1, 1, 8, 0)
     )
 
     val tiltak2 = Tiltaksgjennomforing(
@@ -56,7 +60,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("CRUD") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
+            val tiltaksgjennomforinger =
+                TiltaksgjennomforingRepository(listener.db)
 
             tiltaksgjennomforinger.upsert(tiltak1)
             tiltaksgjennomforinger.upsert(tiltak2)
@@ -177,7 +182,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltakstyper = TiltakstypeRepository(listener.db)
         tiltakstyper.save(tiltakstype1)
 
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
+        val tiltaksgjennomforinger =
+            TiltaksgjennomforingRepository(listener.db)
         (1..105).forEach {
             tiltaksgjennomforinger.upsert(
                 Tiltaksgjennomforing(
