@@ -73,6 +73,18 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     );
   }
 
+  function visOppstartsdato(displayed) {
+    if (displayed.oppstart === "dato") {
+      if (displayed.oppstartsdato) {
+        return Intl.DateTimeFormat().format(new Date(displayed.oppstartsdato));
+      }
+      return "Oppstartsdato ikke satt";
+    } else if (displayed.oppstart === "lopende") {
+      return "Løpende oppstart";
+    }
+    return "Midlertidig stengt";
+  }
+
   function Verktoylinje() {
     return (
       <div
@@ -152,9 +164,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
 
         <TekstFraGjennomforing>
           <SidemenyDetaljerRad navn="Oppstart">
-            {displayed.oppstart === "dato"
-              ? Intl.DateTimeFormat().format(new Date(displayed.oppstartsdato))
-              : "Løpende oppstart"}
+            {visOppstartsdato(displayed)}
           </SidemenyDetaljerRad>
         </TekstFraGjennomforing>
         {tiltaksdata?.regelverkLenker && (
