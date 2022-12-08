@@ -88,9 +88,9 @@ const createCommonConfig = (
 
 export default defineConfig([
   {
-    ...createCommonConfig("test", "/test"),
+    ...createCommonConfig("production", "/prod"),
   },
   {
-    ...createCommonConfig("production", "/prod"),
+    ...createCommonConfig("test", "/test"),
   },
 ]);
