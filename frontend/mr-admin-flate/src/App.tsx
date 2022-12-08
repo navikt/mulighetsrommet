@@ -20,7 +20,6 @@ export function App() {
     case "TILTAKSANSVARLIG":
       return (
         <Suspense fallback={<Loader size="xlarge" />}>
-          {" "}
           <AutentisertTiltaksansvarligApp />
         </Suspense>
       );
