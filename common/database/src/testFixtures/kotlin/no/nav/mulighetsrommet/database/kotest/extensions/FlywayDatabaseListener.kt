@@ -16,7 +16,12 @@ class FlywayDatabaseListener(private val config: DatabaseConfig) : BeforeSpecLis
         get() = delegate ?: throw RuntimeException("Database has not yet been initialized")
 
     override suspend fun beforeSpec(spec: Spec) {
-        delegate = FlywayDatabaseAdapter(config, FlywayDatabaseAdapter.InitializationStrategy.Migrate)
+        val migrationConfig = FlywayDatabaseAdapter.MigrationConfig(
+            cleanDisabled = false,
+            strategy = FlywayDatabaseAdapter.InitializationStrategy.Migrate
+        )
+
+        delegate = FlywayDatabaseAdapter(config, migrationConfig)
     }
 
     override suspend fun afterSpec(spec: Spec) {

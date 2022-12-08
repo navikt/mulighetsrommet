@@ -12,7 +12,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:1.1.2")
 
     // Database
-    api("org.flywaydb:flyway-core:8.5.5")
+    api("org.flywaydb:flyway-core:9.8.3")
     api("com.zaxxer:HikariCP:5.0.1")
     api("org.postgresql:postgresql:42.5.1")
     api("com.github.seratch:kotliquery:1.9.0")

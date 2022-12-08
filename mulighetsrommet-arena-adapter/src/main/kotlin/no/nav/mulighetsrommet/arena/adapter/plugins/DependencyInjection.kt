@@ -83,7 +83,7 @@ private fun tasks(tasks: TaskConfig) = module {
 
 private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
     single<Database> {
-        FlywayDatabaseAdapter(databaseConfig, FlywayDatabaseAdapter.InitializationStrategy.MigrateAsync)
+        FlywayDatabaseAdapter(databaseConfig)
     }
 }
 
