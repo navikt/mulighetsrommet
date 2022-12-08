@@ -47,6 +47,8 @@ dependencies {
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
 
+    // Kotlin
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("io.arrow-kt:arrow-core:1.1.2")
 
     val ktorVersion = "2.2.1"
@@ -72,9 +74,9 @@ dependencies {
     val kotestVersion = "5.4.2"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
-    testImplementation("org.testcontainers:kafka:1.17.3")
+    testImplementation("org.testcontainers:kafka:1.17.6")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     testImplementation("org.assertj:assertj-db:2.0.2")
 
@@ -83,11 +85,10 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.0")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("org.slf4j:slf4j-api:2.0.0")
+    implementation("org.slf4j:slf4j-api:2.0.5")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
     implementation("com.github.kagkarlsson:db-scheduler:11.5")
 }
