@@ -1,5 +1,5 @@
 export function blockContentValidation(
-  blocks: { children: { text: string }[] }[] | any, // TODO Ikke type denne som any
+  blocks: { children: { text: string }[] }[] | any,
   maxLength: number,
   errorMessage: string
 ) {
