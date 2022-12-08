@@ -5,7 +5,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { OversiktTiltaksgjennomforinger } from "./pages/OversiktTiltaksgjennomforinger";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 
-export function AutentisertTiltaksansvarligApp() {
+export default function AutentisertTiltaksansvarligApp() {
   return (
     <Routes>
       <Route

@@ -5,7 +5,7 @@ import { TiltakstypePage } from "./pages/TiltakstypePage";
 import { OversiktTiltakstyper } from "./pages/OversiktTiltakstyper";
 import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
 
-export function AutentisertFagansvarligApp() {
+export default function AutentisertFagansvarligApp() {
   return (
     <Routes>
       <Route

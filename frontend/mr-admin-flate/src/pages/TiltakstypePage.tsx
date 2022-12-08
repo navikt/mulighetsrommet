@@ -10,9 +10,7 @@ export function TiltakstypePage() {
   }
 
   if (!optionalTiltakstype.data) {
-    return (
-      <Alert variant="warning">Klarte ikke finne tiltaksgjennomføring</Alert>
-    );
+    return <Alert variant="warning">Klarte ikke finne tiltakstype</Alert>;
   }
 
   const tiltakstype = optionalTiltakstype.data;
