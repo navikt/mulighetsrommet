@@ -1,4 +1,4 @@
-import { Modal } from '@navikt/ds-react';
+import { BodyShort, Modal } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
@@ -8,7 +8,6 @@ import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
 import { DelMedBrukerContent } from './DelMedBrukerContent';
 import { DelMedBrukerFeiletContent } from './DelMedBrukerFeiletContent';
-import { Infomelding } from './Infomelding';
 import { SendtOkContent } from './SendtOkContent';
 
 export const logDelMedbrukerEvent = (
@@ -108,9 +107,9 @@ const Delemodal = ({
               veiledernavn={veiledernavn}
               brukernavn={brukernavn}
             />
-            <Infomelding>
+            <BodyShort className={classNames(modalStyles.infomelding)}>
               Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen
-            </Infomelding>
+            </BodyShort>
           </>
         )}
         {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}

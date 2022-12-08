@@ -1,4 +1,6 @@
 .delemodal {
+  background-color: #f1f1f1 !important;
+
   .container {
     max-width: 65ch;
   }
@@ -28,16 +30,22 @@
   .btn_row button {
     margin-right: 1rem;
   }
+
+  .personlig_melding_btn {
+    margin-top: 1rem;
+  }
 }
 
 .deletekst {
   margin-top: 1rem;
   max-width: 65ch;
   white-space: pre-wrap;
+  border: 1px solid #dbdbdb;
   border-radius: 5px;
   padding: 1rem;
-  background-color: #f7f7f7;
+  background-color: white;
 }
+
 
 .personligHilsen {
   margin-top: 0.5rem;

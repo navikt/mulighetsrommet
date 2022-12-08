@@ -6,7 +6,7 @@ import styles from './Modal.module.scss';
 interface StandardModalModalProps {
   modalOpen: boolean;
   setModalOpen: () => void;
-  handleForm: () => void;
+  handleForm?: () => void;
   handleCancel?: () => void;
   heading: string;
   className?: string;
@@ -30,7 +30,7 @@ const StandardModal = ({
 }: StandardModalModalProps) => {
   const clickSend = () => {
     setModalOpen();
-    handleForm();
+    handleForm && handleForm();
   };
 
   const clickCancel = () => {

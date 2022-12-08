@@ -1,6 +1,7 @@
-.historikk_for_bruker {
-  color: var(--navds-global-color-semantic-text);
-  padding-bottom: 10rem;
+.historikk_modal {
+  background-color: #f1f1f1 !important;
+  width: 50rem;
+  max-width: 70%;
 }
 
 .historikk_text_content {
@@ -13,32 +14,33 @@
   grid-template-columns: 5rem 1rem 5rem;
   grid-gap: 5px;
   text-align: center;
+  margin: 0;
 }
 
 .historikk_for_bruker_liste {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-.historikk_for_bruker_heading {
-  margin: 1rem 0rem 0rem 0rem;
+  color: var(--navds-global-color-semantic-text);
+  padding-bottom: 10rem;
 }
 
 .historikk_for_bruker_element {
-  border-bottom: 2px solid var(--navds-semantic-color-border-inverted);
   display: grid;
-  grid-template-columns: 90% 1fr;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
+  grid-template-columns: 90% auto;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: white;
+  border: 1px solid #dbdbdb;
 }
 
 .historikk_for_bruker_metadata {
   color: var(--navds-semantic-color-text-muted);
   min-width: 150px;
   display: grid;
-  grid-gap: 2rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 3rem;
+  grid-template-columns: 60% auto;
+
   margin-bottom: 1rem;
   margin-top: 0.2rem;
 }

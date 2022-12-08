@@ -1,5 +1,4 @@
-import { ErrorMessage, Alert, Loader } from '@navikt/ds-react';
-import classNames from 'classnames';
+import { Alert, BodyShort, ErrorMessage, Heading, Loader } from '@navikt/ds-react';
 import { HistorikkForBruker as IHistorikkForBruker } from 'mulighetsrommet-api-client';
 import { useHentHistorikk } from '../../core/api/queries/useHentHistorikk';
 import { formaterDato } from '../../utils/Utils';
@@ -31,35 +30,31 @@ export function HistorikkForBruker() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <div className={styles.historikk_for_bruker}>
-      <ul className={styles.historikk_for_bruker_liste}>
-        {tiltak?.map(historikk => {
-          return (
-            <li key={historikk.id} className={styles.historikk_for_bruker_element}>
-              <div>
-                <h1 className={classNames(styles.historikk_for_bruker_heading, 'navds-heading navds-heading--small')}>
-                  {historikk.tiltaksnavn}
-                </h1>
-                <div className={styles.historikk_for_bruker_metadata}>
-                  <p className={styles.historikk_text_content}>{historikk.tiltakstype}</p>
-                  {historikk.arrangor ? (
-                    <p className={styles.historikk_text_content}>{historikk.arrangor}</p>
-                  ) : (
-                    <ErrorMessage size="small">Tiltaksarrangør</ErrorMessage>
-                  )}
-                </div>
-                <p className={classNames(styles.historikk_text_content, styles.historikk_datoer)}>
-                  <span> {formaterDato(historikk.fraDato ?? '')}</span> -{' '}
-                  <span>{formaterDato(historikk.tilDato ?? '')}</span>
-                </p>
+    <ul className={styles.historikk_for_bruker_liste}>
+      {tiltak?.map(historikk => {
+        return (
+          <li key={historikk.id} className={styles.historikk_for_bruker_element}>
+            <div>
+              <Heading level="1" size="small" className={styles.historikk_for_bruker_heading}>
+                {historikk.tiltaksnavn}
+              </Heading>
+              <div className={styles.historikk_for_bruker_metadata}>
+                <BodyShort className={styles.historikk_text_content}>{historikk.tiltakstype}</BodyShort>
+                {historikk.arrangor ? (
+                  <BodyShort className={styles.historikk_text_content}>{historikk.arrangor}</BodyShort>
+                ) : (
+                  <ErrorMessage size="small">Tiltaksarrangør</ErrorMessage>
+                )}
               </div>
-              <aside style={{ justifySelf: 'end' }}>
-                <StatusBadge status={historikk.status} />
-              </aside>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+              <BodyShort className={styles.historikk_datoer}>
+                <span> {formaterDato(historikk.fraDato ?? '')}</span> -{' '}
+                <span>{formaterDato(historikk.tilDato ?? '')}</span>
+              </BodyShort>
+            </div>
+            <StatusBadge status={historikk.status} />
+          </li>
+        );
+      })}
+    </ul>
   );
 }
