@@ -1,7 +1,8 @@
 import { PortableText } from "@portabletext/react";
-import sanityClient from "part:@sanity/base/client";
 import React, { useEffect, useState } from "react";
 import Switch from "react-switch";
+import { useClient } from "sanity";
+import { API_VERSION } from "../../sanity.config";
 import {
   Infoboks,
   Legend,
@@ -10,12 +11,11 @@ import {
   SidemenyDetaljerRad,
 } from "./CommonPreview";
 
-const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
-
 const tiltaksfarge = "#00347D";
 const gjennomforingsfarge = "#881D0C";
 
 export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
+  const client = useClient({ apiVersion: API_VERSION });
   const [tiltaksdata, setTiltaksdata] = useState(null);
   const [gjennomforingsdata, setGjennomforingsdata] = useState(null);
   const [fargekodet, setFargekodet] = useState(true);
@@ -23,17 +23,17 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await client.fetch(
-        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
-      );
       const gjennomforingsdata = await client.fetch(
         `*[_type == "tiltaksgjennomforing" && _id == "${document.displayed._id}"]{..., kontaktinfoArrangor->}[0]`
+      );
+      const data = await client.fetch(
+        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
       );
       setTiltaksdata(data);
       setGjennomforingsdata(gjennomforingsdata);
     };
     fetchData();
-  }, [document]);
+  }, [document, client]);
 
   function TekstFraTiltakstype({ children }: any) {
     return (
@@ -122,10 +122,10 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   function Detaljvisning() {
     return (
       <SidemenyDetaljerContainer>
-        {displayed.tiltaksnummer.current && (
+        {displayed?.tiltaksnummer?.current && (
           <TekstFraGjennomforing>
             <SidemenyDetaljerRad navn="Tiltaksnummer">
-              {displayed.tiltaksnummer.current}
+              {displayed?.tiltaksnummer?.current}
             </SidemenyDetaljerRad>
           </TekstFraGjennomforing>
         )}
@@ -168,7 +168,12 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
               >
                 {tiltaksdata?.regelverkLenker.map((lenke) => {
                   return (
-                    <a target="_blank" href={lenke.regelverkUrl}>
+                    <a
+                      key={lenke.regelverkUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      href={lenke.regelverkUrl}
+                    >
                       {lenke.regelverkLenkeNavn}
                     </a>
                   );

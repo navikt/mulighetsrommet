@@ -2,6 +2,7 @@ import { createAuthStore, defineConfig } from "sanity";
 import { deskTool } from "sanity/desk";
 import { schemas } from "./schemas/schemas";
 import { visionTool } from "@sanity/vision";
+import { defaultDocumentNode, structure } from "./deskStructures/deskStrukture";
 
 const PROJECT_ID = "xegcworx";
 export const API_VERSION = "2021-10-21";
@@ -16,8 +17,10 @@ const createCommonConfig = (
   dataset,
   basePath,
   plugins: [
-    // TODO Legg til vision-plugin
-    deskTool(),
+    deskTool({
+      structure: structure,
+      defaultDocumentNode,
+    }),
     visionTool({
       defaultApiVersion: API_VERSION,
       defaultDataset: "test",

@@ -1,8 +1,7 @@
-import S from "@sanity/desk-tool/structure-builder";
-import { commonStructure } from "./commonStructure";
 import { GrDocumentPerformance } from "react-icons/gr";
+import { commonStructure } from "./commonStructure";
 
-const redaktorTiltaksgjennomforingStructure = (redaktorNavn) => [
+const redaktorTiltaksgjennomforingStructure = (S, context) => [
   S.listItem()
     .title("Mine tiltaksgjennomføringer")
     .icon(GrDocumentPerformance)
@@ -12,10 +11,10 @@ const redaktorTiltaksgjennomforingStructure = (redaktorNavn) => [
         .filter(
           '_type == "tiltaksgjennomforing" && $redaktorNavn in redaktor[]->navn'
         )
-        .params({ redaktorNavn })
+        .params({ redaktorNavn: context.currentUser.name })
         .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
     ),
-  ...commonStructure(),
+  ...commonStructure(S, context),
   ...S.documentTypeListItems().filter(
     (listItem) =>
       ![

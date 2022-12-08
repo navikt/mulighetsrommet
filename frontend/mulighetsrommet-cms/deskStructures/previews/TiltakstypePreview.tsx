@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import sanityClient from "part:@sanity/base/client";
+import { useClient } from "sanity";
+import { API_VERSION } from "../../sanity.config";
 import {
   Infoboks,
   PreviewContainer,
@@ -8,9 +9,8 @@ import {
 } from "./CommonPreview";
 import { PortableText } from "@portabletext/react";
 
-const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
-
 export function TiltakstypePreview({ document }: any) {
+  const client = useClient({ apiVersion: API_VERSION });
   const [tiltaksdata, setTiltaksdata] = useState(null);
   const { displayed } = document;
 
@@ -52,7 +52,12 @@ export function TiltakstypePreview({ document }: any) {
             >
               {tiltaksdata?.regelverkLenker.map((lenke) => {
                 return (
-                  <a target="_blank" href={lenke.regelverkUrl}>
+                  <a
+                    key={lenke.regelverkUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    href={lenke.regelverkUrl}
+                  >
                     {lenke.regelverkLenkeNavn}
                   </a>
                 );
