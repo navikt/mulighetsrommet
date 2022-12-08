@@ -1,5 +1,5 @@
 export function blockContentValidation(
-  blocks: { children: { text: string }[] }[],
+  blocks: { children: { text: string }[] }[] | any,
   maxLength: number,
   errorMessage: string
 ) {

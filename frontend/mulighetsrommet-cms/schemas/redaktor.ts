@@ -1,40 +1,39 @@
 import { GrUserAdmin } from "react-icons/gr";
-import { Rule } from "@sanity/types";
-import userStore from "part:@sanity/base/user";
+import { defineType, defineField } from "sanity";
 
-export default {
+export const redaktor = defineType({
   name: "redaktor",
   title: "Redaktør",
   type: "document",
   icon: GrUserAdmin,
   fields: [
-    {
+    defineField({
       name: "navn",
       title: "Navn",
       type: "string",
-      validation: (Rule: Rule) => Rule.required().min(2).max(200),
-      initialValue: async () => {
-        const { name } = await userStore.getCurrentUser();
+      validation: (rule) => rule.required().min(2).max(200),
+      initialValue: (params, { currentUser }) => {
+        const { name } = currentUser;
         return name;
       },
-    },
-    {
+    }),
+    defineField({
       name: "epost",
       title: "NAV-epost",
       type: "slug",
-      validation: (Rule: Rule) => Rule.required(),
-      initialValue: async () => {
-        const { email } = await userStore.getCurrentUser();
+      validation: (rule) => rule.required(),
+      initialValue: async (params, { currentUser }) => {
+        const { email } = currentUser;
         return { _type: "slug", current: email };
       },
-    },
-    {
+    }),
+    defineField({
       name: "enhet",
       title: "NAV-enhet",
       description: "Her velger du hvilken NAV-enhet du tilhører",
       type: "string",
-      validation: (Rule: Rule) => Rule.required().min(2).max(200),
-    },
+      validation: (rule) => rule.required().min(2).max(200),
+    }),
   ],
   preview: {
     select: {
@@ -42,4 +41,4 @@ export default {
       subtitle: "enhet",
     },
   },
-};
+});

@@ -1,12 +1,13 @@
 import { FiKey } from "react-icons/fi";
+import { defineType, defineField } from "sanity";
 
-export default {
+export const nokkelinfo = defineType({
   name: "nokkelinfo",
   title: "Nøkkelinfo",
   type: "object",
   icon: FiKey,
   fields: [
-    {
+    defineField({
       name: "tittel",
       title: "Nøkkelinfo tittel",
       type: "string",
@@ -16,8 +17,8 @@ export default {
             ? "Dette feltet kan ikke være tomt."
             : true
         ),
-    },
-    {
+    }),
+    defineField({
       name: "innhold",
       title: "Innhold nøkkelinfo",
       type: "string",
@@ -27,16 +28,16 @@ export default {
             ? "Dette feltet kan ikke være tomt."
             : true
         ),
-    },
-    {
+    }),
+    defineField({
       name: "hjelpetekst",
       title: "Hjelpetekst til nøkkelinfo",
       type: "string",
-    },
+    }),
   ],
   preview: {
     select: {
       title: "tittel",
     },
   },
-};
+});

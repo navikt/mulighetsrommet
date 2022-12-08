@@ -1,12 +1,10 @@
-import S from "@sanity/desk-tool/structure-builder";
 import { commonStructure } from "./commonStructure";
 import { FaWpforms } from "react-icons/fa";
 import { GrUserWorker } from "react-icons/gr";
-import sanityClient from "part:@sanity/base/client";
-const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
+import { API_VERSION } from "../sanity.config";
 
-const redaktorAvdirStructure = [
-  ...commonStructure(),
+const redaktorAvdirStructure = (S, context) => [
+  ...commonStructure(S, context),
   S.divider(),
   S.listItem()
     .title("Tiltakstyper")
@@ -27,11 +25,13 @@ const redaktorAvdirStructure = [
               S.documentTypeList("tiltakstype")
                 .title("Velg tiltakstype")
                 .child(async (tiltakstype) => {
-                  const result = await client.fetch(
-                    `*[_type == 'tiltaksgjennomforing' && tiltakstype._ref == '${tiltakstype}']{kontaktinfoTiltaksansvarlige[]->}`
-                  );
+                  const result = await context
+                    .getClient({ apiVersion: API_VERSION })
+                    .fetch(
+                      `*[_type == 'tiltaksgjennomforing' && tiltakstype._ref == '${tiltakstype}']{kontaktinfoTiltaksansvarlige[]->}`
+                    );
                   const kontaktPersonIder = result?.map((r) => {
-                    return r.kontaktinfoTiltaksansvarlige[0]._id;
+                    return r.kontaktinfoTiltaksansvarlige?.[0]?._id;
                   });
                   return S.documentList()
                     .title("NAV-kontaktperson")

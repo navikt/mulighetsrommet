@@ -6,7 +6,7 @@ import { ImOffice } from "react-icons/im";
 
 const ORDER_BY_CREATEDAT_FIELD = [{ field: "_createdAt", direction: "desc" }];
 
-export function commonStructure() {
+export function commonStructure(S, Context) {
   return [
     S.listItem()
       .title("Tiltaksgjennomføringer")
