@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "sanity dev",
     "start": "sanity start",
-    "build": "npx sanity build",
+    "build": "sanity build",
     "backup": "sanity dataset export production backups/backup-production.tar.gz --overwrite && sanity dataset export test backups/backup-test.tar.gz --overwrite"
   },
   "keywords": [
