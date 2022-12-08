@@ -1,5 +1,4 @@
 import { BiBuildings } from "react-icons/bi";
-import { Rule } from "@sanity/types";
 import { defineField, defineType } from "sanity";
 
 export const arrangor = defineType({
@@ -12,7 +11,7 @@ export const arrangor = defineType({
       name: "selskapsnavn",
       title: "Navn på selskap",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "telefonnummer",
@@ -29,13 +28,13 @@ export const arrangor = defineType({
       name: "adresse",
       title: "Adresse",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "organisasjonsnummer",
       title: "Organisasjonsnummer",
       type: "slug",
-      validation: (Rule) => Rule.required(),
+      validation: (rule) => rule.required(),
     }),
   ],
   preview: {

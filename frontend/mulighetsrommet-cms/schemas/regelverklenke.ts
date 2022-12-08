@@ -1,5 +1,4 @@
 import { GrLink } from "react-icons/gr";
-import { Rule } from "@sanity/types";
 import { defineType, defineField } from "sanity";
 
 export const regelverklenke = defineType({
@@ -19,8 +18,8 @@ export const regelverklenke = defineType({
       title: "Navn til lenke",
       description: "Her velger du hvilken tekst som skal vises i lenken.",
       type: "string",
-      validation: (Rule: Rule) =>
-        Rule.custom((field, context) =>
+      validation: (rule) =>
+        rule.custom((field, context) =>
           context.document.regelverkUrl && field === undefined
             ? "Dette feltet kan ikke være tomt."
             : true
@@ -34,7 +33,7 @@ export const regelverklenke = defineType({
         "Her skriver du en beskrivelse om hva lenken brukes til eller omhandler. Beskrivelsen vises ikke til veiledere, den er kun for intern bruk i Sanity.",
       type: "text",
       rows: 1,
-      validation: (Rule) => Rule.max(100),
+      validation: (rule) => rule.max(100),
     }),
   ],
   preview: {

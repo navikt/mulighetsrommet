@@ -1,4 +1,3 @@
-import { Rule } from "@sanity/types";
 import { ImOffice } from "react-icons/im";
 import { defineType, defineField } from "sanity";
 
@@ -18,14 +17,14 @@ export const enhet = defineType({
       name: "navn",
       title: "Navn",
       type: "string",
-      validation: (rule: Rule) => rule.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "nummer",
       title: "Enhetsnummer",
       type: "slug",
-      validation: (rule: Rule) =>
-        rule.required().custom<{ current?: string }>((value) => {
+      validation: (rule) =>
+        rule.required().custom((value) => {
           return (
             /[0-9]{4}/.test(value.current) ||
             "Enhetsnummer is not formatted correctly."
@@ -39,7 +38,7 @@ export const enhet = defineType({
       options: {
         list: Object.values(EnhetType),
       },
-      validation: (rule: Rule) => rule.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "status",
@@ -48,7 +47,7 @@ export const enhet = defineType({
       options: {
         list: ["Aktiv", "Nedlagt", "Under utvikling", "Under avvikling"],
       },
-      validation: (rule: Rule) => rule.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "fylke",
