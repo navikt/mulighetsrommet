@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.clearAllMocks
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
@@ -13,17 +13,17 @@ class TopicRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
 
     lateinit var topicRepository: TopicRepository
     lateinit var table: Table
 
     beforeSpec {
-        topicRepository = TopicRepository(listener.db)
+        topicRepository = TopicRepository(database.db)
     }
 
     beforeEach {
-        table = Table(listener.db.getDatasource(), "topics")
+        table = Table(database.db.getDatasource(), "topics")
         clearAllMocks()
     }
 

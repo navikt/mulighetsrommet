@@ -6,7 +6,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
@@ -16,9 +16,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = FlywayDatabaseListener(createApiDatabaseTestSchema())
-
-    register(listener)
+    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     val tiltakstype1 = Tiltakstype(
         id = UUID.randomUUID(),
@@ -50,13 +48,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("CRUD") {
         beforeAny {
-            val tiltakstyper = TiltakstypeRepository(listener.db)
+            val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.save(tiltakstype1)
             tiltakstyper.save(tiltakstype2)
         }
 
         test("CRUD") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(tiltak1)
             tiltaksgjennomforinger.upsert(tiltak2)
@@ -171,13 +169,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 //        }
 
     context("pagination") {
-        listener.db.clean()
-        listener.db.migrate()
+        database.db.clean()
+        database.db.migrate()
 
-        val tiltakstyper = TiltakstypeRepository(listener.db)
+        val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.save(tiltakstype1)
 
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(listener.db)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         (1..105).forEach {
             tiltaksgjennomforinger.upsert(
                 Tiltaksgjennomforing(

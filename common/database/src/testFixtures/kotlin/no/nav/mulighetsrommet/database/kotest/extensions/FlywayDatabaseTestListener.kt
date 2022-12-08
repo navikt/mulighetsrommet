@@ -9,7 +9,7 @@ import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.Table
 
-class FlywayDatabaseListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
+class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: FlywayDatabaseAdapter? = null
 
     val db: FlywayDatabaseAdapter
