@@ -37,9 +37,9 @@ class TiltakstypeRepository(private val db: Database) {
     fun getTiltakstypeById(id: UUID): Tiltakstype? {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode
+            select id::uuid, navn, tiltakskode
             from tiltakstype
-            where id = ?
+            where id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, id).map { it.toTiltakstype() }.asSingle
         return db.run(queryResult)

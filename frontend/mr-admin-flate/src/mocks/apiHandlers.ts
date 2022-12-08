@@ -9,6 +9,14 @@ export const apiHandlers = [
     return res(ctx.status(200), ctx.json(mockTiltakstyper));
   }),
 
+  rest.get("*/api/v1/tiltakstyper/:id", (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    return res(
+      ctx.status(200),
+      ctx.json(mockTiltakstyper.data.find((gj) => gj.id === id))
+    );
+  }),
+
   rest.get("*/api/v1/tiltaksgjennomforinger", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
   }),

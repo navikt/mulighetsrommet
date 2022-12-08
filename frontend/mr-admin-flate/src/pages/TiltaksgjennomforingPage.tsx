@@ -1,4 +1,4 @@
-import { Alert, Tag } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 

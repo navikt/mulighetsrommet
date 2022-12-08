@@ -1,11 +1,14 @@
-import { Heading } from "@navikt/ds-react";
+import { Heading, Loader } from "@navikt/ds-react";
 import { useFeatureToggles } from "./api/features/feature-toggles";
 import { Shortcuts } from "./components/shortcuts/Shortcuts";
+import { shortcutsForTiltaksansvarlig } from "./constants";
 
-export function Forside() {
+export function ForsideTiltaksansvarlig() {
   const { data, isLoading } = useFeatureToggles();
 
-  if (!data || isLoading) return null;
+  if (isLoading) return  <Loader size="xlarge" />;
+
+  if (!data) return null;
 
   if (!data["mulighetsrommet.enable-admin-flate"]) {
     return (
@@ -18,7 +21,7 @@ export function Forside() {
   return (
     <>
       <h1>Oversikt</h1>
-      <Shortcuts />
+      <Shortcuts shortcuts={shortcutsForTiltaksansvarlig}/>
     </>
   );
 }

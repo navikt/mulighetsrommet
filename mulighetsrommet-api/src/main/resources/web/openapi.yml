@@ -109,11 +109,7 @@ paths:
         - Tiltakstyper
       operationId: getTiltakstypeById
       parameters:
-        - in: query
-          name: id
-          schema:
-            type: string
-          description: Id for tiltakstype
+        - $ref: "#/components/parameters/ID"
       responses:
         200:
           description: the specified tiltakstype

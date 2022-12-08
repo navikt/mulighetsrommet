@@ -1,13 +1,13 @@
-import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
-import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
+import styles from "./Tiltakstyperoversikt.module.scss";
 import { Loader, Alert, Heading, Pagination } from "@navikt/ds-react";
 import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { Tiltakstyperad } from "./Tiltakstyperad";
 
-export function Tiltaksgjennomforingeroversikt() {
-  const { data, isLoading } = useTiltaksgjennomforinger();
+export function Tiltakstyperoversikt() {
+  const { data, isLoading } = useTiltakstyper();
   const [page, setPage] = useAtom(paginationAtom);
   if (isLoading) {
     return <Loader size="xlarge" />;
@@ -15,13 +15,13 @@ export function Tiltaksgjennomforingeroversikt() {
   if (!data) {
     return null;
   }
-  const { data: tiltaksgjennomforinger, pagination: paginering } = data;
+  const { data: tiltakstyper, pagination: paginering } = data;
 
   const PagineringsOversikt = () => {
     return (
       <Heading level="1" size="xsmall" data-testid="antall-tiltak">
         Viser {(page - 1) * PAGE_SIZE + 1}-
-        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av{" "}
+        {tiltakstyper.length + (page - 1) * PAGE_SIZE} av{" "}
         {paginering?.totalCount} tiltak
       </Heading>
     );
@@ -29,21 +29,17 @@ export function Tiltaksgjennomforingeroversikt() {
 
   return (
     <>
-      {tiltaksgjennomforinger.length > 0 ? <PagineringsOversikt /> : null}
-
+      {tiltakstyper.length > 0 ? <PagineringsOversikt /> : null}
       <ul className={styles.oversikt}>
-        {tiltaksgjennomforinger.length === 0 ? (
-          <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
+        {tiltakstyper.length === 0 ? (
+          <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
         ) : null}
-        {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
-          <Tiltaksgjennomforingrad
-            key={tiltaksgjennomforing.id}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
+        {tiltakstyper.map((tiltakstype) => (
+          <Tiltakstyperad key={tiltakstype.id} tiltakstype={tiltakstype} />
         ))}
       </ul>
       <div className={styles.under_oversikt}>
-        {tiltaksgjennomforinger.length > 0 ? (
+        {tiltakstyper.length > 0 ? (
           <>
             <PagineringsOversikt />
             <Pagination

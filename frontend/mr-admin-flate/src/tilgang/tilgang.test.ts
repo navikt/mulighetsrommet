@@ -1,22 +1,30 @@
 import { Ansatt } from "mulighetsrommet-api-client";
 import { describe, test, expect } from "vitest";
-import { ansattErTiltaksansvarlig } from "./tilgang";
+import { hentAnsattsRolle } from "./tilgang";
 
 describe("Tilgang-tester", () => {
-  test("Ansatt med korrekt rolle skal ha tilgang", () => {
+  test("Ansatt med korrekt rolle skal bli tiltaksansvarlig", () => {
     const ansatt: Ansatt = {
       navn: "Tilda",
       tilganger: ["FLATE"],
     };
-    expect(ansattErTiltaksansvarlig(ansatt)).toBeTruthy();
+    expect(hentAnsattsRolle(ansatt)).toBe("TILTAKSANSVARLIG");
+  });
+
+  test("Ansatt med korrekt rolle skal bli fagansvarlig", () => {
+    const ansatt: Ansatt = {
+      navn: "Frode",
+      tilganger: ["FAGANSVARLIG"],
+    };
+    expect(hentAnsattsRolle(ansatt)).toBe("FAGANSVARLIG");
   });
 
   test("Ansatt uten korrekt rolle skal ikke ha tilgang", () => {
     const ansatt: Ansatt = {
-      navn: "Fag Ansvarlig",
+      navn: "Ikke Ansvarlig",
       tilganger: [],
     };
 
-    expect(ansattErTiltaksansvarlig(ansatt)).toBeFalsy();
+    expect(hentAnsattsRolle(ansatt)).toBe("UTEN TILGANG");
   });
 });

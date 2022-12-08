@@ -1,18 +1,18 @@
 import { Route, Routes } from "react-router-dom";
-import { Forside } from "./Forside";
+import { ForsideTiltaksansvarlig } from "./ForsideTiltaksansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
-import { Oversikt } from "./pages/Oversikt";
+import { OversiktTiltaksgjennomforinger } from "./pages/OversiktTiltaksgjennomforinger";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 
-export function AutentisertApp() {
+export default function AutentisertTiltaksansvarligApp() {
   return (
     <Routes>
       <Route
         path="/*"
         element={
           <RootLayout>
-            <Forside />
+            <ForsideTiltaksansvarlig />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
@@ -21,7 +21,7 @@ export function AutentisertApp() {
         path="oversikt"
         element={
           <RootLayout>
-            <Oversikt />
+            <OversiktTiltaksgjennomforinger />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
