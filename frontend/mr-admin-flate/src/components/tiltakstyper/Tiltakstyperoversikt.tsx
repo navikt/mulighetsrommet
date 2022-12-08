@@ -1,5 +1,5 @@
 import styles from "./Tiltakstyperoversikt.module.scss";
-import { Alert, Heading, Pagination } from "@navikt/ds-react";
+import { Loader, Alert, Heading, Pagination } from "@navikt/ds-react";
 import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
@@ -10,7 +10,7 @@ export function Tiltakstyperoversikt() {
   const { data, isLoading } = useTiltakstyper();
   const [page, setPage] = useAtom(paginationAtom);
   if (isLoading) {
-    return null;
+    return <Loader size="xlarge" />;
   }
   if (!data) {
     return null;
