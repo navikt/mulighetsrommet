@@ -1,19 +1,20 @@
 import { FaWpforms } from "react-icons/fa";
+import { defineField, defineType } from "sanity";
 
-export default {
+export const tiltakstype = defineType({
   name: "tiltakstype",
   title: "Tiltakstype",
   type: "document",
   icon: FaWpforms,
   fields: [
-    {
+    defineField({
       name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
       type: "string",
       description: "Her legger du inn navn for tiltakstypen.",
       validation: (Rule) => Rule.required().min(2).max(200),
-    },
-    {
+    }),
+    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "text",
@@ -21,8 +22,8 @@ export default {
       validation: (Rule) => Rule.max(500),
       description:
         "Her kan du legge til en tekstlig beskrivelse av tiltakstypen.",
-    },
-    {
+    }),
+    defineField({
       name: "tiltaksgruppe",
       title: "Individuelt- eller gruppetiltak?",
       description:
@@ -33,18 +34,18 @@ export default {
           { title: "Individuelt tiltak", value: "individuelt" },
           { title: "Gruppetiltak", value: "gruppe" },
         ],
+        layout: "radio",
       },
-      layout: "radio",
       validation: (Rule) =>
         Rule.required().error("Du må velge ett av alternativene."),
-    },
-    {
+    }),
+    defineField({
       name: "nokkelinfoKomponenter",
       title: "Nøkkelinfo",
       type: "array",
       of: [{ type: "nokkelinfo" }],
-    },
-    {
+    }),
+    defineField({
       name: "innsatsgruppe",
       title: "Innsatsgruppe",
       description:
@@ -54,39 +55,39 @@ export default {
         disableNew: true,
       },
       to: [{ type: "innsatsgruppe" }],
-    },
-    {
+    }),
+    defineField({
       name: "varighet",
       title: "Varighet",
       description: "Her kan du legge til hvor lang varighet tiltakstypen har.",
       type: "string",
-    },
-    {
+    }),
+    defineField({
       name: "regelverkLenker",
       title: "Regelverkslenker",
       type: "array",
       of: [{ type: "reference", to: [{ type: "regelverklenke" }] }],
-    },
-    {
+    }),
+    defineField({
       name: "faneinnhold",
       title: "Faneinnhold",
       type: "faneinnhold",
-    },
-    {
+    }),
+    defineField({
       name: "forskningsrapport",
       title: "Forskningsrapport",
       description:
         "Legg til en eller flere forskningsrapporter som gjelder for tiltakstypen. Disse vil bli vist under 'Innsikt'-fanen.",
       type: "array",
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
-    },
-    {
+    }),
+    defineField({
       name: "delingMedBruker",
       title: "Informasjon til å dele med bruker",
       description:
         "Dette er teksten som veileder kan dele med bruker via 'Del med bruker'-knapp.",
       type: "text",
-    },
+    }),
   ],
   preview: {
     select: {
@@ -94,4 +95,4 @@ export default {
       subtitle: "innsatsgruppe.tittel",
     },
   },
-};
+});

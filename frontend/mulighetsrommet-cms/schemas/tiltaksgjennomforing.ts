@@ -1,37 +1,32 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import sanityClient from "part:@sanity/base/client";
-import userStore from "part:@sanity/base/user";
-import { Rule } from "@sanity/types";
 import { EnhetType } from "./enhet";
-import lenke from "./lenke";
+import { lenke } from "./lenke";
+import { defineType, defineField } from "sanity";
+import { API_VERSION } from "../sanity.config";
 
-const client = sanityClient.withConfig({ apiVersion: "2021-10-21" });
-
-export default {
+export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
   title: "Tiltaksgjennomføring",
   type: "document",
   icon: GrDocumentPerformance,
   fields: [
-    {
+    defineField({
       name: "redaktor",
       title: "Redaktører",
       type: "array",
       description:
         "Her velger du hvem som eier innholdet i denne tiltaksgjennomføringen.",
-      to: [{ type: "redaktor" }],
       of: [
         {
           type: "reference",
           to: [{ type: "redaktor" }],
         },
       ],
-      validation: (Rule: Rule) => Rule.required().unique(),
-      initialValue: async () => {
-        const user = await userStore.getCurrentUser();
-        const foundRedaktor = await client.fetch(
-          `*[_type == "redaktor" && navn == '${user.name}'][0]`
-        );
+      validation: (rule) => rule.required().unique(),
+      initialValue: async (params, { currentUser, getClient }) => {
+        const foundRedaktor = await getClient({
+          apiVersion: API_VERSION,
+        }).fetch(`*[_type == "redaktor" && navn == '${currentUser.name}'][0]`);
         if (!foundRedaktor) return [];
         return [
           {
@@ -40,34 +35,36 @@ export default {
           },
         ];
       },
-    },
-    {
+    }),
+    defineField({
       name: "tiltakstype",
       title: "Tiltakstype",
       type: "reference",
       description:
         "Her velger du hvilken tiltakstype gjennomføringen gjelder for.",
       to: [{ type: "tiltakstype" }],
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
       description: "Her legger du inn navn for tiltaksgjennomføringen.",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description:
         "Her skriver du inn tiltaksnummeret for gjennomføringen. Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn tiltaksnummer.",
       type: "slug",
-      validation: (Rule) =>
-        Rule.custom(async (tiltaksnummer, { document }) => {
+      validation: (rule) =>
+        rule.custom(async (tiltaksnummer, { document, getClient }) => {
           if (!document?.tiltakstype) return true;
 
-          const tiltaksgruppe = await client.fetch(
+          const tiltaksgruppe = await getClient({
+            apiVersion: API_VERSION,
+          }).fetch(
             "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
             { tiltakstype: document.tiltakstype._ref }
           );
@@ -84,17 +81,19 @@ export default {
 
           return true;
         }),
-    },
-    {
+    }),
+    defineField({
       name: "kontaktinfoArrangor",
       title: "Arrangør",
       description:
         "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak.",
       type: "reference",
       to: [{ type: "arrangor" }],
-      validation: (Rule) =>
-        Rule.custom(async (arrangor, { document }) => {
-          const tiltaksgruppe = await client.fetch(
+      validation: (rule) =>
+        rule.custom(async (arrangor, { document, getClient }) => {
+          const tiltaksgruppe = await getClient({
+            apiVersion: API_VERSION,
+          }).fetch(
             "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
             { tiltakstype: document.tiltakstype._ref }
           );
@@ -112,34 +111,34 @@ export default {
 
           return true;
         }),
-    },
-    {
+    }),
+    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       description:
         "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen.",
       type: "text",
       rows: 5,
-      validation: (Rule) => Rule.max(500),
-    },
+      validation: (rule) => rule.max(500),
+    }),
 
-    {
+    defineField({
       name: "estimert_ventetid",
       title: "Estimert ventetid eller stengt til",
       description:
         "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status 'stengt' kan du skrive hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
       type: "string",
-    },
+    }),
 
-    {
+    defineField({
       name: "lokasjon",
       title: "Lokasjon",
       description:
         "Her skriver du inn hvor i tiltaket gjelder, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "fylke",
       title: "Fylke",
       description: "Her velger du hvilket fylke tiltaket gjelder for.",
@@ -152,9 +151,9 @@ export default {
           type: EnhetType.Fylke,
         },
       },
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "enheter",
       title: "Enheter",
       description:
@@ -181,16 +180,17 @@ export default {
           },
         },
       ],
-      validation: (Rule: Rule) =>
-        Rule.unique().custom(async (enheter, { document }) => {
+      validation: (rule) =>
+        rule.required().custom(async (enheter, { document, getClient }) => {
           if (!document.fylke || !enheter) {
             return true;
           }
 
-          const validEnheter = await client.fetch(
-            "*[_type == 'enhet' && fylke._ref == $fylke]._id",
-            { fylke: document.fylke._ref }
-          );
+          const validEnheter = await getClient({
+            apiVersion: API_VERSION,
+          }).fetch("*[_type == 'enhet' && fylke._ref == $fylke]._id", {
+            fylke: document.fylke._ref,
+          });
 
           const paths = enheter
             ?.filter((enhet) => !validEnheter.includes(enhet._ref))
@@ -200,8 +200,8 @@ export default {
             ? true
             : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
-    },
-    {
+    }),
+    defineField({
       name: "oppstart",
       title: "Oppstart eller midlertidig stengt",
       description:
@@ -214,31 +214,31 @@ export default {
           { title: "Midlertidig stengt", value: "midlertidig_stengt" },
         ],
       },
-      validation: (Rule: Rule) => Rule.required(),
-    },
-    {
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "oppstartsdato",
       title: "Dato for oppstart",
       type: "date",
       options: { dateFormat: "DD/MM/YYYY" },
       hidden: ({ parent }) => parent?.oppstart !== "dato",
-    },
+    }),
     //Faneinnhold
-    {
+    defineField({
       name: "faneinnhold",
       title: "Faneinnhold",
       type: "faneinnhold",
-    },
-    {
+    }),
+    defineField({
       name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
       description:
         "Her velger du en eller flere tiltaksansvarlige for tiltaksgjennomføringen.",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
-      validation: (Rule: Rule) => Rule.required().min(1).unique(),
-    },
-    {
+      validation: (rule) => rule.required().min(1).unique(),
+    }),
+    defineField({
       name: "lenker",
       title: "Lenker",
       description:
@@ -246,8 +246,8 @@ export default {
       type: "array",
       of: [lenke],
       hidden: true, // Skjules per 25.10.22 etter ønske fra Marthe pga. forvirring for redaktørene.
-    },
-    {
+    }),
+    defineField({
       name: "tilgjengelighetsstatus",
       title: "Tilgjengelighetsstatus",
       description:
@@ -261,11 +261,12 @@ export default {
           { title: "Stengt", value: "Stengt" },
         ],
       },
-    },
+    }),
   ],
   orderings: [
     {
       title: "Tiltakstype A->Å",
+      name: "Tiltakstype A->Å",
       by: [
         {
           field: "tiltakstype.tiltakstypeNavn",
@@ -275,6 +276,7 @@ export default {
     },
     {
       title: "Tiltakstype Å->A",
+      name: "Tiltakstype Å->A",
       by: [
         {
           field: "tiltakstype.tiltakstypeNavn",
@@ -284,6 +286,7 @@ export default {
     },
     {
       title: "Tiltaksnavn A->Å",
+      name: "Tiltaksnavn A->Å",
       by: [
         {
           field: "tiltaksgjennomforingNavn",
@@ -293,6 +296,7 @@ export default {
     },
     {
       title: "Tiltaksnavn Å->A",
+      name: "Tiltaksnavn Å->A",
       by: [
         {
           field: "tiltaksgjennomforingNavn",
@@ -308,4 +312,4 @@ export default {
       arrangornavn: "kontaktinfoArrangor.selskapsnavn",
     },
   },
-};
+});

@@ -1,19 +1,20 @@
 import { GrLink } from "react-icons/gr";
 import { Rule } from "@sanity/types";
+import { defineType, defineField } from "sanity";
 
-export default {
+export const regelverklenke = defineType({
   name: "regelverklenke",
   title: "Regelverkslenke",
   type: "document",
   icon: GrLink,
   fields: [
-    {
+    defineField({
       name: "regelverkUrl",
       title: "Regelverk URL",
       type: "url",
       placeholder: "https://www...",
-    },
-    {
+    }),
+    defineField({
       name: "regelverkLenkeNavn",
       title: "Navn til lenke",
       description: "Her velger du hvilken tekst som skal vises i lenken.",
@@ -25,8 +26,8 @@ export default {
             : true
         ),
       hidden: ({ document }) => !document?.regelverkUrl,
-    },
-    {
+    }),
+    defineField({
       name: "beskrivelse",
       title: "Valgfri beskrivelse av lenken",
       description:
@@ -34,7 +35,7 @@ export default {
       type: "text",
       rows: 1,
       validation: (Rule) => Rule.max(100),
-    },
+    }),
   ],
   preview: {
     select: {
@@ -42,4 +43,4 @@ export default {
       subtitle: "beskrivelse",
     },
   },
-};
+});
