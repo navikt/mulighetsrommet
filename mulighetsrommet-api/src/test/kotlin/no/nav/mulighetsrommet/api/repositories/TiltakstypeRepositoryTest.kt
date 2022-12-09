@@ -6,7 +6,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import java.util.*
@@ -15,9 +15,7 @@ class TiltakstypeRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = FlywayDatabaseListener(createApiDatabaseTestSchema())
-
-    register(database)
+    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     test("CRUD") {
         val tiltakstyper = TiltakstypeRepository(database.db)

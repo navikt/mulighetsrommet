@@ -5,7 +5,7 @@ import io.kotest.core.test.TestCaseOrder
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Deltaker
 import no.nav.mulighetsrommet.domain.models.Deltakerstatus
@@ -20,20 +20,14 @@ class ArenaServiceTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = FlywayDatabaseListener(createApiDatabaseTestSchema())
-
-    register(listener)
+    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     context("ArenaService") {
-        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
-        val tiltaksgjennomforingRepository =
-            TiltaksgjennomforingRepository(listener.db)
-        val deltakerRepository = DeltakerRepository(listener.db)
-        val service = ArenaService(
-            tiltakstypeRepository,
-            tiltaksgjennomforingRepository,
-            deltakerRepository
-        )
+
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltakerRepository = DeltakerRepository(database.db)
+        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
         val tiltakstype = Tiltakstype(
             id = UUID.randomUUID(),
@@ -61,7 +55,7 @@ class ArenaServiceTest : FunSpec({
         )
 
         test("upsert tiltakstype") {
-            val table = Table(listener.db.getDatasource(), "tiltakstype")
+            val table = Table(database.db.getDatasource(), "tiltakstype")
 
             service.createOrUpdate(tiltakstype)
             service.createOrUpdate(tiltakstype.copy(navn = "Arbeidsovertrening"))
@@ -72,7 +66,7 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("upsert tiltaksgjennomføring") {
-            val table = Table(listener.db.getDatasource(), "tiltaksgjennomforing")
+            val table = Table(database.db.getDatasource(), "tiltaksgjennomforing")
 
             service.createOrUpdate(tiltaksgjennomforing)
             service.createOrUpdate(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
@@ -90,7 +84,7 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("upsert deltaker") {
-            val table = Table(listener.db.getDatasource(), "deltaker")
+            val table = Table(database.db.getDatasource(), "deltaker")
 
             service.createOrUpdate(deltaker)
             service.createOrUpdate(deltaker.copy(status = Deltakerstatus.DELTAR))

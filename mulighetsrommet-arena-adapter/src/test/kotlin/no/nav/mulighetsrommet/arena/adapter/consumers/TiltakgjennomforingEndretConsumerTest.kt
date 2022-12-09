@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.dto.Arrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -33,11 +33,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(
-        FlywayDatabaseListener(
-            createArenaAdapterDatabaseTestSchema()
-        )
-    )
+    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
 
     beforeEach {
         database.db.migrate()

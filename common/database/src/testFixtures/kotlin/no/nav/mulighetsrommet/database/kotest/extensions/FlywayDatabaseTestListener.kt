@@ -9,14 +9,19 @@ import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.Table
 
-class FlywayDatabaseListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
+class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: FlywayDatabaseAdapter? = null
 
     val db: FlywayDatabaseAdapter
         get() = delegate ?: throw RuntimeException("Database has not yet been initialized")
 
     override suspend fun beforeSpec(spec: Spec) {
-        delegate = FlywayDatabaseAdapter(config, FlywayDatabaseAdapter.InitializationStrategy.Migrate)
+        val migrationConfig = FlywayDatabaseAdapter.MigrationConfig(
+            cleanDisabled = false,
+            strategy = FlywayDatabaseAdapter.InitializationStrategy.Migrate
+        )
+
+        delegate = FlywayDatabaseAdapter(config, migrationConfig)
     }
 
     override suspend fun afterSpec(spec: Spec) {
