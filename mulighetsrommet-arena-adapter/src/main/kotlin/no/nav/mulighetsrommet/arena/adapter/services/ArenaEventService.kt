@@ -77,9 +77,10 @@ class ArenaEventService(
         maxRetries: Int? = null,
         consumer: suspend (ArenaEvent) -> Unit
     ) = coroutineScope {
+        var offset = 0
+
         // Produce events in a separate coroutine
         val events = produce(capacity = config.channelCapacity) {
-            var offset = 0
             do {
                 val events =
                     events.getAll(
@@ -95,7 +96,7 @@ class ArenaEventService(
                 offset += events.size
             } while (isActive && events.isNotEmpty())
 
-            logger.info("Produced $offset events, closing channel...")
+            logger.info("Produced $offset events")
             close()
         }
 
@@ -109,5 +110,7 @@ class ArenaEventService(
                 }
             }
             .awaitAll()
+
+        logger.info("Consumed $offset events")
     }
 }
