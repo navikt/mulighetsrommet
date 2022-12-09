@@ -55,6 +55,8 @@ class ArenaEventRepository(private val db: Database) {
         limit: Int = 1000,
         offset: Int = 0
     ): List<ArenaEvent> {
+        logger.info("Getting events table=$table, status=$status, maxRetries=$maxRetries, limit=$limit, offset=$offset")
+
         val where = andWhereParameterNotNull(
             table to "arena_table = :arena_table",
             status to "consumption_status = :status::consumption_status",
