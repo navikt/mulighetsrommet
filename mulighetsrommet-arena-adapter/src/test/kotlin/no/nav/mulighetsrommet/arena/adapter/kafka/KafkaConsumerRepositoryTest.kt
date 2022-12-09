@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.assertj.db.api.Assertions
 import org.assertj.db.type.Changes
@@ -16,19 +16,17 @@ class KafkaConsumerRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener =
-        FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema())
-    register(listener)
+    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
 
     lateinit var kafkaConsumerRepository: KafkaConsumerRepository
     lateinit var table: Table
 
     beforeSpec {
-        kafkaConsumerRepository = KafkaConsumerRepository(listener.db)
+        kafkaConsumerRepository = KafkaConsumerRepository(database.db)
     }
 
     beforeEach {
-        table = Table(listener.db.getDatasource(), "failed_events")
+        table = Table(database.db.getDatasource(), "failed_events")
     }
 
     test("should store records") {
@@ -56,7 +54,7 @@ class KafkaConsumerRepositoryTest : FunSpec({
     }
 
     test("should increment retries") {
-        val changes = Changes(listener.db.getDatasource()).setTables(table)
+        val changes = Changes(database.db.getDatasource()).setTables(table)
         Assertions.assertThat(table).column("retries").value().isEqualTo(0)
         changes.setStartPointNow()
         kafkaConsumerRepository.incrementRetries(2)

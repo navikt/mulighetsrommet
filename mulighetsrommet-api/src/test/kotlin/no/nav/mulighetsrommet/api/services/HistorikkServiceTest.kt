@@ -8,7 +8,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.*
 import java.time.LocalDateTime
@@ -19,7 +19,7 @@ class HistorikkServiceTest : FunSpec({
 
     val arrangorService: ArrangorService = mockk()
 
-    val listener = extension(FlywayDatabaseListener(createApiDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     val tiltakstype = Tiltakstype(
         id = UUID.randomUUID(),
@@ -45,9 +45,9 @@ class HistorikkServiceTest : FunSpec({
     )
 
     beforeSpec {
-        val tiltakstypeRepository = TiltakstypeRepository(listener.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(listener.db)
-        val deltakerRepository = DeltakerRepository(listener.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltakerRepository = DeltakerRepository(database.db)
         val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
         service.createOrUpdate(tiltakstype)
@@ -60,7 +60,7 @@ class HistorikkServiceTest : FunSpec({
         coEvery { arrangorService.hentArrangornavn(any()) } returns bedriftsnavn
 
         val historikkService =
-            HistorikkService(listener.db, arrangorService)
+            HistorikkService(database.db, arrangorService)
 
         val forventetHistorikk = listOf(
             HistorikkForDeltakerDTO(

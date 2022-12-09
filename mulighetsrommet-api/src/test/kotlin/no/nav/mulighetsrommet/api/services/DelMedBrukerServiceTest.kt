@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.string.shouldContain
 import io.ktor.server.plugins.*
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.DelMedBruker
 import org.assertj.db.api.Assertions.assertThat
@@ -14,12 +14,10 @@ import org.assertj.db.type.Table
 class DelMedBrukerServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
-    val listener = FlywayDatabaseListener(createApiDatabaseTestSchema())
-
-    register(listener)
+    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(listener.db)
+        val service = DelMedBrukerService(database.db)
         val payload = DelMedBruker(
             bruker_fnr = "12345678910",
             navident = "nav123",
@@ -28,7 +26,7 @@ class DelMedBrukerServiceTest : FunSpec({
         )
 
         test("Insert del med bruker-data") {
-            val table = Table(listener.db.getDatasource(), "del_med_bruker")
+            val table = Table(database.db.getDatasource(), "del_med_bruker")
             service.lagreDelMedBruker(payload)
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(1)
@@ -49,7 +47,7 @@ class DelMedBrukerServiceTest : FunSpec({
         }
 
         test("Les fra tabell") {
-            val table = Table(listener.db.getDatasource(), "del_med_bruker")
+            val table = Table(database.db.getDatasource(), "del_med_bruker")
             service.getDeltMedBruker(
                 fnr = "12345678910",
                 tiltaksnummer = "123456"
