@@ -110,10 +110,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         id = uuid("id"),
-        navn = string("navn"),
+        navn = stringOrNull("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
-        virksomhetsnummer = string("virksomhetsnummer"),
+        virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato")
     )
