@@ -71,7 +71,6 @@ class ArenaEventRepository(private val db: Database) {
             $where
             order by arena_id
             limit :limit
-            offset :offset
         """.trimIndent()
 
         return queryOf(
