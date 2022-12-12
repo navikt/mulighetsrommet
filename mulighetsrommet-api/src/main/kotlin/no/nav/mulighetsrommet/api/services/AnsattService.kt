@@ -8,17 +8,20 @@ import java.util.*
 
 class AnsattService(
     private val veilarbveilederClient: VeilarbveilederClient,
-    private val poaoTilgangService: PoaoTilgangService
+    private val poaoTilgangService: PoaoTilgangService,
+    private val microsoftGraphService: MicrosoftGraphService
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val data = veilarbveilederClient.hentVeilederdata(accessToken, navAnsattAzureId)
+        val hovedenhet = microsoftGraphService.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
         val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
         return AnsattData(
             etternavn = data?.etternavn,
             fornavn = data?.fornavn,
             ident = data?.ident,
             navn = data?.navn,
-            tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet()
+            tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet(),
+            hovedenhet = hovedenhet
         )
     }
 }
@@ -36,7 +39,8 @@ data class AnsattData(
     val fornavn: String?,
     val ident: String?,
     val navn: String?,
-    val tilganger: Set<Tilgang>
+    val tilganger: Set<Tilgang>,
+    val hovedenhet: String
 )
 
 @Serializable
