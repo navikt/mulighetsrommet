@@ -35,7 +35,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        tiltakskode = "ABIST"
     )
 
     val tiltak2 = Tiltaksgjennomforing(
@@ -43,7 +44,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Trening",
         tiltakstypeId = tiltakstype2.id,
         tiltaksnummer = "54321",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        tiltakskode = "ABIST"
     )
 
     context("CRUD") {
@@ -183,7 +185,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     navn = "$it",
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
-                    virksomhetsnummer = "123456789"
+                    virksomhetsnummer = "123456789",
+                    tiltakskode = "ABIST"
                 )
             )
         }

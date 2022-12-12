@@ -20,13 +20,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :tiltakskode)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
                               tiltaksnummer     = excluded.tiltaksnummer,
-                              virksomhetsnummer = excluded.virksomhetsnummer
+                              virksomhetsnummer = excluded.virksomhetsnummer,
+                              tiltakskode       = excluded.tiltakskode
             returning *
         """.trimIndent()
 
@@ -39,7 +40,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode
             from tiltaksgjennomforing
             where tiltakstype_id = ?::uuid
         """.trimIndent()
@@ -52,7 +53,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun get(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode
             from tiltaksgjennomforing
             where id = ?::uuid
         """.trimIndent()
@@ -65,7 +66,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAll(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, count(*) OVER() AS full_count
+            select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, count(*) OVER() AS full_count
             from tiltaksgjennomforing
             limit ?
             offset ?
@@ -102,6 +103,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
         "virksomhetsnummer" to virksomhetsnummer,
+        "tiltakskode" to tiltakskode,
     )
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
@@ -109,6 +111,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navn = stringOrNull("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
-        virksomhetsnummer = stringOrNull("virksomhetsnummer")
+        virksomhetsnummer = stringOrNull("virksomhetsnummer"),
+        tiltakskode = string("tiltakskode")
     )
 }

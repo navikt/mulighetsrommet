@@ -12,5 +12,6 @@ data class Tiltaksgjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val tiltaksnummer: String,
-    val virksomhetsnummer: String?
+    val virksomhetsnummer: String?,
+    val tiltakskode: String
 )

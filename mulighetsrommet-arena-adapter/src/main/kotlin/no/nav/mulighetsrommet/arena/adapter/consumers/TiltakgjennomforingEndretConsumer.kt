@@ -116,5 +116,6 @@ class TiltakgjennomforingEndretConsumer(
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = sak.lopenummer.toString(),
             virksomhetsnummer = virksomhetsnummer,
+            tiltakskode = tiltakskode,
         )
 }

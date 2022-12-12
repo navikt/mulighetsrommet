@@ -433,6 +433,8 @@ components:
           format: uuid
         virksomhetsnummer:
           type: string
+        tiltakskode:
+          type: string
       required:
         - id
         - navn
@@ -440,6 +442,7 @@ components:
         - tiltaksnummer
         - tiltakstypeId
         - virksomhetsnummer
+        - tiltakskode
 
     Tiltakskode:
       type: string
@@ -702,3 +705,4 @@ components:
         tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d"
         tiltaksnummer: 1234
         virksomhetsnummer: '2022'
+        tiltakskode: 'ABIST'
