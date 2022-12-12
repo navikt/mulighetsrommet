@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClientImpl
+import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
+import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -56,7 +58,8 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbperson(appConfig),
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
-                amtenhetsregister(appConfig)
+                amtenhetsregister(appConfig),
+                microsoftGraphClient(appConfig)
             )
         )
     }
@@ -166,6 +169,17 @@ private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
     )
 }
 
+private fun microsoftGraphClient(config: AppConfig): MicrosoftGraphClient {
+    return MicrosoftGraphClientImpl(
+        baseUrl = config.msGraphConfig.url,
+        tokenProvider = {
+            tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(
+                config.msGraphConfig.scope
+            )
+        }
+    )
+}
+
 private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
     return when (NaisEnv.current().isLocal()) {
         true -> AzureAdTokenClientBuilder.builder()
@@ -203,7 +217,8 @@ private fun services(
     veilarbpersonClient: VeilarbpersonClient,
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
-    amtEnhetsregisterClient: AmtEnhetsregisterClient
+    amtEnhetsregisterClient: AmtEnhetsregisterClient,
+    microsoftGraphClient: MicrosoftGraphClient
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
@@ -222,7 +237,8 @@ private fun services(
     single {
         AnsattService(
             veilarbveilederClient = veilarbveilerClient,
-            poaoTilgangService = get()
+            poaoTilgangService = get(),
+            microsoftGraphService = get()
         )
     }
     single {
@@ -234,6 +250,7 @@ private fun services(
     }
     single { DelMedBrukerService(get()) }
     single { kafka(appConfig.kafka) }
+    single { MicrosoftGraphService(microsoftGraphClient) }
 }
 
 private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator

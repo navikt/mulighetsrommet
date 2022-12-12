@@ -125,12 +125,12 @@ paths:
                 type: string
 
   /api/v1/tiltakstyper/{tiltakskode}:
+    parameters:
+      - $ref: "#/components/parameters/Tiltakskode"
     get:
       tags:
         - Tiltakstyper
       operationId: getTiltakstype
-      parameters:
-        - $ref: "#/components/parameters/Tiltakskode"
       responses:
         200:
           description: the specified tiltakstype.
@@ -583,6 +583,8 @@ components:
           type: array
           items:
             type: string
+        hovedenhet:
+          type: string
 
     Innsatsgruppe:
       type: string

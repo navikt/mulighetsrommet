@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -35,7 +36,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        fraDato = LocalDateTime.of(2022, 1, 1, 8, 0),
+        tilDato = LocalDateTime.of(2022, 1, 1, 8, 0)
     )
 
     val tiltak2 = Tiltaksgjennomforing(
@@ -176,6 +179,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstyper.save(tiltakstype1)
 
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
         (1..105).forEach {
             tiltaksgjennomforinger.upsert(
                 Tiltaksgjennomforing(
