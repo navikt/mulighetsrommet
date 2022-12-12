@@ -16,7 +16,7 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
-      tiltakskode: "ABIST",
+      tiltakskode: "ABOPPF",
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
@@ -24,7 +24,7 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
       navn: "Midlertidig lønnstilskudd",
-      tiltakskode: "ABIST",
+      tiltakskode: "ABOPPF",
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
@@ -32,7 +32,7 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
       navn: "AFT - Unikom",
-      tiltakskode: "ABIST",
+      tiltakskode: "ABOPPF",
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
@@ -72,7 +72,7 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltakskode: "ABIST",
+      tiltakskode: "AMBF1",
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
@@ -80,7 +80,7 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltakskode: "ABIST",
+      tiltakskode: "AMBF1",
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
@@ -88,7 +88,7 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltakskode: "ABIST",
+      tiltakskode: "AMBF1",
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,

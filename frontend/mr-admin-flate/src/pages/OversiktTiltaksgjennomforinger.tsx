@@ -1,12 +1,12 @@
 import { Tiltaksgjennomforingeroversikt } from "../components/tiltaksgjennomforinger/Tiltaksgjennomforingeroversikt";
 import { BodyLong, Heading } from "@navikt/ds-react";
 import styles from "./Oversikt.module.scss";
-import { Link } from "react-router-dom";
+import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
 
 export function OversiktTiltaksgjennomforinger() {
   return (
     <div>
-      <Link to="/">Hjem</Link>
+      <Tilbakeknapp tilbakelenke="/" tekst="Hjem" />
       <Heading className={styles.overskrift} size={"medium"}>
         Oversikt over tiltaksgjennomføringer
       </Heading>

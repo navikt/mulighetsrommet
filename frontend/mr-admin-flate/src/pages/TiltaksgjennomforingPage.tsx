@@ -1,8 +1,14 @@
-import { Alert } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Alert, Heading } from "@navikt/ds-react";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
 
-export function TiltaksgjennomforingPage() {
+interface TiltaksgjennomforingPageProps {
+  fagansvarlig?: boolean;
+}
+
+export function TiltaksgjennomforingPage({
+  fagansvarlig = false,
+}: TiltaksgjennomforingPageProps) {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
 
   if (optionalTiltaksgjennomforing.isFetching) {
@@ -18,10 +24,17 @@ export function TiltaksgjennomforingPage() {
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
     <div>
-      <Link to="/oversikt">Tilbake til oversikt</Link>
-      <h1>
+      {fagansvarlig ? (
+        <Tilbakeknapp
+          tilbakelenke={`/oversikt/${tiltaksgjennomforing.tiltakstypeId}`}
+          tekst="Tilbake til tiltakstype"
+        />
+      ) : (
+        <Tilbakeknapp tilbakelenke="/oversikt" tekst="Tilbake til oversikt" />
+      )}
+      <Heading size="xlarge" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
-      </h1>
+      </Heading>
       <dl>
         <dt>Tiltakstype:</dt>
         {/**

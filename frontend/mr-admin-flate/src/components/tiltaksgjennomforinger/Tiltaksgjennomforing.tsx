@@ -6,12 +6,22 @@ import { Link } from "react-router-dom";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
+  fagAnsvarlig?: boolean;
 }
 
-export function Tiltaksgjennomforingrad({ tiltaksgjennomforing }: Props) {
+export function Tiltaksgjennomforingrad({
+  tiltaksgjennomforing,
+  fagAnsvarlig: fagansvarlig = false,
+}: Props) {
   return (
     <li className={styles.rad}>
-      <Link to={`${tiltaksgjennomforing.id}`}>
+      <Link
+        to={
+          fagansvarlig
+            ? `/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
+            : `${tiltaksgjennomforing.id}`
+        }
+      >
         <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>
       <BodyShort size={"small"}>{tiltaksgjennomforing.tiltaksnummer}</BodyShort>

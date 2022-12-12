@@ -1,6 +1,7 @@
-import { Alert } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Alert, Heading } from "@navikt/ds-react";
 import { useTiltakstypeById } from "../api/tiltakstyper/useTiltakstypeById";
+import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
+import { TiltaksgjennomforingslisteForTiltakstyper } from "../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 
 export function TiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
@@ -16,8 +17,10 @@ export function TiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <div>
-      <Link to="/tiltakstyper">Tilbake til oversikt</Link>
-      <h1>{tiltakstype.navn}</h1>
+      <Tilbakeknapp tilbakelenke="/oversikt" tekst="Tilbake til oversikt" />
+      <Heading size="xlarge" level="1">
+        {tiltakstype.navn}
+      </Heading>
       <dl>
         <dt>Tiltakskode:</dt>
         {/**
@@ -25,6 +28,9 @@ export function TiltakstypePage() {
          */}
         <dd>{tiltakstype.tiltakskode}</dd>
       </dl>
+      <TiltaksgjennomforingslisteForTiltakstyper
+        tiltakstypeKode={tiltakstype.tiltakskode}
+      />
 
       {/**
        * TODO Implementere skjema for opprettelse av tiltakstype

@@ -1,12 +1,12 @@
 import styles from "./Tiltakstyperoversikt.module.scss";
-import { Loader, Alert, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
 import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { Tiltakstyperad } from "./Tiltakstyperad";
 
-export function Tiltakstyperoversikt() {
+export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();
   const [page, setPage] = useAtom(paginationAtom);
   if (isLoading) {
