@@ -5,7 +5,7 @@ import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakek
 
 export function OversiktTiltakstyper() {
   return (
-    <div>
+    <>
       <Tilbakeknapp tilbakelenke="/" tekst="Hjem" />
       <Heading className={styles.overskrift} size={"medium"}>
         Oversikt over tiltakstyper
@@ -14,6 +14,6 @@ export function OversiktTiltakstyper() {
         Her finner du dine aktive tiltakstyper.
       </BodyLong>
       <TiltakstyperOversikt />
-    </div>
+    </>
   );
 }

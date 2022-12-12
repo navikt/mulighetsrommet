@@ -39,7 +39,7 @@ export function TiltakstyperOversikt() {
         ))}
       </ul>
       <div className={styles.under_oversikt}>
-        {tiltakstyper.length > 0 ? (
+        {tiltakstyper.length > 0 && (
           <>
             <PagineringsOversikt />
             <Pagination
@@ -53,7 +53,7 @@ export function TiltakstyperOversikt() {
               data-version="v1"
             />
           </>
-        ) : null}
+        )}
       </div>
     </>
   );

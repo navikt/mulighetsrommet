@@ -1,8 +1,9 @@
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
-import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import { Alert, Heading, Loader } from "@navikt/ds-react";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
+import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
 
 interface TiltaksgjennomforingerListeTiltakstypeProps {
   tiltakstypeKode: string;
@@ -28,23 +29,23 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
   });
 
   return (
-    <>
-      <Heading size="large" level="2">
+    <div className={styles.tiltaksgjennomforingsliste}>
+      <Heading size="medium" level="2">
         Tiltaksgjennomføringer
       </Heading>
 
-      <ul className={styles.oversikt}>
+      <ul className={tiltaksgjennomforingsStyles.oversikt}>
         {gjennomforingsliste.length === 0 && (
           <Alert variant="info">Ingen tilhørende tiltaksgjennomføringer</Alert>
         )}
         {gjennomforingsliste.map((tiltaksgjennomforing) => (
           <Tiltaksgjennomforingrad
-            fagAnsvarlig
+            fagansvarlig
             key={tiltaksgjennomforing.id}
             tiltaksgjennomforing={tiltaksgjennomforing}
           />
         ))}
       </ul>
-    </>
+    </div>
   );
 }

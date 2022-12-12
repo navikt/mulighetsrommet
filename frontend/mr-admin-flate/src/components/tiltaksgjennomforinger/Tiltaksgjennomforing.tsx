@@ -6,12 +6,12 @@ import { Link } from "react-router-dom";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
-  fagAnsvarlig?: boolean;
+  fagansvarlig?: boolean;
 }
 
 export function Tiltaksgjennomforingrad({
   tiltaksgjennomforing,
-  fagAnsvarlig: fagansvarlig = false,
+  fagansvarlig = false,
 }: Props) {
   return (
     <li className={styles.rad}>
@@ -22,12 +22,12 @@ export function Tiltaksgjennomforingrad({
             : `${tiltaksgjennomforing.id}`
         }
       >
-        <BodyLong size={"medium"}>{tiltaksgjennomforing.navn}</BodyLong>
+        <BodyLong>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>
-      <BodyShort size={"small"}>{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+      <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
       {/*TODO: Hente navn på tiltakstype her*/}
-      <BodyShort size={"small"}>{tiltaksgjennomforing.tiltakstypeId}</BodyShort>
-      <BodyShort size={"small"}>
+      <BodyShort size="small">{tiltaksgjennomforing.tiltakstypeId}</BodyShort>
+      <BodyShort size="small">
         {tiltaksgjennomforing.virksomhetsnummer}
       </BodyShort>
       <div className={styles.pil}>

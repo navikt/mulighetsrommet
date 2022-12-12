@@ -16,7 +16,7 @@ export function TiltakstypePage() {
 
   const tiltakstype = optionalTiltakstype.data;
   return (
-    <div>
+    <>
       <Tilbakeknapp tilbakelenke="/oversikt" tekst="Tilbake til oversikt" />
       <Heading size="xlarge" level="1">
         {tiltakstype.navn}
@@ -35,6 +35,6 @@ export function TiltakstypePage() {
       {/**
        * TODO Implementere skjema for opprettelse av tiltakstype
        */}
-    </div>
+    </>
   );
 }

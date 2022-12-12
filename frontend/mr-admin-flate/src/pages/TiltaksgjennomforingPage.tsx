@@ -24,14 +24,16 @@ export function TiltaksgjennomforingPage({
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
     <div>
-      {fagansvarlig ? (
-        <Tilbakeknapp
-          tilbakelenke={`/oversikt/${tiltaksgjennomforing.tiltakstypeId}`}
-          tekst="Tilbake til tiltakstype"
-        />
-      ) : (
-        <Tilbakeknapp tilbakelenke="/oversikt" tekst="Tilbake til oversikt" />
-      )}
+      <Tilbakeknapp
+        tilbakelenke={
+          fagansvarlig
+            ? `/oversikt/${tiltaksgjennomforing.tiltakstypeId}`
+            : "/oversikt"
+        }
+        tekst={
+          fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake til oversikt"
+        }
+      />
       <Heading size="xlarge" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </Heading>
