@@ -64,8 +64,13 @@ class ArenaEventService(
 
                     events.upsert(event.copy(status = status, message = message))
                 }.onFailure {
-                    logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}:", it)
-                    throw it
+                    logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", it)
+                    events.upsert(
+                        event.copy(
+                            status = ArenaEvent.ConsumptionStatus.Failed,
+                            message = it.localizedMessage
+                        )
+                    )
                 }
             }
     }
@@ -77,26 +82,28 @@ class ArenaEventService(
         maxRetries: Int? = null,
         consumer: suspend (ArenaEvent) -> Unit
     ) = coroutineScope {
-        var offset = 0
+        var count = 0
+        var prevId: String? = null
 
         // Produce events in a separate coroutine
         val events = produce(capacity = config.channelCapacity) {
             do {
-                val events =
-                    events.getAll(
-                        table = table,
-                        status = status,
-                        maxRetries = maxRetries,
-                        limit = config.channelCapacity,
-                        offset = offset
-                    )
+                val events = events.getAll(
+                    table = table,
+                    idGreaterThan = prevId,
+                    status = status,
+                    maxRetries = maxRetries,
+                    limit = config.channelCapacity,
+                )
 
                 events.forEach { send(it) }
 
-                offset += events.size
+                prevId = events.lastOrNull()?.arenaId
+
+                count += events.size
             } while (isActive && events.isNotEmpty())
 
-            logger.info("Produced $offset events")
+            logger.info("Produced $count events")
             close()
         }
 
@@ -111,6 +118,6 @@ class ArenaEventService(
             }
             .awaitAll()
 
-        logger.info("Consumed $offset events")
+        logger.info("Consumed $count events")
     }
 }
