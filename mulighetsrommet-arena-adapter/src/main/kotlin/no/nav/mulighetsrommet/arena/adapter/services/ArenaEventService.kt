@@ -64,8 +64,13 @@ class ArenaEventService(
 
                     events.upsert(event.copy(status = status, message = message))
                 }.onFailure {
-                    logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}:", it)
-                    throw it
+                    logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", it)
+                    events.upsert(
+                        event.copy(
+                            status = ArenaEvent.ConsumptionStatus.Failed,
+                            message = it.localizedMessage
+                        )
+                    )
                 }
             }
     }
