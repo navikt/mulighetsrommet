@@ -60,9 +60,9 @@ class ArenaEventRepositoryTest : FunSpec({
         repository.getAll(status = Pending) shouldHaveSize 5
     }
 
-    test("should get events specified by limit and offset") {
-        val events = repository.getAll(limit = 3, offset = 2)
+    test("should get events specified by limit and id") {
+        val events = repository.getAll(limit = 3, idGreaterThan = "2")
 
-        events.map { it.arenaId } shouldContainInOrder listOf("2", "3", "4")
+        events.map { it.arenaId } shouldContainInOrder listOf("3", "4", "5")
     }
 })
