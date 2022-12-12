@@ -57,3 +57,7 @@ app:
   amtEnhetsregister:
     url: http://amt-enhetsregister.amt
     scope: api://prod-gcp.amt.amt-enhetsregister/.default
+
+  msGraphConfig:
+    url: https://graph.microsoft.com
+    scope: https://graph.microsoft.com/.default
