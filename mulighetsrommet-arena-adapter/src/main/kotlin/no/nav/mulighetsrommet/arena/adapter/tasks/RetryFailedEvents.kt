@@ -18,7 +18,10 @@ class RetryFailedEvents(private val config: Config, private val arenaEventServic
             .recurring("retry-failed-events", FixedDelay.ofMinutes(config.delayOfMinutes))
             .execute { _, _ ->
                 runBlocking {
-                    arenaEventService.retryEvents(status = ArenaEvent.ConsumptionStatus.Failed)
+                    arenaEventService.retryEvents(
+                        table = "SIAMO.TILTAKGJENNOMFORING",
+                        status = ArenaEvent.ConsumptionStatus.Failed
+                    )
                 }
             }
     }
