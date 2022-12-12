@@ -12,26 +12,26 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStat
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseListener
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
 class SakEndretConsumerTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val listener = extension(FlywayDatabaseListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
 
     beforeEach {
-        listener.db.migrate()
+        database.db.migrate()
     }
 
     afterEach {
-        listener.db.clean()
+        database.db.clean()
     }
 
     context("when sakskode is not TILT") {
         test("should ignore events") {
-            val event = createConsumer(listener.db).processEvent(
+            val event = createConsumer(database.db).processEvent(
                 createEvent(
                     sakskode = "NOT_TILT",
                     operation = Insert
@@ -44,21 +44,21 @@ class SakEndretConsumerTest : FunSpec({
 
     context("when sakskode is TILT") {
         test("should treat all operations as upserts") {
-            val consumer = createConsumer(listener.db)
+            val consumer = createConsumer(database.db)
 
             val e1 = consumer.processEvent(createEvent(Insert, lopenummer = 1))
             e1.status shouldBe Processed
-            listener.assertThat("sak")
+            database.assertThat("sak")
                 .row().value("lopenummer").isEqualTo(1)
 
             val e2 = consumer.processEvent(createEvent(Update, lopenummer = 2))
             e2.status shouldBe Processed
-            listener.assertThat("sak")
+            database.assertThat("sak")
                 .row().value("lopenummer").isEqualTo(2)
 
             val e3 = consumer.processEvent(createEvent(Delete, lopenummer = 1))
             e3.status shouldBe Processed
-            listener.assertThat("sak")
+            database.assertThat("sak")
                 .row().value("lopenummer").isEqualTo(1)
         }
     }

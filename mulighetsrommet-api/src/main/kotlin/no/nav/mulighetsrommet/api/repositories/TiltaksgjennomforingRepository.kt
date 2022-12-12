@@ -106,9 +106,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         id = uuid("id"),
-        navn = string("navn"),
+        navn = stringOrNull("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
-        virksomhetsnummer = string("virksomhetsnummer")
+        virksomhetsnummer = stringOrNull("virksomhetsnummer")
     )
 }

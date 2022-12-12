@@ -9,7 +9,7 @@ import kotlin.system.measureTimeMillis
 
 class FlywayDatabaseAdapter(
     config: DatabaseConfig,
-    strategy: InitializationStrategy,
+    migrationConfig: MigrationConfig = MigrationConfig(),
 ) : DatabaseAdapter(config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -18,13 +18,20 @@ class FlywayDatabaseAdapter(
     init {
         flyway = Flyway
             .configure()
+            .cleanDisabled(migrationConfig.cleanDisabled)
+            .configuration(
+                mapOf(
+                    // Disable transactional locks in order to support concurrent indexes
+                    "flyway.postgresql.transactional.lock" to "false"
+                )
+            )
             .dataSource(config.jdbcUrl, config.user, config.password.value)
             .apply {
                 config.schema?.let { schemas(it) }
             }
             .load()
 
-        when (strategy) {
+        when (migrationConfig.strategy) {
             InitializationStrategy.Migrate -> {
                 migrate()
             }
@@ -39,6 +46,11 @@ class FlywayDatabaseAdapter(
             }
         }
     }
+
+    data class MigrationConfig(
+        val cleanDisabled: Boolean = true,
+        val strategy: InitializationStrategy = InitializationStrategy.Migrate,
+    )
 
     enum class InitializationStrategy {
         Migrate,
