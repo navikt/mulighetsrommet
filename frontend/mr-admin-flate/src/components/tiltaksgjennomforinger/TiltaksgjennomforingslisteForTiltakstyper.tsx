@@ -24,8 +24,10 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
   const gjennomforingsliste: Tiltaksgjennomforing[] = [];
 
   tiltaksgjennomforinger.map((tiltaksgjennomforing) => {
-    tiltaksgjennomforing.tiltakskode === tiltakstypeKode &&
-      gjennomforingsliste.push(tiltaksgjennomforing);
+    return (
+      tiltaksgjennomforing.tiltakskode === tiltakstypeKode &&
+      gjennomforingsliste.push(tiltaksgjennomforing)
+    );
   });
 
   return (
