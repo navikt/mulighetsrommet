@@ -21,7 +21,8 @@ class AnsattService(
             ident = data?.ident,
             navn = data?.navn,
             tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet(),
-            hovedenhet = hovedenhet
+            hovedenhet = hovedenhet.hovedenhetKode,
+            hovedenhetNavn = hovedenhet.hovedenhetNavn
         )
     }
 }
@@ -40,7 +41,8 @@ data class AnsattData(
     val ident: String?,
     val navn: String?,
     val tilganger: Set<Tilgang>,
-    val hovedenhet: String
+    val hovedenhet: String,
+    val hovedenhetNavn: String
 )
 
 @Serializable
