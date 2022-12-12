@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -12,8 +11,6 @@ import org.assertj.core.api.Assertions.assertThat
 import java.util.*
 
 class MicrosoftGraphServiceTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
     val navAnsattAzureId = UUID.randomUUID()
 
     context("Hent hovedenhet for nav-ansatt") {
