@@ -30,7 +30,7 @@ const StandardModal = ({
 }: StandardModalModalProps) => {
   const clickSend = () => {
     setModalOpen();
-    handleForm && handleForm();
+    handleForm?.();
   };
 
   const clickCancel = () => {
