@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - test-avtale-topic-dev
     paths:
       - "iac/kafka-manager/dev/*.yaml"
 
