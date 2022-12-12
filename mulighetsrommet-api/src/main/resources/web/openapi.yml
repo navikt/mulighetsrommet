@@ -585,6 +585,8 @@ components:
             type: string
         hovedenhet:
           type: string
+        hovedenhetNavn:
+          type: string
 
     Innsatsgruppe:
       type: string
