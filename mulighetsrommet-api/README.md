@@ -11,12 +11,12 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [<a name="teknologier"></a>Teknologier](#teknologier)
 - [<a name="overvaking"></a>Overvåking og alarmer](#overvåking-og-alarmer)
 - [<a name="kom-i-gang"></a>Kom i gang](#kom-i-gang)
-  - [<a name="forutsetninger"></a>Forutsetninger](#forutsetninger)
-    - [JDK 11](#jdk-11)
-    - [Docker](#docker)
-    - [Miljøvariabler](#miljøvariabler)
-  - [<a name="steg-for-steg"></a>Steg for steg](#steg-for-steg)
-    - [Autentisering](#autentisering)
+    - [<a name="forutsetninger"></a>Forutsetninger](#forutsetninger)
+        - [JDK 11](#jdk-11)
+        - [Docker](#docker)
+        - [Miljøvariabler](#miljøvariabler)
+    - [<a name="steg-for-steg"></a>Steg for steg](#steg-for-steg)
+        - [Autentisering](#autentisering)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -30,7 +30,9 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [**Gradle**](https://gradle.org/)
 
 # <a name="overvaking"></a>Overvåking og alarmer
-Under `./alerts-api.yaml` ligger det alarmer definert. Disse blir deployet automatisk ved endringer via egen Github workflow som man finner under `../.github/workflows/alert-deploy-api.yaml`. 
+
+Under `./alerts-api.yaml` ligger det alarmer definert. Disse blir deployet automatisk ved endringer via egen Github
+workflow som man finner under `../.github/workflows/alert-deploy-api.yaml`.
 
 [Her kan man se en oversikt over alarmene](https://prometheus.dev-gcp.nais.io/alerts?search=mulighetsr) som er definert.
 
@@ -74,13 +76,16 @@ export DB_PASSWORD=valp
 export DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}
 ```
 
-Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen. Eller bruk et verktøy som [direnv](https://direnv.net/).
+Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen. Eller bruk et verktøy
+som [direnv](https://direnv.net/).
 
 ## <a name="steg-for-steg"></a>Steg for steg
 
 For å komme fort i gang fra en terminal gjør følgende:
 
-1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose --profile dev -d up` i terminalen. For å få med mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i stedet for å også kjøre opp en wiremock instans.
+1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d` i terminalen. For å få med
+   mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i stedet for
+   å også kjøre opp en wiremock instans.
 2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew install`.
 3. Migrer endringer og data til databasen ved å kjøre `./gradlew flywayMigrate`. (For å slette databasen og migrere alt
    på nytt kan man kjøre `./gradlew flywayClean` før migrate)
@@ -98,13 +103,14 @@ Følgende steg kan benyttes til å generere opp et token:
 1. Sørg for at containeren for `mock-oauth2-server` kjører lokalt (`docker-compose up --profile dev -d`)
 2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger)
 3. Generer et token
-   1. Trykk på knappen `Get a token`
-   2. Full ut felt for `user/subject` (spiller ingen trille hva dette er)
-   3. Skriv inn en NAVident i `optional claims`, f.eks.`{ "NAVident": "ABC123" }`
-   4. Trykk `Sign in`
+    1. Trykk på knappen `Get a token`
+    2. Full ut felt for `user/subject` (spiller ingen trille hva dette er)
+    3. Skriv inn en NAVident i `optional claims`, f.eks.`{ "NAVident": "ABC123" }`
+    4. Trykk `Sign in`
 4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header
 
 Eksempel:
+
 ```sh
 $ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
 ```

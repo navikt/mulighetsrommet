@@ -1,10 +1,10 @@
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
-import { Loader, Alert, Heading, Pagination } from "@navikt/ds-react";
-import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
+import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
+import { paginationAtom } from "../../atoms/atoms";
 
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();
@@ -21,7 +21,7 @@ export function Tiltaksgjennomforingeroversikt() {
     return (
       <Heading level="1" size="xsmall" data-testid="antall-tiltak">
         Viser {(page - 1) * PAGE_SIZE + 1}-
-        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av{" "}
+        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av
         {paginering?.totalCount} tiltak
       </Heading>
     );
@@ -32,9 +32,9 @@ export function Tiltaksgjennomforingeroversikt() {
       {tiltaksgjennomforinger.length > 0 ? <PagineringsOversikt /> : null}
 
       <ul className={styles.oversikt}>
-        {tiltaksgjennomforinger.length === 0 ? (
+        {tiltaksgjennomforinger.length === 0 && (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
-        ) : null}
+        )}
         {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
           <Tiltaksgjennomforingrad
             key={tiltaksgjennomforing.id}
