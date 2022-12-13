@@ -21,7 +21,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato)
             values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :fra_dato, :til_dato)
             on conflict (id)
                 do update set navn              = excluded.navn,
@@ -93,9 +93,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAll(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, count(*) OVER() AS full_count
-            from tiltaksgjennomforing
-            join tiltakstype t on tiltaksgjennomforing.tiltakstype_id = t.id
+            select tg.id, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, count(*) OVER() AS full_count
+            from tiltaksgjennomforing tg
+            join tiltakstype t on tg.tiltakstype_id = t.id
             limit ?
             offset ?
         """.trimIndent()
@@ -142,8 +142,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato")
-        virksomhetsnummer = stringOrNull("virksomhetsnummer"),
+        tilDato = localDateTimeOrNull("til_dato"),
     )
 
     private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(

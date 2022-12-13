@@ -39,7 +39,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         virksomhetsnummer = "123456789",
         fraDato = LocalDateTime.of(2022, 1, 1, 8, 0),
         tilDato = LocalDateTime.of(2022, 1, 1, 8, 0)
-        tiltakskode = "ABIST"
     )
 
     val tiltak2 = Tiltaksgjennomforing(
@@ -47,8 +46,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Trening",
         tiltakstypeId = tiltakstype2.id,
         tiltaksnummer = "54321",
-        virksomhetsnummer = "123456789",
-        tiltakskode = "ABIST"
+        virksomhetsnummer = "123456789"
     )
 
     context("CRUD") {
@@ -188,8 +186,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     navn = "$it",
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
-                    virksomhetsnummer = "123456789",
-                    tiltakskode = "ABIST"
+                    virksomhetsnummer = "123456789"
                 )
             )
         }
