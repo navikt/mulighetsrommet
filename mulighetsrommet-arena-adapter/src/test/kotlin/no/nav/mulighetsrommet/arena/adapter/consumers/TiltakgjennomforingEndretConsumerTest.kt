@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
-import no.nav.mulighetsrommet.arena.adapter.models.dto.Arrangor
+import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
@@ -137,12 +137,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
                 "/ords/arbeidsgiver" to {
-                    respondJson(
-                        Arrangor(
-                            "123456",
-                            "000000"
-                        )
-                    )
+                    respondJson(ArenaOrdsArrangor("123456", "000000"))
                 },
                 "/api/v1/arena/tiltaksgjennomforing" to { respondOk() }
             )
@@ -219,7 +214,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            Arrangor(
+                            ArenaOrdsArrangor(
                                 "123456",
                                 "000000"
                             )
@@ -243,7 +238,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            Arrangor(
+                            ArenaOrdsArrangor(
                                 "123456",
                                 "000000"
                             )
