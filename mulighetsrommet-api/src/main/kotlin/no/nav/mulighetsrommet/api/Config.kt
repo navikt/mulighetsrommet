@@ -22,6 +22,7 @@ data class AppConfig(
     val poaoGcpProxy: ServiceClientConfig,
     val poaoTilgang: ServiceClientConfig,
     val amtEnhetsregister: ServiceClientConfig,
+    val msGraphConfig: ServiceClientConfig
 )
 
 data class AuthConfig(
