@@ -9,7 +9,8 @@
         "VITE_MULIGHETSROMMET_API_BASE",
         "VITE_BASE",
         "mulighetsrommet-api/src/main/resources/web/openapi.yml"
-      ]
+      ],
+      "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
     "mulighetsrommet-api-client#build": {
       "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
@@ -25,7 +26,8 @@
     },
     "build:preprod": {
       "dependsOn": ["^build"],
-      "env": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
+      "env": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"],
+      "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
     "lint": {
       "outputs": []
