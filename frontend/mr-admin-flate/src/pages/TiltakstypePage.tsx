@@ -1,6 +1,6 @@
 import { Alert, Heading } from "@navikt/ds-react";
+import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../api/tiltakstyper/useTiltakstypeById";
-import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
 import { TiltaksgjennomforingslisteForTiltakstyper } from "../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 
 export function TiltakstypePage() {
@@ -17,7 +17,7 @@ export function TiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Tilbakeknapp tilbakelenke="/oversikt" tekst="Tilbake til oversikt" />
+      <Link to="/oversikt">Tilbake til oversikt</Link>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>
