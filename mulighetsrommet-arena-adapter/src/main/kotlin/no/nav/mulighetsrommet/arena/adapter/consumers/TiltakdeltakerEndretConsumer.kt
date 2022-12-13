@@ -65,6 +65,7 @@ class TiltakdeltakerEndretConsumer(
             .bind()
         val norskIdent = ords.getFnr(deltaker.personId)
             .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { it?.fnr }
             .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke norsk ident i Arena ORDS for Arena personId=${deltaker.personId}") }
             .bind()
         val mrDeltaker = deltaker.toDomain(tiltaksgjennomforingMapping.entityId, norskIdent)

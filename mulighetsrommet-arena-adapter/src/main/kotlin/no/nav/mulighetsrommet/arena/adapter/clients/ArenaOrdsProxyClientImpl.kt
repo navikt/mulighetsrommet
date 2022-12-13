@@ -12,7 +12,8 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.arena.adapter.models.dto.Arrangor
+import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
+import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
@@ -43,7 +44,7 @@ class ArenaOrdsProxyClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun getArbeidsgiver(arbeidsgiverId: Int): Either<ResponseException, Arrangor?> {
+    override suspend fun getArbeidsgiver(arbeidsgiverId: Int): Either<ResponseException, ArenaOrdsArrangor?> {
         val response = client.get("$baseUrl/ords/arbeidsgiver") {
             bearerAuth(tokenProvider.invoke())
             parameter("arbeidsgiverId", arbeidsgiverId)
@@ -61,7 +62,7 @@ class ArenaOrdsProxyClientImpl(
         }
     }
 
-    override suspend fun getFnr(personId: Int): Either<ResponseException, String?> {
+    override suspend fun getFnr(personId: Int): Either<ResponseException, ArenaOrdsFnr?> {
         val response = client.get("$baseUrl/ords/fnr") {
             bearerAuth(tokenProvider.invoke())
             parameter("personId", personId)
