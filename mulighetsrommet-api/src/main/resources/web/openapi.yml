@@ -53,6 +53,40 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
+  /api/v1/tiltaksgjennomforinger/tiltakskode/{tiltakskode}:
+    parameters:
+      - in: path
+        name: tiltakskode
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: number
+        description: Page number, default 1
+      - in: query
+        name: size
+        schema:
+          type: number
+        description: Page size, default 50
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getAllByTiltakskode
+      responses:
+        200:
+          description: En liste med tiltaksgjennomføringer med tiltakskode.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
+        404:
+          description: "Fant ingen tiltaksgjennomføringer med gitt tiltakskode."
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -403,6 +437,20 @@ components:
           items:
             $ref: "#/components/schemas/Tiltaksgjennomforing"
 
+
+    PaginertTiltaksgjennomforingMedTiltakstype:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltaksgjennomforingMedTiltakstype"
+
     Tiltakstype:
       type: object
       required:
@@ -433,7 +481,32 @@ components:
           format: uuid
         virksomhetsnummer:
           type: string
+      required:
+        - id
+        - navn
+        - tiltakskode
+        - tiltaksnummer
+        - tiltakstypeId
+        - virksomhetsnummer
+
+    TiltaksgjennomforingMedTiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltaksnummer:
+          type: string
+        tiltakstypeId:
+          type: string
+          format: uuid
+        virksomhetsnummer:
+          type: string
         tiltakskode:
+          type: string
+        tiltakstypeNavn:
           type: string
       required:
         - id
@@ -443,6 +516,7 @@ components:
         - tiltakstypeId
         - virksomhetsnummer
         - tiltakskode
+        - tiltakstypeNavn
 
     Tiltakskode:
       type: string

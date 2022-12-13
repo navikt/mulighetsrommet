@@ -1,46 +1,53 @@
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
-import { Alert, Heading, Loader } from "@navikt/ds-react";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
 import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
 import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
+import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
+import { PAGE_SIZE } from "../../constants";
+import { useAtom } from "jotai";
+import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../atoms/atoms";
 
-interface TiltaksgjennomforingerListeTiltakstypeProps {
+interface Props {
   tiltakstypeKode: string;
 }
 
 export function TiltaksgjennomforingslisteForTiltakstyper({
   tiltakstypeKode,
-}: TiltaksgjennomforingerListeTiltakstypeProps) {
-  const { data, isLoading } = useTiltaksgjennomforinger();
+}: Props) {
+  const [page, setPage] = useAtom(
+    paginationAtomTiltaksgjennomforingMedTiltakstype
+  );
+  const { data: tiltaksgjennomforinger, isLoading } =
+    useTiltaksgjennomforingerByTiltakskode(tiltakstypeKode);
   if (isLoading) {
     return <Loader size="xlarge" />;
   }
-  if (!data) {
+  if (!tiltaksgjennomforinger) {
     return null;
   }
-  const { data: tiltaksgjennomforinger } = data;
 
-  const gjennomforingsliste: Tiltaksgjennomforing[] = [];
-
-  tiltaksgjennomforinger.map((tiltaksgjennomforing) => {
+  const PagineringsOversikt = () => {
     return (
-      tiltaksgjennomforing.tiltakskode === tiltakstypeKode &&
-      gjennomforingsliste.push(tiltaksgjennomforing)
+      <Heading level="1" size="xsmall" data-testid="antall-tiltak">
+        Viser {(page - 1) * PAGE_SIZE + 1}-
+        {tiltaksgjennomforinger.data.length + (page - 1) * PAGE_SIZE} av{" "}
+        {tiltaksgjennomforinger.pagination?.totalCount} tiltak
+      </Heading>
     );
-  });
+  };
 
   return (
     <div className={styles.tiltaksgjennomforingsliste}>
       <Heading size="medium" level="2">
         Tiltaksgjennomføringer
       </Heading>
+      {tiltaksgjennomforinger.data.length > 0 ? <PagineringsOversikt /> : null}
 
       <ul className={tiltaksgjennomforingsStyles.oversikt}>
-        {gjennomforingsliste.length === 0 && (
+        {tiltaksgjennomforinger.data.length === 0 && (
           <Alert variant="info">Ingen tilhørende tiltaksgjennomføringer</Alert>
         )}
-        {gjennomforingsliste.map((tiltaksgjennomforing) => (
+        {tiltaksgjennomforinger.data.map((tiltaksgjennomforing) => (
           <Tiltaksgjennomforingrad
             fagansvarlig
             key={tiltaksgjennomforing.id}
@@ -48,6 +55,17 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
           />
         ))}
       </ul>
+      <Pagination
+        size="small"
+        data-testid="paginering"
+        page={page}
+        onPageChange={setPage}
+        count={Math.ceil(
+          (tiltaksgjennomforinger.pagination?.totalCount ?? PAGE_SIZE) /
+            PAGE_SIZE
+        )}
+        data-version="v1"
+      />
     </div>
   );
 }

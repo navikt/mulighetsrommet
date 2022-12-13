@@ -2,9 +2,9 @@ import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
-import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
+import { paginationAtom } from "../../atoms/atoms";
 
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();

@@ -1,10 +1,10 @@
 import styles from "./Tiltakstyperoversikt.module.scss";
 import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
-import { paginationAtom } from "mulighetsrommet-veileder-flate/src/core/atoms/atoms";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { Tiltakstyperad } from "./Tiltakstyperad";
+import { paginationAtom } from "../../atoms/atoms";
 
 export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();

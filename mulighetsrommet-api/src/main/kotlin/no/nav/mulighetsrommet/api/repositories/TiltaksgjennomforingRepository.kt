@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -20,14 +21,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer)
             values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :tiltakskode)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
                               tiltaksnummer     = excluded.tiltaksnummer,
                               virksomhetsnummer = excluded.virksomhetsnummer,
-                              tiltakskode       = excluded.tiltakskode
             returning *
         """.trimIndent()
 
@@ -40,7 +40,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
             from tiltaksgjennomforing
             where tiltakstype_id = ?::uuid
         """.trimIndent()
@@ -50,10 +50,35 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAllByTiltakskode(
+        tiltakskode: String,
+        paginationParams: PaginationParams = PaginationParams()
+    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, t.navn as tiltakstypeNavn, count(*) OVER() AS full_count
+            from tiltaksgjennomforing tg
+            join tiltakstype t on tg.tiltakstype_id = t.id
+            where tiltakskode = ?
+            limit ?
+            offset ?
+        """.trimIndent()
+        val results = queryOf(query, tiltakskode, paginationParams.limit, paginationParams.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
+
     fun get(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer
             from tiltaksgjennomforing
             where id = ?::uuid
         """.trimIndent()
@@ -68,6 +93,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             select id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, count(*) OVER() AS full_count
             from tiltaksgjennomforing
+            join tiltakstype t on tiltaksgjennomforing.tiltakstype_id = t.id
             limit ?
             offset ?
         """.trimIndent()
@@ -103,7 +129,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
         "virksomhetsnummer" to virksomhetsnummer,
-        "tiltakskode" to tiltakskode,
     )
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
@@ -112,6 +137,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        tiltakskode = string("tiltakskode")
+    )
+
+    private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(
+        id = uuid("id"),
+        navn = stringOrNull("navn"),
+        tiltakstypeId = uuid("tiltakstype_id"),
+        tiltaksnummer = string("tiltaksnummer"),
+        virksomhetsnummer = stringOrNull("virksomhetsnummer"),
+        tiltakskode = string("tiltakskode"),
+        tiltakstypeNavn = string("tiltakstypeNavn")
     )
 }
