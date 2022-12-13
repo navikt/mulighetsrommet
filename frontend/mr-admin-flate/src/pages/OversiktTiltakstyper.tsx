@@ -7,10 +7,10 @@ export function OversiktTiltakstyper() {
   return (
     <>
       <Tilbakeknapp tilbakelenke="/" tekst="Hjem" />
-      <Heading className={styles.overskrift} size={"medium"}>
+      <Heading className={styles.overskrift} size="large">
         Oversikt over tiltakstyper
       </Heading>
-      <BodyLong className={styles.body} size={"small"}>
+      <BodyLong className={styles.body} size="small">
         Her finner du dine aktive tiltakstyper.
       </BodyLong>
       <TiltakstyperOversikt />

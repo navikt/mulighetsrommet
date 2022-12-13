@@ -28,7 +28,7 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
 
   const PagineringsOversikt = () => {
     return (
-      <Heading level="1" size="xsmall" data-testid="antall-tiltak">
+      <Heading level="2" size="xsmall" data-testid="antall-tiltak">
         Viser {(page - 1) * PAGE_SIZE + 1}-
         {tiltaksgjennomforinger.data.length + (page - 1) * PAGE_SIZE} av{" "}
         {tiltaksgjennomforinger.pagination?.totalCount} tiltak

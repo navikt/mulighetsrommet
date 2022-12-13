@@ -21,7 +21,7 @@ export function Tiltaksgjennomforingeroversikt() {
     return (
       <Heading level="1" size="xsmall" data-testid="antall-tiltak">
         Viser {(page - 1) * PAGE_SIZE + 1}-
-        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av{" "}
+        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av
         {paginering?.totalCount} tiltak
       </Heading>
     );

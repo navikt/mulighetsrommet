@@ -7,10 +7,10 @@ export function OversiktTiltaksgjennomforinger() {
   return (
     <>
       <Tilbakeknapp tilbakelenke="/" tekst="Hjem" />
-      <Heading className={styles.overskrift} size={"medium"}>
+      <Heading className={styles.overskrift} size="large">
         Oversikt over tiltaksgjennomføringer
       </Heading>
-      <BodyLong className={styles.body} size={"small"}>
+      <BodyLong className={styles.body} size="small">
         Her finner du dine aktive gjennomføringer.
       </BodyLong>
       <Tiltaksgjennomforingeroversikt />

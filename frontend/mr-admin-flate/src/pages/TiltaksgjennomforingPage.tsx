@@ -34,7 +34,7 @@ export function TiltaksgjennomforingPage({
           fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake til oversikt"
         }
       />
-      <Heading size="medium" level="1">
+      <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </Heading>
       <dl>

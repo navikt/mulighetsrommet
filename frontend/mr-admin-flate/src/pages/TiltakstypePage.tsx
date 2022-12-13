@@ -18,7 +18,7 @@ export function TiltakstypePage() {
   return (
     <>
       <Tilbakeknapp tilbakelenke="/oversikt" tekst="Tilbake til oversikt" />
-      <Heading size="medium" level="1">
+      <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>
       <dl>
