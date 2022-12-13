@@ -1,12 +1,12 @@
 import { BodyLong, Heading } from "@navikt/ds-react";
 import styles from "./Oversikt.module.scss";
 import { TiltakstyperOversikt } from "../components/tiltakstyper/TiltakstyperOversikt";
-import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
+import { Link } from "react-router-dom";
 
 export function OversiktTiltakstyper() {
   return (
     <>
-      <Tilbakeknapp tilbakelenke="/" tekst="Hjem" />
+      <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size="large">
         Oversikt over tiltakstyper
       </Heading>
