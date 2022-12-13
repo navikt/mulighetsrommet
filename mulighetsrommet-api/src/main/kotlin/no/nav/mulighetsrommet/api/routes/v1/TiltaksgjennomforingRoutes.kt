@@ -33,6 +33,28 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
         }
 
+        get("tiltakskode/{tiltakskode}") {
+            val tiltakskode = call.parameters["tiltakskode"] ?: return@get call.respondText(
+                "Mangler eller ugyldig tiltakskode",
+                status = HttpStatusCode.BadRequest
+            )
+
+            val paginationParams = getPaginationParams()
+            val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakskode(
+                tiltakskode, paginationParams
+            )
+            call.respond(
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = paginationParams.page,
+                        pageSize = paginationParams.limit
+                    ),
+                    data = items
+                )
+            )
+        }
+
         get("{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",

@@ -4,6 +4,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { TiltakstypePage } from "./pages/TiltakstypePage";
 import { OversiktTiltakstyper } from "./pages/OversiktTiltakstyper";
 import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
+import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
 
 export default function AutentisertFagansvarligApp() {
   return (
@@ -31,6 +32,15 @@ export default function AutentisertFagansvarligApp() {
         element={
           <RootLayout>
             <TiltakstypePage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforing/:tiltaksgjennomforingId"
+        element={
+          <RootLayout>
+            <TiltaksgjennomforingPage fagansvarlig />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

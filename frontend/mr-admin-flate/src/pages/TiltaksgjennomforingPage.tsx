@@ -1,10 +1,16 @@
-import { Alert } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Alert, Heading } from "@navikt/ds-react";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
 import { formaterDato } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingPage.module.scss";
 
-export function TiltaksgjennomforingPage() {
+interface TiltaksgjennomforingPageProps {
+  fagansvarlig?: boolean;
+}
+
+export function TiltaksgjennomforingPage({
+  fagansvarlig = false,
+}: TiltaksgjennomforingPageProps) {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
 
   if (optionalTiltaksgjennomforing.isFetching) {
@@ -19,17 +25,26 @@ export function TiltaksgjennomforingPage() {
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-    <div className={styles.container}>
-      <Link to="/oversikt">Tilbake til oversikt</Link>
-      <h1>
+      <div className={styles.container}>
+      <Tilbakeknapp
+        tilbakelenke={
+          fagansvarlig
+            ? `/oversikt/${tiltaksgjennomforing.tiltakstypeId}`
+            : "/oversikt"
+        }
+        tekst={
+          fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake til oversikt"
+        }
+      />
+      <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
-      </h1>
       <p>
         {/* TODO Oppdater openAPI.yaml med korrekt type for tiltaksgjennomforing */}
         Tiltaksgjennomføringen har startdato:{" "}
         {formaterDato(tiltaksgjennomforing.fraDato)} og sluttdato{" "}
         {formaterDato(tiltaksgjennomforing.tilDato)}
       </p>
+      </Heading>
       <dl>
         <dt>Tiltaksnummer</dt>
         <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
