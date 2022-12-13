@@ -12,11 +12,6 @@ export function useTiltaksgjennomforingById() {
     throw new Error("Fant ingen tiltaksgjennomførings-id i URL");
   }
 
-  console.log("Denne bør dukke opp i Network-taben");
-  mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforingMedTiltakstype(
-    { id: tiltaksgjennomforingId }
-  );
-
   return useQuery(QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
     mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforingMedTiltakstype(
       {
