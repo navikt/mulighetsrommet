@@ -1,4 +1,4 @@
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert, Heading, Loader } from "@navikt/ds-react";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
 import { formaterDato } from "../utils/Utils";
@@ -14,7 +14,19 @@ export function TiltaksgjennomforingPage({
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
 
   if (optionalTiltaksgjennomforing.isFetching) {
-    return null;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <Loader />
+        <p>Laster data om tiltaksgjennomføring</p>
+      </div>
+    );
   }
 
   if (!optionalTiltaksgjennomforing.data) {
