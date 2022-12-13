@@ -5,7 +5,7 @@
   margin: 0;
 }
 
-.shortcut {
+.shortcut a {
   background-color: var(--ac-header-bg, var(--a-surface-inverted));
   color: white;
   padding: 0.5rem;
@@ -16,9 +16,5 @@
   justify-content: center;
   align-items: center;
   border-radius: 5%;
-
-  a {
-    color: white;
-    text-decoration: none;
-  }
+  text-decoration: none;
 }

@@ -25,7 +25,7 @@ export function TiltaksgjennomforingPage({
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-      <div className={styles.container}>
+    <div className={styles.container}>
       <Tilbakeknapp
         tilbakelenke={
           fagansvarlig
@@ -38,20 +38,18 @@ export function TiltaksgjennomforingPage({
       />
       <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
+      </Heading>
       <p>
-        {/* TODO Oppdater openAPI.yaml med korrekt type for tiltaksgjennomforing */}
         Tiltaksgjennomføringen har startdato:{" "}
         {formaterDato(tiltaksgjennomforing.fraDato)} og sluttdato{" "}
         {formaterDato(tiltaksgjennomforing.tilDato)}
       </p>
-      </Heading>
       <dl>
         <dt>Tiltaksnummer</dt>
         <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
         <dt>Tiltakstype</dt>
-        <dd>Kommer senere</dd>
+        <dd>{tiltaksgjennomforing.tiltakstypeNavn}</dd>
         <dt>Kode for tiltakstype:</dt>
-        {/* TODO Oppdater openAPI.yaml med korrekt type for tiltaksgjennomforing */}
         <dd>{tiltaksgjennomforing.tiltakskode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>

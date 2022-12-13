@@ -90,7 +90,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getWithTiltakstypedata(id: UUID): Tiltaksgjennomforing? {
+    fun getWithTiltakstypedata(id: UUID): TiltaksgjennomforingMedTiltakstype? {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, tiltakskode, t.navn as tiltakstypeNavn
@@ -99,7 +99,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tg.id = ?::uuid
         """.trimIndent()
         return queryOf(query, id)
-            .map { it.toTiltaksgjennomforing() }
+            .map { it.toTiltaksgjennomforingMedTiltakstype() }
             .asSingle
             .let { db.run(it) }
     }
@@ -156,7 +156,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
+        tilDato = localDateTimeOrNull("til_dato")
     )
 
     private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(
@@ -166,6 +166,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         tiltakskode = string("tiltakskode"),
-        tiltakstypeNavn = string("tiltakstypeNavn")
+        tiltakstypeNavn = string("tiltakstypeNavn"),
+        fraDato = localDateTimeOrNull("fra_dato"),
+        tilDato = localDateTimeOrNull("til_dato")
     )
 }

@@ -4,7 +4,9 @@ export function capitalize(text?: string): string {
     : "";
 }
 
-export function formaterDato(dato: string | Date, fallback = ""): string {
+export function formaterDato(dato?: string | Date, fallback = ""): string {
+  if (!dato) return fallback;
+
   const result = new Date(dato).toLocaleString("no-NO", {
     year: "numeric",
     month: "2-digit",

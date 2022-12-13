@@ -33,4 +33,8 @@ data class TiltaksgjennomforingMedTiltakstype(
     val virksomhetsnummer: String?,
     val tiltakskode: String,
     val tiltakstypeNavn: String,
+    @Serializable(with = DateSerializer::class)
+    val fraDato: LocalDateTime? = null,
+    @Serializable(with = DateSerializer::class)
+    val tilDato: LocalDateTime? = null
 )
