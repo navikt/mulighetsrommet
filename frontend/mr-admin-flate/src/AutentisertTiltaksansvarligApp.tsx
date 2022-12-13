@@ -18,7 +18,7 @@ export default function AutentisertTiltaksansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="/oversikt"
+        path="oversikt"
         element={
           <RootLayout>
             <OversiktTiltaksgjennomforinger />
@@ -27,7 +27,7 @@ export default function AutentisertTiltaksansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="/oversikt/:tiltaksgjennomforingId"
+        path="oversikt/:tiltaksgjennomforingId"
         element={
           <RootLayout>
             <TiltaksgjennomforingPage />
