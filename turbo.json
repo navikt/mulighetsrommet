@@ -3,7 +3,10 @@
   "baseBranch": "origin/main",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build",
+        "mulighetsrommet-api/src/main/resources/web/openapi.yml"
+      ],
       "env": [
         "VITE_MULIGHETSROMMET_API_MOCK",
         "VITE_MULIGHETSROMMET_API_BASE",
@@ -24,7 +27,10 @@
       "dependsOn": ["^build"]
     },
     "build:preprod": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build",
+        "mulighetsrommet-api/src/main/resources/web/openapi.yml"
+      ],
       "env": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
     "lint": {
