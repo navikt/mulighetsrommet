@@ -12,6 +12,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -20,6 +22,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -28,6 +32,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -36,6 +42,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
@@ -44,6 +52,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
@@ -52,6 +62,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
@@ -60,6 +72,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
@@ -68,6 +82,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
@@ -76,6 +92,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
@@ -84,6 +102,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
@@ -92,6 +112,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
@@ -100,6 +122,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee313",
@@ -108,6 +132,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee314",
@@ -116,6 +142,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee315",
@@ -124,6 +152,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee316",
@@ -132,6 +162,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee317",
@@ -140,6 +172,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee318",
@@ -148,6 +182,8 @@ export const mockTiltaksgjennomforinger = {
       tiltaksnummer: 1234,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
+      fraDato: "2022-01-01",
+      tilDato: "2022-12-12",
     },
   ],
 };

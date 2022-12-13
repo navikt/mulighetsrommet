@@ -5,16 +5,20 @@
   margin: 0;
 }
 
-.shortcut a {
+.shortcut {
   background-color: var(--ac-header-bg, var(--a-surface-inverted));
   color: white;
+  padding: 0.5rem;
   text-transform: uppercase;
   min-height: 10rem;
   min-width: 10rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  text-decoration: none;
   border-radius: 5%;
-  flex-direction: column;
+
+  a {
+    color: white;
+    text-decoration: none;
+  }
 }

@@ -1,6 +1,8 @@
 import { Alert } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { formaterDato } from "../utils/Utils";
+import styles from "./TiltaksgjennomforingPage.module.scss";
 
 export function TiltaksgjennomforingPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -17,19 +19,31 @@ export function TiltaksgjennomforingPage() {
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-    <div>
+    <div className={styles.container}>
       <Link to="/oversikt">Tilbake til oversikt</Link>
       <h1>
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </h1>
+      <p>
+        {/* TODO Oppdater openAPI.yaml med korrekt type for tiltaksgjennomforing */}
+        Tiltaksgjennomføringen har startdato:{" "}
+        {formaterDato(tiltaksgjennomforing.fraDato)} og sluttdato{" "}
+        {formaterDato(tiltaksgjennomforing.tilDato)}
+      </p>
       <dl>
-        <dt>Tiltakstype:</dt>
-        {/**
-         * TODO Bytte ut med navn
-         */}
-        <dd>{tiltaksgjennomforing.tiltakstypeId}</dd>
+        <dt>Tiltaksnummer</dt>
+        <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
+        <dt>Tiltakstype</dt>
+        <dd>Kommer senere</dd>
+        <dt>Kode for tiltakstype:</dt>
+        {/* TODO Oppdater openAPI.yaml med korrekt type for tiltaksgjennomforing */}
+        <dd>{tiltaksgjennomforing.tiltakskode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
+        <dt>Startdato</dt>
+        <dd>{formaterDato(tiltaksgjennomforing.fraDato)} </dd>
+        <dt>Sluttdato</dt>
+        <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
 
       {/**
