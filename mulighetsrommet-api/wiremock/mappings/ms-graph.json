@@ -6,7 +6,8 @@
   "response": {
     "status": 200,
     "jsonBody": {
-      "streetAddress": "2990"
+      "streetAddress": "2990",
+      "city": "IT-Avdelingen"
     },
     "headers": {
       "Content-Type": "application/json"
