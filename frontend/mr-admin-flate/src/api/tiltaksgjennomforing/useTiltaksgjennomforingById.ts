@@ -8,13 +8,15 @@ export function useTiltaksgjennomforingById() {
     tiltaksgjennomforingId: string;
   }>();
 
-  console.log("Inne i useTiltaksgjennomforingById for mr-admin-flate");
   if (!tiltaksgjennomforingId) {
-    console.log("Fant ingen tiltaksgjennomførings-id i URL");
     throw new Error("Fant ingen tiltaksgjennomførings-id i URL");
   }
 
-  console.log("Her bør vi begynne å fetche!");
+  console.log("Denne bør dukke opp i Network-taben");
+  mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforingMedTiltakstype(
+    { id: tiltaksgjennomforingId }
+  );
+
   return useQuery(QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
     mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforingMedTiltakstype(
       {
