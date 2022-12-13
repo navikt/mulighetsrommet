@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
@@ -61,6 +62,19 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
             val tiltaksgjennomforing =
                 tiltaksgjennomforinger.get(id) ?: return@get call.respondText(
+                    "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                    status = HttpStatusCode.NotFound
+                )
+            call.respond(tiltaksgjennomforing)
+        }
+
+        get("tiltakstypedata/{id}") {
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            val tiltaksgjennomforing =
+                tiltaksgjennomforinger.getWithTiltakstypedata(id) ?: return@get call.respondText(
                     "Det finnes ikke noe tiltaksgjennomføring med id $id",
                     status = HttpStatusCode.NotFound
                 )

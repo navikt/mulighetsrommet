@@ -30,6 +30,17 @@ export const apiHandlers = [
   }),
 
   rest.get(
+    "*/api/v1/tiltaksgjennomforinger/tiltakstypedata/:id",
+    (req, res, ctx) => {
+      const { id } = req.params as { id: string };
+      return res(
+        ctx.status(200),
+        ctx.json(mockTiltaksgjennomforinger.data.find((gj) => gj.id === id))
+      );
+    }
+  ),
+
+  rest.get(
     "*/api/v1/tiltaksgjennomforinger/tiltakskode/:tiltakskode",
     (req, res, ctx) => {
       const { tiltakskode } = req.params as { tiltakskode: string };

@@ -1,6 +1,8 @@
 import { Alert, Heading } from "@navikt/ds-react";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import Tilbakeknapp from "mulighetsrommet-veileder-flate/src/components/tilbakeknapp/Tilbakeknapp";
+import { formaterDato } from "../utils/Utils";
+import styles from "./TiltaksgjennomforingPage.module.scss";
 
 interface TiltaksgjennomforingPageProps {
   fagansvarlig?: boolean;
@@ -23,7 +25,7 @@ export function TiltaksgjennomforingPage({
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-    <div>
+    <div className={styles.container}>
       <Tilbakeknapp
         tilbakelenke={
           fagansvarlig
@@ -37,14 +39,24 @@ export function TiltaksgjennomforingPage({
       <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </Heading>
+      <p>
+        Tiltaksgjennomføringen har startdato:{" "}
+        {formaterDato(tiltaksgjennomforing.fraDato)} og sluttdato{" "}
+        {formaterDato(tiltaksgjennomforing.tilDato)}
+      </p>
       <dl>
-        <dt>Tiltakstype:</dt>
-        {/**
-         * TODO Bytte ut med navn
-         */}
-        <dd>{tiltaksgjennomforing.tiltakstypeId}</dd>
+        <dt>Tiltaksnummer</dt>
+        <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
+        <dt>Tiltakstype</dt>
+        <dd>{tiltaksgjennomforing.tiltakstypeNavn}</dd>
+        <dt>Kode for tiltakstype:</dt>
+        <dd>{tiltaksgjennomforing.tiltakskode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
+        <dt>Startdato</dt>
+        <dd>{formaterDato(tiltaksgjennomforing.fraDato)} </dd>
+        <dt>Sluttdato</dt>
+        <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
 
       {/**

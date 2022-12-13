@@ -13,8 +13,10 @@ export function useTiltaksgjennomforingById() {
   }
 
   return useQuery(QueryKeys.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
-    mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforing({
-      id: tiltaksgjennomforingId!!,
-    })
+    mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforingMedTiltakstype(
+      {
+        id: tiltaksgjennomforingId!!,
+      }
+    )
   );
 }
