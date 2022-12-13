@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStat
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
@@ -27,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatab
 import no.nav.mulighetsrommet.domain.models.Deltaker
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.respondJson
 import java.util.*
 
 class TiltakdeltakerEndretConsumerTest : FunSpec({
@@ -124,7 +126,11 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         }
 
         test("should treat all operations as upserts") {
-            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+            val engine = createMockEngine(
+                "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                "/api/v1/arena/deltaker" to { respondOk() }
+            )
+            val consumer = createConsumer(database.db, engine)
 
             val e1 = consumer.processEvent(createEvent(Insert, status = "GJENN"))
             e1.status shouldBe Processed
@@ -172,7 +178,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
             test("should mark the event as Failed when api responds with an error") {
                 val engine = createMockEngine(
-                    "/ords/fnr" to { respondOk("12345678910") },
+                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
                     "/api/v1/arena/deltaker" to { respondError(HttpStatusCode.InternalServerError) }
                 )
 
@@ -185,7 +191,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
-                    "/ords/fnr" to { respondOk("12345678910") },
+                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
                     "/api/v1/arena/deltaker" to { respondOk() }
                 )
 

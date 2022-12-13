@@ -54,11 +54,14 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClien
         if (config.enableFailedRecordProcessor) {
             kafka.enableFailedRecordProcessor()
         }
+
         scheduler.start()
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
+
+        scheduler.stop()
     }
 }

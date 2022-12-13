@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/ms-graph/v1.0/users/([\\d\\D]*)"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "streetAddress": "2990"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

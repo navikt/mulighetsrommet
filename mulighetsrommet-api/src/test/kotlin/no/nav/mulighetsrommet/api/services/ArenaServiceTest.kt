@@ -23,6 +23,7 @@ class ArenaServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     context("ArenaService") {
+
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
@@ -31,7 +32,7 @@ class ArenaServiceTest : FunSpec({
         val tiltakstype = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Arbeidstrening",
-            tiltakskode = "ARBTREN",
+            tiltakskode = "ARBTREN"
         )
 
         val tiltaksgjennomforing = Tiltaksgjennomforing(
@@ -40,7 +41,8 @@ class ArenaServiceTest : FunSpec({
             tiltakstypeId = tiltakstype.id,
             tiltaksnummer = "12345",
             virksomhetsnummer = "123456789",
-            tiltakskode = "ABIST"
+            fraDato = LocalDateTime.of(2022, 11, 11, 0, 0),
+            tilDato = LocalDateTime.of(2023, 11, 11, 0, 0)
         )
 
         val deltaker = Deltaker(
@@ -49,7 +51,7 @@ class ArenaServiceTest : FunSpec({
             norskIdent = "12345678910",
             status = Deltakerstatus.VENTER,
             fraDato = LocalDateTime.now(),
-            tilDato = LocalDateTime.now().plusYears(1),
+            tilDato = LocalDateTime.now().plusYears(1)
         )
 
         test("upsert tiltakstype") {
@@ -72,6 +74,13 @@ class ArenaServiceTest : FunSpec({
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(tiltaksgjennomforing.id)
                 .column("navn").value().isEqualTo("Oppdatert arbeidstrening")
+                .column("tiltakstype_id").value().isEqualTo(tiltakstype.id)
+                .column("tiltaksnummer").value().isEqualTo("12345")
+                .column("virksomhetsnummer").value().isEqualTo("123456789")
+                .column("fra_dato").value()
+                .isEqualTo(LocalDateTime.of(2022, 11, 11, 0, 0))
+                .column("til_dato").value()
+                .isEqualTo(LocalDateTime.of(2023, 11, 11, 0, 0))
         }
 
         test("upsert deltaker") {

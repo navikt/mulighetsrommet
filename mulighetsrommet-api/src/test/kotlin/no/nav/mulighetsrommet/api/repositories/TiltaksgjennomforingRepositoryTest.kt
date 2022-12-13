@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -36,6 +37,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstypeId = tiltakstype1.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
+        fraDato = LocalDateTime.of(2022, 1, 1, 8, 0),
+        tilDato = LocalDateTime.of(2022, 1, 1, 8, 0)
         tiltakskode = "ABIST"
     )
 

@@ -50,15 +50,16 @@ class ArenaEventRepository(private val db: Database) {
 
     fun getAll(
         table: String? = null,
+        idGreaterThan: String? = null,
         status: ArenaEvent.ConsumptionStatus? = null,
         maxRetries: Int? = null,
         limit: Int = 1000,
-        offset: Int = 0
     ): List<ArenaEvent> {
-        logger.info("Getting events table=$table, status=$status, maxRetries=$maxRetries, limit=$limit, offset=$offset")
+        logger.info("Getting events table=$table, idGreaterThan=$idGreaterThan, status=$status, maxRetries=$maxRetries, limit=$limit")
 
         val where = andWhereParameterNotNull(
             table to "arena_table = :arena_table",
+            idGreaterThan to "arena_id > :arena_id",
             status to "consumption_status = :status::consumption_status",
             maxRetries to "retries < :max_retries",
         )
@@ -70,17 +71,16 @@ class ArenaEventRepository(private val db: Database) {
             $where
             order by arena_id
             limit :limit
-            offset :offset
         """.trimIndent()
 
         return queryOf(
             query,
             mapOf(
                 "arena_table" to table,
+                "arena_id" to idGreaterThan,
                 "status" to status?.name,
                 "max_retries" to maxRetries,
                 "limit" to limit,
-                "offset" to offset
             )
         )
             .map { it.toEvent() }

@@ -30,7 +30,7 @@ class TiltakgjennomforingEndretConsumer(
     override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
-    private val ords: ArenaOrdsProxyClient,
+    private val ords: ArenaOrdsProxyClient
 ) : ArenaTopicConsumer(
     ArenaTables.Tiltaksgjennomforing
 ) {
@@ -53,7 +53,7 @@ class TiltakgjennomforingEndretConsumer(
             arenaTable = decoded.table,
             arenaId = decoded.data.TILTAKGJENNOMFORING_ID.toString(),
             payload = payload,
-            status = ArenaEvent.ConsumptionStatus.Pending,
+            status = ArenaEvent.ConsumptionStatus.Pending
         )
     }
 
@@ -106,7 +106,7 @@ class TiltakgjennomforingEndretConsumer(
         fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
         apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
-        antallPlasser = ANTALL_DELTAKERE,
+        antallPlasser = ANTALL_DELTAKERE
     )
 
     private fun Tiltaksgjennomforing.toDomain(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
@@ -116,6 +116,7 @@ class TiltakgjennomforingEndretConsumer(
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = sak.lopenummer.toString(),
             virksomhetsnummer = virksomhetsnummer,
-            tiltakskode = tiltakskode,
+            fraDato = fraDato,
+            tilDato = tilDato
         )
 }
