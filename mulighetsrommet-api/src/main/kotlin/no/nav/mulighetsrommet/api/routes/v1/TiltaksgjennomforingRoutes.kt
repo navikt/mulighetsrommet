@@ -41,7 +41,8 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             val paginationParams = getPaginationParams()
             val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakskode(
-                tiltakskode, paginationParams
+                tiltakskode,
+                paginationParams
             )
             call.respond(
                 PaginatedResponse(

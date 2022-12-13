@@ -13,6 +13,8 @@ export function TiltaksgjennomforingPage({
 }: TiltaksgjennomforingPageProps) {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
 
+  console.log({ optionalTiltaksgjennomforing });
+
   if (optionalTiltaksgjennomforing.isFetching) {
     return null;
   }
