@@ -13,6 +13,15 @@ export function TiltaksgjennomforingPage({
 }: TiltaksgjennomforingPageProps) {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
 
+  if (optionalTiltaksgjennomforing.error) {
+    return (
+      <div>
+        <p>Noe gikk galt ved henting av data om tiltaksgjennomføring</p>
+        <pre>{JSON.stringify(optionalTiltaksgjennomforing.error, null, 2)}</pre>
+      </div>
+    );
+  }
+
   if (optionalTiltaksgjennomforing.isFetching) {
     return (
       <div
