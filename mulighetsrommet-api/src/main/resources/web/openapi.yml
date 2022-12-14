@@ -53,6 +53,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
+  /api/v1/tiltaksgjennomforinger/sok:
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: sokEtterTiltaksgjennomforinger
+      parameters:
+        - in: query
+          name: tiltaksnummer
+          schema:
+            type: string
+          description: Whole or part of tiltaksnummer
+      responses:
+        200:
+          description: List of tiltaksgjennomføringer with tiltakstypedata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltaksgjennomforingMedTiltakstype"
+
   /api/v1/tiltaksgjennomforinger/tiltakskode/{tiltakskode}:
     parameters:
       - in: path
