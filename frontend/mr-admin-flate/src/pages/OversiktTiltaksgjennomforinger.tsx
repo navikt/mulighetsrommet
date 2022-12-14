@@ -5,15 +5,15 @@ import { Link } from "react-router-dom";
 
 export function OversiktTiltaksgjennomforinger() {
   return (
-    <div>
+    <>
       <Link to="/">Hjem</Link>
-      <Heading className={styles.overskrift} size={"medium"}>
+      <Heading className={styles.overskrift} size="large">
         Oversikt over tiltaksgjennomføringer
       </Heading>
-      <BodyLong className={styles.body} size={"small"}>
+      <BodyLong className={styles.body} size="small">
         Her finner du dine aktive gjennomføringer.
       </BodyLong>
       <Tiltaksgjennomforingeroversikt />
-    </div>
+    </>
   );
 }

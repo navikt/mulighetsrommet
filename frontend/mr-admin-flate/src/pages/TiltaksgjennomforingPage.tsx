@@ -1,12 +1,41 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, Heading, Loader } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { formaterDato } from "../utils/Utils";
+import styles from "./TiltaksgjennomforingPage.module.scss";
 
-export function TiltaksgjennomforingPage() {
+interface TiltaksgjennomforingPageProps {
+  fagansvarlig?: boolean;
+}
+
+export function TiltaksgjennomforingPage({
+  fagansvarlig = false,
+}: TiltaksgjennomforingPageProps) {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
 
+  if (optionalTiltaksgjennomforing.error) {
+    return (
+      <div>
+        <p>Noe gikk galt ved henting av data om tiltaksgjennomføring</p>
+        <pre>{JSON.stringify(optionalTiltaksgjennomforing.error, null, 2)}</pre>
+      </div>
+    );
+  }
+
   if (optionalTiltaksgjennomforing.isFetching) {
-    return null;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <Loader />
+        <p>Laster data om tiltaksgjennomføring</p>
+      </div>
+    );
   }
 
   if (!optionalTiltaksgjennomforing.data) {
@@ -17,19 +46,37 @@ export function TiltaksgjennomforingPage() {
 
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
-    <div>
-      <Link to="/oversikt">Tilbake til oversikt</Link>
-      <h1>
+    <div className={styles.container}>
+      <Link
+        to={
+          fagansvarlig
+            ? `/oversikt/${tiltaksgjennomforing.tiltakstypeId}`
+            : "/oversikt"
+        }
+      >
+        {fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake til oversikt"}
+      </Link>
+      <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
-      </h1>
+      </Heading>
+      <p>
+        Tiltaksgjennomføringen har startdato:{" "}
+        {formaterDato(tiltaksgjennomforing.fraDato)} og sluttdato{" "}
+        {formaterDato(tiltaksgjennomforing.tilDato)}
+      </p>
       <dl>
-        <dt>Tiltakstype:</dt>
-        {/**
-         * TODO Bytte ut med navn
-         */}
-        <dd>{tiltaksgjennomforing.tiltakstypeId}</dd>
+        <dt>Tiltaksnummer</dt>
+        <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
+        <dt>Tiltakstype</dt>
+        <dd>{tiltaksgjennomforing.tiltakstypeNavn}</dd>
+        <dt>Kode for tiltakstype:</dt>
+        <dd>{tiltaksgjennomforing.tiltakskode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
+        <dt>Startdato</dt>
+        <dd>{formaterDato(tiltaksgjennomforing.fraDato)} </dd>
+        <dt>Sluttdato</dt>
+        <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
 
       {/**

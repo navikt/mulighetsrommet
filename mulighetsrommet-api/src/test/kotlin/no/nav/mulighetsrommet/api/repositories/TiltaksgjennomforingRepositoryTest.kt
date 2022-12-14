@@ -179,7 +179,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstyper.save(tiltakstype1)
 
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
         (1..105).forEach {
             tiltaksgjennomforinger.upsert(
                 Tiltaksgjennomforing(

@@ -65,7 +65,7 @@ class DeltakerRepository(private val db: Database) {
         tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
         norskIdent = string("norsk_ident"),
         status = Deltakerstatus.valueOf(string("status")),
-        fraDato = localDateTime("fraDato"),
-        tilDato = localDateTimeOrNull("tilDato"),
+        fraDato = localDateTimeOrNull("fra_dato"),
+        tilDato = localDateTimeOrNull("til_dato"),
     )
 }

@@ -4,12 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { MiljoBanner } from "./components/Miljobanner/MiljoBanner";
+import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
 import { App } from "./App";
 import { BrowserRouter as Router } from "react-router-dom";
 import { AdministratorHeader } from "./components/AdministratorHeader";
-import { EndreRolleVedLokalUtvikling } from "./components/EndreRolle/EndreRolleVedLokalUtvikling";
+import { EndreRolleVedLokalUtvikling } from "./components/endreRolle/EndreRolleVedLokalUtvikling";
 
 const queryClient = new QueryClient();
 

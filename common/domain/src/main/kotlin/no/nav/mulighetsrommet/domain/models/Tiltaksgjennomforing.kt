@@ -20,3 +20,21 @@ data class Tiltaksgjennomforing(
     @Serializable(with = DateSerializer::class)
     val tilDato: LocalDateTime? = null
 )
+
+
+@Serializable
+data class TiltaksgjennomforingMedTiltakstype(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String?,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
+    val tiltaksnummer: String,
+    val virksomhetsnummer: String?,
+    val tiltakskode: String,
+    val tiltakstypeNavn: String,
+    @Serializable(with = DateSerializer::class)
+    val fraDato: LocalDateTime? = null,
+    @Serializable(with = DateSerializer::class)
+    val tilDato: LocalDateTime? = null
+)

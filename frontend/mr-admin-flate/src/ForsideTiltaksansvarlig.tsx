@@ -6,7 +6,7 @@ import { shortcutsForTiltaksansvarlig } from "./constants";
 export function ForsideTiltaksansvarlig() {
   const { data, isLoading } = useFeatureToggles();
 
-  if (isLoading) return  <Loader size="xlarge" />;
+  if (isLoading) return <Loader size="xlarge" />;
 
   if (!data) return null;
 
@@ -21,7 +21,7 @@ export function ForsideTiltaksansvarlig() {
   return (
     <>
       <h1>Oversikt</h1>
-      <Shortcuts shortcuts={shortcutsForTiltaksansvarlig}/>
+      <Shortcuts shortcuts={shortcutsForTiltaksansvarlig} />
     </>
   );
 }

@@ -5,12 +5,15 @@ import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { paginationAtom } from "../../atoms/atoms";
 
-export function useTiltakstyper() {
+export function useTiltaksgjennomforingerByTiltakskode(tiltakskode: string) {
   const [page] = useAtom(paginationAtom);
-  return useQuery(QueryKeys.tiltakstyper(page), () =>
-    mulighetsrommetClient.tiltakstyper.getTiltakstyper({
-      page,
-      size: PAGE_SIZE,
-    })
+  return useQuery(
+    QueryKeys.tiltaksgjennomforingerByTiltakskode(tiltakskode, page),
+    () =>
+      mulighetsrommetClient.tiltaksgjennomforinger.getAllByTiltakskode({
+        tiltakskode,
+        page,
+        size: PAGE_SIZE,
+      })
   );
 }
