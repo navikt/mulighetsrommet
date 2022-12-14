@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter
 
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.testing.*
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
@@ -14,14 +12,12 @@ import no.nav.mulighetsrommet.arena.adapter.ServiceConfig
 import no.nav.mulighetsrommet.arena.adapter.TaskConfig
 import no.nav.mulighetsrommet.arena.adapter.TopicsConfig
 import no.nav.mulighetsrommet.arena.adapter.configure
+import no.nav.mulighetsrommet.arena.adapter.createRSAKey
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
-import java.security.KeyPairGenerator
-import java.security.interfaces.RSAPrivateKey
-import java.security.interfaces.RSAPublicKey
 
 fun <R> withArenaAdapterApp(
     oauth: MockOAuth2Server = MockOAuth2Server(),
@@ -29,9 +25,9 @@ fun <R> withArenaAdapterApp(
     test: suspend ApplicationTestBuilder.() -> R
 ) {
     val tokenClient = AzureAdTokenClientBuilder.builder()
-        .withClientId(config.auth.azure.audience)
-        .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
-        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .withClientId("")
+        .withPrivateJwk(createRSAKey("").toJSONString())
+        .withTokenEndpointUrl("")
         .buildMachineToMachineTokenClient()
 
     val kafkaPreset = KafkaPropertiesBuilder.consumerBuilder()
@@ -43,7 +39,7 @@ fun <R> withArenaAdapterApp(
 
     testApplication {
         application {
-            configure(config, kafkaPreset = kafkaPreset, tokenClient = tokenClient)
+            configure(config, kafkaPreset, tokenClient)
         }
         test()
     }
@@ -72,9 +68,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 
 fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
-        "localhost:29092",
-        "mulighetsrommet-kafka-consumer.v1",
-        TopicsConfig(
+        brokers = "localhost:29092",
+        consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
+        topics = TopicsConfig(
             pollChangesDelayMs = 10000,
             consumer = mapOf(
                 "tiltakendret" to "tiltakendret",
@@ -102,15 +98,3 @@ fun createAuthConfig(
         )
     )
 }
-
-private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator
-    .getInstance("RSA").let {
-        it.initialize(2048)
-        it.generateKeyPair()
-    }.let {
-        RSAKey.Builder(it.public as RSAPublicKey)
-            .privateKey(it.private as RSAPrivateKey)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID(keyID)
-            .build()
-    }
