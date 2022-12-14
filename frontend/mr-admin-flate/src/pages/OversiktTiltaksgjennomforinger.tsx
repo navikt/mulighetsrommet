@@ -2,6 +2,7 @@ import { Tiltaksgjennomforingeroversikt } from "../components/tiltaksgjennomfori
 import { BodyLong, Heading } from "@navikt/ds-react";
 import styles from "./Oversikt.module.scss";
 import { Link } from "react-router-dom";
+import { SokEtterTiltaksgjennomforing } from "../components/sok/SokEtterTiltaksgjennomforing";
 
 export function OversiktTiltaksgjennomforinger() {
   return (
@@ -11,8 +12,9 @@ export function OversiktTiltaksgjennomforinger() {
         Oversikt over tiltaksgjennomføringer
       </Heading>
       <BodyLong className={styles.body} size="small">
-        Her finner du dine aktive gjennomføringer.
+        Her finner du alle gjennomføringer
       </BodyLong>
+      <SokEtterTiltaksgjennomforing />
       <Tiltaksgjennomforingeroversikt />
     </>
   );

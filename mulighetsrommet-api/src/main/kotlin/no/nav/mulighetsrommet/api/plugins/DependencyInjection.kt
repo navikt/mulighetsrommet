@@ -59,7 +59,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
                 veilarbdialog(appConfig),
                 veilarbveileder(appConfig),
                 amtenhetsregister(appConfig),
-                microsoftGraphClient(appConfig)
+                microsoftGraphClient(appConfig),
             )
         )
     }
@@ -218,7 +218,7 @@ private fun services(
     veilarbdialogClient: VeilarbdialogClient,
     veilarbveilerClient: VeilarbveilederClient,
     amtEnhetsregisterClient: AmtEnhetsregisterClient,
-    microsoftGraphClient: MicrosoftGraphClient
+    microsoftGraphClient: MicrosoftGraphClient,
 ) = module {
     val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
 
@@ -251,6 +251,7 @@ private fun services(
     single { DelMedBrukerService(get()) }
     single { kafka(appConfig.kafka) }
     single { MicrosoftGraphService(microsoftGraphClient) }
+    single { TiltaksgjennomforingService(get()) }
 }
 
 private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator
