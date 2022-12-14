@@ -1,0 +1,4 @@
+drop index arena_events_arena_table_idx;
+drop index arena_events_arena_id_idx;
+drop index arena_events_consumption_status_idx;
+create index arena_events_arena_id_consumption_status_retries_idx on arena_events (arena_id, consumption_status, retries);
