@@ -2,11 +2,13 @@ package no.nav.mulighetsrommet.arena.adapter
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.arena.adapter.plugins.configureAuthentication
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureDependencyInjection
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
@@ -37,6 +39,7 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClien
     val db by inject<Database>()
 
     configureDependencyInjection(config, kafkaPreset, tokenClient)
+    configureAuthentication(config.auth)
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
@@ -46,8 +49,10 @@ fun Application.configure(config: AppConfig, kafkaPreset: Properties, tokenClien
     val scheduler: Scheduler by inject()
 
     routing {
-        apiRoutes()
-        managerRoutes()
+        authenticate {
+            apiRoutes()
+            managerRoutes()
+        }
     }
 
     environment.monitor.subscribe(ApplicationStarted) {

@@ -52,14 +52,14 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get(),
                 get(),
                 get(),
-                get(),
+                get()
             ),
             TiltakdeltakerEndretConsumer(
                 kafkaConfig.getTopic("tiltakdeltakerendret"),
                 get(),
                 get(),
                 get(),
-                get(),
+                get()
             ),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get())
         )
@@ -86,7 +86,7 @@ private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
         FlywayDatabaseAdapter(
             databaseConfig,
             FlywayDatabaseAdapter.MigrationConfig(
-                strategy = FlywayDatabaseAdapter.InitializationStrategy.MigrateAsync
+                strategy = FlywayDatabaseAdapter.InitializationStrategy.Migrate
             )
         )
     }
