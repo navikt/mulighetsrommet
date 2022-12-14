@@ -20,7 +20,7 @@ export const mockTiltaksgjennomforinger = {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
       tiltakskode: "ABOPPF",
-      tiltaksnummer: 11234,
+      tiltaksnummer: 123456,
       tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d",
       virksomhetsnummer: 1000,
       fraDato: "2022-01-01",
