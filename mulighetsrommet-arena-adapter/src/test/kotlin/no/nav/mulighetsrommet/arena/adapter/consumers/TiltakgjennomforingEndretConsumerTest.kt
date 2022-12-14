@@ -264,7 +264,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                         val tiltaksgjennomforing =
                             decodeRequestBody<Tiltaksgjennomforing>().apply {
                                 tiltakstypeId shouldBe tiltakstype.id
-                                tiltaksnummer shouldBe "123"
+                                tiltaksnummer shouldBe "2022#123"
                                 virksomhetsnummer shouldBe "123456"
                                 fraDato shouldBe LocalDateTime.of(
                                     2022,

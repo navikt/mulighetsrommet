@@ -114,7 +114,7 @@ class TiltakgjennomforingEndretConsumer(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstypeId,
-            tiltaksnummer = sak.lopenummer.toString(),
+            tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
             virksomhetsnummer = virksomhetsnummer,
             fraDato = fraDato,
             tilDato = tilDato
