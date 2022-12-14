@@ -11,7 +11,12 @@ export function TiltakstypePage() {
   }
 
   if (!optionalTiltakstype.data) {
-    return <Alert variant="warning">Klarte ikke finne tiltakstype</Alert>;
+    return (
+      <Alert variant="warning">
+        <p>Klarte ikke finne tiltakstype</p>
+        <Link to="/">Til forside</Link>
+      </Alert>
+    );
   }
 
   const tiltakstype = optionalTiltakstype.data;

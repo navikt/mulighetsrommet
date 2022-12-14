@@ -15,10 +15,10 @@ export function TiltaksgjennomforingPage({
 
   if (optionalTiltaksgjennomforing.error) {
     return (
-      <div>
-        <p>Noe gikk galt ved henting av data om tiltaksgjennomføring</p>
-        <pre>{JSON.stringify(optionalTiltaksgjennomforing.error, null, 2)}</pre>
-      </div>
+      <Alert variant="warning">
+        <div>Noe gikk galt ved henting av data om tiltaksgjennomføring</div>
+        <Link to="/">Til forside</Link>
+      </Alert>
     );
   }
 

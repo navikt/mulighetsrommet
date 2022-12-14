@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.services.Sokefilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -136,6 +137,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         queryOf(query, id)
             .asExecute
+            .let { db.run(it) }
+    }
+
+    fun sok(filter: Sokefilter): List<TiltaksgjennomforingMedTiltakstype> {
+        val query = """
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn
+            from tiltaksgjennomforing tg
+            join tiltakstype t on tg.tiltakstype_id = t.id
+            where tiltaksnummer like concat('%', ?, '%')
+        """.trimIndent()
+        return queryOf(query, filter.tiltaksnummer)
+            .map {
+                it.toTiltaksgjennomforingMedTiltakstype()
+            }
+            .asList
             .let { db.run(it) }
     }
 

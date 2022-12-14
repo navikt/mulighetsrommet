@@ -21,22 +21,46 @@ export const apiHandlers = [
     return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
   }),
 
+  rest.get("*/api/v1/tiltaksgjennomforinger/sok", (req, res, ctx) => {
+    const tiltaksnummer = req.url.searchParams.get("tiltaksnummer");
+
+    if (!tiltaksnummer) {
+      throw new Error("Tiltaksnummer er ikke satt som query-param");
+    }
+
+    const gjennomforing = mockTiltaksgjennomforinger.data.filter((tg) =>
+      tg.tiltaksnummer.toString().includes(tiltaksnummer)
+    );
+
+    return res(ctx.status(200), ctx.json(gjennomforing));
+  }),
+
   rest.get("*/api/v1/tiltaksgjennomforinger/:id", (req, res, ctx) => {
     const { id } = req.params as { id: string };
-    return res(
-      ctx.status(200),
-      ctx.json(mockTiltaksgjennomforinger.data.find((gj) => gj.id === id))
+
+    const gjennomforing = mockTiltaksgjennomforinger.data.find(
+      (gj) => gj.id === id
     );
+    if (!gjennomforing) {
+      return res(ctx.status(404), ctx.json(undefined));
+    }
+
+    return res(ctx.status(200), ctx.json(gjennomforing));
   }),
 
   rest.get(
     "*/api/v1/tiltaksgjennomforinger/tiltakstypedata/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
-      return res(
-        ctx.status(200),
-        ctx.json(mockTiltaksgjennomforinger.data.find((gj) => gj.id === id))
+
+      const gjennomforing = mockTiltaksgjennomforinger.data.find(
+        (gj) => gj.id === id
       );
+      if (!gjennomforing) {
+        return res(ctx.status(404), ctx.json(undefined));
+      }
+
+      return res(ctx.status(200), ctx.json(gjennomforing));
     }
   ),
 
