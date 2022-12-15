@@ -17,7 +17,7 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setRolle] = useAtom(rolleAtom);
   const tilganger = response?.data?.tilganger ?? [];
-  const harMerEnnEnTilgang = tilganger.length > 1;
+  const harUtviklerTilgang = tilganger.includes("UTVIKLER_VALP");
   return (
     <Header>
       <Header.Title as="h1">
@@ -26,7 +26,7 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
         </Link>
       </Header.Title>
 
-      {harMerEnnEnTilgang || visForMiljo ? (
+      {harUtviklerTilgang || visForMiljo ? (
         <Dropdown>
           <Header.UserButton
             data-testid="header-navident"
