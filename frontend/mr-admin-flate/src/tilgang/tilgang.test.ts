@@ -1,6 +1,6 @@
 import { Ansatt } from "mulighetsrommet-api-client";
 import { describe, test, expect } from "vitest";
-import { hentAnsattsRolleForADGruppe } from "./tilgang";
+import { hentAnsattsRolle } from "./tilgang";
 
 describe("Tilgang-tester", () => {
   test("Ansatt med korrekt rolle skal bli tiltaksansvarlig", () => {
@@ -8,7 +8,7 @@ describe("Tilgang-tester", () => {
       navn: "Tilda",
       tilganger: ["FLATE"],
     };
-    expect(hentAnsattsRolleForADGruppe(ansatt)).toBe("TILTAKSANSVARLIG");
+    expect(hentAnsattsRolle(ansatt)).toBe("TILTAKSANSVARLIG");
   });
 
   test("Ansatt med korrekt rolle skal bli fagansvarlig", () => {
@@ -16,7 +16,7 @@ describe("Tilgang-tester", () => {
       navn: "Frode",
       tilganger: ["FAGANSVARLIG"],
     };
-    expect(hentAnsattsRolleForADGruppe(ansatt)).toBe("FAGANSVARLIG");
+    expect(hentAnsattsRolle(ansatt)).toBe("FAGANSVARLIG");
   });
 
   test("Ansatt uten korrekt rolle skal ikke ha tilgang", () => {
@@ -25,6 +25,6 @@ describe("Tilgang-tester", () => {
       tilganger: [],
     };
 
-    expect(hentAnsattsRolleForADGruppe(ansatt)).toBe("UTEN TILGANG");
+    expect(hentAnsattsRolle(ansatt)).toBe("UTEN TILGANG");
   });
 });
