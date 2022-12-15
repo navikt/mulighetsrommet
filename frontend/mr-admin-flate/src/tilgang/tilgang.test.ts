@@ -31,7 +31,7 @@ describe("Tilgang-tester", () => {
   test("Medlem av Team Valp skal få rollen utvikler", () => {
     const ansatt: Ansatt = {
       navn: "Valp Valpesen",
-      tilganger: ["VALP_UTVIKLER"],
+      tilganger: ["UTVIKLER_VALP"],
     };
     expect(hentAnsattsRolle(ansatt)).toBe("UTVIKLER");
   });
