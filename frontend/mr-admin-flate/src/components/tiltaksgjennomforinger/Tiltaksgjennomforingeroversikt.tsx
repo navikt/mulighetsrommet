@@ -35,12 +35,14 @@ export function Tiltaksgjennomforingeroversikt() {
         {tiltaksgjennomforinger.length === 0 && (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
         )}
-        {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
-          <Tiltaksgjennomforingrad
-            key={tiltaksgjennomforing.id}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
-        ))}
+        {tiltaksgjennomforinger
+          .sort((a, b) => a.navn.localeCompare(b.navn))
+          .map((tiltaksgjennomforing) => (
+            <Tiltaksgjennomforingrad
+              key={tiltaksgjennomforing.id}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          ))}
       </ul>
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
