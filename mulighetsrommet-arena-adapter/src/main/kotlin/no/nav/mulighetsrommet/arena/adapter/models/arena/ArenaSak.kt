@@ -8,4 +8,5 @@ data class ArenaSak(
     val SAKSKODE: String,
     val AAR: Int,
     val LOPENRSAK: Int,
+    val AETATENHET_ANSVARLIG: String?
 )

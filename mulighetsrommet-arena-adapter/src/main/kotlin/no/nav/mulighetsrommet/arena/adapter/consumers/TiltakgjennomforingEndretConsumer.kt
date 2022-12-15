@@ -117,6 +117,7 @@ class TiltakgjennomforingEndretConsumer(
             tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
             virksomhetsnummer = virksomhetsnummer,
             fraDato = fraDato,
-            tilDato = tilDato
+            tilDato = tilDato,
+            enhet = sak.enhet
         )
 }

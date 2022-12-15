@@ -18,8 +18,8 @@ class SakRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into sak(sak_id, lopenummer, aar)
-            values (:sak_id, :lopenummer, :aar)
+            insert into sak(sak_id, lopenummer, aar, enhet)
+            values (:sak_id, :lopenummer, :aar, :enhet)
             on conflict (sak_id)
                 do update set lopenummer = excluded.lopenummer,
                               aar        = excluded.aar
@@ -51,7 +51,7 @@ class SakRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select sak_id, lopenummer, aar
+            select sak_id, lopenummer, aar, enhet
             from sak
             where sak_id = ?
         """.trimIndent()
@@ -66,11 +66,13 @@ class SakRepository(private val db: Database) {
         "sak_id" to sakId,
         "lopenummer" to lopenummer,
         "aar" to aar,
+        "enhet" to enhet
     )
 
     private fun Row.toSak() = Sak(
         sakId = int("sak_id"),
         lopenummer = int("lopenummer"),
-        aar = int("aar")
+        aar = int("aar"),
+        enhet = string("enhet")
     )
 }

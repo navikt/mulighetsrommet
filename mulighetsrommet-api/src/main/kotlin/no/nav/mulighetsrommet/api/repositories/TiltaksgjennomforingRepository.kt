@@ -22,15 +22,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :fra_dato, :til_dato)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, enhet)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :fra_dato, :til_dato, :enhet)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
                               tiltaksnummer     = excluded.tiltaksnummer,
                               virksomhetsnummer = excluded.virksomhetsnummer,
                               fra_dato          = excluded.fra_dato,
-                              til_dato          = excluded.til_dato
+                              til_dato          = excluded.til_dato,
+                              enhet          = excluded.enhet
             returning *
         """.trimIndent()
 
@@ -43,7 +44,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, enhet
             from tiltaksgjennomforing
             where tiltakstype_id = ?::uuid
         """.trimIndent()
@@ -59,7 +60,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, count(*) OVER() AS full_count
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) OVER() AS full_count
             from tiltaksgjennomforing tg
             join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltakskode = ?
@@ -81,7 +82,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun get(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato
+            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, enhet
             from tiltaksgjennomforing
             where id = ?::uuid
         """.trimIndent()
@@ -94,7 +95,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getWithTiltakstypedata(id: UUID): TiltaksgjennomforingMedTiltakstype? {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, tiltakskode, t.navn as tiltakstypeNavn
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, tiltakskode, t.navn as tiltakstypeNavn, enhet
             from tiltaksgjennomforing tg
             join tiltakstype t on t.id = tg.tiltakstype_id
             where tg.id = ?::uuid
@@ -108,7 +109,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAll(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, count(*) OVER() AS full_count
+            select tg.id, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, enhet, count(*) OVER() AS full_count
             from tiltaksgjennomforing tg
             join tiltakstype t on tg.tiltakstype_id = t.id
             limit ?
@@ -142,7 +143,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun sok(filter: Sokefilter): List<TiltaksgjennomforingMedTiltakstype> {
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet
             from tiltaksgjennomforing tg
             join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltaksnummer like concat('%', ?, '%')
@@ -162,7 +163,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltaksnummer" to tiltaksnummer,
         "virksomhetsnummer" to virksomhetsnummer,
         "fra_dato" to fraDato,
-        "til_dato" to tilDato
+        "til_dato" to tilDato,
+        "enhet" to enhet
     )
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
@@ -172,7 +174,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato")
+        tilDato = localDateTimeOrNull("til_dato"),
+        enhet = string("enhet")
     )
 
     private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(
@@ -184,6 +187,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakskode = string("tiltakskode"),
         tiltakstypeNavn = string("tiltakstypeNavn"),
         fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato")
+        tilDato = localDateTimeOrNull("til_dato"),
+        enhet = string("enhet")
     )
 }
