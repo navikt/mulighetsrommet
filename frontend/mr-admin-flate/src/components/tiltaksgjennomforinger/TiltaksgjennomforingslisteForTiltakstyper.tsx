@@ -5,7 +5,7 @@ import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module
 import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
 import { PAGE_SIZE } from "../../constants";
 import { useAtom } from "jotai";
-import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../atoms/atoms";
+import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../api/atoms";
 
 interface Props {
   tiltakstypeKode: string;

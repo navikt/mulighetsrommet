@@ -1,12 +1,17 @@
-import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
-import { hentAnsattsRolle } from "./tilgang/tilgang";
-import { lazy, Suspense } from "react";
 import { Loader } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { lazy, Suspense } from "react";
+import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
+import { rolleAtom } from "./api/atoms";
+import { hentAnsattsRolle } from "./tilgang/tilgang";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
+  const [rolleSatt] = useAtom(rolleAtom);
 
-  if (optionalAnsatt.isFetching) return <Loader size="xlarge" />;
+  if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
+    return <Loader size="xlarge" />;
+  }
 
   const AutentisertTiltaksansvarligApp = lazy(
     () => import("./AutentisertTiltaksansvarligApp")
@@ -16,7 +21,7 @@ export function App() {
   );
   const IkkeAutentisertApp = lazy(() => import("./IkkeAutentisertApp"));
 
-  switch (hentAnsattsRolle(optionalAnsatt?.data)) {
+  switch (rolleSatt || hentAnsattsRolle(optionalAnsatt.data)) {
     case "TILTAKSANSVARLIG":
       return (
         <Suspense fallback={<Loader size="xlarge" />}>
