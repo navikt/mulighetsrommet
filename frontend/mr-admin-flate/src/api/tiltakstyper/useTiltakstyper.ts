@@ -3,7 +3,7 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
-import { paginationAtom } from "../../atoms/atoms";
+import { paginationAtom } from "../atoms";
 
 export function useTiltakstyper() {
   const [page] = useAtom(paginationAtom);

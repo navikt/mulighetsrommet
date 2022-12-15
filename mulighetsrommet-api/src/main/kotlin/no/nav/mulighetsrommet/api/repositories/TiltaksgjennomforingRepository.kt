@@ -59,7 +59,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, t.navn as tiltakstypeNavn, count(*) OVER() AS full_count
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, count(*) OVER() AS full_count
             from tiltaksgjennomforing tg
             join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltakskode = ?

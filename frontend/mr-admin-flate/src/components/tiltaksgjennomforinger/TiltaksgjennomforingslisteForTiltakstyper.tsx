@@ -5,7 +5,7 @@ import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module
 import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
 import { PAGE_SIZE } from "../../constants";
 import { useAtom } from "jotai";
-import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../atoms/atoms";
+import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../api/atoms";
 
 interface Props {
   tiltakstypeKode: string;
@@ -47,13 +47,15 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
         {tiltaksgjennomforinger.data.length === 0 && (
           <Alert variant="info">Ingen tilhørende tiltaksgjennomføringer</Alert>
         )}
-        {tiltaksgjennomforinger.data.map((tiltaksgjennomforing) => (
-          <Tiltaksgjennomforingrad
-            fagansvarlig
-            key={tiltaksgjennomforing.id}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
-        ))}
+        {tiltaksgjennomforinger.data
+          .sort((a, b) => a.navn.localeCompare(b.navn))
+          .map((tiltaksgjennomforing) => (
+            <Tiltaksgjennomforingrad
+              fagansvarlig
+              key={tiltaksgjennomforing.id}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          ))}
       </ul>
       <Pagination
         size="small"

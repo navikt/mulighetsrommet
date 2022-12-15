@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { Tiltakstyperad } from "./Tiltakstyperad";
-import { paginationAtom } from "../../atoms/atoms";
+import { paginationAtom } from "../../api/atoms";
 
 export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();

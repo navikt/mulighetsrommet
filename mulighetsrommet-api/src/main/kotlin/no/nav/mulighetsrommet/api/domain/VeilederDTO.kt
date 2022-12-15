@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VeilederDTO(
-    val etternavn: String?,
-    val fornavn: String?,
-    val ident: String?,
-    val navn: String?
+    val etternavn: String? = null,
+    val fornavn: String? = null,
+    val ident: String? = null,
+    val navn: String? = null
 )
