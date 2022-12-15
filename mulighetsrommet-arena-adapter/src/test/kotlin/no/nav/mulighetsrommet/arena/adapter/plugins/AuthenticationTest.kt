@@ -31,11 +31,8 @@ class AuthenticationTest : FunSpec({
         test("should respond with 401 when the token has the wrong audience") {
             withArenaAdapterApp(oauth) {
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${
+                    bearerAuth(
                         oauth.issueToken(audience = "skatteetaten").serialize()
-                        }"
                     )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -46,11 +43,8 @@ class AuthenticationTest : FunSpec({
             withArenaAdapterApp(oauth) {
 
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${
-                        oauth.issueToken(issuerId = "skatteetaten").serialize()
-                        }"
+                    bearerAuth(
+                        oauth.issueToken(audience = "skatteetaten").serialize()
                     )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -60,12 +54,7 @@ class AuthenticationTest : FunSpec({
         test("should respond with 200 when request is authenticated") {
             withArenaAdapterApp(oauth) {
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${
-                        oauth.issueToken().serialize()
-                        }"
-                    )
+                    bearerAuth(oauth.issueToken().serialize())
                 }
                 response.status shouldBe HttpStatusCode.OK
             }
