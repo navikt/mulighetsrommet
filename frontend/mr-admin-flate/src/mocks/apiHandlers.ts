@@ -87,13 +87,13 @@ export const apiHandlers = [
 
   rest.get("*/api/v1/ansatt/me", (req, res, ctx) => {
     const rolleValgt =
-      window.localStorage.getItem("valp-rolle-adminflate") ??
-      "tiltaksansvarlig";
+      JSON.parse(window.localStorage.getItem("mr-admin-rolle")!!)?.toString() ??
+      "TILTAKSANSVARLIG";
 
     return res(
       ctx.status(200),
       ctx.json(
-        rolleValgt === "tiltaksansvarlig"
+        rolleValgt === "TILTAKSANSVARLIG"
           ? mockTiltaksansvarlig
           : mockFagansvarlig
       )
