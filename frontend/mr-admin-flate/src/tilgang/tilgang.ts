@@ -7,7 +7,7 @@ export type Rolle =
   | "UTEN TILGANG";
 
 export function hentAnsattsRolle(ansatt?: Ansatt): Rolle {
-  if (ansatt?.tilganger?.includes("VALP_UTVIKLER")) {
+  if (ansatt?.tilganger?.includes("UTVIKLER_VALP")) {
     return "UTVIKLER";
   } else if (ansatt?.tilganger?.includes("FLATE")) {
     return "TILTAKSANSVARLIG";
