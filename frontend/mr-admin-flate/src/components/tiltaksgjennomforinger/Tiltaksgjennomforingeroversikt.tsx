@@ -4,7 +4,7 @@ import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
-import { paginationAtom } from "../../atoms/atoms";
+import { paginationAtom } from "../../api/atoms";
 
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();
