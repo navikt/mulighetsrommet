@@ -18,6 +18,12 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
   const [_, setRolle] = useAtom(rolleAtom);
   const tilganger = response?.data?.tilganger ?? [];
   const harUtviklerTilgang = tilganger.includes("UTVIKLER_VALP");
+  const ansattNavn = response.data?.fornavn
+    ? [response?.data?.fornavn, response.data?.etternavn]
+        .map((it) => capitalize(it))
+        .join(" ")
+    : "Team Valp";
+
   return (
     <Header>
       <Header.Title as="h1">
@@ -30,9 +36,7 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
         <Dropdown>
           <Header.UserButton
             data-testid="header-navident"
-            name={`${capitalize(response?.data?.fornavn)} ${capitalize(
-              response?.data?.etternavn
-            )}`}
+            name={ansattNavn}
             description={response?.data?.ident ?? "..."}
             style={{ marginLeft: "auto" }}
             as={Dropdown.Toggle}
@@ -59,9 +63,7 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
       ) : (
         <Header.User
           data-testid="header-navident"
-          name={`${capitalize(response?.data?.fornavn)} ${capitalize(
-            response?.data?.etternavn
-          )}`}
+          name={ansattNavn}
           description={response?.data?.ident ?? "..."}
           style={{ marginLeft: "auto" }}
         />
