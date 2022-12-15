@@ -48,7 +48,7 @@ class VeilarbveilederClientImpl(
                 }.body()
             } catch (exe: Exception) {
                 log.error("Klarte ikke hente data om veileder")
-                throw exe
+                return null
             }
         }
     }
