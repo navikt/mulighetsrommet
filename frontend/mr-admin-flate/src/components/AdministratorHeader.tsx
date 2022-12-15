@@ -4,7 +4,7 @@ import { useHentAnsatt } from "../api/administrator/useHentAdministrator";
 import { rolleAtom } from "../api/atoms";
 import { capitalize } from "../utils/Utils";
 import { useAtom } from "jotai";
-import { hentAnsattsRolle } from "../tilgang/tilgang";
+import { hentAnsattsRolle, Rolle } from "../tilgang/tilgang";
 import { useVisForMiljo } from "../hooks/useVisForMiljo";
 
 interface Props {
@@ -23,6 +23,11 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
         .map((it) => capitalize(it))
         .join(" ")
     : "Team Valp";
+
+  const velgRolle = (rolle: Rolle) => {
+    setRolle(rolle);
+    location?.reload();
+  };
 
   return (
     <Header>
@@ -46,12 +51,12 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
               {hentAnsattsRolle(response.data) === "UTVIKLER" || visForMiljo ? (
                 <>
                   <Dropdown.Menu.List.Item
-                    onClick={() => setRolle("TILTAKSANSVARLIG")}
+                    onClick={() => velgRolle("TILTAKSANSVARLIG")}
                   >
                     Jobb som tiltaksansvarlig
                   </Dropdown.Menu.List.Item>
                   <Dropdown.Menu.List.Item
-                    onClick={() => setRolle("FAGANSVARLIG")}
+                    onClick={() => velgRolle("FAGANSVARLIG")}
                   >
                     Jobb som fagansvarlig
                   </Dropdown.Menu.List.Item>
