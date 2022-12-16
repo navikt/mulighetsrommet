@@ -30,13 +30,13 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         )
     ),
     services = ServiceConfig(
-        mulighetsrommetApi = ServiceClientConfig(url = "", scope = ""),
+        mulighetsrommetApi = ServiceClientConfig(url = "mulighetsrommet-api", scope = ""),
         arenaEventService = ArenaEventService.Config(
             channelCapacity = 0,
             numChannelConsumers = 0,
             maxRetries = 0
         ),
-        arenaOrdsProxy = ServiceClientConfig(url = "", scope = "")
+        arenaOrdsProxy = ServiceClientConfig(url = "arena-ords-proxy", scope = "")
     )
 )
 
