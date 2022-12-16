@@ -1,15 +1,15 @@
-package no.nav.mulighetsrommet.api
+package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.arena.adapter.withArenaAdapterApp
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class AuthenticationTest : FunSpec({
-
     val oauth = MockOAuth2Server()
-    val apiUrl = "/api/v1/tiltakstyper"
+    val apiUrl = "/topics"
 
     beforeSpec {
         oauth.start()
@@ -21,7 +21,7 @@ class AuthenticationTest : FunSpec({
 
     context("protected endpoints") {
         test("should respond with 401 when request is not authenticated") {
-            withMulighetsrommetApp(oauth) {
+            withArenaAdapterApp(oauth) {
                 val response = client.get(apiUrl)
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -29,38 +29,32 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 401 when the token has the wrong audience") {
-            withMulighetsrommetApp(oauth) {
+            withArenaAdapterApp(oauth) {
                 val response = client.get(apiUrl) {
-                    bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
+                    bearerAuth(
+                        oauth.issueToken(audience = "skatteetaten").serialize()
+                    )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
         test("should respond with 401 when the token has the wrong issuer") {
-            withMulighetsrommetApp(oauth) {
+            withArenaAdapterApp(oauth) {
 
                 val response = client.get(apiUrl) {
-                    bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        test("should respond with 401 when the token is missing the NAVident claim") {
-            withMulighetsrommetApp(oauth) {
-
-                val response = client.get(apiUrl) {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(
+                        oauth.issueToken(audience = "skatteetaten").serialize()
+                    )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
         test("should respond with 200 when request is authenticated") {
-            withMulighetsrommetApp(oauth) {
+            withArenaAdapterApp(oauth) {
                 val response = client.get(apiUrl) {
-                    bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
+                    bearerAuth(oauth.issueToken().serialize())
                 }
                 response.status shouldBe HttpStatusCode.OK
             }

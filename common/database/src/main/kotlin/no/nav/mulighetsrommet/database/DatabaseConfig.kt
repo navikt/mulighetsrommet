@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.database
 
-data class DatabaseConfig(
+open class DatabaseConfig(
     val host: String,
     val port: Int,
     val name: String,

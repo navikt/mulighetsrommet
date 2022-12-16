@@ -31,8 +31,8 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.StringSerializer
@@ -65,7 +65,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
     }
 }
 
-private fun db(config: DatabaseConfig): Module {
+private fun db(config: FlywayDatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> {
             FlywayDatabaseAdapter(config)
