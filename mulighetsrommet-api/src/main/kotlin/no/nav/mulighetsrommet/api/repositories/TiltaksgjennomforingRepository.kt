@@ -31,7 +31,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               virksomhetsnummer = excluded.virksomhetsnummer,
                               fra_dato          = excluded.fra_dato,
                               til_dato          = excluded.til_dato,
-                              enhet          = excluded.enhet
+                              enhet             = excluded.enhet
             returning *
         """.trimIndent()
 
