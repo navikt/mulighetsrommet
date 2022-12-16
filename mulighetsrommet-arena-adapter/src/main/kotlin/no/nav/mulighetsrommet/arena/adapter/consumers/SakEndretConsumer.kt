@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 class SakEndretConsumer(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
-    private val entities: ArenaEntityService,
+    private val entities: ArenaEntityService
 ) : ArenaTopicConsumer(
     ArenaTables.Sak
 ) {
@@ -31,7 +31,7 @@ class SakEndretConsumer(
             arenaTable = decoded.table,
             arenaId = decoded.data.SAK_ID.toString(),
             payload = payload,
-            status = ArenaEvent.ConsumptionStatus.Pending,
+            status = ArenaEvent.ConsumptionStatus.Pending
         )
     }
 
@@ -42,6 +42,10 @@ class SakEndretConsumer(
             ConsumptionError.Ignored("""Sak ignorert fordi den ikke er en tiltakssak (SAKSKODE != "TILT")""")
         }
 
+        ensure(sakHasEnhet(decoded.data)) {
+            ConsumptionError.Ignored("""Sak ignorert fordi den ikke har en tilhørende enhet (AETATENHET_ANSVARLIG = null)""")
+        }
+
         decoded.data
             .toSak()
             .let { entities.upsertSak(it) }
@@ -50,10 +54,12 @@ class SakEndretConsumer(
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
+    private fun sakHasEnhet(payload: ArenaSak): Boolean = !payload.AETATENHET_ANSVARLIG.isNullOrBlank()
 
     private fun ArenaSak.toSak() = Sak(
         sakId = SAK_ID,
         aar = AAR,
         lopenummer = LOPENRSAK,
+        enhet = AETATENHET_ANSVARLIG!!
     )
 }

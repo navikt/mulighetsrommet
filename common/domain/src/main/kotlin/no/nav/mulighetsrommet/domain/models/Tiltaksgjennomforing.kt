@@ -18,9 +18,9 @@ data class Tiltaksgjennomforing(
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime? = null
+    val tilDato: LocalDateTime? = null,
+    val enhet: String? = null
 )
-
 
 @Serializable
 data class TiltaksgjennomforingMedTiltakstype(
@@ -36,5 +36,6 @@ data class TiltaksgjennomforingMedTiltakstype(
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
-    val tilDato: LocalDateTime? = null
+    val tilDato: LocalDateTime? = null,
+    val enhet: String? = null
 )
