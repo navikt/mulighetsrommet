@@ -175,7 +175,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
-        enhet = string("enhet")
+        enhet = stringOrNull("enhet")
     )
 
     private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(
@@ -188,6 +188,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeNavn = string("tiltakstypeNavn"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
-        enhet = string("enhet")
+        enhet = stringOrNull("enhet")
     )
 }
