@@ -86,7 +86,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
 
         get("sok") {
-            val tiltaksnummer = call.request.queryParameters.get("tiltaksnummer") ?: return@get call.respondText(
+            val tiltaksnummer = call.request.queryParameters["tiltaksnummer"] ?: return@get call.respondText(
                 "Mangler query-param 'tiltaksnummer'",
                 status = HttpStatusCode.BadRequest
             )

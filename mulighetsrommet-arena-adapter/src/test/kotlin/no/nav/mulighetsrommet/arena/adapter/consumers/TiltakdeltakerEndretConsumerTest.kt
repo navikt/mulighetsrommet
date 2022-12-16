@@ -65,7 +65,8 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         val sak = Sak(
             sakId = 1,
             lopenummer = 123,
-            aar = 2022
+            aar = 2022,
+            enhet = "2990"
         )
         val tiltaksgjennomforing = Tiltaksgjennomforing(
             id = UUID.randomUUID(),
