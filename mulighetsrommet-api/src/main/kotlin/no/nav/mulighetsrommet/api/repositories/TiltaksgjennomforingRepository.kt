@@ -156,6 +156,27 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAllByEnhet(enhet: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+        val query = """
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) OVER() AS full_count
+            from tiltaksgjennomforing tg
+            join tiltakstype t on tg.tiltakstype_id = t.id
+            where enhet = ?
+            limit ?
+            offset ?
+        """.trimIndent()
+        val results = queryOf(query, enhet, paginationParams.limit, paginationParams.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
+
     private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,

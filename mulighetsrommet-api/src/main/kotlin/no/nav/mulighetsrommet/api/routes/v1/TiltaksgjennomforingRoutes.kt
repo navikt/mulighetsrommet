@@ -71,6 +71,28 @@ fun Route.tiltaksgjennomforingRoutes() {
                 )
             call.respond(tiltaksgjennomforing)
         }
+        get("enhet/{enhet}") {
+            val enhet = call.parameters["enhet"] ?: return@get call.respondText(
+                "Mangler enhet",
+                status = HttpStatusCode.BadRequest
+            )
+            val paginationParams = getPaginationParams()
+
+            val (totalCount, items) = tiltaksgjennomforingService.getAllByEnhet(
+                enhet,
+                paginationParams
+            )
+            call.respond(
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = paginationParams.page,
+                        pageSize = paginationParams.limit
+                    ),
+                    data = items
+                )
+            )
+        }
 
         get("tiltakstypedata/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
