@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter
 
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
-import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -14,8 +14,9 @@ data class AppConfig(
     val enableFailedRecordProcessor: Boolean,
     val tasks: TaskConfig,
     val services: ServiceConfig,
-    val database: DatabaseConfig,
+    val database: FlywayDatabaseConfig,
     val kafka: KafkaConfig,
+    val auth: AuthConfig
 )
 
 data class TaskConfig(
@@ -26,6 +27,17 @@ data class ServiceConfig(
     val mulighetsrommetApi: ServiceClientConfig,
     val arenaEventService: ArenaEventService.Config,
     val arenaOrdsProxy: ServiceClientConfig,
+)
+
+data class AuthConfig(
+    val azure: AuthProvider
+)
+
+data class AuthProvider(
+    val issuer: String,
+    val jwksUri: String,
+    val audience: String,
+    val tokenEndpointUrl: String
 )
 
 data class ServiceClientConfig(

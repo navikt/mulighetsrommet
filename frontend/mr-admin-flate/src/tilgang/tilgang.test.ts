@@ -27,4 +27,12 @@ describe("Tilgang-tester", () => {
 
     expect(hentAnsattsRolle(ansatt)).toBe("UTEN TILGANG");
   });
+
+  test("Medlem av Team Valp skal få rollen utvikler", () => {
+    const ansatt: Ansatt = {
+      navn: "Valp Valpesen",
+      tilganger: ["UTVIKLER_VALP"],
+    };
+    expect(hentAnsattsRolle(ansatt)).toBe("UTVIKLER");
+  });
 });

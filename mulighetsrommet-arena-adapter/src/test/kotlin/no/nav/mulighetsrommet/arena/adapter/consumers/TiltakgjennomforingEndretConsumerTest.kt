@@ -71,7 +71,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 Sak(
                     sakId = 13572352,
                     lopenummer = 123,
-                    aar = 2022
+                    aar = 2022,
+                    enhet = "2990"
                 )
             )
 
@@ -100,7 +101,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 Sak(
                     sakId = 13572352,
                     lopenummer = 123,
-                    aar = 2022
+                    aar = 2022,
+                    enhet = "2990"
                 )
             )
 

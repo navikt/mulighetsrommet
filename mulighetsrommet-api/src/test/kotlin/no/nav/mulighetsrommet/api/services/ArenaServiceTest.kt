@@ -42,7 +42,8 @@ class ArenaServiceTest : FunSpec({
             tiltaksnummer = "12345",
             virksomhetsnummer = "123456789",
             fraDato = LocalDateTime.of(2022, 11, 11, 0, 0),
-            tilDato = LocalDateTime.of(2023, 11, 11, 0, 0)
+            tilDato = LocalDateTime.of(2023, 11, 11, 0, 0),
+            enhet = "2990"
         )
 
         val deltaker = Deltaker(

@@ -16,7 +16,6 @@ import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
 fun Route.arenaRoutes() {
-
     val logger = application.environment.log
 
     val arenaService: ArenaService by inject()

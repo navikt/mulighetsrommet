@@ -4,7 +4,7 @@ import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
-import { paginationAtom } from "../../atoms/atoms";
+import { paginationAtom } from "../../api/atoms";
 
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();
@@ -35,12 +35,14 @@ export function Tiltaksgjennomforingeroversikt() {
         {tiltaksgjennomforinger.length === 0 && (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
         )}
-        {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
-          <Tiltaksgjennomforingrad
-            key={tiltaksgjennomforing.id}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
-        ))}
+        {tiltaksgjennomforinger
+          .sort((a, b) => a.navn.localeCompare(b.navn))
+          .map((tiltaksgjennomforing) => (
+            <Tiltaksgjennomforingrad
+              key={tiltaksgjennomforing.id}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          ))}
       </ul>
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
