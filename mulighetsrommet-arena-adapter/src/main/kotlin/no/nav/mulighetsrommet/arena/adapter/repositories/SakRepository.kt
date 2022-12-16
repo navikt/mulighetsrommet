@@ -22,7 +22,8 @@ class SakRepository(private val db: Database) {
             values (:sak_id, :lopenummer, :aar, :enhet)
             on conflict (sak_id)
                 do update set lopenummer = excluded.lopenummer,
-                              aar        = excluded.aar
+                              aar        = excluded.aar,
+                              enhet      = excluded.enhet
             returning *
         """.trimIndent()
 
