@@ -31,10 +31,7 @@ class AuthenticationTest : FunSpec({
         test("should respond with 401 when the token has the wrong audience") {
             withMulighetsrommetApp(oauth) {
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${oauth.issueToken(audience = "skatteetaten").serialize()}"
-                    )
+                    bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
@@ -44,10 +41,7 @@ class AuthenticationTest : FunSpec({
             withMulighetsrommetApp(oauth) {
 
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${oauth.issueToken(issuerId = "skatteetaten").serialize()}"
-                    )
+                    bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
@@ -57,10 +51,7 @@ class AuthenticationTest : FunSpec({
             withMulighetsrommetApp(oauth) {
 
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${oauth.issueToken().serialize()}"
-                    )
+                    bearerAuth(oauth.issueToken().serialize())
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
@@ -69,10 +60,7 @@ class AuthenticationTest : FunSpec({
         test("should respond with 200 when request is authenticated") {
             withMulighetsrommetApp(oauth) {
                 val response = client.get(apiUrl) {
-                    header(
-                        HttpHeaders.Authorization,
-                        "Bearer ${oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize()}"
-                    )
+                    bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
                 }
                 response.status shouldBe HttpStatusCode.OK
             }
