@@ -60,6 +60,6 @@ class SakEndretConsumer(
         sakId = SAK_ID,
         aar = AAR,
         lopenummer = LOPENRSAK,
-        enhet = AETATENHET_ANSVARLIG!!
+        enhet = AETATENHET_ANSVARLIG
     )
 }
