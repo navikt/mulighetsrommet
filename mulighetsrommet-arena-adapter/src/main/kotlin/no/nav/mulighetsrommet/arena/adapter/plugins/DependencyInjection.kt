@@ -1,8 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
-import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
@@ -17,25 +22,29 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
+import no.nav.mulighetsrommet.env.NaisEnv
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.SLF4JLogger
+import java.security.KeyPairGenerator
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 import java.util.*
 
 fun Application.configureDependencyInjection(
-    appConfig: AppConfig,
-    kafkaPreset: Properties,
-    tokenClient: AzureAdMachineToMachineTokenClient
+    appConfig: AppConfig
 ) {
+    val tokenClient = tokenClientProviderForMachineToMachine(appConfig)
     install(Koin) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
             consumers(appConfig.kafka),
-            kafka(appConfig.kafka, kafkaPreset),
+            kafka(appConfig.kafka),
             repositories(),
             services(appConfig.services, tokenClient),
             tasks(appConfig.tasks)
@@ -81,20 +90,21 @@ private fun tasks(tasks: TaskConfig) = module {
     }
 }
 
-private fun db(databaseConfig: DatabaseConfig) = module(createdAtStart = true) {
+private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
     single<Database> {
-        FlywayDatabaseAdapter(
-            databaseConfig,
-            FlywayDatabaseAdapter.MigrationConfig(
-                strategy = FlywayDatabaseAdapter.InitializationStrategy.Migrate
-            )
-        )
+        FlywayDatabaseAdapter(config)
     }
 }
 
-private fun kafka(kafkaConfig: KafkaConfig, kafkaPreset: Properties) = module {
+private fun kafka(kafkaConfig: KafkaConfig) = module {
     single {
-        KafkaConsumerOrchestrator(kafkaPreset, get(), get(), get(), kafkaConfig.topics.pollChangesDelayMs)
+        KafkaConsumerOrchestrator(
+            createKafkaPreset(kafkaConfig),
+            get(),
+            get(),
+            get(),
+            kafkaConfig.topics.pollChangesDelayMs
+        )
     }
 }
 
@@ -108,7 +118,7 @@ private fun repositories() = module {
     single { ArenaEntityMappingRepository(get()) }
 }
 
-private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachineTokenClient): Module = module {
+private fun services(services: ServiceConfig, tokenClient: MachineToMachineTokenClient): Module = module {
     single {
         ArenaEventService(services.arenaEventService, get(), get())
     }
@@ -129,3 +139,40 @@ private fun services(services: ServiceConfig, tokenClient: AzureAdMachineToMachi
         ArenaEntityService(get(), get(), get(), get(), get(), get())
     }
 }
+
+private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
+    return when (NaisEnv.current()) {
+        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+            .withClientId(config.auth.azure.audience)
+            .withPrivateJwk(createRSAKey("azure").toJSONString())
+            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+            .buildMachineToMachineTokenClient()
+
+        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+    }
+}
+
+private fun createKafkaPreset(config: KafkaConfig): Properties {
+    return when (NaisEnv.current()) {
+        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
+            .withBrokerUrl(config.brokers)
+            .withBaseProperties()
+            .withConsumerGroupId(config.consumerGroupId)
+            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+            .build()
+
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
+    }
+}
+
+fun createRSAKey(keyID: String): RSAKey = KeyPairGenerator
+    .getInstance("RSA").let {
+        it.initialize(2048)
+        it.generateKeyPair()
+    }.let {
+        RSAKey.Builder(it.public as RSAPublicKey)
+            .privateKey(it.private as RSAPrivateKey)
+            .keyUse(KeyUse.SIGNATURE)
+            .keyID(keyID)
+            .build()
+    }

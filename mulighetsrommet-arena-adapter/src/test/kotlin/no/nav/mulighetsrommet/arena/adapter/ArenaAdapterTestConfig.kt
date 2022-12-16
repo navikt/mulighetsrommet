@@ -1,45 +1,19 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter
+package no.nav.mulighetsrommet.arena.adapter
 
 import io.ktor.server.testing.*
-import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.AppConfig
-import no.nav.mulighetsrommet.arena.adapter.AuthConfig
-import no.nav.mulighetsrommet.arena.adapter.AuthProvider
-import no.nav.mulighetsrommet.arena.adapter.KafkaConfig
-import no.nav.mulighetsrommet.arena.adapter.ServiceClientConfig
-import no.nav.mulighetsrommet.arena.adapter.ServiceConfig
-import no.nav.mulighetsrommet.arena.adapter.TaskConfig
-import no.nav.mulighetsrommet.arena.adapter.TopicsConfig
-import no.nav.mulighetsrommet.arena.adapter.configure
-import no.nav.mulighetsrommet.arena.adapter.createRSAKey
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun <R> withArenaAdapterApp(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R
 ) {
-    val tokenClient = AzureAdTokenClientBuilder.builder()
-        .withClientId("")
-        .withPrivateJwk(createRSAKey("").toJSONString())
-        .withTokenEndpointUrl("")
-        .buildMachineToMachineTokenClient()
-
-    val kafkaPreset = KafkaPropertiesBuilder.consumerBuilder()
-        .withBrokerUrl(config.kafka.brokers)
-        .withBaseProperties()
-        .withConsumerGroupId(config.kafka.consumerGroupId)
-        .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-        .build()
-
     testApplication {
         application {
-            configure(config, kafkaPreset, tokenClient)
+            configure(config)
         }
         test()
     }

@@ -1,10 +1,10 @@
-package no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.plugins
+package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.no.nav.mulighetsrommet.arena.adapter.withArenaAdapterApp
+import no.nav.mulighetsrommet.arena.adapter.withArenaAdapterApp
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class AuthenticationTest : FunSpec({

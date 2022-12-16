@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api
 
-import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -9,7 +9,7 @@ data class Config(
 )
 
 data class AppConfig(
-    val database: DatabaseConfig,
+    val database: FlywayDatabaseConfig,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
