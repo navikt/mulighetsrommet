@@ -23,18 +23,19 @@ private suspend fun <A> AbstractTimer.recordSuspendInternal(block: suspend () ->
 }
 
 object Metrics {
-    fun replayArenaEventTimer(tags: String): Timer = Timer
+    private const val ARENA_TABLE_TAG = "arena_table"
+    fun replayArenaEventTimer(table: String): Timer = Timer
         .builder("replay_arena_event_timer")
-        .tags(tags)
+        .tags(ARENA_TABLE_TAG, table)
         .register(Metrikker.appMicrometerRegistry)
 
-    fun retryArenaEventTimer(tags: String): Timer = Timer
+    fun retryArenaEventTimer(table: String): Timer = Timer
         .builder("retry_arena_event_timer")
-        .tags(tags)
+        .tags(ARENA_TABLE_TAG, table)
         .register(Metrikker.appMicrometerRegistry)
 
-    fun processArenaEventTimer(tags: String): Timer = Timer
+    fun processArenaEventTimer(table: String): Timer = Timer
         .builder("process_arena_event_timer")
-        .tags(tags)
+        .tags(ARENA_TABLE_TAG, table)
         .register(Metrikker.appMicrometerRegistry)
 }
