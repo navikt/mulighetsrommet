@@ -6,6 +6,8 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
+import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
+import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
@@ -13,14 +15,14 @@ import org.slf4j.LoggerFactory
 class ArenaEventService(
     private val config: Config = Config(),
     private val events: ArenaEventRepository,
-    private val group: ConsumerGroup<ArenaTopicConsumer>,
+    private val group: ConsumerGroup<ArenaTopicConsumer>
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
         val channelCapacity: Int = 1,
         val numChannelConsumers: Int = 1,
-        val maxRetries: Int = 0,
+        val maxRetries: Int = 0
     )
 
     suspend fun replayEvent(table: String, id: String): ArenaEvent? = coroutineScope {
@@ -35,7 +37,9 @@ class ArenaEventService(
         logger.info("Replaying events from table=$table")
 
         consumeEvents(table, status) { event ->
-            processEvent(group.consumers, event)
+            Metrics.replayArenaEventTimer(event.arenaTable).recordSuspend {
+                processEvent(group.consumers, event)
+            }
         }
     }
 
@@ -43,8 +47,10 @@ class ArenaEventService(
         logger.info("Retrying events from table=$table")
 
         consumeEvents(table, status, config.maxRetries) { event ->
-            val eventToRetry = event.copy(retries = event.retries + 1)
-            processEvent(group.consumers, eventToRetry)
+            Metrics.retryArenaEventTimer(event.arenaTable).recordSuspend {
+                val eventToRetry = event.copy(retries = event.retries + 1)
+                processEvent(group.consumers, eventToRetry)
+            }
         }
     }
 
@@ -93,7 +99,7 @@ class ArenaEventService(
                     idGreaterThan = prevId,
                     status = status,
                     maxRetries = maxRetries,
-                    limit = config.channelCapacity,
+                    limit = config.channelCapacity
                 )
 
                 events.forEach { send(it) }
