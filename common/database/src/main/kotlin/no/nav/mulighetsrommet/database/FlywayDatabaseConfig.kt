@@ -1,22 +1,13 @@
 package no.nav.mulighetsrommet.database
 
-class FlywayDatabaseConfig(
-    host: String,
-    port: Int,
-    name: String,
-    schema: String?,
-    user: String,
-    password: Password,
-    maximumPoolSize: Int,
-    googleCloudSqlInstance: String? = null,
+data class FlywayDatabaseConfig(
+    override val host: String,
+    override val port: Int,
+    override val name: String,
+    override val schema: String?,
+    override val user: String,
+    override val password: Password,
+    override val maximumPoolSize: Int,
+    override val googleCloudSqlInstance: String? = null,
     val migrationConfig: FlywayDatabaseAdapter.MigrationConfig = FlywayDatabaseAdapter.MigrationConfig()
-) : DatabaseConfig(
-    host,
-    port,
-    name,
-    schema,
-    user,
-    password,
-    maximumPoolSize,
-    googleCloudSqlInstance
-)
+) : DatabaseConfig
