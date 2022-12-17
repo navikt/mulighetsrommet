@@ -1,0 +1,4 @@
+create unique index arena_entity_mapping_arena_table_arena_id_idx on arena_entity_mapping (arena_table, arena_id);
+create unique index arena_entity_mapping_tiltakstype_id_idx on arena_entity_mapping (tiltakstype_id);
+create unique index arena_entity_mapping_tiltaksgjennomforing_id_idx on arena_entity_mapping (tiltaksgjennomforing_id);
+create unique index arena_entity_mapping_deltaker_id_idx on arena_entity_mapping (deltaker_id);
