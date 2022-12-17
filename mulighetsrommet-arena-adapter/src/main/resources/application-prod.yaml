@@ -31,6 +31,13 @@ app:
 
   enableFailedRecordProcessor: true
 
+  auth:
+    azure:
+      issuer: ${AZURE_OPENID_CONFIG_ISSUER}
+      jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+      audience: ${AZURE_APP_CLIENT_ID}
+      tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+
   kafka:
     brokers: ${KAFKA_BROKERS}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
