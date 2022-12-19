@@ -54,8 +54,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("CRUD") {
         beforeAny {
             val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.save(tiltakstype1)
-            tiltakstyper.save(tiltakstype2)
+            tiltakstyper.upsert(tiltakstype1)
+            tiltakstyper.upsert(tiltakstype2)
         }
 
         test("CRUD") {
@@ -178,7 +178,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         database.db.migrate()
 
         val tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.save(tiltakstype1)
+        tiltakstyper.upsert(tiltakstype1)
 
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         (1..105).forEach {

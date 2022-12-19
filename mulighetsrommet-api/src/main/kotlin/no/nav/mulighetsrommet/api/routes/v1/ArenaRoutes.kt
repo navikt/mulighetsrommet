@@ -23,7 +23,7 @@ fun Route.arenaRoutes() {
     route("/api/v1/arena/") {
         put("tiltakstype") {
             val tiltakstype = call.receive<Tiltakstype>()
-            arenaService.createOrUpdate(tiltakstype)
+            arenaService.upsert(tiltakstype)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -41,7 +41,7 @@ fun Route.arenaRoutes() {
         }
         put("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-            arenaService.createOrUpdate(tiltaksgjennomforing)
+            arenaService.upsert(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -59,7 +59,7 @@ fun Route.arenaRoutes() {
         }
         put("deltaker") {
             val deltaker = call.receive<Deltaker>()
-            arenaService.createOrUpdate(deltaker)
+            arenaService.upsert(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
                     when (it) {

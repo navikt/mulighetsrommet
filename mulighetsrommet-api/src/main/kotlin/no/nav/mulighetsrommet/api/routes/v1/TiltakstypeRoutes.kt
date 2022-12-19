@@ -22,7 +22,7 @@ fun Route.tiltakstypeRoutes() {
 
             val paginationParams = getPaginationParams()
 
-            val (totalCount, items) = tiltakstyper.getTiltakstyper(search, paginationParams)
+            val (totalCount, items) = tiltakstyper.getAll(search, paginationParams)
 
             call.respond(
                 PaginatedResponse(

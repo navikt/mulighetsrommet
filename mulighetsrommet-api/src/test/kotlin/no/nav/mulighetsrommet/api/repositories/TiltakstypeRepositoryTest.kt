@@ -20,14 +20,14 @@ class TiltakstypeRepositoryTest : FunSpec({
     test("CRUD") {
         val tiltakstyper = TiltakstypeRepository(database.db)
 
-        tiltakstyper.save(
+        tiltakstyper.upsert(
             Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Arbeidstrening",
                 tiltakskode = "ARBTREN"
             )
         )
-        tiltakstyper.save(
+        tiltakstyper.upsert(
             Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
@@ -35,9 +35,9 @@ class TiltakstypeRepositoryTest : FunSpec({
             )
         )
 
-        tiltakstyper.getTiltakstyper().second shouldHaveSize 2
-        tiltakstyper.getTiltakstyper(search = "Førerhund").second shouldHaveSize 0
-        tiltakstyper.getTiltakstyper(search = "Arbeidstrening").second shouldHaveSize 1
+        tiltakstyper.getAll().second shouldHaveSize 2
+        tiltakstyper.getAll(search = "Førerhund").second shouldHaveSize 0
+        tiltakstyper.getAll(search = "Arbeidstrening").second shouldHaveSize 1
     }
 
     context("pagination") {
@@ -47,7 +47,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstyper = TiltakstypeRepository(database.db)
 
         (1..105).forEach {
-            tiltakstyper.save(
+            tiltakstyper.upsert(
                 Tiltakstype(
                     id = UUID.randomUUID(),
                     navn = "$it",
@@ -57,7 +57,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltakstyper.getTiltakstyper()
+            val (totalCount, items) = tiltakstyper.getAll()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "1"
@@ -67,7 +67,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
-            val (totalCount, items) = tiltakstyper.getTiltakstyper(
+            val (totalCount, items) = tiltakstyper.getAll(
                 paginationParams = PaginationParams(
                     4,
                     20
@@ -82,7 +82,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("pagination with page 3 default size should give tiltak with id 101-105") {
-            val (totalCount, items) = tiltakstyper.getTiltakstyper(
+            val (totalCount, items) = tiltakstyper.getAll(
                 paginationParams = PaginationParams(
                     3
                 )
@@ -96,7 +96,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
-            val (totalCount, items) = tiltakstyper.getTiltakstyper(
+            val (totalCount, items) = tiltakstyper.getAll(
                 paginationParams = PaginationParams(
                     nullableLimit = 200
                 )
