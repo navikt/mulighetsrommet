@@ -19,7 +19,7 @@ export function Tiltaksgjennomforingrad({
         to={
           fagansvarlig
             ? `/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
-            : `${tiltaksgjennomforing.id}`
+            : `/${tiltaksgjennomforing.id}`
         }
       >
         <BodyLong>{tiltaksgjennomforing.navn}</BodyLong>

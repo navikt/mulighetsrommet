@@ -1,5 +1,5 @@
-import { Alert, Heading, Loader } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Alert, Heading, Link, Loader } from "@navikt/ds-react";
+import { useNavigate } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { formaterDato } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingPage.module.scss";
@@ -12,12 +12,15 @@ export function TiltaksgjennomforingPage({
   fagansvarlig = false,
 }: TiltaksgjennomforingPageProps) {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
+  const navigate = useNavigate();
+
+  const navigerTilbake = () => navigate(-1);
 
   if (optionalTiltaksgjennomforing.error) {
     return (
       <Alert variant="warning">
         <div>Noe gikk galt ved henting av data om tiltaksgjennomføring</div>
-        <Link to="/">Til forside</Link>
+        <Link href="/">Til forside</Link>
       </Alert>
     );
   }
@@ -47,15 +50,10 @@ export function TiltaksgjennomforingPage({
   const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
   return (
     <div className={styles.container}>
-      <Link
-        to={
-          fagansvarlig
-            ? `/oversikt/${tiltaksgjennomforing.tiltakstypeId}`
-            : "/oversikt"
-        }
-      >
-        {fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake til oversikt"}
+      <Link href="#" onClick={navigerTilbake}>
+        {fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake"}
       </Link>
+
       <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </Heading>

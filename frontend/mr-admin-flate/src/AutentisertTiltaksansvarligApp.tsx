@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { ForsideTiltaksansvarlig } from "./ForsideTiltaksansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
+import { Enhetsoversikt } from "./pages/Enhetsoversikt";
 import { ErrorPage } from "./pages/ErrorPage";
 import { OversiktTiltaksgjennomforinger } from "./pages/OversiktTiltaksgjennomforinger";
 import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
@@ -27,7 +28,16 @@ export default function AutentisertTiltaksansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="oversikt/:tiltaksgjennomforingId"
+        path="enhet"
+        element={
+          <RootLayout>
+            <Enhetsoversikt />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path=":tiltaksgjennomforingId"
         element={
           <RootLayout>
             <TiltaksgjennomforingPage />

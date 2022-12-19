@@ -1,8 +1,10 @@
 .shortcuts_container {
   list-style: none;
-  display: flex;
   padding: 0;
   margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(1rem, 1fr));
+  gap: 0.5rem;
 }
 
 .shortcut a {
@@ -15,6 +17,5 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 5%;
   text-decoration: none;
 }

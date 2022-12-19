@@ -85,6 +85,24 @@ export const apiHandlers = [
     }
   ),
 
+  rest.get("*/api/v1/tiltaksgjennomforinger/enhet/:enhet", (req, res, ctx) => {
+    const { enhet } = req.params as { enhet: string };
+    const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
+      (gj) => gj.enhet === enhet
+    );
+    return res(
+      ctx.status(200),
+      ctx.json({
+        pagination: {
+          totalCount: gjennomforinger.length,
+          currentPage: 1,
+          pageSize: 50,
+        },
+        data: gjennomforinger,
+      })
+    );
+  }),
+
   rest.get("*/api/v1/ansatt/me", (req, res, ctx) => {
     const rolleValgt =
       JSON.parse(window.localStorage.getItem("mr-admin-rolle")!!)?.toString() ??
