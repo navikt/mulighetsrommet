@@ -1,8 +1,8 @@
-import { Loader } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { lazy, Suspense } from "react";
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { rolleAtom } from "./api/atoms";
+import { Laster } from "./components/Laster";
 import { hentAnsattsRolle } from "./tilgang/tilgang";
 
 export function App() {
@@ -10,7 +10,7 @@ export function App() {
   const [rolleSatt] = useAtom(rolleAtom);
 
   if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
-    return <Loader size="xlarge" />;
+    return <Laster />;
   }
 
   const AutentisertTiltaksansvarligApp = lazy(
@@ -24,19 +24,25 @@ export function App() {
   switch (rolleSatt || hentAnsattsRolle(optionalAnsatt.data)) {
     case "TILTAKSANSVARLIG":
       return (
-        <Suspense fallback={<Loader size="xlarge" />}>
+        <Suspense
+          fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
+        >
           <AutentisertTiltaksansvarligApp />
         </Suspense>
       );
     case "FAGANSVARLIG":
       return (
-        <Suspense fallback={<Loader size="xlarge" />}>
+        <Suspense
+          fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
+        >
           <AutentisertFagansvarligApp />
         </Suspense>
       );
     default:
       return (
-        <Suspense fallback={<Loader size="xlarge" />}>
+        <Suspense
+          fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
+        >
           <IkkeAutentisertApp />
         </Suspense>
       );

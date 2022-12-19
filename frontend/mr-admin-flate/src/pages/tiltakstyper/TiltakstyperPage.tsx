@@ -1,9 +1,9 @@
 import { BodyLong, Heading } from "@navikt/ds-react";
-import styles from "./Oversikt.module.scss";
-import { TiltakstyperOversikt } from "../components/tiltakstyper/TiltakstyperOversikt";
+import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
+import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
 import { Link } from "react-router-dom";
 
-export function OversiktTiltakstyper() {
+export function TiltakstyperPage() {
   return (
     <>
       <Link to="/">Hjem</Link>

@@ -1,12 +1,13 @@
-import { Heading, Loader } from "@navikt/ds-react";
+import { Heading } from "@navikt/ds-react";
 import { useFeatureToggles } from "./api/features/feature-toggles";
+import { Laster } from "./components/Laster";
 import { Shortcuts } from "./components/shortcuts/Shortcuts";
 import { shortcutsForTiltaksansvarlig } from "./constants";
 
 export function ForsideTiltaksansvarlig() {
   const { data, isLoading } = useFeatureToggles();
 
-  if (isLoading) return <Loader size="xlarge" />;
+  if (isLoading) return <Laster size="xlarge" />;
 
   if (!data) return null;
 
