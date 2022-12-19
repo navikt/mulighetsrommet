@@ -21,9 +21,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("/api/v1/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                paginationParams
-            )
+            val (totalCount, items) = tiltaksgjennomforingService.getAllWithTiltakstypedata(paginationParams)
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(
