@@ -1,8 +1,9 @@
-import { Alert, Loader, Pagination } from "@navikt/ds-react";
+import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom } from "../../api/atoms";
 import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
 import { PAGE_SIZE } from "../../constants";
+import { Laster } from "../Laster";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
@@ -10,12 +11,15 @@ import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
+
   if (isLoading) {
-    return <Loader size="xlarge" />;
+    return <Laster size="xlarge" />;
   }
+
   if (!data) {
     return null;
   }
+
   const { data: tiltaksgjennomforinger, pagination: paginering } = data;
 
   return (

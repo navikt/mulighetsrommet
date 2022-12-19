@@ -1,11 +1,12 @@
-import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
-import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
-import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
-import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
-import { PAGE_SIZE } from "../../constants";
+import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../api/atoms";
+import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
+import { PAGE_SIZE } from "../../constants";
+import { Laster } from "../Laster";
+import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
+import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
+import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
 
 interface Props {
   tiltakstypeKode: string;
@@ -20,7 +21,7 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
   const { data: tiltaksgjennomforinger, isLoading } =
     useTiltaksgjennomforingerByTiltakskode(tiltakstypeKode);
   if (isLoading) {
-    return <Loader size="xlarge" />;
+    return <Laster size="xlarge" />;
   }
   if (!tiltaksgjennomforinger) {
     return null;
