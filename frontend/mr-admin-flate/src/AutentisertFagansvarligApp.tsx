@@ -40,7 +40,7 @@ export default function AutentisertFagansvarligApp() {
         path="tiltaksgjennomforing/:tiltaksgjennomforingId"
         element={
           <RootLayout>
-            <TiltaksgjennomforingPage fagansvarlig />
+            <TiltaksgjennomforingPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
