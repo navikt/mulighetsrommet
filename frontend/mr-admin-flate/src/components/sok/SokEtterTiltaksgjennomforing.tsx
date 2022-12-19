@@ -50,7 +50,7 @@ export function SokEtterTiltaksgjennomforing() {
 
       if (result.length === 1) {
         const { id } = result[0];
-        navigate(`/oversikt/${id}`);
+        navigate(`/${id}`);
       }
     } catch (error) {
       setError("Kunne ikke slå opp på tiltaksnummer. Prøv igjen senere");
@@ -75,7 +75,7 @@ export function SokEtterTiltaksgjennomforing() {
             {results.map((r) => {
               return (
                 <li key={r.id}>
-                  <Link to={`/oversikt/${r.id}`}>
+                  <Link to={`/${r.id}`}>
                     {r.navn} ({r.tiltaksnummer})
                   </Link>
                 </li>
