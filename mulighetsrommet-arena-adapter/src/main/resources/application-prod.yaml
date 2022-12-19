@@ -42,7 +42,7 @@ app:
     brokers: ${KAFKA_BROKERS}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
-      pollChangesDelayMs: 10000
+      topicStatePollDelay: 10000
       consumer:
         tiltakendret: teamarenanais.aapen-arena-tiltakendret-v1-p
         tiltakgjennomforingendret: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-p

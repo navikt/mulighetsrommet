@@ -59,7 +59,7 @@ fun KafkaConfig.getTopic(id: String): ConsumerConfig {
 }
 
 data class TopicsConfig(
-    val pollChangesDelayMs: Long,
+    val topicStatePollDelay: Long,
     val consumer: Map<String, String>
 )
 

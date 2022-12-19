@@ -40,7 +40,7 @@ app:
     brokers: localhost:29092
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
-      pollChangesDelayMs: 10000
+      topicStatePollDelay: 10000
       consumer:
         tiltakendret: tiltakendret
         tiltakgjennomforingendret: tiltakgjennomforingendret
