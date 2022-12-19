@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.jobs.JobRunners
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import org.koin.ktor.ext.inject
 
@@ -17,7 +18,10 @@ fun Route.apiRoutes() {
         val request = call.receive<ReplayTopicEventsRequest>()
 
         JobRunners.executeBackgroundJob {
-            arenaEventService.replayEvents(table = request.table)
+            arenaEventService.replayEvents(
+                table = request.table,
+                status = request.status?.let { ArenaEvent.ConsumptionStatus.valueOf(it) }
+            )
         }
 
         call.respond(HttpStatusCode.Created)
@@ -27,4 +31,5 @@ fun Route.apiRoutes() {
 @Serializable
 data class ReplayTopicEventsRequest(
     val table: String?,
+    val status: String?
 )
