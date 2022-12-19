@@ -2,9 +2,9 @@ import { Route, Routes } from "react-router-dom";
 import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
-import { OversiktTiltakstyper } from "./pages/OversiktTiltakstyper";
-import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
-import { TiltakstypePage } from "./pages/TiltakstypePage";
+import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
+import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 
 export default function AutentisertFagansvarligApp() {
   return (
@@ -22,7 +22,7 @@ export default function AutentisertFagansvarligApp() {
         path="tiltakstyper"
         element={
           <RootLayout>
-            <OversiktTiltakstyper />
+            <TiltakstyperPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
@@ -31,7 +31,7 @@ export default function AutentisertFagansvarligApp() {
         path="tiltakstyper/:tiltakstypeId"
         element={
           <RootLayout>
-            <TiltakstypePage />
+            <DetaljerTiltakstypePage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

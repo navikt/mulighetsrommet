@@ -1,13 +1,14 @@
 import { Alert, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
-import { useTiltakstypeById } from "../api/tiltakstyper/useTiltakstypeById";
-import { TiltaksgjennomforingslisteForTiltakstyper } from "../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
+import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
+import { Laster } from "../../components/Laster";
+import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 
-export function TiltakstypePage() {
+export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
 
   if (optionalTiltakstype.isFetching) {
-    return null;
+    return <Laster tekst="Laster tiltakstype" />;
   }
 
   if (!optionalTiltakstype.data) {
@@ -22,24 +23,22 @@ export function TiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Link to="/tiltakstyper">Tilbake til oversikt</Link>
+      <Link
+        style={{ marginBottom: "1rem", display: "block" }}
+        to="/tiltakstyper"
+      >
+        Tilbake til oversikt
+      </Link>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>
       <dl>
         <dt>Tiltakskode:</dt>
-        {/**
-         * TODO Bytte ut med navn
-         */}
         <dd>{tiltakstype.tiltakskode}</dd>
       </dl>
       <TiltaksgjennomforingslisteForTiltakstyper
         tiltakstypeKode={tiltakstype.tiltakskode}
       />
-
-      {/**
-       * TODO Implementere skjema for opprettelse av tiltakstype
-       */}
     </>
   );
 }

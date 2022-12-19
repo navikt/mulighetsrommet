@@ -1,16 +1,17 @@
 import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "../api/ansatt/useHentAnsatt";
-import { paginationAtom } from "../api/atoms";
-import { useTiltaksgjennomforingByEnhet } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingByEnhet";
-import { PagineringsOversikt } from "../components/paginering/PagineringOversikt";
-import { SokEtterTiltaksgjennomforing } from "../components/sok/SokEtterTiltaksgjennomforing";
-import { Tiltaksgjennomforingrad } from "../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
-import { PAGE_SIZE } from "../constants";
-import styles from "./Oversikt.module.scss";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { paginationAtom } from "../../api/atoms";
+import { useTiltaksgjennomforingByEnhet } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingByEnhet";
+import { Laster } from "../../components/Laster";
+import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
+import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
+import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
+import { PAGE_SIZE } from "../../constants";
+import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
 
-export function Enhetsoversikt() {
+export function EnhetsoversiktPage() {
   const { data: ansattData } = useHentAnsatt();
   const { data, isFetching, isError } = useTiltaksgjennomforingByEnhet(
     ansattData?.hovedenhet
@@ -18,7 +19,7 @@ export function Enhetsoversikt() {
   const [page, setPage] = useAtom(paginationAtom);
 
   if (isFetching || !ansattData) {
-    return null;
+    return <Laster />;
   }
 
   if (isError) {

@@ -1,8 +1,9 @@
-import { Alert, Heading, Link, Loader } from "@navikt/ds-react";
-import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Tilbakelenke } from "../components/navigering/Tilbakelenke";
-import { formaterDato } from "../utils/Utils";
-import styles from "./TiltaksgjennomforingPage.module.scss";
+import { Alert, Heading, Link } from "@navikt/ds-react";
+import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Laster } from "../../components/Laster";
+import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
+import { formaterDato } from "../../utils/Utils";
+import styles from "./DetaljerTiltaksgjennomforingPage.module.scss";
 
 export function TiltaksgjennomforingPage() {
   const { data, isError, isFetching } = useTiltaksgjennomforingById();
@@ -17,19 +18,7 @@ export function TiltaksgjennomforingPage() {
   }
 
   if (isFetching) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
-      >
-        <Loader />
-        <p>Laster data om tiltaksgjennomføring</p>
-      </div>
-    );
+    return <Laster tekst="Laster data om tiltaksgjennomføring" />;
   }
 
   if (!data) {
