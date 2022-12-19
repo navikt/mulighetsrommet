@@ -1,11 +1,11 @@
-import { Tiltaksgjennomforing } from "../../../../mulighetsrommet-api-client";
-import { BodyLong, BodyShort } from "@navikt/ds-react";
-import styles from "./Tiltaksgjennomforing.module.scss";
 import { Next } from "@navikt/ds-icons";
+import { BodyLong, BodyShort } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
+import { TiltaksgjennomforingMedTiltakstype } from "../../../../mulighetsrommet-api-client";
+import styles from "./Tiltaksgjennomforing.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  tiltaksgjennomforing: TiltaksgjennomforingMedTiltakstype;
   fagansvarlig?: boolean;
 }
 
@@ -19,14 +19,15 @@ export function Tiltaksgjennomforingrad({
         to={
           fagansvarlig
             ? `/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
-            : `${tiltaksgjennomforing.id}`
+            : `/${tiltaksgjennomforing.id}`
         }
       >
         <BodyLong>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>
       <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-      {/*TODO: Hente navn på tiltakstype her*/}
-      <BodyShort size="small">{tiltaksgjennomforing.tiltakstypeId}</BodyShort>
+      <BodyShort size="small" title={tiltaksgjennomforing.tiltakskode}>
+        {tiltaksgjennomforing.tiltakstypeNavn}
+      </BodyShort>
       <BodyShort size="small">
         {tiltaksgjennomforing.virksomhetsnummer}
       </BodyShort>

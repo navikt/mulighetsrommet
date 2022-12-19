@@ -22,7 +22,7 @@ export function TiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Link to="/oversikt">Tilbake til oversikt</Link>
+      <Link to="/tiltakstyper">Tilbake til oversikt</Link>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>

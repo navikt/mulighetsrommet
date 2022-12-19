@@ -1,28 +1,22 @@
-import { Alert, Heading, Loader } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Alert, Heading, Link, Loader } from "@navikt/ds-react";
 import { useTiltaksgjennomforingById } from "../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Tilbakelenke } from "../components/navigering/Tilbakelenke";
 import { formaterDato } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingPage.module.scss";
 
-interface TiltaksgjennomforingPageProps {
-  fagansvarlig?: boolean;
-}
+export function TiltaksgjennomforingPage() {
+  const { data, isError, isFetching } = useTiltaksgjennomforingById();
 
-export function TiltaksgjennomforingPage({
-  fagansvarlig = false,
-}: TiltaksgjennomforingPageProps) {
-  const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
-
-  if (optionalTiltaksgjennomforing.error) {
+  if (isError) {
     return (
       <Alert variant="warning">
         <div>Noe gikk galt ved henting av data om tiltaksgjennomføring</div>
-        <Link to="/">Til forside</Link>
+        <Link href="/">Til forside</Link>
       </Alert>
     );
   }
 
-  if (optionalTiltaksgjennomforing.isFetching) {
+  if (isFetching) {
     return (
       <div
         style={{
@@ -38,24 +32,17 @@ export function TiltaksgjennomforingPage({
     );
   }
 
-  if (!optionalTiltaksgjennomforing.data) {
+  if (!data) {
     return (
       <Alert variant="warning">Klarte ikke finne tiltaksgjennomføring</Alert>
     );
   }
 
-  const tiltaksgjennomforing = optionalTiltaksgjennomforing.data;
+  const tiltaksgjennomforing = data;
   return (
     <div className={styles.container}>
-      <Link
-        to={
-          fagansvarlig
-            ? `/oversikt/${tiltaksgjennomforing.tiltakstypeId}`
-            : "/oversikt"
-        }
-      >
-        {fagansvarlig ? "Tilbake til tiltakstype" : "Tilbake til oversikt"}
-      </Link>
+      <Tilbakelenke>Tilbake</Tilbakelenke>
+
       <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </Heading>

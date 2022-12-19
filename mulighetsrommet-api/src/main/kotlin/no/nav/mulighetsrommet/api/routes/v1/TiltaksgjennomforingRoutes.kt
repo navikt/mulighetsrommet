@@ -21,9 +21,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("/api/v1/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                paginationParams
-            )
+            val (totalCount, items) = tiltaksgjennomforingService.getAllWithTiltakstypedata(paginationParams)
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(
@@ -70,6 +68,28 @@ fun Route.tiltaksgjennomforingRoutes() {
                     status = HttpStatusCode.NotFound
                 )
             call.respond(tiltaksgjennomforing)
+        }
+        get("enhet/{enhet}") {
+            val enhet = call.parameters["enhet"] ?: return@get call.respondText(
+                "Mangler enhet",
+                status = HttpStatusCode.BadRequest
+            )
+            val paginationParams = getPaginationParams()
+
+            val (totalCount, items) = tiltaksgjennomforingService.getAllByEnhet(
+                enhet,
+                paginationParams
+            )
+            call.respond(
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = paginationParams.page,
+                        pageSize = paginationParams.limit
+                    ),
+                    data = items
+                )
+            )
         }
 
         get("tiltakstypedata/{id}") {

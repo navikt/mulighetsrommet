@@ -7,4 +7,6 @@ export const QueryKeys = {
   ansatt: ["ansatt"] as const,
   tiltaksgjennomforingerByTiltakskode: (tiltakskode: string, page?: number) =>
     [tiltakskode, page, "tiltaksgjennomforinger"] as const,
+  tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
+    [enhet, page, "tiltaksgjennomforinger"] as const,
 };

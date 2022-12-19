@@ -51,7 +51,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
 
   /api/v1/tiltaksgjennomforinger/sok:
     get:
@@ -103,6 +103,40 @@ paths:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
         404:
           description: "Fant ingen tiltaksgjennomføringer med gitt tiltakskode."
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/tiltaksgjennomforinger/enhet/{enhet}:
+    parameters:
+      - in: path
+        name: enhet
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: number
+        description: Page number, default 1
+      - in: query
+        name: size
+        schema:
+          type: number
+        description: Page size, default 50
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getAllByEnhet
+      responses:
+        200:
+          description: En liste med tiltaksgjennomføringer tilknyttet en enhet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
+        404:
+          description: "Fant ingen tiltaksgjennomføringer for enhet"
           content:
             application/json:
               schema:

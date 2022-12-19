@@ -7,8 +7,7 @@
       "env": [
         "VITE_MULIGHETSROMMET_API_MOCK",
         "VITE_MULIGHETSROMMET_API_BASE",
-        "VITE_BASE",
-        "mulighetsrommet-api/src/main/resources/web/openapi.yml"
+        "VITE_BASE"
       ],
       "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
     },
