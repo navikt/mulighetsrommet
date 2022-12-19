@@ -35,7 +35,16 @@ export function Samtykke(props) {
           </li>
         </ol>
         <p>
-          Ønsker du mer informasjon om personvern i Sanity kan du sjekke ut{" "}
+          Her finner du{" "}
+          <a
+            href="https://navno.sharepoint.com/sites/intranett-hr/SitePages/Personvernerkl%C3%A6ring.aspx?web=1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {" "}
+            informasjon om personvern for ansatte i Arbeids- og velferdsetaten
+          </a>{" "}
+          eller du kan lese mer om personvern hos Sanity på{" "}
           <a
             href="https://www.sanity.io/legal/privacy"
             target="_blank"
