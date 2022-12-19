@@ -51,7 +51,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
 
   /api/v1/tiltaksgjennomforinger/sok:
     get:
