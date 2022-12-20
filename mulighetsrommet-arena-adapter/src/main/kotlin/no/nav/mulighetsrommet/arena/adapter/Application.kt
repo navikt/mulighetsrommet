@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
-import java.util.*
 
 fun main() {
     val (server, app) = loadConfiguration<Config>()

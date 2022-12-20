@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.tasks
 
-import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import kotlinx.coroutines.async
@@ -17,32 +16,30 @@ class RetryFailedEvents(private val config: Config, private val arenaEventServic
 
     data class Config(
         val delayOfMinutes: Int,
-        val schedulerStatePollDelay: Long = 1000,
+        val schedulerStatePollDelay: Long = 1000
     )
 
-    fun toTask(): RecurringTask<Void> {
-        return Tasks
-            .recurring("retry-failed-events", FixedDelay.ofSeconds(config.delayOfMinutes))
-            .execute { instance, context ->
-                logger.info("Running task ${instance.taskName}")
+    val task = Tasks
+        .recurring("retry-failed-events", FixedDelay.ofSeconds(config.delayOfMinutes))
+        .execute { instance, context ->
+            logger.info("Running task ${instance.taskName}")
 
-                runBlocking {
-                    val job = async {
-                        arenaEventService.retryEvents(status = ArenaEvent.ConsumptionStatus.Failed)
-                    }
+            runBlocking {
+                val job = async {
+                    arenaEventService.retryEvents(status = ArenaEvent.ConsumptionStatus.Failed)
+                }
 
-                    while (job.isActive) {
-                        if (context.schedulerState.isShuttingDown) {
-                            logger.info("Stopping task ${instance.taskName} due to shutdown signal")
+                while (job.isActive) {
+                    if (context.schedulerState.isShuttingDown) {
+                        logger.info("Stopping task ${instance.taskName} due to shutdown signal")
 
-                            job.cancelAndJoin()
+                        job.cancelAndJoin()
 
-                            logger.info("Task ${instance.taskName} stopped")
-                        }
-
+                        logger.info("Task ${instance.taskName} stopped")
+                    } else {
                         delay(config.schedulerStatePollDelay)
                     }
                 }
             }
-    }
+        }
 }
