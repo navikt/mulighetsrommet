@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
+private const val schedulerStatePollDelay = 1000L
+
 class ReplayEvents(val arenaEventService: ArenaEventService, val database: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -27,7 +29,6 @@ class ReplayEvents(val arenaEventService: ArenaEventService, val database: Datab
             runBlocking {
                 val job = async {
                     arenaEventService.replayEvents(instance.data.table, instance.data.status)
-                    delay(30000)
                 }
 
                 while (job.isActive) {
@@ -38,7 +39,7 @@ class ReplayEvents(val arenaEventService: ArenaEventService, val database: Datab
 
                         logger.info("Task ${instance.taskName} stopped")
                     } else {
-                        delay(1000)
+                        delay(schedulerStatePollDelay)
                     }
                 }
             }
