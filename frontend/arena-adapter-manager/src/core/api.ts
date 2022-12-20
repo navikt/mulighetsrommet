@@ -39,6 +39,10 @@ export const replayEvent = async (arenaTable: string, arenaId: string) => {
       headers: {
         "content-type": "application/json",
       },
+      body: JSON.stringify({
+        table: arenaTable,
+        arenaId: arenaId,
+      }),
     }
   );
 };

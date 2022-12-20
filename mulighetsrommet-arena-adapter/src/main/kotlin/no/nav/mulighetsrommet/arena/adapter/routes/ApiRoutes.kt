@@ -27,21 +27,13 @@ fun Route.apiRoutes() {
         call.respond(HttpStatusCode.Created)
     }
 
-    put("api/topics/replay/{id}") {
-        val arenaId = call.parameters["id"] ?: return@put call.respondText(
-            "Mangler eller ugyldig arenaId",
-            status = HttpStatusCode.BadRequest
-        )
-
-        val table = call.request.queryParameters["table"] ?: return@put call.respondText(
-            "Mangler eller ugyldig arenatabell",
-            status = HttpStatusCode.BadRequest
-        )
+    put("api/event/replay/") {
+        val request = call.receive<ReplayTopicEventRequest>()
 
         JobRunners.executeBackgroundJob {
             arenaEventService.replayEvent(
-                table = table,
-                id = arenaId
+                table = request.table,
+                id = request.arenaId
             )
         }
 
@@ -53,4 +45,10 @@ fun Route.apiRoutes() {
 data class ReplayTopicEventsRequest(
     val table: String?,
     val status: String?
+)
+
+@Serializable
+data class ReplayTopicEventRequest(
+    val table: String,
+    val arenaId: String
 )
