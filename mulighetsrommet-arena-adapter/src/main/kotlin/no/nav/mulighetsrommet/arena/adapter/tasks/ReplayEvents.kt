@@ -49,6 +49,7 @@ class ReplayEvents(val arenaEventService: ArenaEventService, val database: Datab
         SchedulerClient.Builder.create(database.getDatasource(), task).serializer(DbSchedulerKotlinSerializer()).build()
 
     fun schedule(replayEventsTaskData: ReplayEventsTaskData) {
+        // Id er alltid det samme slik at bare en instans kan kjøre samtidig
         client.schedule(task.instance("1", replayEventsTaskData), Instant.now())
     }
 }
