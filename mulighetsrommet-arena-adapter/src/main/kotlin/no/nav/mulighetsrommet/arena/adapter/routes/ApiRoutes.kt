@@ -26,6 +26,27 @@ fun Route.apiRoutes() {
 
         call.respond(HttpStatusCode.Created)
     }
+
+    put("api/topics/replay/{id}") {
+        val arenaId = call.parameters["id"] ?: return@put call.respondText(
+            "Mangler eller ugyldig arenaId",
+            status = HttpStatusCode.BadRequest
+        )
+
+        val table = call.request.queryParameters["table"] ?: return@put call.respondText(
+            "Mangler eller ugyldig arenatabell",
+            status = HttpStatusCode.BadRequest
+        )
+
+        JobRunners.executeBackgroundJob {
+            arenaEventService.replayEvent(
+                table = table,
+                id = arenaId
+            )
+        }
+
+        call.respond(HttpStatusCode.Created)
+    }
 }
 
 @Serializable

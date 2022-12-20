@@ -3,18 +3,16 @@ import { Button, Select } from "@chakra-ui/react";
 import { replayEvents } from "../core/api";
 import { useState } from "react";
 
+export const arenatabeller = [
+  "SIAMO.TILTAK",
+  "SIAMO.TILTAKGJENNOMFORING",
+  "SIAMO.SAK",
+  "SIAMO.TILTAKDELTAKER",
+] as const;
+
 function ReplayEvents() {
   const [table, setTable] = useState<string>("");
   const [status, setStatus] = useState<string>("");
-  const startReplayingOfEvents = () => {
-    console.log(table);
-    console.log(status);
-    const value = replayEvents(
-      table != "" ? table : null,
-      status != "" ? status : null
-    );
-    console.log(value);
-  };
 
   return (
     <Section
@@ -29,10 +27,11 @@ function ReplayEvents() {
           setTable(currentTarget.value);
         }}
       >
-        <option value="SIAMO.TILTAK">TILTAK</option>
-        <option value="SIAMO.TILTAKGJENNOMFORING">TILTAKGJENNOMFORING</option>
-        <option value="SIAMO.SAK">SAK</option>
-        <option value="SIAMO.TILTAKDELTAKER">TILTAKDELTAKER</option>
+        {arenatabeller.map((tabell) => (
+          <option key={tabell} value={tabell}>
+            {tabell}
+          </option>
+        ))}
       </Select>
       <Select
         value={status}
@@ -47,22 +46,15 @@ function ReplayEvents() {
         <option value="Ignored">Ignored</option>
         <option value="Invalid">Invalid</option>
       </Select>
-      <Button onClick={() => startReplayingOfEvents()}>Replay Events</Button>
+      <Button
+        onClick={() =>
+          replayEvents(table != "" ? table : null, status != "" ? status : null)
+        }
+      >
+        Replay Events
+      </Button>
     </Section>
   );
 }
 
 export default ReplayEvents;
-
-type ArenaTables =
-  | "SIAMO.TILTAK"
-  | "SIAMO.TILTAKGJENNOMFORING"
-  | "SIAMO.SAK"
-  | "SIAMO.TILTAKDELTAKER";
-
-type ConsumptionStatus =
-  | "Pending"
-  | "Processed"
-  | "Failed"
-  | "Ignored"
-  | "Invalid";

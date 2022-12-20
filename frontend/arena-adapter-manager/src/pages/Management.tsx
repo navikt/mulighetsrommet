@@ -1,6 +1,7 @@
 import { Box, Heading, VStack } from "@chakra-ui/react";
 import ReplayEvents from "../sections/ReplayEvents";
 import TopicOverview from "../sections/TopicOverview";
+import ReplayEvent from "../sections/ReplayEvent";
 
 function Management() {
   return (
@@ -9,6 +10,7 @@ function Management() {
       <VStack spacing={8}>
         <TopicOverview />
         <ReplayEvents />
+        <ReplayEvent />
       </VStack>
     </Box>
   );
