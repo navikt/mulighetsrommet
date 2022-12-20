@@ -27,7 +27,7 @@ fun Route.apiRoutes() {
         call.respond(HttpStatusCode.Created)
     }
 
-    put("api/event/replay/") {
+    put("api/event/replay") {
         val request = call.receive<ReplayTopicEventRequest>()
 
         JobRunners.executeBackgroundJob {
