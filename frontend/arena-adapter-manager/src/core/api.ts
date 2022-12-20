@@ -32,17 +32,14 @@ export const replayEvents = async (
 };
 
 export const replayEvent = async (arenaTable: string, arenaId: string) => {
-  return await fetch(
-    `/mulighetsrommet-arena-adapter/api/topics/replay/${arenaId}?table=${arenaTable}`,
-    {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        table: arenaTable,
-        arenaId: arenaId,
-      }),
-    }
-  );
+  return await fetch(`/mulighetsrommet-arena-adapter/api/event/replay`, {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      table: arenaTable,
+      arenaId: arenaId,
+    }),
+  });
 };
