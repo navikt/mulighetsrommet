@@ -32,7 +32,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=arena-adapter-manager
+        run: npx turbo run build --filter=arena-adapter-manager --no-cache
       - uses: actions/upload-artifact@v3
         with:
           name: dist
