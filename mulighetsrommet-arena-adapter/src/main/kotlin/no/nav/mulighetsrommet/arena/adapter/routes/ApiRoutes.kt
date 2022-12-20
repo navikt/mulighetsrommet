@@ -6,23 +6,19 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.arena.adapter.jobs.JobRunners
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
+import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEventsTaskData
 import org.koin.ktor.ext.inject
 
 fun Route.apiRoutes() {
     val arenaEventService: ArenaEventService by inject()
+    val replayEvents: ReplayEvents by inject()
 
-    put("api/topics/replay") {
-        val request = call.receive<ReplayTopicEventsRequest>()
+    put("api/events/replay") {
+        val request = call.receive<ReplayEventsTaskData>()
 
-        JobRunners.executeBackgroundJob {
-            arenaEventService.replayEvents(
-                table = request.table,
-                status = request.status?.let { ArenaEvent.ConsumptionStatus.valueOf(it) }
-            )
-        }
+        replayEvents.schedule(request)
 
         call.respond(HttpStatusCode.Created)
     }
@@ -30,22 +26,14 @@ fun Route.apiRoutes() {
     put("api/event/replay") {
         val request = call.receive<ReplayTopicEventRequest>()
 
-        JobRunners.executeBackgroundJob {
-            arenaEventService.replayEvent(
-                table = request.table,
-                id = request.arenaId
-            )
-        }
+        arenaEventService.replayEvent(
+            table = request.table,
+            id = request.arenaId
+        )
 
         call.respond(HttpStatusCode.Created)
     }
 }
-
-@Serializable
-data class ReplayTopicEventsRequest(
-    val table: String?,
-    val status: String?
-)
 
 @Serializable
 data class ReplayTopicEventRequest(

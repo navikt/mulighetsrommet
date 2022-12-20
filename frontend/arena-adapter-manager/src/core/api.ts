@@ -19,7 +19,7 @@ export const replayEvents = async (
   arenaTable: string | null,
   consumptionStatus: string | null
 ) => {
-  return await fetch("/mulighetsrommet-arena-adapter/api/topics/replay", {
+  return await fetch("/mulighetsrommet-arena-adapter/api/events/replay", {
     method: "PUT",
     headers: {
       "content-type": "application/json",
