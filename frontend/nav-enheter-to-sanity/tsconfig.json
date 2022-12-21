@@ -1,7 +1,7 @@
 {
-  "extends": "@tsconfig/node17/tsconfig.json",
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
-    "types": ["node"],
+    "lib": ["dom"],
 
     "allowJs": false,
 
