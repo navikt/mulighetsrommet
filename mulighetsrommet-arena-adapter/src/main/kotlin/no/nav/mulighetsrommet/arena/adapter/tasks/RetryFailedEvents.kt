@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.tasks
 
+import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import kotlinx.coroutines.async
@@ -19,8 +20,8 @@ class RetryFailedEvents(private val config: Config, private val arenaEventServic
         val schedulerStatePollDelay: Long = 1000
     )
 
-    val task = Tasks
-        .recurring("retry-failed-events", FixedDelay.ofSeconds(config.delayOfMinutes))
+    val task: RecurringTask<Void> = Tasks
+        .recurring("retry-failed-events", FixedDelay.ofMinutes(config.delayOfMinutes))
         .execute { instance, context ->
             logger.info("Running task ${instance.taskName}")
 
