@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingMedTiltakstypeEkstern
+import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeEkstern
 import no.nav.mulighetsrommet.api.services.Sokefilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -88,6 +90,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         return queryOf(query, id)
             .map { it.toTiltaksgjennomforing() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
+    fun getForExternalWithTiltakstypedata(id: UUID): TiltaksgjennomforingMedTiltakstypeEkstern? {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid, tg.navn, fra_dato, til_dato, tiltakskode, t.navn as tiltakstypeNavn, t.id as tiltakstypeId, t.tiltakskode as tiltakstypekode
+            from tiltaksgjennomforing tg
+            join tiltakstype t on t.id = tg.tiltakstype_id
+            where tg.id = ?::uuid
+        """.trimIndent()
+        return queryOf(query, id)
+            .map { it.toTiltaksgjennomforingMedTiltakstypeEkstern() }
             .asSingle
             .let { db.run(it) }
     }
@@ -231,5 +247,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         enhet = stringOrNull("enhet")
+    )
+
+    private fun Row.toTiltaksgjennomforingMedTiltakstypeEkstern() = TiltaksgjennomforingMedTiltakstypeEkstern(
+        id = uuid("id"),
+        navn = stringOrNull("navn") ?: "", // Hva skal skje her?
+        tiltakstype = TiltakstypeEkstern(
+            id = uuid("tiltakstypeId"),
+            navn = string("tiltakstypeNavn"),
+            arenaKode = string("tiltakstypekode"),
+        ),
+        startDato = localDateTimeOrNull("fra_dato"),
+        sluttDato = localDateTimeOrNull("til_dato"),
     )
 }
