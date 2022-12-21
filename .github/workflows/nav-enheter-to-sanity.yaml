@@ -33,7 +33,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build --filter=nav-enheter-to-sanity
+        run: npx turbo run lint build --filter=nav-enheter-to-sanity
       - name: Build and publish Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         working-directory: frontend/nav-enheter-to-sanity

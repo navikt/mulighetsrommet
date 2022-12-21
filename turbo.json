@@ -1,39 +1,37 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  "baseBranch": "origin/main",
   "pipeline": {
-    "build": {
+    "lint": {
       "dependsOn": ["^build"],
-      "env": [
-        "VITE_MULIGHETSROMMET_API_MOCK",
-        "VITE_MULIGHETSROMMET_API_BASE",
-        "VITE_BASE"
-      ],
-      "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
-    },
-    "mulighetsrommet-api-client#build": {
-      "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
+      "outputs": []
     },
     "test:ci": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "build:mock": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "build:labs": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "build:preprod": {
       "dependsOn": ["^build"],
-      "env": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"],
-      "inputs": ["mulighetsrommet-api/src/main/resources/web/openapi.yml"]
+      "outputs": ["dist/**"]
     },
-    "lint": {
-      "outputs": []
+    "mulighetsrommet-api-client#build": {
+      "inputs": ["../../mulighetsrommet-api/src/main/resources/web/openapi.yml"],
+      "outputs": ["build"]
     },
-    "mulighetsrommet-cms#deploy": {
-      "dependsOn": ["build"],
-      "env": ["SANITY_AUTH_TOKEN"]
+    "norg2-api-client#build": {
+      "inputs": ["openapi-norg2.json"],
+      "outputs": ["build"]
     },
     "dev": {
       "cache": false

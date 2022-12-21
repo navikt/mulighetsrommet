@@ -3,8 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "lint": "tsc",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
