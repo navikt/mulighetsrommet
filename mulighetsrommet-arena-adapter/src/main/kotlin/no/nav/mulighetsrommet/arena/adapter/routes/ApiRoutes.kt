@@ -16,8 +16,8 @@ fun Route.apiRoutes() {
     val arenaEntityService: ArenaEntityService by inject()
 
     get("api/exchange/{tiltaksnummer}") {
-        val tiltaksnummer = call.parameters["tiltaksnumer"] ?: return@get call.respondText(
-            "Mangler eller ugyldig id",
+        val tiltaksnummer = call.parameters["tiltaksnummer"] ?: return@get call.respondText(
+            "Mangler eller ugyldig tiltaksnummer",
             status = HttpStatusCode.BadRequest
         )
 
