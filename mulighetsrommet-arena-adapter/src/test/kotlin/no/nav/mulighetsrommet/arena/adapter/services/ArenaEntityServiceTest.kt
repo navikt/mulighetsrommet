@@ -3,60 +3,59 @@ package no.nav.mulighetsrommet.arena.adapter.services
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
-import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import java.util.*
 
 class ArenaEntityServiceTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val arenaEntityMappingRepository: ArenaEntityMappingRepository = mockk()
-    val arenaEventRepository: ArenaEventRepository = mockk()
+    val database =
+        extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
 
-    val arenaEntityService = ArenaEntityService(
-        events = arenaEventRepository,
-        mappings = arenaEntityMappingRepository,
-        tiltakstyper = mockk(),
-        saker = mockk(),
-        tiltaksgjennomforinger = mockk(),
-        deltakere = mockk()
+    val tiltaksnummer = "123456"
+    val uuid = UUID.randomUUID()
+
+    val event = ArenaEvent(
+        status = ArenaEvent.ConsumptionStatus.Processed,
+        arenaTable = ArenaTables.Tiltaksgjennomforing,
+        arenaId = tiltaksnummer,
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
     )
 
     context("only processed events should be included by getMappingIfProcessed method") {
-        val uuid = UUID.randomUUID()
-        val tiltaksnummer = "123456"
+        val arenaEntityMappingRepository =
+            ArenaEntityMappingRepository(database.db)
+        val arenaEventRepository = ArenaEventRepository(database.db)
 
-        val arenaEvent = ArenaEvent(
-            arenaTable = ArenaTables.Tiltaksgjennomforing,
-            arenaId = tiltaksnummer,
-            payload = mockk(),
-            status = ArenaEvent.ConsumptionStatus.Processed
+        val arenaEntityService = ArenaEntityService(
+            mappings = arenaEntityMappingRepository,
+            events = arenaEventRepository,
+            tiltakstyper = mockk(),
+            saker = mockk(),
+            tiltaksgjennomforinger = mockk(),
+            deltakere = mockk()
         )
 
-        every {
-            arenaEntityMappingRepository.get(
+        arenaEntityMappingRepository.insert(
+            ArenaEntityMapping(
                 ArenaTables.Tiltaksgjennomforing,
-                tiltaksnummer
+                tiltaksnummer,
+                uuid
             )
-        } returns ArenaEntityMapping(
-            arenaTable = ArenaTables.Tiltaksgjennomforing,
-            arenaId = tiltaksnummer,
-            entityId = uuid
         )
 
         test("event should be fetched if status is processed") {
-            every {
-                arenaEventRepository.get(
-                    ArenaTables.Tiltaksgjennomforing,
-                    tiltaksnummer
-                )
-            } returns arenaEvent
+            arenaEventRepository.upsert(event)
 
             arenaEntityService.getMappingIfProcessed(
                 ArenaTables.Tiltaksgjennomforing,
@@ -65,12 +64,7 @@ class ArenaEntityServiceTest : FunSpec({
         }
 
         test("event should not be fetched if status is pending") {
-            every {
-                arenaEventRepository.get(
-                    ArenaTables.Tiltaksgjennomforing,
-                    tiltaksnummer
-                )
-            } returns arenaEvent.copy(status = ArenaEvent.ConsumptionStatus.Pending)
+            arenaEventRepository.upsert(event.copy(status = ArenaEvent.ConsumptionStatus.Pending))
 
             arenaEntityService.getMappingIfProcessed(
                 ArenaTables.Tiltaksgjennomforing,
