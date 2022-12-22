@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -30,8 +31,13 @@ data class AuthConfig(
 )
 
 data class KafkaConfig(
+    val brokerUrl: String? = null,
     val producerId: String,
-    val brokerUrl: String,
+    val producers: KafkaProducers
+)
+
+data class KafkaProducers(
+    val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config
 )
 
 data class AuthProvider(

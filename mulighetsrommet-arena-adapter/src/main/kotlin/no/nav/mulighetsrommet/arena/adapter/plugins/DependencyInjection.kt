@@ -105,9 +105,9 @@ private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
 private fun kafka(kafkaConfig: KafkaConfig) = module {
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
-            .withBrokerUrl(kafkaConfig.brokers)
             .withBaseProperties()
             .withConsumerGroupId(kafkaConfig.consumerGroupId)
+            .withBrokerUrl(kafkaConfig.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 

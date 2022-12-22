@@ -39,7 +39,6 @@ app:
       tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
 
   kafka:
-    brokers: ${KAFKA_BROKERS}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
       topicStatePollDelay: 10000
