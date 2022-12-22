@@ -6,37 +6,33 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
-import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
-import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEventsTaskData
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Route.apiRoutes() {
-    val arenaEventService: ArenaEventService by inject()
-    val replayEvents: ReplayEvents by inject()
+    val arenaEntityService: ArenaEntityService by inject()
 
-    put("api/events/replay") {
-        val request = call.receive<ReplayEventsTaskData>()
-
-        replayEvents.schedule(request)
-
-        call.respond(HttpStatusCode.Created)
-    }
-
-    put("api/event/replay") {
-        val request = call.receive<ReplayTopicEventRequest>()
-
-        arenaEventService.replayEvent(
-            table = request.table,
-            id = request.arenaId
+    get("api/exchange/{tiltaksnummer}") {
+        val tiltaksnummer = call.parameters["tiltaksnumer"] ?: return@get call.respondText(
+            "Mangler eller ugyldig id",
+            status = HttpStatusCode.BadRequest
         )
 
-        call.respond(HttpStatusCode.Created)
+        val uuid =
+            arenaEntityService.getMappingIfProcessed(ArenaTables.Tiltaksgjennomforing, tiltaksnummer)?.entityId
+                ?: return@get call.respondText(
+                    "Det finnes ikke noe prossesert tiltaksgjennomføring med tiltaksnummer $tiltaksnummer",
+                    status = HttpStatusCode.NotFound
+                )
+        call.respond(ExchangeTiltaksnummerForIdResponse(uuid))
     }
 }
 
 @Serializable
-data class ReplayTopicEventRequest(
-    val table: String,
-    val arenaId: String
+data class ExchangeTiltaksnummerForIdResponse(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID
 )
