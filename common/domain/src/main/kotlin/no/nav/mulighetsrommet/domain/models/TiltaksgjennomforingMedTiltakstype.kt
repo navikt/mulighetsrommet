@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class Tiltaksgjennomforing(
+data class TiltaksgjennomforingMedTiltakstype(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String?,
@@ -15,6 +15,8 @@ data class Tiltaksgjennomforing(
     val tiltakstypeId: UUID,
     val tiltaksnummer: String,
     val virksomhetsnummer: String?,
+    val tiltakskode: String,
+    val tiltakstypeNavn: String,
     @Serializable(with = DateSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = DateSerializer::class)
