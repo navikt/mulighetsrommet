@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import java.time.LocalDateTime
 import java.util.*
@@ -65,8 +66,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tiltak2)
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
-            tiltaksgjennomforinger.get(tiltak1.id) shouldBe tiltak1
-            tiltaksgjennomforinger.getByTiltakstypeId(tiltakstype1.id) shouldHaveSize 1
+            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingMedTiltakstype(
+                id = tiltak1.id,
+                navn = tiltak1.navn,
+                tiltakstypeId = tiltakstype1.id,
+                tiltaksnummer = tiltak1.tiltaksnummer,
+                virksomhetsnummer = tiltak1.virksomhetsnummer,
+                tiltakskode = tiltakstype1.tiltakskode,
+                tiltakstypeNavn = tiltakstype1.navn,
+                fraDato = tiltak1.fraDato,
+                tilDato = tiltak1.tilDato,
+                enhet = tiltak1.enhet
+            )
 
             tiltaksgjennomforinger.delete(tiltak1.id)
 

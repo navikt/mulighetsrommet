@@ -41,58 +41,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getByTiltakstypeId(id: UUID): List<Tiltaksgjennomforing> {
-        @Language("PostgreSQL")
-        val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, enhet
-            from tiltaksgjennomforing
-            where tiltakstype_id = ?::uuid
-        """.trimIndent()
-        return queryOf(query, id)
-            .map { it.toTiltaksgjennomforing() }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun getAllByTiltakskode(
-        tiltakskode: String,
-        paginationParams: PaginationParams = PaginationParams()
-    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
-            from tiltaksgjennomforing tg
-            join tiltakstype t on tg.tiltakstype_id = t.id
-            where tiltakskode = ?
-            limit ?
-            offset ?
-        """.trimIndent()
-        val results = queryOf(query, tiltakskode, paginationParams.limit, paginationParams.offset)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
-            }
-            .asList
-            .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        return Pair(totaltAntall, tiltaksgjennomforinger)
-    }
-
-    fun get(id: UUID): Tiltaksgjennomforing? {
-        @Language("PostgreSQL")
-        val query = """
-            select id::uuid, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, enhet
-            from tiltaksgjennomforing
-            where id = ?::uuid
-        """.trimIndent()
-        return queryOf(query, id)
-            .map { it.toTiltaksgjennomforing() }
-            .asSingle
-            .let { db.run(it) }
-    }
-
-    fun getWithTiltakstypedata(id: UUID): TiltaksgjennomforingMedTiltakstype? {
+    fun get(id: UUID): TiltaksgjennomforingMedTiltakstype? {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, tiltakskode, t.navn as tiltakstypeNavn, enhet
@@ -106,18 +55,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAll(paginationParams: PaginationParams = PaginationParams()): Pair<Int, List<Tiltaksgjennomforing>> {
+    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, enhet, count(*) over() as full_count
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
             from tiltaksgjennomforing tg
             join tiltakstype t on tg.tiltakstype_id = t.id
             limit ?
             offset ?
         """.trimIndent()
-        val results = queryOf(query, paginationParams.limit, paginationParams.offset)
+        val results = queryOf(query, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforing()
+                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
             }
             .asList
             .let { db.run(it) }
@@ -127,18 +76,64 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    fun delete(id: UUID): QueryResult<Unit> = query {
-        logger.info("Sletter tiltaksgjennomføring id=$id")
-
+    fun getAllByTiltakstypeId(
+        id: UUID,
+        pagination: PaginationParams = PaginationParams()
+    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
         @Language("PostgreSQL")
         val query = """
-            delete from tiltaksgjennomforing
-            where id = ?::uuid
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   tiltakskode,
+                   fra_dato,
+                   til_dato,
+                   t.navn           as tiltakstypeNavn,
+                   enhet,
+                   count(*) over () as full_count
+            from tiltaksgjennomforing tg
+                     join tiltakstype t on tg.tiltakstype_id = t.id
+            where tiltakstype_id = ?
+            limit ?
+            offset ?
         """.trimIndent()
-
-        queryOf(query, id)
-            .asExecute
+        val results = queryOf(query, id, pagination.limit, pagination.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+            }
+            .asList
             .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
+
+    fun getAllByEnhet(
+        enhet: String,
+        pagination: PaginationParams
+    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
+            from tiltaksgjennomforing tg
+            join tiltakstype t on tg.tiltakstype_id = t.id
+            where enhet = ?
+            limit ?
+            offset ?
+        """.trimIndent()
+        val results = queryOf(query, enhet, pagination.limit, pagination.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
     fun sok(filter: Sokefilter): List<TiltaksgjennomforingMedTiltakstype> {
@@ -157,50 +152,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAllByEnhet(
-        enhet: String,
-        paginationParams: PaginationParams
-    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+    fun delete(id: UUID): QueryResult<Unit> = query {
+        logger.info("Sletter tiltaksgjennomføring id=$id")
+
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
-            from tiltaksgjennomforing tg
-            join tiltakstype t on tg.tiltakstype_id = t.id
-            where enhet = ?
-            limit ?
-            offset ?
+            delete from tiltaksgjennomforing
+            where id = ?::uuid
         """.trimIndent()
-        val results = queryOf(query, enhet, paginationParams.limit, paginationParams.offset)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
-            }
-            .asList
+
+        queryOf(query, id)
+            .asExecute
             .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        return Pair(totaltAntall, tiltaksgjennomforinger)
-    }
-
-    fun getAllWithTiltakstypedata(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
-        @Language("PostgreSQL")
-        val query = """
-           select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
-            from tiltaksgjennomforing tg
-            join tiltakstype t on tg.tiltakstype_id = t.id
-            limit ?
-            offset ?
-        """.trimIndent()
-        val results = queryOf(query, paginationParams.limit, paginationParams.offset)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
-            }
-            .asList
-            .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
     private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(

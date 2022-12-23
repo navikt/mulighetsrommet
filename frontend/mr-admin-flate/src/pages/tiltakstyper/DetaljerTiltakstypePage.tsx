@@ -37,7 +37,7 @@ export function DetaljerTiltakstypePage() {
         <dd>{tiltakstype.tiltakskode}</dd>
       </dl>
       <TiltaksgjennomforingslisteForTiltakstyper
-        tiltakstypeKode={tiltakstype.tiltakskode}
+        tiltakstype={tiltakstype}
       />
     </>
   );

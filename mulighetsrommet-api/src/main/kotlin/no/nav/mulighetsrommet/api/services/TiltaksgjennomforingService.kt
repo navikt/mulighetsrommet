@@ -6,8 +6,8 @@ import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
 
 class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository) {
 
-    fun getAllWithTiltakstypedata(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
-        return tiltaksgjennomforingRepository.getAllWithTiltakstypedata(paginationParams)
+    fun getAll(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+        return tiltaksgjennomforingRepository.getAll(paginationParams)
     }
 
     fun sok(filter: Sokefilter): List<TiltaksgjennomforingMedTiltakstype> {
