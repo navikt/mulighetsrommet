@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> = query {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingDbo> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
         @Language("PostgreSQL")
@@ -42,7 +42,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingMedTiltakstype? {
+    fun get(id: UUID): TiltaksgjennomforingDto? {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -65,7 +65,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingDto>> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -98,7 +98,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAllByTiltakstypeId(
         id: UUID,
         pagination: PaginationParams = PaginationParams()
-    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+    ): Pair<Int, List<TiltaksgjennomforingDto>> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -132,7 +132,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAllByEnhet(
         enhet: String,
         pagination: PaginationParams
-    ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
+    ): Pair<Int, List<TiltaksgjennomforingDto>> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -163,7 +163,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    fun sok(filter: Sokefilter): List<TiltaksgjennomforingMedTiltakstype> {
+    fun sok(filter: Sokefilter): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -202,7 +202,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(
+    private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -213,7 +213,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "enhet" to enhet
     )
 
-    private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
+    private fun Row.toTiltaksgjennomforing() = TiltaksgjennomforingDbo(
         id = uuid("id"),
         navn = stringOrNull("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
@@ -224,7 +224,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         enhet = string("enhet")
     )
 
-    private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(
+    private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingDto(
         id = uuid("id"),
         tiltakstype = Tiltakstype(
             id = uuid("tiltakstype_id"),

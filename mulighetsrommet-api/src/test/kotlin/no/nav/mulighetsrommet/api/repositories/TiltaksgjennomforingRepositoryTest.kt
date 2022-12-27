@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import java.time.LocalDateTime
 import java.util.*
@@ -32,7 +32,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakskode = "INDOPPFOLG"
     )
 
-    val tiltak1 = Tiltaksgjennomforing(
+    val tiltak1 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
@@ -43,7 +43,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         enhet = "2990"
     )
 
-    val tiltak2 = Tiltaksgjennomforing(
+    val tiltak2 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Trening",
         tiltakstypeId = tiltakstype2.id,
@@ -66,7 +66,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tiltak2)
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
-            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingMedTiltakstype(
+            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingDto(
                 id = tiltak1.id,
                 tiltakstype = Tiltakstype(
                     id = tiltakstype1.id,
@@ -196,7 +196,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         (1..105).forEach {
             tiltaksgjennomforinger.upsert(
-                Tiltaksgjennomforing(
+                TiltaksgjennomforingDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
                     tiltakstypeId = tiltakstype1.id,

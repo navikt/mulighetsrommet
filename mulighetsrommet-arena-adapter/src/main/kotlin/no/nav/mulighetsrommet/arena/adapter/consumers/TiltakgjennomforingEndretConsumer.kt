@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing as MrTiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo as MrTiltaksgjennomforing
 
 class TiltakgjennomforingEndretConsumer(
     override val config: ConsumerConfig,

@@ -4,8 +4,8 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 
 class ArenaService(
@@ -14,7 +14,7 @@ class ArenaService(
     private val deltakerRepository: DeltakerRepository
 ) {
 
-    fun upsert(tiltaksgjennomforing: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingDbo> {
         return tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
     }
 
@@ -26,7 +26,7 @@ class ArenaService(
         return deltakerRepository.upsert(deltaker)
     }
 
-    fun remove(tiltaksgjennomforing: Tiltaksgjennomforing): QueryResult<Unit> {
+    fun remove(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> {
         return tiltaksgjennomforingRepository.delete(tiltaksgjennomforing.id)
     }
 

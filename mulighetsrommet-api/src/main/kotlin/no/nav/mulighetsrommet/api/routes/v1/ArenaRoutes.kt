@@ -9,8 +9,8 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
@@ -40,7 +40,7 @@ fun Route.arenaRoutes() {
                 }
         }
         put("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
+            val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
             arenaService.upsert(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
@@ -49,7 +49,7 @@ fun Route.arenaRoutes() {
                 }
         }
         delete("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
+            val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
             arenaService.remove(tiltaksgjennomforing)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {

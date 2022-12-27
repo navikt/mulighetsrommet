@@ -7,9 +7,9 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.models.Deltaker
 import no.nav.mulighetsrommet.domain.models.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
@@ -35,7 +35,7 @@ class ArenaServiceTest : FunSpec({
             tiltakskode = "ARBTREN"
         )
 
-        val tiltaksgjennomforing = Tiltaksgjennomforing(
+        val tiltaksgjennomforing = TiltaksgjennomforingDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidstrening",
             tiltakstypeId = tiltakstype.id,
