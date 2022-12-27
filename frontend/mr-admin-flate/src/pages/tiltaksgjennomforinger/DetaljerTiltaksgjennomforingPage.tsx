@@ -44,9 +44,9 @@ export function TiltaksgjennomforingPage() {
         <dt>Tiltaksnummer</dt>
         <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
         <dt>Tiltakstype</dt>
-        <dd>{tiltaksgjennomforing.tiltakstypeNavn}</dd>
+        <dd>{tiltaksgjennomforing.tiltakstype.navn}</dd>
         <dt>Kode for tiltakstype:</dt>
-        <dd>{tiltaksgjennomforing.tiltakskode}</dd>
+        <dd>{tiltaksgjennomforing.tiltakstype.tiltakskode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
         <dt>Startdato</dt>

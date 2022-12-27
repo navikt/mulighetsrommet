@@ -1,4 +1,4 @@
-import { Alert, Button, Heading, Loader, Pagination } from '@navikt/ds-react';
+import { Alert, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';

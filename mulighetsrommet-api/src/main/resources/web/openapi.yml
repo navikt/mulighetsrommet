@@ -506,18 +506,13 @@ components:
         id:
           type: string
           format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/Tiltakstype"
         navn:
           type: string
         tiltaksnummer:
           type: string
-        tiltakstypeId:
-          type: string
-          format: uuid
         virksomhetsnummer:
-          type: string
-        tiltakskode:
-          type: string
-        tiltakstypeNavn:
           type: string
         fraDato:
           type: string
@@ -526,12 +521,10 @@ components:
       required:
         - id
         - navn
-        - tiltakskode
+        - tiltakstype
         - tiltaksnummer
-        - tiltakstypeId
         - virksomhetsnummer
         - tiltakskode
-        - tiltakstypeNavn
 
     Tiltakskode:
       type: string

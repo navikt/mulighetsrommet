@@ -25,8 +25,8 @@ export function Tiltaksgjennomforingrad({
         <BodyLong>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>
       <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-      <BodyShort size="small" title={tiltaksgjennomforing.tiltakskode}>
-        {tiltaksgjennomforing.tiltakstypeNavn}
+      <BodyShort size="small" title={tiltaksgjennomforing.tiltakstype.tiltakskode}>
+        {tiltaksgjennomforing.tiltakstype.navn}
       </BodyShort>
       <BodyShort size="small">
         {tiltaksgjennomforing.virksomhetsnummer}

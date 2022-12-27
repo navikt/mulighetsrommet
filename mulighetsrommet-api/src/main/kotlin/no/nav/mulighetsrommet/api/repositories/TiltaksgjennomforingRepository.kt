@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
+import no.nav.mulighetsrommet.domain.models.Tiltakstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -44,9 +45,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun get(id: UUID): TiltaksgjennomforingMedTiltakstype? {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, tiltakskode, t.navn as tiltakstypeNavn, enhet
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   fra_dato,
+                   til_dato,
+                   tiltakskode,
+                   t.navn as tiltakstype_navn,
+                   enhet
             from tiltaksgjennomforing tg
-            join tiltakstype t on t.id = tg.tiltakstype_id
+                     join tiltakstype t on t.id = tg.tiltakstype_id
             where tg.id = ?::uuid
         """.trimIndent()
         return queryOf(query, id)
@@ -58,11 +68,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   tiltakskode,
+                   fra_dato,
+                   til_dato,
+                   t.navn           as tiltakstype_navn,
+                   enhet,
+                   count(*) over () as full_count
             from tiltaksgjennomforing tg
-            join tiltakstype t on tg.tiltakstype_id = t.id
-            limit ?
-            offset ?
+                     join tiltakstype t on tg.tiltakstype_id = t.id
+            limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, pagination.limit, pagination.offset)
             .map {
@@ -90,14 +109,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltakskode,
                    fra_dato,
                    til_dato,
-                   t.navn           as tiltakstypeNavn,
+                   t.navn           as tiltakstype_navn,
                    enhet,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
-            where tiltakstype_id = ?
-            limit ?
-            offset ?
+            where tg.tiltakstype_id = ?
+            limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, id, pagination.limit, pagination.offset)
             .map {
@@ -117,12 +135,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     ): Pair<Int, List<TiltaksgjennomforingMedTiltakstype>> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet, count(*) over() as full_count
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   tiltakskode,
+                   fra_dato,
+                   til_dato,
+                   t.navn           as tiltakstype_navn,
+                   enhet,
+                   count(*) over () as full_count
             from tiltaksgjennomforing tg
-            join tiltakstype t on tg.tiltakstype_id = t.id
+                     join tiltakstype t on tg.tiltakstype_id = t.id
             where enhet = ?
-            limit ?
-            offset ?
+            limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, enhet, pagination.limit, pagination.offset)
             .map {
@@ -139,9 +166,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun sok(filter: Sokefilter): List<TiltaksgjennomforingMedTiltakstype> {
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid, tg.navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, tiltakskode, fra_dato, til_dato, t.navn as tiltakstypeNavn, enhet
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   tiltakskode,
+                   fra_dato,
+                   til_dato,
+                   t.navn as tiltakstype_navn,
+                   enhet
             from tiltaksgjennomforing tg
-            join tiltakstype t on tg.tiltakstype_id = t.id
+                     join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltaksnummer like concat('%', ?, '%')
         """.trimIndent()
         return queryOf(query, filter.tiltaksnummer)
@@ -190,12 +226,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingMedTiltakstype(
         id = uuid("id"),
+        tiltakstype = Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = string("tiltakskode"),
+        ),
         navn = stringOrNull("navn"),
-        tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        tiltakskode = string("tiltakskode"),
-        tiltakstypeNavn = string("tiltakstypeNavn"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         enhet = string("enhet")
