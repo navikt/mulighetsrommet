@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.DateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -15,9 +15,9 @@ data class Tiltaksgjennomforing(
     val tiltakskode: String,
     val arrangorId: Int?,
     val navn: String?,
-    @Serializable(with = DateSerializer::class)
+    @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime? = null,
-    @Serializable(with = DateSerializer::class)
+    @Serializable(with = LocalDateTimeSerializer::class)
     val tilDato: LocalDateTime? = null,
     val apentForInnsok: Boolean = true,
     val antallPlasser: Int? = null,

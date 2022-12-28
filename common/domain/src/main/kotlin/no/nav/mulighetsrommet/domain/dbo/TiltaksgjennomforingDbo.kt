@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.DateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -15,9 +15,9 @@ data class TiltaksgjennomforingDbo(
     val tiltakstypeId: UUID,
     val tiltaksnummer: String,
     val virksomhetsnummer: String?,
-    @Serializable(with = DateSerializer::class)
+    @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime? = null,
-    @Serializable(with = DateSerializer::class)
+    @Serializable(with = LocalDateTimeSerializer::class)
     val tilDato: LocalDateTime? = null,
     val enhet: String
 )
