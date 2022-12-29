@@ -12,8 +12,10 @@ app:
     maximumPoolSize: 10
 
   kafka:
-    brokerUrl: ${KAFKA_BROKERS}
     producerId: "mulighetsrommet-api-kafka-producer.v1"
+    producers:
+      tiltaksgjennomforinger:
+        topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
 
   auth:
     azure:

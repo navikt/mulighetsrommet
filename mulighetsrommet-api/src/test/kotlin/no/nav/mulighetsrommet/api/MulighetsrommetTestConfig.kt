@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import io.ktor.server.testing.*
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -35,8 +36,11 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 
 fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
-        producerId = "producer-id",
         brokerUrl = "localhost:29092",
+        producerId = "producer-id",
+        producers = KafkaProducers(
+            tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1")
+        )
     )
 }
 

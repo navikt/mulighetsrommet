@@ -42,7 +42,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 
 fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
-        brokers = "localhost:29092",
+        brokerUrl = "localhost:29092",
         consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
         topics = TopicsConfig(
             topicStatePollDelay = 10000,

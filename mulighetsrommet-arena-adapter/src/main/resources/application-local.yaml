@@ -37,7 +37,7 @@ app:
       tokenEndpointUrl: http://localhost:8081/azure/token
 
   kafka:
-    brokers: localhost:29092
+    brokerUrl: localhost:29092
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
       topicStatePollDelay: 10000

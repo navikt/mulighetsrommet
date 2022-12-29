@@ -25,11 +25,11 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.*
-import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
@@ -69,20 +69,20 @@ private fun db(config: FlywayDatabaseConfig): Module {
 private fun kafka(config: KafkaConfig) = module {
     val producerProperties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.producerBuilder()
-            .withBrokerUrl(config.brokerUrl)
             .withBaseProperties()
             .withProducerId(config.producerId)
+            .withBrokerUrl(config.brokerUrl)
             .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
             .build()
 
         else -> KafkaPropertiesPreset.aivenDefaultProducerProperties(config.producerId)
     }
 
-    val producerClient = KafkaProducerClientBuilder.builder<String, String>()
+    val producerClient = KafkaProducerClientBuilder.builder<String, String?>()
         .withProperties(producerProperties)
         .build()
 
-    single { KafkaProducerService(producerClient) }
+    single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
 }
 
 private fun repositories() = module {
@@ -157,7 +157,7 @@ private fun services(appConfig: AppConfig) = module {
             }
         )
     }
-    single { ArenaService(get(), get(), get()) }
+    single { ArenaService(get(), get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(get()) }
