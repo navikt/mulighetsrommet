@@ -12,7 +12,7 @@ app:
     maximumPoolSize: 10
 
   kafka:
-    brukerUrl: ${KAFKA_BROKERS}
+    brokerUrl: ${KAFKA_BROKERS}
     producerId: "mulighetsrommet-api-kafka-producer.v1"
 
   auth:
