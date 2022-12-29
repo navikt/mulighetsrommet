@@ -12,6 +12,7 @@ spec:
     minimumInSyncReplicas: 2
     partitions: 2
     replication: 3
+    retentionHours: 1
   acl:
     - team: team-mulighetsrommet
       application: mulighetsrommet-api
