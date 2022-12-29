@@ -18,8 +18,8 @@ app:
       url: http://mulighetsrommet-api
       scope: api://prod-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
     arenaEventService:
-      channelCapacity: 500
-      numChannelConsumers: 50
+      channelCapacity: 10000
+      numChannelConsumers: 100
       maxRetries: 5
     arenaOrdsProxy:
       url: https://amt-arena-ords-proxy.prod-fss-pub.nais.io/api
