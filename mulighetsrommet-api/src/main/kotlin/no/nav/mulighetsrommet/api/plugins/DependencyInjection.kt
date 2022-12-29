@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.StringSerializer
@@ -80,6 +81,7 @@ private fun kafka(config: KafkaConfig) = module {
 
     val producerClient = KafkaProducerClientBuilder.builder<String, String?>()
         .withProperties(producerProperties)
+        .withMetrics(Metrikker.appMicrometerRegistry)
         .build()
 
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
