@@ -1,4 +1,4 @@
-import { Tiltakstype } from "../../../../mulighetsrommet-api-client";
+import { Tiltakstype } from "mulighetsrommet-api-client";
 import { BodyLong, BodyShort } from "@navikt/ds-react";
 import styles from "./Tiltakstyperad.module.scss";
 import { Next } from "@navikt/ds-icons";
@@ -14,7 +14,7 @@ export function Tiltakstyperad({ tiltakstype }: Props) {
       <Link to={`${tiltakstype.id}`}>
         <BodyLong size={"medium"}>{tiltakstype.navn}</BodyLong>
       </Link>
-      <BodyShort size={"small"}>{tiltakstype.tiltakskode}</BodyShort>
+      <BodyShort size={"small"}>{tiltakstype.kode}</BodyShort>
       <div className={styles.pil}>
         <Next />
       </div>

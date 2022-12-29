@@ -39,7 +39,7 @@ fun Route.tiltakstypeRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
-            val tiltakstype = tiltakstyper.getTiltakstypeById(id) ?: return@get call.respondText(
+            val tiltakstype = tiltakstyper.get(id) ?: return@get call.respondText(
                 "Det finnes ikke noe tiltakstype med id $id",
                 status = HttpStatusCode.NotFound
             )

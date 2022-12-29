@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
 import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
 import no.nav.mulighetsrommet.secure_log.SecureLog

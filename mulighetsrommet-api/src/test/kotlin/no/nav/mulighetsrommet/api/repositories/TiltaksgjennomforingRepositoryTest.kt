@@ -8,9 +8,10 @@ import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.TiltaksgjennomforingMedTiltakstype
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDateTime
 import java.util.*
 
@@ -20,19 +21,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
-    val tiltakstype1 = Tiltakstype(
+    val tiltakstype1 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakskode = "ARBTREN"
     )
 
-    val tiltakstype2 = Tiltakstype(
+    val tiltakstype2 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakskode = "INDOPPFOLG"
     )
 
-    val tiltak1 = Tiltaksgjennomforing(
+    val tiltak1 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakstypeId = tiltakstype1.id,
@@ -43,7 +44,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         enhet = "2990"
     )
 
-    val tiltak2 = Tiltaksgjennomforing(
+    val tiltak2 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Trening",
         tiltakstypeId = tiltakstype2.id,
@@ -66,14 +67,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tiltak2)
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
-            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingMedTiltakstype(
+            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingDto(
                 id = tiltak1.id,
+                tiltakstype = TiltakstypeDto(
+                    id = tiltakstype1.id,
+                    navn = tiltakstype1.navn,
+                    kode = tiltakstype1.tiltakskode,
+                ),
                 navn = tiltak1.navn,
-                tiltakstypeId = tiltakstype1.id,
                 tiltaksnummer = tiltak1.tiltaksnummer,
                 virksomhetsnummer = tiltak1.virksomhetsnummer,
-                tiltakskode = tiltakstype1.tiltakskode,
-                tiltakstypeNavn = tiltakstype1.navn,
                 fraDato = tiltak1.fraDato,
                 tilDato = tiltak1.tilDato,
                 enhet = tiltak1.enhet
@@ -194,7 +197,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         (1..105).forEach {
             tiltaksgjennomforinger.upsert(
-                Tiltaksgjennomforing(
+                TiltaksgjennomforingDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
                     tiltakstypeId = tiltakstype1.id,
