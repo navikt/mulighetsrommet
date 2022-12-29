@@ -7,10 +7,10 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
 import java.time.LocalDateTime
@@ -29,7 +29,7 @@ class ArenaServiceTest : FunSpec({
         val deltakerRepository = DeltakerRepository(database.db)
         val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
-        val tiltakstype = Tiltakstype(
+        val tiltakstype = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidstrening",
             tiltakskode = "ARBTREN"
@@ -46,7 +46,7 @@ class ArenaServiceTest : FunSpec({
             enhet = "2990"
         )
 
-        val deltaker = Deltaker(
+        val deltaker = DeltakerDbo(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = tiltaksgjennomforing.id,
             norskIdent = "12345678910",

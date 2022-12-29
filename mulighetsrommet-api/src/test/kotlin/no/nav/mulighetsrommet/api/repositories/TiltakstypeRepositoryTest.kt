@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
@@ -21,14 +21,14 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstyper = TiltakstypeRepository(database.db)
 
         tiltakstyper.upsert(
-            Tiltakstype(
+            TiltakstypeDbo(
                 id = UUID.randomUUID(),
                 navn = "Arbeidstrening",
                 tiltakskode = "ARBTREN"
             )
         )
         tiltakstyper.upsert(
-            Tiltakstype(
+            TiltakstypeDbo(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 tiltakskode = "INDOPPFOLG"
@@ -48,7 +48,7 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         (1..105).forEach {
             tiltakstyper.upsert(
-                Tiltakstype(
+                TiltakstypeDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
                     tiltakskode = "$it"

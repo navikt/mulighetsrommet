@@ -9,8 +9,9 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDateTime
 import java.util.*
 
@@ -20,13 +21,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
-    val tiltakstype1 = Tiltakstype(
+    val tiltakstype1 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakskode = "ARBTREN"
     )
 
-    val tiltakstype2 = Tiltakstype(
+    val tiltakstype2 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakskode = "INDOPPFOLG"
@@ -68,10 +69,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
             tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingDto(
                 id = tiltak1.id,
-                tiltakstype = Tiltakstype(
+                tiltakstype = TiltakstypeDto(
                     id = tiltakstype1.id,
                     navn = tiltakstype1.navn,
-                    tiltakskode = tiltakstype1.tiltakskode,
+                    kode = tiltakstype1.tiltakskode,
                 ),
                 navn = tiltak1.navn,
                 tiltaksnummer = tiltak1.tiltaksnummer,

@@ -4,9 +4,9 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 
 class ArenaService(
     private val tiltakstypeRepository: TiltakstypeRepository,
@@ -18,11 +18,11 @@ class ArenaService(
         return tiltaksgjennomforingRepository.upsert(tiltaksgjennomforing)
     }
 
-    fun upsert(tiltakstype: Tiltakstype): QueryResult<Tiltakstype> {
+    fun upsert(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstypeRepository.upsert(tiltakstype)
     }
 
-    fun upsert(deltaker: Deltaker): QueryResult<Deltaker> {
+    fun upsert(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
         return deltakerRepository.upsert(deltaker)
     }
 
@@ -30,11 +30,11 @@ class ArenaService(
         return tiltaksgjennomforingRepository.delete(tiltaksgjennomforing.id)
     }
 
-    fun remove(tiltakstype: Tiltakstype): QueryResult<Unit> {
+    fun remove(tiltakstype: TiltakstypeDbo): QueryResult<Unit> {
         return tiltakstypeRepository.delete(tiltakstype.id)
     }
 
-    fun remove(deltaker: Deltaker): QueryResult<Unit> {
+    fun remove(deltaker: DeltakerDbo): QueryResult<Unit> {
         return deltakerRepository.delete(deltaker.id)
     }
 }

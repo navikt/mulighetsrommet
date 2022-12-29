@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.models.Deltaker as MrDeltaker
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo as MrDeltaker
 
 class TiltakdeltakerEndretConsumer(
     override val config: ConsumerConfig,

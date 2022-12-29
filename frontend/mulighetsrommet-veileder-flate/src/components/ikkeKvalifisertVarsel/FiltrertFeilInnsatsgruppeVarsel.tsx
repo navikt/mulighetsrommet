@@ -3,7 +3,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import appStyles from '../../App.module.scss';
 import styles from './BrukerKvalifisererIkkeVarsel.module.scss';
 import { Tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { Innsatsgruppe } from '../../../../mulighetsrommet-api-client/build/models/Innsatsgruppe';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 
 interface FiltrertFeilInnsatsgruppeVarselProps {
   filter: Tiltaksgjennomforingsfilter;

@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -37,7 +37,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, tiltaksgjennomforing.toSqlParameters())
-            .map { it.toTiltaksgjennomforing() }
+            .map { it.toTiltaksgjennomforingDbo() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -60,7 +60,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tg.id = ?::uuid
         """.trimIndent()
         return queryOf(query, id)
-            .map { it.toTiltaksgjennomforingMedTiltakstype() }
+            .map { it.toTiltaksgjennomforingDto() }
             .asSingle
             .let { db.run(it) }
     }
@@ -85,7 +85,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         val results = queryOf(query, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+                it.int("full_count") to it.toTiltaksgjennomforingDto()
             }
             .asList
             .let { db.run(it) }
@@ -119,7 +119,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         val results = queryOf(query, id, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+                it.int("full_count") to it.toTiltaksgjennomforingDto()
             }
             .asList
             .let { db.run(it) }
@@ -153,7 +153,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         val results = queryOf(query, enhet, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforingMedTiltakstype()
+                it.int("full_count") to it.toTiltaksgjennomforingDto()
             }
             .asList
             .let { db.run(it) }
@@ -182,7 +182,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         return queryOf(query, filter.tiltaksnummer)
             .map {
-                it.toTiltaksgjennomforingMedTiltakstype()
+                it.toTiltaksgjennomforingDto()
             }
             .asList
             .let { db.run(it) }
@@ -213,7 +213,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "enhet" to enhet
     )
 
-    private fun Row.toTiltaksgjennomforing() = TiltaksgjennomforingDbo(
+    private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
         id = uuid("id"),
         navn = stringOrNull("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
@@ -224,12 +224,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         enhet = string("enhet")
     )
 
-    private fun Row.toTiltaksgjennomforingMedTiltakstype() = TiltaksgjennomforingDto(
+    private fun Row.toTiltaksgjennomforingDto() = TiltaksgjennomforingDto(
         id = uuid("id"),
-        tiltakstype = Tiltakstype(
+        tiltakstype = TiltakstypeDto(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
-            tiltakskode = string("tiltakskode"),
+            kode = string("tiltakskode"),
         ),
         navn = stringOrNull("navn"),
         tiltaksnummer = string("tiltaksnummer"),

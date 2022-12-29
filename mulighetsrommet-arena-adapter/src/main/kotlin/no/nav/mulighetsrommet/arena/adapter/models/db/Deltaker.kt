@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime

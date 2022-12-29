@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 
 class TiltakEndretConsumerTest : FunSpec({
@@ -64,7 +64,7 @@ class TiltakEndretConsumerTest : FunSpec({
             val generatedId = engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
 
-                val tiltakstype = decodeRequestBody<Tiltakstype>().apply {
+                val tiltakstype = decodeRequestBody<TiltakstypeDbo>().apply {
                     navn shouldBe "Oppfølging"
                 }
 
@@ -76,7 +76,7 @@ class TiltakEndretConsumerTest : FunSpec({
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Delete
 
-                decodeRequestBody<Tiltakstype>().apply {
+                decodeRequestBody<TiltakstypeDbo>().apply {
                     id shouldBe generatedId
                 }
             }

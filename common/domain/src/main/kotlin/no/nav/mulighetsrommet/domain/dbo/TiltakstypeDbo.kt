@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.domain.models
+package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import java.util.UUID
+import java.util.*
 
 @Serializable
-data class Tiltakstype(
+data class TiltakstypeDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,

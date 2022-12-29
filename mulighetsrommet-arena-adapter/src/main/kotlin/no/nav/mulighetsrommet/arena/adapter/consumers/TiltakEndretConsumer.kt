@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.models.Tiltakstype as MrTiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo as MrTiltakstype
 
 class TiltakEndretConsumer(
     override val config: ConsumerConfig,
