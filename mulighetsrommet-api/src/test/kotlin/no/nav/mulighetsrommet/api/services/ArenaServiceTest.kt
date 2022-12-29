@@ -58,8 +58,8 @@ class ArenaServiceTest : FunSpec({
         test("upsert tiltakstype") {
             val table = Table(database.db.getDatasource(), "tiltakstype")
 
-            service.createOrUpdate(tiltakstype)
-            service.createOrUpdate(tiltakstype.copy(navn = "Arbeidsovertrening"))
+            service.upsert(tiltakstype)
+            service.upsert(tiltakstype.copy(navn = "Arbeidsovertrening"))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(tiltakstype.id)
@@ -69,8 +69,8 @@ class ArenaServiceTest : FunSpec({
         test("upsert tiltaksgjennomføring") {
             val table = Table(database.db.getDatasource(), "tiltaksgjennomforing")
 
-            service.createOrUpdate(tiltaksgjennomforing)
-            service.createOrUpdate(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
+            service.upsert(tiltaksgjennomforing)
+            service.upsert(tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening"))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(tiltaksgjennomforing.id)
@@ -87,8 +87,8 @@ class ArenaServiceTest : FunSpec({
         test("upsert deltaker") {
             val table = Table(database.db.getDatasource(), "deltaker")
 
-            service.createOrUpdate(deltaker)
-            service.createOrUpdate(deltaker.copy(status = Deltakerstatus.DELTAR))
+            service.upsert(deltaker)
+            service.upsert(deltaker.copy(status = Deltakerstatus.DELTAR))
 
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(deltaker.id)

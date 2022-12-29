@@ -51,9 +51,9 @@ class HistorikkServiceTest : FunSpec({
         val deltakerRepository = DeltakerRepository(database.db)
         val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
 
-        service.createOrUpdate(tiltakstype)
-        service.createOrUpdate(tiltaksgjennomforing)
-        service.createOrUpdate(deltaker)
+        service.upsert(tiltakstype)
+        service.upsert(tiltaksgjennomforing)
+        service.upsert(deltaker)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {

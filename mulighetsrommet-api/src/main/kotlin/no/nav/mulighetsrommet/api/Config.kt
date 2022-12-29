@@ -31,7 +31,7 @@ data class AuthConfig(
 
 data class KafkaConfig(
     val producerId: String,
-    val brokerUrl: String? = null
+    val brokerUrl: String,
 )
 
 data class AuthProvider(

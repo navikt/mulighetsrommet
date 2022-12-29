@@ -12,23 +12,21 @@ import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
-private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
-private val secureLog = SecureLog.logger
-
 class VeilarboppfolgingClientImpl(
     private val baseUrl: String,
-    private val veilarboppfolgingTokenProvider: (accessToken: String) -> String,
+    private val tokenProvider: (accessToken: String) -> String,
     clientEngine: HttpClientEngine = CIO.create()
 ) : VeilarboppfolgingClient {
-    val client = httpJsonClient(clientEngine).config {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
+
     override suspend fun hentOppfolgingsstatus(fnr: String, accessToken: String): Oppfolgingsstatus? {
         return try {
             val response = client.get("$baseUrl/person/$fnr/oppfolgingsstatus") {
-                bearerAuth(
-                    veilarboppfolgingTokenProvider.invoke(accessToken)
-                )
+                bearerAuth(tokenProvider.invoke(accessToken))
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
@@ -38,7 +36,7 @@ class VeilarboppfolgingClientImpl(
 
             response.body<Oppfolgingsstatus>()
         } catch (exe: Exception) {
-            secureLog.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr")
+            SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr")
             log.error("Klarte ikke hente oppfølgingsstatus. Se secureLogs for detaljer.")
             null
         }
@@ -47,9 +45,7 @@ class VeilarboppfolgingClientImpl(
     override suspend fun hentManuellStatus(fnr: String, accessToken: String): ManuellStatusDTO? {
         return try {
             val response = client.get("$baseUrl/v2/manuell/status?fnr=$fnr") {
-                bearerAuth(
-                    veilarboppfolgingTokenProvider.invoke(accessToken)
-                )
+                bearerAuth(tokenProvider.invoke(accessToken))
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
@@ -60,7 +56,7 @@ class VeilarboppfolgingClientImpl(
             val body = response.body<ManuellStatusDTO>()
             body
         } catch (exe: Exception) {
-            secureLog.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
+            SecureLog.logger.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
             log.error("Klarte ikke hente manuell status. Se detaljer i secureLogs.")
             null
         }

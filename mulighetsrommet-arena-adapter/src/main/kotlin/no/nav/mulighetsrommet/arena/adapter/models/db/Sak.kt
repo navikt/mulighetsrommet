@@ -7,5 +7,5 @@ data class Sak(
     val sakId: Int,
     val lopenummer: Int,
     val aar: Int,
-    val enhet: String? = null
+    val enhet: String
 )

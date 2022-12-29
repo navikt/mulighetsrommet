@@ -74,6 +74,6 @@ class SakRepository(private val db: Database) {
         sakId = int("sak_id"),
         lopenummer = int("lopenummer"),
         aar = int("aar"),
-        enhet = stringOrNull("enhet")
+        enhet = string("enhet")
     )
 }

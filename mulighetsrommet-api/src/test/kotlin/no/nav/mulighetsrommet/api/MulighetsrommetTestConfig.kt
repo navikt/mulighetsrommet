@@ -35,7 +35,8 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 
 fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
-        "producer-id"
+        producerId = "producer-id",
+        brokerUrl = "localhost:29092",
     )
 }
 

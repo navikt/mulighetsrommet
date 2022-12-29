@@ -15,7 +15,7 @@ class DeltakerRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun save(deltaker: Deltaker): QueryResult<Deltaker> = query {
+    fun upsert(deltaker: Deltaker): QueryResult<Deltaker> = query {
         logger.info("Lagrer deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")

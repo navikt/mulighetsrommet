@@ -70,10 +70,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         val orchestrator = KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
             database.db,
             ConsumerGroup(listOf(consumer)),
             TopicRepository(database.db),
-            Long.MAX_VALUE
         )
 
         orchestrator.getTopics() shouldContainExactly listOf(
@@ -91,10 +91,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         val orchestrator = KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = 10),
             database.db,
             ConsumerGroup(listOf(consumer)),
             TopicRepository(database.db),
-            300
         )
 
         orchestrator.getConsumers().first().isRunning shouldBe true
@@ -119,10 +119,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
             database.db,
             ConsumerGroup(listOf(consumer)),
             TopicRepository(database.db),
-            Long.MAX_VALUE
         )
 
         eventually(5.seconds) {
@@ -144,10 +144,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         KafkaConsumerOrchestrator(
             kafka.getConsumerProperties(),
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
             database.db,
             ConsumerGroup(listOf(consumer)),
             TopicRepository(database.db),
-            Long.MAX_VALUE
         )
 
         eventually(5.seconds) {

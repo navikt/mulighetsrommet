@@ -8,19 +8,20 @@ Flate rettet mot veiledere for behandling av tiltaksinformasjon.
 - [Teknologier](#teknologier)
 - [Kom i gang](#kom-i-gang)
 - [kodestil](#kodestil)
-  - [Forutsetninger](#forutsetninger)
-  - [Steg for steg](#steg-for-steg)
+    - [Forutsetninger](#forutsetninger)
+    - [Steg for steg](#steg-for-steg)
 
 # <a name="deploy"></a>Deploy
-Applikasjonen brukes base-image fra [poao-frontend](https://github.com/navikt/poao-frontend) og deployes via Github Actions når det skjer endringer i `./.nais/nais-<miljø>.yaml`-filene. 
 
-Man kan også deploye manuelt fra terminalen ved å autentisere mot nais med 
-1. `gcloud auth login` 
-2. `kubectl apply -f .nais/nais-dev.yaml` for dev eller 
-3. `kubectl apply -f .nais/nais-prod.yaml` for produksjon. 
- 
+Applikasjonen brukes base-image fra [poao-frontend](https://github.com/navikt/poao-frontend) og deployes via Github Actions når det skjer endringer i `./.nais/nais-<miljø>.yaml`-filene.
+
+Man kan også deploye manuelt fra terminalen ved å autentisere mot nais med
+
+1. `gcloud auth login`
+2. `kubectl apply -f .nais/nais-dev.yaml` for dev eller
+3. `kubectl apply -f .nais/nais-prod.yaml` for produksjon.
+
 **PS: sjekk at du står i korrekt cluster og har riktig namespace (team-mulighetsrommet) før du deployer manuelt**
-
 
 # <a name="teknologier"></a>Teknologier
 
@@ -41,6 +42,7 @@ Man kan også deploye manuelt fra terminalen ved å autentisere mot nais med
 For å komme i gang kan du hoppe rett til [Steg for steg](#steg-for-steg) gitt at du har satt opp alt under [Forutsetinger](#forutsetninger).
 
 # <a name="kodestil"></a>Kodestil
+
 For styling bruker vi css modules med .scss-filendelse. Vi skriver klassenavn med snake_case. Det vil si underscore som separator i klassenavn.
 
 ## <a name="forutsetninger"></a>Forutsetninger
@@ -61,7 +63,10 @@ Følgende miljøvariabler kan settes manuelt i `.env`:
 VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
 
 # Setter Bearer token for HTTP-kall mot mulighetsrommet-api.
-# Se egen dokumentasjon for hvordan man kan opprette et slikt token for lokal utvikling.
+# Dette tokenet kan genereres med å følge guiden beskrevet i README.md til mulighetsrommet-api.
+# MERK: det genererte tokenet trenger følgende custom claims for at login og access skal fungere:
+#   - NAVident: En tilfeldig NAVident
+#   - oid: En tilfeldig UUID
 VITE_MULIGHETSROMMET_API_AUTH_TOKEN=...
 
 # Toggle for å kjøre en in-memory mock av API'et sammen med applikasjonen.
@@ -77,7 +82,9 @@ VITE_SANITY_ACCESS_TOKEN=...
 ```
 
 ### Opprette Access Token i Sanity
-Gå til siden her https://www.sanity.io/organizations/ojSsHMQGf/project/xegcworx/api og velg "Add API Token". Opprett et eget token med \<Navn\>s dev-token og velg "Developer" under "Permissions".
+
+Gå til siden her https://www.sanity.io/organizations/ojSsHMQGf/project/xegcworx/api og velg "Add API Token".
+Opprett et eget token med \<Navn\>s dev-token og velg "Developer" under "Permissions".
 
 Legg til disse enten i lokal `.env`-fil (denne skal ikke sjekkes inn git), eller sett disse i lokalt miljø slik du selv ønsker.
 
@@ -95,6 +102,7 @@ Forutsetning at denne kjører. Husk å sette `VITE_MULIGHETSROMMET_API_AUTH_TOKE
 ### Testing
 
 #### Ende-til-ende testing med Cypress
-Gå inn til frontend-mappen i terminalen
-For å kjøre testene i IDE: `npx cypress run`.
-For å se testene, kjør først `npm start` for å starte programmet lokalt, og deretter `npx cypress open`.
+
+1. Gå inn til frontend-mappen i terminalen.
+2. For å kjøre testene i IDE: `npx cypress run`.
+3. For å se testene, kjør først `npm start` for å starte programmet lokalt, og deretter `npx cypress open`.

@@ -15,7 +15,7 @@ class TiltakstypeRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun save(tiltakstype: Tiltakstype): QueryResult<Tiltakstype> = query {
+    fun upsert(tiltakstype: Tiltakstype): QueryResult<Tiltakstype> = query {
         logger.info("Lagrer tiltakstype id=${tiltakstype.id}")
 
         @Language("PostgreSQL")
@@ -45,7 +45,7 @@ class TiltakstypeRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getTiltakstyper(
+    fun getAll(
         search: String? = null,
         paginationParams: PaginationParams = PaginationParams()
     ): Pair<Int, List<Tiltakstype>> {
