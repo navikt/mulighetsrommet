@@ -1,11 +1,11 @@
-name: Deploy alerts to NAIS for Mulighetsrommet-arena-adapter
+name: Alerts (mr-arena-adapter)
 on:
   push:
     branches:
       - main
     paths:
-      - mulighetsrommet-arena-adapter/alerts-arena-adapter.yaml
-      - .github/workflows/alert-deploy-arena-adapter.yaml
+      - .github/workflows/mr-arena-adapter-alerts.yaml
+      - mulighetsrommet-arena-adapter/.nais/alerts.yaml
 
 jobs:
   apply-alerts:
@@ -19,10 +19,10 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-arena-adapter/alerts-arena-adapter.yaml
+          RESOURCE: mulighetsrommet-arena-adapter/.nais/alerts.yaml
       - name: deploy to prod
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: mulighetsrommet-arena-adapter/alerts-arena-adapter.yaml
+          RESOURCE: mulighetsrommet-arena-adapter/.nais/alerts.yaml
