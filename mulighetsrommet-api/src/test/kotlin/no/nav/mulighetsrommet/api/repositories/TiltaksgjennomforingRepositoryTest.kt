@@ -72,7 +72,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltakstype = TiltakstypeDto(
                     id = tiltakstype1.id,
                     navn = tiltakstype1.navn,
-                    kode = tiltakstype1.tiltakskode,
+                    arenaKode = tiltakstype1.tiltakskode,
                 ),
                 navn = tiltak1.navn,
                 tiltaksnummer = tiltak1.tiltaksnummer,

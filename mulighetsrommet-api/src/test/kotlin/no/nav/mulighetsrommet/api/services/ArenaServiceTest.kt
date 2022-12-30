@@ -67,7 +67,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstype = TiltakstypeDto(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
-                kode = tiltakstype.tiltakskode,
+                arenaKode = tiltakstype.tiltakskode,
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,

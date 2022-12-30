@@ -78,6 +78,6 @@ class ArenaService(
             "UTVOPPFOPL",
             "VASV",
         )
-        return tiltakstype.kode in gruppetiltak
+        return tiltakstype.arenaKode in gruppetiltak
     }
 }
