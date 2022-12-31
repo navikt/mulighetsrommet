@@ -229,7 +229,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstype = TiltakstypeDto(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
-            kode = string("tiltakskode"),
+            arenaKode = string("tiltakskode"),
         ),
         navn = stringOrNull("navn"),
         tiltaksnummer = string("tiltaksnummer"),

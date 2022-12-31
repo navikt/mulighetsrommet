@@ -116,6 +116,6 @@ class TiltakstypeRepository(private val db: Database) {
     private fun Row.toTiltakstypeDto() = TiltakstypeDto(
         id = uuid("id"),
         navn = string("navn"),
-        kode = string("tiltakskode")
+        arenaKode = string("tiltakskode")
     )
 }

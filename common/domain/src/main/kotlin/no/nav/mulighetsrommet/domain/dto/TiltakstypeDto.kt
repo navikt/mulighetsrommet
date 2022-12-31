@@ -9,5 +9,5 @@ data class TiltakstypeDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val kode: String
+    val arenaKode: String
 )

@@ -1,16 +1,16 @@
 import {
-  Container,
-  LinkBox,
-  LinkOverlay,
-  Heading,
-  Flex,
-  HStack,
-  Button,
   Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  HStack,
   Icon,
   Image,
+  LinkBox,
+  LinkOverlay,
 } from "@chakra-ui/react";
-import { AiOutlinePieChart, AiOutlineSetting } from "react-icons/ai";
+import { AiOutlineSetting } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import snoop from "../images/snoop.gif";
 
@@ -57,10 +57,7 @@ function Navigation() {
           </LinkBox>
           <Box flex="auto" p="5" rounded="md">
             <HStack spacing={4}>
-              <NavButton to="/" icon={AiOutlinePieChart}>
-                Statistics
-              </NavButton>
-              <NavButton to="/management" icon={AiOutlineSetting}>
+              <NavButton to="/" icon={AiOutlineSetting}>
                 Management
               </NavButton>
             </HStack>

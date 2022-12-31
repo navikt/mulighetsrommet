@@ -13,9 +13,9 @@ data class TiltaksgjennomforingKafkaDto(
     val tiltakstype: TiltakstypeDto,
     val navn: String?,
     @Serializable(with = LocalDateSerializer::class)
-    val fraDato: LocalDate? = null,
+    val startDato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
-    val tilDato: LocalDate? = null,
+    val sluttDato: LocalDate? = null,
 ) {
     companion object {
         fun from(tiltaksgjennomforing: TiltaksgjennomforingDto) = tiltaksgjennomforing.run {
@@ -23,8 +23,8 @@ data class TiltaksgjennomforingKafkaDto(
                 id = id,
                 tiltakstype = tiltakstype,
                 navn = navn,
-                fraDato = fraDato?.let { LocalDate.from(it) },
-                tilDato = tilDato?.let { LocalDate.from(it) },
+                startDato = fraDato?.let { LocalDate.from(it) },
+                sluttDato = tilDato?.let { LocalDate.from(it) },
             )
         }
     }
