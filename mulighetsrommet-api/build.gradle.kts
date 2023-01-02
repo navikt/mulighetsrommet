@@ -22,9 +22,6 @@ flyway {
 }
 
 repositories {
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
-    }
     // Needed to get no.nav.common-java-modules to work. Deps from other repos
     maven {
         url = uri("https://packages.confluent.io/maven/")
@@ -94,7 +91,6 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
 
