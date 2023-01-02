@@ -5,12 +5,14 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.api.utils.toUUID
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import org.koin.ktor.ext.inject
 
 fun Route.externalRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
+    val arenaAdapterService: ArenaAdapterService by inject()
 
     route("/api/v1") {
         get("tiltaksgjennomforinger/{id}") {
@@ -24,6 +26,19 @@ fun Route.externalRoutes() {
                     status = HttpStatusCode.NotFound
                 )
             call.respond(TiltaksgjennomforingDto.from(tiltaksgjennomforing))
+        }
+
+        get("tiltaksgjennomforinger/id/{tiltaksnummer}") {
+            val tiltaksnummer = call.parameters["tiltaksnummer"] ?: return@get call.respondText(
+                "Mangler eller ugyldig tiltaksnummer",
+                status = HttpStatusCode.BadRequest
+            )
+            val idResponse =
+                arenaAdapterService.exchangeTiltaksnummerForUUID(tiltaksnummer) ?: return@get call.respondText(
+                    "Det finnes ikke noe tiltaksgjennomføring med tiltaksnummer $tiltaksnummer",
+                    status = HttpStatusCode.NotFound
+                )
+            call.respond(idResponse)
         }
     }
 }
