@@ -84,7 +84,7 @@ export function TiltaksgjennomforingPage() {
           variant="secondary"
           onClick={() => onFjernFavoritt(tiltaksgjennomforing.id)}
         >
-          Fjern fra favoritter
+          Fjern fra min liste
         </Button>
       ) : (
         <Button

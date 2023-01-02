@@ -97,7 +97,7 @@ export const apiHandlers = [
     (req, res, ctx) => {
       const { tiltakskode } = req.params as { tiltakskode: string };
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.tiltakskode === tiltakskode
+        (gj) => gj.tiltakstype.kode === tiltakskode
       );
       return res(
         ctx.status(200),
@@ -114,24 +114,27 @@ export const apiHandlers = [
     }
   ),
 
-  rest.get("*/api/v1/internal/tiltaksgjennomforinger/enhet/:enhet", (req, res, ctx) => {
-    const { enhet } = req.params as { enhet: string };
-    const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-      (gj) => gj.enhet === enhet
-    );
-    return res(
-      ctx.status(200),
-      ctx.delay(350),
-      ctx.json({
-        pagination: {
-          totalCount: gjennomforinger.length,
-          currentPage: 1,
-          pageSize: 50,
-        },
-        data: gjennomforinger,
-      })
-    );
-  }),
+  rest.get(
+    "*/api/v1/internal/tiltaksgjennomforinger/enhet/:enhet",
+    (req, res, ctx) => {
+      const { enhet } = req.params as { enhet: string };
+      const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
+        (gj) => gj.enhet === enhet
+      );
+      return res(
+        ctx.status(200),
+        ctx.delay(350),
+        ctx.json({
+          pagination: {
+            totalCount: gjennomforinger.length,
+            currentPage: 1,
+            pageSize: 50,
+          },
+          data: gjennomforinger,
+        })
+      );
+    }
+  ),
 
   rest.get("*/api/v1/internal/ansatt/me", (req, res, ctx) => {
     const rolleValgt =
