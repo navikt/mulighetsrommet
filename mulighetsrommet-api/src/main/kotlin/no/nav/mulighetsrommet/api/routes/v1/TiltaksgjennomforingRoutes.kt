@@ -18,7 +18,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
-    route("/api/v1/tiltaksgjennomforinger") {
+    route("/api/v1/internal/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
             val (totalCount, items) = tiltaksgjennomforingService.getAll(paginationParams)

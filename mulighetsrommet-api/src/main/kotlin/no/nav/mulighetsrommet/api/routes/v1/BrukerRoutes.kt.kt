@@ -26,7 +26,7 @@ fun Route.brukerRoutes() {
     val historikkService: HistorikkService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/api/v1/bruker") {
+    route("/api/v1/internal/bruker") {
         get {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(

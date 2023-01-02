@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKafkaDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDateTime
 import java.util.*
@@ -62,7 +62,7 @@ class ArenaServiceTest : FunSpec({
     )
 
     val tiltaksgjennomforingDto = tiltaksgjennomforing.run {
-        TiltaksgjennomforingDto(
+        TiltaksgjennomforingAdminDto(
             id = id,
             tiltakstype = TiltakstypeDto(
                 id = tiltakstypeId,
@@ -147,7 +147,7 @@ class ArenaServiceTest : FunSpec({
             service.upsert(tiltakstype)
             service.upsert(tiltaksgjennomforing)
 
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingKafkaDto.from(tiltaksgjennomforingDto)) }
+            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(tiltaksgjennomforingDto)) }
 
             service.remove(tiltaksgjennomforing)
 

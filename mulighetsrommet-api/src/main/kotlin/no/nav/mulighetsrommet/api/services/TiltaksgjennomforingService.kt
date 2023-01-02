@@ -4,19 +4,20 @@ import arrow.core.getOrElse
 import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 
 class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository, private val ansattTiltaksgjennomforingRepository: AnsattTiltaksgjennomforingRepository) {
 
-    fun getAll(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingDto>> {
+    fun getAll(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         return tiltaksgjennomforingRepository.getAll(paginationParams)
     }
 
-    fun sok(filter: Sokefilter): List<TiltaksgjennomforingDto> {
+    fun sok(filter: Sokefilter): List<TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforingRepository.sok(filter)
     }
 
-    fun getAllByEnhet(enhet: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingDto>> {
+    fun getAllByEnhet(enhet: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         return tiltaksgjennomforingRepository.getAllByEnhet(enhet, paginationParams)
     }
 

@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDateTime
 import java.util.*
@@ -67,7 +67,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tiltak2)
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
-            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingDto(
+            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingAdminDto(
                 id = tiltak1.id,
                 tiltakstype = TiltakstypeDto(
                     id = tiltakstype1.id,

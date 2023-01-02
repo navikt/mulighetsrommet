@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -42,7 +42,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? {
+    fun get(id: UUID): TiltaksgjennomforingAdminDto? {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -65,7 +65,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingDto>> {
+    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -98,7 +98,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAllByTiltakstypeId(
         id: UUID,
         pagination: PaginationParams = PaginationParams()
-    ): Pair<Int, List<TiltaksgjennomforingDto>> {
+    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -132,7 +132,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAllByEnhet(
         enhet: String,
         pagination: PaginationParams
-    ): Pair<Int, List<TiltaksgjennomforingDto>> {
+    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -163,7 +163,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    fun sok(filter: Sokefilter): List<TiltaksgjennomforingDto> {
+    fun sok(filter: Sokefilter): List<TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -224,12 +224,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         enhet = string("enhet")
     )
 
-    private fun Row.toTiltaksgjennomforingDto() = TiltaksgjennomforingDto(
+    private fun Row.toTiltaksgjennomforingDto() = TiltaksgjennomforingAdminDto(
         id = uuid("id"),
         tiltakstype = TiltakstypeDto(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
-            arenaKode = string("tiltakskode"),
+            arenaKode = string("tiltakskode")
         ),
         navn = stringOrNull("navn"),
         tiltaksnummer = string("tiltaksnummer"),

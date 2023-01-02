@@ -20,7 +20,7 @@ fun Route.arenaRoutes() {
 
     val arenaService: ArenaService by inject()
 
-    route("/api/v1/arena/") {
+    route("/api/v1/internal/arena/") {
         put("tiltakstype") {
             val tiltakstype = call.receive<TiltakstypeDbo>()
             arenaService.upsert(tiltakstype)

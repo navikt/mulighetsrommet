@@ -8,7 +8,7 @@ security:
   - bearerAuth: [ ]
 
 paths:
-  /api/v1/bruker:
+  /api/v1/internal/bruker:
     parameters:
       - $ref: "#/components/parameters/Fnr"
     get:
@@ -29,7 +29,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger:
+  /api/v1/internal/tiltaksgjennomforinger:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -53,7 +53,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
-  /api/v1/tiltaksgjennomforinger/{id}:
+  /api/v1/internal/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -74,7 +74,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger/tiltakstype/{id}:
+  /api/v1/internal/tiltaksgjennomforinger/tiltakstype/{id}:
     parameters:
       - in: path
         name: id
@@ -108,7 +108,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger/enhet/{enhet}:
+  /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
       - in: path
         name: enhet
@@ -172,7 +172,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger/sok:
+  /api/v1/internal/tiltaksgjennomforinger/sok:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -193,7 +193,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Tiltaksgjennomforing"
 
-  /api/v1/tiltakstyper:
+  /api/v1/internal/tiltakstyper:
     get:
       tags:
         - Tiltakstyper
@@ -222,7 +222,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltakstype"
 
-  /api/v1/tiltakstyper/{id}:
+  /api/v1/internal/tiltakstyper/{id}:
     get:
       tags:
         - Tiltakstyper
@@ -243,7 +243,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/sanity:
+  /api/v1/internal/sanity:
     get:
       tags:
         - Sanity
@@ -267,7 +267,7 @@ paths:
             application/json:
               schema: { }
 
-  /api/v1/dialog:
+  /api/v1/internal/dialog:
     post:
       tags:
         - dialogen
@@ -291,7 +291,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/bruker/historikk:
+  /api/v1/internal/bruker/historikk:
     get:
       tags:
         - Historikk
@@ -303,7 +303,7 @@ paths:
             application/json:
               $ref: "#/components/schemas/HistorikkForBruker"
 
-  /api/v1/ansatt/me:
+  /api/v1/internal/ansatt/me:
     get:
       tags:
         - Ansatt
@@ -345,7 +345,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/delMedBruker/{tiltaksnummer}:
+  /api/v1/internal/delMedBruker/{tiltaksnummer}:
     get:
       tags:
         - Del med bruker
@@ -371,7 +371,7 @@ paths:
         204:
           description: "No content found"
 
-  /api/v1/delMedBruker:
+  /api/v1/internal/delMedBruker:
     post:
       tags:
         - Del med bruker

@@ -14,7 +14,7 @@ import org.koin.ktor.ext.inject
 fun Route.tiltakstypeRoutes() {
     val tiltakstyper: TiltakstypeRepository by inject()
 
-    route("/api/v1/tiltakstyper") {
+    route("/api/v1/internal/tiltakstyper") {
         get {
             val search = call.request.queryParameters["search"]
 
