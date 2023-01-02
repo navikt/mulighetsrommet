@@ -28,9 +28,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 repositories {
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
-    }
     // Needed to get no.nav.common-java-modules to work. Deps from other repos
     maven {
         url = uri("https://packages.confluent.io/maven/")
@@ -69,7 +66,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
-    val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
+    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
     implementation("no.nav.common:kafka:$navCommonModules")
     implementation("no.nav.common:token-client:$navCommonModules")
 
@@ -79,7 +76,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
     testImplementation("org.testcontainers:kafka:1.17.6")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
 
