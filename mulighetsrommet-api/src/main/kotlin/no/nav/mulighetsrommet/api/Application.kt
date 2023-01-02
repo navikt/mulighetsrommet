@@ -51,6 +51,7 @@ fun Application.configure(config: AppConfig) {
         }
         authenticate(AuthProvider.AzureAdMachineToMachine.name) {
             arenaRoutes()
+            externalRoutes()
         }
     }
 }
