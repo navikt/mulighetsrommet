@@ -22,9 +22,6 @@ flyway {
 }
 
 repositories {
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
-    }
     // Needed to get no.nav.common-java-modules to work. Deps from other repos
     maven {
         url = uri("https://packages.confluent.io/maven/")
@@ -78,7 +75,7 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2.2022.11.16_15.18-421ec713e2a0"
+    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
     implementation("no.nav.common:token-client:$navCommonModules")
     implementation("no.nav.common:audit-log:$navCommonModules")
     implementation("no.nav.common:kafka:$navCommonModules")
@@ -94,7 +91,6 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
 

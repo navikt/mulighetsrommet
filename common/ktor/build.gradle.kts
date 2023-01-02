@@ -30,7 +30,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
 
     // Audit-logging
-    val navCommonModules = "2.2022.11.10_08.37-7216bb5b1ede"
+    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
     implementation("no.nav.common:audit-log:$navCommonModules")
 
     // Cache
