@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -106,6 +107,26 @@ fun Route.tiltaksgjennomforingRoutes() {
                     ),
                     data = items
                 )
+            )
+        }
+
+        post("mine") {
+            val navIdent = getNavIdent()
+            val tiltaksgjennomforingId = call.receive<String>()
+
+            val lagringOk = tiltaksgjennomforingService.lagreGjennomforingTilMinliste(tiltaksgjennomforingId, navIdent)
+            call.respondText(
+                lagringOk.toString()
+            )
+        }
+
+        delete("mine") {
+            val navIdent = getNavIdent()
+            val tiltaksgjennomforingId = call.receive<String>()
+
+            val lagringOk = tiltaksgjennomforingService.fjernGjennomforingFraMinliste(tiltaksgjennomforingId, navIdent)
+            call.respondText(
+                lagringOk.toString()
             )
         }
 

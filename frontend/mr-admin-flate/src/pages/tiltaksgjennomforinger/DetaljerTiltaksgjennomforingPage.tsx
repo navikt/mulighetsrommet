@@ -1,4 +1,5 @@
 import { Alert, Button, Heading, Link } from "@navikt/ds-react";
+import { mulighetsrommetClient } from "../../api/clients";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 import { Laster } from "../../components/Laster";
@@ -7,11 +8,28 @@ import { formaterDato } from "../../utils/Utils";
 import styles from "./DetaljerTiltaksgjennomforingPage.module.scss";
 
 export function TiltaksgjennomforingPage() {
-  const { data, isError, isFetching } = useTiltaksgjennomforingById();
-  const { data: favoritter } = useTiltaksgjennomforingerByInnloggetAnsatt();
+  const { data, isError, isFetching, refetch } = useTiltaksgjennomforingById();
+  const { data: favoritter, refetch: refetchAnsattsGjennomforinger } =
+    useTiltaksgjennomforingerByInnloggetAnsatt();
 
   const gjennomforingErFavorisert =
     favoritter?.data.find((it) => it.id === data?.id) !== undefined;
+
+  const onLagreFavoritt = async (id: string) => {
+    await mulighetsrommetClient.tiltaksgjennomforinger.lagreTilMinListe({
+      requestBody: id,
+    });
+    refetch();
+    refetchAnsattsGjennomforinger();
+  };
+
+  const onFjernFavoritt = async (id: string) => {
+    await mulighetsrommetClient.tiltaksgjennomforinger.fjernFraMinListe({
+      requestBody: id,
+    });
+    refetch();
+    refetchAnsattsGjennomforinger();
+  };
 
   if (isError) {
     return (
@@ -64,20 +82,14 @@ export function TiltaksgjennomforingPage() {
       {gjennomforingErFavorisert ? (
         <Button
           variant="secondary"
-          onClick={() => {
-            alert(
-              "Fjerning av tiltaksgjennomføring fra min liste er ikke implementert enda"
-            );
-          }}
+          onClick={() => onFjernFavoritt(tiltaksgjennomforing.id)}
         >
           Fjern fra favoritter
         </Button>
       ) : (
         <Button
           variant="primary"
-          onClick={() => {
-            alert("Legge til i min liste er ikke implementert enda");
-          }}
+          onClick={() => onLagreFavoritt(tiltaksgjennomforing.id)}
         >
           Legg til i min liste
         </Button>

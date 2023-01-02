@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingReposit
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 
 class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository, private val ansattTiltaksgjennomforingRepository: AnsattTiltaksgjennomforingRepository) {
 
@@ -20,12 +19,12 @@ class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: Ti
         return tiltaksgjennomforingRepository.getAllByEnhet(enhet, paginationParams)
     }
 
-    fun getAllForAnsatt(navIdent: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingDto>> {
+    fun getAllForAnsatt(navIdent: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         return tiltaksgjennomforingRepository.getAllByNavident(navIdent, paginationParams)
     }
 
-    fun lagreGjennomforingTilMinliste(tiltaksgjennomforingId: String, navIdent: String) {
-        ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingId, navIdent)
+    fun lagreGjennomforingTilMinliste(tiltaksgjennomforingIder: String, navIdent: String) {
+        ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingIder, navIdent)
     }
 
     fun fjernGjennomforingFraMinliste(tiltaksgjennomforingId: String, navIdent: String) {

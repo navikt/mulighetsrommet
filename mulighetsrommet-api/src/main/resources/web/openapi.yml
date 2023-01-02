@@ -171,6 +171,35 @@ paths:
             application/json:
               schema:
                 type: string
+    post:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: lagreTilMinListe
+      requestBody:
+        description: En id for en tiltaksgjennomføring som skal i listen
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        200:
+          description: Lagrer en tiltaksgjennomføring til ansatts liste over gjennomføringer
+    delete:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: fjernFraMinListe
+      requestBody:
+        description: En id for en tiltaksgjennomføring som skal fjernes fra listen
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        200:
+          description: Fjernet en gjennomføring gitt en id for en tiltaksgjennomføring
+
 
   /api/v1/internal/tiltaksgjennomforinger/sok:
     get:
