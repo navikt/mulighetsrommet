@@ -1,8 +1,9 @@
 import { GrDocumentPerformance } from "react-icons/gr";
 import { EnhetType } from "./enhet";
 import { lenke } from "./lenke";
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
 import { API_VERSION } from "../sanity.config";
+import { Information } from "../components/Information";
 
 export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
@@ -10,6 +11,14 @@ export const tiltaksgjennomforing = defineType({
   type: "document",
   icon: GrDocumentPerformance,
   fields: [
+    defineField({
+      name: "information",
+      title: " ",
+      type: "string",
+      components: {
+        input: Information,
+      },
+    }),
     defineField({
       name: "redaktor",
       title: "Redaktører",

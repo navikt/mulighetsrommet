@@ -1,5 +1,6 @@
 import { FaBook } from "react-icons/fa";
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
+import { Information } from "../components/Information";
 
 export const forskningsrapport = defineType({
   name: "forskningsrapport",
@@ -7,6 +8,14 @@ export const forskningsrapport = defineType({
   type: "document",
   icon: FaBook,
   fields: [
+    defineField({
+      name: "information",
+      title: " ",
+      type: "string",
+      components: {
+        input: Information,
+      },
+    }),
     defineField({
       name: "tittel",
       title: "Tittel",

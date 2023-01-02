@@ -1,5 +1,6 @@
 import { FaWpforms } from "react-icons/fa";
 import { defineField, defineType } from "sanity";
+import { Information } from "../components/Information";
 
 export const tiltakstype = defineType({
   name: "tiltakstype",
@@ -7,6 +8,14 @@ export const tiltakstype = defineType({
   type: "document",
   icon: FaWpforms,
   fields: [
+    defineField({
+      name: "information",
+      title: " ",
+      type: "string",
+      components: {
+        input: Information,
+      },
+    }),
     defineField({
       name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
