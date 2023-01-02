@@ -31,6 +31,11 @@ class ArenaEntityService(
             .rightIfNotNull { ConsumptionError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
     }
 
+    fun getMappingIfProcessed(arenaTable: String, arenaId: String): ArenaEntityMapping? {
+        return mappings.get(arenaTable, arenaId)
+            .takeIf { events.get(arenaTable, arenaId)?.status == ArenaEvent.ConsumptionStatus.Processed }
+    }
+
     fun upsertTiltakstype(tiltakstype: Tiltakstype): Either<ConsumptionError, Tiltakstype> {
         return tiltakstyper.upsert(tiltakstype)
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
