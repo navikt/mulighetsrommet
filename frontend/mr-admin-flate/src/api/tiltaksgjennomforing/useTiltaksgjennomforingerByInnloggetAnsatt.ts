@@ -1,23 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
+import { useHentAnsatt } from "../ansatt/useHentAnsatt";
 import { paginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useTiltaksgjennomforingByEnhet(enhet?: string) {
+export function useTiltaksgjennomforingerByInnloggetAnsatt() {
+  const { data: ansatt } = useHentAnsatt();
+  const ansattId = ansatt?.ident;
   const [page] = useAtom(paginationAtom);
 
   return useQuery(
-    QueryKeys.tiltaksgjennomforingerByEnhet(enhet, page),
+    QueryKeys.tiltaksgjennomforingerByAnsatt(ansattId, page),
     () =>
-      mulighetsrommetClient.tiltaksgjennomforinger.getAllByEnhet({
-        enhet,
+      mulighetsrommetClient.tiltaksgjennomforinger.getAnsattsGjennomforinger({
+        ansattId,
         page,
         size: PAGE_SIZE,
       }),
     {
-      enabled: !!enhet,
+      enabled: !!ansattId,
     }
   );
 }

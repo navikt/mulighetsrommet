@@ -1,9 +1,14 @@
-import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyLong,
+  BodyShort,
+  Heading,
+  Pagination,
+} from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { paginationAtom } from "../../api/atoms";
-import { useTiltaksgjennomforingerByEnhet } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByEnhet";
+import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 import { Laster } from "../../components/Laster";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
@@ -11,14 +16,12 @@ import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger
 import { PAGE_SIZE } from "../../constants";
 import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
 
-export function EnhetsoversiktPage() {
-  const { data: ansattData } = useHentAnsatt();
-  const { data, isFetching, isError } = useTiltaksgjennomforingerByEnhet(
-    ansattData?.hovedenhet
-  );
+export function MineTiltaksgjennomforingerPage() {
+  const { data, isFetching, isError } =
+    useTiltaksgjennomforingerByInnloggetAnsatt();
   const [page, setPage] = useAtom(paginationAtom);
 
-  if (isFetching || !ansattData) {
+  if (isFetching) {
     return <Laster />;
   }
 
@@ -26,8 +29,8 @@ export function EnhetsoversiktPage() {
     return (
       <Alert variant="error">
         <p>
-          Det oppsto en feil ved henting av tiltaksgjennomføringer for din
-          enhet. Prøv igjen senere.
+          Det oppsto en feil ved henting av dine tiltaksgjennomføringer. Prøv
+          igjen senere.
         </p>
         <Link to="/">Til forside</Link>
       </Alert>
@@ -37,7 +40,7 @@ export function EnhetsoversiktPage() {
   if (!data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltaksgjennomføringer for din enhet</p>
+        <p>Klarte ikke finne dine tiltaksgjennomføringer</p>
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -48,11 +51,10 @@ export function EnhetsoversiktPage() {
     <>
       <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size="large">
-        Oversikt over tiltaksgjennomføringer for enhet:{" "}
-        {ansattData?.hovedenhetNavn}
+        Oversikt over dine tiltaksgjennomføringer
       </Heading>
       <BodyLong className={styles.body} size="small">
-        Her finner du alle gjennomføringer for din enhet
+        Her finner du gjennomføringer du har sagt er dine
       </BodyLong>
       <SokEtterTiltaksgjennomforing />
       <>
@@ -66,9 +68,17 @@ export function EnhetsoversiktPage() {
 
         <ul className={styles.oversikt}>
           {tiltaksgjennomforinger.length === 0 && (
-            <Alert variant="info">
-              Vi fant ingen tiltaksgjennomføringer for din enhet
-            </Alert>
+            <>
+              <Alert variant="info">
+                Vi fant ingen tiltaksgjennomføringer som du har lagt til i din
+                liste
+                <p>
+                  Du kan legge tiltaksgjennomføringer til i denne oversikten ved
+                  å trykke deg inn på en spesifikk gjennomføring og velge
+                  &ldquo;Legg til i min liste&rdquo;.
+                </p>
+              </Alert>
+            </>
           )}
           {tiltaksgjennomforinger
             .sort((a, b) => a.navn.localeCompare(b.navn))
@@ -101,9 +111,6 @@ export function EnhetsoversiktPage() {
           ) : null}
         </div>
       </>
-      {/**
-       * TODO Implementere skjema for opprettelse av tiltakstype
-       */}
     </>
   );
 }

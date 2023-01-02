@@ -1,5 +1,6 @@
-import { Alert, Heading, Link } from "@navikt/ds-react";
+import { Alert, Button, Heading, Link } from "@navikt/ds-react";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 import { Laster } from "../../components/Laster";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 import { formaterDato } from "../../utils/Utils";
@@ -7,6 +8,10 @@ import styles from "./DetaljerTiltaksgjennomforingPage.module.scss";
 
 export function TiltaksgjennomforingPage() {
   const { data, isError, isFetching } = useTiltaksgjennomforingById();
+  const { data: favoritter } = useTiltaksgjennomforingerByInnloggetAnsatt();
+
+  const gjennomforingErFavorisert =
+    favoritter?.data.find((it) => it.id === data?.id) !== undefined;
 
   if (isError) {
     return (
@@ -54,6 +59,29 @@ export function TiltaksgjennomforingPage() {
         <dt>Sluttdato</dt>
         <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
+
+      {/** TODO Koble opp knapper */}
+      {gjennomforingErFavorisert ? (
+        <Button
+          variant="secondary"
+          onClick={() => {
+            alert(
+              "Fjerning av tiltaksgjennomføring fra min liste er ikke implementert enda"
+            );
+          }}
+        >
+          Fjern fra favoritter
+        </Button>
+      ) : (
+        <Button
+          variant="primary"
+          onClick={() => {
+            alert("Legge til i min liste er ikke implementert enda");
+          }}
+        >
+          Legg til i min liste
+        </Button>
+      )}
 
       {/**
        * TODO Implementere skjema for opprettelse av tiltaksgjennomføring
