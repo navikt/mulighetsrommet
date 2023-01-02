@@ -12,16 +12,16 @@ import org.koin.ktor.ext.inject
 fun Route.apiRoutes() {
     val arenaEntityService: ArenaEntityService by inject()
 
-    get("/api/exchange/{tiltaksnummer}") {
-        val tiltaksnummer = call.parameters["tiltaksnummer"] ?: return@get call.respondText(
+    get("/api/exchange/{arenaId}") {
+        val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
             "Mangler eller ugyldig tiltaksnummer",
             status = HttpStatusCode.BadRequest
         )
 
         val uuid =
-            arenaEntityService.getMappingIfProcessed(ArenaTables.Tiltaksgjennomforing, tiltaksnummer)?.entityId
+            arenaEntityService.getMappingIfProcessed(ArenaTables.Tiltaksgjennomforing, arenaId)?.entityId
                 ?: return@get call.respondText(
-                    "Det finnes ikke noe prossesert tiltaksgjennomføring med tiltaksnummer $tiltaksnummer",
+                    "Det finnes ikke noe prossesert tiltaksgjennomføring med arena-id $arenaId",
                     status = HttpStatusCode.NotFound
                 )
         call.respond(ExchangeArenaIdForIdResponse(uuid))

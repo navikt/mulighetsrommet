@@ -28,14 +28,14 @@ fun Route.externalRoutes() {
             call.respond(TiltaksgjennomforingDto.from(tiltaksgjennomforing))
         }
 
-        get("tiltaksgjennomforinger/id/{tiltaksnummer}") {
-            val tiltaksnummer = call.parameters["tiltaksnummer"] ?: return@get call.respondText(
-                "Mangler eller ugyldig tiltaksnummer",
+        get("tiltaksgjennomforinger/id/{arenaId}") {
+            val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
+                "Mangler eller ugyldig arenaId",
                 status = HttpStatusCode.BadRequest
             )
             val idResponse =
-                arenaAdapterService.exchangeTiltaksnummerForUUID(tiltaksnummer) ?: return@get call.respondText(
-                    "Det finnes ikke noe tiltaksgjennomføring med tiltaksnummer $tiltaksnummer",
+                arenaAdapterService.exchangeTiltaksgjennomforingsArenaIdForId(arenaId) ?: return@get call.respondText(
+                    "Det finnes ikke noe tiltaksgjennomføring med arenaId $arenaId",
                     status = HttpStatusCode.NotFound
                 )
             call.respond(idResponse)

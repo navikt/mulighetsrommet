@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 class ArenaAdapterService(
     private val arenaAdaperClient: ArenaAdaperClient
 ) {
-    suspend fun exchangeTiltaksnummerForUUID(tiltaksnummer: String): ExchangeArenaIdForIdResponse? {
-        return arenaAdaperClient.exchangeTiltaksgjennomforingsArenaIdForId(tiltaksnummer)
+    suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
+        return arenaAdaperClient.exchangeTiltaksgjennomforingsArenaIdForId(arenaId)
     }
 }
