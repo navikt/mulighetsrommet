@@ -41,6 +41,28 @@ export const apiHandlers = [
     return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
   }),
 
+  rest.get("*/api/v1/tiltaksgjennomforinger/mine", (req, res, ctx) => {
+    const { tiltaksgjennomforinger } =
+      mockTiltaksgjennomforingerKobletTilAnsatt[0] ?? {
+        tiltaksgjennomforinger: [],
+      };
+    const gjennomforinger = mockTiltaksgjennomforinger.data.filter((gj) =>
+      tiltaksgjennomforinger.includes(gj.id)
+    );
+    return res(
+      ctx.status(200),
+      ctx.delay(350),
+      ctx.json({
+        pagination: {
+          totalCount: gjennomforinger.length,
+          currentPage: 1,
+          pageSize: 50,
+        },
+        data: gjennomforinger,
+      })
+    );
+  }),
+
   rest.get("*/api/v1/tiltaksgjennomforinger/:id", (req, res, ctx) => {
     const { id } = req.params as { id: string };
 
@@ -110,32 +132,6 @@ export const apiHandlers = [
       })
     );
   }),
-
-  rest.get(
-    "*/api/v1/tiltaksgjennomforinger/ansatt/:ansattId",
-    (req, res, ctx) => {
-      const { ansattId } = req.params as { ansattId: string };
-      const { tiltaksgjennomforinger } =
-        mockTiltaksgjennomforingerKobletTilAnsatt.find(
-          (it) => it.brukerident === ansattId
-        ) ?? { tiltaksgjennomforinger: [] };
-      const gjennomforinger = mockTiltaksgjennomforinger.data.filter((gj) =>
-        tiltaksgjennomforinger.includes(gj.id)
-      );
-      return res(
-        ctx.status(200),
-        ctx.delay(350),
-        ctx.json({
-          pagination: {
-            totalCount: gjennomforinger.length,
-            currentPage: 1,
-            pageSize: 50,
-          },
-          data: gjennomforinger,
-        })
-      );
-    }
-  ),
 
   rest.get("*/api/v1/ansatt/me", (req, res, ctx) => {
     const rolleValgt =

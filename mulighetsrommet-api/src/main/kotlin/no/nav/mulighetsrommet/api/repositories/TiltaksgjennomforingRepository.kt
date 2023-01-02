@@ -238,4 +238,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tilDato = localDateTimeOrNull("til_dato"),
         enhet = string("enhet")
     )
+
+    fun getAllByNavident(navIdent: String, pagination: PaginationParams): Pair<Int, List<TiltaksgjennomforingDto>> {
+        // TODO Fiks uthenting av alle gjennomføringer for en gitt navident
+        throw NotImplementedError("Uthenting av gjennomføringer for en navident er ikke implementert enda")
+    }
 }

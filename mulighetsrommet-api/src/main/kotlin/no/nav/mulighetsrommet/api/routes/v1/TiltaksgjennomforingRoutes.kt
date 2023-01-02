@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
@@ -74,6 +75,26 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             val (totalCount, items) = tiltaksgjennomforingService.getAllByEnhet(
                 enhet,
+                paginationParams
+            )
+            call.respond(
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = paginationParams.page,
+                        pageSize = paginationParams.limit
+                    ),
+                    data = items
+                )
+            )
+        }
+
+        get("mine") {
+            val navIdent = getNavIdent()
+            val paginationParams = getPaginationParams()
+
+            val (totalCount, items) = tiltaksgjennomforingService.getAllForAnsatt(
+                navIdent,
                 paginationParams
             )
             call.respond(
