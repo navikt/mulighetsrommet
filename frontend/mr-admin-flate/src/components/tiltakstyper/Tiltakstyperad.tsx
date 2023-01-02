@@ -14,7 +14,7 @@ export function Tiltakstyperad({ tiltakstype }: Props) {
       <Link to={`${tiltakstype.id}`}>
         <BodyLong size={"medium"}>{tiltakstype.navn}</BodyLong>
       </Link>
-      <BodyShort size={"small"}>{tiltakstype.kode}</BodyShort>
+      <BodyShort size={"small"}>{tiltakstype.arenaKode}</BodyShort>
       <div className={styles.pil}>
         <Next />
       </div>

@@ -69,7 +69,7 @@ export function TiltaksgjennomforingPage() {
         <dt>Tiltakstype</dt>
         <dd>{tiltaksgjennomforing.tiltakstype.navn}</dd>
         <dt>Kode for tiltakstype:</dt>
-        <dd>{tiltaksgjennomforing.tiltakstype.kode}</dd>
+        <dd>{tiltaksgjennomforing.tiltakstype.arenaKode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
         <dt>Startdato</dt>

@@ -97,7 +97,7 @@ export const apiHandlers = [
     (req, res, ctx) => {
       const { tiltakskode } = req.params as { tiltakskode: string };
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.tiltakstype.kode === tiltakskode
+        (gj) => gj.tiltakstype.arenaKode === tiltakskode
       );
       return res(
         ctx.status(200),

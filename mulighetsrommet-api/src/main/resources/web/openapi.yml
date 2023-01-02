@@ -512,14 +512,14 @@ components:
       required:
         - id
         - navn
-        - kode
+        - arenaKode
       properties:
         id:
           type: string
           format: uuid
         navn:
           type: string
-        kode:
+        arenaKode:
           $ref: "#/components/schemas/Tiltakskode"
 
     Tiltaksgjennomforing:
