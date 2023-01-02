@@ -86,7 +86,7 @@ class TiltakgjennomforingEndretConsumer(
         val mrTiltaksgjennomforing = tiltaksgjennomforing.toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/arena/tiltaksgjennomforing", mrTiltaksgjennomforing)
+        client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", mrTiltaksgjennomforing)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()

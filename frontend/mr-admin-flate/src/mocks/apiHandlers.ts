@@ -5,11 +5,11 @@ import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforing
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 
 export const apiHandlers = [
-  rest.get("*/api/v1/tiltakstyper", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/tiltakstyper", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(mockTiltakstyper));
   }),
 
-  rest.get("*/api/v1/tiltakstyper/:id", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/tiltakstyper/:id", (req, res, ctx) => {
     const { id } = req.params as { id: string };
     return res(
       ctx.status(200),
@@ -18,7 +18,7 @@ export const apiHandlers = [
     );
   }),
 
-  rest.get("*/api/v1/tiltaksgjennomforinger", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/tiltaksgjennomforinger", (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.delay(350),
@@ -26,7 +26,7 @@ export const apiHandlers = [
     );
   }),
 
-  rest.get("*/api/v1/tiltaksgjennomforinger/sok", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/tiltaksgjennomforinger/sok", (req, res, ctx) => {
     const tiltaksnummer = req.url.searchParams.get("tiltaksnummer");
 
     if (!tiltaksnummer) {
@@ -40,7 +40,7 @@ export const apiHandlers = [
     return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
   }),
 
-  rest.get("*/api/v1/tiltaksgjennomforinger/:id", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/tiltaksgjennomforinger/:id", (req, res, ctx) => {
     const { id } = req.params as { id: string };
 
     const gjennomforing = mockTiltaksgjennomforinger.data.find(
@@ -54,7 +54,7 @@ export const apiHandlers = [
   }),
 
   rest.get(
-    "*/api/v1/tiltaksgjennomforinger/tiltakstypedata/:id",
+    "*/api/v1/internal/tiltaksgjennomforinger/tiltakstypedata/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
 
@@ -70,7 +70,7 @@ export const apiHandlers = [
   ),
 
   rest.get(
-    "*/api/v1/tiltaksgjennomforinger/tiltakskode/:tiltakskode",
+    "*/api/v1/internal/tiltaksgjennomforinger/tiltakskode/:tiltakskode",
     (req, res, ctx) => {
       const { tiltakskode } = req.params as { tiltakskode: string };
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
@@ -91,7 +91,7 @@ export const apiHandlers = [
     }
   ),
 
-  rest.get("*/api/v1/tiltaksgjennomforinger/enhet/:enhet", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/tiltaksgjennomforinger/enhet/:enhet", (req, res, ctx) => {
     const { enhet } = req.params as { enhet: string };
     const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
       (gj) => gj.enhet === enhet
@@ -110,7 +110,7 @@ export const apiHandlers = [
     );
   }),
 
-  rest.get("*/api/v1/ansatt/me", (req, res, ctx) => {
+  rest.get("*/api/v1/internal/ansatt/me", (req, res, ctx) => {
     const rolleValgt =
       JSON.parse(window.localStorage.getItem("mr-admin-rolle")!!)?.toString() ??
       "TILTAKSANSVARLIG";

@@ -16,7 +16,7 @@ fun Route.sanityRoutes() {
     val sanityService: SanityService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/api/v1/sanity") {
+    route("/api/v1/internal/sanity") {
         get {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             val query = call.request.queryParameters["query"]

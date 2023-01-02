@@ -71,7 +71,7 @@ class TiltakdeltakerEndretConsumer(
         val mrDeltaker = deltaker.toDomain(tiltaksgjennomforingMapping.entityId, norskIdent)
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/arena/deltaker", mrDeltaker)
+        client.request(method, "/api/v1/internal/arena/deltaker", mrDeltaker)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()

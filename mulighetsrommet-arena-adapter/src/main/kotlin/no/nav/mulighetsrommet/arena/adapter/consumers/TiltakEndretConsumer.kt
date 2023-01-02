@@ -51,7 +51,7 @@ class TiltakEndretConsumer(
             .bind()
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/arena/tiltakstype", tiltakstype.toDomain())
+        client.request(method, "/api/v1/internal/arena/tiltakstype", tiltakstype.toDomain())
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()

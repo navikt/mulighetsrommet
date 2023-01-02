@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.producers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKafkaDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
@@ -15,7 +15,7 @@ class TiltaksgjennomforingKafkaProducer(
         val topic: String,
     )
 
-    fun publish(value: TiltaksgjennomforingKafkaDto) {
+    fun publish(value: TiltaksgjennomforingDto) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),
