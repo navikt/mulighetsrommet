@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.domain.dto.ExchangeTiltaksnummerForIdResponse
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import org.koin.ktor.ext.inject
 
 fun Route.apiRoutes() {
@@ -24,6 +24,6 @@ fun Route.apiRoutes() {
                     "Det finnes ikke noe prossesert tiltaksgjennomføring med tiltaksnummer $tiltaksnummer",
                     status = HttpStatusCode.NotFound
                 )
-        call.respond(ExchangeTiltaksnummerForIdResponse(uuid))
+        call.respond(ExchangeArenaIdForIdResponse(uuid))
     }
 }

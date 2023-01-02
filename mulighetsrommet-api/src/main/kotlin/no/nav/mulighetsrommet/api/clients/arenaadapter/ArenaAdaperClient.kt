@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.clients.arenaadapter
 
-import no.nav.mulighetsrommet.domain.dto.ExchangeTiltaksnummerForIdResponse
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 
 interface ArenaAdaperClient {
-    suspend fun exchangeTiltaksnummerForUUID(tiltaksnummer: String): ExchangeTiltaksnummerForIdResponse?
+    suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse?
 }

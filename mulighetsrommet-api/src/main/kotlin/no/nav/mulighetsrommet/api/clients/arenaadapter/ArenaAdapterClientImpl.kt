@@ -8,8 +8,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
-import no.nav.mulighetsrommet.domain.dto.ExchangeTiltaksnummerForIdResponse
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(ArenaAdapterClientImpl::class.java)
@@ -23,8 +22,8 @@ class ArenaAdapterClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun exchangeTiltaksnummerForUUID(tiltaksnummer: String): ExchangeTiltaksnummerForIdResponse? {
-        val response = client.get("$baseUrl/api/exchange/$tiltaksnummer") {
+    override suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
+        val response = client.get("$baseUrl/api/exchange/$arenaId") {
             bearerAuth(
                 machineToMachineTokenClient.invoke()
             )
@@ -33,8 +32,7 @@ class ArenaAdapterClientImpl(
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {
-                log.warn("Tiltaksgjennomføring finnes ikke, sjekk securelogs")
-                SecureLog.logger.warn("Tiltaksgjennomføring finnes ikke: $tiltaksnummer")
+                log.warn("Tiltaksgjennomføring finnes ikke: $arenaId")
                 null
             }
             else -> throw ResponseException(response, "Unexpected response from arena-adapter")
