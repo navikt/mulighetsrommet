@@ -142,7 +142,7 @@ paths:
               schema:
                 type: string
   
-  /api/v1/tiltaksgjennomforinger/mine:
+  /api/v1/internal/tiltaksgjennomforinger/mine:
     parameters:
       - in: query
         name: page

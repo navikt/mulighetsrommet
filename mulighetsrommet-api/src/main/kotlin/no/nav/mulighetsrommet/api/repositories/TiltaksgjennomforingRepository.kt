@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory

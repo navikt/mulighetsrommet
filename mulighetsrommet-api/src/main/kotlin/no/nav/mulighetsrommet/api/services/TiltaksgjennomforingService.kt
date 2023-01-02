@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.getOrElse
 import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -25,10 +24,8 @@ class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: Ti
         return tiltaksgjennomforingRepository.getAllByNavident(navIdent, paginationParams)
     }
 
-    fun lagreGjennomforingTilMinliste(tiltaksgjennomforingId: String, navIdent: String): String {
-        val id = ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingId, navIdent).getOrElse { "" }
-        println(id)
-        return id
+    fun lagreGjennomforingTilMinliste(tiltaksgjennomforingId: String, navIdent: String) {
+        ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingId, navIdent)
     }
 
     fun fjernGjennomforingFraMinliste(tiltaksgjennomforingId: String, navIdent: String) {
