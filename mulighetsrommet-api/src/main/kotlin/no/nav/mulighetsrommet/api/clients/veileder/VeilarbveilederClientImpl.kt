@@ -16,39 +16,38 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-private val log = LoggerFactory.getLogger(VeilarbveilederClientImpl::class.java)
-
-private val cache: Cache<UUID, VeilederDTO> = Caffeine.newBuilder()
-    .expireAfterWrite(1, TimeUnit.HOURS)
-    .maximumSize(10_000)
-    .recordStats()
-    .build()
-
 class VeilarbveilederClientImpl(
     private val baseUrl: String,
-    private val veilarbVeilederTokenProvider: (accessToken: String) -> String,
+    private val tokenProvider: (accessToken: String) -> String,
     clientEngine: HttpClientEngine = CIO.create()
 ) : VeilarbveilederClient {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    private val cache: Cache<UUID, VeilederDTO> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
 
     init {
-        val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
+        val cacheMetrics: CacheMetricsCollector =
+            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("veilederCache", cache)
     }
 
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
+
     override suspend fun hentVeilederdata(accessToken: String, navAnsattAzureId: UUID): VeilederDTO? {
         return CacheUtils.tryCacheFirstNotNull(cache, navAnsattAzureId) {
             try {
                 client.get("$baseUrl/veileder/me") {
-                    bearerAuth(
-                        veilarbVeilederTokenProvider.invoke(accessToken)
-                    )
+                    bearerAuth(tokenProvider.invoke(accessToken))
                 }.body()
             } catch (exe: Exception) {
                 log.error("Klarte ikke hente data om veileder")
-                throw exe
+                return null
             }
         }
     }

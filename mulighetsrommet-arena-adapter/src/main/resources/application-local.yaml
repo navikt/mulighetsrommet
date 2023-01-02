@@ -16,9 +16,9 @@ app:
       url: http://localhost:8080
       scope: default
     arenaEventService:
-      channelCapacity: 10
-      numChannelConsumers: 1
-      maxRetries: 1
+      channelCapacity: 100
+      numChannelConsumers: 10
+      maxRetries: 5
     arenaOrdsProxy:
       url: http://localhost:8090/arena-ords-proxy
       scope: default
@@ -29,11 +29,18 @@ app:
 
   enableFailedRecordProcessor: true
 
+  auth:
+    azure:
+      issuer: http://localhost:8081/azure
+      jwksUri: http://localhost:8081/azure/jwks
+      audience: mulighetsrommet-api
+      tokenEndpointUrl: http://localhost:8081/azure/token
+
   kafka:
-    brokers: localhost:29092
+    brokerUrl: localhost:29092
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
-      pollChangesDelayMs: 10000
+      topicStatePollDelay: 10000
       consumer:
         tiltakendret: tiltakendret
         tiltakgjennomforingendret: tiltakgjennomforingendret

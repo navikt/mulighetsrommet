@@ -6,7 +6,8 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -15,7 +16,7 @@ class TiltakstypeRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun save(tiltakstype: Tiltakstype): QueryResult<Tiltakstype> = query {
+    fun upsert(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> = query {
         logger.info("Lagrer tiltakstype id=${tiltakstype.id}")
 
         @Language("PostgreSQL")
@@ -29,26 +30,26 @@ class TiltakstypeRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, tiltakstype.toSqlParameters())
-            .map { it.toTiltakstype() }
+            .map { it.toTiltakstypeDbo() }
             .asSingle
             .let { db.run(it)!! }
     }
 
-    fun getTiltakstypeById(id: UUID): Tiltakstype? {
+    fun get(id: UUID): TiltakstypeDto? {
         @Language("PostgreSQL")
         val query = """
             select id::uuid, navn, tiltakskode
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
-        val queryResult = queryOf(query, id).map { it.toTiltakstype() }.asSingle
+        val queryResult = queryOf(query, id).map { it.toTiltakstypeDto() }.asSingle
         return db.run(queryResult)
     }
 
-    fun getTiltakstyper(
+    fun getAll(
         search: String? = null,
         paginationParams: PaginationParams = PaginationParams()
-    ): Pair<Int, List<Tiltakstype>> {
+    ): Pair<Int, List<TiltakstypeDto>> {
         val parameters = mapOf(
             "search" to "%$search%",
             "limit" to paginationParams.limit,
@@ -70,7 +71,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val results = queryOf(query, parameters)
             .map {
-                it.int("full_count") to it.toTiltakstype()
+                it.int("full_count") to it.toTiltakstypeDto()
             }
             .asList
             .let { db.run(it) }
@@ -100,15 +101,21 @@ class TiltakstypeRepository(private val db: Database) {
         ?.let { "where $it" }
         ?: ""
 
-    private fun Tiltakstype.toSqlParameters() = mapOf(
+    private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
         "tiltakskode" to tiltakskode
     )
 
-    private fun Row.toTiltakstype() = Tiltakstype(
+    private fun Row.toTiltakstypeDbo() = TiltakstypeDbo(
         id = uuid("id"),
         navn = string("navn"),
         tiltakskode = string("tiltakskode")
+    )
+
+    private fun Row.toTiltakstypeDto() = TiltakstypeDto(
+        id = uuid("id"),
+        navn = string("navn"),
+        arenaKode = string("tiltakskode")
     )
 }

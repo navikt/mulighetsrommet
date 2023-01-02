@@ -12,8 +12,11 @@ app:
     maximumPoolSize: 10
 
   kafka:
-    producerId: "mulighetsrommet-api-kafka-producer.v1"
-    brokerUrl: "http://localhost:29092"
+    brokerUrl: localhost:29092
+    producerId: mulighetsrommet-api-kafka-producer.v1
+    producers:
+      tiltaksgjennomforinger:
+        topic: siste-tiltaksgjennomforinger-v1
 
   auth:
     azure:

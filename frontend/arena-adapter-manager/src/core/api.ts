@@ -14,3 +14,32 @@ export const putTopicRunningState = async (topics: Topic[]) => {
     body: JSON.stringify(topics),
   });
 };
+
+export const replayEvents = async (
+  arenaTable: string | null,
+  consumptionStatus: string | null
+) => {
+  return await fetch("/mulighetsrommet-arena-adapter/api/events/replay", {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      table: arenaTable,
+      status: consumptionStatus,
+    }),
+  });
+};
+
+export const replayEvent = async (arenaTable: string, arenaId: string) => {
+  return await fetch(`/mulighetsrommet-arena-adapter/api/event/replay`, {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      table: arenaTable,
+      arenaId: arenaId,
+    }),
+  });
+};

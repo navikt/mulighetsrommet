@@ -1,26 +1,26 @@
-import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
-import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
-import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
-import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
-import { PAGE_SIZE } from "../../constants";
+import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../atoms/atoms";
+import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../api/atoms";
+import { useTiltaksgjennomforingerByTiltakstypeId } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakstypeId";
+import { PAGE_SIZE } from "../../constants";
+import { Laster } from "../Laster";
+import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
+import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
+import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
+import { Tiltakstype } from "mulighetsrommet-api-client"
 
 interface Props {
-  tiltakstypeKode: string;
+  tiltakstype: Tiltakstype
 }
 
-export function TiltaksgjennomforingslisteForTiltakstyper({
-  tiltakstypeKode,
-}: Props) {
+export function TiltaksgjennomforingslisteForTiltakstyper({ tiltakstype }: Props) {
   const [page, setPage] = useAtom(
     paginationAtomTiltaksgjennomforingMedTiltakstype
   );
   const { data: tiltaksgjennomforinger, isLoading } =
-    useTiltaksgjennomforingerByTiltakskode(tiltakstypeKode);
+    useTiltaksgjennomforingerByTiltakstypeId(tiltakstype.id);
   if (isLoading) {
-    return <Loader size="xlarge" />;
+    return <Laster size="xlarge" />;
   }
   if (!tiltaksgjennomforinger) {
     return null;
@@ -47,13 +47,15 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
         {tiltaksgjennomforinger.data.length === 0 && (
           <Alert variant="info">Ingen tilhørende tiltaksgjennomføringer</Alert>
         )}
-        {tiltaksgjennomforinger.data.map((tiltaksgjennomforing) => (
-          <Tiltaksgjennomforingrad
-            fagansvarlig
-            key={tiltaksgjennomforing.id}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
-        ))}
+        {tiltaksgjennomforinger.data
+          .sort((a, b) => a.navn.localeCompare(b.navn))
+          .map((tiltaksgjennomforing) => (
+            <Tiltaksgjennomforingrad
+              fagansvarlig
+              key={tiltaksgjennomforing.id}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          ))}
       </ul>
       <Pagination
         size="small"

@@ -93,6 +93,7 @@ private fun createEvent(
         "SAK_ID": 1,
         "SAKSKODE": "$sakskode",
         "AAR": 2022,
-        "LOPENRSAK": $lopenummer
+        "LOPENRSAK": $lopenummer,
+        "AETATENHET_ANSVARLIG": "2990"
     }"""
 )

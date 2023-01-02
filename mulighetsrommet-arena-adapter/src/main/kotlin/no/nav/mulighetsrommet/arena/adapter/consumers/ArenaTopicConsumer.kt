@@ -4,6 +4,8 @@ import arrow.core.Either
 import arrow.core.getOrHandle
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
+import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
@@ -14,8 +16,10 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
     abstract val events: ArenaEventRepository
 
     override suspend fun run(event: JsonElement) {
-        val data = decodeArenaData(event)
-        processEvent(data)
+        Metrics.processArenaEventTimer(arenaTable).recordSuspend {
+            val data = decodeArenaData(event)
+            processEvent(data)
+        }
     }
 
     suspend fun processEvent(e: ArenaEvent): ArenaEvent {
@@ -29,7 +33,6 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
                 logger.info("Event consumption failed: ${it.message}")
                 Pair(it.status, it.message)
             }
-
         return events.upsert(event.copy(status = status, message = message))
     }
 

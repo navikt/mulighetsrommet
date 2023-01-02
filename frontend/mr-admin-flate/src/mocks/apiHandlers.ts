@@ -13,30 +13,59 @@ export const apiHandlers = [
     const { id } = req.params as { id: string };
     return res(
       ctx.status(200),
+
       ctx.json(mockTiltakstyper.data.find((gj) => gj.id === id))
     );
   }),
 
   rest.get("*/api/v1/tiltaksgjennomforinger", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
+    return res(
+      ctx.status(200),
+      ctx.delay(350),
+      ctx.json(mockTiltaksgjennomforinger)
+    );
+  }),
+
+  rest.get("*/api/v1/tiltaksgjennomforinger/sok", (req, res, ctx) => {
+    const tiltaksnummer = req.url.searchParams.get("tiltaksnummer");
+
+    if (!tiltaksnummer) {
+      throw new Error("Tiltaksnummer er ikke satt som query-param");
+    }
+
+    const gjennomforing = mockTiltaksgjennomforinger.data.filter((tg) =>
+      tg.tiltaksnummer.toString().includes(tiltaksnummer)
+    );
+
+    return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
   }),
 
   rest.get("*/api/v1/tiltaksgjennomforinger/:id", (req, res, ctx) => {
     const { id } = req.params as { id: string };
-    return res(
-      ctx.status(200),
-      ctx.json(mockTiltaksgjennomforinger.data.find((gj) => gj.id === id))
+
+    const gjennomforing = mockTiltaksgjennomforinger.data.find(
+      (gj) => gj.id === id
     );
+    if (!gjennomforing) {
+      return res(ctx.status(404), ctx.json(undefined));
+    }
+
+    return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
   }),
 
   rest.get(
     "*/api/v1/tiltaksgjennomforinger/tiltakstypedata/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
-      return res(
-        ctx.status(200),
-        ctx.json(mockTiltaksgjennomforinger.data.find((gj) => gj.id === id))
+
+      const gjennomforing = mockTiltaksgjennomforinger.data.find(
+        (gj) => gj.id === id
       );
+      if (!gjennomforing) {
+        return res(ctx.status(404), ctx.json(undefined));
+      }
+
+      return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
     }
   ),
 
@@ -49,6 +78,7 @@ export const apiHandlers = [
       );
       return res(
         ctx.status(200),
+        ctx.delay(450),
         ctx.json({
           pagination: {
             totalCount: gjennomforinger.length,
@@ -61,15 +91,34 @@ export const apiHandlers = [
     }
   ),
 
+  rest.get("*/api/v1/tiltaksgjennomforinger/enhet/:enhet", (req, res, ctx) => {
+    const { enhet } = req.params as { enhet: string };
+    const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
+      (gj) => gj.enhet === enhet
+    );
+    return res(
+      ctx.status(200),
+      ctx.delay(350),
+      ctx.json({
+        pagination: {
+          totalCount: gjennomforinger.length,
+          currentPage: 1,
+          pageSize: 50,
+        },
+        data: gjennomforinger,
+      })
+    );
+  }),
+
   rest.get("*/api/v1/ansatt/me", (req, res, ctx) => {
     const rolleValgt =
-      window.localStorage.getItem("valp-rolle-adminflate") ??
-      "tiltaksansvarlig";
+      JSON.parse(window.localStorage.getItem("mr-admin-rolle")!!)?.toString() ??
+      "TILTAKSANSVARLIG";
 
     return res(
       ctx.status(200),
       ctx.json(
-        rolleValgt === "tiltaksansvarlig"
+        rolleValgt === "TILTAKSANSVARLIG"
           ? mockTiltaksansvarlig
           : mockFagansvarlig
       )

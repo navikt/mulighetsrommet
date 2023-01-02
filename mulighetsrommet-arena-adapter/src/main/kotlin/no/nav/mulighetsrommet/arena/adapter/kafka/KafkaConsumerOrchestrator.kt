@@ -19,16 +19,19 @@ import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
+    config: Config,
     db: Database,
     private val group: ConsumerGroup<TopicConsumer>,
     private val topicRepository: TopicRepository,
-    pollDelay: Long
 ) {
-
-    private val logger = LoggerFactory.getLogger(KafkaConsumerOrchestrator::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val consumerClients: Map<String, KafkaConsumerClient>
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
     private val topicPoller: Poller
+
+    data class Config(
+        val topicStatePollDelay: Long,
+    )
 
     init {
         logger.info("Initializing Kafka consumer clients")
@@ -57,7 +60,7 @@ class KafkaConsumerOrchestrator(
 
         updateClientRunningState()
 
-        topicPoller = Poller(pollDelay) {
+        topicPoller = Poller(config.topicStatePollDelay) {
             updateClientRunningState()
         }
 

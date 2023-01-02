@@ -9,7 +9,7 @@ ktlint {
 }
 
 dependencies {
-    implementation("io.arrow-kt:arrow-core:1.1.2")
+    implementation("io.arrow-kt:arrow-core:1.1.3")
 
     // Database
     api("org.flywaydb:flyway-core:9.8.3")

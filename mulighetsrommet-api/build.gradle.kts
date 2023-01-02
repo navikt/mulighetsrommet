@@ -43,7 +43,7 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
-    implementation("io.arrow-kt:arrow-core:1.1.2")
+    implementation("io.arrow-kt:arrow-core:1.1.3")
 
     val ktorVersion = "2.2.1"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")

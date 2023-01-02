@@ -12,15 +12,14 @@ import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.*
 
-private val log = LoggerFactory.getLogger(MicrosoftGraphClientImpl::class.java)
-private val secureLog = SecureLog.logger
-
 class MicrosoftGraphClientImpl(
     private val baseUrl: String,
     private val tokenProvider: () -> String,
     clientEngine: HttpClientEngine = CIO.create()
 ) : MicrosoftGraphClient {
-    val client = httpJsonClient(clientEngine).config {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
 
@@ -30,7 +29,8 @@ class MicrosoftGraphClientImpl(
         }
 
         if ((response.status == HttpStatusCode.NotFound) || (response.status == HttpStatusCode.NoContent)) {
-            secureLog.warn("Klarte ikke finne bruker med azure-id: $navAnsattAzureId")
+            SecureLog.logger.warn("Klarte ikke finne bruker med azure-id: $navAnsattAzureId")
+            log.error("Klarte ikke finne bruker med azure-id. Se detaljer i secureLog.")
             throw RuntimeException("Klarte ikke finne bruker med azure-id. Finnes brukeren i AD?")
         }
 

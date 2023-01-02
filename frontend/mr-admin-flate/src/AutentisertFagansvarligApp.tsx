@@ -1,10 +1,10 @@
 import { Route, Routes } from "react-router-dom";
+import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
-import { TiltakstypePage } from "./pages/TiltakstypePage";
-import { OversiktTiltakstyper } from "./pages/OversiktTiltakstyper";
-import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
-import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
+import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
+import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 
 export default function AutentisertFagansvarligApp() {
   return (
@@ -19,19 +19,19 @@ export default function AutentisertFagansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="oversikt"
+        path="tiltakstyper"
         element={
           <RootLayout>
-            <OversiktTiltakstyper />
+            <TiltakstyperPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
       <Route
-        path="oversikt/:tiltakstypeId"
+        path="tiltakstyper/:tiltakstypeId"
         element={
           <RootLayout>
-            <TiltakstypePage />
+            <DetaljerTiltakstypePage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
@@ -40,7 +40,7 @@ export default function AutentisertFagansvarligApp() {
         path="tiltaksgjennomforing/:tiltaksgjennomforingId"
         element={
           <RootLayout>
-            <TiltaksgjennomforingPage fagansvarlig />
+            <TiltaksgjennomforingPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

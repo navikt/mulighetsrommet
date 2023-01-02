@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/arena-ords-proxy/ords/fnr",
+    "queryParameters": {
+      "personId": {
+        "matches": "[\\d\\D]*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "fnr": "12345678910"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

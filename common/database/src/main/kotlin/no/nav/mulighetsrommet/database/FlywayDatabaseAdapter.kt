@@ -8,8 +8,7 @@ import org.slf4j.LoggerFactory
 import kotlin.system.measureTimeMillis
 
 class FlywayDatabaseAdapter(
-    config: DatabaseConfig,
-    migrationConfig: MigrationConfig = MigrationConfig(),
+    config: FlywayDatabaseConfig,
 ) : DatabaseAdapter(config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -18,7 +17,7 @@ class FlywayDatabaseAdapter(
     init {
         flyway = Flyway
             .configure()
-            .cleanDisabled(migrationConfig.cleanDisabled)
+            .cleanDisabled(config.migrationConfig.cleanDisabled)
             .configuration(
                 mapOf(
                     // Disable transactional locks in order to support concurrent indexes
@@ -31,7 +30,7 @@ class FlywayDatabaseAdapter(
             }
             .load()
 
-        when (migrationConfig.strategy) {
+        when (config.migrationConfig.strategy) {
             InitializationStrategy.Migrate -> {
                 migrate()
             }

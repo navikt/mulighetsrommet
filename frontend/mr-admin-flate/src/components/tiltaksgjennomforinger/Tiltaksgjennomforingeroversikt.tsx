@@ -1,51 +1,58 @@
-import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
-import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
-import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
-import { Alert, Heading, Loader, Pagination } from "@navikt/ds-react";
+import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { paginationAtom } from "../../api/atoms";
+import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
 import { PAGE_SIZE } from "../../constants";
-import { paginationAtom } from "../../atoms/atoms";
+import { Laster } from "../Laster";
+import { PagineringsOversikt } from "../paginering/PagineringOversikt";
+import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
+import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 
 export function Tiltaksgjennomforingeroversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
+
   if (isLoading) {
-    return <Loader size="xlarge" />;
+    return <Laster size="xlarge" />;
   }
+
   if (!data) {
     return null;
   }
-  const { data: tiltaksgjennomforinger, pagination: paginering } = data;
 
-  const PagineringsOversikt = () => {
-    return (
-      <Heading level="1" size="xsmall" data-testid="antall-tiltak">
-        Viser {(page - 1) * PAGE_SIZE + 1}-
-        {tiltaksgjennomforinger.length + (page - 1) * PAGE_SIZE} av{" "}
-        {paginering?.totalCount} tiltak
-      </Heading>
-    );
-  };
+  const { data: tiltaksgjennomforinger, pagination: paginering } = data;
 
   return (
     <>
-      {tiltaksgjennomforinger.length > 0 ? <PagineringsOversikt /> : null}
+      {tiltaksgjennomforinger.length > 0 ? (
+        <PagineringsOversikt
+          page={page}
+          antall={tiltaksgjennomforinger.length}
+          maksAntall={data.pagination.totalCount}
+        />
+      ) : null}
 
       <ul className={styles.oversikt}>
         {tiltaksgjennomforinger.length === 0 && (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
         )}
-        {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
-          <Tiltaksgjennomforingrad
-            key={tiltaksgjennomforing.id}
-            tiltaksgjennomforing={tiltaksgjennomforing}
-          />
-        ))}
+        {tiltaksgjennomforinger
+          .sort((a, b) => a.navn.localeCompare(b.navn))
+          .map((tiltaksgjennomforing) => (
+            <Tiltaksgjennomforingrad
+              key={tiltaksgjennomforing.id}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          ))}
       </ul>
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
-            <PagineringsOversikt />
+            <PagineringsOversikt
+              page={page}
+              antall={tiltaksgjennomforinger.length}
+              maksAntall={data.pagination.totalCount}
+            />
             <Pagination
               size="small"
               data-testid="paginering"

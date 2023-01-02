@@ -23,15 +23,15 @@ spec:
     initialDelay: 20
   replicas:
     min: 2
-    max: 10
+    max: 4
     cpuThresholdPercentage: 75
   resources:
-    limits:
-      cpu: "1"
-      memory: 2048Mi
     requests:
       cpu: 250m
-      memory: 1024Mi
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 4096Mi
   gcp:
     sqlInstances:
       - type: POSTGRES_14

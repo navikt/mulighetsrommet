@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
-import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -9,7 +10,7 @@ data class Config(
 )
 
 data class AppConfig(
-    val database: DatabaseConfig,
+    val database: FlywayDatabaseConfig,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityConfig,
@@ -30,8 +31,13 @@ data class AuthConfig(
 )
 
 data class KafkaConfig(
+    val brokerUrl: String? = null,
     val producerId: String,
-    val brokerUrl: String? = null
+    val producers: KafkaProducers
+)
+
+data class KafkaProducers(
+    val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config
 )
 
 data class AuthProvider(

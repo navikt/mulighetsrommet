@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.database.kotest.extensions
 
-import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.database.Password
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -12,10 +13,10 @@ fun createDatabaseTestSchema(
     host: String = "localhost",
     user: String = "valp",
     password: Password = Password("valp")
-): DatabaseConfig {
+): FlywayDatabaseConfig {
     val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd/HH/mm/ss"))
     val schema = "$currentTime:${UUID.randomUUID()}"
-    return DatabaseConfig(host, port, name, schema, user, password, 1)
+    return FlywayDatabaseConfig(host, port, name, schema, user, password, 1, migrationConfig = FlywayDatabaseAdapter.MigrationConfig(cleanDisabled = false))
 }
 
 // mulighetsrommet-arena-adapter

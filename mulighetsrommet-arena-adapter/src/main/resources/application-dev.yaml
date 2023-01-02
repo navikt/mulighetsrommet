@@ -10,14 +10,16 @@ app:
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
+    migrationConfig:
+      strategy: MigrateAsync
 
   services:
     mulighetsrommetApi:
       url: http://mulighetsrommet-api
       scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
     arenaEventService:
-      channelCapacity: 500
-      numChannelConsumers: 50
+      channelCapacity: 10000
+      numChannelConsumers: 100
       maxRetries: 5
     arenaOrdsProxy:
       url: https://amt-arena-ords-proxy.dev-fss-pub.nais.io/api
@@ -29,11 +31,17 @@ app:
 
   enableFailedRecordProcessor: true
 
+  auth:
+    azure:
+      issuer: ${AZURE_OPENID_CONFIG_ISSUER}
+      jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+      audience: ${AZURE_APP_CLIENT_ID}
+      tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+
   kafka:
-    brokers: ${KAFKA_BROKERS}
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
     topics:
-      pollChangesDelayMs: 10000
+      topicStatePollDelay: 10000
       consumer:
         tiltakendret: teamarenanais.aapen-arena-tiltakendret-v1-q2
         tiltakgjennomforingendret: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2

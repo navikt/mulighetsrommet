@@ -25,7 +25,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -65,7 +65,8 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         val sak = Sak(
             sakId = 1,
             lopenummer = 123,
-            aar = 2022
+            aar = 2022,
+            enhet = "2990"
         )
         val tiltaksgjennomforing = Tiltaksgjennomforing(
             id = UUID.randomUUID(),
@@ -202,7 +203,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
 
-                    val deltaker = decodeRequestBody<Deltaker>().apply {
+                    val deltaker = decodeRequestBody<DeltakerDbo>().apply {
                         tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
                         norskIdent shouldBe "12345678910"
                     }
@@ -215,7 +216,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<Deltaker>().apply {
+                    decodeRequestBody<DeltakerDbo>().apply {
                         id shouldBe generatedId
                     }
                 }

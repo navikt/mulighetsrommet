@@ -4,6 +4,8 @@ export const mockTiltaksansvarlig = {
   ident: "T99876",
   navn: "Tiltakansvarlig, Tilda",
   tilganger: ["FLATE"],
+  hovedenhet: "2990",
+  hovedenhetNavn: "IT Drift",
 };
 
 export const mockFagansvarlig = {
@@ -12,4 +14,6 @@ export const mockFagansvarlig = {
   ident: "F18765",
   navn: "Fagansvarlig, Frode",
   tilganger: ["FAGANSVARLIG"],
+  hovedenhet: "2990",
+  hovedenhetNavn: "IT Drift",
 };

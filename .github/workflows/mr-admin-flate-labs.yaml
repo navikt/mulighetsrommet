@@ -23,8 +23,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
-      - name: Vitest
-        run: npx turbo run test:ci --filter=mr-admin-flate 
+      - name: Test
+        run: npx turbo run lint test:ci --filter=mr-admin-flate
       - name: Build
         run: npx turbo run build:labs --filter=mr-admin-flate
       - name: Cypress run

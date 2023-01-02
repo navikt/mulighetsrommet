@@ -1,9 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 import { ForsideTiltaksansvarlig } from "./ForsideTiltaksansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
+import { EnhetsoversiktPage } from "./pages/enhet/EnhetsoversiktPage";
 import { ErrorPage } from "./pages/ErrorPage";
-import { OversiktTiltaksgjennomforinger } from "./pages/OversiktTiltaksgjennomforinger";
-import { TiltaksgjennomforingPage } from "./pages/TiltaksgjennomforingPage";
+import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 
 export default function AutentisertTiltaksansvarligApp() {
   return (
@@ -21,13 +22,22 @@ export default function AutentisertTiltaksansvarligApp() {
         path="oversikt"
         element={
           <RootLayout>
-            <OversiktTiltaksgjennomforinger />
+            <TiltaksgjennomforingerPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
       <Route
-        path="oversikt/:tiltaksgjennomforingId"
+        path="enhet"
+        element={
+          <RootLayout>
+            <EnhetsoversiktPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path=":tiltaksgjennomforingId"
         element={
           <RootLayout>
             <TiltaksgjennomforingPage />

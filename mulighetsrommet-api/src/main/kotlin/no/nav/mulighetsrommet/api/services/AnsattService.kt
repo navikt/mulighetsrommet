@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
+import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.TEAM_MULIGHETSROMMET
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.TILTAKSANSVARLIG_FLATE_GRUPPE
 import no.nav.poao_tilgang.client.AdGruppe
 import java.util.*
@@ -30,16 +31,16 @@ class AnsattService(
 private fun mapAdGruppeTilTilgang(adGruppe: AdGruppe): Tilgang? {
     return when (adGruppe.navn) {
         TILTAKSANSVARLIG_FLATE_GRUPPE -> Tilgang.FLATE
+        TEAM_MULIGHETSROMMET -> Tilgang.UTVIKLER_VALP
         else -> null
     }
 }
-
 @Serializable
 data class AnsattData(
-    val etternavn: String?,
-    val fornavn: String?,
-    val ident: String?,
-    val navn: String?,
+    val etternavn: String? = null,
+    val fornavn: String? = null,
+    val ident: String? = null,
+    val navn: String? = null,
     val tilganger: Set<Tilgang>,
     val hovedenhet: String,
     val hovedenhetNavn: String
@@ -47,5 +48,6 @@ data class AnsattData(
 
 @Serializable
 enum class Tilgang {
-    FLATE
+    FLATE,
+    UTVIKLER_VALP
 }

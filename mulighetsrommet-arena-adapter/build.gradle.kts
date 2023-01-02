@@ -49,7 +49,7 @@ dependencies {
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.arrow-kt:arrow-core:1.1.2")
+    implementation("io.arrow-kt:arrow-core:1.1.3")
 
     val ktorVersion = "2.2.1"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
@@ -66,6 +66,8 @@ dependencies {
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
     val navCommonModules = "2.2022.09.09_12.09-f56d40d6d405"
     implementation("no.nav.common:kafka:$navCommonModules")
@@ -79,10 +81,13 @@ dependencies {
     testImplementation("org.testcontainers:kafka:1.17.6")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
     testImplementation("org.assertj:assertj-db:2.0.2")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
 
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.5")

@@ -5,12 +5,17 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.*
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
 import java.time.LocalDateTime
 import java.util.*
 
@@ -21,21 +26,22 @@ class HistorikkServiceTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
-    val tiltakstype = Tiltakstype(
+    val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakskode = "ARBTREN",
     )
 
-    val tiltaksgjennomforing = Tiltaksgjennomforing(
+    val tiltaksgjennomforing = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789"
+        virksomhetsnummer = "123456789",
+        enhet = "2990"
     )
 
-    val deltaker = Deltaker(
+    val deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
@@ -48,11 +54,12 @@ class HistorikkServiceTest : FunSpec({
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
-        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository)
+        val producer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository, producer)
 
-        service.createOrUpdate(tiltakstype)
-        service.createOrUpdate(tiltaksgjennomforing)
-        service.createOrUpdate(deltaker)
+        service.upsert(tiltakstype)
+        service.upsert(tiltaksgjennomforing)
+        service.upsert(deltaker)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
