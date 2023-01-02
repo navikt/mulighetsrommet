@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingKafkaDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 
 class ArenaService(
@@ -30,7 +30,7 @@ class ArenaService(
             .tap {
                 if (isSupportedTiltaksgjennomforing(tiltaksgjennomforing)) {
                     tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.let {
-                        tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingKafkaDto.from(it))
+                        tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
                     }
                 }
             }

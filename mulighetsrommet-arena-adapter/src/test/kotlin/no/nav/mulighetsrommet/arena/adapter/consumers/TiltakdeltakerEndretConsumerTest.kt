@@ -129,7 +129,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
                 "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/arena/deltaker" to { respondOk() }
+                "/api/v1/internal/arena/deltaker" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
 
@@ -153,7 +153,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Failed when arena ords proxy responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.InternalServerError) },
-                    "/api/v1/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -167,7 +167,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
-                    "/api/v1/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -180,7 +180,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Failed when api responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/arena/deltaker" to { respondError(HttpStatusCode.InternalServerError) }
+                    "/api/v1/internal/arena/deltaker" to { respondError(HttpStatusCode.InternalServerError) }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -193,7 +193,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
