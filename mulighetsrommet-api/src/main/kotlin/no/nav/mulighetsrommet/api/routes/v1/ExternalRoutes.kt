@@ -12,7 +12,7 @@ import org.koin.ktor.ext.inject
 fun Route.externalRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
 
-    route("/api/v1/external") {
+    route("/api/v1") {
         get("tiltaksgjennomforinger/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",

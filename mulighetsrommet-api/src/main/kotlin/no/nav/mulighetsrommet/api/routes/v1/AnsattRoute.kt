@@ -11,7 +11,7 @@ import org.koin.ktor.ext.inject
 fun Route.ansattRoute() {
     val ansattService: AnsattService by inject()
 
-    route("/api/v1/ansatt/me") {
+    route("/api/v1/internal/ansatt/me") {
         get {
             val accessToken = call.getAccessToken()
             call.respond(ansattService.hentAnsattData(accessToken, getNavAnsattAzureId()))
