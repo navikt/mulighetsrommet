@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -141,7 +141,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "000000"))
                 },
-                "/api/v1/arena/tiltaksgjennomforing" to { respondOk() }
+                "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
             )
 
             val consumer = createConsumer(database.db, engine)
@@ -222,7 +222,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                             )
                         )
                     },
-                    "/api/v1/arena/tiltaksgjennomforing" to {
+                    "/api/v1/internal/arena/tiltaksgjennomforing" to {
                         respondError(
                             HttpStatusCode.InternalServerError
                         )
@@ -246,7 +246,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                             )
                         )
                     },
-                    "/api/v1/arena/tiltaksgjennomforing" to { respondOk() }
+                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -264,7 +264,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                         method shouldBe HttpMethod.Put
 
                         val tiltaksgjennomforing =
-                            decodeRequestBody<Tiltaksgjennomforing>().apply {
+                            decodeRequestBody<TiltaksgjennomforingDbo>().apply {
                                 tiltakstypeId shouldBe tiltakstype.id
                                 tiltaksnummer shouldBe "2022#123"
                                 virksomhetsnummer shouldBe "123456"
@@ -292,7 +292,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<Tiltaksgjennomforing>().apply {
+                    decodeRequestBody<TiltaksgjennomforingDbo>().apply {
                         id shouldBe generatedId
                     }
                 }

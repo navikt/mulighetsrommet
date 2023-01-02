@@ -4,7 +4,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
@@ -18,10 +17,10 @@ fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
-    route("/api/v1/tiltaksgjennomforinger") {
+    route("/api/v1/internal/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforingService.getAllWithTiltakstypedata(paginationParams)
+            val (totalCount, items) = tiltaksgjennomforingService.getAll(paginationParams)
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(
@@ -35,16 +34,13 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
 
         get("tiltakskode/{tiltakskode}") {
-            val tiltakskode = call.parameters["tiltakskode"] ?: return@get call.respondText(
-                "Mangler eller ugyldig tiltakskode",
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                "Mangler eller ugyldig tiltakstypeId",
                 status = HttpStatusCode.BadRequest
             )
 
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakskode(
-                tiltakskode,
-                paginationParams
-            )
+            val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakstypeId(id, paginationParams)
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(
@@ -62,13 +58,13 @@ fun Route.tiltaksgjennomforingRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
-            val tiltaksgjennomforing =
-                tiltaksgjennomforinger.get(id) ?: return@get call.respondText(
-                    "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                    status = HttpStatusCode.NotFound
-                )
+            val tiltaksgjennomforing = tiltaksgjennomforinger.get(id) ?: return@get call.respondText(
+                "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                status = HttpStatusCode.NotFound
+            )
             call.respond(tiltaksgjennomforing)
         }
+
         get("enhet/{enhet}") {
             val enhet = call.parameters["enhet"] ?: return@get call.respondText(
                 "Mangler enhet",
@@ -90,19 +86,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                     data = items
                 )
             )
-        }
-
-        get("tiltakstypedata/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
-            )
-            val tiltaksgjennomforing =
-                tiltaksgjennomforinger.getWithTiltakstypedata(id) ?: return@get call.respondText(
-                    "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                    status = HttpStatusCode.NotFound
-                )
-            call.respond(tiltaksgjennomforing)
         }
 
         get("sok") {

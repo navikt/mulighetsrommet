@@ -9,9 +9,9 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.domain.models.Tiltakstype
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
@@ -20,18 +20,19 @@ fun Route.arenaRoutes() {
 
     val arenaService: ArenaService by inject()
 
-    route("/api/v1/arena/") {
+    route("/api/v1/internal/arena/") {
         put("tiltakstype") {
-            val tiltakstype = call.receive<Tiltakstype>()
-            arenaService.createOrUpdate(tiltakstype)
+            val tiltakstype = call.receive<TiltakstypeDbo>()
+            arenaService.upsert(tiltakstype)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltakstype")
                 }
         }
+
         delete("tiltakstype") {
-            val tiltakstype = call.receive<Tiltakstype>()
+            val tiltakstype = call.receive<TiltakstypeDbo>()
             arenaService.remove(tiltakstype)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -39,17 +40,19 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakstype")
                 }
         }
+
         put("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
-            arenaService.createOrUpdate(tiltaksgjennomforing)
+            val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
+            arenaService.upsert(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltak")
                 }
         }
+
         delete("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<Tiltaksgjennomforing>()
+            val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
             arenaService.remove(tiltaksgjennomforing)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -57,15 +60,17 @@ fun Route.arenaRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltak")
                 }
         }
+
         put("deltaker") {
-            val deltaker = call.receive<Deltaker>()
-            arenaService.createOrUpdate(deltaker)
+            val deltaker = call.receive<DeltakerDbo>()
+            arenaService.upsert(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
                     when (it) {
                         is DatabaseOperationError.ForeignKeyViolation -> {
                             call.respond(HttpStatusCode.Conflict, "Kunne ikke opprette deltaker")
                         }
+
                         else -> {
                             logError(logger, it.error)
                             call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette deltaker")
@@ -73,8 +78,9 @@ fun Route.arenaRoutes() {
                     }
                 }
         }
+
         delete("deltaker") {
-            val deltaker = call.receive<Deltaker>()
+            val deltaker = call.receive<DeltakerDbo>()
             arenaService.remove(deltaker)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {

@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.models.Tiltakstype as MrTiltakstype
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo as MrTiltakstype
 
 class TiltakEndretConsumer(
     override val config: ConsumerConfig,
@@ -51,7 +51,7 @@ class TiltakEndretConsumer(
             .bind()
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/arena/tiltakstype", tiltakstype.toDomain())
+        client.request(method, "/api/v1/internal/arena/tiltakstype", tiltakstype.toDomain())
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()

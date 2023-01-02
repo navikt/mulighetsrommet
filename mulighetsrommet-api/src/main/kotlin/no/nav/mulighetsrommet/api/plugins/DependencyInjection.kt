@@ -7,8 +7,8 @@ import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.common.token_client.client.MachineToMachineTokenClient
+import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -25,15 +25,17 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.*
-import no.nav.mulighetsrommet.api.services.kafka.KafkaProducerService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.ktor.plugins.Metrikker
+import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
@@ -50,17 +52,9 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
         modules(
             db(appConfig.database),
+            kafka(appConfig.kafka),
             repositories(),
-            services(
-                appConfig,
-                veilarbvedsstotte(appConfig),
-                veilarboppfolging(appConfig),
-                veilarbperson(appConfig),
-                veilarbdialog(appConfig),
-                veilarbveileder(appConfig),
-                amtenhetsregister(appConfig),
-                microsoftGraphClient(appConfig),
-            )
+            services(appConfig),
         )
     }
 }
@@ -73,135 +67,24 @@ private fun db(config: FlywayDatabaseConfig): Module {
     }
 }
 
-private fun kafka(kafkaConfig: KafkaConfig): KafkaProducerService<String, String> {
-    if (NaisEnv.current().isLocal()) {
-        return KafkaProducerService(
-            KafkaProducerClientBuilder.builder<String, String>()
-                .withProperties(
-                    KafkaPropertiesBuilder.producerBuilder()
-                        .withBrokerUrl(kafkaConfig.brokerUrl)
-                        .withBaseProperties()
-                        .withProducerId(kafkaConfig.producerId)
-                        .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
-                        .build()
-                )
-                .build()
-        )
-    }
-
-    return KafkaProducerService(
-        KafkaProducerClientBuilder.builder<String, String>()
-            .withProperties(KafkaPropertiesPreset.aivenDefaultProducerProperties(kafkaConfig.producerId))
+private fun kafka(config: KafkaConfig) = module {
+    val producerProperties = when (NaisEnv.current()) {
+        NaisEnv.Local -> KafkaPropertiesBuilder.producerBuilder()
+            .withBaseProperties()
+            .withProducerId(config.producerId)
+            .withBrokerUrl(config.brokerUrl)
+            .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
             .build()
-    )
-}
 
-private fun veilarbvedsstotte(config: AppConfig): VeilarbvedtaksstotteClient {
-    return VeilarbvedtaksstotteClientImpl(
-        config.veilarbvedtaksstotteConfig.url,
-        { accessToken ->
-            tokenClientProvider(config).exchangeOnBehalfOfToken(
-                config.veilarbvedtaksstotteConfig.scope,
-                accessToken
-            )
-        }
-    )
-}
-
-private fun veilarboppfolging(config: AppConfig): VeilarboppfolgingClient {
-    return VeilarboppfolgingClientImpl(
-        config.veilarboppfolgingConfig.url,
-        { accessToken ->
-            tokenClientProvider(config).exchangeOnBehalfOfToken(
-                config.veilarboppfolgingConfig.scope,
-                accessToken
-            )
-        }
-    )
-}
-
-private fun veilarbperson(config: AppConfig): VeilarbpersonClient {
-    return VeilarbpersonClientImpl(
-        config.veilarbpersonConfig.url,
-        { accessToken ->
-            tokenClientProvider(config).exchangeOnBehalfOfToken(
-                config.veilarbpersonConfig.scope,
-                accessToken
-            )
-        }
-
-    )
-}
-
-private fun veilarbdialog(config: AppConfig): VeilarbdialogClient {
-    return VeilarbdialogClientImpl(
-        config.veilarbdialogConfig.url,
-        { accessToken ->
-            tokenClientProvider(config).exchangeOnBehalfOfToken(
-                config.veilarbdialogConfig.scope,
-                accessToken
-            )
-        }
-    )
-}
-
-private fun veilarbveileder(config: AppConfig): VeilarbveilederClient {
-    return VeilarbveilederClientImpl(
-        config.veilarbveilederConfig.url,
-        { accessToken ->
-            tokenClientProvider(config).exchangeOnBehalfOfToken(
-                config.veilarbveilederConfig.scope,
-                accessToken
-            )
-        }
-
-    )
-}
-
-private fun amtenhetsregister(config: AppConfig): AmtEnhetsregisterClient {
-    return AmtEnhetsregisterClientImpl(
-        baseUrl = config.amtEnhetsregister.url,
-        machineToMachineTokenClient = {
-            tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(
-                config.amtEnhetsregister.scope
-            )
-        }
-    )
-}
-
-private fun microsoftGraphClient(config: AppConfig): MicrosoftGraphClient {
-    return MicrosoftGraphClientImpl(
-        baseUrl = config.msGraphConfig.url,
-        tokenProvider = {
-            tokenClientProviderForMachineToMachine(config).createMachineToMachineToken(
-                config.msGraphConfig.scope
-            )
-        }
-    )
-}
-
-private fun tokenClientProvider(config: AppConfig): AzureAdOnBehalfOfTokenClient {
-    return when (NaisEnv.current().isLocal()) {
-        true -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildOnBehalfOfTokenClient()
-
-        false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+        else -> KafkaPropertiesPreset.aivenDefaultProducerProperties(config.producerId)
     }
-}
 
-private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
-    return when (NaisEnv.current().isLocal()) {
-        true -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createRSAKeyForLokalUtvikling("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
+    val producerClient = KafkaProducerClientBuilder.builder<String, String?>()
+        .withProperties(producerProperties)
+        .withMetrics(Metrikker.appMicrometerRegistry)
+        .build()
 
-        false -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
+    single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
 }
 
 private fun repositories() = module {
@@ -210,51 +93,110 @@ private fun repositories() = module {
     single { DeltakerRepository(get()) }
 }
 
-private fun services(
-    appConfig: AppConfig,
-    veilarbvedsstotte: VeilarbvedtaksstotteClient,
-    veilarboppfolging: VeilarboppfolgingClient,
-    veilarbpersonClient: VeilarbpersonClient,
-    veilarbdialogClient: VeilarbdialogClient,
-    veilarbveilerClient: VeilarbveilederClient,
-    amtEnhetsregisterClient: AmtEnhetsregisterClient,
-    microsoftGraphClient: MicrosoftGraphClient,
-) = module {
-    val m2mTokenProvider = tokenClientProviderForMachineToMachine(appConfig)
+private fun services(appConfig: AppConfig) = module {
+    val m2mTokenProvider = createM2mTokenClient(appConfig)
+    val oboTokenProvider = createOboTokenClient(appConfig)
 
-    single { ArenaService(get(), get(), get()) }
+    single<AmtEnhetsregisterClient> {
+        AmtEnhetsregisterClientImpl(
+            baseUrl = appConfig.amtEnhetsregister.url,
+            tokenProvider = {
+                m2mTokenProvider.createMachineToMachineToken(appConfig.amtEnhetsregister.scope)
+            }
+        )
+    }
+    single<VeilarboppfolgingClient> {
+        VeilarboppfolgingClientImpl(
+            baseUrl = appConfig.veilarboppfolgingConfig.url,
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+            }
+        )
+    }
+    single<VeilarbvedtaksstotteClient> {
+        VeilarbvedtaksstotteClientImpl(
+            baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, token)
+            }
+        )
+    }
+    single<VeilarbpersonClient> {
+        VeilarbpersonClientImpl(
+            baseUrl = appConfig.veilarbpersonConfig.url,
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, token)
+            }
+        )
+    }
+    single<VeilarbdialogClient> {
+        VeilarbdialogClientImpl(
+            baseUrl = appConfig.veilarbdialogConfig.url,
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
+            }
+        )
+    }
+    single<VeilarbveilederClient> {
+        VeilarbveilederClientImpl(
+            baseUrl = appConfig.veilarbveilederConfig.url,
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbveilederConfig.scope, token)
+            }
+        )
+    }
+    single<PoaoTilgangClient> {
+        PoaoTilgangHttpClient(
+            baseUrl = appConfig.poaoTilgang.url,
+            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+        )
+    }
+    single<MicrosoftGraphClient> {
+        MicrosoftGraphClientImpl(
+            baseUrl = appConfig.msGraphConfig.url,
+            tokenProvider = {
+                m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
+            }
+        )
+    }
+    single { ArenaService(get(), get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
-    single { ArrangorService(amtEnhetsregisterClient) }
-    single {
-        BrukerService(
-            veilarboppfolgingClient = veilarboppfolging,
-            veilarbvedtaksstotteClient = veilarbvedsstotte,
-            veilarbpersonClient = veilarbpersonClient
-        )
-    }
-    single { DialogService(veilarbdialogClient) }
-    single {
-        AnsattService(
-            veilarbveilederClient = veilarbveilerClient,
-            poaoTilgangService = get(),
-            microsoftGraphService = get()
-        )
-    }
-    single {
-        val poaoTilgangClient = PoaoTilgangHttpClient(
-            appConfig.poaoTilgang.url,
-            { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) }
-        )
-        PoaoTilgangService(poaoTilgangClient)
-    }
+    single { ArrangorService(get()) }
+    single { BrukerService(get(), get(), get()) }
+    single { DialogService(get()) }
+    single { AnsattService(get(), get(), get()) }
+    single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
-    single { kafka(appConfig.kafka) }
-    single { MicrosoftGraphService(microsoftGraphClient) }
+    single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get()) }
 }
 
-private fun createRSAKeyForLokalUtvikling(keyID: String): RSAKey = KeyPairGenerator
+private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
+    return when (NaisEnv.current()) {
+        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+            .withClientId(config.auth.azure.audience)
+            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+            .buildOnBehalfOfTokenClient()
+
+        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+    }
+}
+
+private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
+    return when (NaisEnv.current()) {
+        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+            .withClientId(config.auth.azure.audience)
+            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+            .buildMachineToMachineTokenClient()
+
+        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+    }
+}
+
+private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
     .getInstance("RSA").let {
         it.initialize(2048)
         it.generateKeyPair()

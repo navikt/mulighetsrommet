@@ -35,12 +35,11 @@ import org.koin.logger.SLF4JLogger
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
-import java.util.*
 
 fun Application.configureDependencyInjection(
     appConfig: AppConfig
 ) {
-    val tokenClient = tokenClientProviderForMachineToMachine(appConfig)
+    val tokenClient = createM2mTokenClient(appConfig)
     install(Koin) {
         SLF4JLogger()
         modules(
@@ -104,13 +103,24 @@ private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
 }
 
 private fun kafka(kafkaConfig: KafkaConfig) = module {
+    val properties = when (NaisEnv.current()) {
+        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
+            .withBaseProperties()
+            .withConsumerGroupId(kafkaConfig.consumerGroupId)
+            .withBrokerUrl(kafkaConfig.brokerUrl)
+            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+            .build()
+
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(kafkaConfig.consumerGroupId)
+    }
+
     single {
         KafkaConsumerOrchestrator(
-            createKafkaPreset(kafkaConfig),
+            properties,
+            KafkaConsumerOrchestrator.Config(kafkaConfig.topics.topicStatePollDelay),
             get(),
             get(),
             get(),
-            kafkaConfig.topics.pollChangesDelayMs
         )
     }
 }
@@ -127,9 +137,6 @@ private fun repositories() = module {
 
 private fun services(services: ServiceConfig, tokenClient: MachineToMachineTokenClient): Module = module {
     single {
-        ArenaEventService(services.arenaEventService, get(), get())
-    }
-    single {
         MulighetsrommetApiClient(
             config = MulighetsrommetApiClient.Config(maxRetries = 5),
             baseUri = services.mulighetsrommetApi.url
@@ -142,16 +149,15 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
         }
     }
-    single {
-        ArenaEntityService(get(), get(), get(), get(), get(), get())
-    }
+    single { ArenaEventService(services.arenaEventService, get(), get()) }
+    single { ArenaEntityService(get(), get(), get(), get(), get(), get()) }
 }
 
-private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineToMachineTokenClient {
+private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
     return when (NaisEnv.current()) {
         NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
             .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createRSAKey("azure").toJSONString())
+            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
             .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
             .buildMachineToMachineTokenClient()
 
@@ -159,20 +165,7 @@ private fun tokenClientProviderForMachineToMachine(config: AppConfig): MachineTo
     }
 }
 
-private fun createKafkaPreset(config: KafkaConfig): Properties {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
-            .withBrokerUrl(config.brokers)
-            .withBaseProperties()
-            .withConsumerGroupId(config.consumerGroupId)
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build()
-
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
-    }
-}
-
-fun createRSAKey(keyID: String): RSAKey = KeyPairGenerator
+private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
     .getInstance("RSA").let {
         it.initialize(2048)
         it.generateKeyPair()

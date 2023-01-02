@@ -1,0 +1,1 @@
+create index tiltaksgjennomforing_tiltakstype_id_idx on tiltaksgjennomforing (tiltakstype_id);

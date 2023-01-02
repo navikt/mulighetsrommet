@@ -24,7 +24,7 @@ fun Route.dialogRoutes() {
     val dialogService: DialogService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/api/v1/dialog") {
+    route("/api/v1/internal/dialog") {
         post {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val dialogRequest = call.receive<DialogRequest>()

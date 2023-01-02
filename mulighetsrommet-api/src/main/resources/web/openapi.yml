@@ -8,7 +8,7 @@ security:
   - bearerAuth: [ ]
 
 paths:
-  /api/v1/bruker:
+  /api/v1/internal/bruker:
     parameters:
       - $ref: "#/components/parameters/Fnr"
     get:
@@ -29,7 +29,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger:
+  /api/v1/internal/tiltaksgjennomforinger:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -51,33 +51,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
-  /api/v1/tiltaksgjennomforinger/sok:
+  /api/v1/internal/tiltaksgjennomforinger/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
     get:
       tags:
         - Tiltaksgjennomforinger
-      operationId: sokEtterTiltaksgjennomforinger
-      parameters:
-        - in: query
-          name: tiltaksnummer
-          schema:
-            type: string
-          description: Whole or part of tiltaksnummer
+      operationId: getTiltaksgjennomforing
       responses:
         200:
-          description: List of tiltaksgjennomføringer with tiltakstypedata
+          description: The specified tiltaksgjennomføring with data about tiltakstype.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltaksgjennomforingMedTiltakstype"
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        404:
+          description: "The specified tiltaksgjennomføring was not found."
+          content:
+            application/json:
+              schema:
+                type: string
 
-  /api/v1/tiltaksgjennomforinger/tiltakskode/{tiltakskode}:
+  /api/v1/internal/tiltaksgjennomforinger/tiltakstype/{id}:
     parameters:
       - in: path
-        name: tiltakskode
+        name: id
         schema:
           type: string
       - in: query
@@ -93,22 +93,22 @@ paths:
     get:
       tags:
         - Tiltaksgjennomforinger
-      operationId: getAllByTiltakskode
+      operationId: getAllByTiltakstype
       responses:
         200:
-          description: En liste med tiltaksgjennomføringer med tiltakskode.
+          description: En liste med tiltaksgjennomføringer basert på id til tiltakstype.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
         404:
-          description: "Fant ingen tiltaksgjennomføringer med gitt tiltakskode."
+          description: "Fant ingen tiltaksgjennomføringer med gitt tiltakstype id."
           content:
             application/json:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger/enhet/{enhet}:
+  /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
       - in: path
         name: enhet
@@ -134,7 +134,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforingMedTiltakstype"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
         404:
           description: "Fant ingen tiltaksgjennomføringer for enhet"
           content:
@@ -142,49 +142,28 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltaksgjennomforinger/{id}:
-    parameters:
-      - $ref: "#/components/parameters/ID"
+  /api/v1/internal/tiltaksgjennomforinger/sok:
     get:
       tags:
         - Tiltaksgjennomforinger
-      operationId: getTiltaksgjennomforing
+      operationId: sokEtterTiltaksgjennomforinger
+      parameters:
+        - in: query
+          name: tiltaksnummer
+          schema:
+            type: string
+          description: Whole or part of tiltaksnummer
       responses:
         200:
-          description: The specified tiltaksgjennomføring.
+          description: List of tiltaksgjennomføringer with tiltakstypedata
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
-        404:
-          description: "The specified tiltaksgjennomføring was not found."
-          content:
-            application/json:
-              schema:
-                type: string
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tiltaksgjennomforing"
 
-  /api/v1/tiltaksgjennomforinger/tiltakstypedata/{id}:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: getTiltaksgjennomforingMedTiltakstype
-      responses:
-        200:
-          description: The specified tiltaksgjennomføring with data about tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TiltaksgjennomforingMedTiltakstype"
-        404:
-          description: "The specified tiltaksgjennomføring was not found."
-          content:
-            application/json:
-              schema:
-                type: string
-
-  /api/v1/tiltakstyper:
+  /api/v1/internal/tiltakstyper:
     get:
       tags:
         - Tiltakstyper
@@ -213,7 +192,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltakstype"
 
-  /api/v1/tiltakstyper/{id}:
+  /api/v1/internal/tiltakstyper/{id}:
     get:
       tags:
         - Tiltakstyper
@@ -234,51 +213,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/tiltakstyper/{tiltakskode}:
-    parameters:
-      - $ref: "#/components/parameters/Tiltakskode"
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstype
-      responses:
-        200:
-          description: the specified tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tiltakstype"
-        404:
-          description: "The specified tiltakstype was not found."
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  /api/v1/tiltakstyper/{tiltakskode}/tiltaksgjennomforinger:
-    parameters:
-      - $ref: "#/components/parameters/Tiltakskode"
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltaksgjennomforingerByTiltakskode
-      responses:
-        200:
-          description: An array of tiltaksgjennomføringer for specified tiltakskode.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
-        404:
-          description: "The specified tiltakstype was not found."
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  /api/v1/sanity:
+  /api/v1/internal/sanity:
     get:
       tags:
         - Sanity
@@ -302,7 +237,7 @@ paths:
             application/json:
               schema: { }
 
-  /api/v1/dialog:
+  /api/v1/internal/dialog:
     post:
       tags:
         - dialogen
@@ -326,7 +261,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/bruker/historikk:
+  /api/v1/internal/bruker/historikk:
     get:
       tags:
         - Historikk
@@ -338,7 +273,7 @@ paths:
             application/json:
               $ref: "#/components/schemas/HistorikkForBruker"
 
-  /api/v1/ansatt/me:
+  /api/v1/internal/ansatt/me:
     get:
       tags:
         - Ansatt
@@ -380,7 +315,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/delMedBruker/{tiltaksnummer}:
+  /api/v1/internal/delMedBruker/{tiltaksnummer}:
     get:
       tags:
         - Del med bruker
@@ -406,7 +341,7 @@ paths:
         204:
           description: "No content found"
 
-  /api/v1/delMedBruker:
+  /api/v1/internal/delMedBruker:
     post:
       tags:
         - Del med bruker
@@ -513,33 +448,19 @@ components:
           items:
             $ref: "#/components/schemas/Tiltaksgjennomforing"
 
-
-    PaginertTiltaksgjennomforingMedTiltakstype:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltaksgjennomforingMedTiltakstype"
-
     Tiltakstype:
       type: object
       required:
         - id
         - navn
-        - tiltakskode
+        - kode
       properties:
         id:
           type: string
           format: uuid
         navn:
           type: string
-        tiltakskode:
+        kode:
           $ref: "#/components/schemas/Tiltakskode"
 
     Tiltaksgjennomforing:
@@ -548,41 +469,13 @@ components:
         id:
           type: string
           format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/Tiltakstype"
         navn:
           type: string
         tiltaksnummer:
           type: string
-        tiltakstypeId:
-          type: string
-          format: uuid
         virksomhetsnummer:
-          type: string
-      required:
-        - id
-        - navn
-        - tiltakskode
-        - tiltaksnummer
-        - tiltakstypeId
-        - virksomhetsnummer
-
-    TiltaksgjennomforingMedTiltakstype:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        tiltaksnummer:
-          type: string
-        tiltakstypeId:
-          type: string
-          format: uuid
-        virksomhetsnummer:
-          type: string
-        tiltakskode:
-          type: string
-        tiltakstypeNavn:
           type: string
         fraDato:
           type: string
@@ -590,13 +483,10 @@ components:
           type: string
       required:
         - id
+        - tiltakstype
         - navn
-        - tiltakskode
         - tiltaksnummer
-        - tiltakstypeId
         - virksomhetsnummer
-        - tiltakskode
-        - tiltakstypeNavn
 
     Tiltakskode:
       type: string
@@ -846,21 +736,3 @@ components:
           type: string
         updated_by:
           type: string
-
-  examples:
-    Tiltakstype:
-      summary: "Tiltakstype eksempel"
-      value:
-        id: "afb69ca8-ddff-45be-9fd0-8f968519468d"
-        navn: "Ny tiltakstype"
-        tiltakskode: "SPA"
-
-    Tiltaksgjennomforing:
-      summary: "Tiltaksgjennomføring eksempel"
-      value:
-        id: null
-        navn: "Ny tiltaksgjennomføring"
-        tiltakstypeId: "afb69ca8-ddff-45be-9fd0-8f968519468d"
-        tiltaksnummer: 1234
-        virksomhetsnummer: '2022'
-        tiltakskode: 'ABIST'

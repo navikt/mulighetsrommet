@@ -6,29 +6,26 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
-private val log = LoggerFactory.getLogger(VeilarboppfolgingClientImpl::class.java)
-private val secureLog = SecureLog.logger
-
 class VeilarbvedtaksstotteClientImpl(
     private val baseUrl: String,
-    private val veilarbvedtaksstotteTokenProvider: (accessToken: String) -> String,
+    private val tokenProvider: (accessToken: String) -> String,
     clientEngine: HttpClientEngine = CIO.create()
 ) : VeilarbvedtaksstotteClient {
-    val client = httpJsonClient(clientEngine).config {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
+
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDTO? {
         return try {
             val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
-                bearerAuth(
-                    veilarbvedtaksstotteTokenProvider.invoke(accessToken)
-                )
+                bearerAuth(tokenProvider.invoke(accessToken))
             }
 
             if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
@@ -38,7 +35,7 @@ class VeilarbvedtaksstotteClientImpl(
 
             response.body<VedtakDTO>()
         } catch (exe: Exception) {
-            secureLog.error("Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr", exe)
+            SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr", exe)
             log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i secureLogs.")
             null
         }

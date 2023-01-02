@@ -1,4 +1,4 @@
-name: POAO-frontend for mr-admin-flate
+name: POAO-frontend (mr-admin-flate)
 
 on:
   push:

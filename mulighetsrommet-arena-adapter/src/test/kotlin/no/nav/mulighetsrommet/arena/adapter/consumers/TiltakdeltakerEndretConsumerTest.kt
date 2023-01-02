@@ -25,7 +25,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Deltaker
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -129,7 +129,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
                 "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/arena/deltaker" to { respondOk() }
+                "/api/v1/internal/arena/deltaker" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
 
@@ -153,7 +153,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Failed when arena ords proxy responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.InternalServerError) },
-                    "/api/v1/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -167,7 +167,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
-                    "/api/v1/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -180,7 +180,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Failed when api responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/arena/deltaker" to { respondError(HttpStatusCode.InternalServerError) }
+                    "/api/v1/internal/arena/deltaker" to { respondError(HttpStatusCode.InternalServerError) }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -193,7 +193,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -203,7 +203,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
 
-                    val deltaker = decodeRequestBody<Deltaker>().apply {
+                    val deltaker = decodeRequestBody<DeltakerDbo>().apply {
                         tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
                         norskIdent shouldBe "12345678910"
                     }
@@ -216,7 +216,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<Deltaker>().apply {
+                    decodeRequestBody<DeltakerDbo>().apply {
                         id shouldBe generatedId
                     }
                 }

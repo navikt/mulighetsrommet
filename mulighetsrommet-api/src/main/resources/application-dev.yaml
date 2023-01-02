@@ -13,6 +13,9 @@ app:
 
   kafka:
     producerId: "mulighetsrommet-api-kafka-producer.v1"
+    producers:
+      tiltaksgjennomforinger:
+        topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
 
   auth:
     azure:

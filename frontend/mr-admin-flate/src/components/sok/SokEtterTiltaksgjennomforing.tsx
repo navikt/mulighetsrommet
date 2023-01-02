@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { mulighetsrommetClient } from "../../api/clients";
 import { z } from "zod";
-import { TiltaksgjennomforingMedTiltakstype } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingMedTiltakstype";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 const sokeSchema = z.object({
   tiltaksnummer: z.number().positive(),
@@ -12,9 +12,7 @@ const sokeSchema = z.object({
 export function SokEtterTiltaksgjennomforing() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [results, setResults] = useState<TiltaksgjennomforingMedTiltakstype[]>(
-    []
-  );
+  const [results, setResults] = useState<Tiltaksgjennomforing[]>([]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
