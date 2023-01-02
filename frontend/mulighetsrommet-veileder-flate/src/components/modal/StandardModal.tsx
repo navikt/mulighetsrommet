@@ -5,26 +5,26 @@ import styles from './Modal.module.scss';
 
 interface StandardModalModalProps {
   modalOpen: boolean;
+  heading: string;
+  children: React.ReactNode;
   setModalOpen: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  heading: string;
   className?: string;
   btnText?: string;
-  children: React.ReactNode;
   shouldCloseOnOverlayClick?: boolean;
   hideButtons?: boolean;
 }
 
 const StandardModal = ({
   modalOpen,
+  heading,
+  children,
   setModalOpen,
   handleForm,
   handleCancel,
-  heading,
   className,
   btnText,
-  children,
   shouldCloseOnOverlayClick,
   hideButtons = false,
 }: StandardModalModalProps) => {
@@ -48,7 +48,7 @@ const StandardModal = ({
       aria-label="modal"
     >
       <Modal.Content>
-        <Heading spacing level="1" size="large" data-testid="modal_header">
+        <Heading spacing level="1" size="medium" data-testid="modal_header">
           {heading}
         </Heading>
         {children}
