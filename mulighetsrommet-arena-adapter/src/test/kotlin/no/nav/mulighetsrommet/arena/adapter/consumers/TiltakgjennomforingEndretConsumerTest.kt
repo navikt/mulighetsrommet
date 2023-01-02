@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.models.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -264,7 +264,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                         method shouldBe HttpMethod.Put
 
                         val tiltaksgjennomforing =
-                            decodeRequestBody<Tiltaksgjennomforing>().apply {
+                            decodeRequestBody<TiltaksgjennomforingDbo>().apply {
                                 tiltakstypeId shouldBe tiltakstype.id
                                 tiltaksnummer shouldBe "2022#123"
                                 virksomhetsnummer shouldBe "123456"
@@ -292,7 +292,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<Tiltaksgjennomforing>().apply {
+                    decodeRequestBody<TiltaksgjennomforingDbo>().apply {
                         id shouldBe generatedId
                     }
                 }

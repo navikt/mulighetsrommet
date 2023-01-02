@@ -1,25 +1,24 @@
 import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../api/atoms";
-import { useTiltaksgjennomforingerByTiltakskode } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakskode";
+import { useTiltaksgjennomforingerByTiltakstypeId } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakstypeId";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
+import { Tiltakstype } from "mulighetsrommet-api-client"
 
 interface Props {
-  tiltakstypeKode: string;
+  tiltakstype: Tiltakstype
 }
 
-export function TiltaksgjennomforingslisteForTiltakstyper({
-  tiltakstypeKode,
-}: Props) {
+export function TiltaksgjennomforingslisteForTiltakstyper({ tiltakstype }: Props) {
   const [page, setPage] = useAtom(
     paginationAtomTiltaksgjennomforingMedTiltakstype
   );
   const { data: tiltaksgjennomforinger, isLoading } =
-    useTiltaksgjennomforingerByTiltakskode(tiltakstypeKode);
+    useTiltaksgjennomforingerByTiltakstypeId(tiltakstype.id);
   if (isLoading) {
     return <Laster size="xlarge" />;
   }

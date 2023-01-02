@@ -5,8 +5,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.models.Deltaker
-import no.nav.mulighetsrommet.domain.models.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -15,7 +15,7 @@ class DeltakerRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun save(deltaker: Deltaker): QueryResult<Deltaker> = query {
+    fun upsert(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query {
         logger.info("Lagrer deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
@@ -32,7 +32,7 @@ class DeltakerRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, deltaker.toSqlParameters())
-            .map { it.toDeltaker() }
+            .map { it.toDeltakerDbo() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -51,7 +51,7 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Deltaker.toSqlParameters() = mapOf(
+    private fun DeltakerDbo.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
         "norsk_ident" to norskIdent,
@@ -60,7 +60,7 @@ class DeltakerRepository(private val db: Database) {
         "til_dato" to tilDato,
     )
 
-    private fun Row.toDeltaker() = Deltaker(
+    private fun Row.toDeltakerDbo() = DeltakerDbo(
         id = uuid("id"),
         tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
         norskIdent = string("norsk_ident"),

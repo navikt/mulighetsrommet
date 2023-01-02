@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 class ArenaEventService(
     private val config: Config = Config(),
@@ -34,7 +36,7 @@ class ArenaEventService(
     }
 
     suspend fun replayEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
-        logger.info("Replaying events from table=$table and status=$status")
+        logger.info("Replaying events from table=$table, status=$status")
 
         consumeEvents(table, status) { event ->
             Metrics.replayArenaEventTimer(event.arenaTable).recordSuspend {
@@ -44,7 +46,7 @@ class ArenaEventService(
     }
 
     suspend fun retryEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
-        logger.info("Retrying events from table=$table")
+        logger.info("Retrying events from table=$table, status=$status")
 
         consumeEvents(table, status, config.maxRetries) { event ->
             Metrics.retryArenaEventTimer(event.arenaTable).recordSuspend {
@@ -81,7 +83,7 @@ class ArenaEventService(
             }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     private suspend fun consumeEvents(
         table: String?,
         status: ArenaEvent.ConsumptionStatus?,
@@ -109,21 +111,22 @@ class ArenaEventService(
                 count += events.size
             } while (isActive && events.isNotEmpty())
 
-            logger.info("Produced $count events")
             close()
         }
 
-        // Create `numConsumers` coroutines to process the events simultaneously
-        (0..config.numChannelConsumers)
-            .map {
-                async {
-                    events.consumeEach { event ->
-                        consumer.invoke(event)
+        val time = measureTime {
+            // Create `numConsumers` coroutines to process the events simultaneously
+            (0..config.numChannelConsumers)
+                .map {
+                    async {
+                        events.consumeEach { event ->
+                            consumer.invoke(event)
+                        }
                     }
                 }
-            }
-            .awaitAll()
+                .awaitAll()
+        }
 
-        logger.info("Consumed $count events")
+        logger.info("Consumed $count events in $time")
     }
 }

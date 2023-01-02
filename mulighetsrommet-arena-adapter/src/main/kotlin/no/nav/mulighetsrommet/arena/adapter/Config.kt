@@ -46,7 +46,7 @@ data class ServiceClientConfig(
 )
 
 data class KafkaConfig(
-    val brokers: String,
+    val brokerUrl: String? = null,
     val consumerGroupId: String,
     val topics: TopicsConfig
 )
@@ -59,7 +59,7 @@ fun KafkaConfig.getTopic(id: String): ConsumerConfig {
 }
 
 data class TopicsConfig(
-    val pollChangesDelayMs: Long,
+    val topicStatePollDelay: Long,
     val consumer: Map<String, String>
 )
 
