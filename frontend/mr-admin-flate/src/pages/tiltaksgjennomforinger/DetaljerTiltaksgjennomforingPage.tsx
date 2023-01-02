@@ -78,7 +78,6 @@ export function TiltaksgjennomforingPage() {
         <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
 
-      {/** TODO Koble opp knapper */}
       {gjennomforingErFavorisert ? (
         <Button
           variant="secondary"
