@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -38,7 +39,8 @@ data class KafkaConfig(
 )
 
 data class KafkaProducers(
-    val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config
+    val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config,
+    val tiltakstyper: TiltakstypeKafkaProducer.Config
 )
 
 data class AuthProvider(

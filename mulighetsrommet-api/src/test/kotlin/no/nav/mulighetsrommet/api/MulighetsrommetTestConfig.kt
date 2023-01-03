@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -40,7 +41,8 @@ fun createKafkaConfig(): KafkaConfig {
         brokerUrl = "localhost:29092",
         producerId = "producer-id",
         producers = KafkaProducers(
-            tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1")
+            tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
+            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1")
         )
     )
 }

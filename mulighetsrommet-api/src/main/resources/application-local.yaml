@@ -17,6 +17,8 @@ app:
     producers:
       tiltaksgjennomforinger:
         topic: siste-tiltaksgjennomforinger-v1
+      tiltakstyper:
+        topic: team-mulighetsrommet.siste-tiltakstyper-v1
 
   auth:
     azure:

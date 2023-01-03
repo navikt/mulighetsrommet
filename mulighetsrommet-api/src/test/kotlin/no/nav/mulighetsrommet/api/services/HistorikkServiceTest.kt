@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -54,8 +55,9 @@ class HistorikkServiceTest : FunSpec({
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
-        val producer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository, producer)
+        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
+        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository, tiltaksgjennomforingKafkaProducer, tiltakstypeKafkaProducer)
 
         service.upsert(tiltakstype)
         service.upsert(tiltaksgjennomforing)

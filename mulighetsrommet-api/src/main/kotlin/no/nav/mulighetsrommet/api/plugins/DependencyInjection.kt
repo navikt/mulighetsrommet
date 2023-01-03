@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -88,6 +89,7 @@ private fun kafka(config: KafkaConfig) = module {
         .build()
 
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
+    single { TiltakstypeKafkaProducer(producerClient, config.producers.tiltakstyper) }
 }
 
 private fun repositories() = module {
@@ -170,7 +172,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { ArenaAdapterService(get()) }
-    single { ArenaService(get(), get(), get(), get()) }
+    single { ArenaService(get(), get(), get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(get()) }

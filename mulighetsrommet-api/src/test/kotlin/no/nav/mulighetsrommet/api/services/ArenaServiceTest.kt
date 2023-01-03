@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -67,7 +68,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstype = TiltakstypeDto(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode,
+                arenaKode = tiltakstype.tiltakskode
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,
@@ -79,12 +80,18 @@ class ArenaServiceTest : FunSpec({
     }
 
     context("tiltakstype") {
+        val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
         val service = ArenaService(
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
             DeltakerRepository(database.db),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            tiltakstypeKafkaProducer
         )
+
+        afterTest {
+            clearAllMocks()
+        }
 
         test("CRUD") {
             service.upsert(tiltakstype)
@@ -103,6 +110,16 @@ class ArenaServiceTest : FunSpec({
 
             database.assertThat("tiltakstype").isEmpty
         }
+
+        test("should publish and retract tiltakstype from kafka topic") {
+            service.upsert(tiltakstype)
+
+            verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
+
+            service.remove(tiltakstype)
+
+            verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
+        }
     }
 
     context("tiltaksgjennomføring") {
@@ -111,7 +128,8 @@ class ArenaServiceTest : FunSpec({
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
             DeltakerRepository(database.db),
-            tiltaksgjennomforingKafkaProducer
+            tiltaksgjennomforingKafkaProducer,
+            mockk(relaxed = true)
         )
 
         afterTest {
@@ -147,7 +165,13 @@ class ArenaServiceTest : FunSpec({
             service.upsert(tiltakstype)
             service.upsert(tiltaksgjennomforing)
 
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(tiltaksgjennomforingDto)) }
+            verify(exactly = 1) {
+                tiltaksgjennomforingKafkaProducer.publish(
+                    TiltaksgjennomforingDto.from(
+                        tiltaksgjennomforingDto
+                    )
+                )
+            }
 
             service.remove(tiltaksgjennomforing)
 
@@ -171,6 +195,7 @@ class ArenaServiceTest : FunSpec({
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
             DeltakerRepository(database.db),
+            mockk(relaxed = true),
             mockk(relaxed = true)
         )
 
