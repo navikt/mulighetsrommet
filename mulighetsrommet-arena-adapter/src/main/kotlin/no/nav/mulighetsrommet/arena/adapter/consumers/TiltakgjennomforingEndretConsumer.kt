@@ -106,7 +106,8 @@ class TiltakgjennomforingEndretConsumer(
         fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
         tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
         apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
-        antallPlasser = ANTALL_DELTAKERE
+        antallPlasser = ANTALL_DELTAKERE,
+        status = TILTAKSTATUSKODE
     )
 
     private fun Tiltaksgjennomforing.toDomain(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =

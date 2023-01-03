@@ -56,6 +56,10 @@ class ArenaEntityService(
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 
+    fun getTiltaksgjennomforing(id: UUID): Tiltaksgjennomforing? {
+        return tiltaksgjennomforinger.get(id)
+    }
+
     fun isIgnored(arenaTable: String, arenaId: String): Either<ConsumptionError, Boolean> {
         // TODO: burde status Ignored settes på ArenaEntityMapping i stedet?
         //       Da har vi mulighet til å slette data fra events-tabellen, samtidig som vi har oversikt over hvilke entitier som ikke er relevante

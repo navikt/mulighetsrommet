@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class TiltaksgjennomforingRepository(private val db: Database) {
 

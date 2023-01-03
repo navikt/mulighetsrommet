@@ -18,7 +18,8 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
             "DATO_FRA": null,
             "DATO_TIL": null,
             "STATUS_TREVERDIKODE_INNSOKNING": "J",
-            "ANTALL_DELTAKERE": $antallDeltakere
+            "ANTALL_DELTAKERE": $antallDeltakere,
+            "TILTAKSTATUSKODE": "GJENNOMFOR"
         }"""
     )
 
@@ -34,7 +35,8 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
                 DATO_FRA = null,
                 DATO_TIL = null,
                 STATUS_TREVERDIKODE_INNSOKNING = JaNeiStatus.Ja,
-                ANTALL_DELTAKERE = 5
+                ANTALL_DELTAKERE = 5,
+                TILTAKSTATUSKODE = "GJENNOMFOR"
             )
         }
 
