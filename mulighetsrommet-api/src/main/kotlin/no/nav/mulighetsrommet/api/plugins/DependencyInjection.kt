@@ -11,6 +11,8 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
+import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
+import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
@@ -55,7 +57,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
-            services(appConfig),
+            services(appConfig)
         )
     }
 }
@@ -161,6 +163,13 @@ private fun services(appConfig: AppConfig) = module {
             }
         )
     }
+    single<ArenaAdaperClient> {
+        ArenaAdapterClientImpl(
+            baseUrl = appConfig.arenaAdapter.url,
+            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) }
+        )
+    }
+    single { ArenaAdapterService(get()) }
     single { ArenaService(get(), get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
