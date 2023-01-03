@@ -37,8 +37,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
-                fraDato = null,
-                tilDato = null,
                 enhet = ""
             )
         )

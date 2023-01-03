@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
@@ -271,20 +271,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                                 tiltakstypeId shouldBe tiltakstype.id
                                 tiltaksnummer shouldBe "2022#123"
                                 virksomhetsnummer shouldBe "123456"
-                                fraDato shouldBe LocalDateTime.of(
-                                    2022,
-                                    11,
-                                    11,
-                                    0,
-                                    0
-                                )
-                                tilDato shouldBe LocalDateTime.of(
-                                    2023,
-                                    11,
-                                    11,
-                                    0,
-                                    0
-                                )
+                                startDato shouldBe LocalDate.of(2022, 11, 11)
+                                sluttDato shouldBe LocalDate.of(2023, 11, 11)
                             }
 
                         tiltaksgjennomforing.id
