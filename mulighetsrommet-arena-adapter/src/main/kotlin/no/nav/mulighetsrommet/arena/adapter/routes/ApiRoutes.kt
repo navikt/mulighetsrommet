@@ -16,7 +16,7 @@ fun Route.apiRoutes() {
 
     get("/api/exchange/{arenaId}") {
         val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
-            "Mangler eller ugyldig tiltaksnummer",
+            "Mangler eller ugyldig arena-id",
             status = HttpStatusCode.BadRequest
         )
 
@@ -31,7 +31,7 @@ fun Route.apiRoutes() {
 
     get("/api/status/{id}") {
         val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-            "Mangler eller ugyldig tiltaksnummer",
+            "Mangler eller ugyldig id",
             status = HttpStatusCode.BadRequest
         )
 
