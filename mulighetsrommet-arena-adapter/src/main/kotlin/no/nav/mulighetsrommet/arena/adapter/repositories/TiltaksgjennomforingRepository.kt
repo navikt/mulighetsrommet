@@ -19,8 +19,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser)
-            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser)
+            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status)
+            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               sak_id                  = excluded.sak_id,
@@ -30,7 +30,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               fra_dato                = excluded.fra_dato,
                               til_dato                = excluded.til_dato,
                               apent_for_innsok        = excluded.apent_for_innsok,
-                              antall_plasser          = excluded.antall_plasser
+                              antall_plasser          = excluded.antall_plasser,
+                              status                  = excluded.status
             returning *
         """.trimIndent()
 
@@ -81,7 +82,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "til_dato" to tilDato,
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
-
+        "status" to status
     )
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
@@ -94,6 +95,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         apentForInnsok = boolean("apent_for_innsok"),
-        antallPlasser = intOrNull("antall_plasser")
+        antallPlasser = intOrNull("antall_plasser"),
+        status = string("status")
     )
 }
