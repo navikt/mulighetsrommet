@@ -77,18 +77,29 @@ export const apiHandlers = [
   }),
 
   rest.get(
-    "*/api/v1/internal/tiltaksgjennomforinger/tiltakstypedata/:id",
+    "*/api/v1/internal/tiltaksgjennomforinger/tiltakstype/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
 
-      const gjennomforing = mockTiltaksgjennomforinger.data.find(
-        (gj) => gj.id === id
+      const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
+        (gj) => gj.tiltakstype.id === id
       );
-      if (!gjennomforing) {
+      if (!gjennomforinger) {
         return res(ctx.status(404), ctx.json(undefined));
       }
 
-      return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
+      return res(
+        ctx.status(200),
+        ctx.delay(350),
+        ctx.json({
+          pagination: {
+            totalCount: gjennomforinger.length,
+            currentPage: 1,
+            pageSize: 50,
+          },
+          data: gjennomforinger,
+        })
+      );
     }
   ),
 
