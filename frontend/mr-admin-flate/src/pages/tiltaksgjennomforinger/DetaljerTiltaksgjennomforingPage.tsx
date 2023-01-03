@@ -8,7 +8,12 @@ import { formaterDato } from "../../utils/Utils";
 import styles from "./DetaljerTiltaksgjennomforingPage.module.scss";
 
 export function TiltaksgjennomforingPage() {
-  const { data, isError, isFetching, refetch } = useTiltaksgjennomforingById();
+  const {
+    data,
+    isError,
+    isFetching,
+    refetch: refetchTiltaksgjennomforinger,
+  } = useTiltaksgjennomforingById();
   const { data: favoritter, refetch: refetchAnsattsGjennomforinger } =
     useTiltaksgjennomforingerByInnloggetAnsatt();
 
@@ -19,7 +24,7 @@ export function TiltaksgjennomforingPage() {
     await mulighetsrommetClient.tiltaksgjennomforinger.lagreTilMinListe({
       requestBody: id,
     });
-    refetch();
+    refetchTiltaksgjennomforinger();
     refetchAnsattsGjennomforinger();
   };
 
@@ -27,7 +32,7 @@ export function TiltaksgjennomforingPage() {
     await mulighetsrommetClient.tiltaksgjennomforinger.fjernFraMinListe({
       requestBody: id,
     });
-    refetch();
+    refetchTiltaksgjennomforinger();
     refetchAnsattsGjennomforinger();
   };
 
@@ -82,6 +87,7 @@ export function TiltaksgjennomforingPage() {
         <Button
           variant="secondary"
           onClick={() => onFjernFavoritt(tiltaksgjennomforing.id)}
+          data-testid="fjern-favoritt"
         >
           Fjern fra min liste
         </Button>
@@ -89,6 +95,7 @@ export function TiltaksgjennomforingPage() {
         <Button
           variant="primary"
           onClick={() => onLagreFavoritt(tiltaksgjennomforing.id)}
+          data-testid="legg-til-favoritt"
         >
           Legg til i min liste
         </Button>

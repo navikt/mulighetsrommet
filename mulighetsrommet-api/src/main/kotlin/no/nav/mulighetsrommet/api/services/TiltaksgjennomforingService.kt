@@ -19,15 +19,15 @@ class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: Ti
         return tiltaksgjennomforingRepository.getAllByEnhet(enhet, paginationParams)
     }
 
-    fun getAllForAnsatt(navIdent: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+    fun getAllForAnsattsListe(navIdent: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         return tiltaksgjennomforingRepository.getAllByNavident(navIdent, paginationParams)
     }
 
-    fun lagreGjennomforingTilMinliste(tiltaksgjennomforingIder: String, navIdent: String) {
+    fun lagreGjennomforingTilAnsattsListe(tiltaksgjennomforingIder: String, navIdent: String) {
         ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingIder, navIdent)
     }
 
-    fun fjernGjennomforingFraMinliste(tiltaksgjennomforingId: String, navIdent: String) {
+    fun fjernGjennomforingFraAnsattsListe(tiltaksgjennomforingId: String, navIdent: String) {
         ansattTiltaksgjennomforingRepository.fjernFavoritt(tiltaksgjennomforingId, navIdent)
     }
 }

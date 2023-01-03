@@ -94,7 +94,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val navIdent = getNavIdent()
             val paginationParams = getPaginationParams()
 
-            val (totalCount, items) = tiltaksgjennomforingService.getAllForAnsatt(
+            val (totalCount, items) = tiltaksgjennomforingService.getAllForAnsattsListe(
                 navIdent,
                 paginationParams
             )
@@ -114,7 +114,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val navIdent = getNavIdent()
             val tiltaksgjennomforingId = call.receive<String>()
 
-            val lagringOk = tiltaksgjennomforingService.lagreGjennomforingTilMinliste(tiltaksgjennomforingId, navIdent)
+            val lagringOk = tiltaksgjennomforingService.lagreGjennomforingTilAnsattsListe(tiltaksgjennomforingId, navIdent)
             call.respondText(
                 lagringOk.toString()
             )
@@ -124,7 +124,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val navIdent = getNavIdent()
             val tiltaksgjennomforingId = call.receive<String>()
 
-            val lagringOk = tiltaksgjennomforingService.fjernGjennomforingFraMinliste(tiltaksgjennomforingId, navIdent)
+            val lagringOk = tiltaksgjennomforingService.fjernGjennomforingFraAnsattsListe(tiltaksgjennomforingId, navIdent)
             call.respondText(
                 lagringOk.toString()
             )

@@ -21,6 +21,7 @@ export function Tiltaksgjennomforingrad({
             ? `/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
             : `/${tiltaksgjennomforing.id}`
         }
+        data-testid="tiltaksgjennomforingsrad"
       >
         <BodyLong>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>

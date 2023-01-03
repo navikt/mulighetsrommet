@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
-import org.junit.jupiter.api.Assertions.*
 import java.util.*
 
 class TiltaksgjennomforingServiceTest : FunSpec({
@@ -54,7 +53,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Insert favoritt i liste") {
             val table = Table(database.db.getDatasource(), "ansatt_tiltaksgjennomforing")
 
-            service.lagreGjennomforingTilMinliste("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee", "1")
+            service.lagreGjennomforingTilAnsattsListe("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee", "1")
             assertThat(table).row(0).column("navident").value().isEqualTo("1")
             assertThat(table).row(0).column("tiltaksgjennomforing_id").value().isEqualTo("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee")
         }
@@ -62,8 +61,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Fjern gjennomføring fra favorittliste") {
             val table = Table(database.db.getDatasource(), "ansatt_tiltaksgjennomforing")
 
-            service.lagreGjennomforingTilMinliste("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee", "1")
-            service.fjernGjennomforingFraMinliste("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee", "1")
+            service.lagreGjennomforingTilAnsattsListe("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee", "1")
+            service.fjernGjennomforingFraAnsattsListe("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee", "1")
             assertThat(table).hasNumberOfRows(0)
         }
     }
