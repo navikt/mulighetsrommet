@@ -1,5 +1,6 @@
 import { GrLink } from "react-icons/gr";
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
+import { Information } from "../components/Information";
 
 export const regelverklenke = defineType({
   name: "regelverklenke",
@@ -7,6 +8,14 @@ export const regelverklenke = defineType({
   type: "document",
   icon: GrLink,
   fields: [
+    defineField({
+      name: "info",
+      title: "Info",
+      type: "string",
+      components: {
+        field: Information,
+      },
+    }),
     defineField({
       name: "regelverkUrl",
       title: "Regelverk URL",
