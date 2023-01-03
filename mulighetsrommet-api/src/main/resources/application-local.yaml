@@ -68,3 +68,7 @@ app:
   msGraphConfig:
     url: http://localhost:8090/ms-graph
     scope: default
+
+  arenaAdapter:
+    url: http://0.0.0.0:8084
+    scope: default

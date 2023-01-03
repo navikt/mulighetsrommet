@@ -19,7 +19,7 @@ export const replayEvents = async (
   arenaTable: string | null,
   consumptionStatus: string | null
 ) => {
-  return await fetch("/mulighetsrommet-arena-adapter/api/events/replay", {
+  return await fetch("/mulighetsrommet-arena-adapter/events/replay", {
     method: "PUT",
     headers: {
       "content-type": "application/json",
@@ -32,7 +32,7 @@ export const replayEvents = async (
 };
 
 export const replayEvent = async (arenaTable: string, arenaId: string) => {
-  return await fetch(`/mulighetsrommet-arena-adapter/api/event/replay`, {
+  return await fetch(`/mulighetsrommet-arena-adapter/event/replay`, {
     method: "PUT",
     headers: {
       "content-type": "application/json",

@@ -64,3 +64,7 @@ app:
   msGraphConfig:
     url: https://graph.microsoft.com
     scope: https://graph.microsoft.com/.default
+
+  arenaAdapter:
+    url: http://mulighetsrommet-arena-adapter
+    scope: api://prod-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default

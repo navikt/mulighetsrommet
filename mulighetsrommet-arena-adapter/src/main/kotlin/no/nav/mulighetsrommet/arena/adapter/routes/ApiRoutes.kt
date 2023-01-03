@@ -2,41 +2,28 @@ package no.nav.mulighetsrommet.arena.adapter.routes
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
-import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
-import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEventsTaskData
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import org.koin.ktor.ext.inject
 
 fun Route.apiRoutes() {
-    val arenaEventService: ArenaEventService by inject()
-    val replayEvents: ReplayEvents by inject()
+    val arenaEntityService: ArenaEntityService by inject()
 
-    put("api/events/replay") {
-        val request = call.receive<ReplayEventsTaskData>()
-
-        replayEvents.schedule(request)
-
-        call.respond(HttpStatusCode.Created)
-    }
-
-    put("api/event/replay") {
-        val request = call.receive<ReplayTopicEventRequest>()
-
-        arenaEventService.replayEvent(
-            table = request.table,
-            id = request.arenaId
+    get("/api/exchange/{arenaId}") {
+        val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
+            "Mangler eller ugyldig tiltaksnummer",
+            status = HttpStatusCode.BadRequest
         )
 
-        call.respond(HttpStatusCode.Created)
+        val uuid =
+            arenaEntityService.getMappingIfProcessed(ArenaTables.Tiltaksgjennomforing, arenaId)?.entityId
+                ?: return@get call.respondText(
+                    "Det finnes ikke noe prossesert tiltaksgjennomføring med arena-id $arenaId",
+                    status = HttpStatusCode.NotFound
+                )
+        call.respond(ExchangeArenaIdForIdResponse(uuid))
     }
 }
-
-@Serializable
-data class ReplayTopicEventRequest(
-    val table: String,
-    val arenaId: String
-)
