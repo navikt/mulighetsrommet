@@ -114,18 +114,25 @@ export function DelMedBrukerContent({
       )}
 
       {visPersonligMelding ? (
-        <Textarea
-          ref={personligHilsenRef}
-          className={delemodalStyles.personligHilsen}
-          size="medium"
-          value={state.hilsen}
-          label=""
-          hideLabel
-          onChange={redigerHilsen}
-          maxLength={MAKS_ANTALL_TEGN_HILSEN}
-          data-testid="textarea_hilsen"
-          error={handleError()}
-        />
+        <>
+          <Textarea
+            ref={personligHilsenRef}
+            className={delemodalStyles.personligHilsen}
+            size="medium"
+            value={state.hilsen}
+            label=""
+            hideLabel
+            onChange={redigerHilsen}
+            maxLength={MAKS_ANTALL_TEGN_HILSEN}
+            data-testid="textarea_hilsen"
+            error={handleError()}
+          />
+          <p>
+            <Alert inline variant="info">
+              Ikke del personopplysninger i din personlige hilsen
+            </Alert>
+          </p>
+        </>
       ) : null}
       {!veiledernavn && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>

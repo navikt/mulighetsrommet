@@ -5,7 +5,7 @@ import { paginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useTiltaksgjennomforingByEnhet(enhet?: string) {
+export function useTiltaksgjennomforingerByEnhet(enhet?: string) {
   const [page] = useAtom(paginationAtom);
 
   return useQuery(
