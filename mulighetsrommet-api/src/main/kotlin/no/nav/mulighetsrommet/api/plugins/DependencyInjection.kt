@@ -11,6 +11,8 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
+import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
+import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -54,7 +57,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
-            services(appConfig),
+            services(appConfig)
         )
     }
 }
@@ -91,6 +94,7 @@ private fun repositories() = module {
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { DeltakerRepository(get()) }
+    single { AnsattTiltaksgjennomforingRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -159,6 +163,13 @@ private fun services(appConfig: AppConfig) = module {
             }
         )
     }
+    single<ArenaAdaperClient> {
+        ArenaAdapterClientImpl(
+            baseUrl = appConfig.arenaAdapter.url,
+            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) }
+        )
+    }
+    single { ArenaAdapterService(get()) }
     single { ArenaService(get(), get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
@@ -169,7 +180,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get()) }
+    single { TiltaksgjennomforingService(get(), get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {

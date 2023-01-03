@@ -1,12 +1,40 @@
-import { Alert, Heading, Link } from "@navikt/ds-react";
+import { Alert, Button, Heading, Link } from "@navikt/ds-react";
+import { mulighetsrommetClient } from "../../api/clients";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 import { Laster } from "../../components/Laster";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./DetaljerTiltaksgjennomforingPage.module.scss";
 
 export function TiltaksgjennomforingPage() {
-  const { data, isError, isFetching } = useTiltaksgjennomforingById();
+  const {
+    data,
+    isError,
+    isFetching,
+    refetch: refetchTiltaksgjennomforinger,
+  } = useTiltaksgjennomforingById();
+  const { data: favoritter, refetch: refetchAnsattsGjennomforinger } =
+    useTiltaksgjennomforingerByInnloggetAnsatt();
+
+  const gjennomforingErFavorisert =
+    favoritter?.data.find((it) => it.id === data?.id) !== undefined;
+
+  const onLagreFavoritt = async (id: string) => {
+    await mulighetsrommetClient.tiltaksgjennomforinger.lagreTilMinListe({
+      requestBody: id,
+    });
+    refetchTiltaksgjennomforinger();
+    refetchAnsattsGjennomforinger();
+  };
+
+  const onFjernFavoritt = async (id: string) => {
+    await mulighetsrommetClient.tiltaksgjennomforinger.fjernFraMinListe({
+      requestBody: id,
+    });
+    refetchTiltaksgjennomforinger();
+    refetchAnsattsGjennomforinger();
+  };
 
   if (isError) {
     return (
@@ -46,7 +74,7 @@ export function TiltaksgjennomforingPage() {
         <dt>Tiltakstype</dt>
         <dd>{tiltaksgjennomforing.tiltakstype.navn}</dd>
         <dt>Kode for tiltakstype:</dt>
-        <dd>{tiltaksgjennomforing.tiltakstype.kode}</dd>
+        <dd>{tiltaksgjennomforing.tiltakstype.arenaKode}</dd>
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
         <dt>Startdato</dt>
@@ -54,6 +82,24 @@ export function TiltaksgjennomforingPage() {
         <dt>Sluttdato</dt>
         <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
+
+      {gjennomforingErFavorisert ? (
+        <Button
+          variant="secondary"
+          onClick={() => onFjernFavoritt(tiltaksgjennomforing.id)}
+          data-testid="fjern-favoritt"
+        >
+          Fjern fra min liste
+        </Button>
+      ) : (
+        <Button
+          variant="primary"
+          onClick={() => onLagreFavoritt(tiltaksgjennomforing.id)}
+          data-testid="legg-til-favoritt"
+        >
+          Legg til i min liste
+        </Button>
+      )}
 
       {/**
        * TODO Implementere skjema for opprettelse av tiltaksgjennomføring

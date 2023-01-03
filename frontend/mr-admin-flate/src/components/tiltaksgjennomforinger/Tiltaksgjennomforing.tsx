@@ -21,11 +21,15 @@ export function Tiltaksgjennomforingrad({
             ? `/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
             : `/${tiltaksgjennomforing.id}`
         }
+        data-testid="tiltaksgjennomforingsrad"
       >
         <BodyLong>{tiltaksgjennomforing.navn}</BodyLong>
       </Link>
       <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-      <BodyShort size="small" title={tiltaksgjennomforing.tiltakstype.kode}>
+      <BodyShort
+        size="small"
+        title={tiltaksgjennomforing.tiltakstype.arenaKode}
+      >
         {tiltaksgjennomforing.tiltakstype.navn}
       </BodyShort>
       <BodyShort size="small">
