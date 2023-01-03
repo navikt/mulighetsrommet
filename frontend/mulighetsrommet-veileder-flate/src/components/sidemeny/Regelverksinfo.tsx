@@ -1,7 +1,7 @@
 import { Link } from '@navikt/ds-react';
 import { logEvent } from '../../core/api/logger';
 import { RegelverkFil, RegelverkLenke } from '../../core/api/models';
-import styles from './Regelverksinfo.module.scss';
+import styles from './Sidemenydetaljer.module.scss';
 
 interface RegelverksinfoProps {
   regelverkFiler?: RegelverkFil[];

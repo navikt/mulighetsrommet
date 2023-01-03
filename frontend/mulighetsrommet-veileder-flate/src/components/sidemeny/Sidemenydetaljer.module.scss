@@ -2,6 +2,15 @@
   max-width: 380px;
 }
 
+.regelverk {
+  display: grid;
+  text-align: right;
+  gap: 1rem;
+  @media (width <= 1200px) {
+    gap: 0;
+  }
+}
+
 .rad {
   display: flex;
   justify-content: space-between;
