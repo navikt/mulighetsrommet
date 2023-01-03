@@ -9,11 +9,11 @@ export const forskningsrapport = defineType({
   icon: FaBook,
   fields: [
     defineField({
-      name: "information",
-      title: " ",
+      name: "info",
+      title: "Info",
       type: "string",
       components: {
-        input: Information,
+        field: Information,
       },
     }),
     defineField({

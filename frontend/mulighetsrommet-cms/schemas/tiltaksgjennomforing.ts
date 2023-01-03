@@ -12,11 +12,11 @@ export const tiltaksgjennomforing = defineType({
   icon: GrDocumentPerformance,
   fields: [
     defineField({
-      name: "information",
-      title: " ",
+      name: "info",
+      title: "Info",
       type: "string",
       components: {
-        input: Information,
+        field: Information,
       },
     }),
     defineField({
