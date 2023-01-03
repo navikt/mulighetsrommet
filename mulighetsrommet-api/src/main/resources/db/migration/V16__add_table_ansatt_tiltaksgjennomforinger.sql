@@ -1,6 +1,5 @@
 create table ansatt_tiltaksgjennomforing
 (
-    id                      uuid      default gen_random_uuid(),
     navident                text                    not null,
     tiltaksgjennomforing_id uuid                    not null
         constraint fk_tiltaksgjennomforing references tiltaksgjennomforing (id) on delete cascade,

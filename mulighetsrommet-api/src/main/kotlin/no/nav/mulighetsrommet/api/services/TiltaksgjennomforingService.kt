@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingReposit
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import java.util.UUID
 
 class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository, private val ansattTiltaksgjennomforingRepository: AnsattTiltaksgjennomforingRepository) {
 
@@ -23,11 +24,11 @@ class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: Ti
         return tiltaksgjennomforingRepository.getAllByNavident(navIdent, paginationParams)
     }
 
-    fun lagreGjennomforingTilAnsattsListe(tiltaksgjennomforingIder: String, navIdent: String) {
+    fun lagreGjennomforingTilAnsattsListe(tiltaksgjennomforingIder: UUID, navIdent: String) {
         ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingIder, navIdent)
     }
 
-    fun fjernGjennomforingFraAnsattsListe(tiltaksgjennomforingId: String, navIdent: String) {
+    fun fjernGjennomforingFraAnsattsListe(tiltaksgjennomforingId: UUID, navIdent: String) {
         ansattTiltaksgjennomforingRepository.fjernFavoritt(tiltaksgjennomforingId, navIdent)
     }
 }

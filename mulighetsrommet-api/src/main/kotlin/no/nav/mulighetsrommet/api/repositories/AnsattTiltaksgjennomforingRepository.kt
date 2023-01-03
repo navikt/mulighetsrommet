@@ -11,7 +11,7 @@ class AnsattTiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun lagreFavoritt(tiltaksgjennomforingId: String, navIdent: String) = query {
+    fun lagreFavoritt(tiltaksgjennomforingId: UUID, navIdent: String) = query {
         logger.info("Lagrer tiltaksgjennomføring id=$tiltaksgjennomforingId til ansatt")
 
         @Language("PostgreSQL")
@@ -23,7 +23,7 @@ class AnsattTiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, navIdent, tiltaksgjennomforingId).asExecute.let { db.run(it) }
     }
 
-    fun fjernFavoritt(tiltaksgjennomforingId: String, navIdent: String) = query {
+    fun fjernFavoritt(tiltaksgjennomforingId: UUID, navIdent: String) = query {
         logger.info("Fjerner tiltaksgjennomføring id=$tiltaksgjennomforingId for ansatt")
 
         @Language("PostgreSQL")

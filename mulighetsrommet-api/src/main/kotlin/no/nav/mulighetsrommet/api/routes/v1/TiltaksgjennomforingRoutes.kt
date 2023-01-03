@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.api.utils.toUUID
 import org.koin.ktor.ext.inject
+import java.util.UUID
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
@@ -114,9 +115,9 @@ fun Route.tiltaksgjennomforingRoutes() {
             val navIdent = getNavIdent()
             val tiltaksgjennomforingId = call.receive<String>()
 
-            val lagringOk = tiltaksgjennomforingService.lagreGjennomforingTilAnsattsListe(tiltaksgjennomforingId, navIdent)
-            call.respondText(
-                lagringOk.toString()
+            tiltaksgjennomforingService.lagreGjennomforingTilAnsattsListe(UUID.fromString(tiltaksgjennomforingId), navIdent)
+            call.respond(
+                HttpStatusCode.OK
             )
         }
 
@@ -124,9 +125,9 @@ fun Route.tiltaksgjennomforingRoutes() {
             val navIdent = getNavIdent()
             val tiltaksgjennomforingId = call.receive<String>()
 
-            val lagringOk = tiltaksgjennomforingService.fjernGjennomforingFraAnsattsListe(tiltaksgjennomforingId, navIdent)
-            call.respondText(
-                lagringOk.toString()
+            tiltaksgjennomforingService.fjernGjennomforingFraAnsattsListe(UUID.fromString(tiltaksgjennomforingId), navIdent)
+            call.respond(
+                HttpStatusCode.OK
             )
         }
 
