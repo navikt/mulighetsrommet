@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.utils.toUUID
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
@@ -29,11 +30,17 @@ fun Route.apiRoutes() {
     }
 
     get("/api/status/{id}") {
-        val id = call.parameters["id"] ?: return@get call.respondText(
+        val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
             "Mangler eller ugyldig tiltaksnummer",
             status = HttpStatusCode.BadRequest
         )
 
-        call.respond(TiltaksgjennomforingsstatusDto("AVLYST"))
+        val tiltaksgjennomforing = arenaEntityService.getTiltaksgjennomforing(id)
+            ?: return@get call.respondText(
+                "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                status = HttpStatusCode.NotFound
+            )
+
+        call.respond(TiltaksgjennomforingsstatusDto(tiltaksgjennomforing.status))
     }
 }

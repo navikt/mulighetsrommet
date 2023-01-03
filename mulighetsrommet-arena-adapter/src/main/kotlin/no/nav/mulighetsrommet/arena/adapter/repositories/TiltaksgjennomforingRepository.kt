@@ -60,7 +60,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser
+            select id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status
             from tiltaksgjennomforing
             where id = ?::uuid
         """.trimIndent()
