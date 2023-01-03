@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsstatusDto
 import org.koin.ktor.ext.inject
 
 fun Route.apiRoutes() {
@@ -25,5 +26,14 @@ fun Route.apiRoutes() {
                     status = HttpStatusCode.NotFound
                 )
         call.respond(ExchangeArenaIdForIdResponse(uuid))
+    }
+
+    get("/api/status/{id}") {
+        val id = call.parameters["id"] ?: return@get call.respondText(
+            "Mangler eller ugyldig tiltaksnummer",
+            status = HttpStatusCode.BadRequest
+        )
+
+        call.respond(TiltaksgjennomforingsstatusDto("AVLYST"))
     }
 }

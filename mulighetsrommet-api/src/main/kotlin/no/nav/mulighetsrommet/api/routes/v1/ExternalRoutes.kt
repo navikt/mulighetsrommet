@@ -52,7 +52,11 @@ fun Route.externalRoutes() {
                     "Det finnes ikke noe tiltaksgjennomføring med id $id",
                     status = HttpStatusCode.NotFound
                 )
-            call.respond(TiltaksgjennomforingsArenadataDto.from(tiltaksgjennomforing))
+            val status = arenaAdapterService.hentTiltaksgjennomforingsstatus(id)?.status ?: return@get call.respondText(
+                "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                status = HttpStatusCode.NotFound
+            )
+            call.respond(TiltaksgjennomforingsArenadataDto.from(tiltaksgjennomforing, status))
         }
     }
 }

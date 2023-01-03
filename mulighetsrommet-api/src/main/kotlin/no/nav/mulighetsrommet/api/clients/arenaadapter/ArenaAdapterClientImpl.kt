@@ -9,7 +9,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsstatusDto
 import org.slf4j.LoggerFactory
+import java.util.*
 
 private val log = LoggerFactory.getLogger(ArenaAdapterClientImpl::class.java)
 
@@ -33,6 +35,23 @@ class ArenaAdapterClientImpl(
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {
                 log.warn("Tiltaksgjennomføring finnes ikke: $arenaId")
+                null
+            }
+            else -> throw ResponseException(response, "Unexpected response from arena-adapter")
+        }
+    }
+
+    override suspend fun hentTiltaksgjennomforingsstatus(id: UUID): TiltaksgjennomforingsstatusDto? {
+        val response = client.get("$baseUrl/api/status/$id") {
+            bearerAuth(
+                machineToMachineTokenClient.invoke()
+            )
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NotFound -> {
+                log.warn("Tiltaksgjennomføring finnes ikke: $id")
                 null
             }
             else -> throw ResponseException(response, "Unexpected response from arena-adapter")
