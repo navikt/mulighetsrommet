@@ -37,6 +37,7 @@
     "@visx/mock-data": "^2.15.1",
     "@visx/shape": "^2.12.2",
     "@visx/tooltip": "^2.16.0",
+    "axe-core": "^4.6.0",
     "classnames": "^2.3.2",
     "date-fns": "^2.29.3",
     "groq": "^2.33.2",

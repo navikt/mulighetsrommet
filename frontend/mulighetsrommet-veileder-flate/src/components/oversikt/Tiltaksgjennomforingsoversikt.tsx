@@ -1,4 +1,4 @@
-import { Alert, Button, Loader, Pagination } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useState } from 'react';
@@ -100,10 +100,8 @@ const Tiltaksgjennomforingsoversikt = () => {
         header={<>Kunne ikke hente brukers innsatsgruppe eller servicegruppe</>}
         beskrivelse={
           <>
-            <>
-              Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er under oppfølging
-              og finnes i Arena, og&nbsp;
-            </>
+            Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er under oppfølging og
+            finnes i Arena, og&nbsp;
             {forsokPaNyttLink()}
           </>
         }
@@ -138,10 +136,10 @@ const Tiltaksgjennomforingsoversikt = () => {
     <>
       <div className={styles.overskrift_og_sorteringsmeny}>
         {tiltaksgjennomforinger.length > 0 ? (
-          <p data-testid="antall-tiltak-top">
+          <BodyShort data-testid="antall-tiltak-top">
             Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
             {tiltaksgjennomforinger.length} tiltak
-          </p>
+          </BodyShort>
         ) : null}
         <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
@@ -153,10 +151,10 @@ const Tiltaksgjennomforingsoversikt = () => {
       <div className={styles.under_oversikt}>
         {tiltaksgjennomforinger.length > 0 ? (
           <>
-            <p data-testid="antall-tiltak">
+            <BodyShort data-testid="antall-tiltak">
               Viser {(page - 1) * elementsPerPage + 1}-{gjennomforingerForSide.length + (page - 1) * elementsPerPage} av{' '}
               {tiltaksgjennomforinger.length} tiltak
-            </p>
+            </BodyShort>
             <Pagination
               size="small"
               data-testid="paginering"
