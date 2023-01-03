@@ -1,4 +1,4 @@
-import { Alert, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, ErrorMessage, Heading, Textarea } from '@navikt/ds-react';
 import classNames from 'classnames';
 import React, { Dispatch, useEffect, useRef, useState } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
@@ -84,35 +84,55 @@ export function DelMedBrukerContent({
 
   return (
     <div className={delemodalStyles.container}>
-      <p className={classNames(modalStyles.muted, modalStyles.mt_0)} data-testid="modal_header">
+      <Heading
+        size="xsmall"
+        level="2"
+        className={classNames(modalStyles.muted, modalStyles.mt_0)}
+        data-testid="modal_header"
+      >
         Del med bruker
-      </p>
+      </Heading>
       <Heading size="large" level="1">
         {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
       </Heading>
 
-      <p title="Teksten er hentet fra tiltakstypen og kan ikke redigeres." className={delemodalStyles.deletekst}>
+      <BodyShort
+        title="Teksten er hentet fra tiltakstypen og kan ikke redigeres."
+        className={delemodalStyles.deletekst}
+      >
         {`${state.deletekst}${visPersonligMelding ? '' : `\n\n${state.hilsen}`}`}
-      </p>
+      </BodyShort>
       {visPersonligMelding ? null : (
-        <Button data-testid="personlig_hilsen_btn" onClick={enablePersonligMelding} variant="tertiary">
-          Legg til personlig melding{' '}
+        <Button
+          data-testid="personlig_hilsen_btn"
+          onClick={enablePersonligMelding}
+          variant="secondary"
+          className={delemodalStyles.personlig_melding_btn}
+        >
+          Legg til personlig melding
         </Button>
       )}
 
       {visPersonligMelding ? (
-        <Textarea
-          ref={personligHilsenRef}
-          className={delemodalStyles.personligHilsen}
-          size="medium"
-          value={state.hilsen}
-          label=""
-          hideLabel
-          onChange={redigerHilsen}
-          maxLength={MAKS_ANTALL_TEGN_HILSEN}
-          data-testid="textarea_hilsen"
-          error={handleError()}
-        />
+        <>
+          <Textarea
+            ref={personligHilsenRef}
+            className={delemodalStyles.personligHilsen}
+            size="medium"
+            value={state.hilsen}
+            label=""
+            hideLabel
+            onChange={redigerHilsen}
+            maxLength={MAKS_ANTALL_TEGN_HILSEN}
+            data-testid="textarea_hilsen"
+            error={handleError()}
+          />
+          <p>
+            <Alert inline variant="info">
+              Ikke del personopplysninger i din personlige hilsen
+            </Alert>
+          </p>
+        </>
       ) : null}
       {!veiledernavn && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>• Kunne ikke hente veileders navn</ErrorMessage>
@@ -125,20 +145,18 @@ export function DelMedBrukerContent({
           • Klarte ikke hente preutfylt tekst om tiltaket{' '}
         </ErrorMessage>
       )}
-      <div className={modalStyles.modal_btngroup}>
-        <div className={delemodalStyles.btn_row}>
-          <Button
-            onClick={handleSend}
-            data-testid="modal_btn-send"
-            disabled={senderTilDialogen || state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN || erPreview}
-          >
-            {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
-          </Button>
+      <div className={classNames(modalStyles.modal_btngroup, delemodalStyles.btn_row)}>
+        <Button
+          onClick={handleSend}
+          data-testid="modal_btn-send"
+          disabled={senderTilDialogen || state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN || erPreview}
+        >
+          {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
+        </Button>
 
-          <Button variant="tertiary" onClick={onCancel} data-testid="modal_btn-cancel" disabled={senderTilDialogen}>
-            Avbryt
-          </Button>
-        </div>
+        <Button variant="tertiary" onClick={onCancel} data-testid="modal_btn-cancel" disabled={senderTilDialogen}>
+          Avbryt
+        </Button>
       </div>
       {erPreview && (
         <Alert variant="warning" data-testid="alert-preview-del-med-bruker">

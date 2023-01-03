@@ -1,27 +1,24 @@
 .historikk_for_bruker_statusbadge {
-  display: inline-block;
   text-align: center;
-  border-radius: 5%;
-  padding: 0.2rem;
-  font-size: 0.8rem;
+  border-radius: 3px;
 }
 
 .AVSLUTTET {
-  background: var(--navds-global-color-gray-100);
-  color: var(--navds-global-color-gray-800);
+  background: var(--a-gray-100);
+  border: 1px solid var(--a-gray-800);
 }
 
 .DELTAR {
-  background: var(--navds-global-color-green-100);
-  color: var(--navds-global-color-green-800);
+  background: var(--a-green-100);
+  border: 1px solid var(--a-green-800);
 }
 
 .IKKE_AKTUELL {
-  background: var(--navds-global-color-red-100);
-  color: var(--navds-global-color-red-900);
+  background: var(--a-red-100);
+  border: 1px solid var(--a-red-700);
 }
 
 .VENTER {
-  background: var(--navds-global-color-lightblue-100);
-  color: var(--navds-global-color-lightblue-800);
+  background: var(--a-lightblue-100);
+  border: 1px solid var(--a-lightblue-800);
 }

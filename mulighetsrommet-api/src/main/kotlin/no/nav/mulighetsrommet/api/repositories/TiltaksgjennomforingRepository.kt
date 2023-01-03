@@ -238,4 +238,38 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tilDato = localDateTimeOrNull("til_dato"),
         enhet = string("enhet")
     )
+
+    fun getAllByNavident(navIdent: String, pagination: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+        logger.info("Henter alle tiltaksgjennomføringer for ansatt")
+
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   tiltakskode,
+                   fra_dato,
+                   til_dato,
+                   t.navn           as tiltakstype_navn,
+                   enhet,
+                   count(*) over () as full_count
+            from tiltaksgjennomforing tg
+                     join tiltakstype t on tg.tiltakstype_id = t.id
+                     join ansatt_tiltaksgjennomforing a on tg.id = a.tiltaksgjennomforing_id
+            where a.navident = ?
+            limit ? offset ?
+        """.trimIndent()
+        val results = queryOf(query, navIdent, pagination.limit, pagination.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforingDto()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
 }

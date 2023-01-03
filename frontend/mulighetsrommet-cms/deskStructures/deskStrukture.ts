@@ -12,7 +12,7 @@ export const structure = (S, context) => {
 
   if (roleNames.includes("administrator")) {
     deskItems.push(...adminStructure(S, context));
-    return S.list().title("Adminstrator").items(deskItems);
+    return S.list().title("Administrator").items(deskItems);
   }
 
   // Innhold for fagansvarlige i AV.Dir

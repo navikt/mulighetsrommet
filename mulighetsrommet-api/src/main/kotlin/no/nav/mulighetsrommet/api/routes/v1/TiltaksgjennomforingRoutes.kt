@@ -2,8 +2,10 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
@@ -12,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.api.utils.toUUID
 import org.koin.ktor.ext.inject
+import java.util.UUID
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
@@ -85,6 +88,46 @@ fun Route.tiltaksgjennomforingRoutes() {
                     ),
                     data = items
                 )
+            )
+        }
+
+        get("mine") {
+            val navIdent = getNavIdent()
+            val paginationParams = getPaginationParams()
+
+            val (totalCount, items) = tiltaksgjennomforingService.getAllForAnsattsListe(
+                navIdent,
+                paginationParams
+            )
+            call.respond(
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = paginationParams.page,
+                        pageSize = paginationParams.limit
+                    ),
+                    data = items
+                )
+            )
+        }
+
+        post("mine") {
+            val navIdent = getNavIdent()
+            val tiltaksgjennomforingId = call.receive<String>()
+
+            tiltaksgjennomforingService.lagreGjennomforingTilAnsattsListe(UUID.fromString(tiltaksgjennomforingId), navIdent)
+            call.respond(
+                HttpStatusCode.OK
+            )
+        }
+
+        delete("mine") {
+            val navIdent = getNavIdent()
+            val tiltaksgjennomforingId = call.receive<String>()
+
+            tiltaksgjennomforingService.fjernGjennomforingFraAnsattsListe(UUID.fromString(tiltaksgjennomforingId), navIdent)
+            call.respond(
+                HttpStatusCode.OK
             )
         }
 

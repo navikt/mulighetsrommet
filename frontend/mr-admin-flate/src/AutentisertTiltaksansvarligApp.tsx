@@ -5,6 +5,7 @@ import { EnhetsoversiktPage } from "./pages/enhet/EnhetsoversiktPage";
 import { ErrorPage } from "./pages/ErrorPage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
+import { MineTiltaksgjennomforingerPage } from "./pages/mine/MineTiltaksgjennomforingerPage";
 
 export default function AutentisertTiltaksansvarligApp() {
   return (
@@ -32,6 +33,15 @@ export default function AutentisertTiltaksansvarligApp() {
         element={
           <RootLayout>
             <EnhetsoversiktPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="mine"
+        element={
+          <RootLayout>
+            <MineTiltaksgjennomforingerPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

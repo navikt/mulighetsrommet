@@ -57,7 +57,6 @@
   :global(.navds-panel) {
     padding: 1.5rem;
     background-color: #f1f1f1;
-    //box-shadow: 5px 4px 10px 0 #888888;
   }
 
   :global(.navds-button).deleknapp {
@@ -82,10 +81,6 @@
       grid-column: initial;
       max-width: none;
       padding: 0 3rem;
-
-      :global(.navds-panel) {
-        padding-bottom: 0;
-      }
     }
   }
 

@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -93,6 +94,7 @@ private fun repositories() = module {
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { DeltakerRepository(get()) }
+    single { AnsattTiltaksgjennomforingRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -178,7 +180,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get()) }
+    single { TiltaksgjennomforingService(get(), get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {

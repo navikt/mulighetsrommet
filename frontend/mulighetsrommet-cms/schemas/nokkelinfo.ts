@@ -1,5 +1,6 @@
 import { FiKey } from "react-icons/fi";
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
+import { Information } from "../components/Information";
 
 export const nokkelinfo = defineType({
   name: "nokkelinfo",
@@ -7,6 +8,14 @@ export const nokkelinfo = defineType({
   type: "object",
   icon: FiKey,
   fields: [
+    defineField({
+      name: "info",
+      title: "Info",
+      type: "string",
+      components: {
+        field: Information,
+      },
+    }),
     defineField({
       name: "tittel",
       title: "Nøkkelinfo tittel",

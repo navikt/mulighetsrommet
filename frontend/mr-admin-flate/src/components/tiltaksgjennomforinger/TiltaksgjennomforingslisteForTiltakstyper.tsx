@@ -7,13 +7,15 @@ import { Laster } from "../Laster";
 import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
 import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
-import { Tiltakstype } from "mulighetsrommet-api-client"
+import { Tiltakstype } from "mulighetsrommet-api-client";
 
 interface Props {
-  tiltakstype: Tiltakstype
+  tiltakstype: Tiltakstype;
 }
 
-export function TiltaksgjennomforingslisteForTiltakstyper({ tiltakstype }: Props) {
+export function TiltaksgjennomforingslisteForTiltakstyper({
+  tiltakstype,
+}: Props) {
   const [page, setPage] = useAtom(
     paginationAtomTiltaksgjennomforingMedTiltakstype
   );

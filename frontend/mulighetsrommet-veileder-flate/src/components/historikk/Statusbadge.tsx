@@ -1,12 +1,13 @@
 import classNames from 'classnames';
 import { HistorikkForBruker } from 'mulighetsrommet-api-client';
 import styles from './Statusbadge.module.scss';
+import { Detail } from '@navikt/ds-react';
 
 export function StatusBadge({ status }: { status?: HistorikkForBruker.status }) {
   return (
-    <div className={classNames(styles.historikk_for_bruker_statusbadge, styles[status as unknown as any])}>
+    <Detail className={classNames(styles.historikk_for_bruker_statusbadge, styles[status as unknown as any])}>
       {statustekst(status)}
-    </div>
+    </Detail>
   );
 }
 

@@ -1,4 +1,4 @@
-import { Heading, HelpText } from '@navikt/ds-react';
+import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
 import { NokkelinfoKomponenter } from '../../core/api/models';
 import styles from './Nokkelinfo.module.scss';
 
@@ -15,7 +15,7 @@ const Nokkelinfo = ({ nokkelinfoKomponenter, uuTitle, ...rest }: NokkelinfoProps
           <div className={styles.nokkelinfo} key={index}>
             <div className={styles.content}>
               {typeof nokkelinfo.innhold === 'string' ? (
-                <p className={styles.tekst}>{nokkelinfo.innhold}</p>
+                <BodyShort className={styles.tekst}>{nokkelinfo.innhold}</BodyShort>
               ) : (
                 <div className={styles.tekst}>{nokkelinfo.innhold}</div>
               )}
