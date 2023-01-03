@@ -34,11 +34,9 @@ export function DetaljerTiltakstypePage() {
       </Heading>
       <dl>
         <dt>Tiltakskode:</dt>
-        <dd>{tiltakstype.kode}</dd>
+        <dd>{tiltakstype.arenaKode}</dd>
       </dl>
-      <TiltaksgjennomforingslisteForTiltakstyper
-        tiltakstype={tiltakstype}
-      />
+      <TiltaksgjennomforingslisteForTiltakstyper tiltakstype={tiltakstype} />
     </>
   );
 }

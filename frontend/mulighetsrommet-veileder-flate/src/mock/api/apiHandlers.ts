@@ -5,7 +5,7 @@ import { historikk } from '../fixtures/historikk';
 import { DelMedBruker } from 'mulighetsrommet-api-client';
 
 export const apiHandlers: RestHandler[] = [
-  rest.get('*/api/v1/bruker', req => {
+  rest.get('*/api/v1/internal/bruker', req => {
     const fnr = req.url.searchParams.get('fnr');
 
     if (typeof fnr !== 'string') {
@@ -32,7 +32,7 @@ export const apiHandlers: RestHandler[] = [
     });
   }),
 
-  rest.get('*/api/v1/ansatt/me', () => {
+  rest.get('*/api/v1/internal/ansatt/me', () => {
     return ok({
       etternavn: 'VEILEDERSEN',
       fornavn: 'VEILEDER',
@@ -42,13 +42,13 @@ export const apiHandlers: RestHandler[] = [
     });
   }),
 
-  rest.post('*/api/v1/dialog', () => {
+  rest.post('*/api/v1/internal/dialog', () => {
     return ok({
       id: '12345',
     });
   }),
 
-  rest.get('*/api/v1/sanity', async req => {
+  rest.get('*/api/v1/internal/sanity', async req => {
     const query = req.url.searchParams.get('query');
 
     if (!(typeof query === 'string')) {
@@ -61,16 +61,16 @@ export const apiHandlers: RestHandler[] = [
     return ok(result);
   }),
 
-  rest.get('*/api/v1/bruker/historikk', () => {
+  rest.get('*/api/v1/internal/bruker/historikk', () => {
     return ok(historikk);
   }),
 
-  rest.post('*/api/v1/delMedBruker', async req => {
+  rest.post('*/api/v1/internal/delMedBruker', async req => {
     const data = await req.json();
     return ok(data);
   }),
 
-  rest.get('*/api/v1/delMedBruker/*', () => {
+  rest.get('*/api/v1/internal/delMedBruker/*', () => {
     return ok<DelMedBruker>({
       tiltaksnummer: '29518',
       navident: 'V15555',

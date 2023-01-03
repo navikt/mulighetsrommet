@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.services
 
+import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import java.util.UUID
 
-class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository) {
+class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository, private val ansattTiltaksgjennomforingRepository: AnsattTiltaksgjennomforingRepository) {
 
     fun getAll(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         return tiltaksgjennomforingRepository.getAll(paginationParams)
@@ -16,6 +18,18 @@ class TiltaksgjennomforingService(private val tiltaksgjennomforingRepository: Ti
 
     fun getAllByEnhet(enhet: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         return tiltaksgjennomforingRepository.getAllByEnhet(enhet, paginationParams)
+    }
+
+    fun getAllForAnsattsListe(navIdent: String, paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+        return tiltaksgjennomforingRepository.getAllByNavident(navIdent, paginationParams)
+    }
+
+    fun lagreGjennomforingTilAnsattsListe(tiltaksgjennomforingIder: UUID, navIdent: String) {
+        ansattTiltaksgjennomforingRepository.lagreFavoritt(tiltaksgjennomforingIder, navIdent)
+    }
+
+    fun fjernGjennomforingFraAnsattsListe(tiltaksgjennomforingId: UUID, navIdent: String) {
+        ansattTiltaksgjennomforingRepository.fjernFavoritt(tiltaksgjennomforingId, navIdent)
     }
 }
 

@@ -13,7 +13,7 @@ export function Shortcuts({ shortcuts }: Props) {
       <ul className={styles.shortcuts_container}>
         {shortcuts.map(({ url, navn }) => (
           <li key={url + navn} className={styles.shortcut}>
-            <Link to={url}>
+            <Link to={url} data-testid={`shortcut-${url.replace("/", "")}`}>
               <span>{navn}</span>
             </Link>
           </li>
