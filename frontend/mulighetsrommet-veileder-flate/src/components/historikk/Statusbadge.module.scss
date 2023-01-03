@@ -5,24 +5,20 @@
 
 .AVSLUTTET {
   background: var(--a-gray-100);
-  color: var(--a-gray-800);
   border: 1px solid var(--a-gray-800);
 }
 
 .DELTAR {
   background: var(--a-green-100);
-  color: var(--a-green-800);
   border: 1px solid var(--a-green-800);
 }
 
 .IKKE_AKTUELL {
   background: var(--a-red-100);
-  color: var(--a-red-700);
   border: 1px solid var(--a-red-700);
 }
 
 .VENTER {
   background: var(--a-lightblue-100);
-  color: var(--a-lightblue-800);
   border: 1px solid var(--a-lightblue-800);
 }
