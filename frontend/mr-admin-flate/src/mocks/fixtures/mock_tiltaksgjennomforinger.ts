@@ -1,4 +1,9 @@
-export const mockTiltaksgjennomforinger = {
+import {
+  PaginertTiltaksgjennomforing,
+  Tiltakskode,
+} from "mulighetsrommet-api-client";
+
+export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
     totalCount: 18,
     currentPage: 1,
@@ -8,12 +13,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
       navn: "Yrkesnorsk med praksis",
-      tiltaksnummer: 123456,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "123456",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -22,12 +27,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
-      tiltaksnummer: 123456,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "123456",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -36,12 +41,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
       navn: "Midlertidig lønnstilskudd",
-      tiltaksnummer: 654434,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "654434",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -50,12 +55,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
       navn: "AFT - Unikom",
-      tiltaksnummer: 768672,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "768672",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -64,12 +69,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
       navn: "Varig lønnstilskudd",
-      tiltaksnummer: 65645,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "65645",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -78,12 +83,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 32557,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "32557",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -92,12 +97,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 98643,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "98643",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -106,12 +111,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 575685,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "575685",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -120,12 +125,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 54353,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "54353",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -134,12 +139,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 23213,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "23213",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -148,12 +153,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 76575,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "76575",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -162,12 +167,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 23123,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "23123",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -176,12 +181,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee313",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 686585,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "686585",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -190,12 +195,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee314",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 43242,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "43242",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -204,12 +209,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee315",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 4367,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "4367",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -218,12 +223,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee316",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 7685,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "7685",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -232,12 +237,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee317",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 5435356,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "5435356",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
@@ -246,12 +251,12 @@ export const mockTiltaksgjennomforinger = {
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee318",
       navn: "Arbeidsrettet rehabilitering - Trondheim",
-      tiltaksnummer: 987643,
-      virksomhetsnummer: 1000,
+      tiltaksnummer: "987643",
+      virksomhetsnummer: "1000",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: "ABIST",
+        arenaKode: Tiltakskode.ABIST,
       },
       fraDato: "2022-01-01",
       tilDato: "2022-12-12",
