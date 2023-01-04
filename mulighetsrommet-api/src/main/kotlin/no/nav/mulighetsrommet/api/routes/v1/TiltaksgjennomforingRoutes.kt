@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.Sokefilter
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.api.utils.toUUID
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import java.util.UUID
 

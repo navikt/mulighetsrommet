@@ -59,6 +59,16 @@ spec:
         - application: mr-admin-flate
         - application: veilarbpersonflate
           namespace: poao
+        - application: amt-tiltak
+          namespace: amt
+          permissions:
+            roles:
+              - tiltaksgjennomforing-read
+        - application: amt-arena-acl
+          namespace: amt
+          permissions:
+            roles:
+              - tiltaksgjennomforing-read
     outbound:
       rules:
         - application: poao-tilgang
