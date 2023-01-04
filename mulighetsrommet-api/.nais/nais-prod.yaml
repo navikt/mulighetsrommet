@@ -66,12 +66,12 @@ spec:
           namespace: amt
           permissions:
             roles:
-              - read:tiltaksgjennomforing
+              - tiltaksgjennomforing-read
         - application: amt-arena-acl
           namespace: amt
           permissions:
             roles:
-              - read:tiltaksgjennomforing
+              - tiltaksgjennomforing-read
     outbound:
       rules:
         - application: poao-tilgang

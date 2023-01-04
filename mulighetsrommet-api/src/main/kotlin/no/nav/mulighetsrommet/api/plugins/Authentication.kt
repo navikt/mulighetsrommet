@@ -21,7 +21,7 @@ enum class AuthProvider {
 
 object AppRoles {
     const val AccessAsApplication = "access_as_application"
-    const val ReadTiltaksgjennomforing = "read:tiltaksgjennomforing"
+    const val ReadTiltaksgjennomforing = "tiltaksgjennomforing-read"
 }
 
 fun Application.configureAuthentication(
