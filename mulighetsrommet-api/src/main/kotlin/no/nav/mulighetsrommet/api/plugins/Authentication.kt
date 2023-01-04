@@ -72,7 +72,6 @@ fun Application.configureAuthentication(
 
             validate { credentials ->
                 if (!hasRoles(credentials, AppRoles.AccessAsApplication, AppRoles.ReadTiltaksgjennomforing)) {
-                    application.log.info(credentials.payload.toString())
                     return@validate null
                 }
 
