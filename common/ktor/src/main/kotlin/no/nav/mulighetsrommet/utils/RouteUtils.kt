@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utils
+package no.nav.mulighetsrommet.utils
 
 import java.util.*
 

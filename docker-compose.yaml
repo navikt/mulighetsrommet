@@ -76,6 +76,7 @@ services:
   # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    restart: always
     ports:
       - "22181:2181"
     profiles:
@@ -87,6 +88,7 @@ services:
   # Kafka broker.
   kafka:
     image: confluentinc/cp-kafka:latest
+    restart: always
     depends_on:
       - zookeeper
     ports:

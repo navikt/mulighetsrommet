@@ -6,9 +6,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
-import no.nav.mulighetsrommet.api.utils.toUUID
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 
 fun Route.externalRoutes() {

@@ -4,11 +4,11 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.utils.toUUID
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 
 fun Route.apiRoutes() {
