@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.api.utils.toUUID
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 
 fun Route.tiltakstypeRoutes() {
