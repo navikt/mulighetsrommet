@@ -49,8 +49,10 @@ fun Application.configure(config: AppConfig) {
             dialogRoutes()
             delMedBrukerRoutes()
         }
-        authenticate(AuthProvider.AzureAdMachineToMachine.name) {
+        authenticate(AuthProvider.AzureAdDefaultApp.name) {
             arenaRoutes()
+        }
+        authenticate(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
             externalRoutes()
         }
     }
