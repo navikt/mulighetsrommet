@@ -5,6 +5,8 @@ import {
   Select,
   Switch,
   TextField,
+  UNSAFE_DatePicker,
+  UNSAFE_useRangeDatepicker,
 } from "@navikt/ds-react";
 import { FieldHookConfig, Form, Formik, useField } from "formik";
 import { z } from "zod";
@@ -101,6 +103,11 @@ function SwitchFelt({
 }
 
 export function OpprettTiltakstype() {
+  const { datepickerProps, toInputProps, fromInputProps, selectedRange } =
+    UNSAFE_useRangeDatepicker({
+      fromDate: new Date("Aug 23 2019"),
+      onRangeChange: console.log,
+    });
   const initialValues: SchemaValues = {
     tiltakstypenavn: "",
     tiltaksgruppekode: "",
@@ -162,19 +169,21 @@ export function OpprettTiltakstype() {
       >
         {() => (
           <Form>
-            <BodyLong spacing>
-              <Tekstfelt name="tiltakstypenavn" label="Navn på tiltakstype" />
-            </BodyLong>
-            <BodyLong spacing>
-              <SelectFelt name="tiltaksgruppekode" label="Tiltaksgruppekode">
-                {tiltaksgruppekoder.map((kode) => (
-                  <option key={kode} value={kode}>
-                    {kode}
-                  </option>
-                ))}
-              </SelectFelt>
-            </BodyLong>
+            <Tekstfelt name="tiltakstypenavn" label="Navn på tiltakstype" />
+            <SelectFelt name="tiltaksgruppekode" label="Tiltaksgruppekode">
+              {tiltaksgruppekoder.map((kode) => (
+                <option key={kode} value={kode}>
+                  {kode}
+                </option>
+              ))}
+            </SelectFelt>
             <Tekstfelt name="tiltakskode" label="Tiltakskode" />
+            <UNSAFE_DatePicker {...datepickerProps}>
+              <div style={{ display: "flex", gap: "5rem" }}>
+                <UNSAFE_DatePicker.Input {...fromInputProps} label="Fra" />
+                <UNSAFE_DatePicker.Input {...toInputProps} label="Til" />
+              </div>
+            </UNSAFE_DatePicker>
             <SwitchFelt name="rettTilTiltakspenger">
               Rett til tiltakspenger
             </SwitchFelt>
