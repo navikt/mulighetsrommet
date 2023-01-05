@@ -5,6 +5,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
+import { OpprettTiltakstype } from "./pages/tiltakstyper/OpprettTiltakstypePage";
 
 export default function AutentisertFagansvarligApp() {
   return (
@@ -23,6 +24,15 @@ export default function AutentisertFagansvarligApp() {
         element={
           <RootLayout>
             <TiltakstyperPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltakstyper/opprett"
+        element={
+          <RootLayout>
+            <OpprettTiltakstype />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
