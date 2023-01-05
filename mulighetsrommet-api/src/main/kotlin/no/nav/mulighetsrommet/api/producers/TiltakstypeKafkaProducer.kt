@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api.producers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
-class TiltaksgjennomforingKafkaProducer(
+class TiltakstypeKafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
     private val config: Config
 ) {
@@ -15,7 +15,7 @@ class TiltaksgjennomforingKafkaProducer(
         val topic: String
     )
 
-    fun publish(value: TiltaksgjennomforingDto) {
+    fun publish(value: TiltakstypeDto) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),
