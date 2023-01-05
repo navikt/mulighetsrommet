@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -48,8 +49,8 @@ class ArenaServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
-        fraDato = LocalDateTime.of(2022, 11, 11, 0, 0),
-        tilDato = LocalDateTime.of(2023, 11, 11, 0, 0),
+        startDato = LocalDate.of(2022, 11, 11),
+        sluttDato = LocalDate.of(2023, 11, 11),
         enhet = "2990"
     )
 
@@ -73,8 +74,8 @@ class ArenaServiceTest : FunSpec({
             navn = navn,
             tiltaksnummer = tiltaksnummer,
             virksomhetsnummer = virksomhetsnummer,
-            fraDato = fraDato,
-            tilDato = tilDato,
+            startDato = startDato,
+            sluttDato = sluttDato,
             enhet = enhet
         )
     }
@@ -147,8 +148,8 @@ class ArenaServiceTest : FunSpec({
                 .value("tiltakstype_id").isEqualTo(tiltakstype.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
                 .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
-                .value("fra_dato").isEqualTo(tiltaksgjennomforing.fraDato)
-                .value("til_dato").isEqualTo(tiltaksgjennomforing.tilDato)
+                .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
+                .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
 
             val updated = tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening")
             service.upsert(updated)

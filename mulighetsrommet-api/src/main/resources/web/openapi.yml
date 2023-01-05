@@ -536,10 +536,12 @@ components:
           type: string
         virksomhetsnummer:
           type: string
-        fraDato:
+        startDato:
           type: string
-        tilDato:
+          format: date
+        sluttDato:
           type: string
+          format: date
         enhet:
           type: string
       required:

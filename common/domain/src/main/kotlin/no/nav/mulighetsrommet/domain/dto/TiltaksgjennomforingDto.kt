@@ -23,8 +23,8 @@ data class TiltaksgjennomforingDto(
                 id = id,
                 tiltakstype = tiltakstype,
                 navn = navn,
-                startDato = fraDato?.let { LocalDate.from(it) },
-                sluttDato = tilDato?.let { LocalDate.from(it) },
+                startDato = startDato,
+                sluttDato = sluttDato,
             )
         }
     }
