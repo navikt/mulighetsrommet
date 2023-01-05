@@ -1,6 +1,7 @@
 import {
   BodyLong,
   Button,
+  Checkbox,
   Heading,
   Select,
   Switch,
@@ -8,10 +9,14 @@ import {
   UNSAFE_DatePicker,
   UNSAFE_useRangeDatepicker,
 } from "@navikt/ds-react";
-import { FieldHookConfig, Form, Formik, useField } from "formik";
+import { FieldHookConfig, Form, Formik, useField, useFormik } from "formik";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
+import formStyles from "./OpprettTiltakstypePage.module.scss";
+
+// TODO Se på boolean-verdier i zod og Formik
+// TODO Skal vi ha auto-lagring av skjema?
 
 const Schema = z.object({
   tiltakstypenavn: z.string({ required_error: "Tiltakstypen må ha et navn" }),
@@ -19,30 +24,30 @@ const Schema = z.object({
     required_error: "Tiltaksgruppekode må være satt",
   }),
   tiltakskode: z.string({ required_error: "Tiltakskode må være satt" }),
-  rettTilTiltakspenger: z.boolean().default(false),
+  rettTilTiltakspenger: z.string().array(),
   administrasjonskode: z.string({
     required_error: "Du må sette en administrasjonskode",
   }),
-  kopiAvTilsagnsbrev: z.boolean().default(false),
+  kopiAvTilsagnsbrev: z.string().array(),
   arkivkode: z.string({ required_error: "Du må sette en arkivkode" }),
-  harAnskaffelse: z.boolean().default(false),
+  harAnskaffelse: z.string().array(),
   rammeavtale: z.string({ required_error: "Du må velge en rammeavtale" }),
   opplaringsgruppe: z.string({
     required_error: "Du må velge en opplæringsgruppe",
   }),
   handlingsplan: z.string({ required_error: "Du må velge en handlingsplan" }),
-  harObligatoriskSluttdato: z.boolean().default(false),
+  harObligatoriskSluttdato: z.string().array(),
   varighet: z.string({ required_error: "Du må sette en varighet" }),
-  harStatusSluttdato: z.boolean().default(false),
-  harStatusMeldeplikt: z.boolean().default(false),
-  harStatusVedtak: z.boolean().default(false),
-  harStatusIAAvtale: z.boolean().default(false),
-  harStatusTilleggstonad: z.boolean().default(false),
-  harStatusUtdanning: z.boolean().default(false),
-  harAutomatiskTilsagsnbrev: z.boolean().default(false),
-  harStatusBegrunnelseInnsok: z.boolean().default(false),
-  harStatusHenvisningsbrev: z.boolean().default(false),
-  harStatusKopibrev: z.boolean().default(false),
+  harStatusSluttdato: z.string().array(),
+  harStatusMeldeplikt: z.string().array(),
+  harStatusVedtak: z.string().array(),
+  harStatusIAAvtale: z.string().array(),
+  harStatusTilleggstonad: z.string().array(),
+  harStatusUtdanning: z.string().array(),
+  harAutomatiskTilsagsnbrev: z.string().array(),
+  harStatusBegrunnelseInnsok: z.string().array(),
+  harStatusHenvisningsbrev: z.string().array(),
+  harStatusKopibrev: z.string().array(),
 });
 
 type SchemaValues = z.infer<typeof Schema>;
@@ -64,7 +69,7 @@ function Tekstfelt({
       size="small"
       label={label}
       {...field}
-      error={meta.error}
+      error={meta.touched && meta.error}
     />
   );
 }
@@ -83,7 +88,12 @@ function SelectFelt({
 } & FieldHookConfig<any>) {
   const [field, meta] = useField({ name, ...props });
   return (
-    <Select size="small" label={label} {...field} error={meta.error}>
+    <Select
+      size="small"
+      label={label}
+      {...field}
+      error={meta.touched && meta.error}
+    >
       {defaultBlank ? <option value="">{defaultBlankName}</option> : null}
       {props.children}
     </Select>
@@ -102,6 +112,14 @@ function SwitchFelt({
   );
 }
 
+function CheckboxFelt(
+  props: { name: keyof SchemaValues } & FieldHookConfig<any>
+) {
+  const [field] = useField({ ...props, type: "checkbox" });
+
+  return <Checkbox {...field}>{props.children}</Checkbox>;
+}
+
 export function OpprettTiltakstype() {
   const { datepickerProps, toInputProps, fromInputProps, selectedRange } =
     UNSAFE_useRangeDatepicker({
@@ -112,26 +130,26 @@ export function OpprettTiltakstype() {
     tiltakstypenavn: "",
     tiltaksgruppekode: "",
     tiltakskode: "",
-    rettTilTiltakspenger: false,
+    rettTilTiltakspenger: [],
     administrasjonskode: "",
-    kopiAvTilsagnsbrev: false,
+    kopiAvTilsagnsbrev: [],
     arkivkode: "",
-    harAnskaffelse: false,
+    harAnskaffelse: [],
     rammeavtale: "",
     opplaringsgruppe: "",
     handlingsplan: "",
-    harObligatoriskSluttdato: false,
+    harObligatoriskSluttdato: [],
     varighet: "",
-    harStatusSluttdato: false,
-    harStatusMeldeplikt: false,
-    harStatusVedtak: false,
-    harStatusIAAvtale: false,
-    harStatusTilleggstonad: false,
-    harStatusUtdanning: false,
-    harAutomatiskTilsagsnbrev: false,
-    harStatusBegrunnelseInnsok: false,
-    harStatusHenvisningsbrev: false,
-    harStatusKopibrev: false,
+    harStatusSluttdato: [],
+    harStatusMeldeplikt: [],
+    harStatusVedtak: [],
+    harStatusIAAvtale: [],
+    harStatusTilleggstonad: [],
+    harStatusUtdanning: [],
+    harAutomatiskTilsagsnbrev: [],
+    harStatusBegrunnelseInnsok: [],
+    harStatusHenvisningsbrev: [],
+    harStatusKopibrev: [],
   };
   const tiltaksgruppekoder = ["OPPFOLG", "FOLKHOY"]; // TODO Disse bør komme fra et API så vi kan prepopulere en select-component
   const rammeavtaler = [
@@ -149,6 +167,11 @@ export function OpprettTiltakstype() {
       navn: "obligatorisk sluttdato",
     },
   ];
+
+  const onSave = () => {
+    console.log("Lagrer...");
+  };
+
   return (
     <>
       <Heading className={styles.overskrift} size="large">
@@ -161,14 +184,15 @@ export function OpprettTiltakstype() {
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(Schema)}
         onSubmit={(values, actions) => {
-          setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            actions.setSubmitting(false);
-          }, 150);
+          alert(JSON.stringify(values, null, 2));
+          actions.setSubmitting(false);
         }}
       >
-        {() => (
-          <Form>
+        {({ handleSubmit }) => (
+          <Form
+            className={formStyles.form}
+            onSubmit={(e) => e.preventDefault()}
+          >
             <Tekstfelt name="tiltakstypenavn" label="Navn på tiltakstype" />
             <SelectFelt name="tiltaksgruppekode" label="Tiltaksgruppekode">
               {tiltaksgruppekoder.map((kode) => (
@@ -184,15 +208,20 @@ export function OpprettTiltakstype() {
                 <UNSAFE_DatePicker.Input {...toInputProps} label="Til" />
               </div>
             </UNSAFE_DatePicker>
-            <SwitchFelt name="rettTilTiltakspenger">
-              Rett til tiltakspenger
-            </SwitchFelt>
+            <CheckboxFelt
+              name="rettTilTiltakspenger"
+              value={"rettTilTiltakspenger"}
+            >
+              Rett på tiltakspenger
+            </CheckboxFelt>
             <Tekstfelt name="administrasjonskode" label="Administrasjonskode" />
-            <SwitchFelt name="kopiAvTilsagnsbrev">
+            <CheckboxFelt name="kopiAvTilsagnsbrev" value="kopiAvTilsagnsbrev">
               Kopi av tilsagnsbrev
-            </SwitchFelt>
+            </CheckboxFelt>
             <Tekstfelt name="arkivkode" label="Arkivkode" />
-            <SwitchFelt name="harAnskaffelse">Anskaffelse</SwitchFelt>
+            <CheckboxFelt name="harAnskaffelse" value="harAnskaffelse">
+              Anskaffelse
+            </CheckboxFelt>
             <SelectFelt name="rammeavtale" label="Rammeavtale">
               {rammeavtaler.map(({ id, navn }) => (
                 <option key={id} value={id}>
@@ -218,37 +247,77 @@ export function OpprettTiltakstype() {
                 </option>
               ))}
             </SelectFelt>
-            <SwitchFelt name="harObligatoriskSluttdato">
+            <CheckboxFelt
+              name="harObligatoriskSluttdato"
+              value="harObligatoriskSluttdato"
+            >
               Obligatorisk sluttdato
-            </SwitchFelt>
+            </CheckboxFelt>
             <Tekstfelt
               name="varighet"
               label="Varighet"
               hjelpetekst="Maks antall måneder"
             />
 
-            <SwitchFelt name="harStatusSluttdato">Status sluttdato</SwitchFelt>
-            <SwitchFelt name="harStatusMeldeplikt">
+            <CheckboxFelt name="harStatusSluttdato" value="harStatusSluttdato">
+              Status sluttdato
+            </CheckboxFelt>
+            <CheckboxFelt
+              name="harStatusMeldeplikt"
+              value="harStatusMeldeplikt"
+            >
               Status meldeplinkt
-            </SwitchFelt>
-            <SwitchFelt name="harStatusVedtak">Status vedtak</SwitchFelt>
-            <SwitchFelt name="harStatusIAAvtale">Status IA Avtale</SwitchFelt>
-            <SwitchFelt name="harStatusTilleggstonad">
+            </CheckboxFelt>
+            <CheckboxFelt name="harStatusVedtak" value="harStatusVedtak">
+              Status vedtak
+            </CheckboxFelt>
+            <CheckboxFelt name="harStatusIAAvtale" value="harStatusIAAvtale">
+              Status IA Avtale
+            </CheckboxFelt>
+            <CheckboxFelt
+              name="harStatusTilleggstonad"
+              value="harStatusTilleggstonad"
+            >
               Status tilleggsstønad
-            </SwitchFelt>
-            <SwitchFelt name="harStatusUtdanning">Status utdanning</SwitchFelt>
+            </CheckboxFelt>
+            <CheckboxFelt name="harStatusUtdanning" value="harStatusUtdanning">
+              Status utdanning
+            </CheckboxFelt>
 
-            <SwitchFelt name="harAutomatiskTilsagsnbrev">
+            <CheckboxFelt
+              name="harAutomatiskTilsagsnbrev"
+              value="harAutomatiskTilsagsnbrev"
+            >
               Automatisk tilsagnsbrev
-            </SwitchFelt>
-            <SwitchFelt name="harStatusBegrunnelseInnsok">
+            </CheckboxFelt>
+            <CheckboxFelt
+              name="harStatusBegrunnelseInnsok"
+              value="harStatusBegrunnelseInnsok"
+            >
               Status begrunnelse innsøk
-            </SwitchFelt>
-            <SwitchFelt name="harStatusHenvisningsbrev">
+            </CheckboxFelt>
+            <CheckboxFelt
+              name="harStatusHenvisningsbrev"
+              value="harStatusHenvisningsbrev"
+            >
               Status henvisningsbrev
-            </SwitchFelt>
-            <SwitchFelt name="harStatusKopibrev">Status kopibrev</SwitchFelt>
-            <Button type="submit">Publiser</Button>
+            </CheckboxFelt>
+            <CheckboxFelt name="harStatusKopibrev" value="harStatusKopibrev">
+              Status kopibrev
+            </CheckboxFelt>
+            <div className={formStyles.separator} />
+            <div className={formStyles.summaryContainer}>
+              <div>
+                <span>Sist oppdatert: TBA</span>{" "}
+                {/** TODO Her må sist lagret inn */}
+              </div>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <Button onClick={onSave} variant="tertiary">
+                  Lagre
+                </Button>
+                <Button onClick={() => handleSubmit()}>Publiser</Button>
+              </div>
+            </div>
           </Form>
         )}
       </Formik>
