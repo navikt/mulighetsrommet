@@ -5,8 +5,11 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkGruppetiltakDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkIndividueltTiltakDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.poao_tilgang.client.NorskIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -15,26 +18,44 @@ class DeltakerRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query {
+    fun upsert(deltaker: HistorikkDbo): QueryResult<HistorikkDbo> = query {
         logger.info("Lagrer deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :fra_dato, :til_dato)
+            insert into historikk (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, virksomhetsnummer, tiltakstypeid)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :fra_dato, :til_dato, :beskrivelse, :virksomhetsnummer, :tiltakstypeid::uuid)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               norsk_ident             = excluded.norsk_ident,
                               status                  = excluded.status,
                               fra_dato                = excluded.fra_dato,
-                              til_dato                = excluded.til_dato
+                              til_dato                = excluded.til_dato,
+                              beskrivelse             = excluded.beskrivelse,
+                              virksomhetsnummer       = excluded.virksomhetsnummer,
+                              tiltakstypeid           = excluded.tiltakstypeid
             returning *
         """.trimIndent()
 
         queryOf(query, deltaker.toSqlParameters())
-            .map { it.toDeltakerDbo() }
+            .map { it.toHistorikkDbo() }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun get(norskIdent: NorskIdent): List<HistorikkDbo> {
+        @Language("PostgreSQL")
+        val query = """
+            select (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, virksomhetsnummer, tiltakstypeid)
+            from historikk
+            where norsk_ident=?
+            order by fra_dato desc nulls last;
+        """.trimIndent()
+
+        return queryOf(query, norskIdent)
+            .map { it.toHistorikkDbo() }
+            .asList
+            .let { db.run(it) }
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
@@ -51,21 +72,45 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun DeltakerDbo.toSqlParameters() = mapOf(
-        "id" to id,
-        "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "norsk_ident" to norskIdent,
-        "status" to status.name,
-        "fra_dato" to fraDato,
-        "til_dato" to tilDato,
-    )
+    private fun HistorikkDbo.toSqlParameters(): Map<String, *> {
+        return mapOf(
+            "id" to id,
+            "norsk_ident" to norskIdent,
+            "status" to status.name,
+            "fra_dato" to fraDato,
+            "til_dato" to tilDato
+        ) + when (this) {
+            is HistorikkGruppetiltakDbo -> listOfNotNull(
+                "tiltaksgjennomforing_id" to tiltaksgjennomforingId
+            )
+            is HistorikkIndividueltTiltakDbo -> listOfNotNull(
+                "beskrivelse" to beskrivelse,
+                "virksomhetsnummer" to virksomhetsnummer,
+                "tiltakstypeid" to tiltakstypeId
+            )
+        }
+    }
 
-    private fun Row.toDeltakerDbo() = DeltakerDbo(
-        id = uuid("id"),
-        tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
-        norskIdent = string("norsk_ident"),
-        status = Deltakerstatus.valueOf(string("status")),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
-    )
+    private fun Row.toHistorikkDbo(): HistorikkDbo {
+        return when (uuidOrNull("tiltaksgjennomforing_id")) {
+            null -> HistorikkIndividueltTiltakDbo(
+                id = uuid("id"),
+                norskIdent = string("norsk_ident"),
+                status = Deltakerstatus.valueOf(string("status")),
+                fraDato = localDateTimeOrNull("fra_dato"),
+                tilDato = localDateTimeOrNull("til_dato"),
+                beskrivelse = string("beskrivelse"),
+                tiltakstypeId = uuid("tiltakstypeid"),
+                virksomhetsnummer = string("virksomhetsnummer")
+            )
+            else -> HistorikkGruppetiltakDbo(
+                id = uuid("id"),
+                tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
+                norskIdent = string("norsk_ident"),
+                status = Deltakerstatus.valueOf(string("status")),
+                fraDato = localDateTimeOrNull("fra_dato"),
+                tilDato = localDateTimeOrNull("til_dato")
+            )
+        }
+    }
 }

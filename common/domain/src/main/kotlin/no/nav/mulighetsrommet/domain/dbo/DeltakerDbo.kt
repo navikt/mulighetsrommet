@@ -20,3 +20,47 @@ data class DeltakerDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val tilDato: LocalDateTime? = null
 )
+
+@Serializable
+sealed class HistorikkDbo {
+    @Serializable(with = UUIDSerializer::class)
+    abstract val id: UUID
+    abstract val norskIdent: String
+    abstract val status: Deltakerstatus
+
+    @Serializable(with = LocalDateTimeSerializer::class)
+    abstract val fraDato: LocalDateTime?
+
+    @Serializable(with = LocalDateTimeSerializer::class)
+    abstract val tilDato: LocalDateTime?
+}
+
+@Serializable
+class HistorikkGruppetiltakDbo(
+    @Serializable(with = UUIDSerializer::class)
+    override val id: UUID,
+    override val norskIdent: String,
+    override val status: Deltakerstatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    override val fraDato: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    override val tilDato: LocalDateTime? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltaksgjennomforingId: UUID
+) : HistorikkDbo()
+
+@Serializable
+class HistorikkIndividueltTiltakDbo(
+    @Serializable(with = UUIDSerializer::class)
+    override val id: UUID,
+    override val norskIdent: String,
+    override val status: Deltakerstatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    override val fraDato: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    override val tilDato: LocalDateTime? = null,
+    val beskrivelse: String,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
+    val virksomhetsnummer: String
+) : HistorikkDbo()
