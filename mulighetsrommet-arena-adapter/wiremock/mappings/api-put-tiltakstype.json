@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "urlPattern": "/api/v1/arena/tiltakstyper"
+    "urlPattern": "/api/v1/internal/arena/tiltakstyper"
   },
   "response": {
     "status": 200,

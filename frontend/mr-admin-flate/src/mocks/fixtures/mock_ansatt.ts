@@ -1,4 +1,6 @@
-export const mockTiltaksansvarlig = {
+import { Ansatt } from "mulighetsrommet-api-client";
+
+export const mockTiltaksansvarlig: Ansatt = {
   etternavn: "Tiltaksansvarlig",
   fornavn: "Tilda",
   ident: "T99876",
@@ -8,7 +10,7 @@ export const mockTiltaksansvarlig = {
   hovedenhetNavn: "IT Drift",
 };
 
-export const mockFagansvarlig = {
+export const mockFagansvarlig: Ansatt = {
   etternavn: "Fagansvarlig",
   fornavn: "Frode",
   ident: "F18765",

@@ -50,6 +50,7 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter-manager
+        - application: mulighetsrommet-api
     outbound:
       rules:
         - application: mulighetsrommet-api

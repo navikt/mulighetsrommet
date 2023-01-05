@@ -1,4 +1,9 @@
-export const mockTiltaksgjennomforingerKobletTilAnsatt = [
+type Kobling = {
+  brukerident: string;
+  tiltaksgjennomforinger: string[];
+};
+
+export const mockTiltaksgjennomforingerKobletTilAnsatt: Kobling[] = [
   {
     brukerident: "T99876",
     tiltaksgjennomforinger: [

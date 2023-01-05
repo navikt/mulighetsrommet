@@ -75,6 +75,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             tiltakskode = "INDOPPFAG",
             arrangorId = null,
             navn = null,
+            status = "GJENNOMFOR"
         )
 
         beforeEach {

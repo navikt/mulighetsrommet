@@ -14,8 +14,14 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {
-    AzureAdMachineToMachine,
     AzureAdNavIdent,
+    AzureAdDefaultApp,
+    AzureAdTiltaksgjennomforingApp,
+}
+
+object AppRoles {
+    const val AccessAsApplication = "access_as_application"
+    const val ReadTiltaksgjennomforing = "tiltaksgjennomforing-read"
 }
 
 fun Application.configureAuthentication(
@@ -27,18 +33,12 @@ fun Application.configureAuthentication(
         .cached(5, 12, TimeUnit.HOURS)
         .build()
 
+    fun hasRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
+        val roles = credentials.getListClaim("roles", String::class)
+        return requiredRoles.all { it in roles }
+    }
+
     install(Authentication) {
-        jwt(AuthProvider.AzureAdMachineToMachine.name) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
-            }
-
-            validate { credentials ->
-                // TODO: verify that this is a m2m-token
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
         jwt(AuthProvider.AzureAdNavIdent.name) {
             verifier(jwkProvider, azure.issuer) {
                 withAudience(azure.audience)
@@ -46,6 +46,34 @@ fun Application.configureAuthentication(
 
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AzureAdDefaultApp.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                if (!hasRoles(credentials, AppRoles.AccessAsApplication)) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                if (!hasRoles(credentials, AppRoles.AccessAsApplication, AppRoles.ReadTiltaksgjennomforing)) {
+                    return@validate null
+                }
 
                 JWTPrincipal(credentials.payload)
             }

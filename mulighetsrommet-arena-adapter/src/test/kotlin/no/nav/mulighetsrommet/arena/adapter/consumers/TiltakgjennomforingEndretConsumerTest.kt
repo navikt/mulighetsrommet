@@ -156,6 +156,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             database.assertThat("tiltaksgjennomforing")
                 .row().value("navn").isEqualTo("Navn 1")
 
+            database.assertThat("tiltaksgjennomforing")
+                .row().value("status").isEqualTo("GJENNOMFOR")
+
             val e2 = consumer.processEvent(
                 createEvent(
                     Update,
@@ -348,6 +351,7 @@ private fun createEvent(
         "DATO_FRA": ${fraDato?.let { "\"$fraDato\"" }},
         "DATO_TIL": ${tilDato?.let { "\"$tilDato\"" }},
         "STATUS_TREVERDIKODE_INNSOKNING": "J",
-        "ANTALL_DELTAKERE": 5
+        "ANTALL_DELTAKERE": 5,
+        "TILTAKSTATUSKODE": "GJENNOMFOR"
     }"""
 )
