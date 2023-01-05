@@ -14,7 +14,7 @@ import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
 export function EnhetsoversiktPage() {
   const { data: ansattData } = useHentAnsatt();
   const { data, isFetching, isError } = useTiltaksgjennomforingerByEnhet(
-    ansattData?.hovedenhet
+    ansattData?.hovedenhet ?? ""
   );
   const [page, setPage] = useAtom(paginationAtom);
 
