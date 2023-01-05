@@ -71,6 +71,7 @@ spec:
               - tiltaksgjennomforing-read
     outbound:
       rules:
+        - application: mulighetsrommet-arena-adapter
         - application: poao-tilgang
           namespace: poao
         - application: amt-enhetsregister
