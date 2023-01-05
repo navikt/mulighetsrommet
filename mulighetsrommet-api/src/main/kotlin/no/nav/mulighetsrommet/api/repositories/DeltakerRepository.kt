@@ -45,7 +45,7 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            delete from deltaker
+            delete from historikk
             where id = ?::uuid
         """.trimIndent()
 

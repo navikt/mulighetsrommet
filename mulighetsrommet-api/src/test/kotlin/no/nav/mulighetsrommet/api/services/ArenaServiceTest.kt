@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
@@ -52,7 +52,7 @@ class ArenaServiceTest : FunSpec({
         enhet = "2990"
     )
 
-    val deltaker = DeltakerDbo(
+    val deltaker = HistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
@@ -67,7 +67,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstype = TiltakstypeDto(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode,
+                arenaKode = tiltakstype.tiltakskode
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,
@@ -106,7 +106,8 @@ class ArenaServiceTest : FunSpec({
     }
 
     context("tiltaksgjennomføring") {
-        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val tiltaksgjennomforingKafkaProducer =
+            mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val service = ArenaService(
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
@@ -128,7 +129,8 @@ class ArenaServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(tiltakstype.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
+                .value("virksomhetsnummer")
+                .isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
                 .value("fra_dato").isEqualTo(tiltaksgjennomforing.fraDato)
                 .value("til_dato").isEqualTo(tiltaksgjennomforing.tilDato)
 
@@ -147,11 +149,19 @@ class ArenaServiceTest : FunSpec({
             service.upsert(tiltakstype)
             service.upsert(tiltaksgjennomforing)
 
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(tiltaksgjennomforingDto)) }
+            verify(exactly = 1) {
+                tiltaksgjennomforingKafkaProducer.publish(
+                    TiltaksgjennomforingDto.from(tiltaksgjennomforingDto)
+                )
+            }
 
             service.remove(tiltaksgjennomforing)
 
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.retract(tiltaksgjennomforing.id) }
+            verify(exactly = 1) {
+                tiltaksgjennomforingKafkaProducer.retract(
+                    tiltaksgjennomforing.id
+                )
+            }
         }
 
         test("should not publish other tiltak than gruppetilak") {
@@ -182,19 +192,19 @@ class ArenaServiceTest : FunSpec({
         test("CRUD") {
             service.upsert(deltaker)
 
-            database.assertThat("deltaker").row()
+            database.assertThat("historikk").row()
                 .value("id").isEqualTo(deltaker.id)
                 .value("status").isEqualTo(deltaker.status.name)
 
             val updated = deltaker.copy(status = Deltakerstatus.DELTAR)
             service.upsert(updated)
 
-            database.assertThat("deltaker").row()
+            database.assertThat("historikk").row()
                 .value("status").isEqualTo(updated.status.name)
 
             service.remove(updated)
 
-            database.assertThat("deltaker").isEmpty
+            database.assertThat("historikk").isEmpty
         }
     }
 })

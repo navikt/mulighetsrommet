@@ -12,8 +12,6 @@ import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
@@ -64,7 +62,7 @@ fun Route.arenaRoutes() {
         }
 
         put("deltaker") {
-            call.respond<HistorikkDbo>(
+            /*call.respond<HistorikkDbo>(
                 HistorikkDbo.Gruppetiltak(
                     id = "35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb".toUUID(),
                     norskIdent = "1234354",
@@ -73,7 +71,7 @@ fun Route.arenaRoutes() {
                     tilDato = null,
                     tiltaksgjennomforingId = "35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb".toUUID()
                 )
-            )
+            )*/
             val deltaker = call.receive<HistorikkDbo>()
             arenaService.upsert(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }

@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
@@ -24,12 +24,13 @@ class HistorikkServiceTest : FunSpec({
 
     val arrangorService: ArrangorService = mockk()
 
-    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
+    val database =
+        extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
-        tiltakskode = "ARBTREN",
+        tiltakskode = "ARBTREN"
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -41,7 +42,7 @@ class HistorikkServiceTest : FunSpec({
         enhet = "2990"
     )
 
-    val deltaker = DeltakerDbo(
+    val deltaker = HistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
@@ -52,10 +53,16 @@ class HistorikkServiceTest : FunSpec({
 
     beforeSpec {
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val tiltaksgjennomforingRepository =
+            TiltaksgjennomforingRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
         val producer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository, producer)
+        val service = ArenaService(
+            tiltakstypeRepository,
+            tiltaksgjennomforingRepository,
+            deltakerRepository,
+            producer
+        )
 
         service.upsert(tiltakstype)
         service.upsert(tiltaksgjennomforing)
@@ -76,7 +83,6 @@ class HistorikkServiceTest : FunSpec({
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
-                tiltaksnummer = "12345",
                 tiltakstype = "Arbeidstrening",
                 arrangor = bedriftsnavn
             )
