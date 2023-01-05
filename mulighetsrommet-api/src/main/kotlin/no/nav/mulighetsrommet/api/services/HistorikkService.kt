@@ -26,7 +26,6 @@ class HistorikkService(
                 tilDato = it.tilDato,
                 status = it.status,
                 tiltaksnavn = it.tiltaksnavn,
-                tiltaksnummer = it.tiltaksnummer,
                 tiltakstype = it.tiltakstype,
                 arrangor = arrangor
             )
@@ -46,19 +45,23 @@ class HistorikkService(
     private fun getHistorikkForBrukerFromDb(norskIdent: String): List<HistorikkForDeltaker> {
         @Language("PostgreSQL")
         val query = """
-            select deltaker.id,
-                   deltaker.fra_dato,
-                   deltaker.til_dato,
-                   deltaker.status,
+            select historikk.id,
+                   historikk.fra_dato,
+                   historikk.til_dato,
+                   historikk.status,
                    gjennomforing.navn,
-                   gjennomforing.virksomhetsnummer,
-                   gjennomforing.tiltaksnummer,
-                   tiltakstype.navn as tiltakstype
-            from deltaker
-                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = deltaker.tiltaksgjennomforing_id
+                   gjennomforing.virksomhetsnummer as virksomhetsnummerFraGjennomforing,
+                   tiltakstype.navn as tiltakstype,
+                   tiltakstypeFraGjennomforing.navn as tiltakstypeFraGjennomforing,
+                   historikk.virksomhetsnummer,
+                   historikk.beskrivelse
+            from historikk
+                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = historikk.tiltaksgjennomforing_id
                      left join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+                     left join tiltakstype tiltakstypeFraGjennomforing on tiltakstype.id = historikk.tiltakstypeid 
+                      
             where norsk_ident = ?
-            order by deltaker.fra_dato desc nulls last;
+            order by historikk.fra_dato desc nulls last;
         """.trimIndent()
         val queryResult = queryOf(query, norskIdent).map { it.toHistorikkForDeltaker() }.asList
         return db.run(queryResult)
@@ -69,9 +72,8 @@ class HistorikkService(
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
-        tiltaksnavn = stringOrNull("navn"),
-        tiltaksnummer = string("tiltaksnummer"),
-        tiltakstype = string("tiltakstype"),
-        virksomhetsnummer = stringOrNull("virksomhetsnummer")
+        tiltaksnavn = stringOrNull("beskrivelse") ?: stringOrNull("navn"),
+        tiltakstype = stringOrNull("tiltakstype") ?: string("tiltakstypeFraGjennomforing"),
+        virksomhetsnummer = stringOrNull("virksomhetsnummer") ?: string("virksomhetsnummerFraGjennomforing")
     )
 }

@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
@@ -45,11 +45,11 @@ class ArenaService(
             }
     }
 
-    fun upsert(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
+    fun upsert(deltaker: HistorikkDbo): QueryResult<HistorikkDbo> {
         return deltakere.upsert(deltaker)
     }
 
-    fun remove(deltaker: DeltakerDbo): QueryResult<Unit> {
+    fun remove(deltaker: HistorikkDbo): QueryResult<Unit> {
         return deltakere.delete(deltaker.id)
     }
 

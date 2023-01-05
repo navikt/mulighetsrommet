@@ -6,10 +6,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
-import no.nav.mulighetsrommet.domain.dbo.HistorikkGruppetiltakDbo
-import no.nav.mulighetsrommet.domain.dbo.HistorikkIndividueltTiltakDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.poao_tilgang.client.NorskIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -43,21 +40,6 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun get(norskIdent: NorskIdent): List<HistorikkDbo> {
-        @Language("PostgreSQL")
-        val query = """
-            select (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, virksomhetsnummer, tiltakstypeid)
-            from historikk
-            where norsk_ident=?
-            order by fra_dato desc nulls last;
-        """.trimIndent()
-
-        return queryOf(query, norskIdent)
-            .map { it.toHistorikkDbo() }
-            .asList
-            .let { db.run(it) }
-    }
-
     fun delete(id: UUID): QueryResult<Unit> = query {
         logger.info("Sletter deltaker id=$id")
 
@@ -80,10 +62,10 @@ class DeltakerRepository(private val db: Database) {
             "fra_dato" to fraDato,
             "til_dato" to tilDato
         ) + when (this) {
-            is HistorikkGruppetiltakDbo -> listOfNotNull(
+            is HistorikkDbo.Gruppetiltak -> listOfNotNull(
                 "tiltaksgjennomforing_id" to tiltaksgjennomforingId
             )
-            is HistorikkIndividueltTiltakDbo -> listOfNotNull(
+            is HistorikkDbo.IndividueltTiltak -> listOfNotNull(
                 "beskrivelse" to beskrivelse,
                 "virksomhetsnummer" to virksomhetsnummer,
                 "tiltakstypeid" to tiltakstypeId
@@ -93,7 +75,7 @@ class DeltakerRepository(private val db: Database) {
 
     private fun Row.toHistorikkDbo(): HistorikkDbo {
         return when (uuidOrNull("tiltaksgjennomforing_id")) {
-            null -> HistorikkIndividueltTiltakDbo(
+            null -> HistorikkDbo.IndividueltTiltak(
                 id = uuid("id"),
                 norskIdent = string("norsk_ident"),
                 status = Deltakerstatus.valueOf(string("status")),
@@ -103,7 +85,7 @@ class DeltakerRepository(private val db: Database) {
                 tiltakstypeId = uuid("tiltakstypeid"),
                 virksomhetsnummer = string("virksomhetsnummer")
             )
-            else -> HistorikkGruppetiltakDbo(
+            else -> HistorikkDbo.Gruppetiltak(
                 id = uuid("id"),
                 tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
                 norskIdent = string("norsk_ident"),

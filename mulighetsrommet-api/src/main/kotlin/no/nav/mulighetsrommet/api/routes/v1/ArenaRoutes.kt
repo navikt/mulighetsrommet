@@ -9,9 +9,11 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
@@ -62,7 +64,17 @@ fun Route.arenaRoutes() {
         }
 
         put("deltaker") {
-            val deltaker = call.receive<DeltakerDbo>()
+            call.respond<HistorikkDbo>(
+                HistorikkDbo.Gruppetiltak(
+                    id = "35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb".toUUID(),
+                    norskIdent = "1234354",
+                    status = Deltakerstatus.DELTAR,
+                    fraDato = null,
+                    tilDato = null,
+                    tiltaksgjennomforingId = "35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb".toUUID()
+                )
+            )
+            val deltaker = call.receive<HistorikkDbo>()
             arenaService.upsert(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
@@ -80,7 +92,7 @@ fun Route.arenaRoutes() {
         }
 
         delete("deltaker") {
-            val deltaker = call.receive<DeltakerDbo>()
+            val deltaker = call.receive<HistorikkDbo>()
             arenaService.remove(deltaker)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
