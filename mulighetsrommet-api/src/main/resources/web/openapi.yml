@@ -80,6 +80,7 @@ paths:
         name: id
         schema:
           type: string
+        required: true
       - in: query
         name: page
         schema:
@@ -114,6 +115,7 @@ paths:
         name: enhet
         schema:
           type: string
+        required: true
       - in: query
         name: page
         schema:
@@ -330,7 +332,10 @@ paths:
           description: Historical data about the user
           content:
             application/json:
-              $ref: "#/components/schemas/HistorikkForBruker"
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistorikkForBruker"
 
   /api/v1/internal/ansatt/me:
     get:
@@ -342,7 +347,8 @@ paths:
           description: Information about employee
           content:
             application/json:
-              $ref: "#/components/schemas/Ansatt"
+              schema:
+                $ref: "#/components/schemas/Ansatt"
         404:
           description: "Could not find data about 'ansatt'"
           content:
@@ -396,7 +402,8 @@ paths:
           description: "Last entry in database about share with user"
           content:
             application/json:
-              $ref: "#/components/schemas/DelMedBruker"
+              schema:
+                $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
 
@@ -422,7 +429,8 @@ paths:
           description: "Stored data from insertion in database"
           content:
             application/json:
-              $ref: "#/components/schemas/DelMedBruker"
+              schema:
+                $ref: "#/components/schemas/DelMedBruker"
 
 components:
   securitySchemes:
@@ -758,8 +766,10 @@ components:
           type: string
         fraDato:
           type: string
+          nullable: true
         tilDato:
           type: string
+          nullable: true
         status:
           type: string
           enum:
@@ -775,6 +785,15 @@ components:
         arrangor:
           type: string
           nullable: true
+      required:
+        - id
+        - fnr
+        - fraDato
+        - tilDato
+        - status
+        - tiltaksnavn
+        - tiltakstype
+        - arrangor
 
     DelMedBruker:
       type: object
