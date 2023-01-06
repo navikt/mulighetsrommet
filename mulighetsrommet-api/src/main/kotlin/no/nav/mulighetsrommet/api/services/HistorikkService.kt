@@ -51,14 +51,14 @@ class HistorikkService(
                    historikk.status,
                    gjennomforing.navn,
                    gjennomforing.virksomhetsnummer as virksomhetsnummerFraGjennomforing,
-                   tiltakstype.navn as tiltakstype,
                    tiltakstypeFraGjennomforing.navn as tiltakstypeFraGjennomforing,
+                   tiltakstypeFraTabell.navn as tiltakstypeFraTabell,
                    historikk.virksomhetsnummer,
                    historikk.beskrivelse
             from historikk
                      left join tiltaksgjennomforing gjennomforing on gjennomforing.id = historikk.tiltaksgjennomforing_id
-                     left join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-                     left join tiltakstype tiltakstypeFraGjennomforing on tiltakstype.id = historikk.tiltakstypeid 
+                     left join tiltakstype tiltakstypeFraGjennomforing on tiltakstypeFraGjennomforing.id = gjennomforing.tiltakstype_id
+                     left join tiltakstype tiltakstypeFraTabell on tiltakstypeFraTabell.id = historikk.tiltakstypeid 
                       
             where norsk_ident = ?
             order by historikk.fra_dato desc nulls last;
@@ -73,7 +73,7 @@ class HistorikkService(
         tilDato = localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
         tiltaksnavn = stringOrNull("beskrivelse") ?: stringOrNull("navn"),
-        tiltakstype = stringOrNull("tiltakstype") ?: string("tiltakstypeFraGjennomforing"),
-        virksomhetsnummer = stringOrNull("virksomhetsnummer") ?: string("virksomhetsnummerFraGjennomforing")
+        tiltakstype = stringOrNull("tiltakstypeFraGjennomforing") ?: string("tiltakstypeFraTabell"),
+        virksomhetsnummer = stringOrNull("virksomhetsnummer") ?: stringOrNull("virksomhetsnummerFraGjennomforing")
     )
 }

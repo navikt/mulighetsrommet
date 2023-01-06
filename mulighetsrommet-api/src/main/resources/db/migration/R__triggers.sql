@@ -23,10 +23,10 @@ CREATE TRIGGER set_timestamp
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
-DROP TRIGGER IF EXISTS set_timestamp ON deltaker;
+DROP TRIGGER IF EXISTS set_timestamp ON historikk;
 
 CREATE TRIGGER set_timestamp
     BEFORE UPDATE
-    ON deltaker
+    ON historikk
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();

@@ -51,6 +51,23 @@ class HistorikkServiceTest : FunSpec({
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0)
     )
 
+    val tiltakstypeIndividuell = TiltakstypeDbo(
+        id = UUID.randomUUID(),
+        navn = "Høyere utdanning",
+        tiltakskode = "HOYEREUTD"
+    )
+
+    val deltakerIndividuell = HistorikkDbo.IndividueltTiltak(
+        id = UUID.randomUUID(),
+        norskIdent = "12345678910",
+        status = Deltakerstatus.VENTER,
+        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        beskrivelse = "Utdanning",
+        tiltakstypeId = tiltakstypeIndividuell.id,
+        virksomhetsnummer = "12343",
+    )
+
     beforeSpec {
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository =
@@ -67,11 +84,15 @@ class HistorikkServiceTest : FunSpec({
         service.upsert(tiltakstype)
         service.upsert(tiltaksgjennomforing)
         service.upsert(deltaker)
+        service.upsert(tiltakstypeIndividuell)
+        service.upsert(deltakerIndividuell)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
-        coEvery { arrangorService.hentArrangornavn(any()) } returns bedriftsnavn
+        val bedriftsnavn2 = "Bedriftsnavn 2"
+        coEvery { arrangorService.hentArrangornavn("123456789") } returns bedriftsnavn
+        coEvery { arrangorService.hentArrangornavn("12343") } returns bedriftsnavn2
 
         val historikkService =
             HistorikkService(database.db, arrangorService)
@@ -85,6 +106,15 @@ class HistorikkServiceTest : FunSpec({
                 tiltaksnavn = "Arbeidstrening",
                 tiltakstype = "Arbeidstrening",
                 arrangor = bedriftsnavn
+            ),
+            HistorikkForDeltakerDTO(
+                id = deltakerIndividuell.id,
+                fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+                tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+                status = Deltakerstatus.VENTER,
+                tiltaksnavn = "Utdanning",
+                tiltakstype = "Høyere utdanning",
+                arrangor = bedriftsnavn2
             )
         )
 
