@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 
 class ArenaService(
     private val tiltakstyper: TiltakstypeRepository,
@@ -55,29 +55,6 @@ class ArenaService(
 
     private fun isSupportedTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): Boolean {
         val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)!!
-        return isGruppetiltak(tiltakstype)
-    }
-
-    private fun isGruppetiltak(tiltakstype: TiltakstypeDto): Boolean {
-        // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
-        val gruppetiltak = listOf(
-            "ARBFORB",
-            "ARBRRHDAG",
-            "AVKLARAG",
-            "DIGIOPPARB",
-            "FORSAMOGRU",
-            "FORSFAGGRU",
-            "GRUFAGYRKE",
-            "GRUPPEAMO",
-            "INDJOBSTOT",
-            "INDOPPFAG",
-            "INDOPPRF",
-            "IPSUNG",
-            "JOBBK",
-            "UTVAOONAV",
-            "UTVOPPFOPL",
-            "VASV",
-        )
-        return tiltakstype.arenaKode in gruppetiltak
+        return isGruppetiltak(tiltakstype.arenaKode)
     }
 }

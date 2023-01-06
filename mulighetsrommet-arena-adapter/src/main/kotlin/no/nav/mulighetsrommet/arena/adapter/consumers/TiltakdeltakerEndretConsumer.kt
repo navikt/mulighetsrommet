@@ -13,13 +13,16 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo as MrDeltaker
+import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo as MrHistorikk
 
 class TiltakdeltakerEndretConsumer(
     override val config: ConsumerConfig,
@@ -40,7 +43,7 @@ class TiltakdeltakerEndretConsumer(
             arenaTable = decoded.table,
             arenaId = decoded.data.TILTAKDELTAKER_ID.toString(),
             payload = payload,
-            status = ArenaEvent.ConsumptionStatus.Pending,
+            status = ArenaEvent.ConsumptionStatus.Pending
         )
     }
 
@@ -63,15 +66,36 @@ class TiltakdeltakerEndretConsumer(
         val tiltaksgjennomforingMapping = entities
             .getMapping(ArenaTables.Tiltaksgjennomforing, decoded.data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
+        val tiltaksgjennomforing = entities
+            .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
+            .bind()
         val norskIdent = ords.getFnr(deltaker.personId)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { it?.fnr }
             .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke norsk ident i Arena ORDS for Arena personId=${deltaker.personId}") }
             .bind()
-        val mrDeltaker = deltaker.toDomain(tiltaksgjennomforingMapping.entityId, norskIdent)
+        val tiltakstypeMapping = entities
+            .getMapping(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+            .bind()
+        val tiltakstype = entities
+            .getTiltakstype(tiltakstypeMapping.entityId)
+            .bind()
+
+        val mrHistorikk = if (isGruppetiltak(tiltakstype.tiltakskode)) {
+            deltaker.toGruppeDomain(tiltaksgjennomforing, norskIdent)
+        } else {
+            val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+                ords.getArbeidsgiver(id)
+                    .mapLeft { ConsumptionError.fromResponseException(it) }
+                    .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke arrangør i Arena ORDS for arrangorId=${tiltaksgjennomforing.arrangorId}") }
+                    .map { it.virksomhetsnummer }
+                    .bind()
+            }
+            deltaker.toIndividuellDomain(tiltaksgjennomforing, tiltakstype, virksomhetsnummer, norskIdent)
+        }
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/deltaker", mrDeltaker)
+        client.request(method, "/api/v1/internal/arena/deltaker", mrHistorikk)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
@@ -87,12 +111,35 @@ class TiltakdeltakerEndretConsumer(
         status = ProcessingUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
     )
 
-    private fun Deltaker.toDomain(tiltaksgjennomforingId: UUID, norskIdent: String) = MrDeltaker(
-        id = id,
-        tiltaksgjennomforingId = tiltaksgjennomforingId,
-        norskIdent = norskIdent,
-        status = status,
-        fraDato = fraDato,
-        tilDato = tilDato,
-    )
+    private fun Deltaker.toGruppeDomain(
+        tiltaksgjennomforing: Tiltaksgjennomforing,
+        norskIdent: String
+    ): MrHistorikk {
+        return MrHistorikk.Gruppetiltak(
+            id = id,
+            norskIdent = norskIdent,
+            status = status,
+            fraDato = fraDato,
+            tilDato = tilDato,
+            tiltaksgjennomforingId = tiltaksgjennomforing.id
+        )
+    }
+
+    private fun Deltaker.toIndividuellDomain(
+        tiltaksgjennomforing: Tiltaksgjennomforing,
+        tiltakstype: Tiltakstype,
+        virksomhetsnummer: String?,
+        norskIdent: String
+    ): MrHistorikk {
+        return MrHistorikk.IndividueltTiltak(
+            id = id,
+            norskIdent = norskIdent,
+            status = status,
+            fraDato = fraDato,
+            tilDato = tilDato,
+            beskrivelse = tiltaksgjennomforing.navn,
+            tiltakstypeId = tiltakstype.id,
+            virksomhetsnummer = virksomhetsnummer
+        )
+    }
 }

@@ -11,3 +11,26 @@ data class TiltakstypeDto(
     val navn: String,
     val arenaKode: String
 )
+
+fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
+    // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
+    val gruppetiltak = listOf(
+        "ARBFORB",
+        "ARBRRHDAG",
+        "AVKLARAG",
+        "DIGIOPPARB",
+        "FORSAMOGRU",
+        "FORSFAGGRU",
+        "GRUFAGYRKE",
+        "GRUPPEAMO",
+        "INDJOBSTOT",
+        "INDOPPFAG",
+        "INDOPPRF",
+        "IPSUNG",
+        "JOBBK",
+        "UTVAOONAV",
+        "UTVOPPFOPL",
+        "VASV"
+    )
+    return tiltakstypeArenaKode in gruppetiltak
+}
