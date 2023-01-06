@@ -23,15 +23,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, fra_dato, til_dato, enhet)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :fra_dato, :til_dato, :enhet)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
                               tiltaksnummer     = excluded.tiltaksnummer,
                               virksomhetsnummer = excluded.virksomhetsnummer,
-                              fra_dato          = excluded.fra_dato,
-                              til_dato          = excluded.til_dato,
+                              start_dato        = excluded.start_dato,
+                              slutt_dato        = excluded.slutt_dato,
                               enhet             = excluded.enhet
             returning *
         """.trimIndent()
@@ -50,8 +50,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltakstype_id,
                    tiltaksnummer,
                    virksomhetsnummer,
-                   fra_dato,
-                   til_dato,
+                   start_dato,
+                   slutt_dato,
                    tiltakskode,
                    t.navn as tiltakstype_navn,
                    enhet
@@ -60,7 +60,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tg.id = ?::uuid
         """.trimIndent()
         return queryOf(query, id)
-            .map { it.toTiltaksgjennomforingDto() }
+            .map { it.toTiltaksgjennomforingAdminDto() }
             .asSingle
             .let { db.run(it) }
     }
@@ -74,8 +74,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltaksnummer,
                    virksomhetsnummer,
                    tiltakskode,
-                   fra_dato,
-                   til_dato,
+                   start_dato,
+                   slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
                    count(*) over () as full_count
@@ -85,7 +85,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         val results = queryOf(query, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforingDto()
+                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }
             .asList
             .let { db.run(it) }
@@ -107,8 +107,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltaksnummer,
                    virksomhetsnummer,
                    tiltakskode,
-                   fra_dato,
-                   til_dato,
+                   start_dato,
+                   slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
                    count(*) over () as full_count
@@ -119,7 +119,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         val results = queryOf(query, id, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforingDto()
+                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }
             .asList
             .let { db.run(it) }
@@ -141,8 +141,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltaksnummer,
                    virksomhetsnummer,
                    tiltakskode,
-                   fra_dato,
-                   til_dato,
+                   start_dato,
+                   slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
                    count(*) over () as full_count
@@ -153,7 +153,41 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         val results = queryOf(query, enhet, pagination.limit, pagination.offset)
             .map {
-                it.int("full_count") to it.toTiltaksgjennomforingDto()
+                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltaksgjennomforinger = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+
+        return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
+
+    fun getAllByNavident(navIdent: String, pagination: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+        logger.info("Henter alle tiltaksgjennomføringer for ansatt")
+
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   tiltakskode,
+                   start_dato,
+                   slutt_dato,
+                   t.navn           as tiltakstype_navn,
+                   enhet,
+                   count(*) over () as full_count
+            from tiltaksgjennomforing tg
+                     join tiltakstype t on tg.tiltakstype_id = t.id
+                     join ansatt_tiltaksgjennomforing a on tg.id = a.tiltaksgjennomforing_id
+            where a.navident = ?
+            limit ? offset ?
+        """.trimIndent()
+        val results = queryOf(query, navIdent, pagination.limit, pagination.offset)
+            .map {
+                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }
             .asList
             .let { db.run(it) }
@@ -172,8 +206,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltaksnummer,
                    virksomhetsnummer,
                    tiltakskode,
-                   fra_dato,
-                   til_dato,
+                   start_dato,
+                   slutt_dato,
                    t.navn as tiltakstype_navn,
                    enhet
             from tiltaksgjennomforing tg
@@ -182,7 +216,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
         return queryOf(query, filter.tiltaksnummer)
             .map {
-                it.toTiltaksgjennomforingDto()
+                it.toTiltaksgjennomforingAdminDto()
             }
             .asList
             .let { db.run(it) }
@@ -208,8 +242,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "tiltaksnummer" to tiltaksnummer,
         "virksomhetsnummer" to virksomhetsnummer,
-        "fra_dato" to fraDato,
-        "til_dato" to tilDato,
+        "start_dato" to startDato,
+        "slutt_dato" to sluttDato,
         "enhet" to enhet
     )
 
@@ -219,12 +253,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
+        startDato = localDateOrNull("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
         enhet = string("enhet")
     )
 
-    private fun Row.toTiltaksgjennomforingDto() = TiltaksgjennomforingAdminDto(
+    private fun Row.toTiltaksgjennomforingAdminDto() = TiltaksgjennomforingAdminDto(
         id = uuid("id"),
         tiltakstype = TiltakstypeDto(
             id = uuid("tiltakstype_id"),
@@ -234,42 +268,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navn = stringOrNull("navn"),
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
+        startDato = localDateOrNull("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
         enhet = string("enhet")
     )
-
-    fun getAllByNavident(navIdent: String, pagination: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
-        logger.info("Henter alle tiltaksgjennomføringer for ansatt")
-
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tiltakstype_id,
-                   tiltaksnummer,
-                   virksomhetsnummer,
-                   tiltakskode,
-                   fra_dato,
-                   til_dato,
-                   t.navn           as tiltakstype_navn,
-                   enhet,
-                   count(*) over () as full_count
-            from tiltaksgjennomforing tg
-                     join tiltakstype t on tg.tiltakstype_id = t.id
-                     join ansatt_tiltaksgjennomforing a on tg.id = a.tiltaksgjennomforing_id
-            where a.navident = ?
-            limit ? offset ?
-        """.trimIndent()
-        val results = queryOf(query, navIdent, pagination.limit, pagination.offset)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingDto()
-            }
-            .asList
-            .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        return Pair(totaltAntall, tiltaksgjennomforinger)
-    }
 }

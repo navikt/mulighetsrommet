@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -16,13 +17,20 @@ class ArenaService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
+    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
     fun upsert(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
-        return tiltakstyper.upsert(tiltakstype)
+        return tiltakstyper.upsert(tiltakstype).tap {
+            tiltakstyper.get(tiltakstype.id)?.let {
+                tiltakstypeKafkaProducer.publish(it)
+            }
+        }
     }
 
     fun remove(tiltakstype: TiltakstypeDbo): QueryResult<Unit> {
-        return tiltakstyper.delete(tiltakstype.id)
+        return tiltakstyper.delete(tiltakstype.id).tap {
+            tiltakstypeKafkaProducer.retract(tiltakstype.id)
+        }
     }
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingDbo> {

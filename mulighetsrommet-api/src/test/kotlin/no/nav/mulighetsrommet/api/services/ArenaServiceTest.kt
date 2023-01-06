@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -18,6 +19,7 @@ import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -47,8 +49,8 @@ class ArenaServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
-        fraDato = LocalDateTime.of(2022, 11, 11, 0, 0),
-        tilDato = LocalDateTime.of(2023, 11, 11, 0, 0),
+        startDato = LocalDate.of(2022, 11, 11),
+        sluttDato = LocalDate.of(2023, 11, 11),
         enhet = "2990"
     )
 
@@ -72,19 +74,25 @@ class ArenaServiceTest : FunSpec({
             navn = navn,
             tiltaksnummer = tiltaksnummer,
             virksomhetsnummer = virksomhetsnummer,
-            fraDato = fraDato,
-            tilDato = tilDato,
+            startDato = startDato,
+            sluttDato = sluttDato,
             enhet = enhet
         )
     }
 
     context("tiltakstype") {
+        val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
         val service = ArenaService(
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
             DeltakerRepository(database.db),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            tiltakstypeKafkaProducer
         )
+
+        afterTest {
+            clearAllMocks()
+        }
 
         test("CRUD") {
             service.upsert(tiltakstype)
@@ -103,6 +111,16 @@ class ArenaServiceTest : FunSpec({
 
             database.assertThat("tiltakstype").isEmpty
         }
+
+        test("should publish and retract tiltakstype from kafka topic") {
+            service.upsert(tiltakstype)
+
+            verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
+
+            service.remove(tiltakstype)
+
+            verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
+        }
     }
 
     context("tiltaksgjennomføring") {
@@ -112,7 +130,8 @@ class ArenaServiceTest : FunSpec({
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
             DeltakerRepository(database.db),
-            tiltaksgjennomforingKafkaProducer
+            tiltaksgjennomforingKafkaProducer,
+            mockk(relaxed = true)
         )
 
         afterTest {
@@ -129,10 +148,9 @@ class ArenaServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(tiltakstype.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("virksomhetsnummer")
-                .isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
-                .value("fra_dato").isEqualTo(tiltaksgjennomforing.fraDato)
-                .value("til_dato").isEqualTo(tiltaksgjennomforing.tilDato)
+                .value("virksomhetsnummer").isEqualTo(tiltaksgjennomforing.virksomhetsnummer)
+                .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
+                .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
 
             val updated = tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening")
             service.upsert(updated)
@@ -181,6 +199,7 @@ class ArenaServiceTest : FunSpec({
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
             DeltakerRepository(database.db),
+            mockk(relaxed = true),
             mockk(relaxed = true)
         )
 

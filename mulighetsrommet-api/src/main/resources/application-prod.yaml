@@ -10,12 +10,16 @@ app:
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
+    migrationConfig:
+      strategy: MigrateAsync
 
   kafka:
     producerId: "mulighetsrommet-api-kafka-producer.v1"
     producers:
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
+      tiltakstyper:
+        topic: team-mulighetsrommet.siste-tiltakstyper-v1
 
   auth:
     azure:

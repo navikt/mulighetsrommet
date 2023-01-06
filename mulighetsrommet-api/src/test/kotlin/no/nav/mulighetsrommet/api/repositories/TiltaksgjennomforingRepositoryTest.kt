@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -39,8 +39,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstypeId = tiltakstype1.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
-        fraDato = LocalDateTime.of(2022, 1, 1, 8, 0),
-        tilDato = LocalDateTime.of(2022, 1, 1, 8, 0),
+        startDato = LocalDate.of(2022, 1, 1),
+        sluttDato = LocalDate.of(2022, 1, 1),
         enhet = "2990"
     )
 
@@ -77,8 +77,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navn = tiltak1.navn,
                 tiltaksnummer = tiltak1.tiltaksnummer,
                 virksomhetsnummer = tiltak1.virksomhetsnummer,
-                fraDato = tiltak1.fraDato,
-                tilDato = tiltak1.tilDato,
+                startDato = tiltak1.startDato,
+                sluttDato = tiltak1.sluttDato,
                 enhet = tiltak1.enhet
             )
 

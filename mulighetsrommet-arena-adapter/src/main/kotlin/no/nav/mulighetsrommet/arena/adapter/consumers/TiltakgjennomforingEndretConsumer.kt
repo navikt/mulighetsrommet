@@ -117,8 +117,8 @@ class TiltakgjennomforingEndretConsumer(
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
             virksomhetsnummer = virksomhetsnummer,
-            fraDato = fraDato,
-            tilDato = tilDato,
+            startDato = fraDato?.toLocalDate(),
+            sluttDato = tilDato?.toLocalDate(),
             enhet = sak.enhet
         )
 }
