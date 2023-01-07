@@ -57,6 +57,7 @@ const Schema = z.object({
   harStatusKopibrev: BooleanDefaultFalse,
 });
 
+type OptionalSchemaValues = Partial<z.infer<typeof Schema>>;
 type SchemaValues = z.infer<typeof Schema>;
 
 // TODO Dra komponenter ut i egen fil?
@@ -151,28 +152,28 @@ function DatoFelt({
       {...rest}
       label={label}
       name={name}
-      error={meta.error}
+      error={meta.touched && meta.error}
     />
   );
 }
 
 export function OpprettTiltakstype() {
-  const initialValues: SchemaValues = {
-    tiltakstypenavn: "",
-    fraDato: new Date(),
-    tilDato: new Date(),
-    tiltaksgruppekode: "",
-    tiltakskode: "",
+  const initialValues: OptionalSchemaValues = {
+    tiltakstypenavn: undefined,
+    fraDato: undefined,
+    tilDato: undefined,
+    tiltaksgruppekode: undefined,
+    tiltakskode: undefined,
     rettTilTiltakspenger: false,
-    administrasjonskode: "",
+    administrasjonskode: undefined,
     kopiAvTilsagnsbrev: false,
-    arkivkode: "",
+    arkivkode: undefined,
     harAnskaffelse: false,
-    rammeavtale: "",
-    opplaringsgruppe: "",
-    handlingsplan: "",
+    rammeavtale: undefined,
+    opplaringsgruppe: undefined,
+    handlingsplan: undefined,
     harObligatoriskSluttdato: false,
-    varighet: "",
+    varighet: undefined,
     harStatusSluttdato: false,
     harStatusMeldeplikt: false,
     harStatusVedtak: false,
@@ -215,7 +216,7 @@ export function OpprettTiltakstype() {
       <BodyLong className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltakstype
       </BodyLong>
-      <Formik<SchemaValues>
+      <Formik<OptionalSchemaValues>
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(Schema)}
         onSubmit={(values, actions) => {
