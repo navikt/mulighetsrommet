@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.leftIfNull
 import io.ktor.http.*
@@ -47,19 +48,31 @@ class TiltakgjennomforingEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
-        val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
+    override suspend fun handleEvent(event: ArenaEvent) = either {
+        val (_, operation, data) = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
-        ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
+        val isGruppetiltak = ArenaUtils.isGruppetiltak(data.TILTAKSKODE)
+        ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
 
         val mapping = entities.getOrCreateMapping(event)
-        val tiltaksgjennomforing = decoded.data
+        val tiltaksgjennomforing = data
             .toTiltaksgjennomforing(mapping.entityId)
             .let { entities.upsertTiltaksgjennomforing(it) }
             .bind()
 
+        if (isGruppetiltak) {
+            upsertTiltaksgjennomforing(operation, tiltaksgjennomforing).bind()
+        } else {
+            ArenaEvent.ConsumptionStatus.Processed
+        }
+    }
+
+    private suspend fun upsertTiltaksgjennomforing(
+        operation: ArenaEventData.Operation,
+        tiltaksgjennomforing: Tiltaksgjennomforing,
+    ): Either<ConsumptionError, ArenaEvent.ConsumptionStatus> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)
             .bind()
@@ -73,9 +86,10 @@ class TiltakgjennomforingEndretConsumer(
                 .map { it.virksomhetsnummer }
                 .bind()
         }
-        val mrTiltaksgjennomforing = tiltaksgjennomforing.toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
+        val mrTiltaksgjennomforing = tiltaksgjennomforing
+            .toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
-        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", mrTiltaksgjennomforing)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
