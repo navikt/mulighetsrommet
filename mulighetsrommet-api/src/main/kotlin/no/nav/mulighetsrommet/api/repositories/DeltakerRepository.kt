@@ -74,25 +74,24 @@ class DeltakerRepository(private val db: Database) {
     }
 
     private fun Row.toHistorikkDbo(): HistorikkDbo {
-        return when (uuidOrNull("tiltaksgjennomforing_id")) {
-            null -> HistorikkDbo.IndividueltTiltak(
+        return uuidOrNull("tiltaksgjennomforing_id")?.let {
+            HistorikkDbo.Gruppetiltak(
                 id = uuid("id"),
-                norskIdent = string("norsk_ident"),
-                status = Deltakerstatus.valueOf(string("status")),
-                fraDato = localDateTimeOrNull("fra_dato"),
-                tilDato = localDateTimeOrNull("til_dato"),
-                beskrivelse = stringOrNull("beskrivelse"),
-                tiltakstypeId = uuid("tiltakstypeid"),
-                virksomhetsnummer = stringOrNull("virksomhetsnummer")
-            )
-            else -> HistorikkDbo.Gruppetiltak(
-                id = uuid("id"),
-                tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
+                tiltaksgjennomforingId = it,
                 norskIdent = string("norsk_ident"),
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato")
             )
-        }
+        } ?: HistorikkDbo.IndividueltTiltak(
+            id = uuid("id"),
+            norskIdent = string("norsk_ident"),
+            status = Deltakerstatus.valueOf(string("status")),
+            fraDato = localDateTimeOrNull("fra_dato"),
+            tilDato = localDateTimeOrNull("til_dato"),
+            beskrivelse = stringOrNull("beskrivelse"),
+            tiltakstypeId = uuid("tiltakstypeid"),
+            virksomhetsnummer = stringOrNull("virksomhetsnummer")
+        )
     }
 }
