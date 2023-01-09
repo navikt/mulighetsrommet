@@ -66,7 +66,6 @@ export function CheckboxFelt(
   return <Checkbox {...field}>{props.children}</Checkbox>;
 }
 
-// TODO Se på uthenting av dato på korrekt format
 export function Datovelger() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fraDatoField, fraDatoMeta, fraDatoHelper] = useField("fraDato");
@@ -75,7 +74,6 @@ export function Datovelger() {
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
-        // TODO Se på korrekt parsing av dato
         fraDatoHelper.setValue(formaterDato(val?.from));
         tilDatoHelper.setValue(formaterDato(val?.to));
       },
