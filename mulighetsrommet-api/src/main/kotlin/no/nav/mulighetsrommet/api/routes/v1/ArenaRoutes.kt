@@ -62,16 +62,6 @@ fun Route.arenaRoutes() {
         }
 
         put("deltaker") {
-            /*call.respond<HistorikkDbo>(
-                HistorikkDbo.Gruppetiltak(
-                    id = "35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb".toUUID(),
-                    norskIdent = "1234354",
-                    status = Deltakerstatus.DELTAR,
-                    fraDato = null,
-                    tilDato = null,
-                    tiltaksgjennomforingId = "35ea42d5-b0cf-4de3-b249-8dbc7c02c7bb".toUUID()
-                )
-            )*/
             val deltaker = call.receive<HistorikkDbo>()
             arenaService.upsert(deltaker)
                 .map { call.respond(HttpStatusCode.OK, it) }
