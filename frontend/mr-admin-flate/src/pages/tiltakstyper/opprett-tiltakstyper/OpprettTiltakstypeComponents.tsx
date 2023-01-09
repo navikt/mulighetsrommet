@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Checkbox,
   Select,
@@ -7,6 +8,7 @@ import {
 } from "@navikt/ds-react";
 import { FieldHookConfig, useField } from "formik";
 import { SchemaValues } from "./OpprettTiltakstypeSchemaValidation";
+import { formaterDato } from "../../../utils/Utils";
 
 export function Tekstfelt({
   label,
@@ -64,7 +66,6 @@ export function CheckboxFelt(
   return <Checkbox {...field}>{props.children}</Checkbox>;
 }
 
-// TODO Se på uthenting av dato på korrekt format
 export function Datovelger() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fraDatoField, fraDatoMeta, fraDatoHelper] = useField("fraDato");
@@ -72,17 +73,27 @@ export function Datovelger() {
   const [tilDatoField, tilDatoMeta, tilDatoHelper] = useField("tilDato");
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
-      fromDate: new Date(),
       onRangeChange: (val) => {
-        fraDatoHelper.setValue(val?.from);
-        tilDatoHelper.setValue(val?.to);
+        fraDatoHelper.setValue(formaterDato(val?.from));
+        tilDatoHelper.setValue(formaterDato(val?.to));
       },
     });
+
   return (
     <UNSAFE_DatePicker {...datepickerProps}>
       <div style={{ display: "flex", gap: "5rem" }}>
-        <DatoFelt name="fraDato" label="Fra dato" {...fromInputProps} />
-        <DatoFelt name="tilDato" label="Til dato" {...toInputProps} />
+        <DatoFelt
+          name="fraDato"
+          label="Fra dato"
+          {...fromInputProps}
+          ref={null}
+        />
+        <DatoFelt
+          name="tilDato"
+          label="Til dato"
+          {...toInputProps}
+          ref={null}
+        />
       </div>
     </UNSAFE_DatePicker>
   );

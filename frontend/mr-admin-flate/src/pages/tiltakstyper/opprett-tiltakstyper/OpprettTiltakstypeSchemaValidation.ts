@@ -3,10 +3,10 @@ import { z } from "zod";
 const BooleanDefaultFalse = z.boolean().default(false);
 export const OpprettTiltakstypeSchema = z.object({
   tiltakstypenavn: z.string({ required_error: "Tiltakstypen må ha et navn" }),
-  fraDato: z.date({
+  fraDato: z.string({
     required_error: "Du må sette en fra-dato for tiltakstypen",
   }),
-  tilDato: z.date({
+  tilDato: z.string({
     required_error: "Du må sette en til-dato for tiltakstypen",
   }),
   tiltaksgruppekode: z.string({
