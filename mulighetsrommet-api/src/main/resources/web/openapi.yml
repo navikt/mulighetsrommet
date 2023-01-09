@@ -767,8 +767,6 @@ components:
             - AVSLUTTET
             - DELTAR
             - IKKE_AKTUELL
-        tiltaksnummer:
-          type: string
         tiltaksnavn:
           type: string
           nullable: true
