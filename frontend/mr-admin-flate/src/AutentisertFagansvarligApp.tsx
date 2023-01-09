@@ -5,7 +5,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
-import { OpprettTiltakstype } from "./pages/tiltakstyper/OpprettTiltakstypePage";
+import { OpprettTiltakstype } from "./pages/tiltakstyper/opprett-tiltakstyper/OpprettTiltakstypePage";
 
 export default function AutentisertFagansvarligApp() {
   return (
