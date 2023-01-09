@@ -33,3 +33,5 @@ gradle-app.setting
 docker-compose.override.yml
 
 dist
+
+.vscode
