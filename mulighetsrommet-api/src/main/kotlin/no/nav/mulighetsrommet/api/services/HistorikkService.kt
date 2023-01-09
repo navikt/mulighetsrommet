@@ -49,17 +49,12 @@ class HistorikkService(
                    historikk.fra_dato,
                    historikk.til_dato,
                    historikk.status,
-                   gjennomforing.navn,
-                   gjennomforing.virksomhetsnummer as virksomhetsnummerFraGjennomforing,
-                   tiltakstypeFraGjennomforing.navn as tiltakstypeFraGjennomforing,
-                   tiltakstypeFraTabell.navn as tiltakstypeFraTabell,
-                   historikk.virksomhetsnummer,
-                   historikk.beskrivelse
+                   coalesce(gjennomforing.navn, historikk.beskrivelse) as navn,
+                   coalesce(gjennomforing.virksomhetsnummer, historikk.virksomhetsnummer) as virksomhetsnummer,
+                   t.navn as tiltakstype
             from historikk
                      left join tiltaksgjennomforing gjennomforing on gjennomforing.id = historikk.tiltaksgjennomforing_id
-                     left join tiltakstype tiltakstypeFraGjennomforing on tiltakstypeFraGjennomforing.id = gjennomforing.tiltakstype_id
-                     left join tiltakstype tiltakstypeFraTabell on tiltakstypeFraTabell.id = historikk.tiltakstypeid 
-                      
+                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, historikk.tiltakstypeid)  
             where norsk_ident = ?
             order by historikk.fra_dato desc nulls last;
         """.trimIndent()
@@ -72,8 +67,8 @@ class HistorikkService(
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
-        tiltaksnavn = stringOrNull("beskrivelse") ?: stringOrNull("navn"),
-        tiltakstype = stringOrNull("tiltakstypeFraGjennomforing") ?: string("tiltakstypeFraTabell"),
-        virksomhetsnummer = stringOrNull("virksomhetsnummer") ?: stringOrNull("virksomhetsnummerFraGjennomforing")
+        tiltaksnavn = stringOrNull("navn"),
+        tiltakstype = string("tiltakstype"),
+        virksomhetsnummer = stringOrNull("virksomhetsnummer")
     )
 }
