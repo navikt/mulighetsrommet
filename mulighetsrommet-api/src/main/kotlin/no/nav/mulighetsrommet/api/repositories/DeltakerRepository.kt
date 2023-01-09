@@ -81,9 +81,9 @@ class DeltakerRepository(private val db: Database) {
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato"),
-                beskrivelse = string("beskrivelse"),
+                beskrivelse = stringOrNull("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
-                virksomhetsnummer = string("virksomhetsnummer")
+                virksomhetsnummer = stringOrNull("virksomhetsnummer")
             )
             else -> HistorikkDbo.Gruppetiltak(
                 id = uuid("id"),
