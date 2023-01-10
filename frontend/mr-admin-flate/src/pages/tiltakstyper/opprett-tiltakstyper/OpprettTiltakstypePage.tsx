@@ -14,6 +14,7 @@ import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
   AdministrasjonskodeValue,
   HandlingsplanValue,
+  OpplaeringsgruppeValue,
   OpprettTiltakstypeSchema,
   OptionalSchemaValues,
   RammeavtaleValue,
@@ -46,10 +47,13 @@ export function OpprettTiltakstype() {
     harStatusKopibrev: false,
   };
   const tiltaksgruppekoder = ["OPPFOLG", "FOLKHOY"]; // TODO Disse bør komme fra et API så vi kan prepopulere en select-component
-  const opplaringsgrupper = [
-    { id: 1, navn: "Den beste opplæringsgruppen" },
-    { id: 2, navn: "Den nest beste opplæringsgruppen" },
-  ];
+  const opplaringsgrupper: Record<
+    OpplaeringsgruppeValue,
+    "AMO Kurskatalog" | "Utdanningsstruktur"
+  > = {
+    AMO: "AMO Kurskatalog",
+    UTD: "Utdanningsstruktur",
+  };
 
   const administrasjonskoder: Record<
     AdministrasjonskodeValue,
@@ -67,7 +71,6 @@ export function OpprettTiltakstype() {
   };
 
   const handlingsplaner: Record<HandlingsplanValue, string> = {
-    AKT: "AKT",
     LAG: "Lage handlingsplan",
     SOK: "Søke inn eller opprette deltakelse",
     TIL: "Ingen",
@@ -138,9 +141,9 @@ export function OpprettTiltakstype() {
                 label="Opplæringsgruppe"
                 defaultBlankName="Ingen opplæringsgruppe"
               >
-                {opplaringsgrupper.map(({ id, navn }) => (
-                  <option key={id} value={id}>
-                    {navn}
+                {Object.entries(opplaringsgrupper).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} - {key}
                   </option>
                 ))}
               </SelectFelt>
