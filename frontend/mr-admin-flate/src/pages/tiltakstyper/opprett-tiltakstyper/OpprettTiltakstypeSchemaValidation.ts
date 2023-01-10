@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const BooleanDefaultFalse = z.boolean().default(false);
-const HandlingsplanEnum = z.enum(["SOK", "LAG", "TIL"], {
+const HandlingsplanEnum = z.enum(["AKT", "SOK", "LAG", "TIL"], {
   required_error: "Du må velge en handlingsplan",
 });
 const RammeAvtaleEnum = z.enum(["SKAL", "KAN", "IKKE"], {
@@ -27,7 +27,6 @@ export const OpprettTiltakstypeSchema = z.object({
   rettTilTiltakspenger: BooleanDefaultFalse,
   administrasjonskode: AdministrasjonskodeEnum,
   kopiAvTilsagnsbrev: BooleanDefaultFalse,
-  arkivkode: z.string({ required_error: "Du må sette en arkivkode" }),
   harAnskaffelse: BooleanDefaultFalse,
   rammeavtale: RammeAvtaleEnum,
   opplaringsgruppe: z
@@ -37,7 +36,6 @@ export const OpprettTiltakstypeSchema = z.object({
     .optional(),
   handlingsplan: HandlingsplanEnum,
   harObligatoriskSluttdato: BooleanDefaultFalse,
-  varighet: z.string({ required_error: "Du må sette en varighet" }),
   harStatusSluttdato: BooleanDefaultFalse,
   harStatusMeldeplikt: BooleanDefaultFalse,
   harStatusVedtak: BooleanDefaultFalse,

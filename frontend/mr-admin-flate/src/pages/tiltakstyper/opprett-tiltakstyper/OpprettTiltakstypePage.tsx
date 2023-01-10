@@ -29,13 +29,11 @@ export function OpprettTiltakstype() {
     rettTilTiltakspenger: false,
     administrasjonskode: undefined,
     kopiAvTilsagnsbrev: false,
-    arkivkode: undefined,
     harAnskaffelse: false,
     rammeavtale: undefined,
     opplaringsgruppe: undefined,
     handlingsplan: undefined,
     harObligatoriskSluttdato: false,
-    varighet: undefined,
     harStatusSluttdato: false,
     harStatusMeldeplikt: false,
     harStatusVedtak: false,
@@ -69,6 +67,7 @@ export function OpprettTiltakstype() {
   };
 
   const handlingsplaner: Record<HandlingsplanValue, string> = {
+    AKT: "AKT",
     LAG: "Lage handlingsplan",
     SOK: "Søke inn eller opprette deltakelse",
     TIL: "Ingen",
@@ -131,7 +130,6 @@ export function OpprettTiltakstype() {
               <CheckboxFelt name="kopiAvTilsagnsbrev">
                 Kopi av tilsagnsbrev
               </CheckboxFelt>
-              <Tekstfelt name="arkivkode" label="Arkivkode" />
               <CheckboxFelt name="harAnskaffelse">Anskaffelse</CheckboxFelt>
               <SelectFelt name="rammeavtale" label="Rammeavtale">
                 {Object.entries(rammeavtaler).map(([key, value]) => (
