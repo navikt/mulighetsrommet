@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const BooleanDefaultFalse = z.boolean().default(false);
-const HandlingsplanEnum = z.enum(["AKT", "SOK", "LAG", "TIL"], {
+const HandlingsplanEnum = z.enum(["SOK", "LAG", "TIL"], {
   required_error: "Du må velge en handlingsplan",
 });
 const RammeAvtaleEnum = z.enum(["SKAL", "KAN", "IKKE"], {
@@ -10,6 +10,10 @@ const RammeAvtaleEnum = z.enum(["SKAL", "KAN", "IKKE"], {
 
 const AdministrasjonskodeEnum = z.enum(["AMO", "IND", "INST"], {
   required_error: "Du må sette en administrasjonskode",
+});
+
+const OpplaeringsgruppeEnum = z.enum(["AMO", "UTD"], {
+  required_error: "Du må gjøre et valg for opplæringsgruppe",
 });
 
 export const OpprettTiltakstypeSchema = z.object({
@@ -28,12 +32,8 @@ export const OpprettTiltakstypeSchema = z.object({
   administrasjonskode: AdministrasjonskodeEnum,
   kopiAvTilsagnsbrev: BooleanDefaultFalse,
   harAnskaffelse: BooleanDefaultFalse,
-  rammeavtale: RammeAvtaleEnum,
-  opplaringsgruppe: z
-    .string({
-      required_error: "Du må velge en opplæringsgruppe",
-    })
-    .optional(),
+  rammeavtale: RammeAvtaleEnum.optional(),
+  opplaringsgruppe: OpplaeringsgruppeEnum,
   handlingsplan: HandlingsplanEnum,
   harObligatoriskSluttdato: BooleanDefaultFalse,
   harStatusSluttdato: BooleanDefaultFalse,
@@ -56,3 +56,4 @@ export type SchemaValues = z.infer<typeof OpprettTiltakstypeSchema>;
 export type HandlingsplanValue = z.infer<typeof HandlingsplanEnum>;
 export type RammeavtaleValue = z.infer<typeof RammeAvtaleEnum>;
 export type AdministrasjonskodeValue = z.infer<typeof AdministrasjonskodeEnum>;
+export type OpplaeringsgruppeValue = z.infer<typeof OpplaeringsgruppeEnum>;
