@@ -1,4 +1,4 @@
-import { BodyLong, Button, Heading } from "@navikt/ds-react";
+import { Button, Heading } from "@navikt/ds-react";
 import { Form, Formik } from "formik";
 import { Link } from "react-router-dom";
 
@@ -79,9 +79,9 @@ export function OpprettTiltakstype() {
         Tilbake til oversikt
       </Link>
       <Heading size="large">Opprett ny tiltakstype</Heading>
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltakstype
-      </BodyLong>
+      </BodyShort>
       <Formik<OptionalSchemaValues>
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(OpprettTiltakstypeSchema)}

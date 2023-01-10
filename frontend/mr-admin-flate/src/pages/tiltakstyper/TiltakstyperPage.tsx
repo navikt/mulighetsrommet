@@ -1,4 +1,4 @@
-import { BodyLong, Heading } from "@navikt/ds-react";
+import { Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
@@ -14,9 +14,9 @@ export function TiltakstyperPage() {
         <Link to="tiltakstyper/opprett">Opprett tiltakstype</Link>
       ) : null}
 
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her finner du dine aktive tiltakstyper.
-      </BodyLong>
+      </BodyShort>
       <TiltakstyperOversikt />
     </>
   );

@@ -1,4 +1,4 @@
-import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
 import { paginationAtom } from "../../api/atoms";
@@ -41,9 +41,9 @@ export function MineTiltaksgjennomforingerPage() {
   return (
     <>
       <Heading size="large">Oversikt over mine tiltaksgjennomføringer</Heading>
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her finner du gjennomføringer du har lagt til i din liste
-      </BodyLong>
+      </BodyShort>
       <SokEtterTiltaksgjennomforing />
       <>
         {tiltaksgjennomforinger.length > 0 ? (

@@ -1,4 +1,4 @@
-import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
@@ -47,9 +47,9 @@ export function EnhetsoversiktPage() {
         Oversikt over tiltaksgjennomføringer for enhet:{" "}
         {ansattData?.hovedenhetNavn}
       </Heading>
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her finner du alle gjennomføringer for din enhet
-      </BodyLong>
+      </BodyShort>
       <SokEtterTiltaksgjennomforing />
       <>
         {tiltaksgjennomforinger.length > 0 ? (
