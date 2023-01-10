@@ -26,7 +26,12 @@ export function ForsideFagansvarlig() {
     <Tabs value={state} onChange={setState} loop>
       <Tabs.List>
         {shortcutsForFagansvarlig.map(({ url, navn }, index) => (
-          <Tabs.Tab key={index} value={url} label={navn} />
+          <Tabs.Tab
+            key={index}
+            value={url}
+            label={navn}
+            data-testid={`tab-${url.replace("/", "")}`}
+          />
         ))}
       </Tabs.List>
       <div className={styles.container}>

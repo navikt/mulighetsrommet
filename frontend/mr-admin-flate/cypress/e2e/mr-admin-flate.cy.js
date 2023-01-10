@@ -15,9 +15,10 @@ describe("Forside", () => {
 
 describe("Ansatts gjennomføringer", () => {
   it("Skal kunne navigere til ansatt sin liste med tiltaksgjennomføringer", () => {
-    cy.getByTestId("shortcut-mine").click();
+    cy.getByTestId("tab-mine").should("have.attr", "aria-selected");
     cy.getByTestId("tiltaksgjennomforingsrad").eq(0).click();
     cy.wait(500);
     cy.getByTestId("fjern-favoritt").should("exist");
+    cy.getByTestId("tilbakelenke").click();
   });
 });

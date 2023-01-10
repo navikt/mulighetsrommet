@@ -58,7 +58,7 @@ export function TiltaksgjennomforingPage() {
   const tiltaksgjennomforing = data;
   return (
     <div className={styles.container}>
-      <Tilbakelenke>Tilbake</Tilbakelenke>
+      <Tilbakelenke dataTestId="tilbakelenke">Tilbake</Tilbakelenke>
 
       <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
