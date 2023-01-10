@@ -12,6 +12,7 @@ import {
 } from "./OpprettTiltakstypeComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
+  AdministrasjonskodeValue,
   HandlingsplanValue,
   OpprettTiltakstypeSchema,
   OptionalSchemaValues,
@@ -51,6 +52,15 @@ export function OpprettTiltakstype() {
     { id: 1, navn: "Den beste opplæringsgruppen" },
     { id: 2, navn: "Den nest beste opplæringsgruppen" },
   ];
+
+  const administrasjonskoder: Record<
+    AdministrasjonskodeValue,
+    "Arbeidsmarkedopplæring" | "Individuelt tiltak" | "Institusjonelt tiltak"
+  > = {
+    AMO: "Arbeidsmarkedopplæring",
+    IND: "Individuelt tiltak",
+    INST: "Institusjonelt tiltak",
+  };
 
   const rammeavtaler: Record<RammeavtaleValue, string> = {
     KAN: "KAN",
@@ -108,10 +118,16 @@ export function OpprettTiltakstype() {
               <CheckboxFelt name="rettTilTiltakspenger">
                 Rett på tiltakspenger
               </CheckboxFelt>
-              <Tekstfelt
+              <SelectFelt
                 name="administrasjonskode"
                 label="Administrasjonskode"
-              />
+              >
+                {Object.entries(administrasjonskoder).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} - {key}
+                  </option>
+                ))}
+              </SelectFelt>
               <CheckboxFelt name="kopiAvTilsagnsbrev">
                 Kopi av tilsagnsbrev
               </CheckboxFelt>
