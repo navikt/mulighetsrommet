@@ -12,8 +12,10 @@ import {
 } from "./OpprettTiltakstypeComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
+  HandlingsplanValue,
   OpprettTiltakstypeSchema,
   OptionalSchemaValues,
+  RammeavtaleValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 
 export function OpprettTiltakstype() {
@@ -45,21 +47,22 @@ export function OpprettTiltakstype() {
     harStatusKopibrev: false,
   };
   const tiltaksgruppekoder = ["OPPFOLG", "FOLKHOY"]; // TODO Disse bør komme fra et API så vi kan prepopulere en select-component
-  const rammeavtaler = [
-    { id: 1, navn: "Den beste rammeavtalen" },
-    { id: 2, navn: "Den nest beste rammeavtalen" },
-  ]; // TODO Rammeavtaler bør komme fra API
   const opplaringsgrupper = [
     { id: 1, navn: "Den beste opplæringsgruppen" },
-    { id: 2, navn: "Den neste beste opplæringsgruppen" },
-  ]; // TODO Opplæringsgrupper må komme fra et API
-  const handlingsplaner = [
-    {
-      // TODO Hva skal inn in en handlingsplan?
-      id: 1,
-      navn: "obligatorisk sluttdato",
-    },
+    { id: 2, navn: "Den nest beste opplæringsgruppen" },
   ];
+
+  const rammeavtaler: Record<RammeavtaleValue, string> = {
+    KAN: "KAN",
+    SKAL: "SKAL",
+    IKKE: "IKKE",
+  };
+
+  const handlingsplaner: Record<HandlingsplanValue, string> = {
+    LAG: "Lage handlingsplan",
+    SOK: "Søke inn eller opprette deltakelse",
+    TIL: "Ingen",
+  };
 
   return (
     <>
@@ -80,6 +83,7 @@ export function OpprettTiltakstype() {
         validationSchema={toFormikValidationSchema(OpprettTiltakstypeSchema)}
         onSubmit={(values, actions) => {
           // TODO Må sende data til backend
+          console.log(values);
           alert(JSON.stringify(values, null, 2));
           actions.setSubmitting(false);
         }}
@@ -114,9 +118,9 @@ export function OpprettTiltakstype() {
               <Tekstfelt name="arkivkode" label="Arkivkode" />
               <CheckboxFelt name="harAnskaffelse">Anskaffelse</CheckboxFelt>
               <SelectFelt name="rammeavtale" label="Rammeavtale">
-                {rammeavtaler.map(({ id, navn }) => (
-                  <option key={id} value={id}>
-                    {navn}
+                {Object.entries(rammeavtaler).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
                   </option>
                 ))}
               </SelectFelt>
@@ -132,9 +136,9 @@ export function OpprettTiltakstype() {
                 ))}
               </SelectFelt>
               <SelectFelt name="handlingsplan" label="Handlingsplan">
-                {handlingsplaner.map(({ id, navn }) => (
-                  <option key={id} value={id}>
-                    {navn}
+                {Object.entries(handlingsplaner).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
                   </option>
                 ))}
               </SelectFelt>
