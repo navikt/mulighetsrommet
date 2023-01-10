@@ -1,8 +1,8 @@
-import { Shortcut } from "./components/shortcuts/Shortcuts";
-
 export const APPLICATION_NAME = "mr-admin-flate";
 
 export const PAGE_SIZE = 15;
+
+export type Shortcut = { navn: string; url: string };
 
 export const shortcutsForTiltaksansvarlig: Shortcut[] = [
   { url: "/mine", navn: "Mine tiltaksgjennomføringer" },
