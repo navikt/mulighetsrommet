@@ -33,9 +33,7 @@ export function TiltaksgjennomforingRad({
       <BodyShort size="small">
         {tiltaksgjennomforing.virksomhetsnummer}
       </BodyShort>
-      {/*<div className={styles.pil}>*/}
       <Next className={styles.pil} />
-      {/*</div>*/}
     </li>
   );
 }

@@ -9,6 +9,10 @@
   justify-content: space-between;
   gap: 1rem;
   cursor: pointer;
+  
+  &:hover {
+    background-color: var(--a-gray-50);
+  }
 }
 
 .pil {
