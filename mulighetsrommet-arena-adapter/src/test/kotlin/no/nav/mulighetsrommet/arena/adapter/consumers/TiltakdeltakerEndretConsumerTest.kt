@@ -24,6 +24,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
+import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -48,6 +50,10 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
     afterEach {
         database.db.clean()
     }
+
+    val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate
+        .minusDays(1)
+        .format(ArenaUtils.TimestampFormatter)
 
     context("when dependent events has not been processed") {
         test("should save the event with status Failed when the dependent tiltaksgjennomføring is missing") {
@@ -115,7 +121,9 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             val tiltaksgjennomforinger =
                 TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
-            tiltaksgjennomforinger.upsert(tiltaksgjennomforingIndividuell)
+            tiltaksgjennomforinger.upsert(
+                tiltaksgjennomforingIndividuell
+            )
 
             val mappings = ArenaEntityMappingRepository(database.db)
             mappings.insert(
@@ -163,10 +171,26 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     ArenaTables.Tiltaksgjennomforing,
                     tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
                     operation = Insert,
-                    data = Json.encodeToString(tiltaksgjennomforingIndividuell),
+                    data = Json.encodeToString(
+                        tiltaksgjennomforingIndividuell
+                    ),
                     status = Processed
                 )
             )
+        }
+
+        test("should be ignored when REG_DATO is before aktivitetsplanen") {
+            val consumer =
+                createConsumer(database.db, MockEngine { respondOk() })
+
+            val event = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    regDato = regDatoBeforeAktivitetsplanen
+                )
+            )
+
+            event.status shouldBe Ignored
         }
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
@@ -196,7 +220,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
                 "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/internal/arena/deltaker" to { respondOk() },
+                "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
 
@@ -249,7 +273,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
-                    "/api/v1/internal/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -262,7 +286,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should mark the event as Failed when api responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/deltaker" to {
+                    "/api/v1/internal/arena/tiltakshistorikk" to {
                         respondError(
                             HttpStatusCode.InternalServerError
                         )
@@ -279,9 +303,14 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/deltaker" to { respondOk() },
+                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
                     "/ords/arbeidsgiver" to {
-                        respondJson(ArenaOrdsArrangor("123456", "000000"))
+                        respondJson(
+                            ArenaOrdsArrangor(
+                                "123456",
+                                "000000"
+                            )
+                        )
                     }
                 )
 
@@ -312,7 +341,13 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     }
                 }
 
-                consumer.processEvent(createEvent(Insert, tiltaksgjennomforing = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId, id = 2))
+                consumer.processEvent(
+                    createEvent(
+                        Insert,
+                        tiltaksgjennomforing = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId,
+                        id = 2
+                    )
+                )
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -360,7 +395,13 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
     )
 }
 
-private fun createEvent(operation: ArenaEventData.Operation, status: String = "GJENN", tiltaksgjennomforing: Int = 3, id: Int = 1) = createArenaEvent(
+private fun createEvent(
+    operation: ArenaEventData.Operation,
+    status: String = "GJENN",
+    tiltaksgjennomforing: Int = 3,
+    id: Int = 1,
+    regDato: String = "2023-01-01 00:00:00"
+) = createArenaEvent(
     ArenaTables.Deltaker,
     id.toString(),
     operation,
@@ -370,6 +411,7 @@ private fun createEvent(operation: ArenaEventData.Operation, status: String = "G
         "TILTAKGJENNOMFORING_ID": $tiltaksgjennomforing,
         "DELTAKERSTATUSKODE": "$status",
         "DATO_FRA": null,
-        "DATO_TIL": null
+        "DATO_TIL": null,
+        "REG_DATO": "$regDato"
     }"""
 )

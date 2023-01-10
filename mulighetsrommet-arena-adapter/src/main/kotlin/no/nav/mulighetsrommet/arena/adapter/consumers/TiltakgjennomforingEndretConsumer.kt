@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.leftIfNull
 import io.ktor.http.*
@@ -17,11 +18,11 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo as MrTiltaksgjennomforing
 
@@ -34,15 +35,6 @@ class TiltakgjennomforingEndretConsumer(
 ) : ArenaTopicConsumer(
     ArenaTables.Tiltaksgjennomforing
 ) {
-
-    companion object {
-        val ArenaDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
-        val AktivitetsplanenLaunchDate: LocalDateTime = LocalDateTime.parse(
-            "2017-12-04 00:00:00",
-            ArenaDateTimeFormatter
-        )
-    }
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -57,19 +49,31 @@ class TiltakgjennomforingEndretConsumer(
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
-        val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
+    override suspend fun handleEvent(event: ArenaEvent) = either {
+        val (_, operation, data) = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
-        ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
+        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
+        ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
 
         val mapping = entities.getOrCreateMapping(event)
-        val tiltaksgjennomforing = decoded.data
+        val tiltaksgjennomforing = data
             .toTiltaksgjennomforing(mapping.entityId)
             .let { entities.upsertTiltaksgjennomforing(it) }
             .bind()
 
+        if (isGruppetiltak) {
+            upsertTiltaksgjennomforing(operation, tiltaksgjennomforing).bind()
+        } else {
+            ArenaEvent.ConsumptionStatus.Processed
+        }
+    }
+
+    private suspend fun upsertTiltaksgjennomforing(
+        operation: ArenaEventData.Operation,
+        tiltaksgjennomforing: Tiltaksgjennomforing,
+    ): Either<ConsumptionError, ArenaEvent.ConsumptionStatus> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)
             .bind()
@@ -83,9 +87,10 @@ class TiltakgjennomforingEndretConsumer(
                 .map { it.virksomhetsnummer }
                 .bind()
         }
-        val mrTiltaksgjennomforing = tiltaksgjennomforing.toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
+        val mrTiltaksgjennomforing = tiltaksgjennomforing
+            .toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
-        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
         client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", mrTiltaksgjennomforing)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
@@ -93,7 +98,7 @@ class TiltakgjennomforingEndretConsumer(
     }
 
     private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
-        return LocalDateTime.parse(data.REG_DATO, ArenaDateTimeFormatter).isAfter(AktivitetsplanenLaunchDate)
+        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Tiltaksgjennomforing(
@@ -103,8 +108,8 @@ class TiltakgjennomforingEndretConsumer(
         tiltakskode = TILTAKSKODE,
         arrangorId = ARBGIV_ID_ARRANGOR,
         navn = LOKALTNAVN,
-        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
+        fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
         apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
         antallPlasser = ANTALL_DELTAKERE,
         status = TILTAKSTATUSKODE
