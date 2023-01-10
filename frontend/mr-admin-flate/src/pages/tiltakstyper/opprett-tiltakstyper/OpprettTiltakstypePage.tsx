@@ -171,7 +171,7 @@ export function OpprettTiltakstype() {
                 Status sluttdato
               </CheckboxFelt>
               <CheckboxFelt name="harStatusMeldeplikt">
-                Status meldeplinkt
+                Status meldeplikt
               </CheckboxFelt>
               <CheckboxFelt name="harStatusVedtak">Status vedtak</CheckboxFelt>
               <CheckboxFelt name="harStatusIAAvtale">
