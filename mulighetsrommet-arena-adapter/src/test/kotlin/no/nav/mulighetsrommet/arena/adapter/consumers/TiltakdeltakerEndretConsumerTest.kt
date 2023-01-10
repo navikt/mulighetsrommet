@@ -22,6 +22,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
+import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -44,6 +46,10 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
     afterEach {
         database.db.clean()
     }
+
+    val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate
+        .minusDays(1)
+        .format(ArenaUtils.TimestampFormatter)
 
     context("when dependent events has not been processed") {
         test("should save the event with status Failed when the dependent tiltaksgjennomføring is missing") {
@@ -107,6 +113,14 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     status = Processed
                 )
             )
+        }
+
+        test("should be ignored when REG_DATO is before aktivitetsplanen") {
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+
+            val event = consumer.processEvent(createEvent(Insert, regDato = regDatoBeforeAktivitetsplanen))
+
+            event.status shouldBe Ignored
         }
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
@@ -253,7 +267,11 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
     )
 }
 
-private fun createEvent(operation: ArenaEventData.Operation, status: String = "GJENN") = createArenaEvent(
+private fun createEvent(
+    operation: ArenaEventData.Operation,
+    status: String = "GJENN",
+    regDato: String = "2023-01-01 00:00:00",
+) = createArenaEvent(
     ArenaTables.Deltaker,
     "1",
     operation,
@@ -263,6 +281,7 @@ private fun createEvent(operation: ArenaEventData.Operation, status: String = "G
         "TILTAKGJENNOMFORING_ID": 3,
         "DELTAKERSTATUSKODE": "$status",
         "DATO_FRA": null,
-        "DATO_TIL": null
+        "DATO_TIL": null,
+        "REG_DATO": "$regDato"
     }"""
 )

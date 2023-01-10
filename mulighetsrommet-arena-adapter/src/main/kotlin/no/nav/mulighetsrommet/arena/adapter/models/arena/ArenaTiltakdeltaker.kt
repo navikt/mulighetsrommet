@@ -10,4 +10,5 @@ data class ArenaTiltakdeltaker(
     val DELTAKERSTATUSKODE: String,
     val DATO_FRA: String?,
     val DATO_TIL: String?,
+    val REG_DATO: String,
 )
