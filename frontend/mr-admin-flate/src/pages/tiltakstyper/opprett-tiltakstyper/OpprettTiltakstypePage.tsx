@@ -161,11 +161,6 @@ export function OpprettTiltakstype() {
               <CheckboxFelt name="harObligatoriskSluttdato">
                 Obligatorisk sluttdato
               </CheckboxFelt>
-              <Tekstfelt
-                name="varighet"
-                label="Varighet"
-                hjelpetekst="Maks antall måneder"
-              />
 
               <CheckboxFelt name="harStatusSluttdato">
                 Status sluttdato
