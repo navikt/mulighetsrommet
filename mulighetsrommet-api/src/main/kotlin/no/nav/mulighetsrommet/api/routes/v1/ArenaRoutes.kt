@@ -61,7 +61,7 @@ fun Route.arenaRoutes() {
                 }
         }
 
-        put("tiltakshistorikk") { // TODO rename her
+        put("tiltakshistorikk") {
             val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
             arenaService.upsert(tiltakshistorikk)
                 .map { call.respond(HttpStatusCode.OK, it) }
