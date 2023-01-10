@@ -231,6 +231,10 @@ class ArenaServiceTest : FunSpec({
             database.assertThat("tiltakshistorikk").row()
                 .value("id").isEqualTo(tiltakshistorikkGruppe.id)
                 .value("status").isEqualTo(tiltakshistorikkGruppe.status.name)
+                .value("tiltaksgjennomforing_id").isEqualTo(tiltakshistorikkGruppe.tiltaksgjennomforingId)
+                .value("beskrivelse").isNull
+                .value("virksomhetsnummer").isNull
+                .value("tiltakstypeid").isNull
 
             val updated = tiltakshistorikkGruppe.copy(status = Deltakerstatus.DELTAR)
             service.upsert(updated)
@@ -250,6 +254,9 @@ class ArenaServiceTest : FunSpec({
             database.assertThat("tiltakshistorikk").row()
                 .value("id").isEqualTo(tiltakshistorikkIndividuell.id)
                 .value("beskrivelse").isEqualTo(tiltakshistorikkIndividuell.beskrivelse)
+                .value("virksomhetsnummer").isEqualTo(tiltakshistorikkIndividuell.virksomhetsnummer)
+                .value("tiltakstypeid").isEqualTo(tiltakshistorikkIndividuell.tiltakstypeId)
+                .value("tiltaksgjennomforing_id").isNull
 
             val updated = tiltakshistorikkIndividuell.copy(beskrivelse = "Ny beskrivelse")
             service.upsert(updated)
