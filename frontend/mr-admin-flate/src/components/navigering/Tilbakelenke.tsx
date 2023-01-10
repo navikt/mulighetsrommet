@@ -2,12 +2,7 @@ import { Link } from "@navikt/ds-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-interface TilbakelenkeProps {
-  children: React.ReactNode;
-  dataTestId?: string;
-}
-
-export function Tilbakelenke({ dataTestId, children }: TilbakelenkeProps) {
+export function Tilbakelenke({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const navigerTilbake = () => navigate(-1);
 
@@ -16,7 +11,7 @@ export function Tilbakelenke({ dataTestId, children }: TilbakelenkeProps) {
       style={{ marginBottom: "1rem" }}
       href="#"
       onClick={navigerTilbake}
-      data-testid={dataTestId}
+      data-testid="tilbakelenke"
     >
       {children}
     </Link>
