@@ -16,7 +16,6 @@ import {
   OpprettTiltakstypeSchema,
   OptionalSchemaValues,
   RammeavtaleValue,
-  TiltakskodeValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 
 export function OpprettTiltakstype() {
@@ -52,26 +51,6 @@ export function OpprettTiltakstype() {
     { id: 1, navn: "Den beste opplæringsgruppen" },
     { id: 2, navn: "Den nest beste opplæringsgruppen" },
   ];
-
-  const tiltakskoder: Record<TiltakskodeValue, string> = {
-    ARBFORB: "Arbeidsforberedende trening (AFT)",
-    ARBRRHDAG: "Arbeidsrettet rehabilitering (ARR)",
-    AVKLARAG: "Avklaring",
-    DIGIOPPARB: "Digitalt oppfølgingstiltak for arbeidsledige (jobbklubb)",
-    FORSAMOGRU: "Forsøk AMO gruppe",
-    FORSFAGGRU: "Forsøk fag- og yrkesopplæring gruppe",
-    GRUFAGYRKE:
-      "Gruppe Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning",
-    GRUPPEAMO: "Gruppe AMO",
-    INDJOBSTOT: "Individuell jobbstøtte (IPS)",
-    INDOPPFAG: "Oppfølging",
-    INDOPPRF: "Resultatbasert finansiering av formidlingsbistand",
-    IPSUNG: "Individuell karrierestøtte (IPS Ung)",
-    JOBBK: "Jobbklubb",
-    UTVAOONAV: "Utvidet oppfølging i NAV",
-    UTVOPPFOPL: "Utvidet oppfølging i opplæring",
-    VASV: "Varig tilrettelagt arbeid i skjermet virksomhet",
-  };
 
   const rammeavtaler: Record<RammeavtaleValue, string> = {
     KAN: "KAN",
@@ -123,13 +102,7 @@ export function OpprettTiltakstype() {
                   </option>
                 ))}
               </SelectFelt>
-              <SelectFelt name="tiltakskode" label="Tiltakskode">
-                {Object.entries(tiltakskoder).map(([key, value]) => (
-                  <option key={key} value={key}>
-                    {value} - {key}
-                  </option>
-                ))}
-              </SelectFelt>
+              <Tekstfelt name="tiltakskode" label="Tiltakskode" />
               <Datovelger />
 
               <CheckboxFelt name="rettTilTiltakspenger">
