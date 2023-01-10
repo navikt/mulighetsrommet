@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -61,8 +61,8 @@ class TiltakEndretConsumer(
         id = id,
         navn = TILTAKSNAVN,
         tiltakskode = TILTAKSKODE,
-        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL)
+        fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL)
     )
 
     private fun Tiltakstype.toDomain() = MrTiltakstype(

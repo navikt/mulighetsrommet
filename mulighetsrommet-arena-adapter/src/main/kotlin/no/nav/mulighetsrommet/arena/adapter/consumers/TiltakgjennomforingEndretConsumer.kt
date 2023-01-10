@@ -17,11 +17,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo as MrTiltaksgjennomforing
 
@@ -34,15 +33,6 @@ class TiltakgjennomforingEndretConsumer(
 ) : ArenaTopicConsumer(
     ArenaTables.Tiltaksgjennomforing
 ) {
-
-    companion object {
-        val ArenaDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
-        val AktivitetsplanenLaunchDate: LocalDateTime = LocalDateTime.parse(
-            "2017-12-04 00:00:00",
-            ArenaDateTimeFormatter
-        )
-    }
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -93,7 +83,7 @@ class TiltakgjennomforingEndretConsumer(
     }
 
     private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
-        return LocalDateTime.parse(data.REG_DATO, ArenaDateTimeFormatter).isAfter(AktivitetsplanenLaunchDate)
+        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Tiltaksgjennomforing(
@@ -103,8 +93,8 @@ class TiltakgjennomforingEndretConsumer(
         tiltakskode = TILTAKSKODE,
         arrangorId = ARBGIV_ID_ARRANGOR,
         navn = LOKALTNAVN,
-        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
+        fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
         apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
         antallPlasser = ANTALL_DELTAKERE,
         status = TILTAKSTATUSKODE

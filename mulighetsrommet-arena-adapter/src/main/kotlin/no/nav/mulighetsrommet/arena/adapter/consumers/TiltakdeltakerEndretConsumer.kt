@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.arena.adapter.utils.ProcessingUtils
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -82,9 +82,9 @@ class TiltakdeltakerEndretConsumer(
         tiltaksdeltakerId = TILTAKDELTAKER_ID,
         tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
         personId = PERSON_ID,
-        fraDato = ProcessingUtils.getArenaDateFromTo(DATO_FRA),
-        tilDato = ProcessingUtils.getArenaDateFromTo(DATO_TIL),
-        status = ProcessingUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
+        fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+        status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
     )
 
     private fun Deltaker.toDomain(tiltaksgjennomforingId: UUID, norskIdent: String) = MrDeltaker(
