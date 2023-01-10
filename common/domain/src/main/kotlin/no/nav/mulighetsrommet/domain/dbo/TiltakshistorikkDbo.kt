@@ -10,7 +10,7 @@ import java.util.*
 
 @Serializable
 @Polymorphic
-sealed class HistorikkDbo {
+sealed class TiltakshistorikkDbo {
     @Serializable(with = UUIDSerializer::class)
     abstract val id: UUID
     abstract val norskIdent: String
@@ -34,7 +34,7 @@ sealed class HistorikkDbo {
         override val tilDato: LocalDateTime? = null,
         @Serializable(with = UUIDSerializer::class)
         val tiltaksgjennomforingId: UUID
-    ) : HistorikkDbo()
+    ) : TiltakshistorikkDbo()
 
     @Serializable
     data class IndividueltTiltak(
@@ -50,5 +50,5 @@ sealed class HistorikkDbo {
         @Serializable(with = UUIDSerializer::class)
         val tiltakstypeId: UUID,
         val virksomhetsnummer: String?
-    ) : HistorikkDbo()
+    ) : TiltakshistorikkDbo()
 }

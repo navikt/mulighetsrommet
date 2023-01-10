@@ -7,13 +7,13 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
@@ -54,13 +54,30 @@ class ArenaServiceTest : FunSpec({
         enhet = "2990"
     )
 
-    val deltaker = HistorikkDbo.Gruppetiltak(
+    val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.now(),
         tilDato = LocalDateTime.now().plusYears(1)
+    )
+
+    val tiltakstypeIndividuell = TiltakstypeDbo(
+        id = UUID.randomUUID(),
+        navn = "Høyere utdanning",
+        tiltakskode = "HOYEREUTD"
+    )
+
+    val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
+        id = UUID.randomUUID(),
+        norskIdent = "12345678910",
+        status = Deltakerstatus.VENTER,
+        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+        beskrivelse = "Utdanning",
+        tiltakstypeId = tiltakstypeIndividuell.id,
+        virksomhetsnummer = "12343",
     )
 
     val tiltaksgjennomforingDto = tiltaksgjennomforing.run {
@@ -85,7 +102,7 @@ class ArenaServiceTest : FunSpec({
         val service = ArenaService(
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
-            DeltakerRepository(database.db),
+            TiltakshistorikkRepository(database.db),
             mockk(relaxed = true),
             tiltakstypeKafkaProducer
         )
@@ -129,7 +146,7 @@ class ArenaServiceTest : FunSpec({
         val service = ArenaService(
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
-            DeltakerRepository(database.db),
+            TiltakshistorikkRepository(database.db),
             tiltaksgjennomforingKafkaProducer,
             mockk(relaxed = true)
         )
@@ -194,11 +211,11 @@ class ArenaServiceTest : FunSpec({
         }
     }
 
-    context("deltaker") {
+    context("tiltakshistorikk") {
         val service = ArenaService(
             TiltakstypeRepository(database.db),
             TiltaksgjennomforingRepository(database.db),
-            DeltakerRepository(database.db),
+            TiltakshistorikkRepository(database.db),
             mockk(relaxed = true),
             mockk(relaxed = true)
         )
@@ -208,22 +225,41 @@ class ArenaServiceTest : FunSpec({
             service.upsert(tiltaksgjennomforing)
         }
 
-        test("CRUD") {
-            service.upsert(deltaker)
+        test("CRUD gruppe") {
+            service.upsert(tiltakshistorikkGruppe)
 
-            database.assertThat("historikk").row()
-                .value("id").isEqualTo(deltaker.id)
-                .value("status").isEqualTo(deltaker.status.name)
+            database.assertThat("tiltakshistorikk").row()
+                .value("id").isEqualTo(tiltakshistorikkGruppe.id)
+                .value("status").isEqualTo(tiltakshistorikkGruppe.status.name)
 
-            val updated = deltaker.copy(status = Deltakerstatus.DELTAR)
+            val updated = tiltakshistorikkGruppe.copy(status = Deltakerstatus.DELTAR)
             service.upsert(updated)
 
-            database.assertThat("historikk").row()
+            database.assertThat("tiltakshistorikk").row()
                 .value("status").isEqualTo(updated.status.name)
 
             service.remove(updated)
 
-            database.assertThat("historikk").isEmpty
+            database.assertThat("tiltakshistorikk").isEmpty
+        }
+
+        test("CRUD individuell") {
+            service.upsert(tiltakstypeIndividuell)
+            service.upsert(tiltakshistorikkIndividuell)
+
+            database.assertThat("tiltakshistorikk").row()
+                .value("id").isEqualTo(tiltakshistorikkIndividuell.id)
+                .value("beskrivelse").isEqualTo(tiltakshistorikkIndividuell.beskrivelse)
+
+            val updated = tiltakshistorikkIndividuell.copy(beskrivelse = "Ny beskrivelse")
+            service.upsert(updated)
+
+            database.assertThat("tiltakshistorikk").row()
+                .value("beskrivelse").isEqualTo("Ny beskrivelse")
+
+            service.remove(updated)
+
+            database.assertThat("tiltakshistorikk").isEmpty
         }
     }
 })

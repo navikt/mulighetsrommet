@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 class ArenaService(
     private val tiltakstyper: TiltakstypeRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakere: DeltakerRepository,
+    private val deltakere: TiltakshistorikkRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
@@ -53,12 +53,12 @@ class ArenaService(
             }
     }
 
-    fun upsert(deltaker: HistorikkDbo): QueryResult<HistorikkDbo> {
-        return deltakere.upsert(deltaker)
+    fun upsert(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> {
+        return deltakere.upsert(tiltakshistorikk)
     }
 
-    fun remove(deltaker: HistorikkDbo): QueryResult<Unit> {
-        return deltakere.delete(deltaker.id)
+    fun remove(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<Unit> {
+        return deltakere.delete(tiltakshistorikk.id)
     }
 
     private fun isSupportedTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): Boolean {

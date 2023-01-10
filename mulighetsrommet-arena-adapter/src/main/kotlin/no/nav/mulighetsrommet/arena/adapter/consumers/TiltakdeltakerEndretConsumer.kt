@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo as MrHistorikk
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo as MrTiltakshistorikk
 
 class TiltakdeltakerEndretConsumer(
     override val config: ConsumerConfig,
@@ -81,7 +81,7 @@ class TiltakdeltakerEndretConsumer(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
-        val mrHistorikk = if (isGruppetiltak(tiltakstype.tiltakskode)) {
+        val mrtiltakshistorikk = if (isGruppetiltak(tiltakstype.tiltakskode)) {
             deltaker.toGruppeDomain(tiltaksgjennomforing, norskIdent)
         } else {
             val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
@@ -95,7 +95,7 @@ class TiltakdeltakerEndretConsumer(
         }
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/deltaker", mrHistorikk)
+        client.request(method, "/api/v1/internal/arena/tiltakshistorikk", mrtiltakshistorikk)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
@@ -114,8 +114,8 @@ class TiltakdeltakerEndretConsumer(
     private fun Deltaker.toGruppeDomain(
         tiltaksgjennomforing: Tiltaksgjennomforing,
         norskIdent: String
-    ): MrHistorikk {
-        return MrHistorikk.Gruppetiltak(
+    ): MrTiltakshistorikk {
+        return MrTiltakshistorikk.Gruppetiltak(
             id = id,
             norskIdent = norskIdent,
             status = status,
@@ -130,8 +130,8 @@ class TiltakdeltakerEndretConsumer(
         tiltakstype: Tiltakstype,
         virksomhetsnummer: String?,
         norskIdent: String
-    ): MrHistorikk {
-        return MrHistorikk.IndividueltTiltak(
+    ): MrTiltakshistorikk {
+        return MrTiltakshistorikk.IndividueltTiltak(
             id = id,
             norskIdent = norskIdent,
             status = status,

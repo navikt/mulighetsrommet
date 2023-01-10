@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class HistorikkForDeltakerDTO(
+data class TiltakshistorikkDTO(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -21,7 +21,7 @@ data class HistorikkForDeltakerDTO(
     val arrangor: String?
 )
 
-data class HistorikkForDeltaker(
+data class Tiltakshistorikk(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class)

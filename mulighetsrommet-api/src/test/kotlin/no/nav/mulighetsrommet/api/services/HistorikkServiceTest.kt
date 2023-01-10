@@ -7,16 +7,16 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
+import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import java.time.LocalDateTime
 import java.util.*
 
@@ -43,7 +43,7 @@ class HistorikkServiceTest : FunSpec({
         enhet = "2990"
     )
 
-    val deltaker = HistorikkDbo.Gruppetiltak(
+    val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
         norskIdent = "12345678910",
@@ -58,7 +58,7 @@ class HistorikkServiceTest : FunSpec({
         tiltakskode = "HOYEREUTD"
     )
 
-    val deltakerIndividuell = HistorikkDbo.IndividueltTiltak(
+    val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
         id = UUID.randomUUID(),
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,
@@ -73,16 +73,16 @@ class HistorikkServiceTest : FunSpec({
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository =
             TiltaksgjennomforingRepository(database.db)
-        val deltakerRepository = DeltakerRepository(database.db)
+        val tiltakshistorikkRepository = TiltakshistorikkRepository(database.db)
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
-        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, deltakerRepository, tiltaksgjennomforingKafkaProducer, tiltakstypeKafkaProducer)
+        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, tiltakshistorikkRepository, tiltaksgjennomforingKafkaProducer, tiltakstypeKafkaProducer)
 
         service.upsert(tiltakstype)
         service.upsert(tiltaksgjennomforing)
-        service.upsert(deltaker)
+        service.upsert(tiltakshistorikkGruppe)
         service.upsert(tiltakstypeIndividuell)
-        service.upsert(deltakerIndividuell)
+        service.upsert(tiltakshistorikkIndividuell)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
@@ -95,8 +95,8 @@ class HistorikkServiceTest : FunSpec({
             HistorikkService(database.db, arrangorService)
 
         val forventetHistorikk = listOf(
-            HistorikkForDeltakerDTO(
-                id = deltaker.id,
+            TiltakshistorikkDTO(
+                id = tiltakshistorikkGruppe.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
@@ -104,8 +104,8 @@ class HistorikkServiceTest : FunSpec({
                 tiltakstype = "Arbeidstrening",
                 arrangor = bedriftsnavn
             ),
-            HistorikkForDeltakerDTO(
-                id = deltakerIndividuell.id,
+            TiltakshistorikkDTO(
+                id = tiltakshistorikkIndividuell.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,

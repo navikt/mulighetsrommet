@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -293,8 +293,8 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     method shouldBe HttpMethod.Put
 
                     val deltaker =
-                        decodeRequestBody<HistorikkDbo>().apply {
-                            this.shouldBeInstanceOf<HistorikkDbo.Gruppetiltak>()
+                        decodeRequestBody<TiltakshistorikkDbo>().apply {
+                            this.shouldBeInstanceOf<TiltakshistorikkDbo.Gruppetiltak>()
                             tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
                             norskIdent shouldBe "12345678910"
                         }
@@ -307,7 +307,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<HistorikkDbo>().apply {
+                    decodeRequestBody<TiltakshistorikkDbo>().apply {
                         id shouldBe generatedId
                     }
                 }
@@ -318,8 +318,8 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     method shouldBe HttpMethod.Put
 
                     val deltaker =
-                        decodeRequestBody<HistorikkDbo>().apply {
-                            this.shouldBeInstanceOf<HistorikkDbo.IndividueltTiltak>()
+                        decodeRequestBody<TiltakshistorikkDbo>().apply {
+                            this.shouldBeInstanceOf<TiltakshistorikkDbo.IndividueltTiltak>()
                             beskrivelse shouldBe tiltaksgjennomforing.navn
                             virksomhetsnummer shouldBe "123456"
                             tiltakstypeId shouldBe tiltakstypeIndividuell.id

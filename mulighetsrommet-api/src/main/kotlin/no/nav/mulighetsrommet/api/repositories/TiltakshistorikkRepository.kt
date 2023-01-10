@@ -5,22 +5,22 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.dbo.HistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class DeltakerRepository(private val db: Database) {
+class TiltakshistorikkRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(deltaker: HistorikkDbo): QueryResult<HistorikkDbo> = query {
-        logger.info("Lagrer deltaker id=${deltaker.id}")
+    fun upsert(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> = query {
+        logger.info("Lagrer tiltakshistorikk id=${tiltakshistorikk.id}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into historikk (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, virksomhetsnummer, tiltakstypeid)
+            insert into tiltakshistorikk (id, tiltaksgjennomforing_id, norsk_ident, status, fra_dato, til_dato, beskrivelse, virksomhetsnummer, tiltakstypeid)
             values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :fra_dato, :til_dato, :beskrivelse, :virksomhetsnummer, :tiltakstypeid::uuid)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
@@ -34,18 +34,18 @@ class DeltakerRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, deltaker.toSqlParameters())
+        queryOf(query, tiltakshistorikk.toSqlParameters())
             .map { it.toHistorikkDbo() }
             .asSingle
             .let { db.run(it)!! }
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
-        logger.info("Sletter deltaker id=$id")
+        logger.info("Sletter tiltakshistorikk id=$id")
 
         @Language("PostgreSQL")
         val query = """
-            delete from historikk
+            delete from tiltakshistorikk
             where id = ?::uuid
         """.trimIndent()
 
@@ -54,7 +54,7 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun HistorikkDbo.toSqlParameters(): Map<String, *> {
+    private fun TiltakshistorikkDbo.toSqlParameters(): Map<String, *> {
         return mapOf(
             "id" to id,
             "norsk_ident" to norskIdent,
@@ -62,10 +62,10 @@ class DeltakerRepository(private val db: Database) {
             "fra_dato" to fraDato,
             "til_dato" to tilDato
         ) + when (this) {
-            is HistorikkDbo.Gruppetiltak -> listOfNotNull(
+            is TiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
                 "tiltaksgjennomforing_id" to tiltaksgjennomforingId
             )
-            is HistorikkDbo.IndividueltTiltak -> listOfNotNull(
+            is TiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
                 "beskrivelse" to beskrivelse,
                 "virksomhetsnummer" to virksomhetsnummer,
                 "tiltakstypeid" to tiltakstypeId
@@ -73,9 +73,9 @@ class DeltakerRepository(private val db: Database) {
         }
     }
 
-    private fun Row.toHistorikkDbo(): HistorikkDbo {
+    private fun Row.toHistorikkDbo(): TiltakshistorikkDbo {
         return uuidOrNull("tiltaksgjennomforing_id")?.let {
-            HistorikkDbo.Gruppetiltak(
+            TiltakshistorikkDbo.Gruppetiltak(
                 id = uuid("id"),
                 tiltaksgjennomforingId = it,
                 norskIdent = string("norsk_ident"),
@@ -83,7 +83,7 @@ class DeltakerRepository(private val db: Database) {
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato")
             )
-        } ?: HistorikkDbo.IndividueltTiltak(
+        } ?: TiltakshistorikkDbo.IndividueltTiltak(
             id = uuid("id"),
             norskIdent = string("norsk_ident"),
             status = Deltakerstatus.valueOf(string("status")),

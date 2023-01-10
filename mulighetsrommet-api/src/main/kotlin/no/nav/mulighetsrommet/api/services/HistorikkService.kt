@@ -4,8 +4,8 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.HistorikkForDeltaker
-import no.nav.mulighetsrommet.domain.models.HistorikkForDeltakerDTO
+import no.nav.mulighetsrommet.domain.models.Tiltakshistorikk
+import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -17,10 +17,10 @@ class HistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
 
-    suspend fun hentHistorikkForBruker(norskIdent: String): List<HistorikkForDeltakerDTO> {
+    suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDTO> {
         return getHistorikkForBrukerFromDb(norskIdent).map {
             val arrangor = it.virksomhetsnummer?.let { virksomhetsnummer -> hentArrangorNavn(virksomhetsnummer) }
-            HistorikkForDeltakerDTO(
+            TiltakshistorikkDTO(
                 id = it.id,
                 fraDato = it.fraDato,
                 tilDato = it.tilDato,
@@ -42,27 +42,27 @@ class HistorikkService(
         }
     }
 
-    private fun getHistorikkForBrukerFromDb(norskIdent: String): List<HistorikkForDeltaker> {
+    private fun getHistorikkForBrukerFromDb(norskIdent: String): List<Tiltakshistorikk> {
         @Language("PostgreSQL")
         val query = """
-            select historikk.id,
-                   historikk.fra_dato,
-                   historikk.til_dato,
-                   historikk.status,
-                   coalesce(gjennomforing.navn, historikk.beskrivelse) as navn,
-                   coalesce(gjennomforing.virksomhetsnummer, historikk.virksomhetsnummer) as virksomhetsnummer,
+            select tiltakshistorikk.id,
+                   tiltakshistorikk.fra_dato,
+                   tiltakshistorikk.til_dato,
+                   tiltakshistorikk.status,
+                   coalesce(gjennomforing.navn, tiltakshistorikk.beskrivelse) as navn,
+                   coalesce(gjennomforing.virksomhetsnummer, tiltakshistorikk.virksomhetsnummer) as virksomhetsnummer,
                    t.navn as tiltakstype
-            from historikk
-                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = historikk.tiltaksgjennomforing_id
-                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, historikk.tiltakstypeid)  
+            from tiltakshistorikk
+                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = tiltakshistorikk.tiltaksgjennomforing_id
+                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)  
             where norsk_ident = ?
-            order by historikk.fra_dato desc nulls last;
+            order by tiltakshistorikk.fra_dato desc nulls last;
         """.trimIndent()
         val queryResult = queryOf(query, norskIdent).map { it.toHistorikkForDeltaker() }.asList
         return db.run(queryResult)
     }
 
-    private fun Row.toHistorikkForDeltaker(): HistorikkForDeltaker = HistorikkForDeltaker(
+    private fun Row.toHistorikkForDeltaker(): Tiltakshistorikk = Tiltakshistorikk(
         id = uuid("id"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
