@@ -92,7 +92,7 @@ class HistorikkServiceTest : FunSpec({
         coEvery { arrangorService.hentArrangornavn("12343") } returns bedriftsnavn2
 
         val historikkService =
-            HistorikkService(database.db, arrangorService)
+            HistorikkService(arrangorService, TiltakshistorikkRepository(database.db))
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDTO(

@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -54,6 +55,26 @@ class TiltakshistorikkRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getTiltakshistorikkForBruker(norskIdent: String): List<TiltakshistorikkDTO> {
+        @Language("PostgreSQL")
+        val query = """
+            select tiltakshistorikk.id,
+                   tiltakshistorikk.fra_dato,
+                   tiltakshistorikk.til_dato,
+                   tiltakshistorikk.status,
+                   coalesce(gjennomforing.navn, tiltakshistorikk.beskrivelse) as navn,
+                   coalesce(gjennomforing.virksomhetsnummer, tiltakshistorikk.virksomhetsnummer) as virksomhetsnummer,
+                   t.navn as tiltakstype
+            from tiltakshistorikk
+                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = tiltakshistorikk.tiltaksgjennomforing_id
+                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)  
+            where norsk_ident = ?
+            order by tiltakshistorikk.fra_dato desc nulls last;
+        """.trimIndent()
+        val queryResult = queryOf(query, norskIdent).map { it.toTiltakshistorikk() }.asList
+        return db.run(queryResult)
+    }
+
     private fun TiltakshistorikkDbo.toSqlParameters(): Map<String, *> {
         return mapOf(
             "id" to id,
@@ -94,4 +115,14 @@ class TiltakshistorikkRepository(private val db: Database) {
             virksomhetsnummer = stringOrNull("virksomhetsnummer")
         )
     }
+
+    private fun Row.toTiltakshistorikk(): TiltakshistorikkDTO = TiltakshistorikkDTO(
+        id = uuid("id"),
+        fraDato = localDateTimeOrNull("fra_dato"),
+        tilDato = localDateTimeOrNull("til_dato"),
+        status = Deltakerstatus.valueOf(string("status")),
+        tiltaksnavn = stringOrNull("navn"),
+        tiltakstype = string("tiltakstype"),
+        arrangor = stringOrNull("virksomhetsnummer")
+    )
 }
