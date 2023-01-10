@@ -35,7 +35,7 @@ class TiltakshistorikkRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, tiltakshistorikk.toSqlParameters())
-            .map { it.toHistorikkDbo() }
+            .map { it.toTiltakshistorikkDbo() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -73,7 +73,7 @@ class TiltakshistorikkRepository(private val db: Database) {
         }
     }
 
-    private fun Row.toHistorikkDbo(): TiltakshistorikkDbo {
+    private fun Row.toTiltakshistorikkDbo(): TiltakshistorikkDbo {
         return uuidOrNull("tiltaksgjennomforing_id")?.let {
             TiltakshistorikkDbo.Gruppetiltak(
                 id = uuid("id"),

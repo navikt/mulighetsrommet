@@ -58,11 +58,11 @@ class HistorikkService(
             where norsk_ident = ?
             order by tiltakshistorikk.fra_dato desc nulls last;
         """.trimIndent()
-        val queryResult = queryOf(query, norskIdent).map { it.toHistorikkForDeltaker() }.asList
+        val queryResult = queryOf(query, norskIdent).map { it.toTiltakshistorikk() }.asList
         return db.run(queryResult)
     }
 
-    private fun Row.toHistorikkForDeltaker(): Tiltakshistorikk = Tiltakshistorikk(
+    private fun Row.toTiltakshistorikk(): Tiltakshistorikk = Tiltakshistorikk(
         id = uuid("id"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
