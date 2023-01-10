@@ -1,4 +1,4 @@
-import { Heading } from "@navikt/ds-react";
+import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
