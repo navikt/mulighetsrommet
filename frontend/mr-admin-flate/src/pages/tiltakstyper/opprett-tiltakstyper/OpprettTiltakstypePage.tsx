@@ -12,8 +12,11 @@ import {
 } from "./OpprettTiltakstypeComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
+  AdministrasjonskodeValue,
+  HandlingsplanValue,
   OpprettTiltakstypeSchema,
   OptionalSchemaValues,
+  RammeavtaleValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 
 export function OpprettTiltakstype() {
@@ -26,13 +29,11 @@ export function OpprettTiltakstype() {
     rettTilTiltakspenger: false,
     administrasjonskode: undefined,
     kopiAvTilsagnsbrev: false,
-    arkivkode: undefined,
     harAnskaffelse: false,
     rammeavtale: undefined,
     opplaringsgruppe: undefined,
     handlingsplan: undefined,
     harObligatoriskSluttdato: false,
-    varighet: undefined,
     harStatusSluttdato: false,
     harStatusMeldeplikt: false,
     harStatusVedtak: false,
@@ -45,21 +46,32 @@ export function OpprettTiltakstype() {
     harStatusKopibrev: false,
   };
   const tiltaksgruppekoder = ["OPPFOLG", "FOLKHOY"]; // TODO Disse bør komme fra et API så vi kan prepopulere en select-component
-  const rammeavtaler = [
-    { id: 1, navn: "Den beste rammeavtalen" },
-    { id: 2, navn: "Den nest beste rammeavtalen" },
-  ]; // TODO Rammeavtaler bør komme fra API
   const opplaringsgrupper = [
     { id: 1, navn: "Den beste opplæringsgruppen" },
-    { id: 2, navn: "Den neste beste opplæringsgruppen" },
-  ]; // TODO Opplæringsgrupper må komme fra et API
-  const handlingsplaner = [
-    {
-      // TODO Hva skal inn in en handlingsplan?
-      id: 1,
-      navn: "obligatorisk sluttdato",
-    },
+    { id: 2, navn: "Den nest beste opplæringsgruppen" },
   ];
+
+  const administrasjonskoder: Record<
+    AdministrasjonskodeValue,
+    "Arbeidsmarkedopplæring" | "Individuelt tiltak" | "Institusjonelt tiltak"
+  > = {
+    AMO: "Arbeidsmarkedopplæring",
+    IND: "Individuelt tiltak",
+    INST: "Institusjonelt tiltak",
+  };
+
+  const rammeavtaler: Record<RammeavtaleValue, string> = {
+    KAN: "KAN",
+    SKAL: "SKAL",
+    IKKE: "IKKE",
+  };
+
+  const handlingsplaner: Record<HandlingsplanValue, string> = {
+    AKT: "AKT",
+    LAG: "Lage handlingsplan",
+    SOK: "Søke inn eller opprette deltakelse",
+    TIL: "Ingen",
+  };
 
   return (
     <>
@@ -75,6 +87,7 @@ export function OpprettTiltakstype() {
         validationSchema={toFormikValidationSchema(OpprettTiltakstypeSchema)}
         onSubmit={(values, actions) => {
           // TODO Må sende data til backend
+          console.log(values);
           alert(JSON.stringify(values, null, 2));
           actions.setSubmitting(false);
         }}
@@ -99,19 +112,24 @@ export function OpprettTiltakstype() {
               <CheckboxFelt name="rettTilTiltakspenger">
                 Rett på tiltakspenger
               </CheckboxFelt>
-              <Tekstfelt
+              <SelectFelt
                 name="administrasjonskode"
                 label="Administrasjonskode"
-              />
+              >
+                {Object.entries(administrasjonskoder).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} - {key}
+                  </option>
+                ))}
+              </SelectFelt>
               <CheckboxFelt name="kopiAvTilsagnsbrev">
                 Kopi av tilsagnsbrev
               </CheckboxFelt>
-              <Tekstfelt name="arkivkode" label="Arkivkode" />
               <CheckboxFelt name="harAnskaffelse">Anskaffelse</CheckboxFelt>
               <SelectFelt name="rammeavtale" label="Rammeavtale">
-                {rammeavtaler.map(({ id, navn }) => (
-                  <option key={id} value={id}>
-                    {navn}
+                {Object.entries(rammeavtaler).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
                   </option>
                 ))}
               </SelectFelt>
@@ -127,26 +145,21 @@ export function OpprettTiltakstype() {
                 ))}
               </SelectFelt>
               <SelectFelt name="handlingsplan" label="Handlingsplan">
-                {handlingsplaner.map(({ id, navn }) => (
-                  <option key={id} value={id}>
-                    {navn}
+                {Object.entries(handlingsplaner).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
                   </option>
                 ))}
               </SelectFelt>
               <CheckboxFelt name="harObligatoriskSluttdato">
                 Obligatorisk sluttdato
               </CheckboxFelt>
-              <Tekstfelt
-                name="varighet"
-                label="Varighet"
-                hjelpetekst="Maks antall måneder"
-              />
 
               <CheckboxFelt name="harStatusSluttdato">
                 Status sluttdato
               </CheckboxFelt>
               <CheckboxFelt name="harStatusMeldeplikt">
-                Status meldeplinkt
+                Status meldeplikt
               </CheckboxFelt>
               <CheckboxFelt name="harStatusVedtak">Status vedtak</CheckboxFelt>
               <CheckboxFelt name="harStatusIAAvtale">

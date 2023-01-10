@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
@@ -19,6 +20,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
+import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
+import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -42,6 +45,13 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     afterEach {
         database.db.clean()
     }
+
+    val regDatoBeforeAktivitetsplanen = AktivitetsplanenLaunchDate
+        .minusDays(1)
+        .format(ArenaUtils.TimestampFormatter)
+
+    val regDatoAfterAktivitetsplanen = AktivitetsplanenLaunchDate
+        .format(ArenaUtils.TimestampFormatter)
 
     context("when dependent events has not been processed") {
         test("should save the event with status Failed when dependent tiltakstype is missing") {
@@ -88,7 +98,68 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         }
     }
 
-    context("when dependent events has been processed") {
+    context("when tiltaksgjennomføring is individuell") {
+        val tiltakstype = Tiltakstype(
+            id = UUID.randomUUID(),
+            navn = "AMO",
+            tiltakskode = "AMO"
+        )
+
+        beforeEach {
+            val saker = SakRepository(database.db)
+            saker.upsert(
+                Sak(
+                    sakId = 13572352,
+                    lopenummer = 123,
+                    aar = 2022,
+                    enhet = "2990"
+                )
+            )
+
+            val tiltakstyper = TiltakstypeRepository(database.db)
+            tiltakstyper.upsert(tiltakstype)
+
+            val mappings = ArenaEntityMappingRepository(database.db)
+            mappings.insert(ArenaEntityMapping(ArenaTables.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id))
+        }
+
+        test("should ignore individuelle tiltaksgjennomføringer created before Aktivitetsplanen") {
+            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, engine)
+
+            val event = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    tiltakskode = "AMO",
+                    regDato = regDatoBeforeAktivitetsplanen
+                )
+            )
+
+            event.status shouldBe Ignored
+            database.assertThat("tiltaksgjennomforing").isEmpty
+            engine.requestHistory.shouldBeEmpty()
+        }
+
+        test("should upsert individuelle tiltaksgjennomføringer created after Aktivitetsplanen") {
+            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, engine)
+
+            val event = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    tiltakskode = "AMO",
+                    regDato = regDatoAfterAktivitetsplanen
+                )
+            )
+
+            event.status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing").row()
+                .value("tiltakskode").isEqualTo("AMO")
+            engine.requestHistory.shouldBeEmpty()
+        }
+    }
+
+    context("when tiltaksgjennomføring is gruppetiltak") {
         val tiltakstype = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
@@ -111,32 +182,10 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
             val mappings =
                 ArenaEntityMappingRepository(database.db)
-            mappings.insert(
-                ArenaEntityMapping(
-                    ArenaTables.Tiltakstype,
-                    tiltakstype.tiltakskode,
-                    tiltakstype.id
-                )
-            )
+            mappings.insert(ArenaEntityMapping(ArenaTables.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id))
         }
 
-        test("should ignore tiltaksgjennomføringer older than Aktivitetsplanen") {
-            val consumer = createConsumer(
-                database.db,
-                MockEngine { respondOk() }
-            )
-
-            val event = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    regDato = "2017-12-03 23:59:59"
-                )
-            )
-
-            event.status shouldBe Ignored
-        }
-
-        test("should treat all operations as upserts") {
+        test("should treat all operations on gruppetiltak as upserts") {
             val engine = createMockEngine(
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "000000"))
@@ -149,25 +198,25 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             val e1 = consumer.processEvent(
                 createEvent(
                     Insert,
+                    regDato = regDatoBeforeAktivitetsplanen,
                     name = "Navn 1"
                 )
             )
             e1.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing")
-                .row().value("navn").isEqualTo("Navn 1")
-
-            database.assertThat("tiltaksgjennomforing")
-                .row().value("status").isEqualTo("GJENNOMFOR")
+            database.assertThat("tiltaksgjennomforing").row()
+                .value("navn").isEqualTo("Navn 1")
+                .value("status").isEqualTo("GJENNOMFOR")
 
             val e2 = consumer.processEvent(
                 createEvent(
                     Update,
+                    regDato = regDatoAfterAktivitetsplanen,
                     name = "Navn 2"
                 )
             )
             e2.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing")
-                .row().value("navn").isEqualTo("Navn 2")
+            database.assertThat("tiltaksgjennomforing").row()
+                .value("navn").isEqualTo("Navn 2")
 
             val e3 = consumer.processEvent(
                 createEvent(
@@ -176,8 +225,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 )
             )
             e3.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing")
-                .row().value("navn").isEqualTo("Navn 1")
+            database.assertThat("tiltaksgjennomforing").row()
+                .value("navn").isEqualTo("Navn 1")
         }
 
         context("api responses") {
@@ -321,6 +370,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
 
 private fun createEvent(
     operation: ArenaEventData.Operation,
+    tiltakskode: String = "INDOPPFAG",
     name: String = "Navn",
     regDato: String = "2022-10-10 00:00:00",
     fraDato: String? = null,
@@ -332,7 +382,7 @@ private fun createEvent(
     """{
         "TILTAKGJENNOMFORING_ID": 3780431,
         "LOKALTNAVN": "$name",
-        "TILTAKSKODE": "INDOPPFAG",
+        "TILTAKSKODE": "$tiltakskode",
         "ARBGIV_ID_ARRANGOR": 49612,
         "SAK_ID": 13572352,
         "REG_DATO": "$regDato",
