@@ -16,33 +16,6 @@ export default function AutentisertTiltaksansvarligApp() {
         }
         errorElement={<ErrorPage />}
       />
-      {/*<Route*/}
-      {/*  path="oversikt"*/}
-      {/*  element={*/}
-      {/*    <RootLayout>*/}
-      {/*      <TiltaksgjennomforingerPage />*/}
-      {/*    </RootLayout>*/}
-      {/*  }*/}
-      {/*  errorElement={<ErrorPage />}*/}
-      {/*/>*/}
-      {/*<Route*/}
-      {/*  path="enhet"*/}
-      {/*  element={*/}
-      {/*    <RootLayout>*/}
-      {/*      <EnhetsoversiktPage />*/}
-      {/*    </RootLayout>*/}
-      {/*  }*/}
-      {/*  errorElement={<ErrorPage />}*/}
-      {/*/>*/}
-      {/*<Route*/}
-      {/*  path="mine"*/}
-      {/*  element={*/}
-      {/*    <RootLayout>*/}
-      {/*      <MineTiltaksgjennomforingerPage />*/}
-      {/*    </RootLayout>*/}
-      {/*  }*/}
-      {/*  errorElement={<ErrorPage />}*/}
-      {/*/>*/}
       <Route
         path=":tiltaksgjennomforingId"
         element={

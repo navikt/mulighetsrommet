@@ -6,7 +6,7 @@ import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgje
 import { Laster } from "../../components/Laster";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
-import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
 import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
 
@@ -22,11 +22,8 @@ export function MineTiltaksgjennomforingerPage() {
   if (isError) {
     return (
       <Alert variant="error">
-        <p>
-          Det oppsto en feil ved henting av dine tiltaksgjennomføringer. Prøv
-          igjen senere.
-        </p>
-        <Link to="/">Til forside</Link>
+        Det oppsto en feil ved henting av dine tiltaksgjennomføringer. Prøv
+        igjen senere. <Link to="/">Til forside</Link>
       </Alert>
     );
   }
@@ -34,7 +31,7 @@ export function MineTiltaksgjennomforingerPage() {
   if (!data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne dine tiltaksgjennomføringer</p>
+        Klarte ikke finne dine tiltaksgjennomføringer.{" "}
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -42,10 +39,8 @@ export function MineTiltaksgjennomforingerPage() {
 
   const tiltaksgjennomforinger = data.data;
   return (
-    <div className={styles.container}>
-      <Heading className={styles.overskrift} size="large">
-        Oversikt over mine tiltaksgjennomføringer
-      </Heading>
+    <>
+      <Heading size="large">Oversikt over mine tiltaksgjennomføringer</Heading>
       <BodyLong className={styles.body} size="small">
         Her finner du gjennomføringer du har lagt til i din liste
       </BodyLong>
@@ -76,7 +71,7 @@ export function MineTiltaksgjennomforingerPage() {
           {tiltaksgjennomforinger
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((tiltaksgjennomforing) => (
-              <Tiltaksgjennomforingrad
+              <TiltaksgjennomforingRad
                 key={tiltaksgjennomforing.id}
                 tiltaksgjennomforing={tiltaksgjennomforing}
               />
@@ -104,6 +99,6 @@ export function MineTiltaksgjennomforingerPage() {
           ) : null}
         </div>
       </>
-    </div>
+    </>
   );
 }

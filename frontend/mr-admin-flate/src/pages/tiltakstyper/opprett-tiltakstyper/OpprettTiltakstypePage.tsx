@@ -63,15 +63,10 @@ export function OpprettTiltakstype() {
 
   return (
     <>
-      <Link
-        style={{ marginBottom: "1rem", display: "block" }}
-        to="/tiltakstyper"
-      >
+      <Link style={{ marginBottom: "1rem", display: "block" }} to="/">
         Tilbake til oversikt
       </Link>
-      <Heading className={styles.overskrift} size="large">
-        Opprett ny tiltakstype
-      </Heading>
+      <Heading size="large">Opprett ny tiltakstype</Heading>
       <BodyLong className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltakstype
       </BodyLong>

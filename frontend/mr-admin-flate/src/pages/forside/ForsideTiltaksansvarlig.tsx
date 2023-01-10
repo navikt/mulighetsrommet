@@ -6,9 +6,11 @@ import { TiltaksgjennomforingerPage } from "../tiltaksgjennomforinger/Tiltaksgje
 import { MineTiltaksgjennomforingerPage } from "../mine/MineTiltaksgjennomforingerPage";
 import { EnhetsoversiktPage } from "../enhet/EnhetsoversiktPage";
 import styles from "./Forside.module.scss";
+import { useState } from "react";
 
 export function ForsideTiltaksansvarlig() {
   const { data, isLoading } = useFeatureToggles();
+  const [state, setState] = useState("/mine");
 
   if (isLoading) return <Laster size="xlarge" />;
 
@@ -23,8 +25,8 @@ export function ForsideTiltaksansvarlig() {
   }
 
   return (
-    <Tabs defaultValue="/mine" loop>
-      <Tabs.List>
+    <Tabs loop value={state} onChange={setState} className={styles.tabell}>
+      <Tabs.List className={styles.tabell_overskrifter}>
         {shortcutsForTiltaksansvarlig.map(({ url, navn }, index) => (
           <Tabs.Tab key={index} value={url} label={navn} />
         ))}

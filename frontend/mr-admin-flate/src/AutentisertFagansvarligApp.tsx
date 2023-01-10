@@ -2,7 +2,6 @@ import { Route, Routes } from "react-router-dom";
 import { ForsideFagansvarlig } from "./pages/forside/ForsideFagansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
-import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { OpprettTiltakstype } from "./pages/tiltakstyper/opprett-tiltakstyper/OpprettTiltakstypePage";
@@ -13,18 +12,9 @@ export default function AutentisertFagansvarligApp() {
       <Route
         path="/*"
         element={
-          <RootLayout>
+          <main>
             <ForsideFagansvarlig />
-          </RootLayout>
-        }
-        errorElement={<ErrorPage />}
-      />
-      <Route
-        path="tiltakstyper"
-        element={
-          <RootLayout>
-            <TiltakstyperPage />
-          </RootLayout>
+          </main>
         }
         errorElement={<ErrorPage />}
       />

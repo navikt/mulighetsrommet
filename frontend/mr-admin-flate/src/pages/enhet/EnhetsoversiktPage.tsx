@@ -7,7 +7,7 @@ import { useTiltaksgjennomforingerByEnhet } from "../../api/tiltaksgjennomforing
 import { Laster } from "../../components/Laster";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
-import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
 import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
 
@@ -24,12 +24,9 @@ export function EnhetsoversiktPage() {
 
   if (isError) {
     return (
-      <Alert variant="error">
-        <p>
-          Det oppsto en feil ved henting av tiltaksgjennomføringer for din
-          enhet. Prøv igjen senere.
-        </p>
-        <Link to="/">Til forside</Link>
+      <Alert variant="error" size={"small"}>
+        Det oppsto en feil ved henting av tiltaksgjennomføringer for din enhet.
+        Prøv igjen senere. <Link to="/">Til forside</Link>
       </Alert>
     );
   }
@@ -37,7 +34,7 @@ export function EnhetsoversiktPage() {
   if (!data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltaksgjennomføringer for din enhet</p>
+        Klarte ikke finne tiltaksgjennomføringer for din enhet.{" "}
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -46,7 +43,7 @@ export function EnhetsoversiktPage() {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Heading className={styles.overskrift} size="large">
+      <Heading size="large">
         Oversikt over tiltaksgjennomføringer for enhet:{" "}
         {ansattData?.hovedenhetNavn}
       </Heading>
@@ -72,7 +69,7 @@ export function EnhetsoversiktPage() {
           {tiltaksgjennomforinger
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((tiltaksgjennomforing) => (
-              <Tiltaksgjennomforingrad
+              <TiltaksgjennomforingRad
                 key={tiltaksgjennomforing.id}
                 tiltaksgjennomforing={tiltaksgjennomforing}
               />

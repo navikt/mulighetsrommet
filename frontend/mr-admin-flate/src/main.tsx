@@ -10,7 +10,13 @@ import { AdministratorHeader } from "./components/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // default: true
+    },
+  },
+});
 
 if (
   process.env.NODE_ENV === "development" ||

@@ -23,10 +23,7 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Link
-        style={{ marginBottom: "1rem", display: "block" }}
-        to="/tiltakstyper"
-      >
+      <Link style={{ marginBottom: "1rem", display: "block" }} to="/">
         Tilbake til oversikt
       </Link>
       <Heading size="large" level="1">

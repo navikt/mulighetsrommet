@@ -9,12 +9,9 @@ export function TiltakstyperPage() {
 
   return (
     <>
-      <Link to="/">Hjem</Link>
-      <Heading className={styles.overskrift} size="large">
-        Oversikt over tiltakstyper
-      </Heading>
+      <Heading size="large">Oversikt over tiltakstyper</Heading>
       {toggles?.["mulighetsrommet.enable-opprett-tiltakstype"] ? (
-        <Link to="opprett">Opprett tiltakstype</Link>
+        <Link to="tiltakstyper/opprett">Opprett tiltakstype</Link>
       ) : null}
 
       <BodyLong className={styles.body} size="small">
