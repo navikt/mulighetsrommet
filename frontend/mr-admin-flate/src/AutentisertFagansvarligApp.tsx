@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
+import { ForsideFagansvarlig } from "./pages/forside/ForsideFagansvarlig";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";

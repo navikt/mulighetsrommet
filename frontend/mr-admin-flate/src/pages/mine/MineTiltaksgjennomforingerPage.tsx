@@ -42,8 +42,7 @@ export function MineTiltaksgjennomforingerPage() {
 
   const tiltaksgjennomforinger = data.data;
   return (
-    <>
-      <Link to="/">Hjem</Link>
+    <div className={styles.container}>
       <Heading className={styles.overskrift} size="large">
         Oversikt over mine tiltaksgjennomføringer
       </Heading>
@@ -105,6 +104,6 @@ export function MineTiltaksgjennomforingerPage() {
           ) : null}
         </div>
       </>
-    </>
+    </div>
   );
 }

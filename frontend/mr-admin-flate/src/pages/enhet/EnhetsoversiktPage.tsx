@@ -46,7 +46,6 @@ export function EnhetsoversiktPage() {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size="large">
         Oversikt over tiltaksgjennomføringer for enhet:{" "}
         {ansattData?.hovedenhetNavn}
