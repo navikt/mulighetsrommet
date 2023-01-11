@@ -51,6 +51,7 @@ spec:
       claims:
         extra:
           - NAVident
+          - azp_name
   accessPolicy:
     inbound:
       rules:
