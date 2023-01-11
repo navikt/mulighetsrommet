@@ -7,29 +7,6 @@ import java.time.format.DateTimeFormatter
 object ArenaUtils {
     val TimestampFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-    fun isGruppetiltak(tiltakskode: String): Boolean {
-        // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
-        val gruppetiltak = listOf(
-            "ARBFORB",
-            "ARBRRHDAG",
-            "AVKLARAG",
-            "DIGIOPPARB",
-            "FORSAMOGRU",
-            "FORSFAGGRU",
-            "GRUFAGYRKE",
-            "GRUPPEAMO",
-            "INDJOBSTOT",
-            "INDOPPFAG",
-            "INDOPPRF",
-            "IPSUNG",
-            "JOBBK",
-            "UTVAOONAV",
-            "UTVOPPFOPL",
-            "VASV",
-        )
-        return tiltakskode in gruppetiltak
-    }
-
     fun parseTimestamp(value: String): LocalDateTime {
         return LocalDateTime.parse(value, TimestampFormatter)
     }

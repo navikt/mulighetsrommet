@@ -9,8 +9,8 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
@@ -61,31 +61,31 @@ fun Route.arenaRoutes() {
                 }
         }
 
-        put("deltaker") {
-            val deltaker = call.receive<DeltakerDbo>()
-            arenaService.upsert(deltaker)
+        put("tiltakshistorikk") {
+            val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
+            arenaService.upsert(tiltakshistorikk)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
                     when (it) {
                         is DatabaseOperationError.ForeignKeyViolation -> {
-                            call.respond(HttpStatusCode.Conflict, "Kunne ikke opprette deltaker")
+                            call.respond(HttpStatusCode.Conflict, "Kunne ikke opprette tiltakshistorikk")
                         }
 
                         else -> {
                             logError(logger, it.error)
-                            call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette deltaker")
+                            call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltakshistorikk")
                         }
                     }
                 }
         }
 
-        delete("deltaker") {
-            val deltaker = call.receive<DeltakerDbo>()
-            arenaService.remove(deltaker)
+        delete("tiltakshistorikk") {
+            val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
+            arenaService.remove(tiltakshistorikk)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette deltaker")
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakshistorikk")
                 }
         }
     }

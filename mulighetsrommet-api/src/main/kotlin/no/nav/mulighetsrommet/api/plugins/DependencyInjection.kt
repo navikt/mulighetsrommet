@@ -30,8 +30,8 @@ import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
@@ -95,7 +95,7 @@ private fun kafka(config: KafkaConfig) = module {
 private fun repositories() = module {
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
-    single { DeltakerRepository(get()) }
+    single { TiltakshistorikkRepository(get()) }
     single { AnsattTiltaksgjennomforingRepository(get()) }
 }
 

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -51,7 +52,7 @@ class TiltakgjennomforingEndretConsumer(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val (_, operation, data) = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
-        val isGruppetiltak = ArenaUtils.isGruppetiltak(data.TILTAKSKODE)
+        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
