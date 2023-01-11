@@ -18,6 +18,7 @@ import {
   OpprettTiltakstypeSchema,
   OptionalSchemaValues,
   RammeavtaleValue,
+  TiltaksgruppekodeValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 
 export function OpprettTiltakstype() {
@@ -46,7 +47,40 @@ export function OpprettTiltakstype() {
     harStatusHenvisningsbrev: false,
     harStatusKopibrev: false,
   };
-  const tiltaksgruppekoder = ["OPPFOLG", "FOLKHOY"]; // TODO Disse bør komme fra et API så vi kan prepopulere en select-component
+  const tiltaksgruppekoder: Record<
+    TiltaksgruppekodeValue,
+    | "Arbeidsforberedende trening"
+    | "Tiltak i arbeidsmarkedsbedrift"
+    | "Arbeidspraksis"
+    | "Arbeidsrettet rehabilitering"
+    | "Arbeidstrening"
+    | "Avklaring"
+    | "Behandling - lettere psykiske/sammensatte lidelser"
+    | "Egenetablering"
+    | "Forsøk"
+    | "Lønnstilskudd"
+    | "Oppfølging"
+    | "Opplæring"
+    | "Tilrettelegging"
+    | "Tiltak under utfasing"
+    | "Varig tilrettelagt arbeid"
+  > = {
+    AFT: "Arbeidsforberedende trening",
+    AMB: "Tiltak i arbeidsmarkedsbedrift",
+    ARBPRAKS: "Arbeidspraksis",
+    ARBRREHAB: "Arbeidsrettet rehabilitering",
+    ARBTREN: "Arbeidstrening",
+    AVKLARING: "Avklaring",
+    BEHPSSAM: "Behandling - lettere psykiske/sammensatte lidelser",
+    ETAB: "Egenetablering",
+    FORSOK: "Forsøk",
+    LONNTILS: "Lønnstilskudd",
+    OPPFOLG: "Oppfølging",
+    OPPL: "Opplæring",
+    TILRETTE: "Tilrettelegging",
+    UTFAS: "Tiltak under utfasing",
+    VARIGASV: "Varig tilrettelagt arbeid",
+  };
   const opplaringsgrupper: Record<
     OpplaeringsgruppeValue,
     "AMO Kurskatalog" | "Utdanningsstruktur"
@@ -108,9 +142,9 @@ export function OpprettTiltakstype() {
             >
               <Tekstfelt name="tiltakstypenavn" label="Navn på tiltakstype" />
               <SelectFelt name="tiltaksgruppekode" label="Tiltaksgruppekode">
-                {tiltaksgruppekoder.map((kode) => (
-                  <option key={kode} value={kode}>
-                    {kode}
+                {Object.entries(tiltaksgruppekoder).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value} - {key}
                   </option>
                 ))}
               </SelectFelt>
