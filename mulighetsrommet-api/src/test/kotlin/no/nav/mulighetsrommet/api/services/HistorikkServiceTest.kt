@@ -31,7 +31,8 @@ class HistorikkServiceTest : FunSpec({
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
-        tiltakskode = "ARBTREN"
+        tiltakskode = "ARBTREN",
+        rettPaaTiltakspenger = true
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -55,7 +56,8 @@ class HistorikkServiceTest : FunSpec({
     val tiltakstypeIndividuell = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Høyere utdanning",
-        tiltakskode = "HOYEREUTD"
+        tiltakskode = "HOYEREUTD",
+        rettPaaTiltakspenger = true
     )
 
     val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(

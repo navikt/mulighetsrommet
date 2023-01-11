@@ -24,13 +24,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     val tiltakstype1 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
-        tiltakskode = "ARBTREN"
+        tiltakskode = "ARBTREN",
+        rettPaaTiltakspenger = true
     )
 
     val tiltakstype2 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
-        tiltakskode = "INDOPPFOLG"
+        tiltakskode = "INDOPPFOLG",
+        rettPaaTiltakspenger = true
     )
 
     val tiltak1 = TiltaksgjennomforingDbo(
@@ -73,6 +75,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     id = tiltakstype1.id,
                     navn = tiltakstype1.navn,
                     arenaKode = tiltakstype1.tiltakskode,
+                    rettPaaTiltakspenger = true
                 ),
                 navn = tiltak1.navn,
                 tiltaksnummer = tiltak1.tiltaksnummer,

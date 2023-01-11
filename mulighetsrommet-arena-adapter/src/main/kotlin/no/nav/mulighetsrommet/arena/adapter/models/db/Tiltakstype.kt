@@ -15,5 +15,6 @@ data class Tiltakstype(
     @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val tilDato: LocalDateTime? = null
+    val tilDato: LocalDateTime? = null,
+    val rettPaaTiltakspenger: Boolean
 )

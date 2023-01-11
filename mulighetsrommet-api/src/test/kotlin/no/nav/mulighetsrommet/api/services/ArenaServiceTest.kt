@@ -40,7 +40,8 @@ class ArenaServiceTest : FunSpec({
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
-        tiltakskode = "INDOPPFAG"
+        tiltakskode = "INDOPPFAG",
+        rettPaaTiltakspenger = true
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -66,7 +67,8 @@ class ArenaServiceTest : FunSpec({
     val tiltakstypeIndividuell = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Høyere utdanning",
-        tiltakskode = "HOYEREUTD"
+        tiltakskode = "HOYEREUTD",
+        rettPaaTiltakspenger = true
     )
 
     val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
@@ -86,7 +88,8 @@ class ArenaServiceTest : FunSpec({
             tiltakstype = TiltakstypeDto(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode
+                arenaKode = tiltakstype.tiltakskode,
+                rettPaaTiltakspenger = true
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,

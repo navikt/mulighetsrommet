@@ -24,14 +24,16 @@ class TiltakstypeRepositoryTest : FunSpec({
             TiltakstypeDbo(
                 id = UUID.randomUUID(),
                 navn = "Arbeidstrening",
-                tiltakskode = "ARBTREN"
+                tiltakskode = "ARBTREN",
+                rettPaaTiltakspenger = true
             )
         )
         tiltakstyper.upsert(
             TiltakstypeDbo(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
-                tiltakskode = "INDOPPFOLG"
+                tiltakskode = "INDOPPFOLG",
+                rettPaaTiltakspenger = true
             )
         )
 
@@ -51,7 +53,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
-                    tiltakskode = "$it"
+                    tiltakskode = "$it",
+                    rettPaaTiltakspenger = true
                 )
             )
         }

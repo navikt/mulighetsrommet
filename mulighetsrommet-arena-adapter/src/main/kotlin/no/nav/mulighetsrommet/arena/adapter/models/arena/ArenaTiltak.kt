@@ -8,4 +8,5 @@ data class ArenaTiltak(
     val TILTAKSKODE: String,
     val DATO_FRA: String?,
     val DATO_TIL: String?,
+    val STATUS_BASISYTELSE: String
 )

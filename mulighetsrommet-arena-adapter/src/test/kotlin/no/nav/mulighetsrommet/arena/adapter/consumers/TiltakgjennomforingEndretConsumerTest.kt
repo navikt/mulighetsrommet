@@ -60,7 +60,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 Tiltakstype(
                     id = UUID.randomUUID(),
                     navn = "Oppfølging",
-                    tiltakskode = "INDOPPFAG"
+                    tiltakskode = "INDOPPFAG",
+                    rettPaaTiltakspenger = true
                 )
             )
 
@@ -102,7 +103,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         val tiltakstype = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "AMO",
-            tiltakskode = "AMO"
+            tiltakskode = "AMO",
+            rettPaaTiltakspenger = false
         )
 
         beforeEach {
@@ -163,7 +165,8 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
         val tiltakstype = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
-            tiltakskode = "INDOPPFAG"
+            tiltakskode = "INDOPPFAG",
+            rettPaaTiltakspenger = true
         )
 
         beforeEach {

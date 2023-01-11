@@ -71,12 +71,14 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         val tiltakstypeGruppe = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
-            tiltakskode = "INDOPPFAG"
+            tiltakskode = "INDOPPFAG",
+            rettPaaTiltakspenger = true
         )
         val tiltakstypeIndividuell = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Høyere utdanning",
-            tiltakskode = "HOYEREUTD"
+            tiltakskode = "HOYEREUTD",
+            rettPaaTiltakspenger = true
         )
         val sak = Sak(
             sakId = 1,

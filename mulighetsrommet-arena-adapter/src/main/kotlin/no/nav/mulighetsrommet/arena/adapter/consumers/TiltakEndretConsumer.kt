@@ -62,12 +62,16 @@ class TiltakEndretConsumer(
         navn = TILTAKSNAVN,
         tiltakskode = TILTAKSKODE,
         fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
-        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL)
+        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+        rettPaaTiltakspenger = ArenaUtils.jaNeiTilBoolean(STATUS_BASISYTELSE)
     )
 
     private fun Tiltakstype.toDomain() = MrTiltakstype(
         id = id,
         navn = navn,
         tiltakskode = tiltakskode,
+        fraDato = fraDato,
+        tilDato = tilDato,
+        rettPaaTiltakspenger = rettPaaTiltakspenger
     )
 }

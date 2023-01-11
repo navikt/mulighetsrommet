@@ -26,7 +26,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             TiltakstypeDbo(
                 tiltakstypeId,
                 "",
-                ""
+                "",
+                rettPaaTiltakspenger = true
             )
         )
 

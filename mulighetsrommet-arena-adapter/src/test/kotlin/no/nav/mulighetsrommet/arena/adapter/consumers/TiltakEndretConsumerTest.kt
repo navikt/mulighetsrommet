@@ -52,6 +52,9 @@ class TiltakEndretConsumerTest : FunSpec({
         e3.status shouldBe Processed
         database.assertThat("tiltakstype")
             .row().value("navn").isEqualTo("Oppfølging 1")
+
+        database.assertThat("tiltakstype")
+            .row().value("rett_paa_tiltakspenger").isEqualTo(true)
     }
 
     context("api responses") {
@@ -66,6 +69,7 @@ class TiltakEndretConsumerTest : FunSpec({
 
                 val tiltakstype = decodeRequestBody<TiltakstypeDbo>().apply {
                     navn shouldBe "Oppfølging"
+                    rettPaaTiltakspenger shouldBe true
                 }
 
                 tiltakstype.id
@@ -109,7 +113,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-        deltakere = DeltakerRepository(db),
+        deltakere = DeltakerRepository(db)
     )
 
     return TiltakEndretConsumer(
@@ -128,6 +132,7 @@ private fun createEvent(operation: ArenaEventData.Operation = Insert, name: Stri
         "TILTAKSNAVN": "$name",
         "TILTAKSKODE": "INDOPPFAG",
         "DATO_FRA": null,
-        "DATO_TIL": null
+        "DATO_TIL": null,
+        "STATUS_BASISYTELSE": "J"
     }"""
 )
