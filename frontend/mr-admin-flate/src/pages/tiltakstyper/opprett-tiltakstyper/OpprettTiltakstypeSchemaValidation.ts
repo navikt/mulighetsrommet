@@ -1,6 +1,28 @@
 import { z } from "zod";
 
 const BooleanDefaultFalse = z.boolean().default(false);
+
+const TiltaksgruppekodeEnum = z.enum(
+  [
+    "AFT",
+    "AMB",
+    "ARBPRAKS",
+    "ARBRREHAB",
+    "ARBTREN",
+    "AVKLARING",
+    "BEHPSSAM",
+    "ETAB",
+    "FORSOK",
+    "LONNTILS",
+    "OPPFOLG",
+    "OPPL",
+    "TILRETTE",
+    "UTFAS",
+    "VARIGASV",
+  ],
+  { required_error: "Du må velge en tiltaksgruppekode" }
+);
+
 const HandlingsplanEnum = z.enum(["SOK", "LAG", "TIL"], {
   required_error: "Du må velge en handlingsplan",
 });
@@ -24,9 +46,7 @@ export const OpprettTiltakstypeSchema = z.object({
   tilDato: z.string({
     required_error: "Du må sette en til-dato for tiltakstypen",
   }),
-  tiltaksgruppekode: z.string({
-    required_error: "Tiltaksgruppekode må være satt",
-  }),
+  tiltaksgruppekode: TiltaksgruppekodeEnum,
   tiltakskode: z.string({ required_error: "Du må skrive inn tiltakskode" }),
   rettTilTiltakspenger: BooleanDefaultFalse,
   administrasjonskode: AdministrasjonskodeEnum,
@@ -53,6 +73,7 @@ export type OptionalSchemaValues = Partial<
 >;
 export type SchemaValues = z.infer<typeof OpprettTiltakstypeSchema>;
 
+export type TiltaksgruppekodeValue = z.infer<typeof TiltaksgruppekodeEnum>;
 export type HandlingsplanValue = z.infer<typeof HandlingsplanEnum>;
 export type RammeavtaleValue = z.infer<typeof RammeAvtaleEnum>;
 export type AdministrasjonskodeValue = z.infer<typeof AdministrasjonskodeEnum>;
