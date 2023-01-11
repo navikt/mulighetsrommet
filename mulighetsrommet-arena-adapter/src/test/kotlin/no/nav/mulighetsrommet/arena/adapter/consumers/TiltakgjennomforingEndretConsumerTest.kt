@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
@@ -61,7 +62,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Oppfølging",
                     tiltakskode = "INDOPPFAG",
-                    rettPaaTiltakspenger = true
+                    rettPaaTiltakspenger = true,
+                    fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+                    tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
                 )
             )
 
@@ -104,7 +107,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "AMO",
             tiltakskode = "AMO",
-            rettPaaTiltakspenger = false
+            rettPaaTiltakspenger = false,
+            fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
         )
 
         beforeEach {
@@ -166,7 +171,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "Oppfølging",
             tiltakskode = "INDOPPFAG",
-            rettPaaTiltakspenger = true
+            rettPaaTiltakspenger = true,
+            fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
         )
 
         beforeEach {

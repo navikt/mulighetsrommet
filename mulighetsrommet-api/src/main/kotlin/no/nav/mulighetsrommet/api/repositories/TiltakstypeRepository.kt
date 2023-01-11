@@ -117,8 +117,8 @@ class TiltakstypeRepository(private val db: Database) {
         id = uuid("id"),
         navn = string("navn"),
         tiltakskode = string("tiltakskode"),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
+        fraDato = localDate("fra_dato"),
+        tilDato = localDate("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 
@@ -126,8 +126,8 @@ class TiltakstypeRepository(private val db: Database) {
         id = uuid("id"),
         navn = string("navn"),
         arenaKode = string("tiltakskode"),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
+        fraDato = localDate("fra_dato"),
+        tilDato = localDate("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 }

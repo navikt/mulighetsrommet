@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingServiceTest : FunSpec({
@@ -27,7 +28,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltakstypeId,
                 "",
                 "",
-                rettPaaTiltakspenger = true
+                rettPaaTiltakspenger = true,
+                fraDato = LocalDate.of(2023, 1, 11),
+                tilDato = LocalDate.of(2023, 1, 12)
             )
         )
 

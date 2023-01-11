@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -260,12 +259,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toTiltaksgjennomforingAdminDto() = TiltaksgjennomforingAdminDto(
         id = uuid("id"),
-        tiltakstype = TiltakstypeDto(
+        tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
-            arenaKode = string("tiltakskode"),
-            rettPaaTiltakspenger = true
-
+            arenaKode = string("tiltakskode")
         ),
         navn = stringOrNull("navn"),
         tiltaksnummer = string("tiltaksnummer"),

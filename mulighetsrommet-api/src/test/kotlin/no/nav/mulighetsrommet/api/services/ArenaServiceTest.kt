@@ -41,7 +41,9 @@ class ArenaServiceTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakskode = "INDOPPFAG",
-        rettPaaTiltakspenger = true
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -68,7 +70,9 @@ class ArenaServiceTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Høyere utdanning",
         tiltakskode = "HOYEREUTD",
-        rettPaaTiltakspenger = true
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
@@ -85,11 +89,10 @@ class ArenaServiceTest : FunSpec({
     val tiltaksgjennomforingDto = tiltaksgjennomforing.run {
         TiltaksgjennomforingAdminDto(
             id = id,
-            tiltakstype = TiltakstypeDto(
+            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
                 id = tiltakstypeId,
                 navn = tiltakstype.navn,
                 arenaKode = tiltakstype.tiltakskode,
-                rettPaaTiltakspenger = true
             ),
             navn = navn,
             tiltaksnummer = tiltaksnummer,

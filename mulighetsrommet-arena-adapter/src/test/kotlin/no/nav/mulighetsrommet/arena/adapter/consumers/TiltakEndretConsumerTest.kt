@@ -131,8 +131,8 @@ private fun createEvent(operation: ArenaEventData.Operation = Insert, name: Stri
     """{
         "TILTAKSNAVN": "$name",
         "TILTAKSKODE": "INDOPPFAG",
-        "DATO_FRA": null,
-        "DATO_TIL": null,
+        "DATO_FRA": "2022-01-11 00:00:00",
+        "DATO_TIL": "2022-01-15 00:00:00",
         "STATUS_BASISYTELSE": "J"
     }"""
 )

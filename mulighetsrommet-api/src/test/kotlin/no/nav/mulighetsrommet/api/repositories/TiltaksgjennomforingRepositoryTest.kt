@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSc
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDate
 import java.util.*
 
@@ -25,14 +24,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
         tiltakskode = "ARBTREN",
-        rettPaaTiltakspenger = true
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltakstype2 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
         tiltakskode = "INDOPPFOLG",
-        rettPaaTiltakspenger = true
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltak1 = TiltaksgjennomforingDbo(
@@ -71,11 +74,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
             tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingAdminDto(
                 id = tiltak1.id,
-                tiltakstype = TiltakstypeDto(
+                tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = tiltakstype1.id,
                     navn = tiltakstype1.navn,
                     arenaKode = tiltakstype1.tiltakskode,
-                    rettPaaTiltakspenger = true
                 ),
                 navn = tiltak1.navn,
                 tiltaksnummer = tiltak1.tiltaksnummer,

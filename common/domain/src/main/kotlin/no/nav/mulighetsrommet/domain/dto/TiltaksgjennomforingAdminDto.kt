@@ -10,7 +10,7 @@ import java.util.*
 data class TiltaksgjennomforingAdminDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: TiltakstypeDto,
+    val tiltakstype: Tiltakstype,
     val navn: String?,
     val tiltaksnummer: String,
     val virksomhetsnummer: String?,
@@ -19,4 +19,12 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val enhet: String
-)
+) {
+    @Serializable
+    data class Tiltakstype(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val arenaKode: String
+    )
+}
