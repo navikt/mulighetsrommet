@@ -38,7 +38,7 @@ fun Route.brukerRoutes() {
         }
     }
 
-    route("/api/v1/bruker/historikk") {
+    route("/api/v1/internal/bruker/historikk") {
         get {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent()) {
                 auditLog.log(createAuditMessage("NAV-ansatt med ident: '${getNavIdent()}' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '${getNorskIdent()}'."))
