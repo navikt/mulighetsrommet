@@ -27,11 +27,11 @@ object ArenaUtils {
         else -> throw Exception("Ukjent deltakerstatus fra Arena")
     }
 
-    fun jaNeiTilBoolean(statusBasisytelse: String): Boolean {
-        return when (statusBasisytelse) {
+    fun jaNeiTilBoolean(jaNeiStreng: String): Boolean {
+        return when (jaNeiStreng) {
             "J" -> true
             "N" -> false
-            else -> throw Exception("Ukjent verdi ved konvertering av J/N til boolean")
+            else -> throw Exception("Ukjent verdi ved konvertering av J/N-streng til boolean")
         }
     }
 }
