@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import java.time.LocalDate
 
 class TiltakEndretConsumerTest : FunSpec({
 
@@ -55,6 +56,12 @@ class TiltakEndretConsumerTest : FunSpec({
 
         database.assertThat("tiltakstype")
             .row().value("rett_paa_tiltakspenger").isEqualTo(true)
+
+        database.assertThat("tiltakstype")
+            .row().value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
+
+        database.assertThat("tiltakstype")
+            .row().value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
     }
 
     context("api responses") {
