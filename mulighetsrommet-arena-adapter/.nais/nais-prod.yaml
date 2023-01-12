@@ -49,6 +49,9 @@ spec:
   azure:
     application:
       enabled: true
+      claims:
+        extra:
+          - azp_name
   accessPolicy:
     inbound:
       rules:
