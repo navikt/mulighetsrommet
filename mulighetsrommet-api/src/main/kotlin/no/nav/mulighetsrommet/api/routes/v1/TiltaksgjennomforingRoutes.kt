@@ -36,14 +36,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             )
         }
 
-        get("tiltakskode/{tiltakskode}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+        get("tiltakstype/{id}") {
+            val tiltakstypeId = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig tiltakstypeId",
                 status = HttpStatusCode.BadRequest
             )
 
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakstypeId(id, paginationParams)
+            val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakstypeId(tiltakstypeId, paginationParams)
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(
