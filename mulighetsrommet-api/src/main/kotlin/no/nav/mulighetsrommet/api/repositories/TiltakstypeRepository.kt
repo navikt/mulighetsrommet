@@ -68,6 +68,7 @@ class TiltakstypeRepository(private val db: Database) {
             select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
             from tiltakstype
             $where
+            order by navn asc
             limit :limit
             offset :offset
         """.trimIndent()
