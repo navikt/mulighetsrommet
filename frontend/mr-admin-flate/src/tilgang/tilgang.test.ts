@@ -3,8 +3,18 @@ import { describe, test, expect } from "vitest";
 import { hentAnsattsRolle } from "./tilgang";
 
 describe("Tilgang-tester", () => {
+  const baseAnsatt: Ansatt = {
+    etternavn: null,
+    fornavn: null,
+    navn: null,
+    ident: "ABC123",
+    tilganger: [],
+    hovedenhet: "2990",
+    hovedenhetNavn: "Østfold",
+  };
   test("Ansatt med korrekt rolle skal bli tiltaksansvarlig", () => {
     const ansatt: Ansatt = {
+      ...baseAnsatt,
       navn: "Tilda",
       tilganger: ["FLATE"],
     };
@@ -13,6 +23,7 @@ describe("Tilgang-tester", () => {
 
   test("Ansatt med korrekt rolle skal bli fagansvarlig", () => {
     const ansatt: Ansatt = {
+      ...baseAnsatt,
       navn: "Frode",
       tilganger: ["FAGANSVARLIG"],
     };
@@ -21,6 +32,7 @@ describe("Tilgang-tester", () => {
 
   test("Ansatt uten korrekt rolle skal ikke ha tilgang", () => {
     const ansatt: Ansatt = {
+      ...baseAnsatt,
       navn: "Ikke Ansvarlig",
       tilganger: [],
     };
@@ -30,6 +42,7 @@ describe("Tilgang-tester", () => {
 
   test("Medlem av Team Valp skal få rollen utvikler", () => {
     const ansatt: Ansatt = {
+      ...baseAnsatt,
       navn: "Valp Valpesen",
       tilganger: ["UTVIKLER_VALP"],
     };

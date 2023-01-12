@@ -24,6 +24,7 @@ import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
+import { Ansatt } from 'mulighetsrommet-api-client';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -45,6 +46,13 @@ function lenkeTilOpprettAvtaleForEnv(tiltakstype: Tiltakstyper): string {
   return `${baseUrl}tiltaksgjennomforing/opprett-avtale?type=${tiltakstypeNavnTilUrlVerdi(tiltakstype)}`;
 }
 
+function resolveName(ansatt?: Ansatt) {
+  return [ansatt?.fornavn ?? '', ansatt?.etternavn ?? '']
+    .filter(part => part !== '')
+    .map(capitalize)
+    .join(' ');
+}
+
 const ViewTiltaksgjennomforingDetaljer = () => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
@@ -54,7 +62,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const brukerdata = useHentBrukerdata();
   const veilederdata = useHentVeilederdata();
   const { getUrlTilDialogen } = useNavigerTilDialogen();
-  const veiledernavn = `${capitalize(veilederdata?.data?.fornavn)} ${capitalize(veilederdata?.data?.etternavn)}`;
+  const veiledernavn = resolveName(veilederdata.data);
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
 
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;

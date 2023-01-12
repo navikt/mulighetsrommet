@@ -12,7 +12,7 @@ export function useHentDeltMedBrukerStatus() {
   const { data: veilederData } = useHentVeilederdata();
   const brukerFnr = useHentFnrFraUrl();
 
-  const { data: sistDeltMedBruker, refetch } = useQuery<DelMedBruker>(
+  const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery<DelMedBruker>(
     [QueryKeys.DeltMedBrukerStatus, brukerFnr, tiltaksgjennomforing?._id],
     () =>
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
@@ -25,19 +25,13 @@ export function useHentDeltMedBrukerStatus() {
   async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, tiltaksnummer: string) {
     if (!veilederData?.ident) return;
 
-    try {
-      const res = await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-        tiltaksnummer,
-        requestBody: { bruker_fnr: brukerFnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
-      });
+    await mulighetsrommetClient.delMedBruker.postDelMedBruker({
+      tiltaksnummer,
+      requestBody: { bruker_fnr: brukerFnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
+    });
 
-      if (!res.ok) {
-        throw new Error('Klarte ikke lagre info om deling av tiltak');
-      }
-    } catch (error) {
-      // Er ikke kritisk om vi ikke får lagret det i databasen, bare litt kjipt.
-    }
+    await refetchDelMedBruker();
   }
 
-  return { harDeltMedBruker: sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker, refetch };
+  return { harDeltMedBruker: sistDeltMedBruker, lagreVeilederHarDeltTiltakMedBruker };
 }

@@ -36,12 +36,12 @@ løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/featu
 
 ### `mulighetsrommet-api-client`
 
-Klient til frontend for å snakke med backend. Auto-generert med OpenAPI via `openapi.yml` i `mulighetsrommet-api`.
+Klient til frontend for å snakke med backend. Auto-generert med OpenAPI via `openapi.yaml` i `mulighetsrommet-api`.
 |                 |                                                                                     |
 | --------------- | ----------------------------------------------------------------------------------- |
 | Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-api-client> |
 | README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-api-client/README.md> |
-| openapi.yml | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api/src/main/resources/web/openapi.yml> |
+| openapi.yaml | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api/src/main/resources/web/openapi.yaml> |
 
 ### `mulighetsrommet-veileder-cms`
 

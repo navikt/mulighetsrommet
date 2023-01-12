@@ -1,6 +1,6 @@
 # `mulighetsrommet-api-client`
 
-Klient generert ut av `openapi.yml` i `mulighetsrommet-api`
+Klient generert av OpenAPI-dokumentasjonen i `mulighetsrommet-api`.
 
 ## Kom i gang
 
@@ -8,4 +8,5 @@ Klient generert ut av `openapi.yml` i `mulighetsrommet-api`
 npm generate
 ```
 
-Vil generere modeller, services og endepunkter. Hvis det er feil må det rettes opp i `openapi.yml`.
+Vil generere modeller, services og endepunkter.
+Eventuelle feil må det rettes opp i [openapi.yaml](../../mulighetsrommet-api/src/main/resources/web/openapi.yaml).

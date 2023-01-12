@@ -26,7 +26,7 @@
       "outputs": ["dist/**"]
     },
     "mulighetsrommet-api-client#build": {
-      "inputs": ["../../mulighetsrommet-api/src/main/resources/web/openapi.yml"],
+      "inputs": ["../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"],
       "outputs": ["build"]
     },
     "norg2-api-client#build": {

@@ -1,7 +1,4 @@
-import {
-  PaginertTiltaksgjennomforing,
-  Tiltakskode,
-} from "mulighetsrommet-api-client";
+import { PaginertTiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
@@ -18,7 +15,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -32,7 +29,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -46,7 +43,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -60,7 +57,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -74,7 +71,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -88,7 +85,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -102,7 +99,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -116,7 +113,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -130,7 +127,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -144,7 +141,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -158,7 +155,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -172,7 +169,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -186,7 +183,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -200,7 +197,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -214,7 +211,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -228,7 +225,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -242,7 +239,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
@@ -256,7 +253,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
-        arenaKode: Tiltakskode.ABIST,
+        arenaKode: "ABIST",
       },
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
