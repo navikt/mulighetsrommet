@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import java.time.LocalDate
 import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
@@ -24,14 +25,20 @@ class TiltakstypeRepositoryTest : FunSpec({
             TiltakstypeDbo(
                 id = UUID.randomUUID(),
                 navn = "Arbeidstrening",
-                tiltakskode = "ARBTREN"
+                tiltakskode = "ARBTREN",
+                rettPaaTiltakspenger = true,
+                fraDato = LocalDate.of(2023, 1, 11),
+                tilDato = LocalDate.of(2023, 1, 12)
             )
         )
         tiltakstyper.upsert(
             TiltakstypeDbo(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
-                tiltakskode = "INDOPPFOLG"
+                tiltakskode = "INDOPPFOLG",
+                rettPaaTiltakspenger = true,
+                fraDato = LocalDate.of(2023, 1, 11),
+                tilDato = LocalDate.of(2023, 1, 12)
             )
         )
 
@@ -51,7 +58,10 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
-                    tiltakskode = "$it"
+                    tiltakskode = "$it",
+                    rettPaaTiltakspenger = true,
+                    fraDato = LocalDate.of(2023, 1, 11),
+                    tilDato = LocalDate.of(2023, 1, 12)
                 )
             )
         }

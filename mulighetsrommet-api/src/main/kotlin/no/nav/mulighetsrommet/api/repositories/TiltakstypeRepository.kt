@@ -21,11 +21,14 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakstype (id, navn, tiltakskode)
-            values (:id::uuid, :navn, :tiltakskode)
+            insert into tiltakstype (id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger)
+            values (:id::uuid, :navn, :tiltakskode, :fra_dato, :til_dato, :rett_paa_tiltakspenger)
             on conflict (id)
                 do update set navn        = excluded.navn,
-                              tiltakskode = excluded.tiltakskode
+                              tiltakskode = excluded.tiltakskode,
+                              fra_dato = excluded.fra_dato,
+                              til_dato = excluded.til_dato,
+                              rett_paa_tiltakspenger = excluded.rett_paa_tiltakspenger
             returning *
         """.trimIndent()
 
@@ -38,7 +41,7 @@ class TiltakstypeRepository(private val db: Database) {
     fun get(id: UUID): TiltakstypeDto? {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakskode
+            select id::uuid, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -62,7 +65,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
             from tiltakstype
             $where
             limit :limit
@@ -104,18 +107,27 @@ class TiltakstypeRepository(private val db: Database) {
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to tiltakskode
+        "tiltakskode" to tiltakskode,
+        "fra_dato" to fraDato,
+        "til_dato" to tilDato,
+        "rett_paa_tiltakspenger" to rettPaaTiltakspenger
     )
 
     private fun Row.toTiltakstypeDbo() = TiltakstypeDbo(
         id = uuid("id"),
         navn = string("navn"),
-        tiltakskode = string("tiltakskode")
+        tiltakskode = string("tiltakskode"),
+        fraDato = localDate("fra_dato"),
+        tilDato = localDate("til_dato"),
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 
     private fun Row.toTiltakstypeDto() = TiltakstypeDto(
         id = uuid("id"),
         navn = string("navn"),
-        arenaKode = string("tiltakskode")
+        arenaKode = string("tiltakskode"),
+        fraDato = localDate("fra_dato"),
+        tilDato = localDate("til_dato"),
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 }

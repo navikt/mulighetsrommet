@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltakdeltakerEndretConsumerTest : FunSpec({
@@ -71,12 +72,18 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         val tiltakstypeGruppe = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
-            tiltakskode = "INDOPPFAG"
+            tiltakskode = "INDOPPFAG",
+            rettPaaTiltakspenger = true,
+            fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
         )
         val tiltakstypeIndividuell = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Høyere utdanning",
-            tiltakskode = "HOYEREUTD"
+            tiltakskode = "HOYEREUTD",
+            rettPaaTiltakspenger = true,
+            fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
         )
         val sak = Sak(
             sakId = 1,

@@ -26,4 +26,12 @@ object ArenaUtils {
         "DELAVB", "GJENN_AVB", "GJENN_AVL", "FULLF", "IKKEM" -> Deltakerstatus.AVSLUTTET
         else -> throw Exception("Ukjent deltakerstatus fra Arena")
     }
+
+    fun jaNeiTilBoolean(jaNeiStreng: String): Boolean {
+        return when (jaNeiStreng) {
+            "J" -> true
+            "N" -> false
+            else -> throw Exception("Ukjent verdi ved konvertering av J/N-streng til boolean")
+        }
+    }
 }

@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class ArenaTiltak(
     val TILTAKSNAVN: String,
     val TILTAKSKODE: String,
-    val DATO_FRA: String?,
-    val DATO_TIL: String?,
+    val DATO_FRA: String,
+    val DATO_TIL: String,
+    val STATUS_BASISYTELSE: String
 )

@@ -10,21 +10,36 @@ import java.util.*
 data class TiltaksgjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: TiltakstypeDto,
+    val tiltakstype: Tiltakstype,
     val navn: String?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate? = null,
+    val sluttDato: LocalDate? = null
 ) {
+
+    @Serializable
+    data class Tiltakstype(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val arenaKode: String
+    )
+
     companion object {
         fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) = tiltaksgjennomforing.run {
             TiltaksgjennomforingDto(
                 id = id,
-                tiltakstype = tiltakstype,
+                tiltakstype = tiltakstype.run {
+                    Tiltakstype(
+                        id = id,
+                        navn = navn,
+                        arenaKode = arenaKode
+                    )
+                },
                 navn = navn,
                 startDato = startDato,
-                sluttDato = sluttDato,
+                sluttDato = sluttDato
             )
         }
     }
