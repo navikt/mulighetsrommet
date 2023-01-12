@@ -13,7 +13,8 @@ data class Tiltakstype(
     val navn: String,
     val tiltakskode: String,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val fraDato: LocalDateTime? = null,
+    val fraDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val tilDato: LocalDateTime? = null
+    val tilDato: LocalDateTime,
+    val rettPaaTiltakspenger: Boolean
 )

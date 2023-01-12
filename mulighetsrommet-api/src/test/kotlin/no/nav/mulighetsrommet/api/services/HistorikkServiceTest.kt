@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -31,7 +32,10 @@ class HistorikkServiceTest : FunSpec({
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
-        tiltakskode = "ARBTREN"
+        tiltakskode = "ARBTREN",
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -55,7 +59,10 @@ class HistorikkServiceTest : FunSpec({
     val tiltakstypeIndividuell = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Høyere utdanning",
-        tiltakskode = "HOYEREUTD"
+        tiltakskode = "HOYEREUTD",
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(

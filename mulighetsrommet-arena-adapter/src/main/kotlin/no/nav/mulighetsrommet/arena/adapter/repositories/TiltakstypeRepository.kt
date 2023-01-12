@@ -19,18 +19,19 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakstype (id, navn, tiltakskode, fra_dato, til_dato)
-            values (:id::uuid, :navn, :tiltakskode, :fra_dato, :til_dato)
+            insert into tiltakstype (id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger)
+            values (:id::uuid, :navn, :tiltakskode, :fra_dato, :til_dato, :rett_paa_tiltakspenger)
             on conflict (id)
                 do update set navn          = excluded.navn,
                               tiltakskode   = excluded.tiltakskode,
                               fra_dato      = excluded.fra_dato,
-                              til_dato      = excluded.til_dato
+                              til_dato      = excluded.til_dato,
+                              rett_paa_tiltakspenger = excluded.rett_paa_tiltakspenger
             returning *
         """.trimIndent()
 
         queryOf(query, tiltak.toSqlParameters())
-            .map { it.toSak() }
+            .map { it.toTiltakstype() }
             .asSingle
             .let { db.run(it)!! }
     }
@@ -54,13 +55,13 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, fra_dato, til_dato
+            select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
 
         return queryOf(query, id)
-            .map { it.toSak() }
+            .map { it.toTiltakstype() }
             .asSingle
             .let { db.run(it) }
     }
@@ -71,13 +72,15 @@ class TiltakstypeRepository(private val db: Database) {
         "tiltakskode" to tiltakskode,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
+        "rett_paa_tiltakspenger" to rettPaaTiltakspenger
     )
 
-    private fun Row.toSak() = Tiltakstype(
+    private fun Row.toTiltakstype() = Tiltakstype(
         id = uuid("id"),
         navn = string("navn"),
         tiltakskode = string("tiltakskode"),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato")
+        fraDato = localDateTime("fra_dato"),
+        tilDato = localDateTime("til_dato"),
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 }
