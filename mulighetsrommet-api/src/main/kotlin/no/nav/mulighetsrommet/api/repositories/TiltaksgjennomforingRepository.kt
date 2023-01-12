@@ -80,6 +80,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
+            order by tg.navn asc
             limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, pagination.limit, pagination.offset)
@@ -114,6 +115,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
             where tg.tiltakstype_id = ?
+            order by tg.navn asc
             limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, id, pagination.limit, pagination.offset)
@@ -148,6 +150,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
             where enhet = ?
+            order by tg.navn asc
             limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, enhet, pagination.limit, pagination.offset)
@@ -182,6 +185,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                      join tiltakstype t on tg.tiltakstype_id = t.id
                      join ansatt_tiltaksgjennomforing a on tg.id = a.tiltaksgjennomforing_id
             where a.navident = ?
+            order by tg.navn asc
             limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, navIdent, pagination.limit, pagination.offset)
@@ -212,6 +216,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltaksnummer like concat('%', ?, '%')
+            order by tg.navn asc
         """.trimIndent()
         return queryOf(query, filter.tiltaksnummer)
             .map {
