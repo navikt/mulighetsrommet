@@ -16,10 +16,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo as MrTiltakstype
 
 class TiltakEndretConsumer(
     override val config: ConsumerConfig,
@@ -53,14 +53,14 @@ class TiltakEndretConsumer(
             .bind()
 
         val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltakstype", tiltakstype.toDomain())
+        client.request(method, "/api/v1/internal/arena/tiltakstype", tiltakstype.toDbo())
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
 
-    private fun ArenaTiltak.toTiltakstype(id: UUID): Either<ConsumptionError, Tiltakstype> {
-        return Either.catch {
+    private fun ArenaTiltak.toTiltakstype(id: UUID) = Either
+        .catch {
             Tiltakstype(
                 id = id,
                 navn = TILTAKSNAVN,
@@ -69,10 +69,10 @@ class TiltakEndretConsumer(
                 tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
                 rettPaaTiltakspenger = ArenaUtils.jaNeiTilBoolean(STATUS_BASISYTELSE)
             )
-        }.mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
-    }
+        }
+        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
 
-    private fun Tiltakstype.toDomain() = MrTiltakstype(
+    private fun Tiltakstype.toDbo() = TiltakstypeDbo(
         id = id,
         navn = navn,
         tiltakskode = tiltakskode,

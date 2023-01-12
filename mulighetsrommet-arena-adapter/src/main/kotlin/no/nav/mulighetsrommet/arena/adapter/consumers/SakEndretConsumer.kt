@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
@@ -48,18 +50,23 @@ class SakEndretConsumer(
 
         decoded.data
             .toSak()
-            .let { entities.upsertSak(it) }
+            .flatMap { entities.upsertSak(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
+
     private fun sakHasEnhet(payload: ArenaSak): Boolean = !payload.AETATENHET_ANSVARLIG.isNullOrBlank()
 
-    private fun ArenaSak.toSak() = Sak(
-        sakId = SAK_ID,
-        aar = AAR,
-        lopenummer = LOPENRSAK,
-        enhet = AETATENHET_ANSVARLIG
-    )
+    private fun ArenaSak.toSak() = Either
+        .catch {
+            Sak(
+                sakId = SAK_ID,
+                aar = AAR,
+                lopenummer = LOPENRSAK,
+                enhet = AETATENHET_ANSVARLIG
+            )
+        }
+        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
 }
