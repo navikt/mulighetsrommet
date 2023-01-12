@@ -7,11 +7,13 @@ import { paginationAtom } from "../atoms";
 
 export function useTiltaksgjennomforingerByTiltakstypeId(id: string) {
   const [page] = useAtom(paginationAtom);
-  return useQuery(QueryKeys.tiltaksgjennomforingerByTiltakstypeId(id, page), () =>
-    mulighetsrommetClient.tiltaksgjennomforinger.getAllByTiltakstype({
-      id,
-      page,
-      size: PAGE_SIZE,
-    })
+  return useQuery(
+    QueryKeys.tiltaksgjennomforingerByTiltakstypeId(id, page),
+    () =>
+      mulighetsrommetClient.tiltaksgjennomforinger.getAllByTiltakstype({
+        id,
+        page,
+        size: PAGE_SIZE,
+      })
   );
 }

@@ -65,8 +65,8 @@ export function TiltaksgjennomforingPage() {
       </Heading>
       <p>
         Tiltaksgjennomføringen har startdato:{" "}
-        {formaterDato(tiltaksgjennomforing.startDato)} og sluttdato{" "}
-        {formaterDato(tiltaksgjennomforing.sluttDato)}
+        {formaterDato(tiltaksgjennomforing.fraDato)} og sluttdato{" "}
+        {formaterDato(tiltaksgjennomforing.tilDato)}
       </p>
       <dl>
         <dt>Tiltaksnummer</dt>
@@ -78,9 +78,9 @@ export function TiltaksgjennomforingPage() {
         <dt>Virksomhetsnummer</dt>
         <dd>{tiltaksgjennomforing.virksomhetsnummer}</dd>
         <dt>Startdato</dt>
-        <dd>{formaterDato(tiltaksgjennomforing.startDato)} </dd>
+        <dd>{formaterDato(tiltaksgjennomforing.fraDato)} </dd>
         <dt>Sluttdato</dt>
-        <dd>{formaterDato(tiltaksgjennomforing.sluttDato)} </dd>
+        <dd>{formaterDato(tiltaksgjennomforing.tilDato)} </dd>
       </dl>
 
       {gjennomforingErFavorisert ? (
