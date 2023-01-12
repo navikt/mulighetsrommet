@@ -1,7 +1,6 @@
 import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { paginationAtom } from "../../api/atoms";
 import { useTiltaksgjennomforingerByEnhet } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByEnhet";
 import { Laster } from "../../components/Laster";
@@ -10,15 +9,19 @@ import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTilta
 import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
 import { PAGE_SIZE } from "../../constants";
 import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
+import { Ansatt } from "mulighetsrommet-api-client";
 
-export function EnhetsoversiktPage() {
-  const { data: ansattData } = useHentAnsatt();
+export interface Props {
+  ansatt: Ansatt;
+}
+
+export function EnhetsoversiktPage({ ansatt }: Props) {
   const { data, isFetching, isError } = useTiltaksgjennomforingerByEnhet(
-    ansattData?.hovedenhet ?? ""
+    ansatt.hovedenhet
   );
   const [page, setPage] = useAtom(paginationAtom);
 
-  if (isFetching || !ansattData) {
+  if (isFetching) {
     return <Laster />;
   }
 
@@ -48,8 +51,7 @@ export function EnhetsoversiktPage() {
     <>
       <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size="large">
-        Oversikt over tiltaksgjennomføringer for enhet:{" "}
-        {ansattData?.hovedenhetNavn}
+        Oversikt over tiltaksgjennomføringer for enhet: {ansatt.hovedenhetNavn}
       </Heading>
       <BodyLong className={styles.body} size="small">
         Her finner du alle gjennomføringer for din enhet

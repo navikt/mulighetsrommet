@@ -51,6 +51,8 @@ export const apiHandlers: RestHandler[] = [
         ident: 'V12345',
         navn: 'Veiledersen, Veileder',
         tilganger: [],
+        hovedenhet: "2990",
+        hovedenhetNavn: "Østfold"
       })
     );
   }),

@@ -35,12 +35,13 @@ private fun mapAdGruppeTilTilgang(adGruppe: AdGruppe): Tilgang? {
         else -> null
     }
 }
+
 @Serializable
 data class AnsattData(
-    val etternavn: String? = null,
-    val fornavn: String? = null,
-    val ident: String? = null,
-    val navn: String? = null,
+    val etternavn: String?,
+    val fornavn: String?,
+    val ident: String?,
+    val navn: String?,
     val tilganger: Set<Tilgang>,
     val hovedenhet: String,
     val hovedenhetNavn: String

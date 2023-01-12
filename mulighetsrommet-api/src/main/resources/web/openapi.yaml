@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -143,7 +143,7 @@ paths:
             application/json:
               schema:
                 type: string
-  
+
   /api/v1/internal/tiltaksgjennomforinger/mine:
     parameters:
       - in: query
@@ -201,7 +201,6 @@ paths:
       responses:
         200:
           description: Fjernet en gjennomføring gitt en id for en tiltaksgjennomføring
-
 
   /api/v1/internal/tiltaksgjennomforinger/sok:
     get:
@@ -296,7 +295,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: { }
+              schema: {}
 
   /api/v1/internal/dialog:
     post:
@@ -599,12 +598,16 @@ components:
       properties:
         etternavn:
           type: string
+          nullable: true
         fornavn:
           type: string
+          nullable: true
         ident:
           type: string
+          nullable: true
         navn:
           type: string
+          nullable: true
         tilganger:
           type: array
           items:
@@ -613,6 +616,14 @@ components:
           type: string
         hovedenhetNavn:
           type: string
+      required:
+        - etternavn
+        - fornavn
+        - ident
+        - navn
+        - tilganger
+        - hovedenhet
+        - hovedenhetNavn
 
     Innsatsgruppe:
       type: string
@@ -621,6 +632,7 @@ components:
         - SITUASJONSBESTEMT_INNSATS
         - SPESIELT_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
+
     Oppfolgingsenhet:
       type: object
       properties:
