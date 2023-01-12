@@ -2,12 +2,14 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.domain.dto.OpprettTiltakstypeDto
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 
@@ -44,6 +46,13 @@ fun Route.tiltakstypeRoutes() {
                 status = HttpStatusCode.NotFound
             )
 
+            call.respond(tiltakstype)
+        }
+
+        put {
+            val tiltakstype = call.receive<OpprettTiltakstypeDto>()
+            // TODO Lagre i database (PS: Må opprette db-migrering for tiltakstype)
+            // TODO Returnere tiltakstype etter lagring i db
             call.respond(tiltakstype)
         }
     }

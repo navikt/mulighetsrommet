@@ -19,3 +19,15 @@ export function formaterDato(dato?: string | Date, fallback = ""): string {
 
   return result;
 }
+
+const zeroPad = (value: number): string => {
+  return value < 10 ? `0${value}` : value.toString();
+};
+
+export const datoStrengUtenTid = (date?: Date): string => {
+  if (!date) return "";
+
+  return `${date.getUTCFullYear()}-${zeroPad(date.getUTCMonth() + 1)}-${zeroPad(
+    date.getUTCDay()
+  )}`;
+};

@@ -8,7 +8,7 @@ import {
 } from "@navikt/ds-react";
 import { FieldHookConfig, useField } from "formik";
 import { SchemaValues } from "./OpprettTiltakstypeSchemaValidation";
-import { formaterDato } from "../../../utils/Utils";
+import { datoStrengUtenTid, formaterDato } from "../../../utils/Utils";
 
 export function Tekstfelt({
   label,
@@ -74,8 +74,8 @@ export function Datovelger() {
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
-        fraDatoHelper.setValue(formaterDato(val?.from));
-        tilDatoHelper.setValue(formaterDato(val?.to));
+        fraDatoHelper.setValue(datoStrengUtenTid(val?.from));
+        tilDatoHelper.setValue(datoStrengUtenTid(val?.to));
       },
     });
 
