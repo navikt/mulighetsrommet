@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
-import { paginationAtom } from "../atoms";
+import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../atoms";
+import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "../QueryKeys";
 
 export function useTiltaksgjennomforingerByTiltakstypeId(id: string) {
-  const [page] = useAtom(paginationAtom);
+  const [page] = useAtom(paginationAtomTiltaksgjennomforingMedTiltakstype);
   return useQuery(
     QueryKeys.tiltaksgjennomforingerByTiltakstypeId(id, page),
     () =>
