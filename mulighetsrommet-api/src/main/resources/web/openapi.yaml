@@ -406,6 +406,10 @@ paths:
                 $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /api/v1/internal/delMedBruker:
     post:
@@ -431,6 +435,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DelMedBruker"
+        204:
+          description:
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Failed to store DelMedBruker
+          content:
+            text/plain:
+              schema:
+                type: string
 
 components:
   securitySchemes:
