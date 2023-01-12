@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.consumers
 
+import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
@@ -19,11 +21,11 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo as MrTiltakshistorikk
 
 class TiltakdeltakerEndretConsumer(
     override val config: ConsumerConfig,
@@ -49,27 +51,27 @@ class TiltakdeltakerEndretConsumer(
     }
 
     override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
-        val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
+        val (_, operation, data) = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
 
-        ensure(isRegisteredAfterAktivitetsplanen(decoded.data)) {
+        ensure(isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Deltaker ignorert fordi den registrert før Aktivitetsplanen")
         }
 
         val tiltaksgjennomforingIsIgnored = entities
-            .isIgnored(ArenaTables.Tiltaksgjennomforing, decoded.data.TILTAKGJENNOMFORING_ID.toString())
+            .isIgnored(ArenaTables.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
         ensure(!tiltaksgjennomforingIsIgnored) {
             ConsumptionError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
         }
 
         val mapping = entities.getOrCreateMapping(event)
-        val deltaker = decoded.data
+        val deltaker = data
             .toDeltaker(mapping.entityId)
-            .let { entities.upsertDeltaker(it) }
+            .flatMap { entities.upsertDeltaker(it) }
             .bind()
 
         val tiltaksgjennomforingMapping = entities
-            .getMapping(ArenaTables.Tiltaksgjennomforing, decoded.data.TILTAKGJENNOMFORING_ID.toString())
+            .getMapping(ArenaTables.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
         val tiltaksgjennomforing = entities
             .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
@@ -86,8 +88,8 @@ class TiltakdeltakerEndretConsumer(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
-        val mrtiltakshistorikk = if (isGruppetiltak(tiltakstype.tiltakskode)) {
-            deltaker.toGruppeDomain(tiltaksgjennomforing, norskIdent)
+        val tiltakshistorikk = if (isGruppetiltak(tiltakstype.tiltakskode)) {
+            deltaker.toGruppeDbo(tiltaksgjennomforing, norskIdent)
         } else {
             val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
                 ords.getArbeidsgiver(id)
@@ -96,11 +98,11 @@ class TiltakdeltakerEndretConsumer(
                     .map { it.virksomhetsnummer }
                     .bind()
             }
-            deltaker.toIndividuellDomain(tiltaksgjennomforing, tiltakstype, virksomhetsnummer, norskIdent)
+            deltaker.toIndividuellDbo(tiltaksgjennomforing, tiltakstype, virksomhetsnummer, norskIdent)
         }
 
-        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltakshistorikk", mrtiltakshistorikk)
+        val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
+        client.request(method, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
@@ -110,21 +112,25 @@ class TiltakdeltakerEndretConsumer(
         return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
-    private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Deltaker(
-        id = id,
-        tiltaksdeltakerId = TILTAKDELTAKER_ID,
-        tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
-        personId = PERSON_ID,
-        fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
-        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
-        status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
-    )
+    private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either
+        .catch {
+            Deltaker(
+                id = id,
+                tiltaksdeltakerId = TILTAKDELTAKER_ID,
+                tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
+                personId = PERSON_ID,
+                fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+                tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+                status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
+            )
+        }
+        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
 
-    private fun Deltaker.toGruppeDomain(
+    private fun Deltaker.toGruppeDbo(
         tiltaksgjennomforing: Tiltaksgjennomforing,
         norskIdent: String
-    ): MrTiltakshistorikk {
-        return MrTiltakshistorikk.Gruppetiltak(
+    ): TiltakshistorikkDbo {
+        return TiltakshistorikkDbo.Gruppetiltak(
             id = id,
             norskIdent = norskIdent,
             status = status,
@@ -134,13 +140,13 @@ class TiltakdeltakerEndretConsumer(
         )
     }
 
-    private fun Deltaker.toIndividuellDomain(
+    private fun Deltaker.toIndividuellDbo(
         tiltaksgjennomforing: Tiltaksgjennomforing,
         tiltakstype: Tiltakstype,
         virksomhetsnummer: String?,
         norskIdent: String
-    ): MrTiltakshistorikk {
-        return MrTiltakshistorikk.IndividueltTiltak(
+    ): TiltakshistorikkDbo {
+        return TiltakshistorikkDbo.IndividueltTiltak(
             id = id,
             norskIdent = norskIdent,
             status = status,
