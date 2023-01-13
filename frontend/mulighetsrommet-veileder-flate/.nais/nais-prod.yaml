@@ -1,5 +1,5 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: 'nais.io/v1alpha1'
+kind: 'Application'
 metadata:
   name: mulighetsrommet-veileder-flate
   namespace: team-mulighetsrommet
@@ -22,7 +22,7 @@ spec:
     cpuThresholdPercentage: 75
   resources:
     limits:
-      cpu: "1"
+      cpu: '1'
       memory: 512Mi
     requests:
       cpu: 250m
