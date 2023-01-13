@@ -7,7 +7,13 @@ export const paginationAtomTiltaksgjennomforingMedTiltakstype = atomWithHash(
   "pageOnGjennomforing",
   1
 );
+
 export const rolleAtom = atomWithStorage<Rolle | undefined>(
   "mr-admin-rolle",
   undefined
+);
+
+export const tiltakstypefilter = atomWithHash<string>(
+  'tiltakstypefilter',
+  ""
 );
