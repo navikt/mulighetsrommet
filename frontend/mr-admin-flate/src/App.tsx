@@ -10,7 +10,11 @@ export function App() {
   const [rolleSatt] = useAtom(rolleAtom);
 
   if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
-    return <Laster />;
+    return (
+      <main>
+        <Laster tekst="Laster..." size="xlarge" />
+      </main>
+    );
   }
 
   const AutentisertTiltaksansvarligApp = lazy(

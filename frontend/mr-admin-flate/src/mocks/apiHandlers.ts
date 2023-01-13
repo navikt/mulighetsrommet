@@ -34,11 +34,7 @@ export const apiHandlers = [
   rest.get<any, any, PaginertTiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",
     (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.delay(350),
-        ctx.json(mockTiltaksgjennomforinger)
-      );
+      return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger));
     }
   ),
 
@@ -55,7 +51,7 @@ export const apiHandlers = [
         tg.tiltaksnummer.toString().includes(tiltaksnummer)
       );
 
-      return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
+      return res(ctx.status(200), ctx.json(gjennomforing));
     }
   ),
 
@@ -71,7 +67,7 @@ export const apiHandlers = [
       );
       return res(
         ctx.status(200),
-        ctx.delay(350),
+
         ctx.json({
           pagination: {
             totalCount: gjennomforinger.length,
@@ -96,7 +92,7 @@ export const apiHandlers = [
         return res(ctx.status(404), ctx.json(undefined));
       }
 
-      return res(ctx.status(200), ctx.delay(350), ctx.json(gjennomforing));
+      return res(ctx.status(200), ctx.json(gjennomforing));
     }
   ),
 
@@ -114,7 +110,7 @@ export const apiHandlers = [
 
       return res(
         ctx.status(200),
-        ctx.delay(350),
+
         ctx.json({
           pagination: {
             totalCount: gjennomforinger.length,
@@ -136,7 +132,7 @@ export const apiHandlers = [
       );
       return res(
         ctx.status(200),
-        ctx.delay(450),
+
         ctx.json({
           pagination: {
             totalCount: gjennomforinger.length,
@@ -158,7 +154,7 @@ export const apiHandlers = [
       );
       return res(
         ctx.status(200),
-        ctx.delay(350),
+
         ctx.json({
           pagination: {
             totalCount: gjennomforinger.length,
