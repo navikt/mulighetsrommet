@@ -1,4 +1,4 @@
-import { BodyLong, Heading, Search } from "@navikt/ds-react";
+import { Heading, Button, Search } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
@@ -17,25 +17,27 @@ export function TiltakstyperPage() {
       <Heading className={styles.overskrift} size="large">
         Oversikt over tiltakstyper
       </Heading>
-      {toggles?.["mulighetsrommet.enable-opprett-tiltakstype"] ? (
-        <Link to="opprett">Opprett tiltakstype</Link>
-      ) : null}
-
-      <BodyLong className={styles.body} size="small">
-        Her finner du dine aktive tiltakstyper.
-      </BodyLong>
-      <Search
-        label=""
-        placeholder="Søk etter tiltakstype"
-        hideLabel
-        variant="simple"
-        onChange={(e: string) => setSokefilter(e)}
-        value={sokefilter}
-        className={styles.sokefelt}
-        aria-label="Søk etter tiltakstype"
-        data-testid="filter_sokefelt"
-        size="small"
-      />
+      <div className={styles.opprettknappseksjon}>
+        {toggles?.["mulighetsrommet.enable-opprett-tiltakstype"] ? (
+          <Link style={{ textDecoration: "none" }} to="opprett">
+            <Button variant="tertiary">Opprett ny tiltakstype</Button>
+          </Link>
+        ) : null}
+      </div>
+      <div className={styles.filterseksjon}>
+        <Search
+          label=""
+          placeholder=""
+          hideLabel
+          variant="simple"
+          onChange={(e: string) => setSokefilter(e)}
+          value={sokefilter}
+          className={styles.sokefelt}
+          aria-label="Søk etter tiltakstype"
+          data-testid="filter_sokefelt"
+          size="small"
+        />
+      </div>
       <TiltakstyperOversikt />
     </>
   );
