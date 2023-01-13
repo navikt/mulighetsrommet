@@ -6,7 +6,6 @@ import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { Tiltakstyperad } from "./Tiltakstyperad";
 import styles from "./Tiltakstyperoversikt.module.scss";
-import React from "react";
 
 export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();
