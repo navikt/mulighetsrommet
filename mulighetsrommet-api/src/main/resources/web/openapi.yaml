@@ -536,6 +536,8 @@ components:
         - id
         - navn
         - arenaKode
+        - fraDato
+        - tilDato
       properties:
         id:
           type: string
@@ -543,6 +545,10 @@ components:
         navn:
           type: string
         arenaKode:
+          type: string
+        fraDato:
+          type: string
+        tilDato:
           type: string
 
     Tiltaksgjennomforing:
