@@ -35,7 +35,7 @@ fun Route.apiRoutes() {
             status = HttpStatusCode.BadRequest
         )
 
-        val tiltaksgjennomforing = arenaEntityService.getTiltaksgjennomforing(id)
+        val tiltaksgjennomforing = arenaEntityService.getTiltaksgjennomforingOrNull(id)
             ?: return@get call.respondText(
                 "Det finnes ikke noe tiltaksgjennomføring med id $id",
                 status = HttpStatusCode.NotFound

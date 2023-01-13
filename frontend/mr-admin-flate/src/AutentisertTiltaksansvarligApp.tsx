@@ -6,8 +6,13 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { MineTiltaksgjennomforingerPage } from "./pages/mine/MineTiltaksgjennomforingerPage";
+import { Ansatt } from "mulighetsrommet-api-client";
 
-export default function AutentisertTiltaksansvarligApp() {
+export interface Props {
+  ansatt: Ansatt;
+}
+
+export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
   return (
     <Routes>
       <Route
@@ -32,7 +37,7 @@ export default function AutentisertTiltaksansvarligApp() {
         path="enhet"
         element={
           <RootLayout>
-            <EnhetsoversiktPage />
+            <EnhetsoversiktPage ansatt={ansatt} />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

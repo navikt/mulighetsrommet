@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSc
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import java.time.LocalDate
 import java.util.*
 
@@ -24,13 +23,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     val tiltakstype1 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidstrening",
-        tiltakskode = "ARBTREN"
+        tiltakskode = "ARBTREN",
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltakstype2 = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging",
-        tiltakskode = "INDOPPFOLG"
+        tiltakskode = "INDOPPFOLG",
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12)
     )
 
     val tiltak1 = TiltaksgjennomforingDbo(
@@ -69,7 +74,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
             tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingAdminDto(
                 id = tiltak1.id,
-                tiltakstype = TiltakstypeDto(
+                tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = tiltakstype1.id,
                     navn = tiltakstype1.navn,
                     arenaKode = tiltakstype1.tiltakskode,
@@ -199,7 +204,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(
                 TiltaksgjennomforingDbo(
                     id = UUID.randomUUID(),
-                    navn = "$it",
+                    navn = "Tiltak - $it",
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
                     virksomhetsnummer = "123456789",
@@ -212,13 +217,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val (totalCount, items) = tiltaksgjennomforinger.getAll()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
-            items.first().navn shouldBe "1"
-            items.last().navn shouldBe "50"
+            items.first().navn shouldBe "Tiltak - 1"
+            items.last().navn shouldBe "Tiltak - 49"
 
             totalCount shouldBe 105
         }
 
-        test("pagination with page 4 and size 20 should give tiltak with id 61-80") {
+        test("pagination with page 4 and size 20 should give tiltak with id 59-76") {
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     4,
@@ -227,13 +232,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             items.size shouldBe 20
-            items.first().navn shouldBe "61"
-            items.last().navn shouldBe "80"
+            items.first().navn shouldBe "Tiltak - 59"
+            items.last().navn shouldBe "Tiltak - 76"
 
             totalCount shouldBe 105
         }
 
-        test("pagination with page 3 default size should give tiltak with id 101-105") {
+        test("pagination with page 3 default size should give tiltak with id 95-99") {
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     3
@@ -241,8 +246,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             items.size shouldBe 5
-            items.first().navn shouldBe "101"
-            items.last().navn shouldBe "105"
+            items.first().navn shouldBe "Tiltak - 95"
+            items.last().navn shouldBe "Tiltak - 99"
 
             totalCount shouldBe 105
         }
@@ -255,8 +260,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
 
             items.size shouldBe 105
-            items.first().navn shouldBe "1"
-            items.last().navn shouldBe "105"
+            items.first().navn shouldBe "Tiltak - 1"
+            items.last().navn shouldBe "Tiltak - 99"
 
             totalCount shouldBe 105
         }

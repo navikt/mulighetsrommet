@@ -14,12 +14,11 @@ interface Props {
 export function AdministratorHeader({ gjelderForMiljo }: Props) {
   const visForMiljo = useVisForMiljo(gjelderForMiljo);
   const response = useHentAnsatt();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setRolle] = useAtom(rolleAtom);
+  const [, setRolle] = useAtom(rolleAtom);
   const tilganger = response?.data?.tilganger ?? [];
   const harUtviklerTilgang = tilganger.includes("UTVIKLER_VALP");
   const ansattNavn = response.data?.fornavn
-    ? [response?.data?.fornavn, response.data?.etternavn]
+    ? [response.data.fornavn, response.data?.etternavn ?? ""]
         .map((it) => capitalize(it))
         .join(" ")
     : "Team Valp";

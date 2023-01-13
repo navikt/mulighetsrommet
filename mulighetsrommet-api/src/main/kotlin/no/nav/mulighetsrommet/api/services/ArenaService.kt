@@ -2,20 +2,20 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 
 class ArenaService(
     private val tiltakstyper: TiltakstypeRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakere: DeltakerRepository,
+    private val deltakere: TiltakshistorikkRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
@@ -53,39 +53,16 @@ class ArenaService(
             }
     }
 
-    fun upsert(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
-        return deltakere.upsert(deltaker)
+    fun upsert(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> {
+        return deltakere.upsert(tiltakshistorikk)
     }
 
-    fun remove(deltaker: DeltakerDbo): QueryResult<Unit> {
-        return deltakere.delete(deltaker.id)
+    fun remove(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<Unit> {
+        return deltakere.delete(tiltakshistorikk.id)
     }
 
     private fun isSupportedTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): Boolean {
         val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)!!
-        return isGruppetiltak(tiltakstype)
-    }
-
-    private fun isGruppetiltak(tiltakstype: TiltakstypeDto): Boolean {
-        // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
-        val gruppetiltak = listOf(
-            "ARBFORB",
-            "ARBRRHDAG",
-            "AVKLARAG",
-            "DIGIOPPARB",
-            "FORSAMOGRU",
-            "FORSFAGGRU",
-            "GRUFAGYRKE",
-            "GRUPPEAMO",
-            "INDJOBSTOT",
-            "INDOPPFAG",
-            "INDOPPRF",
-            "IPSUNG",
-            "JOBBK",
-            "UTVAOONAV",
-            "UTVOPPFOPL",
-            "VASV",
-        )
-        return tiltakstype.arenaKode in gruppetiltak
+        return isGruppetiltak(tiltakstype.arenaKode)
     }
 }

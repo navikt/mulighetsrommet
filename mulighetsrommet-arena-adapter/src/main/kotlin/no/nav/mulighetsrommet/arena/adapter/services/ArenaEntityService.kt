@@ -41,6 +41,11 @@ class ArenaEntityService(
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 
+    fun getTiltakstype(id: UUID): Either<ConsumptionError, Tiltakstype> {
+        return tiltakstyper.get(id)
+            .rightIfNotNull { ConsumptionError.MissingDependency("Tiltakstype med id=$id mangler") }
+    }
+
     fun upsertSak(sak: Sak): Either<ConsumptionError, Sak> {
         return saker.upsert(sak)
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
@@ -56,8 +61,13 @@ class ArenaEntityService(
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 
-    fun getTiltaksgjennomforing(id: UUID): Tiltaksgjennomforing? {
+    fun getTiltaksgjennomforingOrNull(id: UUID): Tiltaksgjennomforing? {
         return tiltaksgjennomforinger.get(id)
+    }
+
+    fun getTiltaksgjennomforing(id: UUID): Either<ConsumptionError, Tiltaksgjennomforing> {
+        return tiltaksgjennomforinger.get(id)
+            .rightIfNotNull { ConsumptionError.MissingDependency("Tiltaksgjennomforing med id=$id mangler") }
     }
 
     fun isIgnored(arenaTable: String, arenaId: String): Either<ConsumptionError, Boolean> {

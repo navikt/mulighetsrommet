@@ -28,7 +28,7 @@ jobs:
       - name: Build
         run: npx turbo run build:labs --filter=mr-admin-flate
       - name: Cypress run
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v5
         with:
           working-directory: frontend/mr-admin-flate
           browser: chrome

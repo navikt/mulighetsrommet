@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import java.time.LocalDate
 
 class TiltakEndretConsumerTest : FunSpec({
 
@@ -52,6 +53,15 @@ class TiltakEndretConsumerTest : FunSpec({
         e3.status shouldBe Processed
         database.assertThat("tiltakstype")
             .row().value("navn").isEqualTo("Oppfølging 1")
+
+        database.assertThat("tiltakstype")
+            .row().value("rett_paa_tiltakspenger").isEqualTo(true)
+
+        database.assertThat("tiltakstype")
+            .row().value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
+
+        database.assertThat("tiltakstype")
+            .row().value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
     }
 
     context("api responses") {
@@ -66,6 +76,7 @@ class TiltakEndretConsumerTest : FunSpec({
 
                 val tiltakstype = decodeRequestBody<TiltakstypeDbo>().apply {
                     navn shouldBe "Oppfølging"
+                    rettPaaTiltakspenger shouldBe true
                 }
 
                 tiltakstype.id
@@ -109,7 +120,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-        deltakere = DeltakerRepository(db),
+        deltakere = DeltakerRepository(db)
     )
 
     return TiltakEndretConsumer(
@@ -127,7 +138,8 @@ private fun createEvent(operation: ArenaEventData.Operation = Insert, name: Stri
     """{
         "TILTAKSNAVN": "$name",
         "TILTAKSKODE": "INDOPPFAG",
-        "DATO_FRA": null,
-        "DATO_TIL": null
+        "DATO_FRA": "2022-01-11 00:00:00",
+        "DATO_TIL": "2022-01-15 00:00:00",
+        "STATUS_BASISYTELSE": "J"
     }"""
 )

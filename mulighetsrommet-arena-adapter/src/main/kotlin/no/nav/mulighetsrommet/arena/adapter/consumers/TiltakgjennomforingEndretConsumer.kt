@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
@@ -20,10 +21,11 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo as MrTiltaksgjennomforing
 
 class TiltakgjennomforingEndretConsumer(
     override val config: ConsumerConfig,
@@ -51,7 +53,7 @@ class TiltakgjennomforingEndretConsumer(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val (_, operation, data) = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
 
-        val isGruppetiltak = ArenaUtils.isGruppetiltak(data.TILTAKSKODE)
+        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
@@ -59,7 +61,7 @@ class TiltakgjennomforingEndretConsumer(
         val mapping = entities.getOrCreateMapping(event)
         val tiltaksgjennomforing = data
             .toTiltaksgjennomforing(mapping.entityId)
-            .let { entities.upsertTiltaksgjennomforing(it) }
+            .flatMap { entities.upsertTiltaksgjennomforing(it) }
             .bind()
 
         if (isGruppetiltak) {
@@ -86,11 +88,11 @@ class TiltakgjennomforingEndretConsumer(
                 .map { it.virksomhetsnummer }
                 .bind()
         }
-        val mrTiltaksgjennomforing = tiltaksgjennomforing
-            .toDomain(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
+        val dbo = tiltaksgjennomforing
+            .toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
         val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", mrTiltaksgjennomforing)
+        client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
             .mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
@@ -100,22 +102,26 @@ class TiltakgjennomforingEndretConsumer(
         return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
-    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Tiltaksgjennomforing(
-        id = id,
-        tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
-        sakId = SAK_ID,
-        tiltakskode = TILTAKSKODE,
-        arrangorId = ARBGIV_ID_ARRANGOR,
-        navn = LOKALTNAVN,
-        fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
-        tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
-        apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
-        antallPlasser = ANTALL_DELTAKERE,
-        status = TILTAKSTATUSKODE
-    )
+    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either
+        .catch {
+            Tiltaksgjennomforing(
+                id = id,
+                tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
+                sakId = SAK_ID,
+                tiltakskode = TILTAKSKODE,
+                arrangorId = ARBGIV_ID_ARRANGOR,
+                navn = LOKALTNAVN,
+                fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+                tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+                apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
+                antallPlasser = ANTALL_DELTAKERE,
+                status = TILTAKSTATUSKODE
+            )
+        }
+        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDomain(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
-        MrTiltaksgjennomforing(
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
+        TiltaksgjennomforingDbo(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstypeId,

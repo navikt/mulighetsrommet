@@ -33,8 +33,7 @@ export function DelMedBrukerContent({
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const tiltaksnummer = tiltaksgjennomforing?.tiltaksnummer?.toString();
-  const { lagreVeilederHarDeltTiltakMedBruker, refetch: refetchOmVeilederHarDeltMedBruker } =
-    useHentDeltMedBrukerStatus();
+  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -69,7 +68,6 @@ export function DelMedBrukerContent({
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({ requestBody: { overskrift, tekst } });
       if (tiltaksnummer) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksnummer);
-        refetchOmVeilederHarDeltMedBruker();
       }
       dispatch({ type: 'Sendt ok', payload: res.id });
     } catch {
