@@ -1,12 +1,12 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
   name: mr-admin-flate
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
 spec:
-  image: ghcr.io/navikt/poao-frontend/poao-frontend:2022.12.12_15.14-6d2623ef615d
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.01.13_08.09-36c09678654f
   port: 8080
   ingresses:
     - https://mulighetsrommet-admin-flate.dev.intern.nav.no
