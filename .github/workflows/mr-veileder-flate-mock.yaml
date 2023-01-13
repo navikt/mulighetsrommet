@@ -35,7 +35,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Cypress run
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@5
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
