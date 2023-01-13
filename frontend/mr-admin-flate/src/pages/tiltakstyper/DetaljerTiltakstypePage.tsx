@@ -1,10 +1,15 @@
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
+import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 
-export function DetaljerTiltakstypePage() {
+interface Props {
+  side: string;
+}
+
+export function DetaljerTiltakstypePage({ side }: Props) {
   const optionalTiltakstype = useTiltakstypeById();
 
   if (optionalTiltakstype.isFetching) {
@@ -14,7 +19,7 @@ export function DetaljerTiltakstypePage() {
   if (!optionalTiltakstype.data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltakstype</p>
+        <BodyShort>Klarte ikke finne tiltakstype</BodyShort>
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -23,12 +28,7 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Link
-        style={{ marginBottom: "1rem", display: "block" }}
-        to="/tiltakstyper"
-      >
-        Tilbake til oversikt
-      </Link>
+      <Tilbakelenke>Tilbake til oversikt</Tilbakelenke>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>
@@ -36,7 +36,10 @@ export function DetaljerTiltakstypePage() {
         <dt>Tiltakskode:</dt>
         <dd>{tiltakstype.arenaKode}</dd>
       </dl>
-      <TiltaksgjennomforingslisteForTiltakstyper tiltakstype={tiltakstype} />
+      <TiltaksgjennomforingslisteForTiltakstyper
+        tiltakstype={tiltakstype}
+        side={side}
+      />
     </>
   );
 }

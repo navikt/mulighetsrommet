@@ -5,7 +5,7 @@ import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTil
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "./TiltaksgjennomforingRad";
 import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
 
 export function Tiltaksgjennomforingeroversikt() {
@@ -39,7 +39,7 @@ export function Tiltaksgjennomforingeroversikt() {
         {tiltaksgjennomforinger
           .sort((a, b) => a.navn.localeCompare(b.navn))
           .map((tiltaksgjennomforing) => (
-            <Tiltaksgjennomforingrad
+            <TiltaksgjennomforingRad
               key={tiltaksgjennomforing.id}
               tiltaksgjennomforing={tiltaksgjennomforing}
             />

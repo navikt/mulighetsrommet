@@ -1,4 +1,5 @@
 import { useRouteError } from "react-router-dom";
+import { BodyShort, Heading } from "@navikt/ds-react";
 
 export function ErrorPage() {
   const error = useRouteError() as
@@ -7,11 +8,11 @@ export function ErrorPage() {
 
   return (
     <div id="error-page">
-      <h1>Oops!</h1>
-      <p>Her har det skjedd en feil 🥺</p>
-      <p>
+      <Heading size="large">Oops!</Heading>
+      <BodyShort>Her har det skjedd en feil 🥺</BodyShort>
+      <BodyShort>
         <i>{error?.statusText || error?.message}</i>
-      </p>
+      </BodyShort>
     </div>
   );
 }

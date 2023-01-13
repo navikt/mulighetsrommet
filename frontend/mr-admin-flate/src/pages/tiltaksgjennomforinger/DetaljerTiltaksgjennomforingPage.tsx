@@ -1,13 +1,17 @@
-import { Alert, Button, Heading, Link } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Link } from "@navikt/ds-react";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 import { Laster } from "../../components/Laster";
-import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./DetaljerTiltaksgjennomforingPage.module.scss";
+import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 
-export function TiltaksgjennomforingPage() {
+interface Props {
+  fagansvarlig?: boolean;
+}
+
+export function TiltaksgjennomforingPage({ fagansvarlig = false }: Props) {
   const {
     data,
     isError,
@@ -63,11 +67,11 @@ export function TiltaksgjennomforingPage() {
       <Heading size="large" level="1">
         {tiltaksgjennomforing.tiltaksnummer} - {tiltaksgjennomforing.navn}
       </Heading>
-      <p>
+      <BodyShort>
         Tiltaksgjennomføringen har startdato:{" "}
         {formaterDato(tiltaksgjennomforing.startDato)} og sluttdato{" "}
         {formaterDato(tiltaksgjennomforing.sluttDato)}
-      </p>
+      </BodyShort>
       <dl>
         <dt>Tiltaksnummer</dt>
         <dd>{tiltaksgjennomforing.tiltaksnummer}</dd>
@@ -83,28 +87,32 @@ export function TiltaksgjennomforingPage() {
         <dd>{formaterDato(tiltaksgjennomforing.sluttDato)} </dd>
       </dl>
 
-      {gjennomforingErFavorisert ? (
-        <Button
-          variant="secondary"
-          onClick={() => onFjernFavoritt(tiltaksgjennomforing.id)}
-          data-testid="fjern-favoritt"
-        >
-          Fjern fra min liste
-        </Button>
+      {!fagansvarlig ? (
+        gjennomforingErFavorisert ? (
+          <Button
+            variant="secondary"
+            onClick={() => onFjernFavoritt(tiltaksgjennomforing.id)}
+            data-testid="fjern-favoritt"
+          >
+            Fjern fra min liste
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={() => onLagreFavoritt(tiltaksgjennomforing.id)}
+            data-testid="legg-til-favoritt"
+          >
+            Legg til i min liste
+          </Button>
+        )
       ) : (
-        <Button
-          variant="primary"
-          onClick={() => onLagreFavoritt(tiltaksgjennomforing.id)}
-          data-testid="legg-til-favoritt"
-        >
-          Legg til i min liste
-        </Button>
+        <></>
       )}
 
       {/**
        * TODO Implementere skjema for opprettelse av tiltaksgjennomføring
        */}
-      {/* <p>Her kan du opprette en gjennomføring</p>
+      {/* <BodyShort>Her kan du opprette en gjennomføring</BodyShort>
       // <Formik<Values>
       //   initialValues={{
       //     tiltakgjennomforingId: "",

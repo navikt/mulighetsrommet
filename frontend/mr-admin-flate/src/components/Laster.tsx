@@ -1,4 +1,4 @@
-import { Loader } from "@navikt/ds-react";
+import { BodyShort, Loader } from "@navikt/ds-react";
 
 interface Props {
   tekst?: string;
@@ -25,7 +25,7 @@ export function Laster({ tekst, sentrert = true, ...rest }: Props) {
         }}
       >
         <Loader {...rest} />
-        <p>{tekst}</p>
+        <BodyShort>{tekst}</BodyShort>
       </div>
     );
   }

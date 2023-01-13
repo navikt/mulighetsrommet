@@ -1,4 +1,4 @@
-import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
 import { paginationAtom } from "../../api/atoms";
@@ -6,18 +6,15 @@ import { useTiltaksgjennomforingerByEnhet } from "../../api/tiltaksgjennomforing
 import { Laster } from "../../components/Laster";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
-import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
 import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
-import { Ansatt } from "mulighetsrommet-api-client";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
-export interface Props {
-  ansatt: Ansatt;
-}
-
-export function EnhetsoversiktPage({ ansatt }: Props) {
+export function EnhetsoversiktPage() {
+  const { data: ansatt } = useHentAnsatt();
   const { data, isFetching, isError } = useTiltaksgjennomforingerByEnhet(
-    ansatt.hovedenhet
+    ansatt?.hovedenhet
   );
   const [page, setPage] = useAtom(paginationAtom);
 
@@ -28,10 +25,10 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
   if (isError) {
     return (
       <Alert variant="error">
-        <p>
+        <BodyShort>
           Det oppsto en feil ved henting av tiltaksgjennomføringer for din
           enhet. Prøv igjen senere.
-        </p>
+        </BodyShort>
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -40,7 +37,9 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
   if (!data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltaksgjennomføringer for din enhet</p>
+        <BodyShort>
+          Klarte ikke finne tiltaksgjennomføringer for din enhet
+        </BodyShort>
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -49,13 +48,12 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size="large">
-        Oversikt over tiltaksgjennomføringer for enhet: {ansatt.hovedenhetNavn}
+        Oversikt over tiltaksgjennomføringer for enhet: {ansatt?.hovedenhetNavn}
       </Heading>
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her finner du alle gjennomføringer for din enhet
-      </BodyLong>
+      </BodyShort>
       <SokEtterTiltaksgjennomforing />
       <>
         {tiltaksgjennomforinger.length > 0 ? (
@@ -75,7 +73,7 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
           {tiltaksgjennomforinger
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((tiltaksgjennomforing) => (
-              <Tiltaksgjennomforingrad
+              <TiltaksgjennomforingRad
                 key={tiltaksgjennomforing.id}
                 tiltaksgjennomforing={tiltaksgjennomforing}
               />

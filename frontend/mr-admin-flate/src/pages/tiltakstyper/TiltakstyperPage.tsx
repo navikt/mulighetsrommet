@@ -1,4 +1,4 @@
-import { BodyLong, Heading, Search } from "@navikt/ds-react";
+import { BodyShort, Heading, Search } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
@@ -13,17 +13,16 @@ export function TiltakstyperPage() {
 
   return (
     <>
-      <Link to="/">Hjem</Link>
       <Heading className={styles.overskrift} size="large">
         Oversikt over tiltakstyper
       </Heading>
       {toggles?.["mulighetsrommet.enable-opprett-tiltakstype"] ? (
-        <Link to="opprett">Opprett tiltakstype</Link>
+        <Link to="/tiltakstyper/opprett">Opprett tiltakstype</Link>
       ) : null}
 
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her finner du dine aktive tiltakstyper.
-      </BodyLong>
+      </BodyShort>
       <Search
         label=""
         placeholder="Søk etter tiltakstype"
