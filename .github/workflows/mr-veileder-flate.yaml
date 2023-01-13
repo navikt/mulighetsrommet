@@ -34,7 +34,7 @@ jobs:
       - name: Lint
         run: npx turbo run lint --filter=mulighetsrommet-veileder-flate
       - name: Cypress run
-        uses: cypress-io/github-action@5
+        uses: cypress-io/github-action@v5
         with:
           working-directory: frontend/mulighetsrommet-veileder-flate
           browser: chrome
