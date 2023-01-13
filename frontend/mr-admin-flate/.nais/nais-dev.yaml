@@ -1,5 +1,5 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
   name: mr-admin-flate
   namespace: team-mulighetsrommet

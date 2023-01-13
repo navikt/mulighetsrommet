@@ -1,5 +1,5 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
   name: mulighetsrommet-veileder-flate
   namespace: team-mulighetsrommet
