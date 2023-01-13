@@ -10,7 +10,7 @@ export function useTiltakstyper() {
   const [sokefilter] = useAtom(tiltakstypefilter);
   return useQuery(QueryKeys.tiltakstyper(sokefilter, page), () =>
     mulighetsrommetClient.tiltakstyper.getTiltakstyper({
-      search: sokefilter != "" ? sokefilter : undefined,
+      search: sokefilter !== "" ? sokefilter : undefined,
       page,
       size: PAGE_SIZE,
     })
