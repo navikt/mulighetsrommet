@@ -1,11 +1,12 @@
-import { Alert, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, Heading, Pagination, Search } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { paginationAtom } from "../../api/atoms";
+import { paginationAtom, tiltakstypefilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { Tiltakstyperad } from "./Tiltakstyperad";
 import styles from "./Tiltakstyperoversikt.module.scss";
+import React from "react";
 
 export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();
