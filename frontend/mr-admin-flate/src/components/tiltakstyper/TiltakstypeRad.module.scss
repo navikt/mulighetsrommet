@@ -1,6 +1,6 @@
 .rad {
   display: grid;
-  grid-template-columns: 3fr 1fr 1%;
+  grid-template-columns: 2fr 1fr 2fr 1%;
   background-color: white;
   margin-bottom: 0.25rem;
   padding: 2rem 1rem;
@@ -16,4 +16,9 @@
 
 .pil {
   color: #0067c5;
+}
+
+.dato {
+  display: flex;
+  gap: 1.5rem;
 }

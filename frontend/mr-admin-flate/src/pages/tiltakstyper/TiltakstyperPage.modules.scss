@@ -1,0 +1,18 @@
+.opprettknappseksjon {
+  text-align: right;
+
+  span {
+    text-decoration: none;
+  }
+}
+
+.filterseksjon {
+  margin-bottom: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: solid 1px var(--a-border-divider);
+}
+
+.header_wrapper {
+  display: flex;
+  flex-direction: column;
+}

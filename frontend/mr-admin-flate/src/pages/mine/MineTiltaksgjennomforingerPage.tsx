@@ -38,9 +38,7 @@ export function MineTiltaksgjennomforingerPage() {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Heading className={styles.overskrift} size="large">
-        Oversikt over mine tiltaksgjennomføringer
-      </Heading>
+      <Heading size="large">Oversikt over mine tiltaksgjennomføringer</Heading>
       <BodyShort className={styles.body} size="small">
         Her finner du gjennomføringer du har lagt til i din liste
       </BodyShort>

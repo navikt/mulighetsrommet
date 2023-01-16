@@ -113,9 +113,7 @@ export function OpprettTiltakstype() {
   return (
     <>
       <Tilbakelenke>Tilbake</Tilbakelenke>
-      <Heading className={styles.overskrift} size="large">
-        Opprett ny tiltakstype
-      </Heading>
+      <Heading size="large">Opprett ny tiltakstype</Heading>
       <BodyShort className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltakstype
       </BodyShort>

@@ -41,7 +41,7 @@ export function EnhetsoversiktPage() {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Heading className={styles.overskrift} size="large">
+      <Heading size="large">
         Oversikt over tiltaksgjennomføringer for enhet: {ansatt?.hovedenhetNavn}
       </Heading>
       <BodyShort className={styles.body} size="small">

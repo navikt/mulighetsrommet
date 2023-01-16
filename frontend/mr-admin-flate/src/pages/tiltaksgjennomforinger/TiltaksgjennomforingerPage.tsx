@@ -29,9 +29,7 @@ export function TiltaksgjennomforingerPage() {
 
   return (
     <>
-      <Heading className={styles.overskrift} size="large">
-        Oversikt over tiltaksgjennomføringer
-      </Heading>
+      <Heading size="large">Oversikt over tiltaksgjennomføringer</Heading>
       <BodyShort className={styles.body} size="small">
         Her finner du alle gjennomføringer
       </BodyShort>
