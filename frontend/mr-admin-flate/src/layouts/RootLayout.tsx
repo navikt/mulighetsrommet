@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import styles from "./RootLayout.module.scss";
-import { ForsideTiltaksansvarlig } from "../ForsideTiltaksansvarlig";
-import { ForsideFagansvarlig } from "../ForsideFagansvarlig";
+import { ForsideTiltaksansvarlig } from "../pages/forside/ForsideTiltaksansvarlig";
+import { ForsideFagansvarlig } from "../pages/forside/ForsideFagansvarlig";
 
 interface RootLayoutProps {
   fagansvarlig?: boolean;

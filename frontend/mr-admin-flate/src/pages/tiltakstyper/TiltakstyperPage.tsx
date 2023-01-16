@@ -2,7 +2,7 @@ import { BodyShort, Heading, Search } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
-import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
+import styles from "../Oversikt.module.scss";
 import React from "react";
 import { useAtom } from "jotai";
 import { tiltakstypefilter } from "../../api/atoms";

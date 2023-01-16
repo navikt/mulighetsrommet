@@ -43,7 +43,7 @@ export function TiltaksgjennomforingPage({ fagansvarlig = false }: Props) {
   if (isError) {
     return (
       <Alert variant="warning">
-        <div>Noe gikk galt ved henting av data om tiltaksgjennomføring</div>
+        Noe gikk galt ved henting av data om tiltaksgjennomføring.
         <Link href="/">Til forside</Link>
       </Alert>
     );

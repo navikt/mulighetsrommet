@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import { Alert, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
@@ -19,7 +19,7 @@ export function DetaljerTiltakstypePage({ side }: Props) {
   if (!optionalTiltakstype.data) {
     return (
       <Alert variant="warning">
-        <BodyShort>Klarte ikke finne tiltakstype</BodyShort>
+        Klarte ikke finne tiltakstype
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -28,7 +28,7 @@ export function DetaljerTiltakstypePage({ side }: Props) {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Tilbakelenke>Tilbake til oversikt</Tilbakelenke>
+      <Tilbakelenke>Tilbake</Tilbakelenke>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>

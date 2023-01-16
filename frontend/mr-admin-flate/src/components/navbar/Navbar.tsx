@@ -14,7 +14,7 @@ export function Navbar({ shortcuts }: NavbarProps) {
         <NavLink
           key={url + navn}
           to={url}
-          data-testid={`shortcut-${url.replace("/", "")}`}
+          data-testid={`tab-${url.replace("/", "")}`}
           className={({ isActive }) =>
             isActive ? styles.navlink_active : styles.navlink
           }

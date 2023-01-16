@@ -1,4 +1,4 @@
-import { Shortcut } from "./components/shortcuts/Navbar";
+import { Shortcut } from "./components/navbar/Navbar";
 
 export const APPLICATION_NAME = "mr-admin-flate";
 

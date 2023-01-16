@@ -1,9 +1,32 @@
 import { Tiltaksgjennomforingeroversikt } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforingeroversikt";
-import { BodyShort, Heading } from "@navikt/ds-react";
-import styles from "./Oversikt.module.scss";
+import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import styles from "../Oversikt.module.scss";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
+import { Laster } from "../../components/Laster";
+import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 
 export function TiltaksgjennomforingerPage() {
+  const { data, isFetching, isError } =
+    useTiltaksgjennomforingerByInnloggetAnsatt();
+  if (isFetching) {
+    return <Laster />;
+  }
+
+  if (isError) {
+    return (
+      <Alert variant="error">
+        Det oppsto en feil ved henting av tiltaksgjennomføringer. Prøv igjen
+        senere.
+      </Alert>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Alert variant="warning">Klarte ikke finne tiltaksgjennomføringer.</Alert>
+    );
+  }
+
   return (
     <>
       <Heading className={styles.overskrift} size="large">

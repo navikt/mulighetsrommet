@@ -2,7 +2,7 @@ import { BodyShort, Button, Heading } from "@navikt/ds-react";
 import { Form, Formik } from "formik";
 
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import styles from "../../tiltaksgjennomforinger/Oversikt.module.scss";
+import styles from "../../Oversikt.module.scss";
 import {
   CheckboxFelt,
   Datovelger,
@@ -112,7 +112,7 @@ export function OpprettTiltakstype() {
 
   return (
     <>
-      <Tilbakelenke>Tilbake til oversikt</Tilbakelenke>
+      <Tilbakelenke>Tilbake</Tilbakelenke>
       <Heading className={styles.overskrift} size="large">
         Opprett ny tiltakstype
       </Heading>

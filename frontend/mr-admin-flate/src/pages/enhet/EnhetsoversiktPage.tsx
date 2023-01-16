@@ -1,6 +1,5 @@
 import { Alert, BodyShort, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
 import { paginationAtom } from "../../api/atoms";
 import { useTiltaksgjennomforingerByEnhet } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByEnhet";
 import { Laster } from "../../components/Laster";
@@ -8,7 +7,7 @@ import { PagineringsOversikt } from "../../components/paginering/PagineringOvers
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
 import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
-import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
+import styles from "../Oversikt.module.scss";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 export function EnhetsoversiktPage() {
@@ -25,11 +24,8 @@ export function EnhetsoversiktPage() {
   if (isError) {
     return (
       <Alert variant="error">
-        <BodyShort>
-          Det oppsto en feil ved henting av tiltaksgjennomføringer for din
-          enhet. Prøv igjen senere.
-        </BodyShort>
-        <Link to="/">Til forside</Link>
+        Det oppsto en feil ved henting av tiltaksgjennomføringer for enheten.
+        Prøv igjen senere.
       </Alert>
     );
   }
@@ -37,10 +33,7 @@ export function EnhetsoversiktPage() {
   if (!data) {
     return (
       <Alert variant="warning">
-        <BodyShort>
-          Klarte ikke finne tiltaksgjennomføringer for din enhet
-        </BodyShort>
-        <Link to="/">Til forside</Link>
+        Klarte ikke finne tiltaksgjennomføringer for din enhet.
       </Alert>
     );
   }
