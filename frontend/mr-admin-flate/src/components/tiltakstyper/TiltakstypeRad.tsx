@@ -1,6 +1,6 @@
 import { Tiltakstype } from "mulighetsrommet-api-client";
 import { BodyShort } from "@navikt/ds-react";
-import styles from "./Tiltakstyperad.module.scss";
+import styles from "./TiltakstypeRad.module.scss";
 import { Next } from "@navikt/ds-icons";
 import { formaterDato } from "../../utils/Utils";
 
