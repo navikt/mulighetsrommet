@@ -7,8 +7,10 @@ import {
   UNSAFE_useRangeDatepicker,
 } from "@navikt/ds-react";
 import { FieldHookConfig, useField } from "formik";
-import { SchemaValues } from "./OpprettTiltakstypeSchemaValidation";
-import { formaterDato } from "../../../utils/Utils";
+import { OpprettTiltakstypeSchema } from "./tiltakstyper/opprett-tiltakstyper/OpprettTiltakstypeSchemaValidation";
+import { formaterDato } from "../utils/Utils";
+import { z } from "zod";
+import { OpprettTiltaksgjennomforingSchema } from "./tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingSchemaValidation";
 
 export function Tekstfelt({
   label,
@@ -115,3 +117,14 @@ export function DatoFelt({
     />
   );
 }
+
+export type SchemaValues = z.infer<
+  typeof OpprettTiltakstypeSchema & typeof OpprettTiltaksgjennomforingSchema
+>;
+
+export type OptionalTiltakstypeSchemaValues = Partial<
+  z.infer<typeof OpprettTiltakstypeSchema>
+>;
+export type OptionalTiltaksgjennomforingSchemaValues = Partial<
+  z.infer<typeof OpprettTiltaksgjennomforingSchema>
+>;
