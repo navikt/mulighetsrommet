@@ -24,24 +24,24 @@ export function TiltaksgjennomforingRad({
 
   return (
     <li
-      className={styles.rad}
+      className={styles.list_element}
       onClick={navigerSomFagEllerTiltaksansvarlig}
       data-testid="tiltaksgjennomforingsrad"
     >
-      <Link to={navigerSomFagEllerTiltaksansvarlig()}>
+      <Link to={navigerSomFagEllerTiltaksansvarlig()} className={styles.rad}>
         <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
+        <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+        <BodyShort
+          size="small"
+          title={tiltaksgjennomforing.tiltakstype.arenaKode}
+        >
+          {tiltaksgjennomforing.tiltakstype.navn}
+        </BodyShort>
+        <BodyShort size="small">
+          {tiltaksgjennomforing.virksomhetsnummer}
+        </BodyShort>
+        <Next className={styles.pil} />
       </Link>
-      <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-      <BodyShort
-        size="small"
-        title={tiltaksgjennomforing.tiltakstype.arenaKode}
-      >
-        {tiltaksgjennomforing.tiltakstype.navn}
-      </BodyShort>
-      <BodyShort size="small">
-        {tiltaksgjennomforing.virksomhetsnummer}
-      </BodyShort>
-      <Next className={styles.pil} />
     </li>
   );
 }
