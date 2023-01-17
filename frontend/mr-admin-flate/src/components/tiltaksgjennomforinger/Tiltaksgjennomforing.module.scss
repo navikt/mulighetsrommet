@@ -1,3 +1,7 @@
+.list_element {
+  list-style: none;
+}
+
 .rad {
   display: grid;
   grid-template-columns: 3fr 1fr 1fr 1fr 1%;
@@ -9,6 +13,8 @@
   justify-content: space-between;
   gap: 1rem;
   cursor: pointer;
+  color: black;
+  text-decoration: none;
 
   &:hover {
     background-color: var(--a-gray-50);
