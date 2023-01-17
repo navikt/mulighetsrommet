@@ -13,6 +13,8 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
@@ -64,7 +66,30 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                     tiltakskode = "INDOPPFAG",
                     rettPaaTiltakspenger = true,
                     fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-                    tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
+                    tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
+                    tiltaksgruppekode = "tiltaksgruppekode",
+                    administrasjonskode = "adminkode",
+                    sendTilsagnsbrevTilDeltaker = true,
+                    tiltakstypeSkalHaAnskaffelsesprosess = false,
+                    maksAntallPlasser = 10,
+                    maksAntallSokere = 10,
+                    harFastAntallPlasser = true,
+                    skalSjekkeAntallDeltakere = true,
+                    visLonnstilskuddskalkulator = false,
+                    rammeavtale = Rammeavtale.SKAL,
+                    opplaeringsgruppe = "opplaeringsgruppe",
+                    handlingsplan = Handlingsplan.AKT,
+                    tiltaksgjennomforingKreverSluttdato = true,
+                    maksPeriodeIMnd = 6,
+                    tiltaksgjennomforingKreverMeldeplikt = false,
+                    tiltaksgjennomforingKreverVedtak = false,
+                    tiltaksgjennomforingReservertForIABedrift = false,
+                    harRettPaaTilleggsstonader = false,
+                    harRettPaaUtdanning = false,
+                    tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
+                    visBegrunnelseForInnsoking = false,
+                    sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
+                    sendKopibrevOgHovedbrevTilArbeidsgiver = false
                 )
             )
 
@@ -109,7 +134,30 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             tiltakskode = "AMO",
             rettPaaTiltakspenger = false,
             fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
+            tiltaksgruppekode = "tiltaksgruppekode",
+            administrasjonskode = "adminkode",
+            sendTilsagnsbrevTilDeltaker = true,
+            tiltakstypeSkalHaAnskaffelsesprosess = false,
+            maksAntallPlasser = 10,
+            maksAntallSokere = 10,
+            harFastAntallPlasser = true,
+            skalSjekkeAntallDeltakere = true,
+            visLonnstilskuddskalkulator = false,
+            rammeavtale = Rammeavtale.SKAL,
+            opplaeringsgruppe = "opplaeringsgruppe",
+            handlingsplan = Handlingsplan.AKT,
+            tiltaksgjennomforingKreverSluttdato = true,
+            maksPeriodeIMnd = 6,
+            tiltaksgjennomforingKreverMeldeplikt = false,
+            tiltaksgjennomforingKreverVedtak = false,
+            tiltaksgjennomforingReservertForIABedrift = false,
+            harRettPaaTilleggsstonader = false,
+            harRettPaaUtdanning = false,
+            tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
+            visBegrunnelseForInnsoking = false,
+            sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
+            sendKopibrevOgHovedbrevTilArbeidsgiver = false
         )
 
         beforeEach {
@@ -173,7 +221,30 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             tiltakskode = "INDOPPFAG",
             rettPaaTiltakspenger = true,
             fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
+            tiltaksgruppekode = "tiltaksgruppekode",
+            administrasjonskode = "adminkode",
+            sendTilsagnsbrevTilDeltaker = true,
+            tiltakstypeSkalHaAnskaffelsesprosess = false,
+            maksAntallPlasser = 10,
+            maksAntallSokere = 10,
+            harFastAntallPlasser = true,
+            skalSjekkeAntallDeltakere = true,
+            visLonnstilskuddskalkulator = false,
+            rammeavtale = Rammeavtale.SKAL,
+            opplaeringsgruppe = "opplaeringsgruppe",
+            handlingsplan = Handlingsplan.AKT,
+            tiltaksgjennomforingKreverSluttdato = true,
+            maksPeriodeIMnd = 6,
+            tiltaksgjennomforingKreverMeldeplikt = false,
+            tiltaksgjennomforingKreverVedtak = false,
+            tiltaksgjennomforingReservertForIABedrift = false,
+            harRettPaaTilleggsstonader = false,
+            harRettPaaUtdanning = false,
+            tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
+            visBegrunnelseForInnsoking = false,
+            sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
+            sendKopibrevOgHovedbrevTilArbeidsgiver = false
         )
 
         beforeEach {

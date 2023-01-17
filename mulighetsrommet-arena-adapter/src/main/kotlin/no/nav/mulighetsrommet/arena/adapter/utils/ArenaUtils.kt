@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
+import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -27,11 +28,20 @@ object ArenaUtils {
         else -> throw Exception("Ukjent deltakerstatus fra Arena")
     }
 
-    fun jaNeiTilBoolean(jaNeiStreng: String): Boolean {
+    fun jaNeiTilBoolean(jaNeiStreng: JaNeiStatus): Boolean {
         return when (jaNeiStreng) {
-            "J" -> true
-            "N" -> false
-            else -> throw Exception("Ukjent verdi ved konvertering av J/N-streng til boolean")
+            JaNeiStatus.Ja -> true
+            JaNeiStatus.Nei -> false
+        }
+    }
+
+    fun optionalJaNeiTilBoolean(jaNeiStreng: JaNeiStatus?): Boolean? {
+        if (jaNeiStreng == null) {
+            return null
+        }
+        return when (jaNeiStreng) {
+            JaNeiStatus.Ja -> true
+            JaNeiStatus.Nei -> false
         }
     }
 }

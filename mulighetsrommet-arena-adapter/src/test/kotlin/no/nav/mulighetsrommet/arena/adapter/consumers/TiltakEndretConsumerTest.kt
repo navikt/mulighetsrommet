@@ -41,27 +41,42 @@ class TiltakEndretConsumerTest : FunSpec({
 
         val e1 = consumer.processEvent(createEvent(Insert, name = "Oppfølging 1"))
         e1.status shouldBe Processed
-        database.assertThat("tiltakstype")
-            .row().value("navn").isEqualTo("Oppfølging 1")
+        database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
         val e2 = consumer.processEvent(createEvent(Update, name = "Oppfølging 2"))
         e2.status shouldBe Processed
-        database.assertThat("tiltakstype")
-            .row().value("navn").isEqualTo("Oppfølging 2")
+        database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 2")
 
         val e3 = consumer.processEvent(createEvent(Delete, name = "Oppfølging 1"))
         e3.status shouldBe Processed
-        database.assertThat("tiltakstype")
-            .row().value("navn").isEqualTo("Oppfølging 1")
+        database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
-        database.assertThat("tiltakstype")
-            .row().value("rett_paa_tiltakspenger").isEqualTo(true)
-
-        database.assertThat("tiltakstype")
-            .row().value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
-
-        database.assertThat("tiltakstype")
-            .row().value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
+        database.assertThat("tiltakstype").row().value("rett_paa_tiltakspenger").isTrue
+        database.assertThat("tiltakstype").row().value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
+        database.assertThat("tiltakstype").row().value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
+        database.assertThat("tiltakstype").row().value("tiltaksgruppekode").isEqualTo("UTFAS")
+        database.assertThat("tiltakstype").row().value("administrasjonskode").isEqualTo("IND")
+        database.assertThat("tiltakstype").row().value("send_tilsagnsbrev_til_deltaker").isTrue
+        database.assertThat("tiltakstype").row().value("skal_ha_anskaffelsesprosess").isFalse
+        database.assertThat("tiltakstype").row().value("maks_antall_plasser").isNull
+        database.assertThat("tiltakstype").row().value("maks_antall_sokere").isEqualTo(10)
+        database.assertThat("tiltakstype").row().value("har_fast_antall_plasser").isNull
+        database.assertThat("tiltakstype").row().value("skal_sjekke_antall_deltakere").isTrue
+        database.assertThat("tiltakstype").row().value("vis_lonnstilskuddskalkulator").isFalse
+        database.assertThat("tiltakstype").row().value("rammeavtale").isEqualTo("IKKE")
+        database.assertThat("tiltakstype").row().value("opplaeringsgruppe").isNull
+        database.assertThat("tiltakstype").row().value("handlingsplan").isEqualTo("TIL")
+        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_krever_sluttdato").isFalse
+        database.assertThat("tiltakstype").row().value("maks_periode_i_mnd").isEqualTo(6)
+        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_krever_meldeplikt").isNull
+        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_krever_vedtak").isFalse
+        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_reservert_for_ia_bedrift").isFalse
+        database.assertThat("tiltakstype").row().value("har_rett_paa_tilleggsstonader").isFalse
+        database.assertThat("tiltakstype").row().value("har_rett_paa_utdanning").isFalse
+        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_genererer_tilsagnsbrev_automatisk").isFalse
+        database.assertThat("tiltakstype").row().value("vis_begrunnelse_for_innsoking").isTrue
+        database.assertThat("tiltakstype").row().value("henvisningsbrev_og_hovedbrev_til_arbeidsgiver").isFalse
+        database.assertThat("tiltakstype").row().value("kopibrev_og_hovedbrev_til_arbeidsgiver").isFalse
     }
 
     context("api responses") {
@@ -94,17 +109,12 @@ class TiltakEndretConsumerTest : FunSpec({
         }
 
         test("should treat a 500 response as error") {
-            val consumer = createConsumer(
-                database.db,
-                MockEngine { respondError(HttpStatusCode.InternalServerError) }
-            )
+            val consumer = createConsumer(database.db, MockEngine { respondError(HttpStatusCode.InternalServerError) })
 
             val event = consumer.processEvent(createEvent(Insert))
 
             event.status shouldBe Failed
-            database.assertThat("arena_events")
-                .row()
-                .value("consumption_status").isEqualTo("Failed")
+            database.assertThat("arena_events").row().value("consumption_status").isEqualTo("Failed")
         }
     }
 })
@@ -137,9 +147,32 @@ private fun createEvent(operation: ArenaEventData.Operation = Insert, name: Stri
     operation,
     """{
         "TILTAKSNAVN": "$name",
+        "TILTAKSGRUPPEKODE": "UTFAS",
         "TILTAKSKODE": "INDOPPFAG",
         "DATO_FRA": "2022-01-11 00:00:00",
         "DATO_TIL": "2022-01-15 00:00:00",
-        "STATUS_BASISYTELSE": "J"
+        "STATUS_BASISYTELSE": "J",
+        "ADMINISTRASJONKODE": "IND",
+        "STATUS_KOPI_TILSAGN": "J",
+        "STATUS_ANSKAFFELSE": "N",
+        "MAKS_ANT_PLASSER": null,
+        "MAKS_ANT_SOKERE": 10,
+        "STATUS_FAST_ANT_PLASSER": null,
+        "STATUS_SJEKK_ANT_DELTAKERE": "J",
+        "STATUS_KALKULATOR": "N",
+        "RAMMEAVTALE": "IKKE",
+        "OPPLAERINGSGRUPPE": null,
+        "HANDLINGSPLAN": "TIL",
+        "STATUS_SLUTTDATO": "N",
+        "MAKS_PERIODE": 6,
+        "STATUS_MELDEPLIKT": null,
+        "STATUS_VEDTAK": "N",
+        "STATUS_IA_AVTALE": "N",
+        "STATUS_TILLEGGSSTONADER": "N",
+        "STATUS_UTDANNING": "N",
+        "AUTOMATISK_TILSAGNSBREV": "N",
+        "STATUS_BEGRUNNELSE_INNSOKT": "J",
+        "STATUS_HENVISNING_BREV": "N",
+        "STATUS_KOPIBREV": "N"
     }"""
 )

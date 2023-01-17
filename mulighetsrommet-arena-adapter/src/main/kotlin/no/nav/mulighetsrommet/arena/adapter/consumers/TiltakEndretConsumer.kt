@@ -64,10 +64,33 @@ class TiltakEndretConsumer(
             Tiltakstype(
                 id = id,
                 navn = TILTAKSNAVN,
+                tiltaksgruppekode = TILTAKSGRUPPEKODE,
                 tiltakskode = TILTAKSKODE,
                 fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
-                rettPaaTiltakspenger = ArenaUtils.jaNeiTilBoolean(STATUS_BASISYTELSE)
+                rettPaaTiltakspenger = ArenaUtils.jaNeiTilBoolean(STATUS_BASISYTELSE),
+                administrasjonskode = ADMINISTRASJONKODE,
+                sendTilsagnsbrevTilDeltaker = ArenaUtils.jaNeiTilBoolean(STATUS_KOPI_TILSAGN),
+                tiltakstypeSkalHaAnskaffelsesprosess = ArenaUtils.jaNeiTilBoolean(STATUS_ANSKAFFELSE),
+                maksAntallPlasser = MAKS_ANT_PLASSER,
+                maksAntallSokere = MAKS_ANT_SOKERE,
+                harFastAntallPlasser = ArenaUtils.optionalJaNeiTilBoolean(STATUS_FAST_ANT_PLASSER),
+                skalSjekkeAntallDeltakere = ArenaUtils.optionalJaNeiTilBoolean(STATUS_SJEKK_ANT_DELTAKERE),
+                visLonnstilskuddskalkulator = ArenaUtils.jaNeiTilBoolean(STATUS_KALKULATOR),
+                rammeavtale = RAMMEAVTALE,
+                opplaeringsgruppe = OPPLAERINGSGRUPPE,
+                handlingsplan = HANDLINGSPLAN,
+                tiltaksgjennomforingKreverSluttdato = ArenaUtils.jaNeiTilBoolean(STATUS_SLUTTDATO),
+                maksPeriodeIMnd = MAKS_PERIODE,
+                tiltaksgjennomforingKreverMeldeplikt = ArenaUtils.optionalJaNeiTilBoolean(STATUS_MELDEPLIKT),
+                tiltaksgjennomforingKreverVedtak = ArenaUtils.jaNeiTilBoolean(STATUS_VEDTAK),
+                tiltaksgjennomforingReservertForIABedrift = ArenaUtils.jaNeiTilBoolean(STATUS_IA_AVTALE),
+                harRettPaaTilleggsstonader = ArenaUtils.jaNeiTilBoolean(STATUS_TILLEGGSSTONADER),
+                harRettPaaUtdanning = ArenaUtils.jaNeiTilBoolean(STATUS_UTDANNING),
+                tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = ArenaUtils.jaNeiTilBoolean(AUTOMATISK_TILSAGNSBREV),
+                visBegrunnelseForInnsoking = ArenaUtils.jaNeiTilBoolean(STATUS_BEGRUNNELSE_INNSOKT),
+                sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = ArenaUtils.jaNeiTilBoolean(STATUS_HENVISNING_BREV),
+                sendKopibrevOgHovedbrevTilArbeidsgiver = ArenaUtils.jaNeiTilBoolean(STATUS_KOPIBREV)
             )
         }
         .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
