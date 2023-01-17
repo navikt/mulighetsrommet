@@ -35,14 +35,12 @@ export function TiltaksgjennomforingerPage() {
   return (
     <>
       <div className={pageStyles.header_wrapper}>
-        <Heading size="large">Oversikt over tiltakstyper</Heading>
-        {
-          toggles?.["mulighetsrommet.enable-opprett-gjennomforing"] ? (
+        <Heading size="large">Oversikt over tiltaksgjennomføringer</Heading>
+        {toggles?.["mulighetsrommet.enable-opprett-gjennomforing"] ? (
           <Link to="/opprett" className={styles.opprettknappseksjon}>
             <Button variant="tertiary">Opprett ny tiltaksgjennomføring</Button>
           </Link>
-          ) : null
-        }
+        ) : null}
       </div>
       <BodyShort className={styles.body} size="small">
         Her finner du alle gjennomføringer
