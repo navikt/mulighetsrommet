@@ -7,13 +7,14 @@ import styles from "../../Oversikt.module.scss";
 import formStyles from "./OpprettTiltaksgjennomforingPage.module.scss";
 import { OpprettTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingSchemaValidation";
 import {
-  Datovelger,
-  OptionalSchemaValues,
-  Tekstfelt,
+  Datovelger, OptionalTiltaksgjennomforingSchemaValues,
+  Tekstfelt
 } from "../../OpprettComponents";
 
+
+
 export function OpprettTiltaksgjennomforing() {
-  const initialValues: OptionalSchemaValues = {
+  const initialValues: OptionalTiltaksgjennomforingSchemaValues = {
     tiltaksgjennomforingnavn: undefined,
     fraDato: undefined,
     tilDato: undefined,
@@ -30,7 +31,7 @@ export function OpprettTiltaksgjennomforing() {
       <BodyLong className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltaksgjennomforing
       </BodyLong>
-      <Formik<OptionalSchemaValues>
+      <Formik<OptionalTiltaksgjennomforingSchemaValues>
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(
           OpprettTiltaksgjennomforingSchema

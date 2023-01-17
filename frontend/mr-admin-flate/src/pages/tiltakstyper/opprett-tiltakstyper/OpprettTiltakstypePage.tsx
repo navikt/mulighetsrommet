@@ -5,9 +5,9 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import styles from "../../Oversikt.module.scss";
 import {
   CheckboxFelt,
-  Datovelger,
+  Datovelger, OptionalTiltakstypeSchemaValues,
   SelectFelt,
-  Tekstfelt,
+  Tekstfelt
 } from "../../OpprettComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
@@ -15,14 +15,13 @@ import {
   HandlingsplanValue,
   OpplaeringsgruppeValue,
   OpprettTiltakstypeSchema,
-  OptionalSchemaValues,
   RammeavtaleValue,
   TiltaksgruppekodeValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 import { Tilbakelenke } from "../../../components/navigering/Tilbakelenke";
 
 export function OpprettTiltakstype() {
-  const initialValues: OptionalSchemaValues = {
+  const initialValues: OptionalTiltakstypeSchemaValues = {
     tiltakstypenavn: undefined,
     fraDato: undefined,
     tilDato: undefined,
@@ -117,7 +116,7 @@ export function OpprettTiltakstype() {
       <BodyShort className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltakstype
       </BodyShort>
-      <Formik<OptionalSchemaValues>
+      <Formik<OptionalTiltakstypeSchemaValues>
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(OpprettTiltakstypeSchema)}
         onSubmit={(values, actions) => {
