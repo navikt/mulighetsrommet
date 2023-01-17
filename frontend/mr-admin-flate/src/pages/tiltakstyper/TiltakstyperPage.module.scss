@@ -1,0 +1,16 @@
+.header_wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.opprettknappseksjon {
+  text-align: right;
+  text-decoration: none;
+}
+
+.filterseksjon {
+  margin-bottom: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: solid 1px var(--a-border-divider);
+}

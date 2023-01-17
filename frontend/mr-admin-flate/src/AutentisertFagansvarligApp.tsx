@@ -1,5 +1,4 @@
-import { Route, Routes } from "react-router-dom";
-import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -11,18 +10,9 @@ export default function AutentisertFagansvarligApp() {
   return (
     <Routes>
       <Route
-        path="/*"
-        element={
-          <RootLayout>
-            <ForsideFagansvarlig />
-          </RootLayout>
-        }
-        errorElement={<ErrorPage />}
-      />
-      <Route
         path="tiltakstyper"
         element={
-          <RootLayout>
+          <RootLayout fagansvarlig>
             <TiltakstyperPage />
           </RootLayout>
         }
@@ -31,7 +21,7 @@ export default function AutentisertFagansvarligApp() {
       <Route
         path="tiltakstyper/opprett"
         element={
-          <RootLayout>
+          <RootLayout fagansvarlig>
             <OpprettTiltakstype />
           </RootLayout>
         }
@@ -40,21 +30,22 @@ export default function AutentisertFagansvarligApp() {
       <Route
         path="tiltakstyper/:tiltakstypeId"
         element={
-          <RootLayout>
+          <RootLayout fagansvarlig>
             <DetaljerTiltakstypePage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
       <Route
-        path="tiltaksgjennomforing/:tiltaksgjennomforingId"
+        path="tiltakstyper/:tiltakstypeId/tiltaksgjennomforing/:tiltaksgjennomforingId"
         element={
-          <RootLayout>
-            <TiltaksgjennomforingPage />
+          <RootLayout fagansvarlig>
+            <TiltaksgjennomforingPage fagansvarlig />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
+      <Route path="/" element={<Navigate to="/tiltakstyper" />} />
     </Routes>
   );
 }

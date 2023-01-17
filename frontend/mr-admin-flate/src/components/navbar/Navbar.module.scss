@@ -1,0 +1,29 @@
+.navlink_container {
+  display: flex;
+  justify-content: flex-start;
+  background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px;
+}
+
+.navlink {
+  border-bottom: 1px solid transparent;
+  color: var(--a-surface-neutral);
+  text-decoration: none;
+  margin: 1rem 0.5rem 0;
+  padding: 1rem 1rem 0.5rem;
+  border-bottom: 4px solid transparent;
+
+  &:hover {
+    border-bottom: 4px solid var(--a-surface-action-active);
+    color: var(--a-surface-neutral-hover);
+  }
+
+  &_active {
+    text-decoration: none;
+    color: black;
+    margin: 1rem 0.5rem 0;
+    padding: 1rem 1rem 0.5rem;
+    border-bottom: 4px solid var(--a-surface-action-active);
+    cursor: default;
+  }
+}

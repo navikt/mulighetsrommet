@@ -1,14 +1,13 @@
-import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
 import { paginationAtom } from "../../api/atoms";
 import { useTiltaksgjennomforingerByInnloggetAnsatt } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByInnloggetAnsatt";
 import { Laster } from "../../components/Laster";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
-import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
-import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
+import styles from "../Oversikt.module.scss";
 
 export function MineTiltaksgjennomforingerPage() {
   const { data, isFetching, isError } =
@@ -22,11 +21,8 @@ export function MineTiltaksgjennomforingerPage() {
   if (isError) {
     return (
       <Alert variant="error">
-        <p>
-          Det oppsto en feil ved henting av dine tiltaksgjennomføringer. Prøv
-          igjen senere.
-        </p>
-        <Link to="/">Til forside</Link>
+        Det oppsto en feil ved henting av dine tiltaksgjennomføringer. Prøv
+        igjen senere.
       </Alert>
     );
   }
@@ -34,8 +30,7 @@ export function MineTiltaksgjennomforingerPage() {
   if (!data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne dine tiltaksgjennomføringer</p>
-        <Link to="/">Til forside</Link>
+        Klarte ikke finne dine tiltaksgjennomføringer.
       </Alert>
     );
   }
@@ -43,13 +38,10 @@ export function MineTiltaksgjennomforingerPage() {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Link to="/">Hjem</Link>
-      <Heading className={styles.overskrift} size="large">
-        Oversikt over mine tiltaksgjennomføringer
-      </Heading>
-      <BodyLong className={styles.body} size="small">
+      <Heading size="large">Oversikt over mine tiltaksgjennomføringer</Heading>
+      <BodyShort className={styles.body} size="small">
         Her finner du gjennomføringer du har lagt til i din liste
-      </BodyLong>
+      </BodyShort>
       <SokEtterTiltaksgjennomforing />
       <>
         {tiltaksgjennomforinger.length > 0 ? (
@@ -66,18 +58,18 @@ export function MineTiltaksgjennomforingerPage() {
               <Alert variant="info">
                 Vi fant ingen tiltaksgjennomføringer som du har lagt til i din
                 liste
-                <p>
+                <BodyShort>
                   Du kan legge tiltaksgjennomføringer til i denne oversikten ved
                   å trykke deg inn på en spesifikk gjennomføring og velge
                   &ldquo;Legg til i min liste&rdquo;.
-                </p>
+                </BodyShort>
               </Alert>
             </>
           )}
           {tiltaksgjennomforinger
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((tiltaksgjennomforing) => (
-              <Tiltaksgjennomforingrad
+              <TiltaksgjennomforingRad
                 key={tiltaksgjennomforing.id}
                 tiltaksgjennomforing={tiltaksgjennomforing}
               />

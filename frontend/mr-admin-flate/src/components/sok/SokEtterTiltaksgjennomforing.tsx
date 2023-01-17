@@ -1,4 +1,4 @@
-import { Search } from "@navikt/ds-react";
+import { BodyShort, Search } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { mulighetsrommetClient } from "../../api/clients";
@@ -56,7 +56,7 @@ export function SokEtterTiltaksgjennomforing() {
   };
 
   return (
-    <div>
+    <>
       <form onSubmit={onSubmit} style={{ margin: "1rem 0rem", width: "25rem" }}>
         <label htmlFor="search">Slå opp på tiltaksnummer</label>
         <Search
@@ -68,7 +68,7 @@ export function SokEtterTiltaksgjennomforing() {
       </form>
       {results.length > 1 ? (
         <div>
-          <p>Fant flere treff:</p>
+          <BodyShort>Fant flere treff:</BodyShort>
           <ul>
             {results.map((r) => {
               return (
@@ -82,6 +82,6 @@ export function SokEtterTiltaksgjennomforing() {
           </ul>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }

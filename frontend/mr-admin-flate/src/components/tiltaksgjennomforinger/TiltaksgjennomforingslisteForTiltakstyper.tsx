@@ -4,26 +4,28 @@ import { paginationAtomTiltaksgjennomforingMedTiltakstype } from "../../api/atom
 import { useTiltaksgjennomforingerByTiltakstypeId } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByTiltakstypeId";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
-import { Tiltaksgjennomforingrad } from "./Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "./TiltaksgjennomforingRad";
 import tiltaksgjennomforingsStyles from "./Tiltaksgjennomforingeroversikt.module.scss";
 import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
 import { Tiltakstype } from "mulighetsrommet-api-client";
 
-interface Props {
+interface TiltaksgjennomforingslisteForTiltakstyperProps {
   tiltakstype: Tiltakstype;
 }
 
 export function TiltaksgjennomforingslisteForTiltakstyper({
   tiltakstype,
-}: Props) {
+}: TiltaksgjennomforingslisteForTiltakstyperProps) {
   const [page, setPage] = useAtom(
     paginationAtomTiltaksgjennomforingMedTiltakstype
   );
   const { data: tiltaksgjennomforinger, isLoading } =
     useTiltaksgjennomforingerByTiltakstypeId(tiltakstype.id);
+
   if (isLoading) {
     return <Laster size="xlarge" />;
   }
+
   if (!tiltaksgjennomforinger) {
     return null;
   }
@@ -52,7 +54,7 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
         {tiltaksgjennomforinger.data
           .sort((a, b) => a.navn.localeCompare(b.navn))
           .map((tiltaksgjennomforing) => (
-            <Tiltaksgjennomforingrad
+            <TiltaksgjennomforingRad
               fagansvarlig
               key={tiltaksgjennomforing.id}
               tiltaksgjennomforing={tiltaksgjennomforing}

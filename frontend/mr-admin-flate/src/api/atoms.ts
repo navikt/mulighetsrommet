@@ -13,7 +13,4 @@ export const rolleAtom = atomWithStorage<Rolle | undefined>(
   undefined
 );
 
-export const tiltakstypefilter = atomWithHash<string>(
-  'tiltakstypefilter',
-  ""
-);
+export const tiltakstypefilter = atomWithHash<string>("tiltakstypefilter", "");

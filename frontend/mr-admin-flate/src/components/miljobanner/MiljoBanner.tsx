@@ -1,4 +1,4 @@
-import { Alert, Heading, Button } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading } from "@navikt/ds-react";
 import { useState } from "react";
 import { useVisForMiljo } from "../../hooks/useVisForMiljo";
 import styles from "./MiljoBanner.module.scss";
@@ -30,10 +30,10 @@ export function MiljoBanner() {
           Dette er en demo-tjeneste i <code>{navnForMiljo(url)}</code> som er
           under utvikling
         </Heading>
-        <p>
+        <BodyShort>
           Her eksperimenterer vi med ny funksjonalitet. Demoen inneholder ikke
           ekte data og kan til tider være ustabil.
-        </p>
+        </BodyShort>
         <Button onClick={() => setVis(false)}>Lukk melding</Button>
       </Alert>
     </div>
