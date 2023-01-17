@@ -119,7 +119,7 @@ export function DatoFelt({
 }
 
 export type SchemaValues = z.infer<
-  typeof OpprettTiltakstypeSchema // & typeof OpprettTiltaksgjennomforingSchema
+  typeof OpprettTiltakstypeSchema & typeof OpprettTiltaksgjennomforingSchema
 >;
 
 export type OptionalTiltakstypeSchemaValues = Partial<

@@ -57,7 +57,7 @@ export function OpprettTiltaksgjennomforing() {
               <div className={formStyles.separator} />
               <div className={formStyles.summaryContainer}>
                 <div style={{ display: "flex", gap: "1rem" }}>
-                  <Button onClick={() => handleSubmit()}>Publiser</Button>
+                  <Button type="submit" onClick={() => handleSubmit()}>Publiser</Button>
                 </div>
               </div>
             </Form>
