@@ -108,36 +108,6 @@ export function TiltaksgjennomforingPage({ fagansvarlig = false }: Props) {
       ) : (
         <></>
       )}
-
-      {/**
-       * TODO Implementere skjema for opprettelse av tiltaksgjennomføring
-       */}
-      {/* <BodyShort>Her kan du opprette en gjennomføring</BodyShort>
-      // <Formik<Values>
-      //   initialValues={{
-      //     tiltakgjennomforingId: "",
-      //     sakId: "",
-      //   }}
-      //   validationSchema={toFormikValidationSchema(Schema)}
-      //   onSubmit={(values, actions) => {
-      //     setTimeout(() => {
-      //       alert(JSON.stringify(values, null, 2));
-      //       actions.setSubmitting(false);
-      //     }, 1000);
-      //   }}
-      // >
-      //   {() => (
-      //     <Form>
-      //       <Tekstfelt
-      //         name="tiltakgjennomforingId"
-      //         type="text"
-      //         label="ID for tiltaksgjennomføring"
-      //       />
-      //       <Tekstfelt name="sakId" type="text" label="ID for sak" />
-      //       <button type="submit">Opprett</button>
-      //     </Form>
-      //   )}
-      // </Formik> */}
     </div>
   );
 }

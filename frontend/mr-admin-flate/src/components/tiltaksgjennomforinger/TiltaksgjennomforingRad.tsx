@@ -10,32 +10,34 @@ interface TiltaksgjennomforingRadProps {
 }
 
 export function TiltaksgjennomforingRad({
-  tiltaksgjennomforing,
-  fagansvarlig = false,
-}: TiltaksgjennomforingRadProps) {
+                                          tiltaksgjennomforing,
+                                          fagansvarlig = false,
+                                        }: TiltaksgjennomforingRadProps) {
+  const navigerSomFagEllerTiltaksansvarlig = () => {
+    location.href = fagansvarlig
+        ? `${side}/${tiltaksgjennomforing.tiltakstype.id}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
+        : `${side}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`;
+  };
   const side = useSideForNavigering();
+
   return (
-    <li
-      className={styles.rad}
-      onClick={() =>
-        (location.href = fagansvarlig
-          ? `${side}/${tiltaksgjennomforing.tiltakstype.id}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
-          : `${side}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`)
-      }
-      data-testid="tiltaksgjennomforingsrad"
-    >
-      <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
-      <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-      <BodyShort
-        size="small"
-        title={tiltaksgjennomforing.tiltakstype.arenaKode}
+      <li
+          className={styles.rad}
+          onClick={navigerSomFagEllerTiltaksansvarlig}
+          data-testid="tiltaksgjennomforingsrad"
       >
-        {tiltaksgjennomforing.tiltakstype.navn}
-      </BodyShort>
-      <BodyShort size="small">
-        {tiltaksgjennomforing.virksomhetsnummer}
-      </BodyShort>
-      <Next className={styles.pil} />
-    </li>
+        <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
+        <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+        <BodyShort
+            size="small"
+            title={tiltaksgjennomforing.tiltakstype.arenaKode}
+        >
+          {tiltaksgjennomforing.tiltakstype.navn}
+        </BodyShort>
+        <BodyShort size="small">
+          {tiltaksgjennomforing.virksomhetsnummer}
+        </BodyShort>
+        <Next className={styles.pil}/>
+      </li>
   );
 }
