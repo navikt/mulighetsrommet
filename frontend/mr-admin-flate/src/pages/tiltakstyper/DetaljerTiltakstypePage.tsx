@@ -4,13 +4,11 @@ import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
+import { useSideForNavigering } from "../../hooks/useSideForNavigering";
 
-interface Props {
-  side: string;
-}
-
-export function DetaljerTiltakstypePage({ side }: Props) {
+export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
+  const side = useSideForNavigering();
 
   if (optionalTiltakstype.isFetching) {
     return <Laster tekst="Laster tiltakstype" />;
@@ -36,10 +34,7 @@ export function DetaljerTiltakstypePage({ side }: Props) {
         <dt>Tiltakskode:</dt>
         <dd>{tiltakstype.arenaKode}</dd>
       </dl>
-      <TiltaksgjennomforingslisteForTiltakstyper
-        tiltakstype={tiltakstype}
-        side={side}
-      />
+      <TiltaksgjennomforingslisteForTiltakstyper tiltakstype={tiltakstype} />
     </>
   );
 }

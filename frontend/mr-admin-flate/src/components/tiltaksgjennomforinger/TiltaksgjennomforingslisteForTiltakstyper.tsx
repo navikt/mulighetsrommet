@@ -11,12 +11,10 @@ import { Tiltakstype } from "mulighetsrommet-api-client";
 
 interface TiltaksgjennomforingslisteForTiltakstyperProps {
   tiltakstype: Tiltakstype;
-  side: string;
 }
 
 export function TiltaksgjennomforingslisteForTiltakstyper({
   tiltakstype,
-  side,
 }: TiltaksgjennomforingslisteForTiltakstyperProps) {
   const [page, setPage] = useAtom(
     paginationAtomTiltaksgjennomforingMedTiltakstype
