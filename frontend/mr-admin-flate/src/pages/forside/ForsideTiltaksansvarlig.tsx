@@ -1,8 +1,8 @@
 import { Heading } from "@navikt/ds-react";
-import { useFeatureToggles } from "./api/features/feature-toggles";
-import { Laster } from "./components/Laster";
-import { Shortcuts } from "./components/shortcuts/Shortcuts";
-import { shortcutsForTiltaksansvarlig } from "./constants";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { Laster } from "../../components/Laster";
+import { Navbar } from "../../components/navbar/Navbar";
+import { shortcutsForTiltaksansvarlig } from "../../constants";
 
 export function ForsideTiltaksansvarlig() {
   const { data, isLoading } = useFeatureToggles();
@@ -19,10 +19,5 @@ export function ForsideTiltaksansvarlig() {
     );
   }
 
-  return (
-    <>
-      <h1>Oversikt</h1>
-      <Shortcuts shortcuts={shortcutsForTiltaksansvarlig} />
-    </>
-  );
+  return <Navbar shortcuts={shortcutsForTiltaksansvarlig} />;
 }

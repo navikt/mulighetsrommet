@@ -25,7 +25,7 @@ export function AdministratorHeader({ gjelderForMiljo }: Props) {
 
   const velgRolle = (rolle: Rolle) => {
     setRolle(rolle);
-    location?.reload();
+    location?.replace("/");
   };
 
   return (

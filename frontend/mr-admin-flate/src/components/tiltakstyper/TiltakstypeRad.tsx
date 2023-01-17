@@ -1,20 +1,19 @@
 import { Tiltakstype } from "mulighetsrommet-api-client";
-import { BodyLong, BodyShort } from "@navikt/ds-react";
-import styles from "./Tiltakstyperad.module.scss";
+import { BodyShort } from "@navikt/ds-react";
+import styles from "./TiltakstypeRad.module.scss";
 import { Next } from "@navikt/ds-icons";
-import { Link } from "react-router-dom";
 import { formaterDato } from "../../utils/Utils";
 
 interface Props {
   tiltakstype: Tiltakstype;
 }
 
-export function Tiltakstyperad({ tiltakstype }: Props) {
+export function TiltakstypeRad({ tiltakstype }: Props) {
+  const navigerTilTiltakstype = () =>
+    (location.href = `/tiltakstyper/${tiltakstype.id}`);
   return (
-    <li className={styles.rad}>
-      <Link to={`${tiltakstype.id}`}>
-        <BodyLong size={"medium"}>{tiltakstype.navn}</BodyLong>
-      </Link>
+    <li className={styles.rad} onClick={navigerTilTiltakstype}>
+      <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
       <BodyShort size="small">{tiltakstype.arenaKode}</BodyShort>
       <div className={styles.dato}>
         <BodyShort
@@ -30,9 +29,7 @@ export function Tiltakstyperad({ tiltakstype }: Props) {
           {formaterDato(tiltakstype.tilDato)}
         </BodyShort>
       </div>
-      <div className={styles.pil}>
-        <Next />
-      </div>
+      <Next className={styles.pil} />
     </li>
   );
 }

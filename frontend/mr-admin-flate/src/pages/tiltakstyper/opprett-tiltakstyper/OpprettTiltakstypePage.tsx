@@ -1,9 +1,8 @@
-import { BodyLong, Button, Heading } from "@navikt/ds-react";
+import { BodyShort, Button, Heading } from "@navikt/ds-react";
 import { Form, Formik } from "formik";
-import { Link } from "react-router-dom";
 
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import styles from "../../tiltaksgjennomforinger/Oversikt.module.scss";
+import styles from "../../Oversikt.module.scss";
 import {
   CheckboxFelt,
   Datovelger,
@@ -20,6 +19,7 @@ import {
   RammeavtaleValue,
   TiltaksgruppekodeValue,
 } from "./OpprettTiltakstypeSchemaValidation";
+import { Tilbakelenke } from "../../../components/navigering/Tilbakelenke";
 
 export function OpprettTiltakstype() {
   const initialValues: OptionalSchemaValues = {
@@ -112,18 +112,11 @@ export function OpprettTiltakstype() {
 
   return (
     <>
-      <Link
-        style={{ marginBottom: "1rem", display: "block" }}
-        to="/tiltakstyper"
-      >
-        Tilbake til oversikt
-      </Link>
-      <Heading className={styles.overskrift} size="large">
-        Opprett ny tiltakstype
-      </Heading>
-      <BodyLong className={styles.body} size="small">
+      <Tilbakelenke>Tilbake</Tilbakelenke>
+      <Heading size="large">Opprett ny tiltakstype</Heading>
+      <BodyShort className={styles.body} size="small">
         Her kan du opprette eller redigere en tiltakstype
-      </BodyLong>
+      </BodyShort>
       <Formik<OptionalSchemaValues>
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(OpprettTiltakstypeSchema)}

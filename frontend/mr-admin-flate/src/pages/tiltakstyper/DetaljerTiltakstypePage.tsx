@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
+import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
+import { useSideForNavigering } from "../../hooks/useSideForNavigering";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
+  const side = useSideForNavigering();
 
   if (optionalTiltakstype.isFetching) {
     return <Laster tekst="Laster tiltakstype" />;
@@ -14,7 +17,7 @@ export function DetaljerTiltakstypePage() {
   if (!optionalTiltakstype.data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltakstype</p>
+        Klarte ikke finne tiltakstype
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -23,12 +26,7 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Link
-        style={{ marginBottom: "1rem", display: "block" }}
-        to="/tiltakstyper"
-      >
-        Tilbake til oversikt
-      </Link>
+      <Tilbakelenke>Tilbake</Tilbakelenke>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>

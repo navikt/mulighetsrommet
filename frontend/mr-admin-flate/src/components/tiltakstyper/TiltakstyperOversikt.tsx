@@ -4,7 +4,7 @@ import { paginationAtom } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
-import { Tiltakstyperad } from "./Tiltakstyperad";
+import { TiltakstypeRad } from "./TiltakstypeRad";
 import styles from "./Tiltakstyperoversikt.module.scss";
 
 export function TiltakstyperOversikt() {
@@ -37,7 +37,7 @@ export function TiltakstyperOversikt() {
           <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
         ) : null}
         {tiltakstyper.map((tiltakstype) => (
-          <Tiltakstyperad key={tiltakstype.id} tiltakstype={tiltakstype} />
+          <TiltakstypeRad key={tiltakstype.id} tiltakstype={tiltakstype} />
         ))}
       </ul>
       <div className={styles.under_oversikt}>

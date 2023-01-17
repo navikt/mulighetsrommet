@@ -3,7 +3,7 @@ import { Form, Formik } from "formik";
 import { Link } from "react-router-dom";
 
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import styles from "../../tiltaksgjennomforinger/Oversikt.module.scss";
+import styles from "../../Oversikt.module.scss";
 import formStyles from "./OpprettTiltaksgjennomforingPage.module.scss";
 import { OpprettTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingSchemaValidation";
 import {
@@ -22,7 +22,7 @@ export function OpprettTiltaksgjennomforing() {
   return (
     <>
       <Link style={{ marginBottom: "1rem", display: "block" }} to="/oversikt">
-        Tilbake til oversikt
+        Tilbake
       </Link>
       <Heading className={styles.overskrift} size="large">
         Opprett ny tiltaksgjennomforing
