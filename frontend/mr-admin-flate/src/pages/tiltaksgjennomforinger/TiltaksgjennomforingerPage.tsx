@@ -37,7 +37,7 @@ export function TiltaksgjennomforingerPage() {
       <div className={pageStyles.header_wrapper}>
         <Heading size="large">Oversikt over tiltaksgjennomføringer</Heading>
         {toggles?.["mulighetsrommet.enable-opprett-gjennomforing"] ? (
-          <Link to="/opprett" className={styles.opprettknappseksjon}>
+          <Link to="/opprett-tiltaksgjennomforing" className={styles.opprettknappseksjon}>
             <Button variant="tertiary">Opprett ny tiltaksgjennomføring</Button>
           </Link>
         ) : null}
