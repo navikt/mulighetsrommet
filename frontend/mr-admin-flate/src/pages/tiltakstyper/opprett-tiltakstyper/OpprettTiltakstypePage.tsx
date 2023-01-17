@@ -9,7 +9,7 @@ import {
   Datovelger,
   SelectFelt,
   Tekstfelt,
-} from "./OpprettTiltakstypeComponents";
+} from "../../OpprettComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
   AdministrasjonskodeValue,

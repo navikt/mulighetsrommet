@@ -7,6 +7,7 @@ import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/Tilta
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { MineTiltaksgjennomforingerPage } from "./pages/mine/MineTiltaksgjennomforingerPage";
 import { Ansatt } from "mulighetsrommet-api-client";
+import { OpprettTiltaksgjennomforing } from "./pages/tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingPage";
 
 export interface Props {
   ansatt: Ansatt;
@@ -56,6 +57,15 @@ export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
         element={
           <RootLayout>
             <TiltaksgjennomforingPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="opprett"
+        element={
+          <RootLayout>
+            <OpprettTiltaksgjennomforing />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
