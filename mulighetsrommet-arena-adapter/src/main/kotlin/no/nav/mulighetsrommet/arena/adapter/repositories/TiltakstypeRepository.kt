@@ -140,7 +140,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger
+            select *
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
