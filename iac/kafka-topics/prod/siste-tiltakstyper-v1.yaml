@@ -22,3 +22,6 @@ spec:
     - team: amt
       application: amt-tiltak
       access: read
+    - team: pto
+      application: veilarbportefolje
+      access: read
