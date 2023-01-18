@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -20,7 +21,7 @@ data class Tiltakstype(
     @Serializable(with = LocalDateTimeSerializer::class)
     val tilDato: LocalDateTime,
     val rettPaaTiltakspenger: Boolean,
-    val administrasjonskode: String,
+    val administrasjonskode: Administrasjonskode,
     val sendTilsagnsbrevTilDeltaker: Boolean,
     val tiltakstypeSkalHaAnskaffelsesprosess: Boolean,
     val maksAntallPlasser: Int? = null,

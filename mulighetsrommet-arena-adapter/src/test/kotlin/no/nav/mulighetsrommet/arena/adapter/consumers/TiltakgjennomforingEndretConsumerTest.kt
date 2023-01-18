@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
@@ -68,7 +69,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                     fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
                     tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
                     tiltaksgruppekode = "tiltaksgruppekode",
-                    administrasjonskode = "adminkode",
+                    administrasjonskode = Administrasjonskode.AMO,
                     sendTilsagnsbrevTilDeltaker = true,
                     tiltakstypeSkalHaAnskaffelsesprosess = false,
                     maksAntallPlasser = 10,
@@ -136,7 +137,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
             tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
             tiltaksgruppekode = "tiltaksgruppekode",
-            administrasjonskode = "adminkode",
+            administrasjonskode = Administrasjonskode.AMO,
             sendTilsagnsbrevTilDeltaker = true,
             tiltakstypeSkalHaAnskaffelsesprosess = false,
             maksAntallPlasser = 10,
@@ -223,7 +224,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
             tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
             tiltaksgruppekode = "tiltaksgruppekode",
-            administrasjonskode = "adminkode",
+            administrasjonskode = Administrasjonskode.AMO,
             sendTilsagnsbrevTilDeltaker = true,
             tiltakstypeSkalHaAnskaffelsesprosess = false,
             maksAntallPlasser = 10,

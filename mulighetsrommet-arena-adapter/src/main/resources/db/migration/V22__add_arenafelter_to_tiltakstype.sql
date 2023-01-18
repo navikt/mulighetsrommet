@@ -1,9 +1,10 @@
 create type Rammeavtale as enum ('SKAL', 'KAN', 'IKKE');
 create type Handlingsplan as enum ('AKT', 'LAG', 'SOK', 'TIL');
+create type Administrasjonskode as enum ('AMO', 'IND', 'INST');
 
 alter table tiltakstype
     add column tiltaksgruppekode text,
-    add column administrasjonskode text,
+    add column administrasjonskode Administrasjonskode,
     add column send_tilsagnsbrev_til_deltaker bool,
     add column skal_ha_anskaffelsesprosess bool,
     add column maks_antall_plasser int,

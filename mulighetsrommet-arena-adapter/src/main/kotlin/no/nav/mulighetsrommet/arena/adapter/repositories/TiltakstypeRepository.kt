@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
@@ -60,7 +61,7 @@ class TiltakstypeRepository(private val db: Database) {
             :til_dato, 
             :rett_paa_tiltakspenger, 
             :tiltaksgruppekode, 
-            :administrasjonskode,
+            :administrasjonskode::Administrasjonskode,
             :send_tilsagnsbrev_til_deltaker,
             :skal_ha_anskaffelsesprosess,
             :maks_antall_plasser,
@@ -158,7 +159,7 @@ class TiltakstypeRepository(private val db: Database) {
         "til_dato" to tilDato,
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
         "tiltaksgruppekode" to tiltaksgruppekode,
-        "administrasjonskode" to administrasjonskode,
+        "administrasjonskode" to administrasjonskode?.name,
         "send_tilsagnsbrev_til_deltaker" to sendTilsagnsbrevTilDeltaker,
         "skal_ha_anskaffelsesprosess" to tiltakstypeSkalHaAnskaffelsesprosess,
         "maks_antall_plasser" to maksAntallPlasser,
@@ -190,7 +191,7 @@ class TiltakstypeRepository(private val db: Database) {
         fraDato = localDateTime("fra_dato"),
         tilDato = localDateTime("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-        administrasjonskode = string("administrasjonskode"),
+        administrasjonskode = Administrasjonskode.valueOf(string("administrasjonskode")),
         sendTilsagnsbrevTilDeltaker = boolean("send_tilsagnsbrev_til_deltaker"),
         tiltakstypeSkalHaAnskaffelsesprosess = boolean("skal_ha_anskaffelsesprosess"),
         maksAntallPlasser = intOrNull("maks_antall_plasser"),

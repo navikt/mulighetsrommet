@@ -10,7 +10,7 @@ data class ArenaTiltak(
     val DATO_FRA: String,
     val DATO_TIL: String,
     val STATUS_BASISYTELSE: JaNeiStatus,
-    val ADMINISTRASJONKODE: String, // TODO Sjekk om denne skal være et enum
+    val ADMINISTRASJONKODE: Administrasjonskode,
     val STATUS_KOPI_TILSAGN: JaNeiStatus,
     val STATUS_ANSKAFFELSE: JaNeiStatus,
     val MAKS_ANT_PLASSER: Int?,
