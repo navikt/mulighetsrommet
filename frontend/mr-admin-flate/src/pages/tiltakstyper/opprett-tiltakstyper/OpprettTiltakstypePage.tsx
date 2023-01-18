@@ -5,9 +5,11 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import styles from "../../Oversikt.module.scss";
 import {
   CheckboxFelt,
-  Datovelger, OptionalTiltakstypeSchemaValues,
+  Datovelger,
+  OpprettTiltakstypeSchemaValues,
+  OptionalTiltakstypeSchemaValues,
   SelectFelt,
-  Tekstfelt
+  Tekstfelt,
 } from "../../OpprettComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
@@ -132,21 +134,30 @@ export function OpprettTiltakstype() {
               className={formStyles.form}
               onSubmit={(e) => e.preventDefault()}
             >
-              <Tekstfelt name="tiltakstypenavn" label="Navn på tiltakstype" />
-              <SelectFelt name="tiltaksgruppekode" label="Tiltaksgruppekode">
+              <Tekstfelt<OpprettTiltakstypeSchemaValues>
+                name="tiltakstypenavn"
+                label="Navn på tiltakstype"
+              />
+              <SelectFelt<OpprettTiltakstypeSchemaValues>
+                name="tiltaksgruppekode"
+                label="Tiltaksgruppekode"
+              >
                 {Object.entries(tiltaksgruppekoder).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value} - {key}
                   </option>
                 ))}
               </SelectFelt>
-              <Tekstfelt name="tiltakskode" label="Tiltakskode" />
+              <Tekstfelt<OpprettTiltakstypeSchemaValues>
+                name="tiltakskode"
+                label="Tiltakskode"
+              />
               <Datovelger />
 
-              <CheckboxFelt name="rettTilTiltakspenger">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="rettTilTiltakspenger">
                 Rett på tiltakspenger
               </CheckboxFelt>
-              <SelectFelt
+              <SelectFelt<OpprettTiltakstypeSchemaValues>
                 name="administrasjonskode"
                 label="Administrasjonskode"
               >
@@ -156,18 +167,23 @@ export function OpprettTiltakstype() {
                   </option>
                 ))}
               </SelectFelt>
-              <CheckboxFelt name="kopiAvTilsagnsbrev">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="kopiAvTilsagnsbrev">
                 Kopi av tilsagnsbrev
               </CheckboxFelt>
-              <CheckboxFelt name="harAnskaffelse">Anskaffelse</CheckboxFelt>
-              <SelectFelt name="rammeavtale" label="Rammeavtale">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harAnskaffelse">
+                Anskaffelse
+              </CheckboxFelt>
+              <SelectFelt<OpprettTiltakstypeSchemaValues>
+                name="rammeavtale"
+                label="Rammeavtale"
+              >
                 {Object.entries(rammeavtaler).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
                   </option>
                 ))}
               </SelectFelt>
-              <SelectFelt
+              <SelectFelt<OpprettTiltakstypeSchemaValues>
                 name="opplaringsgruppe"
                 label="Opplæringsgruppe"
                 defaultBlankName="Ingen opplæringsgruppe"
@@ -178,50 +194,57 @@ export function OpprettTiltakstype() {
                   </option>
                 ))}
               </SelectFelt>
-              <SelectFelt name="handlingsplan" label="Handlingsplan">
+              <SelectFelt<OpprettTiltakstypeSchemaValues>
+                name="handlingsplan"
+                label="Handlingsplan"
+              >
                 {Object.entries(handlingsplaner).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
                   </option>
                 ))}
               </SelectFelt>
-              <CheckboxFelt name="harObligatoriskSluttdato">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harObligatoriskSluttdato">
                 Obligatorisk sluttdato
               </CheckboxFelt>
 
               <CheckboxFelt name="harStatusSluttdato">
                 Status sluttdato
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusMeldeplikt">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusMeldeplikt">
                 Status meldeplikt
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusVedtak">Status vedtak</CheckboxFelt>
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusVedtak">
+                Status vedtak
+              </CheckboxFelt>
               <CheckboxFelt name="harStatusIAAvtale">
                 Status IA Avtale
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusTilleggstonad">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusTilleggstonad">
                 Status tilleggsstønad
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusUtdanning">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusUtdanning">
                 Status utdanning
               </CheckboxFelt>
 
-              <CheckboxFelt name="harAutomatiskTilsagnsbrev">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harAutomatiskTilsagnsbrev">
                 Automatisk tilsagnsbrev
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusBegrunnelseInnsok">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusBegrunnelseInnsok">
                 Status begrunnelse innsøk
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusHenvisningsbrev">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusHenvisningsbrev">
                 Status henvisningsbrev
               </CheckboxFelt>
-              <CheckboxFelt name="harStatusKopibrev">
+              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusKopibrev">
                 Status kopibrev
               </CheckboxFelt>
               <div className={formStyles.separator} />
               <div className={formStyles.summaryContainer}>
                 <div style={{ display: "flex", gap: "1rem" }}>
-                  <Button type="submit" onClick={() => handleSubmit()}>Publiser</Button>
+                  <Button type="submit" onClick={() => handleSubmit()}>
+                    Publiser
+                  </Button>
                 </div>
               </div>
             </Form>

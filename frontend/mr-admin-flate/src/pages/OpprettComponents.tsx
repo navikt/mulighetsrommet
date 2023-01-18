@@ -12,13 +12,13 @@ import { formaterDato } from "../utils/Utils";
 import { z } from "zod";
 import { OpprettTiltaksgjennomforingSchema } from "./tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingSchemaValidation";
 
-export function Tekstfelt({
+export function Tekstfelt<T>({
   label,
   name,
   hjelpetekst,
   ...props
 }: {
-  name: keyof SchemaValues;
+  name: keyof T;
   label: string;
   hjelpetekst?: string;
 } & FieldHookConfig<any>) {
@@ -34,14 +34,14 @@ export function Tekstfelt({
   );
 }
 
-export function SelectFelt({
+export function SelectFelt<T>({
   label,
   name,
   defaultBlank = true,
   defaultBlankName = "",
   ...props
 }: {
-  name: keyof SchemaValues;
+  name: keyof T;
   label: string;
   defaultBlank?: boolean;
   defaultBlankName?: string;
@@ -60,8 +60,8 @@ export function SelectFelt({
   );
 }
 
-export function CheckboxFelt(
-  props: { name: keyof SchemaValues } & FieldHookConfig<any>
+export function CheckboxFelt<T>(
+  props: { name: keyof T } & FieldHookConfig<any>
 ) {
   const [field] = useField({ ...props, type: "checkbox" });
 
@@ -101,11 +101,11 @@ export function Datovelger() {
   );
 }
 
-export function DatoFelt({
+export function DatoFelt<T>({
   name,
   label,
   ...rest
-}: { name: keyof SchemaValues; label: string } & FieldHookConfig<any> & any) {
+}: { name: keyof T; label: string } & FieldHookConfig<any> & any) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, meta] = useField({ name, ...rest });
   return (
@@ -118,8 +118,12 @@ export function DatoFelt({
   );
 }
 
-export type SchemaValues = z.infer<
-  typeof OpprettTiltakstypeSchema & typeof OpprettTiltaksgjennomforingSchema
+export type OpprettTiltakstypeSchemaValues = z.infer<
+  typeof OpprettTiltakstypeSchema
+>;
+
+export type OpprettTiltaksgjennomforingSchemaValues = z.infer<
+  typeof OpprettTiltaksgjennomforingSchema
 >;
 
 export type OptionalTiltakstypeSchemaValues = Partial<
