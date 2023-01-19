@@ -4,12 +4,12 @@ import { Form, Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import styles from "../../Oversikt.module.scss";
 import {
-  CheckboxFelt,
+  CheckboxFelt as CheckboxFeltComponent,
   Datovelger,
   OpprettTiltakstypeSchemaValues,
   OptionalTiltakstypeSchemaValues,
-  SelectFelt,
-  Tekstfelt,
+  SelectFelt as SelectFeltComponent,
+  Tekstfelt as TekstfeltComponent,
 } from "../../OpprettComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
@@ -21,6 +21,10 @@ import {
   TiltaksgruppekodeValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 import { Tilbakelenke } from "../../../components/navigering/Tilbakelenke";
+
+const Tekstfelt = TekstfeltComponent<OpprettTiltakstypeSchemaValues>;
+const CheckboxFelt = CheckboxFeltComponent<OpprettTiltakstypeSchemaValues>;
+const SelectFelt = SelectFeltComponent<OpprettTiltakstypeSchemaValues>;
 
 export function OpprettTiltakstype() {
   const initialValues: OptionalTiltakstypeSchemaValues = {
@@ -134,30 +138,21 @@ export function OpprettTiltakstype() {
               className={formStyles.form}
               onSubmit={(e) => e.preventDefault()}
             >
-              <Tekstfelt<OpprettTiltakstypeSchemaValues>
-                name="tiltakstypenavn"
-                label="Navn på tiltakstype"
-              />
-              <SelectFelt<OpprettTiltakstypeSchemaValues>
-                name="tiltaksgruppekode"
-                label="Tiltaksgruppekode"
-              >
+              <Tekstfelt name="tiltakstypenavn" label="Navn på tiltakstype" />
+              <SelectFelt name="tiltaksgruppekode" label="Tiltaksgruppekode">
                 {Object.entries(tiltaksgruppekoder).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value} - {key}
                   </option>
                 ))}
               </SelectFelt>
-              <Tekstfelt<OpprettTiltakstypeSchemaValues>
-                name="tiltakskode"
-                label="Tiltakskode"
-              />
+              <Tekstfelt name="tiltakskode" label="Tiltakskode" />
               <Datovelger />
 
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="rettTilTiltakspenger">
+              <CheckboxFelt name="rettTilTiltakspenger">
                 Rett på tiltakspenger
               </CheckboxFelt>
-              <SelectFelt<OpprettTiltakstypeSchemaValues>
+              <SelectFelt
                 name="administrasjonskode"
                 label="Administrasjonskode"
               >
@@ -167,23 +162,18 @@ export function OpprettTiltakstype() {
                   </option>
                 ))}
               </SelectFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="kopiAvTilsagnsbrev">
+              <CheckboxFelt name="kopiAvTilsagnsbrev">
                 Kopi av tilsagnsbrev
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harAnskaffelse">
-                Anskaffelse
-              </CheckboxFelt>
-              <SelectFelt<OpprettTiltakstypeSchemaValues>
-                name="rammeavtale"
-                label="Rammeavtale"
-              >
+              <CheckboxFelt name="harAnskaffelse">Anskaffelse</CheckboxFelt>
+              <SelectFelt name="rammeavtale" label="Rammeavtale">
                 {Object.entries(rammeavtaler).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
                   </option>
                 ))}
               </SelectFelt>
-              <SelectFelt<OpprettTiltakstypeSchemaValues>
+              <SelectFelt
                 name="opplaringsgruppe"
                 label="Opplæringsgruppe"
                 defaultBlankName="Ingen opplæringsgruppe"
@@ -194,49 +184,44 @@ export function OpprettTiltakstype() {
                   </option>
                 ))}
               </SelectFelt>
-              <SelectFelt<OpprettTiltakstypeSchemaValues>
-                name="handlingsplan"
-                label="Handlingsplan"
-              >
+              <SelectFelt name="handlingsplan" label="Handlingsplan">
                 {Object.entries(handlingsplaner).map(([key, value]) => (
                   <option key={key} value={key}>
                     {value}
                   </option>
                 ))}
               </SelectFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harObligatoriskSluttdato">
+              <CheckboxFelt name="harObligatoriskSluttdato">
                 Obligatorisk sluttdato
               </CheckboxFelt>
 
               <CheckboxFelt name="harStatusSluttdato">
                 Status sluttdato
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusMeldeplikt">
+              <CheckboxFelt name="harStatusMeldeplikt">
                 Status meldeplikt
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusVedtak">
-                Status vedtak
-              </CheckboxFelt>
+              <CheckboxFelt name="harStatusVedtak">Status vedtak</CheckboxFelt>
               <CheckboxFelt name="harStatusIAAvtale">
                 Status IA Avtale
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusTilleggstonad">
+              <CheckboxFelt name="harStatusTilleggstonad">
                 Status tilleggsstønad
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusUtdanning">
+              <CheckboxFelt name="harStatusUtdanning">
                 Status utdanning
               </CheckboxFelt>
 
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harAutomatiskTilsagnsbrev">
+              <CheckboxFelt name="harAutomatiskTilsagnsbrev">
                 Automatisk tilsagnsbrev
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusBegrunnelseInnsok">
+              <CheckboxFelt name="harStatusBegrunnelseInnsok">
                 Status begrunnelse innsøk
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusHenvisningsbrev">
+              <CheckboxFelt name="harStatusHenvisningsbrev">
                 Status henvisningsbrev
               </CheckboxFelt>
-              <CheckboxFelt<OpprettTiltakstypeSchemaValues> name="harStatusKopibrev">
+              <CheckboxFelt name="harStatusKopibrev">
                 Status kopibrev
               </CheckboxFelt>
               <div className={formStyles.separator} />

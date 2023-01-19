@@ -7,11 +7,13 @@ import {
   Datovelger,
   OpprettTiltaksgjennomforingSchemaValues,
   OptionalTiltaksgjennomforingSchemaValues,
-  Tekstfelt,
+  Tekstfelt as TekstfeltComponent,
 } from "../../OpprettComponents";
 import styles from "../../Oversikt.module.scss";
 import formStyles from "./OpprettTiltaksgjennomforingPage.module.scss";
 import { OpprettTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingSchemaValidation";
+
+const Tekstfelt = TekstfeltComponent<OpprettTiltaksgjennomforingSchemaValues>;
 
 export function OpprettTiltaksgjennomforing() {
   const initialValues: OptionalTiltaksgjennomforingSchemaValues = {
@@ -49,7 +51,7 @@ export function OpprettTiltaksgjennomforing() {
               className={formStyles.form}
               onSubmit={(e) => e.preventDefault()}
             >
-              <Tekstfelt<OpprettTiltaksgjennomforingSchemaValues>
+              <Tekstfelt
                 name="tiltaksgjennomforingnavn"
                 label="Navn på tiltaksgjennomføring"
               />
