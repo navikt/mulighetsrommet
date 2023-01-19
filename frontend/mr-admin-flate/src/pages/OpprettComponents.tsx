@@ -119,6 +119,8 @@ export function DatoFelt<T>({
   );
 }
 
+export const BooleanDefaultFalse = z.boolean().default(false);
+
 export type OpprettTiltakstypeSchemaValues = z.infer<
   typeof OpprettTiltakstypeSchema
 >;

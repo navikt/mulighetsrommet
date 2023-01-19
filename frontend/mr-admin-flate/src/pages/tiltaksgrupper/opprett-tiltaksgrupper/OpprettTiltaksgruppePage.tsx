@@ -4,22 +4,28 @@ import { Link } from "react-router-dom";
 
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import {
+  CheckboxFelt as CheckboxFeltComponent,
   Datovelger,
-  OpprettTiltaksgruppeSchemaValues,
+  OpprettTiltaksgruppeSchemaValues, OpprettTiltakstypeSchemaValues,
   OptionalTiltaksgjennomforingSchemaValues,
-  Tekstfelt as TekstfeltComponent,
+  Tekstfelt as TekstfeltComponent
 } from "../../OpprettComponents";
 import styles from "../../Oversikt.module.scss";
 import formStyles from "./OpprettTiltaksgruppePage.module.scss";
 import { OpprettTiltaksgruppeSchema } from "./OpprettTiltaksgruppeSchemaValidation";
 
 const Tekstfelt = TekstfeltComponent<OpprettTiltaksgruppeSchemaValues>;
+const CheckboxFelt = CheckboxFeltComponent<OpprettTiltakstypeSchemaValues>;
 
 export function OpprettTiltaksgruppe() {
   const initialValues: OptionalTiltaksgjennomforingSchemaValues = {
     tiltaksgjennomforingnavn: undefined,
     fraDato: undefined,
     tilDato: undefined,
+    harAutomatiskTilsagnsbrev: false,
+    harStatusBegrunnelseInnsok: false,
+    harStatusHenvisningsbrev: false,
+    harStatusKopibrev: false,
   };
 
   return (
@@ -52,11 +58,21 @@ export function OpprettTiltaksgruppe() {
               className={formStyles.form}
               onSubmit={(e) => e.preventDefault()}
             >
-              <Tekstfelt
-                name="tiltaksgruppenavn"
-                label="Navn på tiltaksgruppe"
-              />
+              <Tekstfelt name="tiltaksgruppenavn" label="Tiltaksgruppenavn" />
+              <Tekstfelt name="tiltaksgruppekode" label="Tiltaksgruppekode" />
               <Datovelger />
+              <CheckboxFelt name="harAutomatiskTilsagnsbrev">
+                Automatisk tilsagnsbrev
+              </CheckboxFelt>
+              <CheckboxFelt name="harStatusBegrunnelseInnsok">
+                Status begrunnelse innsøk
+              </CheckboxFelt>
+              <CheckboxFelt name="harStatusHenvisningsbrev">
+                Status henvisningsbrev
+              </CheckboxFelt>
+              <CheckboxFelt name="harStatusKopibrev">
+                Status kopibrev
+              </CheckboxFelt>
               <div className={formStyles.separator} />
               <div className={formStyles.summaryContainer}>
                 <div style={{ display: "flex", gap: "1rem" }}>
