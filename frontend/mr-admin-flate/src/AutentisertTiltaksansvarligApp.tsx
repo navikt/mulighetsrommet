@@ -1,19 +1,14 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useSideForNavigering } from "./hooks/useSideForNavigering";
 import { RootLayout } from "./layouts/RootLayout";
 import { EnhetsoversiktPage } from "./pages/enhet/EnhetsoversiktPage";
 import { ErrorPage } from "./pages/ErrorPage";
-import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { MineTiltaksgjennomforingerPage } from "./pages/mine/MineTiltaksgjennomforingerPage";
-import { Ansatt } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { OpprettTiltaksgjennomforing } from "./pages/tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingPage";
-import { useSideForNavigering } from "./hooks/useSideForNavigering";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 
-export interface Props {
-  ansatt: Ansatt;
-}
-
-export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
+export default function AutentisertTiltaksansvarligApp() {
   const side = useSideForNavigering();
 
   return (

@@ -31,7 +31,7 @@ export function App() {
         <Suspense
           fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
         >
-          <AutentisertTiltaksansvarligApp ansatt={optionalAnsatt.data} />
+          <AutentisertTiltaksansvarligApp />
         </Suspense>
       );
     case "FAGANSVARLIG":
