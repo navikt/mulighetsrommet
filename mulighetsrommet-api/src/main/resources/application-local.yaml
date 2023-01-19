@@ -55,10 +55,6 @@ app:
     url: http://localhost:8090/veilarbdialog/api
     scope: default
 
-  poaoGcpProxy:
-    url: http://localhost:8090
-    scope: default
-
   poaoTilgang:
     url: http://localhost:8090/poao-tilgang
     scope: default
