@@ -6,6 +6,7 @@ import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { TiltakstypeRad } from "./TiltakstypeRad";
 import styles from "./Tiltakstyperoversikt.module.scss";
+import { ListeheaderTiltakstype } from "./ListeheaderTiltakstype";
 
 export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();
@@ -36,6 +37,7 @@ export function TiltakstyperOversikt() {
         {tiltakstyper.length === 0 ? (
           <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
         ) : null}
+        <ListeheaderTiltakstype />
         {tiltakstyper.map((tiltakstype) => (
           <TiltakstypeRad key={tiltakstype.id} tiltakstype={tiltakstype} />
         ))}

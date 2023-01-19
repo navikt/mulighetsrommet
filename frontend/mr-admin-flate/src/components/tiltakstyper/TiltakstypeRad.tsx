@@ -14,7 +14,6 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
   return (
     <li className={styles.rad} onClick={navigerTilTiltakstype}>
       <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
-      <BodyShort size="small">{tiltakstype.arenaKode}</BodyShort>
       <div className={styles.dato}>
         <BodyShort
           size="small"

@@ -1,4 +1,4 @@
-import { Tiltaksgjennomforingeroversikt } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforingeroversikt";
+import { TiltaksgjennomforingerOversikt } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingerOversikt";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import styles from "../Oversikt.module.scss";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
@@ -34,7 +34,7 @@ export function TiltaksgjennomforingerPage() {
         Her finner du alle gjennomføringer
       </BodyShort>
       <SokEtterTiltaksgjennomforing />
-      <Tiltaksgjennomforingeroversikt />
+      <TiltaksgjennomforingerOversikt />
     </>
   );
 }

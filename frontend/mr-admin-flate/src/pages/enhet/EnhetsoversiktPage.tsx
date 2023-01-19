@@ -9,6 +9,7 @@ import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger
 import { PAGE_SIZE } from "../../constants";
 import styles from "../Oversikt.module.scss";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { ListeheaderTiltaksgjennomforing } from "../../components/tiltaksgjennomforinger/ListeheaderTiltaksgjennomforing";
 
 export function EnhetsoversiktPage() {
   const { data: ansatt } = useHentAnsatt();
@@ -63,6 +64,7 @@ export function EnhetsoversiktPage() {
               Vi fant ingen tiltaksgjennomføringer for din enhet
             </Alert>
           )}
+          <ListeheaderTiltaksgjennomforing />
           {tiltaksgjennomforinger
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((tiltaksgjennomforing) => (

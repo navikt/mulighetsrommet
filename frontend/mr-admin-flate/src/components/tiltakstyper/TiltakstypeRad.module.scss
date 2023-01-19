@@ -1,6 +1,17 @@
+.listeheader_wrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1%;
+  margin-bottom: 0.5rem;
+  padding: 0 1rem;
+
+  :global(.navds-body-short) {
+    font-weight: bold;
+  }
+}
+
 .rad {
   display: grid;
-  grid-template-columns: 2fr 1fr 2fr 1%;
+  grid-template-columns: 2fr 1fr 1%;
   background-color: white;
   margin-bottom: 0.25rem;
   padding: 2rem 1rem;
@@ -19,6 +30,7 @@
 }
 
 .dato {
-  display: flex;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-right: 10rem;
 }
