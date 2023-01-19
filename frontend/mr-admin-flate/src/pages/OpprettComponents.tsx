@@ -11,6 +11,7 @@ import { OpprettTiltakstypeSchema } from "./tiltakstyper/opprett-tiltakstyper/Op
 import { formaterDato } from "../utils/Utils";
 import { z } from "zod";
 import { OpprettTiltaksgjennomforingSchema } from "./tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingSchemaValidation";
+import { OpprettTiltaksgruppeSchema } from "./tiltaksgrupper/opprett-tiltaksgrupper/OpprettTiltaksgruppeSchemaValidation";
 
 export function Tekstfelt<T>({
   label,
@@ -126,9 +127,17 @@ export type OpprettTiltaksgjennomforingSchemaValues = z.infer<
   typeof OpprettTiltaksgjennomforingSchema
 >;
 
+export type OpprettTiltaksgruppeSchemaValues = z.infer<
+  typeof OpprettTiltaksgruppeSchema
+>;
+
 export type OptionalTiltakstypeSchemaValues = Partial<
   z.infer<typeof OpprettTiltakstypeSchema>
 >;
 export type OptionalTiltaksgjennomforingSchemaValues = Partial<
   z.infer<typeof OpprettTiltaksgjennomforingSchema>
+>;
+
+export type OptionalTiltaksgruppeSchemaValues = Partial<
+  z.infer<typeof OpprettTiltaksgruppeSchema>
 >;
