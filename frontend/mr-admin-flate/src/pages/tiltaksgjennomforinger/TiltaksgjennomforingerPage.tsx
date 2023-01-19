@@ -1,4 +1,4 @@
-import { Tiltaksgjennomforingeroversikt } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforingeroversikt";
+import { TiltaksgjennomforingerOversikt } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingerOversikt";
 import { Link } from "react-router-dom";
 import React from "react";
 import { Alert, BodyShort, Heading, Button } from "@navikt/ds-react";
@@ -46,7 +46,7 @@ export function TiltaksgjennomforingerPage() {
         Her finner du alle gjennomføringer
       </BodyShort>
       <SokEtterTiltaksgjennomforing />
-      <Tiltaksgjennomforingeroversikt />
+      <TiltaksgjennomforingerOversikt />
     </>
   );
 }

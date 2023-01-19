@@ -11,26 +11,26 @@ interface Props {
 
 export function TiltakstypeRad({ tiltakstype }: Props) {
   return (
-    <li className={styles.list_element}>
-      <Link to={`/tiltakstyper/${tiltakstype.id}`} className={styles.rad}>
-        <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
-        <BodyShort size="small">{tiltakstype.arenaKode}</BodyShort>
-        <div className={styles.dato}>
-          <BodyShort
-            size="small"
-            title={`Startdato ${formaterDato(tiltakstype.fraDato)}`}
-          >
-            {formaterDato(tiltakstype.fraDato)}
-          </BodyShort>
-          <BodyShort
-            size="small"
-            title={`Sluttdato ${formaterDato(tiltakstype.tilDato)}`}
-          >
-            {formaterDato(tiltakstype.tilDato)}
-          </BodyShort>
-        </div>
-        <Next className={styles.pil} />
-      </Link>
-    </li>
+      <li className={styles.list_element}>
+          <Link to={`/tiltakstyper/${tiltakstype.id}`} className={styles.rad}>
+              <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
+              <div className={styles.dato}>
+                  <BodyShort
+                      size="small"
+                      title={`Startdato ${formaterDato(tiltakstype.fraDato)}`}
+                  >
+                      {formaterDato(tiltakstype.fraDato)}
+                  </BodyShort>
+                  <BodyShort
+                      size="small"
+                      title={`Sluttdato ${formaterDato(tiltakstype.tilDato)}`}
+                  >
+                      {formaterDato(tiltakstype.tilDato)}
+                  </BodyShort>
+              </div>
+              <Next className={styles.pil} />
+          </Link>
+
+      </li>
   );
 }

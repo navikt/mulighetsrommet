@@ -1,17 +1,27 @@
+.listeheader_wrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1%;
+  margin-bottom: 0.5rem;
+  padding: 0 1rem;
+
+  :global(.navds-body-short) {
+    font-weight: bold;
+  }
+}
+
 .list_element {
   list-style: none;
 }
 
 .rad {
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 1fr 1%;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1%;
   background-color: white;
   margin-bottom: 0.25rem;
   padding: 2rem 1rem;
   border-radius: 0.25rem;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
   cursor: pointer;
   color: black;
   text-decoration: none;
