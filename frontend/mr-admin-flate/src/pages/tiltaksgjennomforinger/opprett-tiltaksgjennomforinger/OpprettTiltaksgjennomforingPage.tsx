@@ -3,15 +3,17 @@ import { Form, Formik } from "formik";
 import { Link } from "react-router-dom";
 
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import {
+  Datovelger,
+  OpprettTiltaksgjennomforingSchemaValues,
+  OptionalTiltaksgjennomforingSchemaValues,
+  Tekstfelt as TekstfeltComponent,
+} from "../../OpprettComponents";
 import styles from "../../Oversikt.module.scss";
 import formStyles from "./OpprettTiltaksgjennomforingPage.module.scss";
 import { OpprettTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingSchemaValidation";
-import {
-  Datovelger,
-  OptionalTiltaksgjennomforingSchemaValues,
-  Tekstfelt,
-} from "../../OpprettComponents";
-import { Input } from "@tanstack/react-query-devtools/build/lib/styledComponents";
+
+const Tekstfelt = TekstfeltComponent<OpprettTiltaksgjennomforingSchemaValues>;
 
 export function OpprettTiltaksgjennomforing() {
   const initialValues: OptionalTiltaksgjennomforingSchemaValues = {
@@ -53,7 +55,6 @@ export function OpprettTiltaksgjennomforing() {
                 name="tiltaksgjennomforingnavn"
                 label="Navn på tiltaksgjennomføring"
               />
-              <Tekstfelt name={"tiltakstypenavn"} label={"type"} />
               <Datovelger />
               <div className={formStyles.separator} />
               <div className={formStyles.summaryContainer}>

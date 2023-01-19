@@ -4,10 +4,12 @@ import { Form, Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import styles from "../../Oversikt.module.scss";
 import {
-  CheckboxFelt,
-  Datovelger, OptionalTiltakstypeSchemaValues,
-  SelectFelt,
-  Tekstfelt
+  CheckboxFelt as CheckboxFeltComponent,
+  Datovelger,
+  OpprettTiltakstypeSchemaValues,
+  OptionalTiltakstypeSchemaValues,
+  SelectFelt as SelectFeltComponent,
+  Tekstfelt as TekstfeltComponent,
 } from "../../OpprettComponents";
 import formStyles from "./OpprettTiltakstypePage.module.scss";
 import {
@@ -19,6 +21,10 @@ import {
   TiltaksgruppekodeValue,
 } from "./OpprettTiltakstypeSchemaValidation";
 import { Tilbakelenke } from "../../../components/navigering/Tilbakelenke";
+
+const Tekstfelt = TekstfeltComponent<OpprettTiltakstypeSchemaValues>;
+const CheckboxFelt = CheckboxFeltComponent<OpprettTiltakstypeSchemaValues>;
+const SelectFelt = SelectFeltComponent<OpprettTiltakstypeSchemaValues>;
 
 export function OpprettTiltakstype() {
   const initialValues: OptionalTiltakstypeSchemaValues = {
@@ -221,7 +227,9 @@ export function OpprettTiltakstype() {
               <div className={formStyles.separator} />
               <div className={formStyles.summaryContainer}>
                 <div style={{ display: "flex", gap: "1rem" }}>
-                  <Button type="submit" onClick={() => handleSubmit()}>Publiser</Button>
+                  <Button type="submit" onClick={() => handleSubmit()}>
+                    Publiser
+                  </Button>
                 </div>
               </div>
             </Form>
