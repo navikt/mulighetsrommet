@@ -68,11 +68,6 @@ export const OpprettTiltakstypeSchema = z.object({
   harStatusKopibrev: BooleanDefaultFalse,
 });
 
-export type OptionalSchemaValues = Partial<
-  z.infer<typeof OpprettTiltakstypeSchema>
->;
-export type SchemaValues = z.infer<typeof OpprettTiltakstypeSchema>;
-
 export type TiltaksgruppekodeValue = z.infer<typeof TiltaksgruppekodeEnum>;
 export type HandlingsplanValue = z.infer<typeof HandlingsplanEnum>;
 export type RammeavtaleValue = z.infer<typeof RammeAvtaleEnum>;

@@ -2,6 +2,7 @@ import { Next } from "@navikt/ds-icons";
 import { BodyShort } from "@navikt/ds-react";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import styles from "./TiltaksgjennomforingRad.module.scss";
+import { Link } from "react-router-dom";
 import { useSideForNavigering } from "../../hooks/useSideForNavigering";
 
 interface TiltaksgjennomforingRadProps {
@@ -13,26 +14,29 @@ export function TiltaksgjennomforingRad({
   tiltaksgjennomforing,
   fagansvarlig = false,
 }: TiltaksgjennomforingRadProps) {
-  const navigerSomFagEllerTiltaksansvarlig = () => {
-    location.href = fagansvarlig
-      ? `${side}/${tiltaksgjennomforing.tiltakstype.id}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
-      : `${side}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`;
-  };
   const side = useSideForNavigering();
 
+  const navigerSomFagEllerTiltaksansvarlig = () => {
+    return fagansvarlig
+        ? `${side}/${tiltaksgjennomforing.tiltakstype.id}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`
+        : `${side}/tiltaksgjennomforing/${tiltaksgjennomforing.id}`;
+  };
+
   return (
-    <li
-      className={styles.rad}
-      onClick={navigerSomFagEllerTiltaksansvarlig}
-      data-testid="tiltaksgjennomforingsrad"
-    >
-      <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
-      <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-      <BodyShort size="small">
-        {tiltaksgjennomforing.tiltakstype.navn}
-      </BodyShort>
-      <BodyShort size="small">{tiltaksgjennomforing.enhet}</BodyShort>
-      <Next className={styles.pil} />
-    </li>
+      <li
+          className={styles.list_element}
+          onClick={navigerSomFagEllerTiltaksansvarlig}
+          data-testid="tiltaksgjennomforingsrad"
+      >
+          <Link to={navigerSomFagEllerTiltaksansvarlig()} className={styles.rad}>
+              <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
+              <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+              <BodyShort size="small">
+                  {tiltaksgjennomforing.tiltakstype.navn}
+              </BodyShort>
+              <BodyShort size="small">{tiltaksgjennomforing.enhet}</BodyShort>
+              <Next className={styles.pil} />
+          </Link>
+      </li>
   );
 }

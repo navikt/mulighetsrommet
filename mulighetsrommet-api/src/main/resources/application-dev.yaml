@@ -56,10 +56,6 @@ app:
     url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
     scope: api://dev-fss.pto.veilarbdialog/.default
 
-  poaoGcpProxy:
-    url: https://poao-gcp-proxy.dev-fss-pub.nais.io
-    scope: api://dev-fss.pto.poao-gcp-proxy/.default
-
   poaoTilgang:
     url: http://poao-tilgang.poao
     scope: api://dev-gcp.poao.poao-tilgang/.default

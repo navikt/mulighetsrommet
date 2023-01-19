@@ -5,7 +5,7 @@ import { TiltakstyperOversikt } from "../../components/tiltakstyper/Tiltakstyper
 import React from "react";
 import { useAtom } from "jotai";
 import { tiltakstypefilter } from "../../api/atoms";
-import styles from "./TiltakstyperPage.module.scss";
+import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
   const { data: toggles } = useFeatureToggles();

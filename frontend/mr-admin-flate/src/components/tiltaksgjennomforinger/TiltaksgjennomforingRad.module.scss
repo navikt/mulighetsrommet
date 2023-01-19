@@ -9,6 +9,10 @@
   }
 }
 
+.list_element {
+  list-style: none;
+}
+
 .rad {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1%;
@@ -19,6 +23,8 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
+  color: black;
+  text-decoration: none;
 
   &:hover {
     background-color: var(--a-gray-50);

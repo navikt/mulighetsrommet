@@ -5,6 +5,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { MineTiltaksgjennomforingerPage } from "./pages/mine/MineTiltaksgjennomforingerPage";
 import { Ansatt } from "mulighetsrommet-api-client";
+import { OpprettTiltaksgjennomforing } from "./pages/tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingPage";
 import { useSideForNavigering } from "./hooks/useSideForNavigering";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 
@@ -49,6 +50,15 @@ export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
         element={
           <RootLayout>
             <TiltaksgjennomforingPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="opprett-tiltaksgjennomforing"
+        element={
+          <RootLayout>
+            <OpprettTiltaksgjennomforing />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

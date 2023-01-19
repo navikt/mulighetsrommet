@@ -1,0 +1,73 @@
+import { BodyLong, Button, Heading } from "@navikt/ds-react";
+import { Form, Formik } from "formik";
+import { Link } from "react-router-dom";
+
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import {
+  Datovelger,
+  OpprettTiltaksgjennomforingSchemaValues,
+  OptionalTiltaksgjennomforingSchemaValues,
+  Tekstfelt as TekstfeltComponent,
+} from "../../OpprettComponents";
+import styles from "../../Oversikt.module.scss";
+import formStyles from "./OpprettTiltaksgjennomforingPage.module.scss";
+import { OpprettTiltaksgjennomforingSchema } from "./OpprettTiltaksgjennomforingSchemaValidation";
+
+const Tekstfelt = TekstfeltComponent<OpprettTiltaksgjennomforingSchemaValues>;
+
+export function OpprettTiltaksgjennomforing() {
+  const initialValues: OptionalTiltaksgjennomforingSchemaValues = {
+    tiltaksgjennomforingnavn: undefined,
+    fraDato: undefined,
+    tilDato: undefined,
+  };
+
+  return (
+    <>
+      <Link style={{ marginBottom: "1rem", display: "block" }} to="/oversikt">
+        Tilbake
+      </Link>
+      <Heading className={styles.overskrift} size="large">
+        Opprett ny tiltaksgjennomføring
+      </Heading>
+      <BodyLong className={styles.body} size="small">
+        Her kan du opprette eller redigere en tiltaksgjennomføring
+      </BodyLong>
+      <Formik<OptionalTiltaksgjennomforingSchemaValues>
+        initialValues={initialValues}
+        validationSchema={toFormikValidationSchema(
+          OpprettTiltaksgjennomforingSchema
+        )}
+        onSubmit={(values, actions) => {
+          // TODO Må sende data til backend
+          console.log(values);
+          alert(JSON.stringify(values, null, 2));
+          actions.setSubmitting(false);
+        }}
+      >
+        {({ handleSubmit }) => (
+          <>
+            <Form
+              className={formStyles.form}
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <Tekstfelt
+                name="tiltaksgjennomforingnavn"
+                label="Navn på tiltaksgjennomføring"
+              />
+              <Datovelger />
+              <div className={formStyles.separator} />
+              <div className={formStyles.summaryContainer}>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <Button type="submit" onClick={() => handleSubmit()}>
+                    Publiser
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          </>
+        )}
+      </Formik>
+    </>
+  );
+}
