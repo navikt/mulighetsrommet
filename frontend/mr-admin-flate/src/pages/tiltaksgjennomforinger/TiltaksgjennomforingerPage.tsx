@@ -1,7 +1,7 @@
-import { Tiltaksgjennomforingeroversikt } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforingeroversikt";
+import { TiltaksgjennomforingerOversikt } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingerOversikt";
 import { Link } from "react-router-dom";
 import React from "react";
-import { Alert, BodyShort, Heading, Button } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading } from "@navikt/ds-react";
 import styles from "../Oversikt.module.scss";
 import pageStyles from "../Page.module.scss";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
@@ -37,7 +37,10 @@ export function TiltaksgjennomforingerPage() {
       <div className={pageStyles.header_wrapper}>
         <Heading size="large">Oversikt over tiltaksgjennomføringer</Heading>
         {toggles?.["mulighetsrommet.enable-opprett-gjennomforing"] ? (
-          <Link to="/opprett-tiltaksgjennomforing" className={styles.opprettknappseksjon}>
+          <Link
+            to="/opprett-tiltaksgjennomforing"
+            className={styles.opprettknappseksjon}
+          >
             <Button variant="tertiary">Opprett ny tiltaksgjennomføring</Button>
           </Link>
         ) : null}
@@ -46,7 +49,7 @@ export function TiltaksgjennomforingerPage() {
         Her finner du alle gjennomføringer
       </BodyShort>
       <SokEtterTiltaksgjennomforing />
-      <Tiltaksgjennomforingeroversikt />
+      <TiltaksgjennomforingerOversikt />
     </>
   );
 }

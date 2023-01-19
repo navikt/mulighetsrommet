@@ -14,7 +14,6 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
     <li className={styles.list_element}>
       <Link to={`/tiltakstyper/${tiltakstype.id}`} className={styles.rad}>
         <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
-        <BodyShort size="small">{tiltakstype.arenaKode}</BodyShort>
         <div className={styles.dato}>
           <BodyShort
             size="small"

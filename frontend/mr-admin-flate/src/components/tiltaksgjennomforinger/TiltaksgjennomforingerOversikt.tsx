@@ -6,9 +6,10 @@ import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltaksgjennomforingRad } from "./TiltaksgjennomforingRad";
-import styles from "./Tiltaksgjennomforingeroversikt.module.scss";
+import styles from "./TiltaksgjennomforingerOversikt.module.scss";
+import { ListeheaderTiltaksgjennomforing } from "./ListeheaderTiltaksgjennomforing";
 
-export function Tiltaksgjennomforingeroversikt() {
+export function TiltaksgjennomforingerOversikt() {
   const { data, isLoading } = useTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
 
@@ -36,6 +37,7 @@ export function Tiltaksgjennomforingeroversikt() {
         {tiltaksgjennomforinger.length === 0 && (
           <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
         )}
+        <ListeheaderTiltaksgjennomforing />
         {tiltaksgjennomforinger
           .sort((a, b) => a.navn.localeCompare(b.navn))
           .map((tiltaksgjennomforing) => (
