@@ -14,7 +14,7 @@ class AnsattService(
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val data = veilarbveilederClient.hentVeilederdata(accessToken, navAnsattAzureId)
-        val hovedenhet = microsoftGraphService.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
+        val hovedenhet = microsoftGraphService.hentHovedEnhetForNavAnsatt(accessToken, navAnsattAzureId)
         val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
         return AnsattData(
             etternavn = data?.etternavn,

@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.domain.MSGraphBrukerdata
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
@@ -24,9 +24,9 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         cacheMetrics.addCache("hovedenhetCache", hovedenhetCache)
     }
 
-    suspend fun hentHovedEnhetForNavAnsatt(navAnsattAzureId: UUID): MSGraphBrukerdata {
+    suspend fun hentHovedEnhetForNavAnsatt(accessToken: String, navAnsattAzureId: UUID): MSGraphBrukerdata {
         return CacheUtils.tryCacheFirstNotNull(hovedenhetCache, navAnsattAzureId) {
-            client.hentHovedenhetForBruker(navAnsattAzureId)
+            client.hentHovedenhetForBruker(accessToken, navAnsattAzureId)
         }
     }
 }
