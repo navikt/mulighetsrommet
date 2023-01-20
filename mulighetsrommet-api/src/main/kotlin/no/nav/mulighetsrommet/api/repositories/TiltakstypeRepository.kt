@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.routes.v1.Status
+import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -50,17 +52,50 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAll(
-        search: String? = null,
         paginationParams: PaginationParams = PaginationParams()
     ): Pair<Int, List<TiltakstypeDto>> {
         val parameters = mapOf(
-            "search" to "%$search%",
+            "limit" to paginationParams.limit,
+            "offset" to paginationParams.offset
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            from tiltakstype
+            order by navn asc
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val results = queryOf(query, parameters)
+            .map {
+                it.int("full_count") to it.toTiltakstypeDto()
+            }
+            .asList
+            .let { db.run(it) }
+        val tiltakstyper = results.map { it.second }
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+        return Pair(totaltAntall, tiltakstyper)
+    }
+
+    fun getAll(
+        tiltakstypeFilter: TiltakstypeFilter,
+        paginationParams: PaginationParams = PaginationParams()
+    ): Pair<Int, List<TiltakstypeDto>> {
+        val parameters = mapOf(
+            "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset
         )
 
         val where = andWhereParameterNotNull(
-            search to "(lower(navn) like lower(:search))"
+            tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
+            when (tiltakstypeFilter.status) {
+                Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
+                Status.PLANLAGT -> "" to "(now()::timestamp < fra_dato)"
+                Status.UTFASET -> "" to "(now()::timestamp > til_dato)"
+            }
         )
 
         @Language("PostgreSQL")

@@ -13,4 +13,7 @@
   margin-bottom: 1.5rem;
   padding-top: 1.5rem;
   border-top: solid 1px var(--a-border-divider);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
 }
