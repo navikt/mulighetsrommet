@@ -25,3 +25,4 @@ spec:
     - team: pto
       application: veilarbportefolje
       access: read
+    # HUSK Å OPPDATERE consumers.md MED INFO OM NY KONSUMENT
