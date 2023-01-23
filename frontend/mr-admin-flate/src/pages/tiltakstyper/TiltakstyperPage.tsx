@@ -1,10 +1,10 @@
-import { Button, Heading, Search } from "@navikt/ds-react";
+import { Button, Heading, Search, Select } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { ChangeEvent } from "react";
 import { Link } from "react-router-dom";
+import { tiltakstypefilter } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
-import React from "react";
-import { useAtom } from "jotai";
-import { tiltakstypefilter } from "../../api/atoms";
 import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
@@ -23,16 +23,30 @@ export function TiltakstyperPage() {
       </div>
       <div className={styles.filterseksjon}>
         <Search
-          label=""
-          placeholder=""
-          hideLabel
+          label="Søk etter tiltakstype"
+          hideLabel={false}
           variant="simple"
-          onChange={(e: string) => setSokefilter(e)}
-          value={sokefilter}
+          onChange={(sok: string) => setSokefilter({ ...sokefilter, sok })}
+          value={sokefilter.sok}
           aria-label="Søk etter tiltakstype"
           data-testid="filter_sokefelt"
           size="small"
         />
+        <Select
+          label="Filtrer på statuser"
+          size="small"
+          value={sokefilter.status}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+            setSokefilter({
+              ...sokefilter,
+              status: e.currentTarget.value as any,
+            })
+          }
+        >
+          <option value="AKTIV">Aktive</option>
+          <option value="PLANLAGT">Planlagte</option>
+          <option value="UTFASET">Utfasede</option>
+        </Select>
       </div>
       <TiltakstyperOversikt />
     </>

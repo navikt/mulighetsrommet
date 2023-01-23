@@ -183,6 +183,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get()) }
+    single { TiltakstypeService(get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
