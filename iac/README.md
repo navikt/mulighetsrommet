@@ -43,3 +43,6 @@ Kafka manager er en applikasjon som kan nås på følgende url'er:
 Man kan bruke manageren for å lese meldinger på topics som er definert i konfigurasjonen.
 
 Deployment av kafka-manager skjer via Github Actions ved merge til main-branch.
+
+# Konsumenter
+[Se consumers.md](consumers.md) for informasjon om konsumenter av våre data
