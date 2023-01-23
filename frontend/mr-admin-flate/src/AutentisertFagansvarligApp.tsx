@@ -6,6 +6,7 @@ import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/Detalje
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { OpprettTiltakstype } from "./pages/tiltakstyper/opprett-tiltakstyper/OpprettTiltakstypePage";
 import { TiltaksgrupperPage } from "./pages/tiltaksgrupper/TiltaksgrupperPage";
+import { OpprettTiltaksgruppe } from "./pages/tiltaksgrupper/opprett-tiltaksgrupper/OpprettTiltaksgruppePage";
 
 export default function AutentisertFagansvarligApp() {
   return (
@@ -24,6 +25,15 @@ export default function AutentisertFagansvarligApp() {
         element={
           <RootLayout fagansvarlig>
             <TiltaksgrupperPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgrupper/opprett"
+        element={
+          <RootLayout fagansvarlig>
+            <OpprettTiltaksgruppe />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

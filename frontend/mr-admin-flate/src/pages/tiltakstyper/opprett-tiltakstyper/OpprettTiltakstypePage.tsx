@@ -211,7 +211,6 @@ export function OpprettTiltakstype() {
               <CheckboxFelt name="harStatusUtdanning">
                 Status utdanning
               </CheckboxFelt>
-
               <CheckboxFelt name="harAutomatiskTilsagnsbrev">
                 Automatisk tilsagnsbrev
               </CheckboxFelt>

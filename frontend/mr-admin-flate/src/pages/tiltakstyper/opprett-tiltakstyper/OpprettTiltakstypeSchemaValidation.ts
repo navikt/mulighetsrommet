@@ -1,7 +1,5 @@
 import { z } from "zod";
-
-const BooleanDefaultFalse = z.boolean().default(false);
-
+import { BooleanDefaultFalse } from "../../OpprettComponents";
 const TiltaksgruppekodeEnum = z.enum(
   [
     "AFT",
