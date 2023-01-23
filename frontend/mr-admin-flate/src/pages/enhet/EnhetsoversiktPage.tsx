@@ -49,56 +49,53 @@ export function EnhetsoversiktPage() {
         Her finner du alle gjennomføringer for din enhet
       </BodyShort>
       <SokEtterTiltaksgjennomforing />
-      <>
-        {tiltaksgjennomforinger.length > 0 ? (
-          <PagineringsOversikt
-            page={page}
-            antall={tiltaksgjennomforinger.length}
-            maksAntall={data.pagination.totalCount}
-          />
-        ) : null}
-
-        <ul className={styles.oversikt}>
-          {tiltaksgjennomforinger.length === 0 && (
-            <Alert variant="info">
-              Vi fant ingen tiltaksgjennomføringer for din enhet
-            </Alert>
-          )}
-          <ListeheaderTiltaksgjennomforing />
-          {tiltaksgjennomforinger
-            .sort((a, b) => a.navn.localeCompare(b.navn))
-            .map((tiltaksgjennomforing) => (
-              <TiltaksgjennomforingRad
-                key={tiltaksgjennomforing.id}
-                tiltaksgjennomforing={tiltaksgjennomforing}
-              />
-            ))}
-        </ul>
-        <div className={styles.under_oversikt}>
+      {tiltaksgjennomforinger.length === 0 ? (
+        <Alert variant="info">
+          Vi fant ingen tiltaksgjennomføringer for din enhet.
+        </Alert>
+      ) : (
+        <>
           {tiltaksgjennomforinger.length > 0 ? (
-            <>
-              <PagineringsOversikt
-                page={page}
-                antall={tiltaksgjennomforinger.length}
-                maksAntall={data.pagination.totalCount}
-              />
-              <Pagination
-                size="small"
-                data-testid="paginering"
-                page={page}
-                onPageChange={setPage}
-                count={Math.ceil(
-                  (data.pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
-                )}
-                data-version="v1"
-              />
-            </>
+            <PagineringsOversikt
+              page={page}
+              antall={tiltaksgjennomforinger.length}
+              maksAntall={data.pagination.totalCount}
+            />
           ) : null}
-        </div>
-      </>
-      {/**
-       * TODO Implementere skjema for opprettelse av tiltakstype
-       */}
+          <ul className={styles.oversikt}>
+            <ListeheaderTiltaksgjennomforing />
+            {tiltaksgjennomforinger
+              .sort((a, b) => a.navn.localeCompare(b.navn))
+              .map((tiltaksgjennomforing) => (
+                <TiltaksgjennomforingRad
+                  key={tiltaksgjennomforing.id}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+              ))}
+          </ul>
+          <div className={styles.under_oversikt}>
+            {tiltaksgjennomforinger.length > 0 ? (
+              <>
+                <PagineringsOversikt
+                  page={page}
+                  antall={tiltaksgjennomforinger.length}
+                  maksAntall={data.pagination.totalCount}
+                />
+                <Pagination
+                  size="small"
+                  data-testid="paginering"
+                  page={page}
+                  onPageChange={setPage}
+                  count={Math.ceil(
+                    (data.pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
+                  )}
+                  data-version="v1"
+                />
+              </>
+            ) : null}
+          </div>
+        </>
+      )}
     </>
   );
 }

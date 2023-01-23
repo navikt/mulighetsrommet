@@ -44,61 +44,60 @@ export function MineTiltaksgjennomforingerPage() {
         Her finner du gjennomføringer du har lagt til i din liste
       </BodyShort>
       <SokEtterTiltaksgjennomforing />
-      <>
-        {tiltaksgjennomforinger.length > 0 ? (
-          <PagineringsOversikt
-            page={page}
-            antall={tiltaksgjennomforinger.length}
-            maksAntall={data.pagination.totalCount}
-          />
-        ) : null}
 
-        <ul className={styles.oversikt}>
-          {tiltaksgjennomforinger.length === 0 && (
-            <>
-              <Alert variant="info">
-                Vi fant ingen tiltaksgjennomføringer som du har lagt til i din
-                liste
-                <BodyShort>
-                  Du kan legge tiltaksgjennomføringer til i denne oversikten ved
-                  å trykke deg inn på en spesifikk gjennomføring og velge
-                  &ldquo;Legg til i min liste&rdquo;.
-                </BodyShort>
-              </Alert>
-            </>
-          )}
-          <ListeheaderTiltaksgjennomforing />
-          {tiltaksgjennomforinger
-            .sort((a, b) => a.navn.localeCompare(b.navn))
-            .map((tiltaksgjennomforing) => (
-              <TiltaksgjennomforingRad
-                key={tiltaksgjennomforing.id}
-                tiltaksgjennomforing={tiltaksgjennomforing}
-              />
-            ))}
-        </ul>
-        <div className={styles.under_oversikt}>
+      {tiltaksgjennomforinger.length === 0 ? (
+        <Alert variant="info">
+          <Heading size={"xsmall"}>
+            Vi fant ingen tiltaksgjennomføringer som du har lagt til i din liste
+          </Heading>
+          Du kan legge tiltaksgjennomføringer til i denne oversikten ved å
+          trykke deg inn på en spesifikk gjennomføring og velge &ldquo;Legg til
+          i min liste&rdquo;.
+        </Alert>
+      ) : (
+        <>
           {tiltaksgjennomforinger.length > 0 ? (
-            <>
-              <PagineringsOversikt
-                page={page}
-                antall={tiltaksgjennomforinger.length}
-                maksAntall={data.pagination.totalCount}
-              />
-              <Pagination
-                size="small"
-                data-testid="paginering"
-                page={page}
-                onPageChange={setPage}
-                count={Math.ceil(
-                  (data.pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
-                )}
-                data-version="v1"
-              />
-            </>
+            <PagineringsOversikt
+              page={page}
+              antall={tiltaksgjennomforinger.length}
+              maksAntall={data.pagination.totalCount}
+            />
           ) : null}
-        </div>
-      </>
+
+          <ul className={styles.oversikt}>
+            <ListeheaderTiltaksgjennomforing />
+            {tiltaksgjennomforinger
+              .sort((a, b) => a.navn.localeCompare(b.navn))
+              .map((tiltaksgjennomforing) => (
+                <TiltaksgjennomforingRad
+                  key={tiltaksgjennomforing.id}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+              ))}
+          </ul>
+          <div className={styles.under_oversikt}>
+            {tiltaksgjennomforinger.length > 0 ? (
+              <>
+                <PagineringsOversikt
+                  page={page}
+                  antall={tiltaksgjennomforinger.length}
+                  maksAntall={data.pagination.totalCount}
+                />
+                <Pagination
+                  size="small"
+                  data-testid="paginering"
+                  page={page}
+                  onPageChange={setPage}
+                  count={Math.ceil(
+                    (data.pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
+                  )}
+                  data-version="v1"
+                />
+              </>
+            ) : null}
+          </div>
+        </>
+      )}
     </>
   );
 }
