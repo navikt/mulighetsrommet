@@ -10,14 +10,6 @@ export function App() {
   const optionalAnsatt = useHentAnsatt();
   const [rolleSatt] = useAtom(rolleAtom);
 
-  if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
-    return (
-      <main>
-        <Laster tekst="Laster..." size="xlarge" />
-      </main>
-    );
-  }
-
   if (optionalAnsatt.error) {
     return (
       <main>
@@ -27,6 +19,14 @@ export function App() {
           </BodyShort>
           <pre>{JSON.stringify(optionalAnsatt?.error, null, 2)}</pre>
         </Alert>
+      </main>
+    );
+  }
+
+  if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
+    return (
+      <main>
+        <Laster tekst="Laster..." size="xlarge" />
       </main>
     );
   }
