@@ -2,13 +2,11 @@ import { Alert, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
-import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
-import { useSideForNavigering } from "../../hooks/useSideForNavigering";
+import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const side = useSideForNavigering();
 
   if (optionalTiltakstype.isFetching) {
     return <Laster tekst="Laster tiltakstype" />;

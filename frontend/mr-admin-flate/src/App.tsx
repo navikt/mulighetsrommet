@@ -4,10 +4,24 @@ import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { rolleAtom } from "./api/atoms";
 import { Laster } from "./components/Laster";
 import { hentAnsattsRolle } from "./tilgang/tilgang";
+import { Alert, BodyShort } from "@navikt/ds-react";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
   const [rolleSatt] = useAtom(rolleAtom);
+
+  if (optionalAnsatt.error) {
+    return (
+      <main>
+        <Alert variant="error">
+          <BodyShort>
+            Vi klarte ikke hente brukerinformasjon. Prøv igjen senere.
+          </BodyShort>
+          <pre>{JSON.stringify(optionalAnsatt?.error, null, 2)}</pre>
+        </Alert>
+      </main>
+    );
+  }
 
   if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
     return (
@@ -31,7 +45,7 @@ export function App() {
         <Suspense
           fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
         >
-          <AutentisertTiltaksansvarligApp ansatt={optionalAnsatt.data} />
+          <AutentisertTiltaksansvarligApp />
         </Suspense>
       );
     case "FAGANSVARLIG":
