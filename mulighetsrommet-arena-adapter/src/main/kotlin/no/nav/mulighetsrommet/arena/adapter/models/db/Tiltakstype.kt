@@ -17,6 +17,10 @@ data class Tiltakstype(
     val tiltaksgruppekode: String,
     val tiltakskode: String,
     @Serializable(with = LocalDateTimeSerializer::class)
+    val registrertIArenaDato: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val sistEndretIArenaDato: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val tilDato: LocalDateTime,

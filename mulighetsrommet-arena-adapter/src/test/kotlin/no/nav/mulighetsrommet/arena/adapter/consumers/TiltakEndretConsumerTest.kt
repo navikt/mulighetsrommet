@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatab
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class TiltakEndretConsumerTest : FunSpec({
 
@@ -52,6 +53,9 @@ class TiltakEndretConsumerTest : FunSpec({
         database.assertThat("tiltakstype").row()
             .value("navn").isEqualTo("Oppfølging 1")
             .value("rett_paa_tiltakspenger").isTrue
+            .value("registrert_dato_i_arena").isEqualTo(LocalDateTime.of(2010, 1, 11, 0, 0, 0, 0))
+            .value("sist_endret_dato_i_arena").isEqualTo(LocalDateTime.of(2022, 1, 11, 0, 0, 0))
+            .value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
             .value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
             .value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
             .value("tiltaksgruppekode").isEqualTo("UTFAS")
@@ -149,6 +153,8 @@ private fun createEvent(operation: ArenaEventData.Operation = Insert, name: Stri
         "TILTAKSNAVN": "$name",
         "TILTAKSGRUPPEKODE": "UTFAS",
         "TILTAKSKODE": "INDOPPFAG",
+        "REG_DATO": "2010-01-11 00:00:00",
+        "MOD_DATO": "2022-01-11 00:00:00",
         "DATO_FRA": "2022-01-11 00:00:00",
         "DATO_TIL": "2022-01-15 00:00:00",
         "STATUS_BASISYTELSE": "J",

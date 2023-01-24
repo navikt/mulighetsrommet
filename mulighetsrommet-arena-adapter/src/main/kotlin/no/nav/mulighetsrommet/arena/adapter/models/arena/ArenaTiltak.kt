@@ -7,6 +7,8 @@ data class ArenaTiltak(
     val TILTAKSNAVN: String,
     val TILTAKSGRUPPEKODE: String,
     val TILTAKSKODE: String,
+    val REG_DATO: String,
+    val MOD_DATO: String,
     val DATO_FRA: String,
     val DATO_TIL: String,
     val STATUS_BASISYTELSE: JaNeiStatus,
