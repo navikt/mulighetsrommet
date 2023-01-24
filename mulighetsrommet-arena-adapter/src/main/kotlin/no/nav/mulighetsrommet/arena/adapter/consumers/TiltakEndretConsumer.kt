@@ -66,6 +66,8 @@ class TiltakEndretConsumer(
                 navn = TILTAKSNAVN,
                 tiltaksgruppekode = TILTAKSGRUPPEKODE,
                 tiltakskode = TILTAKSKODE,
+                registrertIArenaDato = ArenaUtils.parseTimestamp(REG_DATO),
+                sistEndretIArenaDato = ArenaUtils.parseTimestamp(MOD_DATO),
                 fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
                 rettPaaTiltakspenger = ArenaUtils.parseJaNei(STATUS_BASISYTELSE),

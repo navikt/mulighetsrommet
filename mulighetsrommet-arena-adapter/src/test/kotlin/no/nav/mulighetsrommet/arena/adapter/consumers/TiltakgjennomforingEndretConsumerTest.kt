@@ -90,7 +90,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                     tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
                     visBegrunnelseForInnsoking = false,
                     sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
-                    sendKopibrevOgHovedbrevTilArbeidsgiver = false
+                    sendKopibrevOgHovedbrevTilArbeidsgiver = false,
+                    registrertIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+                    sistEndretIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
                 )
             )
 
@@ -158,7 +160,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
             visBegrunnelseForInnsoking = false,
             sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
-            sendKopibrevOgHovedbrevTilArbeidsgiver = false
+            sendKopibrevOgHovedbrevTilArbeidsgiver = false,
+            registrertIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+            sistEndretIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         )
 
         beforeEach {
@@ -245,7 +249,9 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
             visBegrunnelseForInnsoking = false,
             sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
-            sendKopibrevOgHovedbrevTilArbeidsgiver = false
+            sendKopibrevOgHovedbrevTilArbeidsgiver = false,
+            registrertIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+            sistEndretIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         )
 
         beforeEach {
