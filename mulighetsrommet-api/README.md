@@ -83,10 +83,11 @@ som [direnv](https://direnv.net/).
 
 For å komme fort i gang fra en terminal gjør følgende:
 
-1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d` i terminalen. For å få med
-   mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i stedet for
-   å også kjøre opp en wiremock instans.
-2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew install`.
+1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d`
+   eller `docker compose --profile dev --profile dev up` i terminalen. For å
+   få med mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i
+   stedet for å også kjøre opp en wiremock instans.
+2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew build`.
 3. Migrer endringer og data til databasen ved å kjøre `./gradlew flywayMigrate`. (For å slette databasen og migrere alt
    på nytt kan man kjøre `./gradlew flywayClean` før migrate)
 4. Start applikasjonen med å kjøre `./gradlew run`.

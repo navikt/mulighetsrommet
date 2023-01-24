@@ -122,7 +122,7 @@ services:
     ports:
       - "8090:8080"
     profiles:
-      - wiremock
+      - dev
     volumes:
       - ./mulighetsrommet-arena-adapter/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-arena-adapter
       - ./mulighetsrommet-api/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-api
