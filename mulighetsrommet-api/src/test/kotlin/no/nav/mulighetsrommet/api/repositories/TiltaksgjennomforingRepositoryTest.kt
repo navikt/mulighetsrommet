@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -25,8 +26,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Arbeidstrening",
         tiltakskode = "ARBTREN",
         rettPaaTiltakspenger = true,
+        registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+        sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
+        tilDato = LocalDate.of(2023, 1, 12),
     )
 
     val tiltakstype2 = TiltakstypeDbo(
@@ -34,6 +37,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         navn = "Oppfølging",
         tiltakskode = "INDOPPFOLG",
         rettPaaTiltakspenger = true,
+        registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+        sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
         tilDato = LocalDate.of(2023, 1, 12)
     )

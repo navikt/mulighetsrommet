@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
@@ -29,6 +30,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 navn = "Arbeidstrening",
                 tiltakskode = "ARBTREN",
                 rettPaaTiltakspenger = true,
+                registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
                 tilDato = LocalDate.of(2023, 1, 12)
             )
@@ -39,6 +42,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 navn = "Oppfølging",
                 tiltakskode = "INDOPPFOLG",
                 rettPaaTiltakspenger = true,
+                registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
                 tilDato = LocalDate.of(2023, 1, 12)
             )
@@ -62,6 +67,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                     navn = "$it",
                     tiltakskode = "$it",
                     rettPaaTiltakspenger = true,
+                    registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                    sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     fraDato = LocalDate.of(2023, 1, 11),
                     tilDato = LocalDate.of(2023, 1, 12)
                 )

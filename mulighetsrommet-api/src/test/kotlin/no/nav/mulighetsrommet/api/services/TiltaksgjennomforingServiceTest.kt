@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSc
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingServiceTest : FunSpec({
@@ -29,6 +30,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 "",
                 "",
                 rettPaaTiltakspenger = true,
+                registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
                 tilDato = LocalDate.of(2023, 1, 12)
             )

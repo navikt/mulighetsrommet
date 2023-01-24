@@ -23,11 +23,13 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakstype (id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger)
-            values (:id::uuid, :navn, :tiltakskode, :fra_dato, :til_dato, :rett_paa_tiltakspenger)
+            insert into tiltakstype (id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger)
+            values (:id::uuid, :navn, :tiltakskode, :registrert_dato_i_arena, :sist_endret_dato_i_arena, :fra_dato, :til_dato, :rett_paa_tiltakspenger)
             on conflict (id)
                 do update set navn        = excluded.navn,
                               tiltakskode = excluded.tiltakskode,
+                              registrert_dato_i_arena = excluded.registrert_dato_i_arena,
+                              sist_endret_dato_i_arena = excluded.sist_endret_dato_i_arena,
                               fra_dato = excluded.fra_dato,
                               til_dato = excluded.til_dato,
                               rett_paa_tiltakspenger = excluded.rett_paa_tiltakspenger
@@ -43,7 +45,7 @@ class TiltakstypeRepository(private val db: Database) {
     fun get(id: UUID): TiltakstypeDto? {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger
+            select id::uuid, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -61,7 +63,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
             from tiltakstype
             order by navn asc
             limit :limit
@@ -100,7 +102,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
             from tiltakstype
             $where
             order by navn asc
@@ -144,6 +146,8 @@ class TiltakstypeRepository(private val db: Database) {
         "id" to id,
         "navn" to navn,
         "tiltakskode" to tiltakskode,
+        "registrert_dato_i_arena" to registrertIArenaDato,
+        "sist_endret_dato_i_arena" to sistEndretIArenaDato,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger
@@ -153,6 +157,8 @@ class TiltakstypeRepository(private val db: Database) {
         id = uuid("id"),
         navn = string("navn"),
         tiltakskode = string("tiltakskode"),
+        registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
+        sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
