@@ -1,9 +1,8 @@
-import { Next } from "@navikt/ds-icons";
 import { BodyShort } from "@navikt/ds-react";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
-import styles from "./TiltaksgjennomforingRad.module.scss";
-import { Link } from "react-router-dom";
 import { useSideForNavigering } from "../../hooks/useSideForNavigering";
+import { ListeRad } from "../listeelementer/ListeRad";
+import styles from "../listeelementer/Listeelementer.module.scss";
 
 interface TiltaksgjennomforingRadProps {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -23,20 +22,16 @@ export function TiltaksgjennomforingRad({
   };
 
   return (
-    <li
-      className={styles.list_element}
-      onClick={navigerSomFagEllerTiltaksansvarlig}
-      data-testid="tiltaksgjennomforingsrad"
+    <ListeRad
+      linkTo={navigerSomFagEllerTiltaksansvarlig()}
+      classname={styles.listerad_tiltaksgjennomforing}
     >
-      <Link to={navigerSomFagEllerTiltaksansvarlig()} className={styles.rad}>
-        <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
-        <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
-        <BodyShort size="small">
-          {tiltaksgjennomforing.tiltakstype.navn}
-        </BodyShort>
-        <BodyShort size="small">{tiltaksgjennomforing.enhet}</BodyShort>
-        <Next className={styles.pil} />
-      </Link>
-    </li>
+      <BodyShort>{tiltaksgjennomforing.navn}</BodyShort>
+      <BodyShort size="small">{tiltaksgjennomforing.tiltaksnummer}</BodyShort>
+      <BodyShort size="small">
+        {tiltaksgjennomforing.tiltakstype.navn}
+      </BodyShort>
+      <BodyShort size="small">{tiltaksgjennomforing.enhet}</BodyShort>
+    </ListeRad>
   );
 }
