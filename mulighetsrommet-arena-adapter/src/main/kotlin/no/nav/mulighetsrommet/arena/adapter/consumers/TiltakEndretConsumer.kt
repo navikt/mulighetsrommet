@@ -64,10 +64,33 @@ class TiltakEndretConsumer(
             Tiltakstype(
                 id = id,
                 navn = TILTAKSNAVN,
+                tiltaksgruppekode = TILTAKSGRUPPEKODE,
                 tiltakskode = TILTAKSKODE,
                 fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
-                rettPaaTiltakspenger = ArenaUtils.jaNeiTilBoolean(STATUS_BASISYTELSE)
+                rettPaaTiltakspenger = ArenaUtils.parseJaNei(STATUS_BASISYTELSE),
+                administrasjonskode = ADMINISTRASJONKODE,
+                sendTilsagnsbrevTilDeltaker = ArenaUtils.parseJaNei(STATUS_KOPI_TILSAGN),
+                tiltakstypeSkalHaAnskaffelsesprosess = ArenaUtils.parseJaNei(STATUS_ANSKAFFELSE),
+                maksAntallPlasser = MAKS_ANT_PLASSER,
+                maksAntallSokere = MAKS_ANT_SOKERE,
+                harFastAntallPlasser = ArenaUtils.parseNulleableJaNei(STATUS_FAST_ANT_PLASSER),
+                skalSjekkeAntallDeltakere = ArenaUtils.parseNulleableJaNei(STATUS_SJEKK_ANT_DELTAKERE),
+                visLonnstilskuddskalkulator = ArenaUtils.parseJaNei(STATUS_KALKULATOR),
+                rammeavtale = RAMMEAVTALE,
+                opplaeringsgruppe = OPPLAERINGSGRUPPE,
+                handlingsplan = HANDLINGSPLAN,
+                tiltaksgjennomforingKreverSluttdato = ArenaUtils.parseJaNei(STATUS_SLUTTDATO),
+                maksPeriodeIMnd = MAKS_PERIODE,
+                tiltaksgjennomforingKreverMeldeplikt = ArenaUtils.parseNulleableJaNei(STATUS_MELDEPLIKT),
+                tiltaksgjennomforingKreverVedtak = ArenaUtils.parseJaNei(STATUS_VEDTAK),
+                tiltaksgjennomforingReservertForIABedrift = ArenaUtils.parseJaNei(STATUS_IA_AVTALE),
+                harRettPaaTilleggsstonader = ArenaUtils.parseJaNei(STATUS_TILLEGGSSTONADER),
+                harRettPaaUtdanning = ArenaUtils.parseJaNei(STATUS_UTDANNING),
+                tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = ArenaUtils.parseJaNei(AUTOMATISK_TILSAGNSBREV),
+                visBegrunnelseForInnsoking = ArenaUtils.parseJaNei(STATUS_BEGRUNNELSE_INNSOKT),
+                sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_HENVISNING_BREV),
+                sendKopibrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_KOPIBREV)
             )
         }
         .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }

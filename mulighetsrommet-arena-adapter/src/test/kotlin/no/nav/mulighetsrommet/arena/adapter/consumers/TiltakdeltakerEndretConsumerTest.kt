@@ -14,7 +14,10 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
@@ -73,17 +76,63 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "Oppfølging",
             tiltakskode = "INDOPPFAG",
+            tiltaksgruppekode = "tiltaksgruppekode",
             rettPaaTiltakspenger = true,
             fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
+            administrasjonskode = Administrasjonskode.AMO,
+            sendTilsagnsbrevTilDeltaker = true,
+            tiltakstypeSkalHaAnskaffelsesprosess = false,
+            maksAntallPlasser = 10,
+            maksAntallSokere = 10,
+            harFastAntallPlasser = true,
+            skalSjekkeAntallDeltakere = true,
+            visLonnstilskuddskalkulator = false,
+            rammeavtale = Rammeavtale.SKAL,
+            opplaeringsgruppe = "opplaeringsgruppe",
+            handlingsplan = Handlingsplan.AKT,
+            tiltaksgjennomforingKreverSluttdato = true,
+            maksPeriodeIMnd = 6,
+            tiltaksgjennomforingKreverMeldeplikt = false,
+            tiltaksgjennomforingKreverVedtak = false,
+            tiltaksgjennomforingReservertForIABedrift = false,
+            harRettPaaTilleggsstonader = false,
+            harRettPaaUtdanning = false,
+            tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
+            visBegrunnelseForInnsoking = false,
+            sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
+            sendKopibrevOgHovedbrevTilArbeidsgiver = false
         )
         val tiltakstypeIndividuell = Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Høyere utdanning",
+            tiltaksgruppekode = "tiltaksgruppekode",
             tiltakskode = "HOYEREUTD",
             rettPaaTiltakspenger = true,
             fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0)
+            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
+            administrasjonskode = Administrasjonskode.AMO,
+            sendTilsagnsbrevTilDeltaker = true,
+            tiltakstypeSkalHaAnskaffelsesprosess = false,
+            maksAntallPlasser = 10,
+            maksAntallSokere = 10,
+            harFastAntallPlasser = true,
+            skalSjekkeAntallDeltakere = true,
+            visLonnstilskuddskalkulator = false,
+            rammeavtale = Rammeavtale.SKAL,
+            opplaeringsgruppe = "opplaeringsgruppe",
+            handlingsplan = Handlingsplan.AKT,
+            tiltaksgjennomforingKreverSluttdato = true,
+            maksPeriodeIMnd = 6,
+            tiltaksgjennomforingKreverMeldeplikt = false,
+            tiltaksgjennomforingKreverVedtak = false,
+            tiltaksgjennomforingReservertForIABedrift = false,
+            harRettPaaTilleggsstonader = false,
+            harRettPaaUtdanning = false,
+            tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
+            visBegrunnelseForInnsoking = false,
+            sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
+            sendKopibrevOgHovedbrevTilArbeidsgiver = false
         )
         val sak = Sak(
             sakId = 1,
