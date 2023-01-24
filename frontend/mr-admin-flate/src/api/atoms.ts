@@ -1,5 +1,6 @@
 import { atomWithHash } from "jotai-location";
 import { atomWithStorage } from "jotai/utils";
+import { TiltakstypeStatus } from "mulighetsrommet-api-client";
 import { Rolle } from "../tilgang/tilgang";
 
 export const paginationAtom = atomWithHash("page", 1);
@@ -13,7 +14,7 @@ export const rolleAtom = atomWithStorage<Rolle | undefined>(
   undefined
 );
 
-export const tiltakstypefilter = atomWithHash<string>(
-  'tiltakstypefilter',
-  ""
-);
+export const tiltakstypefilter = atomWithHash<{
+  sok: string;
+  status: TiltakstypeStatus;
+}>("tiltakstypefilter", { sok: "", status: TiltakstypeStatus.AKTIV });

@@ -16,23 +16,24 @@ class MicrosoftGraphServiceTest : FunSpec({
     context("Hent hovedenhet for nav-ansatt") {
         test("Når man kaller hentHovedenhet for en nav ansatts azureId får man svar og repeterende forespørsler kommer fra cache") {
             val mockResponse = MSGraphBrukerdata(hovedenhetKode = "2990", hovedenhetNavn = "IT-Avdelingen")
+            val mockAccessToken = "123"
 
             val client: MicrosoftGraphClient = mockk()
             coEvery {
-                client.hentHovedenhetForBruker(navAnsattAzureId)
+                client.hentHovedenhetForBruker(mockAccessToken, navAnsattAzureId)
             } returns mockResponse
 
             val service = MicrosoftGraphService(client)
-            val result = service.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
+            val result = service.hentHovedEnhetForNavAnsatt(mockAccessToken, navAnsattAzureId)
 
-            service.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
-            service.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
-            service.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
+            service.hentHovedEnhetForNavAnsatt(mockAccessToken, navAnsattAzureId)
+            service.hentHovedEnhetForNavAnsatt(mockAccessToken, navAnsattAzureId)
+            service.hentHovedEnhetForNavAnsatt(mockAccessToken, navAnsattAzureId)
 
             assertThat(result.hovedenhetKode).isEqualTo("2990")
             assertThat(result.hovedenhetNavn).isEqualTo("IT-Avdelingen")
             coVerify(exactly = 1) {
-                client.hentHovedenhetForBruker(navAnsattAzureId)
+                client.hentHovedenhetForBruker(mockAccessToken, navAnsattAzureId)
             }
         }
 
@@ -40,13 +41,13 @@ class MicrosoftGraphServiceTest : FunSpec({
 
             val client: MicrosoftGraphClient = mockk()
             coEvery {
-                client.hentHovedenhetForBruker(UUID.randomUUID())
+                client.hentHovedenhetForBruker("123", UUID.randomUUID())
             } throws RuntimeException("Klarte ikke hente bruker")
 
             val service = MicrosoftGraphService(client)
 
             shouldThrow<RuntimeException> {
-                service.hentHovedEnhetForNavAnsatt(navAnsattAzureId)
+                service.hentHovedEnhetForNavAnsatt("123", navAnsattAzureId)
             }
         }
     }

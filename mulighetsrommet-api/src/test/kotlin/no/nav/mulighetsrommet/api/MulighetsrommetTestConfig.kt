@@ -29,7 +29,6 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
     veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
     veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
-    poaoGcpProxy = createServiceClientConfig("poaogcpproxy"),
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
     msGraphConfig = createServiceClientConfig("ms-graph"),

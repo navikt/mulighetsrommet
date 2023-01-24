@@ -1,4 +1,4 @@
-import { Shortcut } from "./components/shortcuts/Shortcuts";
+import { Shortcut } from "./components/navbar/Navbar";
 
 export const APPLICATION_NAME = "mr-admin-flate";
 
@@ -6,7 +6,7 @@ export const PAGE_SIZE = 15;
 
 export const shortcutsForTiltaksansvarlig: Shortcut[] = [
   { url: "/mine", navn: "Mine tiltaksgjennomføringer" },
-  { url: "/enhet", navn: "Min enhets tiltaksgjennomføringer" },
+  { url: "/enhet", navn: "Enhetens tiltaksgjennomføringer" },
   {
     url: "/oversikt",
     navn: "Alle tiltaksgjennomføringer",
@@ -14,4 +14,5 @@ export const shortcutsForTiltaksansvarlig: Shortcut[] = [
 ];
 export const shortcutsForFagansvarlig: Shortcut[] = [
   { url: "/tiltakstyper", navn: "Tiltakstyper" },
+  { url: "/tiltaksgrupper", navn: "Tiltaksgrupper" },
 ];

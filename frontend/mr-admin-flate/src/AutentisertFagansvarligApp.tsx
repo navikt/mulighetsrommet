@@ -1,29 +1,39 @@
-import { Route, Routes } from "react-router-dom";
-import { ForsideFagansvarlig } from "./ForsideFagansvarlig";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { OpprettTiltakstype } from "./pages/tiltakstyper/opprett-tiltakstyper/OpprettTiltakstypePage";
+import { TiltaksgrupperPage } from "./pages/tiltaksgrupper/TiltaksgrupperPage";
+import { OpprettTiltaksgruppe } from "./pages/tiltaksgrupper/opprett-tiltaksgrupper/OpprettTiltaksgruppePage";
 
 export default function AutentisertFagansvarligApp() {
   return (
     <Routes>
       <Route
-        path="/*"
+        path="tiltakstyper"
         element={
-          <RootLayout>
-            <ForsideFagansvarlig />
+          <RootLayout fagansvarlig>
+            <TiltakstyperPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
       <Route
-        path="tiltakstyper"
+        path="tiltaksgrupper"
         element={
-          <RootLayout>
-            <TiltakstyperPage />
+          <RootLayout fagansvarlig>
+            <TiltaksgrupperPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgrupper/opprett"
+        element={
+          <RootLayout fagansvarlig>
+            <OpprettTiltaksgruppe />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
@@ -31,7 +41,7 @@ export default function AutentisertFagansvarligApp() {
       <Route
         path="tiltakstyper/opprett"
         element={
-          <RootLayout>
+          <RootLayout fagansvarlig>
             <OpprettTiltakstype />
           </RootLayout>
         }
@@ -40,21 +50,22 @@ export default function AutentisertFagansvarligApp() {
       <Route
         path="tiltakstyper/:tiltakstypeId"
         element={
-          <RootLayout>
+          <RootLayout fagansvarlig>
             <DetaljerTiltakstypePage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
       <Route
-        path="tiltaksgjennomforing/:tiltaksgjennomforingId"
+        path="tiltakstyper/:tiltakstypeId/tiltaksgjennomforing/:tiltaksgjennomforingId"
         element={
-          <RootLayout>
-            <TiltaksgjennomforingPage />
+          <RootLayout fagansvarlig>
+            <TiltaksgjennomforingPage fagansvarlig />
           </RootLayout>
         }
         errorElement={<ErrorPage />}
       />
+      <Route path="/" element={<Navigate to="/tiltakstyper" />} />
     </Routes>
   );
 }

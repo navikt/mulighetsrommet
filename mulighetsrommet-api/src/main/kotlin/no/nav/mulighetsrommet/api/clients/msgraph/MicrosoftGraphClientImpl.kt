@@ -14,7 +14,7 @@ import java.util.*
 
 class MicrosoftGraphClientImpl(
     private val baseUrl: String,
-    private val tokenProvider: () -> String,
+    private val tokenProvider: (accessToken: String) -> String,
     clientEngine: HttpClientEngine = CIO.create()
 ) : MicrosoftGraphClient {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -23,9 +23,9 @@ class MicrosoftGraphClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentHovedenhetForBruker(navAnsattAzureId: UUID): MSGraphBrukerdata {
+    override suspend fun hentHovedenhetForBruker(accessToken: String, navAnsattAzureId: UUID): MSGraphBrukerdata {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId?\$select=streetAddress,city") {
-            bearerAuth(tokenProvider())
+            bearerAuth(tokenProvider(accessToken))
         }
 
         if ((response.status == HttpStatusCode.NotFound) || (response.status == HttpStatusCode.NoContent)) {

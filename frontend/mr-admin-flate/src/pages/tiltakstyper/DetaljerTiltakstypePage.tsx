@@ -2,6 +2,7 @@ import { Alert, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
+import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 
 export function DetaljerTiltakstypePage() {
@@ -14,7 +15,7 @@ export function DetaljerTiltakstypePage() {
   if (!optionalTiltakstype.data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltakstype</p>
+        Klarte ikke finne tiltakstype
         <Link to="/">Til forside</Link>
       </Alert>
     );
@@ -23,12 +24,7 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Link
-        style={{ marginBottom: "1rem", display: "block" }}
-        to="/tiltakstyper"
-      >
-        Tilbake til oversikt
-      </Link>
+      <Tilbakelenke>Tilbake</Tilbakelenke>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>

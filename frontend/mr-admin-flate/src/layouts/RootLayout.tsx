@@ -1,10 +1,21 @@
 import { ReactNode } from "react";
 import styles from "./RootLayout.module.scss";
+import { ForsideTiltaksansvarlig } from "../pages/forside/ForsideTiltaksansvarlig";
+import { ForsideFagansvarlig } from "../pages/forside/ForsideFagansvarlig";
 
-export function RootLayout({ children }: { children: ReactNode }) {
+interface RootLayoutProps {
+  fagansvarlig?: boolean;
+  children: ReactNode;
+}
+
+export function RootLayout({
+  fagansvarlig = false,
+  children,
+}: RootLayoutProps) {
   return (
-    <div>
+    <>
+      {fagansvarlig ? <ForsideFagansvarlig /> : <ForsideTiltaksansvarlig />}
       <main className={styles.container}>{children}</main>
-    </div>
+    </>
   );
 }

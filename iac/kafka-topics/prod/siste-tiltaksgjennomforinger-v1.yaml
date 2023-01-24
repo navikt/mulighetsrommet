@@ -22,3 +22,4 @@ spec:
     - team: amt
       application: amt-tiltak
       access: read
+    # HUSK Å OPPDATERE consumers.md MED INFO OM NY KONSUMENT

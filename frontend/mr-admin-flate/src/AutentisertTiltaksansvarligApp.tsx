@@ -1,49 +1,20 @@
-import { Route, Routes } from "react-router-dom";
-import { ForsideTiltaksansvarlig } from "./ForsideTiltaksansvarlig";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useSideForNavigering } from "./hooks/useSideForNavigering";
 import { RootLayout } from "./layouts/RootLayout";
 import { EnhetsoversiktPage } from "./pages/enhet/EnhetsoversiktPage";
 import { ErrorPage } from "./pages/ErrorPage";
-import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
 import { MineTiltaksgjennomforingerPage } from "./pages/mine/MineTiltaksgjennomforingerPage";
-import { Ansatt } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingPage";
+import { OpprettTiltaksgjennomforing } from "./pages/tiltaksgjennomforinger/opprett-tiltaksgjennomforinger/OpprettTiltaksgjennomforingPage";
+import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 
-export interface Props {
-  ansatt: Ansatt;
-}
+export default function AutentisertTiltaksansvarligApp() {
+  const side = useSideForNavigering();
 
-export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
   return (
     <Routes>
       <Route
-        path="/*"
-        element={
-          <RootLayout>
-            <ForsideTiltaksansvarlig />
-          </RootLayout>
-        }
-        errorElement={<ErrorPage />}
-      />
-      <Route
-        path="oversikt"
-        element={
-          <RootLayout>
-            <TiltaksgjennomforingerPage />
-          </RootLayout>
-        }
-        errorElement={<ErrorPage />}
-      />
-      <Route
-        path="enhet"
-        element={
-          <RootLayout>
-            <EnhetsoversiktPage ansatt={ansatt} />
-          </RootLayout>
-        }
-        errorElement={<ErrorPage />}
-      />
-      <Route
-        path="mine"
+        path="/mine"
         element={
           <RootLayout>
             <MineTiltaksgjennomforingerPage />
@@ -52,7 +23,25 @@ export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
         errorElement={<ErrorPage />}
       />
       <Route
-        path=":tiltaksgjennomforingId"
+        path="/enhet"
+        element={
+          <RootLayout>
+            <EnhetsoversiktPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="/oversikt"
+        element={
+          <RootLayout>
+            <TiltaksgjennomforingerPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path={`${side}/tiltaksgjennomforing/:tiltaksgjennomforingId`}
         element={
           <RootLayout>
             <TiltaksgjennomforingPage />
@@ -60,6 +49,16 @@ export default function AutentisertTiltaksansvarligApp({ ansatt }: Props) {
         }
         errorElement={<ErrorPage />}
       />
+      <Route
+        path="opprett-tiltaksgjennomforing"
+        element={
+          <RootLayout>
+            <OpprettTiltaksgjennomforing />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route path="/" element={<Navigate to="mine" />} />
     </Routes>
   );
 }

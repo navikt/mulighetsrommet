@@ -77,16 +77,17 @@ export DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}
 ```
 
 Legg til disse enten i `.bashrc` eller `.zshrc` eller kjør dem per session rett i terminalen. Eller bruk et verktøy
-som [direnv](https://direnv.net/).
+som [direnv](https://direnv.net/). PS: Lukk terminalen for å oppdatere miljøvariablene.
 
 ## <a name="steg-for-steg"></a>Steg for steg
 
 For å komme fort i gang fra en terminal gjør følgende:
 
-1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d` i terminalen. For å få med
-   mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i stedet for
-   å også kjøre opp en wiremock instans.
-2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew install`.
+1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d`
+   eller `docker compose --profile dev --profile dev up` i terminalen. For å
+   få med mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i
+   stedet for å også kjøre opp en wiremock instans.
+2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew build`.
 3. Migrer endringer og data til databasen ved å kjøre `./gradlew flywayMigrate`. (For å slette databasen og migrere alt
    på nytt kan man kjøre `./gradlew flywayClean` før migrate)
 4. Start applikasjonen med å kjøre `./gradlew run`.
@@ -104,10 +105,18 @@ Følgende steg kan benyttes til å generere opp et token:
 2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger)
 3. Generer et token
     1. Trykk på knappen `Get a token`
-    2. Full ut felt for `user/subject` (spiller ingen trille hva dette er)
-    3. Skriv inn en NAVident i `optional claims`, f.eks.`{ "NAVident": "ABC123" }`
+    2. Skriv inn et random username og NAVident i `optional claims`, f.eks.
+       `{
+       "NAVident": "hei",
+       "roles": [
+       "access_as_application"
+       ],
+       "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
+       "azp_name": "test name"
+       }`
     4. Trykk `Sign in`
-4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header
+4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i .env-filen du har opprettet
+   i `/mr-admin-flate`
 
 Eksempel:
 

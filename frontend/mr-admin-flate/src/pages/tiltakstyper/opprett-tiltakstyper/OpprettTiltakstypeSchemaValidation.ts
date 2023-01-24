@@ -1,7 +1,5 @@
 import { z } from "zod";
-
-const BooleanDefaultFalse = z.boolean().default(false);
-
+import { BooleanDefaultFalse } from "../../OpprettComponents";
 const TiltaksgruppekodeEnum = z.enum(
   [
     "AFT",
@@ -67,11 +65,6 @@ export const OpprettTiltakstypeSchema = z.object({
   harStatusHenvisningsbrev: BooleanDefaultFalse,
   harStatusKopibrev: BooleanDefaultFalse,
 });
-
-export type OptionalSchemaValues = Partial<
-  z.infer<typeof OpprettTiltakstypeSchema>
->;
-export type SchemaValues = z.infer<typeof OpprettTiltakstypeSchema>;
 
 export type TiltaksgruppekodeValue = z.infer<typeof TiltaksgruppekodeEnum>;
 export type HandlingsplanValue = z.infer<typeof HandlingsplanEnum>;

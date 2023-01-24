@@ -160,8 +160,8 @@ private fun services(appConfig: AppConfig) = module {
     single<MicrosoftGraphClient> {
         MicrosoftGraphClientImpl(
             baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = {
-                m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
+            tokenProvider = { token ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
             }
         )
     }
@@ -183,6 +183,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get()) }
+    single { TiltakstypeService(get()) }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {

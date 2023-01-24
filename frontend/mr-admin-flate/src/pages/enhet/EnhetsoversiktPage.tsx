@@ -1,23 +1,20 @@
-import { Alert, BodyLong, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
 import { paginationAtom } from "../../api/atoms";
 import { useTiltaksgjennomforingerByEnhet } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingerByEnhet";
 import { Laster } from "../../components/Laster";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTiltaksgjennomforing";
-import { Tiltaksgjennomforingrad } from "../../components/tiltaksgjennomforinger/Tiltaksgjennomforing";
+import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
-import styles from "../tiltaksgjennomforinger/Oversikt.module.scss";
-import { Ansatt } from "mulighetsrommet-api-client";
+import styles from "../Oversikt.module.scss";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { ListeheaderTiltaksgjennomforing } from "../../components/tiltaksgjennomforinger/ListeheaderTiltaksgjennomforing";
 
-export interface Props {
-  ansatt: Ansatt;
-}
-
-export function EnhetsoversiktPage({ ansatt }: Props) {
+export function EnhetsoversiktPage() {
+  const { data: ansatt } = useHentAnsatt();
   const { data, isFetching, isError } = useTiltaksgjennomforingerByEnhet(
-    ansatt.hovedenhet
+    ansatt?.hovedenhet
   );
   const [page, setPage] = useAtom(paginationAtom);
 
@@ -28,11 +25,8 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
   if (isError) {
     return (
       <Alert variant="error">
-        <p>
-          Det oppsto en feil ved henting av tiltaksgjennomføringer for din
-          enhet. Prøv igjen senere.
-        </p>
-        <Link to="/">Til forside</Link>
+        Det oppsto en feil ved henting av tiltaksgjennomføringer for enheten.
+        Prøv igjen senere.
       </Alert>
     );
   }
@@ -40,8 +34,7 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
   if (!data) {
     return (
       <Alert variant="warning">
-        <p>Klarte ikke finne tiltaksgjennomføringer for din enhet</p>
-        <Link to="/">Til forside</Link>
+        Klarte ikke finne tiltaksgjennomføringer for din enhet.
       </Alert>
     );
   }
@@ -49,63 +42,60 @@ export function EnhetsoversiktPage({ ansatt }: Props) {
   const tiltaksgjennomforinger = data.data;
   return (
     <>
-      <Link to="/">Hjem</Link>
-      <Heading className={styles.overskrift} size="large">
-        Oversikt over tiltaksgjennomføringer for enhet: {ansatt.hovedenhetNavn}
+      <Heading size="large">
+        Oversikt over tiltaksgjennomføringer for enhet: {ansatt?.hovedenhetNavn}
       </Heading>
-      <BodyLong className={styles.body} size="small">
+      <BodyShort className={styles.body} size="small">
         Her finner du alle gjennomføringer for din enhet
-      </BodyLong>
+      </BodyShort>
       <SokEtterTiltaksgjennomforing />
-      <>
-        {tiltaksgjennomforinger.length > 0 ? (
-          <PagineringsOversikt
-            page={page}
-            antall={tiltaksgjennomforinger.length}
-            maksAntall={data.pagination.totalCount}
-          />
-        ) : null}
-
-        <ul className={styles.oversikt}>
-          {tiltaksgjennomforinger.length === 0 && (
-            <Alert variant="info">
-              Vi fant ingen tiltaksgjennomføringer for din enhet
-            </Alert>
-          )}
-          {tiltaksgjennomforinger
-            .sort((a, b) => a.navn.localeCompare(b.navn))
-            .map((tiltaksgjennomforing) => (
-              <Tiltaksgjennomforingrad
-                key={tiltaksgjennomforing.id}
-                tiltaksgjennomforing={tiltaksgjennomforing}
-              />
-            ))}
-        </ul>
-        <div className={styles.under_oversikt}>
+      {tiltaksgjennomforinger.length === 0 ? (
+        <Alert variant="info">
+          Vi fant ingen tiltaksgjennomføringer for din enhet.
+        </Alert>
+      ) : (
+        <>
           {tiltaksgjennomforinger.length > 0 ? (
-            <>
-              <PagineringsOversikt
-                page={page}
-                antall={tiltaksgjennomforinger.length}
-                maksAntall={data.pagination.totalCount}
-              />
-              <Pagination
-                size="small"
-                data-testid="paginering"
-                page={page}
-                onPageChange={setPage}
-                count={Math.ceil(
-                  (data.pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
-                )}
-                data-version="v1"
-              />
-            </>
+            <PagineringsOversikt
+              page={page}
+              antall={tiltaksgjennomforinger.length}
+              maksAntall={data.pagination.totalCount}
+            />
           ) : null}
-        </div>
-      </>
-      {/**
-       * TODO Implementere skjema for opprettelse av tiltakstype
-       */}
+          <ul className={styles.oversikt}>
+            <ListeheaderTiltaksgjennomforing />
+            {tiltaksgjennomforinger
+              .sort((a, b) => a.navn.localeCompare(b.navn))
+              .map((tiltaksgjennomforing) => (
+                <TiltaksgjennomforingRad
+                  key={tiltaksgjennomforing.id}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+              ))}
+          </ul>
+          <div className={styles.under_oversikt}>
+            {tiltaksgjennomforinger.length > 0 ? (
+              <>
+                <PagineringsOversikt
+                  page={page}
+                  antall={tiltaksgjennomforinger.length}
+                  maksAntall={data.pagination.totalCount}
+                />
+                <Pagination
+                  size="small"
+                  data-testid="paginering"
+                  page={page}
+                  onPageChange={setPage}
+                  count={Math.ceil(
+                    (data.pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
+                  )}
+                  data-version="v1"
+                />
+              </>
+            ) : null}
+          </div>
+        </>
+      )}
     </>
   );
 }

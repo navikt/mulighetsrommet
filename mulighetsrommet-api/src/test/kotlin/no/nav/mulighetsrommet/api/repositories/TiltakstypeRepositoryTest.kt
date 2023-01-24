@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.routes.v1.Status
+import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -43,8 +45,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         )
 
         tiltakstyper.getAll().second shouldHaveSize 2
-        tiltakstyper.getAll(search = "Førerhund").second shouldHaveSize 0
-        tiltakstyper.getAll(search = "Arbeidstrening").second shouldHaveSize 1
+        tiltakstyper.getAll(TiltakstypeFilter(search = "Førerhund", status = Status.AKTIV)).second shouldHaveSize 0
+        tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.UTFASET)).second shouldHaveSize 1
     }
 
     context("pagination") {
