@@ -49,34 +49,34 @@ class TiltakEndretConsumerTest : FunSpec({
 
         val e3 = consumer.processEvent(createEvent(Delete, name = "Oppfølging 1"))
         e3.status shouldBe Processed
-        database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
-
-        database.assertThat("tiltakstype").row().value("rett_paa_tiltakspenger").isTrue
-        database.assertThat("tiltakstype").row().value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
-        database.assertThat("tiltakstype").row().value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
-        database.assertThat("tiltakstype").row().value("tiltaksgruppekode").isEqualTo("UTFAS")
-        database.assertThat("tiltakstype").row().value("administrasjonskode").isEqualTo("IND")
-        database.assertThat("tiltakstype").row().value("send_tilsagnsbrev_til_deltaker").isTrue
-        database.assertThat("tiltakstype").row().value("skal_ha_anskaffelsesprosess").isFalse
-        database.assertThat("tiltakstype").row().value("maks_antall_plasser").isNull
-        database.assertThat("tiltakstype").row().value("maks_antall_sokere").isEqualTo(10)
-        database.assertThat("tiltakstype").row().value("har_fast_antall_plasser").isNull
-        database.assertThat("tiltakstype").row().value("skal_sjekke_antall_deltakere").isTrue
-        database.assertThat("tiltakstype").row().value("vis_lonnstilskuddskalkulator").isFalse
-        database.assertThat("tiltakstype").row().value("rammeavtale").isEqualTo("IKKE")
-        database.assertThat("tiltakstype").row().value("opplaeringsgruppe").isNull
-        database.assertThat("tiltakstype").row().value("handlingsplan").isEqualTo("TIL")
-        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_krever_sluttdato").isFalse
-        database.assertThat("tiltakstype").row().value("maks_periode_i_mnd").isEqualTo(6)
-        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_krever_meldeplikt").isNull
-        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_krever_vedtak").isFalse
-        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_reservert_for_ia_bedrift").isFalse
-        database.assertThat("tiltakstype").row().value("har_rett_paa_tilleggsstonader").isFalse
-        database.assertThat("tiltakstype").row().value("har_rett_paa_utdanning").isFalse
-        database.assertThat("tiltakstype").row().value("tiltaksgjennomforing_genererer_tilsagnsbrev_automatisk").isFalse
-        database.assertThat("tiltakstype").row().value("vis_begrunnelse_for_innsoking").isTrue
-        database.assertThat("tiltakstype").row().value("henvisningsbrev_og_hovedbrev_til_arbeidsgiver").isFalse
-        database.assertThat("tiltakstype").row().value("kopibrev_og_hovedbrev_til_arbeidsgiver").isFalse
+        database.assertThat("tiltakstype").row()
+            .value("navn").isEqualTo("Oppfølging 1")
+            .value("rett_paa_tiltakspenger").isTrue
+            .value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
+            .value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
+            .value("tiltaksgruppekode").isEqualTo("UTFAS")
+            .value("administrasjonskode").isEqualTo("IND")
+            .value("send_tilsagnsbrev_til_deltaker").isTrue
+            .value("skal_ha_anskaffelsesprosess").isFalse
+            .value("maks_antall_plasser").isNull
+            .value("maks_antall_sokere").isEqualTo(10)
+            .value("har_fast_antall_plasser").isNull
+            .value("skal_sjekke_antall_deltakere").isTrue
+            .value("vis_lonnstilskuddskalkulator").isFalse
+            .value("rammeavtale").isEqualTo("IKKE")
+            .value("opplaeringsgruppe").isNull
+            .value("handlingsplan").isEqualTo("TIL")
+            .value("tiltaksgjennomforing_krever_sluttdato").isFalse
+            .value("maks_periode_i_mnd").isEqualTo(6)
+            .value("tiltaksgjennomforing_krever_meldeplikt").isNull
+            .value("tiltaksgjennomforing_krever_vedtak").isFalse
+            .value("tiltaksgjennomforing_reservert_for_ia_bedrift").isFalse
+            .value("har_rett_paa_tilleggsstonader").isFalse
+            .value("har_rett_paa_utdanning").isFalse
+            .value("tiltaksgjennomforing_genererer_tilsagnsbrev_automatisk").isFalse
+            .value("vis_begrunnelse_for_innsoking").isTrue
+            .value("henvisningsbrev_og_hovedbrev_til_arbeidsgiver").isFalse
+            .value("kopibrev_og_hovedbrev_til_arbeidsgiver").isFalse
     }
 
     context("api responses") {
