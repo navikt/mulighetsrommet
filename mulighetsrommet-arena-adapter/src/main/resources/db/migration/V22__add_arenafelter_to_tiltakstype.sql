@@ -1,10 +1,6 @@
-create type Rammeavtale as enum ('SKAL', 'KAN', 'IKKE');
-create type Handlingsplan as enum ('AKT', 'LAG', 'SOK', 'TIL');
-create type Administrasjonskode as enum ('AMO', 'IND', 'INST');
-
 alter table tiltakstype
     add column tiltaksgruppekode text,
-    add column administrasjonskode Administrasjonskode,
+    add column administrasjonskode text,
     add column send_tilsagnsbrev_til_deltaker bool,
     add column skal_ha_anskaffelsesprosess bool,
     add column maks_antall_plasser int,
@@ -12,9 +8,9 @@ alter table tiltakstype
     add column har_fast_antall_plasser bool,
     add column skal_sjekke_antall_deltakere bool,
     add column vis_lonnstilskuddskalkulator bool,
-    add column rammeavtale Rammeavtale,
+    add column rammeavtale text,
     add column opplaeringsgruppe text,
-    add column handlingsplan Handlingsplan,
+    add column handlingsplan text,
     add column tiltaksgjennomforing_krever_sluttdato bool,
     add column maks_periode_i_mnd int,
     add column tiltaksgjennomforing_krever_meldeplikt bool,

@@ -28,14 +28,14 @@ object ArenaUtils {
         else -> throw Exception("Ukjent deltakerstatus fra Arena")
     }
 
-    fun jaNeiTilBoolean(jaNeiStreng: JaNeiStatus): Boolean {
+    fun parseJaNei(jaNeiStreng: JaNeiStatus): Boolean {
         return when (jaNeiStreng) {
             JaNeiStatus.Ja -> true
             JaNeiStatus.Nei -> false
         }
     }
 
-    fun optionalJaNeiTilBoolean(jaNeiStreng: JaNeiStatus?): Boolean? {
+    fun parseNulleableJaNei(jaNeiStreng: JaNeiStatus?): Boolean? {
         if (jaNeiStreng == null) {
             return null
         }
