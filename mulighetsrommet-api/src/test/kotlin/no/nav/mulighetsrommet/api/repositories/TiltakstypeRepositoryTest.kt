@@ -31,7 +31,7 @@ class TiltakstypeRepositoryTest : FunSpec({
                 tiltakskode = "ARBTREN",
                 rettPaaTiltakspenger = true,
                 registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretIArenaDato = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
                 tilDato = LocalDate.of(2023, 1, 12)
             )
@@ -51,7 +51,16 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         tiltakstyper.getAll().second shouldHaveSize 2
         tiltakstyper.getAll(TiltakstypeFilter(search = "Førerhund", status = Status.AKTIV)).second shouldHaveSize 0
-        tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.UTFASET)).second shouldHaveSize 1
+
+        val arbeidstrening = tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.UTFASET))
+        arbeidstrening.second shouldHaveSize 1
+        arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
+        arbeidstrening.second[0].arenaKode shouldBe "ARBTREN"
+        arbeidstrening.second[0].rettPaaTiltakspenger shouldBe true
+        arbeidstrening.second[0].registrertIArenaDato shouldBe LocalDateTime.of(2022, 1, 11, 0, 0, 0)
+        arbeidstrening.second[0].sistEndretIArenaDato shouldBe LocalDateTime.of(2022, 1, 15, 0, 0, 0)
+        arbeidstrening.second[0].fraDato shouldBe LocalDate.of(2023, 1, 11)
+        arbeidstrening.second[0].tilDato shouldBe LocalDate.of(2023, 1, 12)
     }
 
     context("pagination") {

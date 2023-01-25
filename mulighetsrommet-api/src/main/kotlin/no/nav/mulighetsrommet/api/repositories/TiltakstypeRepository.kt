@@ -168,6 +168,8 @@ class TiltakstypeRepository(private val db: Database) {
         id = uuid("id"),
         navn = string("navn"),
         arenaKode = string("tiltakskode"),
+        registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
+        sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
