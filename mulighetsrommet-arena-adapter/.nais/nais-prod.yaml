@@ -49,7 +49,10 @@ spec:
   azure:
     application:
       enabled: true
+      allowAllUsers: false
       claims:
+        groups:
+          - id: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
         extra:
           - azp_name
   accessPolicy:
