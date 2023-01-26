@@ -31,6 +31,7 @@ spec:
     application:
       enabled: true
       tenant: nav.no
+      allowAllUsers: false
       claims:
         extra:
           - NAVident
