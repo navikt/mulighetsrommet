@@ -1,8 +1,8 @@
-import { Button, Heading, Search } from "@navikt/ds-react";
+import { Button, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import styles from "../Page.module.scss";
-import { TiltaksgruppeOversikt } from "../../components/tiltaksgrupper/TiltaksgruppeOversikt";
+import { TiltaksgrupperOversikt } from "../../components/tiltaksgrupper/TiltaksgrupperOversikt";
 
 export function TiltaksgrupperPage() {
   return (
@@ -13,7 +13,7 @@ export function TiltaksgrupperPage() {
           <Button variant="tertiary">Opprett ny tiltaksgruppe</Button>
         </Link>
       </div>
-      <TiltaksgruppeOversikt />
+      <TiltaksgrupperOversikt />
     </>
   );
 }

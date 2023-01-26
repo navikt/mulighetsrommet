@@ -1,8 +1,7 @@
-import { Next } from "@navikt/ds-icons";
 import { BodyShort } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
-import styles from "./TiltaksgruppeRad.module.scss";
+import styles from "../listeelementer/Listeelementer.module.scss";
 import { Tiltaksgruppe } from "../../api/tiltaksgrupper/useTiltaksgrupper";
+import { ListeRad } from "../listeelementer/ListeRad";
 
 interface Props {
   tiltaksgruppe: Tiltaksgruppe;
@@ -10,12 +9,12 @@ interface Props {
 
 export function TiltaksgruppeRad({ tiltaksgruppe }: Props) {
   return (
-    <li className={styles.list_element}>
-      <Link to={`/tiltaksgrupper/${tiltaksgruppe.id}`} className={styles.rad}>
-        <BodyShort size="medium">{tiltaksgruppe.navn}</BodyShort>
-        <BodyShort size="small">{tiltaksgruppe.arenaKode}</BodyShort>
-        <Next className={styles.pil} />
-      </Link>
-    </li>
+    <ListeRad
+      linkTo={`/tiltaksgrupper/${tiltaksgruppe.id}`}
+      classname={styles.listerad_tiltaksgruppe}
+    >
+      <BodyShort size="medium">{tiltaksgruppe.navn}</BodyShort>
+      <BodyShort size="small">{tiltaksgruppe.arenaKode}</BodyShort>
+    </ListeRad>
   );
 }

@@ -5,10 +5,9 @@ import { useTiltaksgjennomforingerByTiltakstypeId } from "../../api/tiltaksgjenn
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
 import { TiltaksgjennomforingRad } from "./TiltaksgjennomforingRad";
-import tiltaksgjennomforingsStyles from "./TiltaksgjennomforingerOversikt.module.scss";
-import styles from "./TiltaksgjennomforingslisteForTiltakstyper.module.scss";
+import tiltaksgjennomforingsStyles from "../listeelementer/Listeelementer.module.scss";
 import { Tiltakstype } from "mulighetsrommet-api-client";
-import { ListeheaderTiltaksgjennomforing } from "./ListeheaderTiltaksgjennomforing";
+import { ListeheaderTiltaksgjennomforinger } from "../listeelementer/Listeheader";
 
 interface TiltaksgjennomforingslisteForTiltakstyperProps {
   tiltakstype: Tiltakstype;
@@ -42,7 +41,7 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
   };
 
   return (
-    <div className={styles.tiltaksgjennomforingsliste}>
+    <>
       <Heading size="medium" level="2">
         Tiltaksgjennomføringer
       </Heading>
@@ -52,7 +51,7 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
         {tiltaksgjennomforinger.data.length === 0 && (
           <Alert variant="info">Ingen tilhørende tiltaksgjennomføringer</Alert>
         )}
-        <ListeheaderTiltaksgjennomforing />
+        <ListeheaderTiltaksgjennomforinger />
         {tiltaksgjennomforinger.data
           .sort((a, b) => a.navn.localeCompare(b.navn))
           .map((tiltaksgjennomforing) => (
@@ -74,6 +73,6 @@ export function TiltaksgjennomforingslisteForTiltakstyper({
         )}
         data-version="v1"
       />
-    </div>
+    </>
   );
 }

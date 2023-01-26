@@ -9,7 +9,7 @@ import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger
 import { PAGE_SIZE } from "../../constants";
 import styles from "../Oversikt.module.scss";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { ListeheaderTiltaksgjennomforing } from "../../components/tiltaksgjennomforinger/ListeheaderTiltaksgjennomforing";
+import { ListeheaderTiltaksgjennomforinger } from "../../components/listeelementer/Listeheader";
 
 export function EnhetsoversiktPage() {
   const { data: ansatt } = useHentAnsatt();
@@ -63,7 +63,7 @@ export function EnhetsoversiktPage() {
             />
           ) : null}
           <ul className={styles.oversikt}>
-            <ListeheaderTiltaksgjennomforing />
+            <ListeheaderTiltaksgjennomforinger />
             {tiltaksgjennomforinger
               .sort((a, b) => a.navn.localeCompare(b.navn))
               .map((tiltaksgjennomforing) => (

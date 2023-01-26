@@ -8,7 +8,7 @@ import { SokEtterTiltaksgjennomforing } from "../../components/sok/SokEtterTilta
 import { TiltaksgjennomforingRad } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingRad";
 import { PAGE_SIZE } from "../../constants";
 import styles from "../Oversikt.module.scss";
-import { ListeheaderTiltaksgjennomforing } from "../../components/tiltaksgjennomforinger/ListeheaderTiltaksgjennomforing";
+import { ListeheaderTiltaksgjennomforinger } from "../../components/listeelementer/Listeheader";
 
 export function MineTiltaksgjennomforingerPage() {
   const { data, isFetching, isError } =
@@ -65,7 +65,7 @@ export function MineTiltaksgjennomforingerPage() {
           ) : null}
 
           <ul className={styles.oversikt}>
-            <ListeheaderTiltaksgjennomforing />
+            <ListeheaderTiltaksgjennomforinger />
             {tiltaksgjennomforinger
               .sort((a, b) => a.navn.localeCompare(b.navn))
               .map((tiltaksgjennomforing) => (
