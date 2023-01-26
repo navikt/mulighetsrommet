@@ -31,8 +31,8 @@ data class TiltakstypeDto(
                 id = id,
                 navn = navn,
                 arenaKode = tiltakskode,
-                registrertIArenaDato = registrertIArenaDato,
-                sistEndretIArenaDato = sistEndretIArenaDato,
+                registrertIArenaDato = registrertDatoIArena,
+                sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,
                 tilDato = tilDato,
                 rettPaaTiltakspenger = rettPaaTiltakspenger

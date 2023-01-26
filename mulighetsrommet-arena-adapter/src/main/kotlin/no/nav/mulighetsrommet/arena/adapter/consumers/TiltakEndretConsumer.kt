@@ -101,8 +101,8 @@ class TiltakEndretConsumer(
         id = id,
         navn = navn,
         tiltakskode = tiltakskode,
-        registrertIArenaDato = registrertIArenaDato,
-        sistEndretIArenaDato = sistEndretIArenaDato,
+        registrertDatoIArena = registrertIArenaDato,
+        sistEndretDatoIArena = sistEndretIArenaDato,
         fraDato = fraDato.toLocalDate(),
         tilDato = tilDato.toLocalDate(),
         rettPaaTiltakspenger = rettPaaTiltakspenger

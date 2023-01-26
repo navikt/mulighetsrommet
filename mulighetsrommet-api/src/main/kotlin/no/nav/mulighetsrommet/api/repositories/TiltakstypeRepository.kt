@@ -146,8 +146,8 @@ class TiltakstypeRepository(private val db: Database) {
         "id" to id,
         "navn" to navn,
         "tiltakskode" to tiltakskode,
-        "registrert_dato_i_arena" to registrertIArenaDato,
-        "sist_endret_dato_i_arena" to sistEndretIArenaDato,
+        "registrert_dato_i_arena" to registrertDatoIArena,
+        "sist_endret_dato_i_arena" to sistEndretDatoIArena,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger
@@ -157,8 +157,8 @@ class TiltakstypeRepository(private val db: Database) {
         id = uuid("id"),
         navn = string("navn"),
         tiltakskode = string("tiltakskode"),
-        registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
-        sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
+        registrertDatoIArena = localDateTime("registrert_dato_i_arena"),
+        sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")

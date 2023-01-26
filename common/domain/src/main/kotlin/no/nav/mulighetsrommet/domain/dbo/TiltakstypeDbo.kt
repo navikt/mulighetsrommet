@@ -15,9 +15,9 @@ data class TiltakstypeDbo(
     val navn: String,
     val tiltakskode: String,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val registrertIArenaDato: LocalDateTime,
+    val registrertDatoIArena: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val sistEndretIArenaDato: LocalDateTime,
+    val sistEndretDatoIArena: LocalDateTime,
     @Serializable(with = LocalDateSerializer::class)
     val fraDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

@@ -30,8 +30,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 "",
                 "",
                 rettPaaTiltakspenger = true,
-                registrertIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretIArenaDato = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
                 tilDato = LocalDate.of(2023, 1, 12)
             )
