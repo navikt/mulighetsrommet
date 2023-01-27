@@ -1,25 +1,17 @@
-import { Button, Heading, Search, Select } from "@navikt/ds-react";
+import { Heading, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { ChangeEvent } from "react";
-import { Link } from "react-router-dom";
 import { tiltakstypefilter } from "../../api/atoms";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
 import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
-  const { data: toggles } = useFeatureToggles();
   const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
 
   return (
     <>
       <div className={styles.header_wrapper}>
         <Heading size="large">Oversikt over tiltakstyper</Heading>
-        {toggles?.["mulighetsrommet.enable-opprett-tiltakstype"] ? (
-          <Link to="opprett" className={styles.opprettknappseksjon}>
-            <Button variant="tertiary">Opprett ny tiltakstype</Button>
-          </Link>
-        ) : null}
       </div>
       <div className={styles.filterseksjon}>
         <Search
