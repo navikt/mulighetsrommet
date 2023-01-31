@@ -201,7 +201,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             )}
             {harDeltMedBruker && !erPreview && (
               <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                <Link href={getUrlTilDialogen(harDeltMedBruker.bruker_fnr!!, harDeltMedBruker.dialogId!!)}>
+                <Link href={getUrlTilDialogen(harDeltMedBruker.norskIdent!!, harDeltMedBruker.dialogId!!)}>
                   Åpne i dialogen
                   <Dialog />
                 </Link>
