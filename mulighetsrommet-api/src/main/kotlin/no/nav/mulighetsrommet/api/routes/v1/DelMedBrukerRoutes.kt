@@ -22,7 +22,7 @@ fun Route.delMedBrukerRoutes() {
         post {
             val payload = call.receive<DelMedBruker>()
 
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), payload.bruker_fnr)
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), payload.norskIdent)
 
             delMedBrukerService.lagreDelMedBruker(payload)
                 .tap {
@@ -37,13 +37,13 @@ fun Route.delMedBrukerRoutes() {
                 }
         }
 
-        get("{tiltaksnummer}") {
-            val tiltaksnummer = call.getNonEmptyPathParameter("tiltaksnummer")
+        get("{sanityId}") {
+            val sanityId = call.getNonEmptyPathParameter("sanityId")
             val fnr = call.getNonEmptyQueryParameter("fnr")
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), fnr)
 
-            delMedBrukerService.getDeltMedBruker(fnr, tiltaksnummer)
+            delMedBrukerService.getDeltMedBruker(fnr, sanityId)
                 .tap {
                     if (it == null) {
                         call.respondText(
