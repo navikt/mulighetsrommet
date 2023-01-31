@@ -10,7 +10,7 @@ interface Props {
 export function TiltaksgruppeRad({ tiltaksgruppe }: Props) {
   return (
     <ListeRad
-      linkTo={`/tiltaksgrupper/${tiltaksgruppe.id}`}
+      linkTo={`/grupper/${tiltaksgruppe.id}`}
       classname={styles.listerad_tiltaksgruppe}
     >
       <BodyShort size="medium">{tiltaksgruppe.navn}</BodyShort>

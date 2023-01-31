@@ -12,6 +12,15 @@ export default function AutentisertFagansvarligApp() {
   return (
     <Routes>
       <Route
+        index
+        element={
+          <RootLayout>
+            <TiltakstyperPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
         path="tiltakstyper"
         element={
           <RootLayout>
@@ -21,7 +30,7 @@ export default function AutentisertFagansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="tiltaksgrupper"
+        path="grupper"
         element={
           <RootLayout>
             <TiltaksgrupperPage />
@@ -30,7 +39,7 @@ export default function AutentisertFagansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="tiltaksgrupper/opprett"
+        path="grupper/opprett"
         element={
           <RootLayout>
             <OpprettTiltaksgruppe />
@@ -39,7 +48,7 @@ export default function AutentisertFagansvarligApp() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="tiltaksgrupper/:tiltaksgruppeId"
+        path="grupper/:tiltaksgruppeId"
         element={
           <RootLayout>
             <TiltaksgruppeDetaljerPage />
@@ -74,7 +83,6 @@ export default function AutentisertFagansvarligApp() {
         }
         errorElement={<ErrorPage />}
       />
-      <Route path="/" element={<Navigate to="/tiltakstyper" />} />
     </Routes>
   );
 }

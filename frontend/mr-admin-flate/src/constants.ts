@@ -13,6 +13,6 @@ export const shortcutsForTiltaksansvarlig: Shortcut[] = [
   },
 ];
 export const shortcutsForFagansvarlig: Shortcut[] = [
-  { url: "/tiltakstyper", navn: "Tiltakstyper" },
-  { url: "/tiltaksgrupper", navn: "Tiltaksgrupper" },
+  { url: "/tiltakstyper/tiltakstyper", navn: "Tiltakstyper" },
+  { url: "/tiltakstyper/grupper", navn: "Tiltaksgrupper" },
 ];
