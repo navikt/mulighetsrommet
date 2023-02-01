@@ -1,9 +1,13 @@
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Route, Routes } from "react-router-dom";
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
-import { AutentisertApp } from "./AutentisertApp";
 import { Laster } from "./components/Laster";
 import { Forside } from "./Forside";
+import IkkeAutentisertApp from "./IkkeAutentisertApp";
+import { RootLayout } from "./layouts/RootLayout";
+import { ErrorPage } from "./pages/ErrorPage";
+import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
+import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
@@ -29,10 +33,31 @@ export function App() {
     );
   }
 
+  if (optionalAnsatt?.data.tilganger.length === 0) {
+    return <IkkeAutentisertApp />;
+  }
+
   return (
     <Routes>
+      <Route
+        path="tiltakstyper"
+        element={
+          <RootLayout>
+            <TiltakstyperPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltakstyper/:tiltakstypeId"
+        element={
+          <RootLayout>
+            <DetaljerTiltakstypePage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
       <Route index element={<Forside />} />
-      <Route path="/*" element={<AutentisertApp />} />
     </Routes>
   );
 }

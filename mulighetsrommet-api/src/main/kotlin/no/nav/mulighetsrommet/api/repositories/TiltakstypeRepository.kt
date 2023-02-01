@@ -96,7 +96,7 @@ class TiltakstypeRepository(private val db: Database) {
             when (tiltakstypeFilter.status) {
                 Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
                 Status.PLANLAGT -> "" to "(now()::timestamp < fra_dato)"
-                Status.UTFASET -> "" to "(now()::timestamp > til_dato)"
+                Status.AVSLUTTET -> "" to "(now()::timestamp > til_dato)"
             }
         )
 

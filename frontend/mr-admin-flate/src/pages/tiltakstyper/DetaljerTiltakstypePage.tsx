@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
-import { TiltaksgjennomforingslisteForTiltakstyper } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingslisteForTiltakstyper";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
@@ -32,7 +31,6 @@ export function DetaljerTiltakstypePage() {
         <dt>Tiltakskode:</dt>
         <dd>{tiltakstype.arenaKode}</dd>
       </dl>
-      <TiltaksgjennomforingslisteForTiltakstyper tiltakstype={tiltakstype} />
     </>
   );
 }

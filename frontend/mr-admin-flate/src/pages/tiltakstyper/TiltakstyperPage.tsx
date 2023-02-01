@@ -37,7 +37,7 @@ export function TiltakstyperPage() {
         >
           <option value="AKTIV">Aktive</option>
           <option value="PLANLAGT">Planlagte</option>
-          <option value="UTFASET">Utfasede</option>
+          <option value="AVSLUTTET">Avsluttede</option>
         </Select>
       </div>
       <TiltakstyperOversikt />

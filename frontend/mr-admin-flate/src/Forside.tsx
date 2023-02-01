@@ -1,23 +1,6 @@
 import { Link } from "react-router-dom";
+import { forsideKort } from "./constants";
 import styles from "./Forside.module.scss";
-
-const cards = [
-  {
-    navn: "Tiltakstyper",
-    url: "tiltakstyper",
-    tekst: "Tiltakstyper er for fagansvarlige",
-  },
-  {
-    navn: "Gjennomføringer",
-    url: "gjennomforinger",
-    tekst: "Gjennomføringer er for alle",
-  },
-  {
-    navn: "Grupper",
-    url: "grupper",
-    tekst: "Brukes for gruppering",
-  },
-];
 
 export function Forside() {
   return (
@@ -30,7 +13,7 @@ export function Forside() {
       </div>
       <div className={styles.card_container}>
         <div className={styles.cards}>
-          {cards.map((card) => (
+          {forsideKort.map((card) => (
             <Link key={card.url} className={styles.card} to={card.url}>
               <span className={styles.circle}></span>
               <h3>{card.navn}</h3>

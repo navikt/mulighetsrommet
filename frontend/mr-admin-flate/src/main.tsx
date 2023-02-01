@@ -36,9 +36,7 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <MiljoBanner />
         <Router basename={import.meta.env.BASE_URL}>
-          <AdministratorHeader
-            gjelderForMiljo={["127.0.0.1", "localhost", "labs.nais.io"]}
-          />
+          <AdministratorHeader />
           <App />
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />

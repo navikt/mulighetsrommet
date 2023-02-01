@@ -52,7 +52,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.getAll().second shouldHaveSize 2
         tiltakstyper.getAll(TiltakstypeFilter(search = "Førerhund", status = Status.AKTIV)).second shouldHaveSize 0
 
-        val arbeidstrening = tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.UTFASET))
+        val arbeidstrening = tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.AVSLUTTET))
         arbeidstrening.second shouldHaveSize 1
         arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
         arbeidstrening.second[0].arenaKode shouldBe "ARBTREN"

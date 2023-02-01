@@ -649,7 +649,7 @@ components:
       enum:
         - AKTIV
         - PLANLAGT
-        - UTFASET
+        - AVSLUTTET
 
     Oppfolgingsenhet:
       type: object
