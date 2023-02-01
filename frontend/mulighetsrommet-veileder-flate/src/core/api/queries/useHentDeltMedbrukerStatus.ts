@@ -10,24 +10,24 @@ import useTiltaksgjennomforingById from './useTiltaksgjennomforingById';
 export function useHentDeltMedBrukerStatus() {
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const { data: veilederData } = useHentVeilederdata();
-  const brukerFnr = useHentFnrFraUrl();
+  const norskIdent = useHentFnrFraUrl();
 
   const { data: sistDeltMedBruker, refetch: refetchDelMedBruker } = useQuery<DelMedBruker>(
-    [QueryKeys.DeltMedBrukerStatus, brukerFnr, tiltaksgjennomforing?._id],
+    [QueryKeys.DeltMedBrukerStatus, norskIdent, tiltaksgjennomforing?._id],
     () =>
       mulighetsrommetClient.delMedBruker.getDelMedBruker({
-        fnr: brukerFnr,
-        tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer?.toString()!!,
+        fnr: norskIdent,
+        sanityId: tiltaksgjennomforing?._id!!,
       }),
     { enabled: !erPreview || !tiltaksgjennomforing?.tiltaksnummer }
   );
 
-  async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, tiltaksnummer: string) {
+  async function lagreVeilederHarDeltTiltakMedBruker(dialogId: string, sanityId: string) {
     if (!veilederData?.ident) return;
 
     await mulighetsrommetClient.delMedBruker.postDelMedBruker({
-      tiltaksnummer,
-      requestBody: { bruker_fnr: brukerFnr, navident: veilederData?.ident, tiltaksnummer, dialogId },
+      sanityId,
+      requestBody: { norskIdent, navident: veilederData?.ident, sanityId, dialogId },
     });
 
     await refetchDelMedBruker();

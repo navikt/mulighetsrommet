@@ -7,9 +7,9 @@ import java.time.LocalDateTime
 @Serializable
 data class DelMedBruker(
     val id: String? = null,
-    val bruker_fnr: String,
+    val norskIdent: String,
     val navident: String,
-    val tiltaksnummer: String,
+    val sanityId: String,
     val dialogId: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val created_at: LocalDateTime? = null,

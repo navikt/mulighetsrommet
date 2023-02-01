@@ -16,10 +16,10 @@ class DelMedBrukerService(private val db: Database) {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun lagreDelMedBruker(data: DelMedBruker): QueryResult<DelMedBruker> = query {
-        secureLog.info("Veileder (${data.navident}) deler tiltak med tiltaksnummer: '${data.tiltaksnummer}' med bruker (${data.bruker_fnr})")
+        secureLog.info("Veileder (${data.navident}) deler tiltak med tiltaksnummer: '${data.sanityId}' med bruker (${data.norskIdent})")
 
-        if (data.bruker_fnr.trim().length != 11) {
-            secureLog.warn("Brukers fnr er ikke 11 tegn. Innsendt: ${data.bruker_fnr}")
+        if (data.norskIdent.trim().length != 11) {
+            secureLog.warn("Brukers fnr er ikke 11 tegn. Innsendt: ${data.norskIdent}")
             throw BadRequestException("Brukers fnr er ikke 11 tegn")
         }
 
@@ -30,23 +30,23 @@ class DelMedBrukerService(private val db: Database) {
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }
 
-        if (data.tiltaksnummer.trim().isEmpty()) {
+        if (data.sanityId.trim().isEmpty()) {
             log.warn("Tiltaksnummer er ikke sendt med ved lagring av del med bruker. Kan derfor ikke lagre.")
             throw BadRequestException("Tiltaksnummer må inkluderes")
         }
 
         @Language("PostgreSQL")
         val query = """
-            insert into del_med_bruker(bruker_fnr, navident, tiltaksnummer, dialogId, created_by, updated_by) 
+            insert into del_med_bruker(norsk_ident, navident, sanity_id, dialogId, created_by, updated_by) 
             values(?, ?, ?, ?, ?, ?)
             returning *
         """.trimIndent()
         data.run {
             queryOf(
                 query,
-                data.bruker_fnr,
+                data.norskIdent,
                 data.navident,
-                data.tiltaksnummer,
+                data.sanityId,
                 data.dialogId,
                 data.navident,
                 data.navident
@@ -57,23 +57,23 @@ class DelMedBrukerService(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getDeltMedBruker(fnr: String, tiltaksnummer: String): QueryResult<DelMedBruker?> = query {
+    fun getDeltMedBruker(fnr: String, sanityId: String): QueryResult<DelMedBruker?> = query {
         @Language("PostgreSQL")
         val query = """
-            select * from del_med_bruker where bruker_fnr = ? and tiltaksnummer = ? order by created_at desc
+            select * from del_med_bruker where norsk_ident = ? and sanity_id = ? order by created_at desc
         """.trimIndent()
         queryOf(
             query,
             fnr,
-            tiltaksnummer
+            sanityId
         ).map { it.toDelMedBruker() }.asSingle.let { db.run(it) }
     }
 
     private fun Row.toDelMedBruker(): DelMedBruker = DelMedBruker(
         id = string("id"),
-        bruker_fnr = string("bruker_fnr"),
+        norskIdent = string("norsk_ident"),
         navident = string("navident"),
-        tiltaksnummer = string("tiltaksnummer"),
+        sanityId = string("sanity_id"),
         dialogId = string("dialogId"),
         created_at = localDateTime("created_at"),
         updated_at = localDateTime("updated_at"),

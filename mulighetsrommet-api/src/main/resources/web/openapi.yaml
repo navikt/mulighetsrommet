@@ -384,7 +384,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/delMedBruker/{tiltaksnummer}:
+  /api/v1/internal/delMedBruker/{sanityId}:
     get:
       tags:
         - Del med bruker
@@ -396,8 +396,8 @@ paths:
             type: string
           description: "Brukers fnr"
         - in: path
-          name: "tiltaksnummer"
-          description: "Tiltaksnummer for et tiltak"
+          name: "sanityId"
+          description: "ID fra Sanity-dokument"
           required: true
           schema:
             type: string
@@ -422,8 +422,8 @@ paths:
       operationId: postDelMedBruker
       parameters:
         - in: path
-          name: "tiltaksnummer"
-          description: "Tiltaksnummer for et tiltak"
+          name: "sanityId"
+          description: "ID for Sanity-dokument"
           required: true
           schema:
             type: string
@@ -738,11 +738,11 @@ components:
       properties:
         id:
           type: string
-        bruker_fnr:
+        norskIdent:
           type: string
         navident:
           type: string
-        tiltaksnummer:
+        sanityId:
           type: string
         dialogId:
           type: string
