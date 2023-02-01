@@ -25,6 +25,7 @@ import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { Ansatt } from 'mulighetsrommet-api-client';
+import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -54,6 +55,7 @@ function resolveName(ansatt?: Ansatt) {
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
+  const { data } = useFeatureToggles();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const fnr = useHentFnrFraUrl();
@@ -151,11 +153,13 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                   />
                 </div>
               )}
-              <Nokkelinfo
-                data-testid="tilgjengelighetsstatus_detaljside"
-                uuTitle="Se hvor data om tilgjengelighetsstatusen er hentet fra"
-                nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
-              />
+              {data?.[VIS_TILGJENGELIGHETSSTATUS] ? (
+                <Nokkelinfo
+                  data-testid="tilgjengelighetsstatus_detaljside"
+                  uuTitle="Se hvor data om tilgjengelighetsstatusen er hentet fra"
+                  nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
+                />
+              ) : null}
             </div>
           </div>
           <div className={styles.sidemeny}>
