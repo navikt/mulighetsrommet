@@ -7,11 +7,15 @@ const cards = [
     url: "tiltakstyper",
     tekst: "Tiltakstyper er for fagansvarlige",
   },
-  { navn: "Avtaler", url: "avtaler", tekst: "Avtaler er for alle" },
   {
     navn: "Gjennomføringer",
     url: "gjennomforinger",
     tekst: "Gjennomføringer er for alle",
+  },
+  {
+    navn: "Grupper",
+    url: "grupper",
+    tekst: "Brukes for gruppering",
   },
 ];
 
