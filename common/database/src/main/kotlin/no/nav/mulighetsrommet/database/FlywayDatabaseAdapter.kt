@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import kotlin.system.measureTimeMillis
 
 class FlywayDatabaseAdapter(
-    config: FlywayDatabaseConfig,
+    config: FlywayDatabaseConfig
 ) : DatabaseAdapter(config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -48,7 +48,7 @@ class FlywayDatabaseAdapter(
 
     data class MigrationConfig(
         val cleanDisabled: Boolean = true,
-        val strategy: InitializationStrategy = InitializationStrategy.Migrate,
+        val strategy: InitializationStrategy = InitializationStrategy.Migrate
     )
 
     enum class InitializationStrategy {

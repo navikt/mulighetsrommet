@@ -1,8 +1,8 @@
 import { atomWithHash } from "jotai-location";
 import { atomWithStorage } from "jotai/utils";
 import {
-  TiltakstypeKategori,
-  TiltakstypeStatus,
+  Tiltakstypekategori,
+  Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { Rolle } from "../tilgang/tilgang";
 
@@ -19,10 +19,10 @@ export const rolleAtom = atomWithStorage<Rolle | undefined>(
 
 export const tiltakstypefilter = atomWithHash<{
   sok: string;
-  status: TiltakstypeStatus;
-  kategori?: TiltakstypeKategori;
+  status: Tiltakstypestatus;
+  kategori?: Tiltakstypekategori;
 }>("tiltakstypefilter", {
   sok: "",
-  status: TiltakstypeStatus.AKTIV,
+  status: Tiltakstypestatus.AKTIV,
   kategori: undefined,
 });

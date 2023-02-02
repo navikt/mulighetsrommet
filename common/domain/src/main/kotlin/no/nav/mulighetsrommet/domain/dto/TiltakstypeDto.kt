@@ -41,31 +41,4 @@ data class TiltakstypeDto(
     }
 }
 
-object Gruppetiltak {
-    val gruppeTiltak = listOf(
-        "ARBFORB",
-        "ARBRRHDAG",
-        "AVKLARAG",
-        "DIGIOPPARB",
-        "FORSAMOGRU",
-        "FORSFAGGRU",
-        "GRUFAGYRKE",
-        "GRUPPEAMO",
-        "INDJOBSTOT",
-        "INDOPPFAG",
-        "INDOPPRF",
-        "IPSUNG",
-        "JOBBK",
-        "UTVAOONAV",
-        "UTVOPPFOPL",
-        "VASV"
-    )
 
-    fun somSqlListe(): String {
-        return gruppeTiltak.joinToString(prefix = "(", postfix = ")", separator = ",") { s -> "\'$s\'" }
-    }
-}
-
-fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
-    return tiltakstypeArenaKode in Gruppetiltak.gruppeTiltak
-}

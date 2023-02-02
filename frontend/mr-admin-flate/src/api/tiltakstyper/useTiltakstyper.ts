@@ -4,7 +4,7 @@ import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { paginationAtom, tiltakstypefilter } from "../atoms";
-import { TiltakstypeStatus } from "mulighetsrommet-api-client";
+import { Tiltakstypestatus } from "mulighetsrommet-api-client";
 
 export function useTiltakstyper() {
   const [page] = useAtom(paginationAtom);
@@ -19,8 +19,8 @@ export function useTiltakstyper() {
     () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstyper({
         search: sokefilter.sok !== "" ? sokefilter.sok : undefined,
-        status: sokefilter.status ?? TiltakstypeStatus.AKTIV,
-        kategori: sokefilter.kategori ?? undefined,
+        tiltakstypestatus: sokefilter.status ?? Tiltakstypestatus.AKTIV,
+        tiltakstypekategori: sokefilter.kategori ?? undefined,
         page,
         size: PAGE_SIZE,
       })

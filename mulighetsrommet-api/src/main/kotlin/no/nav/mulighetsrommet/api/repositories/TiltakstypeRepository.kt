@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Gruppetiltak
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -85,7 +85,8 @@ class TiltakstypeRepository(private val db: Database) {
         val parameters = mapOf(
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset
+            "offset" to paginationParams.offset,
+            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
         )
 
         val where = andWhereParameterNotNull(
@@ -97,8 +98,8 @@ class TiltakstypeRepository(private val db: Database) {
             },
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
                 when (it) {
-                    Tiltakstypekategori.GRUPPE -> "tiltakskode in ${Gruppetiltak.somSqlListe()}"
-                    Tiltakstypekategori.INDIVIDUELL -> "tiltakskode not in ${Gruppetiltak.somSqlListe()}"
+                    Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
+                    Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
                 }
             }
         )

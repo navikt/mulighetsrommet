@@ -235,14 +235,14 @@ paths:
             type: string
           description: Search for tiltakstyper
         - in: query
-          name: status
+          name: tiltakstypestatus
           schema:
-            $ref: "#/components/schemas/TiltakstypeStatus"
+            $ref: "#/components/schemas/Tiltakstypestatus"
           description: Status for tiltakstyper
         - in: query
-          name: kategori
+          name: tiltakstypekategori
           schema:
-            $ref: "#/components/schemas/TiltakstypeKategori"
+            $ref: "#/components/schemas/Tiltakstypekategori"
           description: Om man skal hente gruppetiltakstyper eller individuelle tiltakstyper
         - in: query
           name: page
@@ -649,14 +649,14 @@ components:
         - SPESIELT_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
 
-    TiltakstypeStatus:
+    Tiltakstypestatus:
       type: string
       enum:
         - AKTIV
         - PLANLAGT
         - UTFASET
 
-    TiltakstypeKategori:
+    Tiltakstypekategori:
       type: string
       enum:
         - GRUPPE
