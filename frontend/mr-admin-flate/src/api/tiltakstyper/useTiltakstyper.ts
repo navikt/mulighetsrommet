@@ -10,11 +10,17 @@ export function useTiltakstyper() {
   const [page] = useAtom(paginationAtom);
   const [sokefilter] = useAtom(tiltakstypefilter);
   return useQuery(
-    QueryKeys.tiltakstyper(sokefilter.sok, sokefilter.status, page),
+    QueryKeys.tiltakstyper(
+      sokefilter.sok,
+      sokefilter.status,
+      sokefilter.kategori,
+      page
+    ),
     () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstyper({
         search: sokefilter.sok !== "" ? sokefilter.sok : undefined,
         status: sokefilter.status ?? TiltakstypeStatus.AKTIV,
+        kategori: sokefilter.kategori ?? undefined,
         page,
         size: PAGE_SIZE,
       })
