@@ -41,7 +41,7 @@ spec:
       tenant: nav.no
       claims:
         groups:
-          - id: 676673aa-ec8f-4606-8399-723dce26b361 # Required for authorization
+          - id: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
   env:
     - name: APP_CONFIG_JSON # Required
       value: >
@@ -67,6 +67,12 @@ spec:
             },
             {
               "name": "teamarenanais.aapen-arena-tiltakssakendret-v1-p",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamarenanais.aapen-arena-avtaleinfoendret-v1-p",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
