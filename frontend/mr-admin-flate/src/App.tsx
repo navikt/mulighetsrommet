@@ -1,14 +1,16 @@
-import { useAtom } from "jotai";
-import { lazy, Suspense } from "react";
-import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
-import { rolleAtom } from "./api/atoms";
-import { Laster } from "./components/Laster";
-import { hentAnsattsRolle } from "./tilgang/tilgang";
 import { Alert, BodyShort } from "@navikt/ds-react";
+import { Route, Routes } from "react-router-dom";
+import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
+import { Laster } from "./components/Laster";
+import { Forside } from "./Forside";
+import IkkeAutentisertApp from "./IkkeAutentisertApp";
+import { RootLayout } from "./layouts/RootLayout";
+import { ErrorPage } from "./pages/ErrorPage";
+import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
+import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
-  const [rolleSatt] = useAtom(rolleAtom);
 
   if (optionalAnsatt.error) {
     return (
@@ -31,38 +33,31 @@ export function App() {
     );
   }
 
-  const AutentisertTiltaksansvarligApp = lazy(
-    () => import("./AutentisertTiltaksansvarligApp")
-  );
-  const AutentisertFagansvarligApp = lazy(
-    () => import("./AutentisertFagansvarligApp")
-  );
-  const IkkeAutentisertApp = lazy(() => import("./IkkeAutentisertApp"));
-
-  switch (rolleSatt || hentAnsattsRolle(optionalAnsatt.data)) {
-    case "TILTAKSANSVARLIG":
-      return (
-        <Suspense
-          fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
-        >
-          <AutentisertTiltaksansvarligApp />
-        </Suspense>
-      );
-    case "FAGANSVARLIG":
-      return (
-        <Suspense
-          fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
-        >
-          <AutentisertFagansvarligApp />
-        </Suspense>
-      );
-    default:
-      return (
-        <Suspense
-          fallback={<Laster tekst="Laster applikasjon" size="xlarge" />}
-        >
-          <IkkeAutentisertApp />
-        </Suspense>
-      );
+  if (optionalAnsatt?.data.tilganger.length === 0) {
+    return <IkkeAutentisertApp />;
   }
+
+  return (
+    <Routes>
+      <Route
+        path="tiltakstyper"
+        element={
+          <RootLayout>
+            <TiltakstyperPage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltakstyper/:tiltakstypeId"
+        element={
+          <RootLayout>
+            <DetaljerTiltakstypePage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route index element={<Forside />} />
+    </Routes>
+  );
 }

@@ -22,7 +22,7 @@ export function TiltakstyperOversikt() {
 
   const PagineringsOversikt = () => {
     return (
-      <Heading level="1" size="xsmall" data-testid="antall-tiltak">
+      <Heading level="3" size="xsmall" data-testid="antall-tiltak">
         Viser {(page - 1) * PAGE_SIZE + 1}-
         {tiltakstyper.length + (page - 1) * PAGE_SIZE} av{" "}
         {paginering?.totalCount} tiltak

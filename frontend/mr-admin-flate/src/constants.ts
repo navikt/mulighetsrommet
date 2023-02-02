@@ -4,15 +4,14 @@ export const APPLICATION_NAME = "mr-admin-flate";
 
 export const PAGE_SIZE = 15;
 
-export const shortcutsForTiltaksansvarlig: Shortcut[] = [
-  { url: "/mine", navn: "Mine tiltaksgjennomføringer" },
-  { url: "/enhet", navn: "Enhetens tiltaksgjennomføringer" },
-  {
-    url: "/oversikt",
-    navn: "Alle tiltaksgjennomføringer",
-  },
-];
-export const shortcutsForFagansvarlig: Shortcut[] = [
+export const shortcuts: Shortcut[] = [
   { url: "/tiltakstyper", navn: "Tiltakstyper" },
-  { url: "/tiltaksgrupper", navn: "Tiltaksgrupper" },
+];
+
+export const forsideKort: { navn: string; url: string; tekst?: string }[] = [
+  {
+    navn: "Tiltakstyper",
+    url: "tiltakstyper",
+    tekst: "Her finner du informasjon om tiltakstyper",
+  },
 ];

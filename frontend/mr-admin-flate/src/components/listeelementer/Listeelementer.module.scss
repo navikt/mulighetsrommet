@@ -1,3 +1,5 @@
+$tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
+
 .oversikt {
   margin: 0;
   margin-top: 1rem;
@@ -21,20 +23,7 @@
   }
 
   &_tiltakstyper {
-    grid-template-columns: 2fr 1fr 1%;
-
-    .dato {
-      display: flex;
-      gap: 7rem;
-    }
-  }
-
-  &_tiltaksgjennomforinger {
-    grid-template-columns: 2fr 1fr 1fr 1fr 1%;
-  }
-
-  &_tiltaksgrupper {
-    grid-template-columns: 2fr 2fr 1%;
+    grid-template-columns: $tiltakstypeGrid;
   }
 }
 
@@ -58,16 +47,8 @@
     background-color: var(--a-gray-50);
   }
 
-  &_tiltaksgjennomforing {
-    grid-template-columns: 2fr 1fr 1fr 1fr 1%;
-  }
-
-  &_tiltaksgruppe {
-    grid-template-columns: 2fr 2fr 1%;
-  }
-
   &_tiltakstype {
-    grid-template-columns: 2fr 1fr 1%;
+    grid-template-columns: $tiltakstypeGrid;
 
     .dato {
       display: grid;
