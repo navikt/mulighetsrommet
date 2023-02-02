@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -134,6 +135,22 @@ class TiltakstypeRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun lagreTagsForTiltakstype(tags: Set<String>, id: UUID): TiltakstypeAdminDto? {
+        logger.info("Setter tags: $tags for tiltakstype id=$id")
+
+        @Language("PostgreSQL")
+        val query = """
+            update tiltakstype
+            set tags = ?
+            where id = ?::uuid
+            returning *
+        """.trimIndent()
+        return queryOf(query, db.createTextArray(tags), id)
+            .map { it.toTiltakstypeAdminDto() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     private fun runQueryWithParameters(query: String, parameters: Map<String, Any?>): List<Pair<Int, TiltakstypeDto>> {
         return queryOf(query, parameters)
             .map {
@@ -180,6 +197,18 @@ class TiltakstypeRepository(private val db: Database) {
         sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
-        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
+    )
+
+    private fun Row.toTiltakstypeAdminDto() = TiltakstypeAdminDto(
+        id = uuid("id"),
+        navn = string("navn"),
+        arenaKode = string("tiltakskode"),
+        registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
+        sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
+        fraDato = localDate("fra_dato"),
+        tilDato = localDate("til_dato"),
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
+        tags = arrayOrNull<String>("tags")?.asList()
     )
 }

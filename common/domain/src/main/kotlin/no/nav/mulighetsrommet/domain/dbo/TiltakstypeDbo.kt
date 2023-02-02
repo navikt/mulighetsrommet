@@ -22,5 +22,6 @@ data class TiltakstypeDbo(
     val fraDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val tilDato: LocalDate,
-    val rettPaaTiltakspenger: Boolean
+    val rettPaaTiltakspenger: Boolean,
+    val tags: List<String>? = null
 )

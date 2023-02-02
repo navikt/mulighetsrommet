@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class TiltakstypeDto(
+data class TiltakstypeAdminDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
@@ -24,10 +24,11 @@ data class TiltakstypeDto(
     @Serializable(with = LocalDateSerializer::class)
     val tilDato: LocalDate,
     val rettPaaTiltakspenger: Boolean,
+    val tags: List<String>? = null
 ) {
     companion object {
         fun from(tiltakstype: TiltakstypeDbo) = tiltakstype.run {
-            TiltakstypeDto(
+            TiltakstypeAdminDto(
                 id = id,
                 navn = navn,
                 arenaKode = tiltakskode,
@@ -40,5 +41,3 @@ data class TiltakstypeDto(
         }
     }
 }
-
-

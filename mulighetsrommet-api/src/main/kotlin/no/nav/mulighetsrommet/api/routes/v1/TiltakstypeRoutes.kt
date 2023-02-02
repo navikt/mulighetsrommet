@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -18,17 +19,9 @@ fun Route.tiltakstypeRoutes() {
             val filter = getTiltakstypeFilter()
             val paginationParams = getPaginationParams()
 
-            if (filter.status != null) {
-                call.respond(
-                    tiltakstypeService.getWithFilter(
-                        filter,
-                        paginationParams
-                    )
-                )
-            }
-
             call.respond(
-                tiltakstypeService.getAll(
+                tiltakstypeService.getWithFilter(
+                    filter,
                     paginationParams
                 )
             )
@@ -44,6 +37,19 @@ fun Route.tiltakstypeRoutes() {
                 status = HttpStatusCode.NotFound
             )
 
+            call.respond(tiltakstype)
+        }
+
+        put("{id}/tags") {
+            val id = call.parameters["id"]?.toUUID() ?: return@put call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            val tags = call.receive<Set<String>>()
+            val tiltakstype = tiltakstypeService.lagreTags(tags, id) ?: return@put call.respondText(
+                "Det finnes ikke noe tiltakstype med id $id ved opprettelse av tags",
+                status = HttpStatusCode.NotFound
+            )
             call.respond(tiltakstype)
         }
     }

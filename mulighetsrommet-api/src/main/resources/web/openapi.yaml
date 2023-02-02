@@ -283,6 +283,34 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/{id}/tags:
+    put:
+      tags:
+        - Tiltakstyper
+      operationId: lagreTagsForTiltakstype
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          description: the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltakstype"
+        404:
+          description: "The specified tiltakstype was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/sanity:
     get:
       tags:
@@ -560,6 +588,10 @@ components:
           type: string
         tilDato:
           type: string
+        tags:
+          type: array
+          items:
+            type: string
 
     Tiltaksgjennomforing:
       type: object

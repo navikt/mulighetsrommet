@@ -31,6 +31,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.7.0",
+    "react-select": "^5.7.0",
     "vite-plugin-require": "^1.1.10",
     "zod": "^3.20.2",
     "zod-formik-adapter": "1.2.0"
