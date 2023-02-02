@@ -12,6 +12,8 @@ interface Database {
 
     fun createArrayOf(arrayType: String, list: Collection<Any>): Array
 
+    fun createTextArray(list: Collection<String>): Array
+
     fun <T> run(query: NullableResultQueryAction<T>): T?
 
     fun <T> run(query: ListResultQueryAction<T>): List<T>

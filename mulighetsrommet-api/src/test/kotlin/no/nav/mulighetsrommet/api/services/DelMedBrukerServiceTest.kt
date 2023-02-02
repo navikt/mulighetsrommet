@@ -19,9 +19,9 @@ class DelMedBrukerServiceTest : FunSpec({
     context("DelMedBrukerService") {
         val service = DelMedBrukerService(database.db)
         val payload = DelMedBruker(
-            bruker_fnr = "12345678910",
+            norskIdent = "12345678910",
             navident = "nav123",
-            tiltaksnummer = "123456",
+            sanityId = "123456",
             dialogId = "1234"
         )
 
@@ -30,14 +30,14 @@ class DelMedBrukerServiceTest : FunSpec({
             service.lagreDelMedBruker(payload)
             assertThat(table).row(0)
                 .column("id").value().isEqualTo(1)
-                .column("bruker_fnr").value().isEqualTo("12345678910")
+                .column("norsk_ident").value().isEqualTo("12345678910")
                 .column("navident").value().isEqualTo("nav123")
-                .column("tiltaksnummer").value().isEqualTo("123456")
+                .column("sanity_id").value().isEqualTo("123456")
         }
 
         test("Lagre til tabell feiler dersom input for brukers fnr er ulikt 11 tegn") {
             val payloadMedFeilData = payload.copy(
-                bruker_fnr = "12345678910123"
+                norskIdent = "12345678910123"
             )
             val exception = shouldThrow<BadRequestException> {
                 service.lagreDelMedBruker(payloadMedFeilData)
@@ -50,15 +50,15 @@ class DelMedBrukerServiceTest : FunSpec({
             val table = Table(database.db.getDatasource(), "del_med_bruker")
             service.getDeltMedBruker(
                 fnr = "12345678910",
-                tiltaksnummer = "123456"
+                sanityId = "123456"
             ).map {
                 assertThat(table).row(0)
                     .column("id").value().isEqualTo(1)
-                    .column("bruker_fnr").value()
-                    .isEqualTo(it?.bruker_fnr ?: "")
+                    .column("norsk_ident").value()
+                    .isEqualTo(it?.norskIdent ?: "")
                     .column("navident").value().isEqualTo(it?.navident ?: "")
-                    .column("tiltaksnummer").value()
-                    .isEqualTo(it?.tiltaksnummer ?: "")
+                    .column("sanity_id").value()
+                    .isEqualTo(it?.sanityId ?: "")
             }
         }
     }

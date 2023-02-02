@@ -59,6 +59,10 @@ open class DatabaseAdapter(config: DatabaseConfig) : Database {
         }
     }
 
+    override fun createTextArray(list: Collection<String>): Array {
+        return createArrayOf("text", list)
+    }
+
     override fun <T> run(query: NullableResultQueryAction<T>): T? {
         return using(session) {
             it.run(query)

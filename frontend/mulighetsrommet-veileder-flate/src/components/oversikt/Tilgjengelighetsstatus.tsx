@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
 import { Oppstart, Tilgjengelighetsstatus } from '../../core/api/models';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
@@ -12,6 +13,12 @@ interface Props {
 }
 
 export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ventetid }: Props) {
+  const { data } = useFeatureToggles();
+
+  if (!data?.[VIS_TILGJENGELIGHETSSTATUS]) {
+    return null;
+  }
+
   if (oppstart === 'midlertidig_stengt') {
     return (
       <div>

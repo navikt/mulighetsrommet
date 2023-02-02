@@ -9,7 +9,8 @@
       "oppfolgingsenhet": {
         "navn": "NAV Fredrikstad",
         "enhetId": "0106"
-      }
+      },
+      "servicegruppe": "IKKE_VURDERT"
     },
     "headers": {
       "Content-Type": "application/json"

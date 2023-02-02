@@ -21,8 +21,8 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.isGruppetiltak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -73,7 +73,7 @@ class TiltakgjennomforingEndretConsumer(
 
     private suspend fun upsertTiltaksgjennomforing(
         operation: ArenaEventData.Operation,
-        tiltaksgjennomforing: Tiltaksgjennomforing,
+        tiltaksgjennomforing: Tiltaksgjennomforing
     ): Either<ConsumptionError, ArenaEvent.ConsumptionStatus> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)

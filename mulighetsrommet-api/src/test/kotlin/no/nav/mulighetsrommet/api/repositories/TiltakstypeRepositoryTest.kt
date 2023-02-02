@@ -4,10 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.routes.v1.Status
-import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
@@ -50,9 +47,16 @@ class TiltakstypeRepositoryTest : FunSpec({
         )
 
         tiltakstyper.getAll().second shouldHaveSize 2
-        tiltakstyper.getAll(TiltakstypeFilter(search = "Førerhund", status = Status.AKTIV)).second shouldHaveSize 0
+        tiltakstyper.getAll(
+            TiltakstypeFilter(
+                search = "Førerhund",
+                status = Status.AKTIV,
+                kategori = null
+            )
+        ).second shouldHaveSize 0
 
-        val arbeidstrening = tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.AVSLUTTET))
+        val arbeidstrening =
+            tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.AVSLUTTET, kategori = null))
         arbeidstrening.second shouldHaveSize 1
         arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
         arbeidstrening.second[0].arenaKode shouldBe "ARBTREN"
@@ -61,6 +65,73 @@ class TiltakstypeRepositoryTest : FunSpec({
         arbeidstrening.second[0].sistEndretIArenaDato shouldBe LocalDateTime.of(2022, 1, 15, 0, 0, 0)
         arbeidstrening.second[0].fraDato shouldBe LocalDate.of(2023, 1, 11)
         arbeidstrening.second[0].tilDato shouldBe LocalDate.of(2023, 1, 12)
+    }
+
+    context("filter") {
+        database.db.clean()
+        database.db.migrate()
+
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(
+            TiltakstypeDbo(
+                id = UUID.randomUUID(),
+                navn = "Arbeidsforberedende trening",
+                tiltakskode = "ARBFORB",
+                rettPaaTiltakspenger = true,
+                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
+                fraDato = LocalDate.of(2023, 1, 11),
+                tilDato = LocalDate.of(2023, 1, 12)
+            )
+        )
+        tiltakstyper.upsert(
+            TiltakstypeDbo(
+                id = UUID.randomUUID(),
+                navn = "Jobbklubb",
+                tiltakskode = "JOBBK",
+                rettPaaTiltakspenger = true,
+                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
+                fraDato = LocalDate.of(2023, 1, 11),
+                tilDato = LocalDate.of(2023, 1, 12)
+            )
+        )
+        tiltakstyper.upsert(
+            TiltakstypeDbo(
+                id = UUID.randomUUID(),
+                navn = "Oppfølging",
+                tiltakskode = "INDOPPFOLG",
+                rettPaaTiltakspenger = true,
+                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                fraDato = LocalDate.of(2023, 1, 11),
+                tilDato = LocalDate.of(2023, 1, 12)
+            )
+        )
+
+        test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    status = Status.AVSLUTTET,
+                    kategori = Tiltakstypekategori.GRUPPE
+                )
+            ).second shouldHaveSize 2
+        }
+
+        test("Filter for kun individuelle tiltak returnerer bare individuelle tiltak") {
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    status = Status.AVSLUTTET,
+                    kategori = Tiltakstypekategori.INDIVIDUELL
+                )
+            ).second shouldHaveSize 1
+        }
+
+        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
+            tiltakstyper.getAll(TiltakstypeFilter(search = null, status = Status.AVSLUTTET, kategori = null)).second shouldHaveSize 3
+        }
     }
 
     context("pagination") {
