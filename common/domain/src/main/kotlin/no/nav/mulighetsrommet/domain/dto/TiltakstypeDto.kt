@@ -41,9 +41,8 @@ data class TiltakstypeDto(
     }
 }
 
-fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
-    // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
-    val gruppetiltak = listOf(
+object Gruppetiltak {
+    val gruppeTiltak = listOf(
         "ARBFORB",
         "ARBRRHDAG",
         "AVKLARAG",
@@ -61,5 +60,13 @@ fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
         "UTVOPPFOPL",
         "VASV"
     )
-    return tiltakstypeArenaKode in gruppetiltak
+
+    fun somSqlListe(): String {
+        return gruppeTiltak.joinToString(prefix = "(", postfix = ")", separator = ",") { s -> "\'$s\'" }
+    }
+}
+
+fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
+    // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
+    return tiltakstypeArenaKode in Gruppetiltak.gruppeTiltak
 }

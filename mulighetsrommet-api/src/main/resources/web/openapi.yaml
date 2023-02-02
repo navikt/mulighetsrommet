@@ -240,6 +240,11 @@ paths:
             $ref: "#/components/schemas/TiltakstypeStatus"
           description: Status for tiltakstyper
         - in: query
+          name: kategori
+          schema:
+            $ref: "#/components/schemas/TiltakstypeKategori"
+          description: Om man skal hente gruppetiltakstyper eller individuelle tiltakstyper
+        - in: query
           name: page
           schema:
             type: number
@@ -650,6 +655,12 @@ components:
         - AKTIV
         - PLANLAGT
         - UTFASET
+
+    TiltakstypeKategori:
+      type: string
+      enum:
+        - GRUPPE
+        - INDIVIDUELL
 
     Oppfolgingsenhet:
       type: object
