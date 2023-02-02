@@ -67,6 +67,5 @@ object Gruppetiltak {
 }
 
 fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
-    // Enn så lenge så opererer vi med en hardkodet liste over hvilke gjennomføringer vi anser som gruppetiltak
     return tiltakstypeArenaKode in Gruppetiltak.gruppeTiltak
 }

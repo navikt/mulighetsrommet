@@ -7,8 +7,7 @@ import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
   const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setPage] = useAtom(paginationAtom);
+  const [, setPage] = useAtom(paginationAtom);
 
   const resetPagination = () => {
     setPage(1);
