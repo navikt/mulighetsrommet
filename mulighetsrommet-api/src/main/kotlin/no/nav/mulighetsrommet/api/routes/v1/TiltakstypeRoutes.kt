@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.api.utils.getTiltakstypeFilter
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 
@@ -14,16 +15,13 @@ fun Route.tiltakstypeRoutes() {
 
     route("/api/v1/internal/tiltakstyper") {
         get {
-            val search = call.request.queryParameters["search"]
-            val status =
-                call.request.queryParameters["status"]?.let { status -> Status.valueOf(status) }
-
+            val filter = getTiltakstypeFilter()
             val paginationParams = getPaginationParams()
 
-            if (status != null) {
+            if (filter.status != null) {
                 call.respond(
                     tiltakstypeService.getWithFilter(
-                        TiltakstypeFilter(search = search, status = status),
+                        filter,
                         paginationParams
                     )
                 )
@@ -49,13 +47,4 @@ fun Route.tiltakstypeRoutes() {
             call.respond(tiltakstype)
         }
     }
-}
-
-data class TiltakstypeFilter(
-    val search: String?,
-    val status: Status
-)
-
-enum class Status {
-    AKTIV, PLANLAGT, UTFASET
 }

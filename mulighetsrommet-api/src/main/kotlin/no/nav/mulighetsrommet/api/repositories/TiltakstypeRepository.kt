@@ -2,12 +2,14 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.routes.v1.Status
-import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.utils.Status
+import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
+import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
@@ -70,12 +72,7 @@ class TiltakstypeRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, parameters)
-            .map {
-                it.int("full_count") to it.toTiltakstypeDto()
-            }
-            .asList
-            .let { db.run(it) }
+        val results = runQueryWithParameters(query, parameters)
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
@@ -88,7 +85,8 @@ class TiltakstypeRepository(private val db: Database) {
         val parameters = mapOf(
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset
+            "offset" to paginationParams.offset,
+            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
         )
 
         val where = andWhereParameterNotNull(
@@ -97,6 +95,12 @@ class TiltakstypeRepository(private val db: Database) {
                 Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
                 Status.PLANLAGT -> "" to "(now()::timestamp < fra_dato)"
                 Status.UTFASET -> "" to "(now()::timestamp > til_dato)"
+            },
+            tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
+                when (it) {
+                    Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
+                    Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
+                }
             }
         )
 
@@ -110,12 +114,7 @@ class TiltakstypeRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, parameters)
-            .map {
-                it.int("full_count") to it.toTiltakstypeDto()
-            }
-            .asList
-            .let { db.run(it) }
+        val results = runQueryWithParameters(query, parameters)
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
@@ -135,7 +134,16 @@ class TiltakstypeRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun andWhereParameterNotNull(vararg parts: Pair<Any?, String>): String = parts
+    private fun runQueryWithParameters(query: String, parameters: Map<String, Any?>): List<Pair<Int, TiltakstypeDto>> {
+        return queryOf(query, parameters)
+            .map {
+                it.int("full_count") to it.toTiltakstypeDto()
+            }
+            .asList
+            .let { db.run(it) }
+    }
+
+    private fun andWhereParameterNotNull(vararg parts: Pair<Any?, String?>): String = parts
         .filter { it.first != null }
         .map { it.second }
         .reduceOrNull { where, part -> "$where and $part" }

@@ -1,12 +1,17 @@
 import { Heading, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { ChangeEvent } from "react";
-import { tiltakstypefilter } from "../../api/atoms";
+import { tiltakstypefilter, paginationAtom } from "../../api/atoms";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
 import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
   const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
+  const [, setPage] = useAtom(paginationAtom);
+
+  const resetPagination = () => {
+    setPage(1);
+  };
 
   return (
     <>
@@ -28,16 +33,34 @@ export function TiltakstyperPage() {
           label="Filtrer på statuser"
           size="small"
           value={sokefilter.status}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            resetPagination();
             setSokefilter({
               ...sokefilter,
               status: e.currentTarget.value as any,
-            })
-          }
+            });
+          }}
         >
           <option value="AKTIV">Aktive</option>
           <option value="PLANLAGT">Planlagte</option>
           <option value="UTFASET">Utfasede</option>
+        </Select>
+        <Select
+          label="Gruppetiltak eller individuelle tiltak"
+          size="small"
+          value={sokefilter.kategori}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            resetPagination();
+            const kategori = e.currentTarget.value as any;
+            setSokefilter({
+              ...sokefilter,
+              kategori: kategori === "ALLE" ? undefined : kategori,
+            });
+          }}
+        >
+          <option value="GRUPPE">Gruppetiltak</option>
+          <option value="INDIVIDUELL">Individuelle tiltak</option>
+          <option value="ALLE">Alle</option>
         </Select>
       </div>
       <TiltakstyperOversikt />
