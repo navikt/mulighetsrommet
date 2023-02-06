@@ -359,6 +359,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         saker = SakRepository(db),
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
         deltakere = DeltakerRepository(db),
+        avtaler = AvtaleRepository(db),
     )
 
     return TiltakgjennomforingEndretConsumer(
