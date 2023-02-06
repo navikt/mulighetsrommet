@@ -80,7 +80,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     logDelMedbrukerEvent('Åpnet dialog');
   };
 
-  if (isLoading) {
+  if (isLoading && !tiltaksgjennomforing) {
     return (
       <div className={styles.filter_loader}>
         <Loader size="xlarge" />
