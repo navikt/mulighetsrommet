@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
+import { TagForTiltakstyper } from "./TagForTiltakstyper";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
@@ -21,9 +22,10 @@ export function DetaljerTiltakstypePage() {
   }
 
   const tiltakstype = optionalTiltakstype.data;
+
   return (
     <>
-      <Tilbakelenke>Tilbake</Tilbakelenke>
+      <Tilbakelenke to={"/tiltakstyper"}>Tilbake</Tilbakelenke>
       <Heading size="large" level="1">
         {tiltakstype.navn}
       </Heading>
@@ -31,6 +33,10 @@ export function DetaljerTiltakstypePage() {
         <dt>Tiltakskode:</dt>
         <dd>{tiltakstype.arenaKode}</dd>
       </dl>
+      <TagForTiltakstyper
+        tiltakstype={tiltakstype}
+        refetchTiltakstype={optionalTiltakstype.refetch}
+      />
     </>
   );
 }

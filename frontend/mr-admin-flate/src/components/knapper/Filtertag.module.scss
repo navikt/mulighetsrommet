@@ -1,0 +1,30 @@
+:global(.mulighetsrommet-veileder-flate) {
+  :global(.navds-button) {
+    min-width: unset;
+  }
+
+  :global(.navds-button__inner) {
+    justify-content: center;
+  }
+
+  :global(.navds-button).overstyrt_ikon_knapp {
+    padding: var(--navds-spacing-1) 0;
+    margin-left: 0.2rem;
+    padding-left: 0.4rem;
+  }
+
+  :global(.navds-tag--info) {
+    border: unset;
+    height: 32px;
+    font-size: 1rem;
+    line-height: 1.25rem;
+    border-radius: 4px;
+    background-color: #CCE1FF;
+    border: unset;
+  }
+}
+
+.ikon {
+  width: 70%;
+  height: auto;
+}

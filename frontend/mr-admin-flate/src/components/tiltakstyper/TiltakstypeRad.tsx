@@ -1,6 +1,7 @@
 import { BodyShort, Tag } from "@navikt/ds-react";
 import { Tiltakstype } from "mulighetsrommet-api-client";
 import { formaterDato, kalkulerStatusForTiltakstype } from "../../utils/Utils";
+import FilterTag from "../knapper/FilterTag";
 import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeRad } from "../listeelementer/ListeRad";
 
@@ -15,7 +16,17 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
       linkTo={`/tiltakstyper/${tiltakstype.id}`}
       classname={styles.listerad_tiltakstype}
     >
-      <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
+      <div>
+        <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
+        <div>
+          <FilterTag
+            options={
+              tiltakstype.tags?.map((tag) => ({ id: tag, tittel: tag })) ?? []
+            }
+            skjulIkon
+          />
+        </div>
+      </div>
       <BodyShort size="medium">
         <Tag
           variant={

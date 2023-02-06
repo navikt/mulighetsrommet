@@ -2,12 +2,14 @@ import { Heading, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { ChangeEvent } from "react";
 import { tiltakstypefilter, paginationAtom } from "../../api/atoms";
+import { useAlleTagsForTiltakstyper } from "../../api/tiltakstyper/useAlleTagsForTiltakstyper";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
 import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
   const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
   const [, setPage] = useAtom(paginationAtom);
+  const { data: tags } = useAlleTagsForTiltakstyper();
 
   const resetPagination = () => {
     setPage(1);
@@ -61,6 +63,26 @@ export function TiltakstyperPage() {
           <option value="GRUPPE">Gruppetiltak</option>
           <option value="INDIVIDUELL">Individuelle tiltak</option>
           <option value="ALLE">Alle</option>
+        </Select>
+        <Select
+          label="Tags"
+          size="small"
+          value={sokefilter.tags}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            resetPagination();
+            const tags = e.currentTarget.value as any;
+            setSokefilter({
+              ...sokefilter,
+              tags: [tags],
+            });
+          }}
+        >
+          <option value={""}>Ingen tag valgt</option>
+          {tags?.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
         </Select>
       </div>
       <TiltakstyperOversikt />

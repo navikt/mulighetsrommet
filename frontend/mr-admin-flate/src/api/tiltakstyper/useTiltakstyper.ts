@@ -13,6 +13,7 @@ export function useTiltakstyper() {
     QueryKeys.tiltakstyper(
       sokefilter.sok,
       sokefilter.status,
+      sokefilter.tags,
       sokefilter.kategori,
       page
     ),
@@ -21,6 +22,7 @@ export function useTiltakstyper() {
         search: sokefilter.sok !== "" ? sokefilter.sok : undefined,
         tiltakstypestatus: sokefilter.status ?? Tiltakstypestatus.AKTIV,
         tiltakstypekategori: sokefilter.kategori ?? undefined,
+        tags: sokefilter.tags.join(","),
         page,
         size: PAGE_SIZE,
       })

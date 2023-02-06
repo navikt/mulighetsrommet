@@ -51,12 +51,20 @@ class TiltakstypeRepositoryTest : FunSpec({
             TiltakstypeFilter(
                 search = "Førerhund",
                 status = Status.AKTIV,
-                kategori = null
+                kategori = null,
+                tags = emptyList()
             )
         ).second shouldHaveSize 0
 
         val arbeidstrening =
-            tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.AVSLUTTET, kategori = null))
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = "Arbeidstrening",
+                    status = Status.AVSLUTTET,
+                    kategori = null,
+                    tags = emptyList()
+                )
+            )
         arbeidstrening.second shouldHaveSize 1
         arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
         arbeidstrening.second[0].arenaKode shouldBe "ARBTREN"
@@ -114,7 +122,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeFilter(
                     search = null,
                     status = Status.AVSLUTTET,
-                    kategori = Tiltakstypekategori.GRUPPE
+                    kategori = Tiltakstypekategori.GRUPPE,
+                    tags = emptyList()
                 )
             ).second shouldHaveSize 2
         }
@@ -124,13 +133,21 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeFilter(
                     search = null,
                     status = Status.AVSLUTTET,
-                    kategori = Tiltakstypekategori.INDIVIDUELL
+                    kategori = Tiltakstypekategori.INDIVIDUELL,
+                    tags = emptyList()
                 )
             ).second shouldHaveSize 1
         }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAll(TiltakstypeFilter(search = null, status = Status.AVSLUTTET, kategori = null)).second shouldHaveSize 3
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    status = Status.AVSLUTTET,
+                    kategori = null,
+                    tags = emptyList()
+                )
+            ).second shouldHaveSize 3
         }
     }
 

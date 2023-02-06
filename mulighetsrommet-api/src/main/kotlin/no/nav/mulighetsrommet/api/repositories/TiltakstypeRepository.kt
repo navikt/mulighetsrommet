@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import arrow.core.flatten
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.PaginationParams
@@ -56,9 +57,20 @@ class TiltakstypeRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
+    fun getForAdmin(id: UUID): TiltakstypeAdminDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select id::uuid, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, tags
+            from tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
+        val queryResult = queryOf(query, id).map { it.toTiltakstypeAdminDto() }.asSingle
+        return db.run(queryResult)
+    }
+
     fun getAll(
         paginationParams: PaginationParams = PaginationParams()
-    ): Pair<Int, List<TiltakstypeDto>> {
+    ): Pair<Int, List<TiltakstypeAdminDto>> {
         val parameters = mapOf(
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset
@@ -66,7 +78,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, tags, count(*) OVER() AS full_count
             from tiltakstype
             order by navn asc
             limit :limit
@@ -82,12 +94,13 @@ class TiltakstypeRepository(private val db: Database) {
     fun getAll(
         tiltakstypeFilter: TiltakstypeFilter,
         paginationParams: PaginationParams = PaginationParams()
-    ): Pair<Int, List<TiltakstypeDto>> {
+    ): Pair<Int, List<TiltakstypeAdminDto>> {
         val parameters = mapOf(
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
-            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
+            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak),
+            "tags" to tiltakstypeFilter.tags?.let { db.createTextArray(it) }
         )
 
         val where = andWhereParameterNotNull(
@@ -102,12 +115,13 @@ class TiltakstypeRepository(private val db: Database) {
                     Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
                     Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
                 }
-            }
+            },
+            tiltakstypeFilter.tags?.ifEmpty { null } to ":tags && tags"
         )
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, tags, count(*) OVER() AS full_count
             from tiltakstype
             $where
             order by navn asc
@@ -151,10 +165,25 @@ class TiltakstypeRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun runQueryWithParameters(query: String, parameters: Map<String, Any?>): List<Pair<Int, TiltakstypeDto>> {
+    fun getAlleTagsForAlleTiltakstyper(): Set<String> {
+        @Language("PostgreSQL")
+        val query = """
+            select tags from tiltakstype
+        """.trimIndent()
+
+        return queryOf(query)
+            .map { it.arrayOrNull<String>("tags")?.toSet() }
+            .asList
+            .let { db.run(it) }.flatten().toSet()
+    }
+
+    private fun runQueryWithParameters(
+        query: String,
+        parameters: Map<String, Any?>
+    ): List<Pair<Int, TiltakstypeAdminDto>> {
         return queryOf(query, parameters)
             .map {
-                it.int("full_count") to it.toTiltakstypeDto()
+                it.int("full_count") to it.toTiltakstypeAdminDto()
             }
             .asList
             .let { db.run(it) }
@@ -197,7 +226,7 @@ class TiltakstypeRepository(private val db: Database) {
         sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
-        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 
     private fun Row.toTiltakstypeAdminDto() = TiltakstypeAdminDto(

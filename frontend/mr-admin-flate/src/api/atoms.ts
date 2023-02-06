@@ -21,8 +21,10 @@ export const tiltakstypefilter = atomWithHash<{
   sok: string;
   status: Tiltakstypestatus;
   kategori?: Tiltakstypekategori;
+  tags: string[];
 }>("tiltakstypefilter", {
   sok: "",
   status: Tiltakstypestatus.AKTIV,
   kategori: Tiltakstypekategori.GRUPPE,
+  tags: [],
 });

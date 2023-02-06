@@ -245,6 +245,11 @@ paths:
             $ref: "#/components/schemas/Tiltakstypekategori"
           description: Om man skal hente gruppetiltakstyper eller individuelle tiltakstyper
         - in: query
+          name: tags
+          schema:
+            type: string
+          description: Tag det skal søkes etter
+        - in: query
           name: page
           schema:
             type: number
@@ -283,6 +288,21 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/tags:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: hentAlleTags
+      responses:
+        200:
+          description: Henter alle tags på tvers av alle tiltakstyper
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: string
+
   /api/v1/internal/tiltakstyper/{id}/tags:
     put:
       tags:
@@ -292,7 +312,7 @@ paths:
         - $ref: "#/components/parameters/ID"
       requestBody:
         content:
-          text/plain:
+          application/json:
             schema:
               type: array
               items:

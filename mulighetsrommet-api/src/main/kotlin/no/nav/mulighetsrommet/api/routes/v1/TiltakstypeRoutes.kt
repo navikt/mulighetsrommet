@@ -52,5 +52,9 @@ fun Route.tiltakstypeRoutes() {
             )
             call.respond(tiltakstype)
         }
+
+        get("/tags") {
+            call.respond(tiltakstypeService.getAlleTagsForTiltakstype())
+        }
     }
 }

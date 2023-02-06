@@ -8,9 +8,10 @@ export const QueryKeys = {
   tiltakstyper: (
     sokestreng: string,
     status: Tiltakstypestatus,
+    tags: string[],
     kategori?: Tiltakstypekategori,
     page?: number
-  ) => [sokestreng, status, kategori, page, "tiltakstyper"] as const,
+  ) => [sokestreng, status, kategori, tags, page, "tiltakstyper"] as const,
   tiltaksgjennomforinger: (page?: number) =>
     [page, "tiltaksgjennomforinger"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
@@ -25,4 +26,5 @@ export const QueryKeys = {
       page,
       "tiltaksgjennomforinger",
     ] as const,
+  tags: ["tags"] as const,
 };
