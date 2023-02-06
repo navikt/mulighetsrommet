@@ -36,7 +36,8 @@ data class TiltakstypeAdminDto(
                 sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,
                 tilDato = tilDato,
-                rettPaaTiltakspenger = rettPaaTiltakspenger
+                rettPaaTiltakspenger = rettPaaTiltakspenger,
+                tags = tags
             )
         }
     }

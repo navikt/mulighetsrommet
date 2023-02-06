@@ -39,8 +39,9 @@ fun Application.configure(config: AppConfig) {
     routing {
         swaggerRoutes()
 
+        tiltakstypeRoutes()
+
         authenticate(AuthProvider.AzureAdNavIdent.name) {
-            tiltakstypeRoutes()
             tiltaksgjennomforingRoutes()
             sanityRoutes()
             brukerRoutes()
@@ -49,6 +50,7 @@ fun Application.configure(config: AppConfig) {
             dialogRoutes()
             delMedBrukerRoutes()
         }
+
         authenticate(AuthProvider.AzureAdDefaultApp.name) {
             arenaRoutes()
         }

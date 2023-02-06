@@ -8,6 +8,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
 import java.util.*
@@ -17,6 +18,7 @@ enum class AuthProvider {
     AzureAdNavIdent,
     AzureAdDefaultApp,
     AzureAdTiltaksgjennomforingApp,
+    AzureAdFagansvarlig
 }
 
 object AppRoles {
@@ -36,6 +38,11 @@ fun Application.configureAuthentication(
     fun hasRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
         val roles = credentials.getListClaim("roles", String::class)
         return requiredRoles.all { it in roles }
+    }
+
+    fun hasGroups(credentials: JWTCredential, vararg requiredGroups: String): Boolean {
+        val groups = credentials.getListClaim("groups", String::class)
+        return requiredGroups.all { it in groups }
     }
 
     install(Authentication) {
@@ -74,6 +81,22 @@ fun Application.configureAuthentication(
                 if (!hasRoles(credentials, AppRoles.AccessAsApplication, AppRoles.ReadTiltaksgjennomforing)) {
                     return@validate null
                 }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AzureAdFagansvarlig.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                if (!hasGroups(credentials, AdGrupper.FAGANSVARLIG_FLATE_GRUPPE)) {
+                    return@validate null
+                }
+
+                credentials["NAVident"] ?: return@validate null
 
                 JWTPrincipal(credentials.payload)
             }

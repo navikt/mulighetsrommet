@@ -6,14 +6,10 @@ import styles from "./Filtertag.module.scss";
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
   handleClick?: (id: string) => void;
-  skjulIkon?: boolean;
 }
 
-const FilterTag = ({
-  options,
-  handleClick,
-  skjulIkon = false,
-}: FilterTagsProps) => {
+const FilterTag = ({ options, handleClick }: FilterTagsProps) => {
+  const skjulIkon = !handleClick;
   return (
     <>
       {options.map((filtertype) => {
@@ -23,7 +19,7 @@ const FilterTag = ({
             {skjulIkon ? null : (
               <Ikonknapp
                 className={styles.overstyrt_ikon_knapp}
-                handleClick={() => handleClick?.(filtertype.id)}
+                handleClick={() => handleClick(filtertype.id)}
                 ariaLabel="Lukke"
                 icon={<Close className={styles.ikon} aria-label="Lukke" />}
               />

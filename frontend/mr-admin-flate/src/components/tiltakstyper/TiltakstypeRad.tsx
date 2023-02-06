@@ -23,7 +23,6 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
             options={
               tiltakstype.tags?.map((tag) => ({ id: tag, tittel: tag })) ?? []
             }
-            skjulIkon
           />
         </div>
       </div>
