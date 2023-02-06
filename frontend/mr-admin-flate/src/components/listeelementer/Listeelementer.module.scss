@@ -13,6 +13,14 @@ $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
   margin-bottom: 2rem;
 }
 
+.tags {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  max-width: 450px;
+  flex-wrap: wrap;
+}
+
 .listeheader {
   display: grid;
   margin-bottom: 0.5rem;

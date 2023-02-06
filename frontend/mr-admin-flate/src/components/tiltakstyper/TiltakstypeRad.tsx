@@ -18,7 +18,7 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
     >
       <div>
         <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
-        <div>
+        <div className={styles.tags}>
           <FilterTag
             options={
               tiltakstype.tags?.map((tag) => ({ id: tag, tittel: tag })) ?? []
