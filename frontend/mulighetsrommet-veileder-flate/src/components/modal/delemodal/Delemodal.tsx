@@ -113,11 +113,10 @@ const Delemodal = ({
       onClose={clickCancel}
       className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
       aria-label="modal"
-      data-testid="delemodal"
     >
       <Modal.Content>
         {!kanDeleMedBruker ? (
-          <Alert variant="warning" className={delemodalStyles.alert}>
+          <Alert variant="warning" className={delemodalStyles.alert} data-testid="delemodal-alert">
             {feilmelding()}
           </Alert>
         ) : (
