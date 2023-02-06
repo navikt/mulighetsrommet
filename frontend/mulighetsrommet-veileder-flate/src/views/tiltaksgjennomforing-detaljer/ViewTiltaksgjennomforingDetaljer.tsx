@@ -179,7 +179,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 variant="error"
                 className={styles.alert}
               >
-                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR)
+                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR).
               </Alert>
             )}
             {harDeltMedBruker && !erPreview && (
