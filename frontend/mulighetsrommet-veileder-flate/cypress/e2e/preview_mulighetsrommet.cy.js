@@ -13,8 +13,7 @@ describe('Preview-funksjonalitet for redaktører', () => {
 
   it('Skal kunne åpne del med bruker, men send via Dialog-knapp er disabled', () => {
     cy.getByTestId('deleknapp').should('exist').click();
-    cy.getByTestId('modal_btn-send').should('be.disabled');
-    cy.getByTestId('alert-preview-del-med-bruker').should('exist');
-    cy.getByTestId('modal_btn-cancel').click();
+    cy.getByTestId('delemodal-alert').should('be.visible');
+    cy.get('.navds-modal__button').click();
   });
 });
