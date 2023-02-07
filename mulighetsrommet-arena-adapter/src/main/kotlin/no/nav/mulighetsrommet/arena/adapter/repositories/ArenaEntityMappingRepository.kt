@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.arena.adapter.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
@@ -10,13 +9,11 @@ import org.intellij.lang.annotations.Language
 class ArenaEntityMappingRepository(private val db: Database) {
 
     fun insert(mapping: ArenaEntityMapping): ArenaEntityMapping {
-        val column = getEntityIdColumn(mapping.arenaTable)
-
         @Language("PostgreSQL")
         val query = """
-            insert into arena_entity_mapping(arena_table, arena_id, $column)
+            insert into arena_entity_mapping(arena_table, arena_id, entity_id)
             values (?, ?, ?::uuid)
-            returning arena_table, arena_id, tiltakstype_id, tiltaksgjennomforing_id, deltaker_id
+            returning arena_table, arena_id, entity_id
         """.trimIndent()
 
         return queryOf(query, mapping.arenaTable, mapping.arenaId, mapping.entityId)
@@ -28,7 +25,7 @@ class ArenaEntityMappingRepository(private val db: Database) {
     fun get(arenaTable: String, arenaId: String): ArenaEntityMapping? {
         @Language("PostgreSQL")
         val query = """
-            select arena_table, arena_id, tiltakstype_id, tiltaksgjennomforing_id, deltaker_id
+            select arena_table, arena_id, entity_id
             from arena_entity_mapping
             where arena_table = ? and arena_id = ?
         """.trimIndent()
@@ -39,19 +36,11 @@ class ArenaEntityMappingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun getEntityIdColumn(arenaTable: String) = when (arenaTable) {
-        ArenaTables.Tiltakstype -> "tiltakstype_id"
-        ArenaTables.Tiltaksgjennomforing -> "tiltaksgjennomforing_id"
-        ArenaTables.Deltaker -> "deltaker_id"
-        else -> throw IllegalStateException("The table '$arenaTable' is not mapped to an Arena entity")
-    }
-
     private fun Row.toMapping(): ArenaEntityMapping {
-        val table = string("arena_table")
         return ArenaEntityMapping(
-            arenaTable = table,
+            arenaTable = string("arena_table"),
             arenaId = string("arena_id"),
-            entityId = uuid(getEntityIdColumn(table))
+            entityId = uuid("entity_id")
         )
     }
 }
