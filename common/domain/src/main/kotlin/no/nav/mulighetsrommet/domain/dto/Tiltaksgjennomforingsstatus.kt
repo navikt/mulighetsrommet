@@ -27,7 +27,7 @@ enum class Tiltaksgjennomforingsstatus {
     AVSLUTTET,
     APENT_FOR_INNSOK;
     companion object {
-        fun fromDbo(startDato: LocalDate, sluttDato: LocalDate? = LocalDate.of(2099,1,1), avslutningsStatus: Avslutningsstatus): Tiltaksgjennomforingsstatus {
+        fun fromDbo(startDato: LocalDate, sluttDato: LocalDate?, avslutningsStatus: Avslutningsstatus): Tiltaksgjennomforingsstatus {
             return when {
                 avslutningsStatus == Avslutningsstatus.AVLYST -> AVLYST
                 avslutningsStatus == Avslutningsstatus.AVBRUTT -> AVBRUTT
