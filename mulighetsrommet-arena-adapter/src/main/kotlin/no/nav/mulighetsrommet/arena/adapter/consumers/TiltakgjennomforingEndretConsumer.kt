@@ -57,6 +57,9 @@ class TiltakgjennomforingEndretConsumer(
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
+        ensure(data.DATO_FRA != null) {
+            ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
+        }
 
         val mapping = entities.getOrCreateMapping(event)
         val tiltaksgjennomforing = data
@@ -69,6 +72,15 @@ class TiltakgjennomforingEndretConsumer(
         } else {
             ArenaEvent.ConsumptionStatus.Processed
         }
+    }
+
+    override suspend fun deleteEntity(event: ArenaEvent) = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
+            .bind()
+        entities.deleteTiltaksgjennomforing(mapping.entityId).bind()
     }
 
     private suspend fun upsertTiltaksgjennomforing(
@@ -111,7 +123,7 @@ class TiltakgjennomforingEndretConsumer(
                 tiltakskode = TILTAKSKODE,
                 arrangorId = ARBGIV_ID_ARRANGOR,
                 navn = LOKALTNAVN,
-                fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+                fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
                 apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
                 antallPlasser = ANTALL_DELTAKERE,
@@ -127,7 +139,7 @@ class TiltakgjennomforingEndretConsumer(
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
             virksomhetsnummer = virksomhetsnummer,
-            startDato = fraDato?.toLocalDate(),
+            startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
             enhet = sak.enhet
         )

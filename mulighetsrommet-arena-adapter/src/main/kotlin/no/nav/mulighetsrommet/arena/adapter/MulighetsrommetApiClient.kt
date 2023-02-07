@@ -64,7 +64,7 @@ class MulighetsrommetApiClient(
     internal suspend inline fun <reified T> request(
         method: HttpMethod,
         requestUri: String,
-        payload: T,
+        payload: T? = null,
         isValidResponse: HttpResponse.() -> Boolean = { status.isSuccess() },
     ): Either<ResponseException, HttpResponse> {
         val response = client.request(requestUri) {

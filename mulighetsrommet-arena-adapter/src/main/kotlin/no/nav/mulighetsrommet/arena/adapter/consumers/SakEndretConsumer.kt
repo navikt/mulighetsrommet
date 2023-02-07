@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.flatMap
+import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
@@ -53,6 +54,10 @@ class SakEndretConsumer(
             .flatMap { entities.upsertSak(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
+    }
+
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+        entities.deleteSak(event.arenaId.toInt())
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"

@@ -52,10 +52,27 @@ fun Route.managerRoutes() {
 
         call.respond(HttpStatusCode.Created)
     }
+
+    delete("/events") {
+        val request = call.receive<DeleteEventsRequest>()
+
+        arenaEventService.deleteEvents(
+            table = request.table,
+            ids = request.arenaIds
+        )
+
+        call.respond(HttpStatusCode.Created)
+    }
 }
 
 @Serializable
 data class ReplayTopicEventRequest(
     val table: String,
     val arenaId: String
+)
+
+@Serializable
+data class DeleteEventsRequest(
+    val table: String,
+    val arenaIds: List<String>
 )

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
 import arrow.core.getOrHandle
+import arrow.core.left
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
@@ -27,11 +28,19 @@ class ArenaEventService(
         val maxRetries: Int = 0
     )
 
+    suspend fun deleteEvents(table: String, ids: List<String>): Unit = coroutineScope {
+        ids.forEach { id ->
+            events.get(table, id)?.also {
+                deleteEntity(it)
+            }
+        }
+    }
+
     suspend fun replayEvent(table: String, id: String): ArenaEvent? = coroutineScope {
         logger.info("Replaying event table=$table, id=$id")
 
         events.get(table, id)?.also { event ->
-            processEvent(group.consumers, event)
+            processEvent(event)
         }
     }
 
@@ -40,7 +49,7 @@ class ArenaEventService(
 
         consumeEvents(table, status) { event ->
             Metrics.replayArenaEventTimer(event.arenaTable).recordSuspend {
-                processEvent(group.consumers, event)
+                processEvent(event)
             }
         }
     }
@@ -51,13 +60,13 @@ class ArenaEventService(
         consumeEvents(table, status, config.maxRetries) { event ->
             Metrics.retryArenaEventTimer(event.arenaTable).recordSuspend {
                 val eventToRetry = event.copy(retries = event.retries + 1)
-                processEvent(group.consumers, eventToRetry)
+                processEvent(eventToRetry)
             }
         }
     }
 
-    private suspend fun processEvent(consumers: List<ArenaTopicConsumer>, event: ArenaEvent) {
-        consumers
+    private suspend fun processEvent(event: ArenaEvent) {
+        group.consumers
             .filter { it.arenaTable == event.arenaTable }
             .forEach { consumer ->
                 runCatching {
@@ -79,6 +88,19 @@ class ArenaEventService(
                             message = it.localizedMessage
                         )
                     )
+                }
+            }
+    }
+
+    private suspend fun deleteEntity(event: ArenaEvent) {
+        group.consumers
+            .filter { it.arenaTable == event.arenaTable }
+            .forEach { consumer ->
+
+                logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
+
+                consumer.deleteEntity(event).tapLeft {
+                    throw RuntimeException(it.message)
                 }
             }
     }

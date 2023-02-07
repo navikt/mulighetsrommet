@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 object ArenaUtils {
     val TimestampFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-    fun parseTimestamp(value: String): LocalDateTime {
+    fun parseTimestamp(value: String?): LocalDateTime {
         return LocalDateTime.parse(value, TimestampFormatter)
     }
 

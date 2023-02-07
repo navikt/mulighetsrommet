@@ -43,3 +43,17 @@ export const replayEvent = async (arenaTable: string, arenaId: string) => {
     }),
   });
 };
+
+export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
+  const arenaIdsAsList = arenaIds.split(',')
+  return await fetch(`/mulighetsrommet-arena-adapter/events`, {
+    method: "DELETE",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      table: arenaTable,
+      arenaIds: arenaIdsAsList,
+    }),
+  });
+};

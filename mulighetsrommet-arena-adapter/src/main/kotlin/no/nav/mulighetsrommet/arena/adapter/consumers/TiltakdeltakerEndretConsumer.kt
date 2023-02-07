@@ -108,6 +108,15 @@ class TiltakdeltakerEndretConsumer(
             .bind()
     }
 
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
+            .bind()
+        entities.deleteDeltaker(mapping.entityId).bind()
+    }
+
     private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
         return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }

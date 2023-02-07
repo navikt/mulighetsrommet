@@ -124,18 +124,16 @@ returning *
             .let { db.run(it)!! }
     }
 
-    fun delete(tiltak: Tiltakstype): QueryResult<Tiltakstype> = query {
+    fun delete(id: UUID): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = """
             delete from tiltakstype
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, tiltak.id)
+        queryOf(query, id)
             .asExecute
             .let { db.run(it) }
-
-        tiltak
     }
 
     fun get(id: UUID): Tiltakstype? {

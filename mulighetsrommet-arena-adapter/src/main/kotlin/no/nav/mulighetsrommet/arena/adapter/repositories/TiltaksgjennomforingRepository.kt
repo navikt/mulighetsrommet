@@ -41,18 +41,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun delete(tiltak: Tiltaksgjennomforing): QueryResult<Tiltaksgjennomforing> = query {
+    fun delete(id: UUID): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, tiltak.id)
+        queryOf(query, id)
             .asExecute
             .let { db.run(it) }
-
-        tiltak
     }
 
     fun get(id: UUID): Tiltaksgjennomforing? {
@@ -92,7 +90,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         sakId = int("sak_id"),
         tiltakskode = string("tiltakskode"),
         arrangorId = intOrNull("arrangor_id"),
-        fraDato = localDateTimeOrNull("fra_dato"),
+        fraDato = localDateTime("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         apentForInnsok = boolean("apent_for_innsok"),
         antallPlasser = intOrNull("antall_plasser"),
