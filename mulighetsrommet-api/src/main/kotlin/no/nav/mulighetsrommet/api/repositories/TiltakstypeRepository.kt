@@ -95,6 +95,7 @@ class TiltakstypeRepository(private val db: Database) {
                 Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
                 Status.PLANLAGT -> "" to "(now()::timestamp < fra_dato)"
                 Status.AVSLUTTET -> "" to "(now()::timestamp > til_dato)"
+                Status.ALLE -> null to null
             },
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
                 when (it) {
