@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Modal } from '@navikt/ds-react';
+import { Alert, BodyShort, Button, Modal } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
@@ -108,7 +108,7 @@ const Delemodal = ({
   return (
     <Modal
       shouldCloseOnOverlayClick={!kanDeleMedBruker}
-      closeButton={true}
+      closeButton={kanDeleMedBruker!}
       open={modalOpen}
       onClose={clickCancel}
       className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
@@ -116,9 +116,14 @@ const Delemodal = ({
     >
       <Modal.Content>
         {!kanDeleMedBruker ? (
-          <Alert variant="warning" className={delemodalStyles.alert} data-testid="delemodal-alert">
-            {feilmelding()}
-          </Alert>
+          <>
+            <Alert variant="warning" data-testid="delemodal-alert">
+              {feilmelding()}
+            </Alert>
+            <Button variant="primary" className={delemodalStyles.alert_btn} onClick={() => setModalOpen()}>
+              Lukk
+            </Button>
+          </>
         ) : (
           !['SENDT_OK', 'SENDING_FEILET'].includes(state.sendtStatus) && (
             <>
