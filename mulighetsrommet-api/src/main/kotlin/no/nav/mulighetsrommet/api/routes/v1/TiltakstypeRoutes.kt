@@ -18,17 +18,9 @@ fun Route.tiltakstypeRoutes() {
             val filter = getTiltakstypeFilter()
             val paginationParams = getPaginationParams()
 
-            if (filter.status != null) {
-                call.respond(
-                    tiltakstypeService.getWithFilter(
-                        filter,
-                        paginationParams
-                    )
-                )
-            }
-
             call.respond(
-                tiltakstypeService.getAll(
+                tiltakstypeService.getWithFilter(
+                    filter,
                     paginationParams
                 )
             )
