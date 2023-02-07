@@ -1,6 +1,7 @@
-import { Tiltakstype } from "mulighetsrommet-api-client";
+import { ApiError, Tiltakstype } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { SingleValue } from "react-select";
+import { Alert } from "@navikt/ds-react";
 import CreatableSelect from "react-select/creatable";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleTagsForTiltakstyper } from "../../api/tiltakstyper/useAlleTagsForTiltakstyper";
@@ -30,6 +31,7 @@ export function TagForTiltakstyper({ tiltakstype, refetchTiltakstype }: Props) {
   const { data: tags = [], refetch: refetchAlleTags } =
     useAlleTagsForTiltakstyper();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const refetchData = async () => {
     await refetchTiltakstype();
@@ -39,18 +41,29 @@ export function TagForTiltakstyper({ tiltakstype, refetchTiltakstype }: Props) {
   const handleCreate = async (inputValue: string) => {
     if (!tiltakstype) return;
 
+    setError("");
     setIsLoading(true);
     const eksisterendeTags = tiltakstype?.tags ?? [];
     const requestBody = Array.from([
       ...eksisterendeTags,
       inputValue.toLowerCase(),
     ]);
-    await mulighetsrommetClient.tiltakstyper.lagreTagsForTiltakstype({
-      id: tiltakstype.id,
-      requestBody,
-    });
-    setIsLoading(false);
-    await refetchData();
+    try {
+      await mulighetsrommetClient.tiltakstyper.lagreTagsForTiltakstype({
+        id: tiltakstype.id,
+        requestBody,
+      });
+      setIsLoading(false);
+      await refetchData();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          setError("Du har ikke tilgang til å lagre tags");
+        }
+        setError("Du har ikke tilgang til å lagre tags");
+      }
+      setIsLoading(false);
+    }
   };
 
   const handleChange = async (value: SingleValue<Option>) => {
@@ -101,6 +114,11 @@ export function TagForTiltakstyper({ tiltakstype, refetchTiltakstype }: Props) {
           formatCreateLabel={TagTekster.opprettTag}
           options={options}
         />
+        {error ? (
+          <Alert className={styles.mt_1} variant="error">
+            {error}
+          </Alert>
+        ) : null}
       </div>
     </>
   );
