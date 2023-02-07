@@ -11,7 +11,7 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
   if (!kontaktinfoArrangor)
     return (
       <Alert variant="info" inline>
-        Arrangørinfo er ikke lagt inn
+        Konktaktinfo til arrangør er ikke lagt inn
       </Alert>
     );
 
