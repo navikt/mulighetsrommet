@@ -1,4 +1,4 @@
-import { BodyShort, Heading, Label } from '@navikt/ds-react';
+import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
 import styles from './Arrangorinfo.module.scss';
 
 interface ArrangorInfoProps {
@@ -6,11 +6,14 @@ interface ArrangorInfoProps {
 }
 
 const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
-  if (!data) return null;
-
   const { kontaktinfoArrangor } = data;
 
-  if (!kontaktinfoArrangor) return null;
+  if (!kontaktinfoArrangor)
+    return (
+      <Alert variant="info" inline>
+        Konktaktinfo til arrangør er ikke lagt inn
+      </Alert>
+    );
 
   return (
     <>

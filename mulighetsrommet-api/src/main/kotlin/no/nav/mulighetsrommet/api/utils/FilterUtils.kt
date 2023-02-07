@@ -11,7 +11,7 @@ data class TiltakstypeFilter(
 )
 
 enum class Status {
-    AKTIV, PLANLAGT, AVSLUTTET
+    AKTIV, PLANLAGT, AVSLUTTET, ALLE
 }
 
 enum class Tiltakstypekategori {

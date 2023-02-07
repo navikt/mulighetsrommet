@@ -1,4 +1,4 @@
-import { BodyShort, Heading, Label } from '@navikt/ds-react';
+import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
 import styles from './Arrangorinfo.module.scss';
 import { Tiltaksansvarlig } from '../../../core/api/models';
 
@@ -9,9 +9,14 @@ interface TiltaksansvarligInfoProps {
 }
 
 const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
-  if (!data) return null;
-
   const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
+  if (tiltaksansvarlige?.length === 0 || !tiltaksansvarlige)
+    return (
+      <Alert variant="info" inline>
+        Kontaktinfo til tiltaksansvarlig er ikke lagt inn
+      </Alert>
+    );
+
   return (
     <>
       {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
@@ -34,7 +39,11 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
               <div className={styles.rad}>
                 <Label size="small">Teams</Label>
                 <BodyShort>
-                  <a target="_blank" rel="noreferrer" href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
+                  >
                     Kontakt {tiltaksansvarlig.navn} på Teams
                   </a>
                 </BodyShort>

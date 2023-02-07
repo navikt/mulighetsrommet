@@ -27,4 +27,6 @@ export const tiltakstypefilter = atomWithHash<{
   status: Tiltakstypestatus.AKTIV,
   kategori: Tiltakstypekategori.GRUPPE,
   tags: [],
+}, {
+  setHash: "replaceState"
 });
