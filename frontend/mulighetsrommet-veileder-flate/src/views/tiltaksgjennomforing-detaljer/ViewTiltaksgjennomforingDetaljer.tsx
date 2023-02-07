@@ -14,7 +14,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { environments } from '../../env';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
@@ -58,6 +58,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const { data } = useFeatureToggles();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const [page] = useAtom(paginationAtom);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
@@ -116,7 +117,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
       <div className={styles.container}>
         {!erPreview && (
           <Tilbakeknapp
-            tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+            tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
             tekst="Tilbake til tiltaksoversikten"
           />
         )}

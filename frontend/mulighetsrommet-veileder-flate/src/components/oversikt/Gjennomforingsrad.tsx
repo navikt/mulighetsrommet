@@ -2,7 +2,7 @@
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { Oppstart, Tiltaksgjennomforing } from '../../core/api/models';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
@@ -26,6 +26,7 @@ const visOppstartsdato = (oppstart: Oppstart, oppstartsdato?: string) => {
 
 export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const [page] = useAtom(paginationAtom);
   const {
     _id,
     tiltaksgjennomforingNavn,
@@ -40,7 +41,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
   return (
     <li className={styles.list_element}>
       <Lenke
-        to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+        to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"
       >
         <div className={styles.gjennomforing_container}>
