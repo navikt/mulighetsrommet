@@ -9,7 +9,7 @@ interface TiltaksansvarligInfoProps {
 }
 
 const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
-  if (!data)
+  if (!data || data?.length === 0)
     return (
       <Alert variant="info" inline>
         Kontaktinfo til tiltaksansvarlig er ikke lagt inn
