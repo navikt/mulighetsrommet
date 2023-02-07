@@ -29,6 +29,8 @@ class ArenaEventService(
     )
 
     suspend fun deleteEvents(table: String, ids: List<String>): Unit = coroutineScope {
+        logger.info("Deleting events from table=$table, ids=$ids")
+
         ids.forEach { id ->
             events.get(table, id)?.also {
                 deleteEntity(it)
@@ -97,7 +99,7 @@ class ArenaEventService(
             .filter { it.arenaTable == event.arenaTable }
             .forEach { consumer ->
 
-                logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
+                logger.info("Deleting event: table=${event.arenaTable}, id=${event.arenaId}")
 
                 consumer.deleteEntity(event).tapLeft {
                     throw RuntimeException(it.message)
