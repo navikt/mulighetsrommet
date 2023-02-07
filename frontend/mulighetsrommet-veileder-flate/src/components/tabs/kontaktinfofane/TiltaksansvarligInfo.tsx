@@ -9,14 +9,14 @@ interface TiltaksansvarligInfoProps {
 }
 
 const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
-  if (!data || data?.length === 0)
+  const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
+  if (tiltaksansvarlige?.length === 0 || !tiltaksansvarlige)
     return (
       <Alert variant="info" inline>
         Kontaktinfo til tiltaksansvarlig er ikke lagt inn
       </Alert>
     );
 
-  const { kontaktinfoTiltaksansvarlige: tiltaksansvarlige } = data;
   return (
     <>
       {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
