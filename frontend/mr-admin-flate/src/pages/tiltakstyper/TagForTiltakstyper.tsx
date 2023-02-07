@@ -1,12 +1,13 @@
-import { ApiError, Tiltakstype } from "mulighetsrommet-api-client";
-import { useState } from "react";
-import { SingleValue } from "react-select";
 import { Alert } from "@navikt/ds-react";
+import { ApiError, Tiltakstype } from "mulighetsrommet-api-client";
+import { useReducer } from "react";
+import { SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleTagsForTiltakstyper } from "../../api/tiltakstyper/useAlleTagsForTiltakstyper";
 import FilterTag from "../../components/knapper/FilterTag";
 import styles from "./TagForTiltakstyper.module.scss";
+import { initialTagState, reducer } from "./TagReducer";
 
 interface Option {
   readonly label: string;
@@ -30,19 +31,17 @@ const TagTekster = {
 export function TagForTiltakstyper({ tiltakstype, refetchTiltakstype }: Props) {
   const { data: tags = [], refetch: refetchAlleTags } =
     useAlleTagsForTiltakstyper();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [state, dispatch] = useReducer(reducer, initialTagState);
 
   const refetchData = async () => {
     await refetchTiltakstype();
     await refetchAlleTags();
   };
 
-  const handleCreate = async (inputValue: string) => {
+  const createTag = async (inputValue: string) => {
     if (!tiltakstype) return;
 
-    setError("");
-    setIsLoading(true);
+    dispatch({ type: "Opprett tag" });
     const eksisterendeTags = tiltakstype?.tags ?? [];
     const requestBody = Array.from([
       ...eksisterendeTags,
@@ -53,22 +52,26 @@ export function TagForTiltakstyper({ tiltakstype, refetchTiltakstype }: Props) {
         id: tiltakstype.id,
         requestBody,
       });
-      setIsLoading(false);
-      await refetchData();
+      dispatch({ type: "Tag opprettet" });
+      throw new Error("");
+      // await refetchData();
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401) {
-          setError("Du har ikke tilgang til å lagre tags");
+          dispatch({
+            type: "Sett feil",
+            payload: "Du har ikke tilgang til å lagre tags",
+          });
+          return;
         }
-        setError("Du har ikke tilgang til å lagre tags");
       }
-      setIsLoading(false);
+      dispatch({ type: "Sett feil", payload: "Klarte ikke lagre tags" });
     }
   };
 
   const handleChange = async (value: SingleValue<Option>) => {
     if (value?.value) {
-      await handleCreate(value.value);
+      await createTag(value.value);
     }
   };
 
@@ -106,17 +109,17 @@ export function TagForTiltakstyper({ tiltakstype, refetchTiltakstype }: Props) {
       <div className={styles.create_tag}>
         <CreatableSelect
           placeholder={TagTekster.placeholder(tags)}
-          isDisabled={isLoading}
-          isLoading={isLoading}
+          isDisabled={state.isLoading}
+          isLoading={state.isLoading}
           noOptionsMessage={TagTekster.ingenTagsEksisterer}
           onChange={handleChange}
-          onCreateOption={handleCreate}
+          onCreateOption={createTag}
           formatCreateLabel={TagTekster.opprettTag}
           options={options}
         />
-        {error ? (
+        {state.error ? (
           <Alert className={styles.mt_1} variant="error">
-            {error}
+            {state.error}
           </Alert>
         ) : null}
       </div>
