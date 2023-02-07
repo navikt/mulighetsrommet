@@ -2,6 +2,7 @@
   .historikk_knapp {
     padding: 0 0.3rem 0;
     height: fit-content;
+    border: 2px solid transparent;
 
     &:focus {
       border: 2px solid var(--a-border-focus);
