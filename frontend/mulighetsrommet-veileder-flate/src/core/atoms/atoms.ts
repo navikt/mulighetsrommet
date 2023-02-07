@@ -25,7 +25,10 @@ export const initialTiltaksgjennomforingsfilter = {
 
 export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
   'filter',
-  initialTiltaksgjennomforingsfilter
+  initialTiltaksgjennomforingsfilter,
+  {
+    setHash: 'replaceState',
+  }
 );
 
 export const paginationAtom = atomWithHash('page', 1);
