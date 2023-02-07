@@ -1,19 +1,18 @@
-import { Modal } from '@navikt/ds-react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
-import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import {Modal} from '@navikt/ds-react';
+import {ErrorBoundary} from 'react-error-boundary';
+import {QueryClient, QueryClientProvider} from 'react-query';
+import {ReactQueryDevtools} from 'react-query/devtools';
+import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
 import FakeDoor from './components/fakedoor/FakeDoor';
-import Feedback from './components/feedback/Feedback';
-import { APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER } from './constants';
-import { ENABLE_ARBEIDSFLATE, useFeatureToggles } from './core/api/feature-toggles';
-import { useHentVeilederdata } from './core/api/queries/useHentVeilederdata';
-import { useHentFnrFraUrl } from './hooks/useHentFnrFraUrl';
-import { useInitialBrukerfilter } from './hooks/useInitialBrukerfilter';
+import {APPLICATION_NAME, MODAL_ACCESSIBILITY_WRAPPER} from './constants';
+import {ENABLE_ARBEIDSFLATE, useFeatureToggles} from './core/api/feature-toggles';
+import {useHentVeilederdata} from './core/api/queries/useHentVeilederdata';
+import {useHentFnrFraUrl} from './hooks/useHentFnrFraUrl';
+import {useInitialBrukerfilter} from './hooks/useInitialBrukerfilter';
 import RoutesConfig from './RoutesConfig';
-import { ErrorFallback } from './utils/ErrorFallback';
+import {ErrorFallback} from './utils/ErrorFallback';
 import styles from './App.module.scss';
-import { SanityPreview } from './views/Preview/SanityPreview';
+import {SanityPreview} from './views/Preview/SanityPreview';
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
 Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);
@@ -61,7 +60,6 @@ function App() {
               </Routes>
             </Router>
             <ReactQueryDevtools initialIsOpen={false} />
-            <Feedback />
           </QueryClientProvider>
         </div>
       </div>
