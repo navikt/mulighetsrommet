@@ -94,12 +94,14 @@ export function DelMedBrukerContent({
         {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
       </Heading>
 
-      <BodyShort
-        title="Teksten er hentet fra tiltakstypen og kan ikke redigeres."
-        className={delemodalStyles.deletekst}
-      >
-        {`${state.deletekst}${visPersonligMelding ? '' : `\n\n${state.hilsen}`}`}
-      </BodyShort>
+      {visPersonligMelding && !state.deletekst ? null : (
+        <BodyShort
+          title="Teksten er hentet fra tiltakstypen og kan ikke redigeres."
+          className={delemodalStyles.deletekst}
+        >
+          {`${state.deletekst}${visPersonligMelding ? '' : `\n\n${state.hilsen}`}`}
+        </BodyShort>
+      )}
       {visPersonligMelding ? null : (
         <Button
           data-testid="personlig_hilsen_btn"
@@ -140,14 +142,16 @@ export function DelMedBrukerContent({
       )}
       {!tiltaksgjennomforing?.tiltakstype?.delingMedBruker && (
         <ErrorMessage className={delemodalStyles.feilmeldinger}>
-          • Klarte ikke hente preutfylt tekst om tiltaket{' '}
+          • Mangler ferdigutfylt tekst som kan deles med bruker{' '}
         </ErrorMessage>
       )}
       <div className={classNames(modalStyles.modal_btngroup, delemodalStyles.btn_row)}>
         <Button
           onClick={handleSend}
           data-testid="modal_btn-send"
-          disabled={senderTilDialogen || state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN || erPreview}
+          disabled={
+            senderTilDialogen || state.hilsen.length === 0 || state.hilsen.length > MAKS_ANTALL_TEGN_HILSEN || erPreview
+          }
         >
           {senderTilDialogen ? 'Sender...' : 'Send via Dialogen'}
         </Button>
