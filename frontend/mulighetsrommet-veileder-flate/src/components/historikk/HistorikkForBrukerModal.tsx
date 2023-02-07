@@ -7,7 +7,7 @@ import { formaterDato } from '../../utils/Utils';
 
 export function HistorikkForBrukerModal() {
   const { data, isLoading, isError } = useHentHistorikk();
-  if (isLoading) return <Loader />;
+  if (isLoading && !data) return <Loader />;
 
   if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
 

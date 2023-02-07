@@ -44,7 +44,7 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
           {accordionNavn}
         </Accordion.Header>
         <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
-          {isLoading && <Loader size="xlarge" />}
+          {isLoading && !data ? <Loader size="xlarge" /> : null}
           {data && (
             <RadioGroup
               legend=""

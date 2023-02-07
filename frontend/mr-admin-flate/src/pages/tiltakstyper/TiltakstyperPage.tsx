@@ -41,9 +41,10 @@ export function TiltakstyperPage() {
             });
           }}
         >
-          <option value="AKTIV">Aktive</option>
-          <option value="PLANLAGT">Planlagte</option>
-          <option value="AVSLUTTET">Avsluttede</option>
+          <option value="AKTIV">Aktiv</option>
+          <option value="PLANLAGT">Planlagt</option>
+          <option value="AVSLUTTET">Avsluttet</option>
+          <option value="ALLE">Alle</option>
         </Select>
         <Select
           label="Gruppetiltak eller individuelle tiltak"
