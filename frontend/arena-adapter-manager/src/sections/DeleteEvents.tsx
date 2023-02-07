@@ -23,7 +23,7 @@ function DeleteEvents() {
                 ))}
             </Select>
             <Input
-                placeholder="Arena id"
+                placeholder="Arena-idene på eventene som skal slettes separert med komma"
                 value={arenaIds}
                 onChange={({currentTarget}) => {
                     setArenaIds(currentTarget.value);
