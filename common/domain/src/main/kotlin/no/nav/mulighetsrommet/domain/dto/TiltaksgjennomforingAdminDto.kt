@@ -18,7 +18,8 @@ data class TiltaksgjennomforingAdminDto(
     val startDato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
-    val enhet: String
+    val enhet: String,
+    val status: Tiltaksgjennomforingsstatus
 ) {
     @Serializable
     data class Tiltakstype(

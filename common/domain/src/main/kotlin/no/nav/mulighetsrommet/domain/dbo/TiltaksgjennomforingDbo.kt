@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -19,5 +20,6 @@ data class TiltaksgjennomforingDbo(
     val startDato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
-    val enhet: String
+    val enhet: String,
+    val avslutningsstatus: Avslutningsstatus
 )

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
 import java.util.UUID
 
 class ArenaAdapterService(
@@ -12,7 +12,7 @@ class ArenaAdapterService(
         return arenaAdaperClient.exchangeTiltaksgjennomforingsArenaIdForId(arenaId)
     }
 
-    suspend fun hentTiltaksgjennomforingsstatus(id: UUID): TiltaksgjennomforingsstatusDto? {
+    suspend fun hentTiltaksgjennomforingsstatus(id: UUID): ArenaTiltaksgjennomforingsstatusDto? {
         return arenaAdaperClient.hentTiltaksgjennomforingsstatus(id)
     }
 }

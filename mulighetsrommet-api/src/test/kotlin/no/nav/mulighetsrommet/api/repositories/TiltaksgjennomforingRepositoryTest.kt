@@ -10,7 +10,9 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -51,7 +53,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         virksomhetsnummer = "123456789",
         startDato = LocalDate.of(2022, 1, 1),
         sluttDato = LocalDate.of(2022, 1, 1),
-        enhet = "2990"
+        enhet = "2990",
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET
     )
 
     val tiltak2 = TiltaksgjennomforingDbo(
@@ -60,7 +63,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstypeId = tiltakstype2.id,
         tiltaksnummer = "54321",
         virksomhetsnummer = "123456789",
-        enhet = "2990"
+        enhet = "2990",
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET
     )
 
     context("CRUD") {
@@ -89,7 +93,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 virksomhetsnummer = tiltak1.virksomhetsnummer,
                 startDato = tiltak1.startDato,
                 sluttDato = tiltak1.sluttDato,
-                enhet = tiltak1.enhet
+                enhet = tiltak1.enhet,
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET
             )
 
             tiltaksgjennomforinger.delete(tiltak1.id)
@@ -213,7 +218,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
                     virksomhetsnummer = "123456789",
-                    enhet = "2990"
+                    enhet = "2990",
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET
                 )
             )
         }

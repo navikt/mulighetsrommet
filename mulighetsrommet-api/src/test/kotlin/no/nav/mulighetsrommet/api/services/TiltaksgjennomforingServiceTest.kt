@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Avslutningsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -44,7 +45,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
-                enhet = ""
+                enhet = "",
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET
             )
         )
     }

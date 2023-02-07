@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSc
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import java.time.LocalDate
@@ -46,7 +47,8 @@ class HistorikkServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
-        enhet = "2990"
+        enhet = "2990",
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

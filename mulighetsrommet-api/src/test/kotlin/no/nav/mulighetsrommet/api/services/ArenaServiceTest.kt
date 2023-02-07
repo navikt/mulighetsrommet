@@ -15,10 +15,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSc
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -56,7 +53,8 @@ class ArenaServiceTest : FunSpec({
         virksomhetsnummer = "123456789",
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
-        enhet = "2990"
+        enhet = "2990",
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -103,7 +101,8 @@ class ArenaServiceTest : FunSpec({
             virksomhetsnummer = virksomhetsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = enhet
+            enhet = enhet,
+            status = Tiltaksgjennomforingsstatus.GJENNOMFORES
         )
     }
 
