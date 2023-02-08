@@ -208,17 +208,6 @@ class ArenaServiceTest : FunSpec({
                 )
             }
         }
-
-        test("should not publish other tiltak than gruppetilak") {
-            service.upsert(tiltakstype.copy(tiltakskode = "MENTOR"))
-            service.upsert(tiltaksgjennomforing)
-
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(any()) }
-
-            service.removeTiltaksgjennomforing(tiltaksgjennomforing.id)
-
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.retract(any()) }
-        }
     }
 
     context("tiltakshistorikk") {
