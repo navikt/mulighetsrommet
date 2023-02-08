@@ -3,10 +3,6 @@
     padding: 0 0.3rem 0;
     display: inline-block;
 
-    &:focus {
-      border: 2px solid var(--a-border-focus);
-    }
-
     :global(.navds-label) {
       padding-top: 0.5rem;
     }
