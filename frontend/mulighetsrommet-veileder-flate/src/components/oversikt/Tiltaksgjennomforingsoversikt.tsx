@@ -55,7 +55,10 @@ const Tiltaksgjennomforingsoversikt = () => {
     };
   };
 
-  const sorter = (tiltaksgjennomforinger: Tiltaksgjennomforing[]): Tiltaksgjennomforing[] => {
+  const sorter = (
+    tiltaksgjennomforinger: Tiltaksgjennomforing[],
+    forceOrder: 'ascending' | 'descending' = 'ascending'
+  ): Tiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
 
@@ -73,7 +76,7 @@ const Tiltaksgjennomforingsoversikt = () => {
         if (orderBy === 'oppstart') {
           const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
           const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
-          return compare(dateA, dateB);
+          return forceOrder === 'ascending' ? compare(dateA, dateB) : compare(dateB, dateA);
         } else if (orderBy === 'tiltakstypeNavn') {
           return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
         } else {
@@ -87,17 +90,31 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   const lopendeOppstartForst = (
     lopendeGjennomforinger: Tiltaksgjennomforing[],
-    gjennomforingerMedOppstart: Tiltaksgjennomforing[]
+    gjennomforingerMedOppstartIFremtiden: Tiltaksgjennomforing[],
+    gjennomforingerMedOppstartHarVaert: Tiltaksgjennomforing[]
   ): Tiltaksgjennomforing[] => {
-    return [...lopendeGjennomforinger, ...sorter(gjennomforingerMedOppstart)];
+    return [
+      ...lopendeGjennomforinger,
+      ...sorter(gjennomforingerMedOppstartIFremtiden),
+      ...sorter(gjennomforingerMedOppstartHarVaert, 'descending'),
+    ];
   };
 
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(gj => gj.oppstart === 'lopende');
-  const gjennomforingerMedOppstart = tiltaksgjennomforinger.filter(gj => gj.oppstart !== 'lopende');
+  const gjennomforingerMedOppstartIFremtiden = tiltaksgjennomforinger.filter(
+    gj => gj.oppstart !== 'lopende' && new Date(gj.oppstartsdato!!) >= new Date()
+  );
+  const gjennomforingerMedOppstartHarVaert = tiltaksgjennomforinger.filter(
+    gj => gj.oppstart !== 'lopende' && new Date(gj.oppstartsdato!!) <= new Date()
+  );
 
   const gjennomforingerForSide = (
     getSort(sortValue).orderBy === 'oppstart'
-      ? lopendeOppstartForst(lopendeGjennomforinger, gjennomforingerMedOppstart)
+      ? lopendeOppstartForst(
+          lopendeGjennomforinger,
+          gjennomforingerMedOppstartIFremtiden,
+          gjennomforingerMedOppstartHarVaert
+        )
       : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
