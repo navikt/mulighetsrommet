@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
 import arrow.core.getOrHandle
-import arrow.core.left
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce

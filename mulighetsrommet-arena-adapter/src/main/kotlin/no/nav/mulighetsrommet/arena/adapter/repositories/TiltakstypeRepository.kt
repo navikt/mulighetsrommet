@@ -162,7 +162,7 @@ returning *
         "til_dato" to tilDato,
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
         "tiltaksgruppekode" to tiltaksgruppekode,
-        "administrasjonskode" to administrasjonskode?.name,
+        "administrasjonskode" to administrasjonskode.name,
         "send_tilsagnsbrev_til_deltaker" to sendTilsagnsbrevTilDeltaker,
         "skal_ha_anskaffelsesprosess" to tiltakstypeSkalHaAnskaffelsesprosess,
         "maks_antall_plasser" to maksAntallPlasser,
