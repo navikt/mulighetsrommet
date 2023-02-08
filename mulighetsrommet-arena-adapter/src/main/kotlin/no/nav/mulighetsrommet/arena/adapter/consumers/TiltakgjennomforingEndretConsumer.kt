@@ -103,11 +103,17 @@ class TiltakgjennomforingEndretConsumer(
         val dbo = tiltaksgjennomforing
             .toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
-        val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
-            .mapLeft { ConsumptionError.fromResponseException(it) }
-            .map { ArenaEvent.ConsumptionStatus.Processed }
-            .bind()
+        if (operation == ArenaEventData.Operation.Delete) {
+            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
+                .mapLeft { ConsumptionError.fromResponseException(it) }
+                .map { ArenaEvent.ConsumptionStatus.Processed }
+                .bind()
+        } else {
+            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
+                .mapLeft { ConsumptionError.fromResponseException(it) }
+                .map { ArenaEvent.ConsumptionStatus.Processed }
+                .bind()
+        }
     }
 
     private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
