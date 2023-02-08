@@ -200,6 +200,23 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             engine.requestHistory.shouldBeEmpty()
         }
 
+        test("should ignore if FRA_DATO is null") {
+            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, engine)
+
+            val event = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    tiltakskode = "AMO",
+                    fraDato = null
+                )
+            )
+
+            event.status shouldBe Ignored
+            database.assertThat("tiltaksgjennomforing").isEmpty
+            engine.requestHistory.shouldBeEmpty()
+        }
+
         test("should upsert individuelle tiltaksgjennomføringer created after Aktivitetsplanen") {
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
@@ -461,7 +478,7 @@ private fun createEvent(
     tiltakskode: String = "INDOPPFAG",
     name: String = "Navn",
     regDato: String = "2022-10-10 00:00:00",
-    fraDato: String? = null,
+    fraDato: String? = "2022-10-10 00:00:00",
     tilDato: String? = null
 ) = createArenaEvent(
     ArenaTables.Tiltaksgjennomforing,

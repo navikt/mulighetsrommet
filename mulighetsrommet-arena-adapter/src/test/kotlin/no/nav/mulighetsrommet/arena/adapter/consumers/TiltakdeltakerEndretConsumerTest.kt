@@ -151,7 +151,8 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             tiltakskode = "INDOPPFAG",
             arrangorId = null,
             navn = null,
-            status = "GJENNOMFOR"
+            status = "GJENNOMFOR",
+            fraDato = LocalDateTime.of(2023,1,1,0,0)
         )
         val sakIndividuell = Sak(
             sakId = 2,
@@ -166,7 +167,8 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             tiltakskode = "HOYEREUTD",
             arrangorId = 123,
             navn = null,
-            status = "GJENNOMFOR"
+            status = "GJENNOMFOR",
+            fraDato = LocalDateTime.of(2023,1,1,0,0)
         )
 
         beforeEach {
