@@ -61,7 +61,7 @@ fun Route.managerRoutes() {
             ids = request.arenaIds
         )
 
-        call.respond(HttpStatusCode.Created)
+        call.respond(HttpStatusCode.OK)
     }
 }
 

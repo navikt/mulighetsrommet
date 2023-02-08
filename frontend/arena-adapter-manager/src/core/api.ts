@@ -1,59 +1,59 @@
-import { Topic } from "../domain";
+import {Topic} from "../domain";
 
 export const getTopics = async () =>
-  fetch("/mulighetsrommet-arena-adapter/topics", {
-    method: "GET",
-  }).then((response) => response.json());
+    fetch("/mulighetsrommet-arena-adapter/topics", {
+        method: "GET",
+    }).then((response) => response.json());
 
 export const putTopicRunningState = async (topics: Topic[]) => {
-  return fetch("/mulighetsrommet-arena-adapter/topics", {
-    method: "PUT",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(topics),
-  });
+    return fetch("/mulighetsrommet-arena-adapter/topics", {
+        method: "PUT",
+        headers: {
+            "content-type": "application/json",
+        },
+        body: JSON.stringify(topics),
+    });
 };
 
 export const replayEvents = async (
-  arenaTable: string | null,
-  consumptionStatus: string | null
+    arenaTable: string | null,
+    consumptionStatus: string | null
 ) => {
-  return await fetch("/mulighetsrommet-arena-adapter/events/replay", {
-    method: "PUT",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      table: arenaTable,
-      status: consumptionStatus,
-    }),
-  });
+    return await fetch("/mulighetsrommet-arena-adapter/events/replay", {
+        method: "PUT",
+        headers: {
+            "content-type": "application/json",
+        },
+        body: JSON.stringify({
+            table: arenaTable,
+            status: consumptionStatus,
+        }),
+    });
 };
 
 export const replayEvent = async (arenaTable: string, arenaId: string) => {
-  return await fetch(`/mulighetsrommet-arena-adapter/event/replay`, {
-    method: "PUT",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      table: arenaTable,
-      arenaId: arenaId,
-    }),
-  });
+    return await fetch(`/mulighetsrommet-arena-adapter/event/replay`, {
+        method: "PUT",
+        headers: {
+            "content-type": "application/json",
+        },
+        body: JSON.stringify({
+            table: arenaTable,
+            arenaId: arenaId,
+        }),
+    });
 };
 
 export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
-  const arenaIdsAsList = arenaIds.split(',')
-  return await fetch(`/mulighetsrommet-arena-adapter/events`, {
-    method: "DELETE",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      table: arenaTable,
-      arenaIds: arenaIdsAsList,
-    }),
-  });
+    const arenaIdsAsList = arenaIds.split(',').map(id => id.trim())
+    return await fetch(`/mulighetsrommet-arena-adapter/events`, {
+        method: "DELETE",
+        headers: {
+            "content-type": "application/json",
+        },
+        body: JSON.stringify({
+            table: arenaTable,
+            arenaIds: arenaIdsAsList,
+        }),
+    });
 };

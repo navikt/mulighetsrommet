@@ -150,13 +150,9 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("should not retract tiltakstype if it did not already exist") {
-            service.upsert(tiltakstype)
+            service.removeTiltakstype(UUID.randomUUID())
 
-            verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
-
-            service.removeTiltakstype(tiltakstype.id)
-
-            verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
+            verify(exactly = 0) { tiltakstypeKafkaProducer.retract(any()) }
         }
     }
 

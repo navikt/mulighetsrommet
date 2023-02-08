@@ -98,7 +98,7 @@ class ArenaEventService(
             .filter { it.arenaTable == event.arenaTable }
             .forEach { consumer ->
 
-                logger.info("Deleting event: table=${event.arenaTable}, id=${event.arenaId}")
+                logger.info("Deleting entity: table=${event.arenaTable}, id=${event.arenaId}")
 
                 consumer.deleteEntity(event).tapLeft {
                     throw RuntimeException(it.message)

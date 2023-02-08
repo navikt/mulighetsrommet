@@ -57,7 +57,7 @@ class SakEndretConsumer(
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
-        entities.deleteSak(event.arenaId.toInt())
+        entities.deleteSak(event.arenaId.toInt()).bind()
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
