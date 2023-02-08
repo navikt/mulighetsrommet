@@ -148,6 +148,16 @@ class ArenaServiceTest : FunSpec({
 
             verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
         }
+
+        test("should not retract tiltakstype if it did not already exist") {
+            service.upsert(tiltakstype)
+
+            verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
+
+            service.removeTiltakstype(tiltakstype.id)
+
+            verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
+        }
     }
 
     context("tiltaksgjennomføring") {
@@ -188,6 +198,12 @@ class ArenaServiceTest : FunSpec({
             service.removeTiltaksgjennomforing(updated.id)
 
             database.assertThat("tiltaksgjennomforing").isEmpty
+        }
+
+        test("should not retract from kafka if tiltak did not exist") {
+            service.removeTiltaksgjennomforing(UUID.randomUUID())
+
+            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.retract(any()) }
         }
 
         test("should publish and retract gruppetiltak from kafka topic") {

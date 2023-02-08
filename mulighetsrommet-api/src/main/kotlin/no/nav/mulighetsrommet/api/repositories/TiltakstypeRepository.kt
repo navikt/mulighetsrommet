@@ -121,7 +121,7 @@ class TiltakstypeRepository(private val db: Database) {
         return Pair(totaltAntall, tiltakstyper)
     }
 
-    fun delete(id: UUID): QueryResult<Unit> = query {
+    fun delete(id: UUID): QueryResult<Int> = query {
         logger.info("Sletter tiltakstype id=$id")
 
         @Language("PostgreSQL")
@@ -131,7 +131,7 @@ class TiltakstypeRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, id)
-            .asExecute
+            .asUpdate
             .let { db.run(it) }
     }
 

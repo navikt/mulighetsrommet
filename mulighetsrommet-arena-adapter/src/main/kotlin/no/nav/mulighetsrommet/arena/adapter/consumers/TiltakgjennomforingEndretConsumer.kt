@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
@@ -57,7 +58,7 @@ class TiltakgjennomforingEndretConsumer(
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
-        ensure(data.DATO_FRA != null) {
+        ensureNotNull(data.DATO_FRA) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
         }
 
@@ -122,6 +123,7 @@ class TiltakgjennomforingEndretConsumer(
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either
         .catch {
+            requireNotNull(DATO_FRA)
             Tiltaksgjennomforing(
                 id = id,
                 tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,

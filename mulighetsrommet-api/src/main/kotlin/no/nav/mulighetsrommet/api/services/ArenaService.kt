@@ -27,9 +27,9 @@ class ArenaService(
         }
     }
 
-    fun removeTiltakstype(id: UUID): QueryResult<Unit> {
-        return tiltakstyper.delete(id).tap {
-            tiltakstypeKafkaProducer.retract(id)
+    fun removeTiltakstype(id: UUID): QueryResult<Int> {
+        return tiltakstyper.delete(id).tap { deletedRows ->
+            if (deletedRows != 0) tiltakstypeKafkaProducer.retract(id)
         }
     }
 
@@ -42,10 +42,10 @@ class ArenaService(
             }
     }
 
-    fun removeTiltaksgjennomforing(id: UUID): QueryResult<Unit> {
+    fun removeTiltaksgjennomforing(id: UUID): QueryResult<Int> {
         return tiltaksgjennomforinger.delete(id)
-            .tap {
-                tiltaksgjennomforingKafkaProducer.retract(id)
+            .tap { deletedRows ->
+                if (deletedRows != 0) tiltaksgjennomforingKafkaProducer.retract(id)
             }
     }
 
