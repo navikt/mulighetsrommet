@@ -257,7 +257,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        startDato = localDateOrNull("start_dato"),
+        startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         enhet = string("enhet")
     )
