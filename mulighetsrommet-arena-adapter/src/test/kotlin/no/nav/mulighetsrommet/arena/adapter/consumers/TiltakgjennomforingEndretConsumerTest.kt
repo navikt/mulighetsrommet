@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatab
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -295,7 +296,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "000000"))
                 },
-                "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
+                "/api/v1/internal/arena/tiltaksgjennomforing([\\d\\D]*)" to { respondOk() }
             )
 
             val consumer = createConsumer(database.db, engine)
@@ -403,7 +404,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                             )
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
+                    "/api/v1/internal/arena/tiltaksgjennomforing([\\d\\D]*)" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -437,9 +438,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<TiltaksgjennomforingDbo>().apply {
-                        id shouldBe generatedId
-                    }
+                    url.getLastPathParameterAsUUID() shouldBe generatedId
                 }
             }
         }

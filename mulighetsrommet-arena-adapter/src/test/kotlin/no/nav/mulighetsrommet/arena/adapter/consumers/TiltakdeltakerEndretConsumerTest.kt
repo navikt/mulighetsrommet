@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatab
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDateTime
 import java.util.*
@@ -144,6 +145,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             aar = 2022,
             enhet = "2990"
         )
+
         val tiltaksgjennomforing = Tiltaksgjennomforing(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = 3,
@@ -282,7 +284,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
                 "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() }
+                "/api/v1/internal/arena/tiltakshistorikk([\\d\\D]*)" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
 
@@ -365,7 +367,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/internal/arena/tiltakshistorikk([\\d\\D]*)" to { respondOk() },
                     "/ords/arbeidsgiver" to {
                         respondJson(
                             ArenaOrdsArrangor(
@@ -398,9 +400,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<TiltakshistorikkDbo>().apply {
-                        id shouldBe generatedId
-                    }
+                    url.getLastPathParameterAsUUID() shouldBe generatedId
                 }
 
                 consumer.processEvent(
