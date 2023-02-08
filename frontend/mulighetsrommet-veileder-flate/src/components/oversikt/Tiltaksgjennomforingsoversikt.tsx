@@ -9,9 +9,9 @@ import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/at
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
+import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
-import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -48,12 +48,16 @@ const Tiltaksgjennomforingsoversikt = () => {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
-  const gjennomforingerForSide = tiltaksgjennomforinger
-    .sort((a, b) => {
-      const sort = {
-        orderBy: sortValue.split('-')[0],
-        direction: sortValue.split('-')[1],
-      };
+  const getSort = (sortValue: string) => {
+    return {
+      orderBy: sortValue.split('-')[0],
+      direction: sortValue.split('-')[1],
+    };
+  };
+
+  const sorter = (tiltaksgjennomforinger: Tiltaksgjennomforing[]): Tiltaksgjennomforing[] => {
+    return tiltaksgjennomforinger.sort((a, b) => {
+      const sort = getSort(sortValue);
 
       const comparator = (a: any, b: any, orderBy: string | number) => {
         const compare = (item1: any, item2: any) => {
@@ -65,6 +69,7 @@ const Tiltaksgjennomforingsoversikt = () => {
           }
           return 0;
         };
+
         if (orderBy === 'oppstart') {
           const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
           const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
@@ -75,9 +80,26 @@ const Tiltaksgjennomforingsoversikt = () => {
           return compare(a[orderBy], b[orderBy]);
         }
       };
+
       return sort.direction === 'ascending' ? comparator(b, a, sort.orderBy) : comparator(a, b, sort.orderBy);
-    })
-    .slice((page - 1) * elementsPerPage, page * elementsPerPage);
+    });
+  };
+
+  const lopendeOppstartForst = (
+    lopendeGjennomforinger: Tiltaksgjennomforing[],
+    gjennomforingerMedOppstart: Tiltaksgjennomforing[]
+  ): Tiltaksgjennomforing[] => {
+    return [...lopendeGjennomforinger, ...sorter(gjennomforingerMedOppstart)];
+  };
+
+  const lopendeGjennomforinger = tiltaksgjennomforinger.filter(gj => gj.oppstart === 'lopende');
+  const gjennomforingerMedOppstart = tiltaksgjennomforinger.filter(gj => gj.oppstart !== 'lopende');
+
+  const gjennomforingerForSide = (
+    getSort(sortValue).orderBy === 'oppstart'
+      ? lopendeOppstartForst(lopendeGjennomforinger, gjennomforingerMedOppstart)
+      : sorter(tiltaksgjennomforinger)
+  ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
   if (!brukerdata?.data?.oppfolgingsenhet) {
     return (
