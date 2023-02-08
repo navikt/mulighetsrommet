@@ -7,10 +7,6 @@
       background-color: transparent;
     }
   }
-  :global(.navds-button--tertiary:focus) {
-    border: 2px solid var(--navds-button-color-tertiary-border-focus);
-    box-shadow: unset;
-  }
 }
 
 .kopiknapp_tooltip {
