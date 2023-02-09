@@ -40,8 +40,7 @@ enum class Tiltaksgjennomforingsstatus {
                 avslutningsStatus == Avslutningsstatus.AVBRUTT -> AVBRUTT
                 avslutningsStatus == Avslutningsstatus.AVSLUTTET -> AVSLUTTET
                 startDato > LocalDate.now() -> APENT_FOR_INNSOK
-                sluttDato == null -> GJENNOMFORES
-                sluttDato >= LocalDate.now() -> GJENNOMFORES
+                sluttDato == null || sluttDato >= LocalDate.now() -> GJENNOMFORES
                 else -> AVSLUTTET
             }
         }
