@@ -41,6 +41,11 @@ class ArenaEntityService(
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 
+    fun deleteTiltakstype(id: UUID): Either<ConsumptionError, Unit> {
+        return tiltakstyper.delete(id)
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+    }
+
     fun getTiltakstype(id: UUID): Either<ConsumptionError, Tiltakstype> {
         return tiltakstyper.get(id)
             .rightIfNotNull { ConsumptionError.MissingDependency("Tiltakstype med id=$id mangler") }
@@ -56,8 +61,18 @@ class ArenaEntityService(
             .rightIfNotNull { ConsumptionError.MissingDependency("Sak med id=$id mangler") }
     }
 
+    fun deleteSak(id: Int): Either<ConsumptionError, Unit> {
+        return saker.delete(id)
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+    }
+
     fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Either<ConsumptionError, Tiltaksgjennomforing> {
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+    }
+
+    fun deleteTiltaksgjennomforing(id: UUID): Either<ConsumptionError, Unit> {
+        return tiltaksgjennomforinger.delete(id)
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 
@@ -79,6 +94,11 @@ class ArenaEntityService(
 
     fun upsertDeltaker(deltaker: Deltaker): Either<ConsumptionError, Deltaker> {
         return deltakere.upsert(deltaker)
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+    }
+
+    fun deleteDeltaker(id: UUID): Either<ConsumptionError, Unit> {
+        return deltakere.delete(id)
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 }

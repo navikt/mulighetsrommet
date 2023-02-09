@@ -51,11 +51,23 @@ class TiltakEndretConsumer(
             .toTiltakstype(mapping.entityId)
             .flatMap { entities.upsertTiltakstype(it) }
             .bind()
+        val dbo = tiltakstype.toDbo()
 
-        val method = if (decoded.operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltakstype", tiltakstype.toDbo())
-            .mapLeft { ConsumptionError.fromResponseException(it) }
+        val response = if (decoded.operation == ArenaEventData.Operation.Delete) {
+            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakstype/${dbo.id}")
+        } else {
+            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakstype", dbo)
+        }
+        response.mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
+            .bind()
+    }
+
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakstype/${mapping.entityId}")
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .flatMap { entities.deleteTiltakstype(mapping.entityId) }
             .bind()
     }
 

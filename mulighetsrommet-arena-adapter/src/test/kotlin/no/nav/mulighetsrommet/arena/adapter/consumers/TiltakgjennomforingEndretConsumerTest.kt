@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatab
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -200,6 +201,23 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             engine.requestHistory.shouldBeEmpty()
         }
 
+        test("should ignore if FRA_DATO is null") {
+            val engine = MockEngine { respondOk() }
+            val consumer = createConsumer(database.db, engine)
+
+            val event = consumer.processEvent(
+                createEvent(
+                    Insert,
+                    tiltakskode = "AMO",
+                    fraDato = null
+                )
+            )
+
+            event.status shouldBe Ignored
+            database.assertThat("tiltaksgjennomforing").isEmpty
+            engine.requestHistory.shouldBeEmpty()
+        }
+
         test("should upsert individuelle tiltaksgjennomføringer created after Aktivitetsplanen") {
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
@@ -278,7 +296,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "000000"))
                 },
-                "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
+                "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
             )
 
             val consumer = createConsumer(database.db, engine)
@@ -386,7 +404,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                             )
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
+                    "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)
@@ -420,9 +438,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
 
-                    decodeRequestBody<TiltaksgjennomforingDbo>().apply {
-                        id shouldBe generatedId
-                    }
+                    url.getLastPathParameterAsUUID() shouldBe generatedId
                 }
             }
         }
@@ -461,7 +477,7 @@ private fun createEvent(
     tiltakskode: String = "INDOPPFAG",
     name: String = "Navn",
     regDato: String = "2022-10-10 00:00:00",
-    fraDato: String? = null,
+    fraDato: String? = "2022-10-10 00:00:00",
     tilDato: String? = null
 ) = createArenaEvent(
     ArenaTables.Tiltaksgjennomforing,

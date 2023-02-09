@@ -9,6 +9,8 @@ import io.ktor.utils.io.core.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
+import no.nav.mulighetsrommet.utils.toUUID
+import java.util.*
 
 val json = Json {
     ignoreUnknownKeys = true
@@ -47,9 +49,13 @@ fun createMockEngine(
     vararg requestHandlers: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>
 ) = MockEngine { request ->
     for ((path, handler) in requestHandlers) {
-        if (request.url.encodedPath == path) {
+        if (request.url.encodedPath.matches(path.toRegex())) {
             return@MockEngine handler(request)
         }
     }
     throw IllegalStateException("Mock-response missing for path ${request.url.encodedPath}")
+}
+
+fun Url.getLastPathParameterAsUUID(): UUID {
+    return encodedPath.split("/").last().toUUID()
 }

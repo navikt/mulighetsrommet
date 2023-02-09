@@ -60,7 +60,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltakstypeId = tiltakstype2.id,
         tiltaksnummer = "54321",
         virksomhetsnummer = "123456789",
-        enhet = "2990"
+        enhet = "2990",
+        startDato = LocalDate.of(2022, 1, 1)
     )
 
     context("CRUD") {
@@ -213,7 +214,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     tiltakstypeId = tiltakstype1.id,
                     tiltaksnummer = "$it",
                     virksomhetsnummer = "123456789",
-                    enhet = "2990"
+                    enhet = "2990",
+                    startDato = LocalDate.of(2022, 1, 1)
                 )
             )
         }

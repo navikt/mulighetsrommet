@@ -44,7 +44,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
-                enhet = ""
+                enhet = "",
+                startDato = LocalDate.of(2022, 1, 1)
             )
         )
     }

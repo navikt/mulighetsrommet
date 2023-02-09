@@ -38,18 +38,16 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun delete(deltaker: Deltaker): QueryResult<Deltaker> = query {
+    fun delete(id: UUID): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = """
             delete from deltaker
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, deltaker.id)
+        queryOf(query, id)
             .asExecute
             .let { db.run(it) }
-
-        deltaker
     }
 
     fun get(id: UUID): Deltaker? {

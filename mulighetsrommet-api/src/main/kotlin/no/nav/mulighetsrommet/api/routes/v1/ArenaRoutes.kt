@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
@@ -31,9 +32,12 @@ fun Route.arenaRoutes() {
                 }
         }
 
-        delete("tiltakstype") {
-            val tiltakstype = call.receive<TiltakstypeDbo>()
-            arenaService.remove(tiltakstype)
+        delete("tiltakstype/{id}") {
+            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            arenaService.removeTiltakstype(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -51,9 +55,12 @@ fun Route.arenaRoutes() {
                 }
         }
 
-        delete("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
-            arenaService.remove(tiltaksgjennomforing)
+        delete("tiltaksgjennomforing/{id}") {
+            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            arenaService.removeTiltaksgjennomforing(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -79,9 +86,12 @@ fun Route.arenaRoutes() {
                 }
         }
 
-        delete("tiltakshistorikk") {
-            val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
-            arenaService.remove(tiltakshistorikk)
+        delete("tiltakshistorikk/{id}") {
+            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            arenaService.removeTiltakshistorikk(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)

@@ -46,7 +46,8 @@ class HistorikkServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
-        enhet = "2990"
+        enhet = "2990",
+        startDato = LocalDate.of(2022, 1, 1)
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
