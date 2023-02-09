@@ -133,7 +133,7 @@ class ArenaServiceTest : FunSpec({
             database.assertThat("tiltakstype").row()
                 .value("navn").isEqualTo(updated.navn)
 
-            service.remove(updated)
+            service.removeTiltakstype(updated.id)
 
             database.assertThat("tiltakstype").isEmpty
         }
@@ -143,9 +143,15 @@ class ArenaServiceTest : FunSpec({
 
             verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
 
-            service.remove(tiltakstype)
+            service.removeTiltakstype(tiltakstype.id)
 
             verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
+        }
+
+        test("should not retract tiltakstype if it did not already exist") {
+            service.removeTiltakstype(UUID.randomUUID())
+
+            verify(exactly = 0) { tiltakstypeKafkaProducer.retract(any()) }
         }
     }
 
@@ -184,9 +190,15 @@ class ArenaServiceTest : FunSpec({
             database.assertThat("tiltaksgjennomforing").row()
                 .value("navn").isEqualTo(updated.navn)
 
-            service.remove(updated)
+            service.removeTiltaksgjennomforing(updated.id)
 
             database.assertThat("tiltaksgjennomforing").isEmpty
+        }
+
+        test("should not retract from kafka if tiltak did not exist") {
+            service.removeTiltaksgjennomforing(UUID.randomUUID())
+
+            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.retract(any()) }
         }
 
         test("should publish and retract gruppetiltak from kafka topic") {
@@ -199,24 +211,13 @@ class ArenaServiceTest : FunSpec({
                 )
             }
 
-            service.remove(tiltaksgjennomforing)
+            service.removeTiltaksgjennomforing(tiltaksgjennomforing.id)
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.retract(
                     tiltaksgjennomforing.id
                 )
             }
-        }
-
-        test("should not publish other tiltak than gruppetilak") {
-            service.upsert(tiltakstype.copy(tiltakskode = "MENTOR"))
-            service.upsert(tiltaksgjennomforing)
-
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(any()) }
-
-            service.remove(tiltaksgjennomforing)
-
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.retract(any()) }
         }
     }
 
@@ -251,7 +252,7 @@ class ArenaServiceTest : FunSpec({
             database.assertThat("tiltakshistorikk").row()
                 .value("status").isEqualTo(updated.status.name)
 
-            service.remove(updated)
+            service.removeTiltakshistorikk(updated.id)
 
             database.assertThat("tiltakshistorikk").isEmpty
         }
@@ -273,7 +274,7 @@ class ArenaServiceTest : FunSpec({
             database.assertThat("tiltakshistorikk").row()
                 .value("beskrivelse").isEqualTo("Ny beskrivelse")
 
-            service.remove(updated)
+            service.removeTiltakshistorikk(updated.id)
 
             database.assertThat("tiltakshistorikk").isEmpty
         }

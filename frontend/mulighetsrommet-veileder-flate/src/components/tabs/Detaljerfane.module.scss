@@ -1,6 +1,10 @@
 .tiltaksdetaljer {
   &_alert {
     margin: 1rem 0;
+
+    :global(.navds-body-long) {
+      font-size: 16px;
+    }
   }
 
   &_maksbredde {

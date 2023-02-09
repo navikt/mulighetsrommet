@@ -108,8 +108,8 @@ Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltaksty
 
 ## Henvendelser
 
-Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på github.
+Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.
 
 ### For NAV-ansatte
 
-Interne henvendelser kan sendes via Slack i kanalen #valp-brukerstøtte
+Interne henvendelser kan sendes via Slack i kanalen #team-valp.

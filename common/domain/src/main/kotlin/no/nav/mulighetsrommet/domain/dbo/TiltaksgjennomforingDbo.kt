@@ -17,7 +17,7 @@ data class TiltaksgjennomforingDbo(
     val tiltaksnummer: String,
     val virksomhetsnummer: String?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate? = null,
+    val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val enhet: String,

@@ -101,10 +101,21 @@ class TiltakdeltakerEndretConsumer(
             deltaker.toIndividuellDbo(tiltaksgjennomforing, tiltakstype, virksomhetsnummer, norskIdent)
         }
 
-        val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
-            .mapLeft { ConsumptionError.fromResponseException(it) }
+        val response = if (operation == ArenaEventData.Operation.Delete) {
+            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${tiltakshistorikk.id}")
+        } else {
+            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
+        }
+        response.mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
+            .bind()
+    }
+
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .flatMap { entities.deleteDeltaker(mapping.entityId) }
             .bind()
     }
 

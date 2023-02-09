@@ -46,7 +46,8 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
                 enhet = "",
-                avslutningsstatus = Avslutningsstatus.AVSLUTTET
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                startDato = LocalDate.of(2022, 1, 1)
             )
         )
     }

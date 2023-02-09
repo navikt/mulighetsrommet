@@ -14,7 +14,7 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
 import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
-import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { environments } from '../../env';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
@@ -58,6 +58,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const { data } = useFeatureToggles();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
+  const [page] = useAtom(paginationAtom);
   const fnr = useHentFnrFraUrl();
   const { data: tiltaksgjennomforing, isLoading, isError } = useTiltaksgjennomforingById();
   const [delemodalApen, setDelemodalApen] = useState<boolean>(false);
@@ -66,12 +67,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const { getUrlTilDialogen } = useNavigerTilDialogen();
   const veiledernavn = resolveName(veilederdata.data);
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
-
-  const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
-  const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
-  const kanVarsles = brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
-  const kanDeleMedBruker = !manuellOppfolging && !krrStatusErReservert && kanVarsles;
-
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
   const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
 
@@ -80,7 +75,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     logDelMedbrukerEvent('Åpnet dialog');
   };
 
-  if (isLoading) {
+  if (isLoading && !tiltaksgjennomforing) {
     return (
       <div className={styles.filter_loader}>
         <Loader size="xlarge" />
@@ -95,19 +90,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   if (!tiltaksgjennomforing) {
     return <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med id: "${gjennomforingsId}"`}</Alert>;
   }
-
-  const tooltip = () => {
-    if (manuellOppfolging)
-      return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre.';
-    else if (krrStatusErReservert)
-      return 'Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
-    else if (!brukerdata.data?.manuellStatus)
-      return 'Vi kunne ikke opprette kontakte med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon';
-    else if (!kanDeleMedBruker)
-      return 'Brukeren får manuell oppfølging og kan derfor ikke benytte seg av de digitale tjenestene våre. Brukeren har også reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
-    else if (harDeltMedBruker) return `Tiltaket ble sist delt med bruker ${datoSidenSistDelt}`;
-    else return 'Del tiltak med bruker';
-  };
 
   const kanBrukerFaaAvtale = () => {
     const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
@@ -135,7 +117,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
       <div className={styles.container}>
         {!erPreview && (
           <Tilbakeknapp
-            tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}`}
+            tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
             tekst="Tilbake til tiltaksoversikten"
           />
         )}
@@ -183,8 +165,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 className={styles.deleknapp}
                 aria-label="Dele"
                 data-testid="deleknapp"
-                disabled={!erPreview && !kanDeleMedBruker}
-                title={tooltip()}
                 icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
                 iconPosition="left"
               >
@@ -200,7 +180,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 variant="error"
                 className={styles.alert}
               >
-                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR)
+                Kunne ikke å opprette kontakt med Kontakt- og reservasjonsregisteret (KRR).
               </Alert>
             )}
             {harDeltMedBruker && !erPreview && (

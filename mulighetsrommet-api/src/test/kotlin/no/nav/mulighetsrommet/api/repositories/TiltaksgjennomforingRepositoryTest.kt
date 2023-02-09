@@ -64,7 +64,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksnummer = "54321",
         virksomhetsnummer = "123456789",
         enhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+        startDato = LocalDate.of(2022, 1, 1)
     )
 
     context("CRUD") {
@@ -219,7 +220,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     tiltaksnummer = "$it",
                     virksomhetsnummer = "123456789",
                     enhet = "2990",
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                    startDato = LocalDate.of(2022, 1, 1)
                 )
             )
         }

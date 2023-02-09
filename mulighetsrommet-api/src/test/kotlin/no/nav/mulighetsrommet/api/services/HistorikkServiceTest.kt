@@ -48,7 +48,8 @@ class HistorikkServiceTest : FunSpec({
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
         enhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+        startDato = LocalDate.of(2022, 1, 1)
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

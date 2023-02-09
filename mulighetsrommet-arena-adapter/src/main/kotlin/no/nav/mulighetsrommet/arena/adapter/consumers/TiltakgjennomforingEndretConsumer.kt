@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 
 import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
@@ -58,6 +59,9 @@ class TiltakgjennomforingEndretConsumer(
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
+        ensureNotNull(data.DATO_FRA) {
+            ConsumptionError.Ignored("Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
+        }
 
         val mapping = entities.getOrCreateMapping(event)
         val tiltaksgjennomforing = data
@@ -70,6 +74,14 @@ class TiltakgjennomforingEndretConsumer(
         } else {
             ArenaEvent.ConsumptionStatus.Processed
         }
+    }
+
+    override suspend fun deleteEntity(event: ArenaEvent) = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
+            .bind()
     }
 
     private suspend fun upsertTiltaksgjennomforing(
@@ -92,9 +104,12 @@ class TiltakgjennomforingEndretConsumer(
         val dbo = tiltaksgjennomforing
             .toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
-        val method = if (operation == ArenaEventData.Operation.Delete) HttpMethod.Delete else HttpMethod.Put
-        client.request(method, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
-            .mapLeft { ConsumptionError.fromResponseException(it) }
+        val response = if (operation == ArenaEventData.Operation.Delete) {
+            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
+        } else {
+            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
+        }
+        response.mapLeft { ConsumptionError.fromResponseException(it) }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
@@ -105,6 +120,7 @@ class TiltakgjennomforingEndretConsumer(
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either
         .catch {
+            requireNotNull(DATO_FRA)
             Tiltaksgjennomforing(
                 id = id,
                 tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
@@ -112,7 +128,7 @@ class TiltakgjennomforingEndretConsumer(
                 tiltakskode = TILTAKSKODE,
                 arrangorId = ARBGIV_ID_ARRANGOR,
                 navn = LOKALTNAVN,
-                fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
+                fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
                 apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
                 antallPlasser = ANTALL_DELTAKERE,
@@ -128,7 +144,7 @@ class TiltakgjennomforingEndretConsumer(
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
             virksomhetsnummer = virksomhetsnummer,
-            startDato = fraDato?.toLocalDate(),
+            startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
             enhet = sak.enhet,
             avslutningsstatus = Avslutningsstatus.fromArenaStatus(status)

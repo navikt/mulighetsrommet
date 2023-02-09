@@ -25,10 +25,11 @@ export const initialTiltaksgjennomforingsfilter = {
 
 export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfilter>(
   'filter',
-  initialTiltaksgjennomforingsfilter
+  initialTiltaksgjennomforingsfilter,
+  {
+    setHash: 'replaceState',
+  }
 );
 
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');
-
-export const feedbackTilfredshet = false;

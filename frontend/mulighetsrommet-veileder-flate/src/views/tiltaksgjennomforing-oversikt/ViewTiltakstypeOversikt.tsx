@@ -16,11 +16,11 @@ const ViewTiltakstypeOversikt = () => {
 
   return (
     <div className={styles.tiltakstype_oversikt} id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
+      <Filtermeny />
       <div className={styles.filtertags_og_historikk}>
         <Filtertags filter={filter} setFilter={setFilter} />
         {visHistorikkKnapp && <HistorikkButton />}
       </div>
-      <Filtermeny />
       <div>
         <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
         <BrukerHarIkke14aVedtakVarsel />

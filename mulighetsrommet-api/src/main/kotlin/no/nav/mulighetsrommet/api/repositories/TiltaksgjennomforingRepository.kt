@@ -239,7 +239,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun delete(id: UUID): QueryResult<Unit> = query {
+    fun delete(id: UUID): QueryResult<Int> = query {
         logger.info("Sletter tiltaksgjennomføring id=$id")
 
         @Language("PostgreSQL")
@@ -249,7 +249,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         queryOf(query, id)
-            .asExecute
+            .asUpdate
             .let { db.run(it) }
     }
 
@@ -271,7 +271,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        startDato = localDateOrNull("start_dato"),
+        startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         enhet = string("enhet"),
         avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus"))

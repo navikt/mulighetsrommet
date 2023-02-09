@@ -20,6 +20,7 @@ const Sokefelt = ({ sokefilter, setSokefilter }: SokeFilterProps) => {
       aria-label="Søk etter tiltak"
       data-testid="filter_sokefelt"
       size="small"
+      maxLength={50}
     />
   );
 };

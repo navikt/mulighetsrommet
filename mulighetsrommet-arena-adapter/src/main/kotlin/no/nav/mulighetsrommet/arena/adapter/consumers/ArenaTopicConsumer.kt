@@ -39,4 +39,6 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
     abstract fun decodeArenaData(payload: JsonElement): ArenaEvent
 
     abstract suspend fun handleEvent(event: ArenaEvent): Either<ConsumptionError, ArenaEvent.ConsumptionStatus>
+
+    abstract suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit>
 }

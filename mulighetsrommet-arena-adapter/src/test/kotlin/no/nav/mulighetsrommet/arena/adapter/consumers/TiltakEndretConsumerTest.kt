@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -106,9 +107,7 @@ class TiltakEndretConsumerTest : FunSpec({
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Delete
 
-                decodeRequestBody<TiltakstypeDbo>().apply {
-                    id shouldBe generatedId
-                }
+                url.getLastPathParameterAsUUID() shouldBe generatedId
             }
         }
 

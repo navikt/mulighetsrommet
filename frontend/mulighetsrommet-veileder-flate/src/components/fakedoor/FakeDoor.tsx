@@ -5,11 +5,12 @@ const FakeDoor = () => {
   return (
     <div className={styles.fakedoor_container}>
       <div className={styles.fakedoor_text_container}>
-        <h1 className={styles.fakedoor_header}>Takk for at du deltok i piloten</h1>
+        <h1 className={styles.fakedoor_header}>Informasjonstjeneste for arbeidsmarkedstiltak</h1>
         <div>
           <div>
-            Piloten om arbeidsmarkedstiltak er nå avsluttet. Tusen takk for at du var med på å teste den nye tjenesten.
-            Dine erfaringer og innspill er verdifulle og vil bidra til utviklingen av bedre digitale produkter i Nav.
+            Her vil du som veileder kunne finne kvalitetssikret informasjon om de tiltakene som er aktuelle for din
+            bruker, slik at du kan gjøre gode vurderinger, gi effektiv veiledning og få brukeren raskere ut i rett
+            arbeidsmarkedstiltak.
           </div>
           <br />
         </div>

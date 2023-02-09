@@ -9,9 +9,9 @@ import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/at
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
+import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
-import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -33,7 +33,10 @@ const Tiltaksgjennomforingsoversikt = () => {
     }
   }, [tiltaksgjennomforinger]);
 
-  if (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching) {
+  if (
+    tiltaksgjennomforinger.length === 0 &&
+    (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching)
+  ) {
     return (
       <div className={styles.filter_loader}>
         <Loader size="xlarge" />
@@ -45,12 +48,19 @@ const Tiltaksgjennomforingsoversikt = () => {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
-  const gjennomforingerForSide = tiltaksgjennomforinger
-    .sort((a, b) => {
-      const sort = {
-        orderBy: sortValue.split('-')[0],
-        direction: sortValue.split('-')[1],
-      };
+  const getSort = (sortValue: string) => {
+    return {
+      orderBy: sortValue.split('-')[0],
+      direction: sortValue.split('-')[1],
+    };
+  };
+
+  const sorter = (
+    tiltaksgjennomforinger: Tiltaksgjennomforing[],
+    forceOrder: 'ascending' | 'descending' = 'ascending'
+  ): Tiltaksgjennomforing[] => {
+    return tiltaksgjennomforinger.sort((a, b) => {
+      const sort = getSort(sortValue);
 
       const comparator = (a: any, b: any, orderBy: string | number) => {
         const compare = (item1: any, item2: any) => {
@@ -62,19 +72,51 @@ const Tiltaksgjennomforingsoversikt = () => {
           }
           return 0;
         };
+
         if (orderBy === 'oppstart') {
           const dateB = b.oppstart === 'lopende' ? new Date() : new Date(b.oppstartsdato);
           const dateA = a.oppstart === 'lopende' ? new Date() : new Date(a.oppstartsdato);
-          return compare(dateA, dateB);
+          return forceOrder === 'ascending' ? compare(dateA, dateB) : compare(dateB, dateA);
         } else if (orderBy === 'tiltakstypeNavn') {
           return compare(a.tiltakstype.tiltakstypeNavn, b.tiltakstype.tiltakstypeNavn);
         } else {
           return compare(a[orderBy], b[orderBy]);
         }
       };
+
       return sort.direction === 'ascending' ? comparator(b, a, sort.orderBy) : comparator(a, b, sort.orderBy);
-    })
-    .slice((page - 1) * elementsPerPage, page * elementsPerPage);
+    });
+  };
+
+  const lopendeOppstartForst = (
+    lopendeGjennomforinger: Tiltaksgjennomforing[],
+    gjennomforingerMedOppstartIFremtiden: Tiltaksgjennomforing[],
+    gjennomforingerMedOppstartHarVaert: Tiltaksgjennomforing[]
+  ): Tiltaksgjennomforing[] => {
+    return [
+      ...lopendeGjennomforinger,
+      ...sorter(gjennomforingerMedOppstartIFremtiden),
+      ...sorter(gjennomforingerMedOppstartHarVaert, 'descending'),
+    ];
+  };
+
+  const lopendeGjennomforinger = tiltaksgjennomforinger.filter(gj => gj.oppstart === 'lopende');
+  const gjennomforingerMedOppstartIFremtiden = tiltaksgjennomforinger.filter(
+    gj => gj.oppstart !== 'lopende' && new Date(gj.oppstartsdato!!) >= new Date()
+  );
+  const gjennomforingerMedOppstartHarVaert = tiltaksgjennomforinger.filter(
+    gj => gj.oppstart !== 'lopende' && new Date(gj.oppstartsdato!!) <= new Date()
+  );
+
+  const gjennomforingerForSide = (
+    getSort(sortValue).orderBy === 'oppstart'
+      ? lopendeOppstartForst(
+          lopendeGjennomforinger,
+          gjennomforingerMedOppstartIFremtiden,
+          gjennomforingerMedOppstartHarVaert
+        )
+      : sorter(tiltaksgjennomforinger)
+  ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
   if (!brukerdata?.data?.oppfolgingsenhet) {
     return (

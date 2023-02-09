@@ -1,15 +1,15 @@
-import { BodyShort, Tag } from "@navikt/ds-react";
+import { BodyShort } from "@navikt/ds-react";
 import { Tiltakstype } from "mulighetsrommet-api-client";
-import { formaterDato, kalkulerStatusForTiltakstype } from "../../utils/Utils";
+import { formaterDato } from "../../utils/Utils";
 import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeRad } from "../listeelementer/ListeRad";
+import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
 
 interface Props {
   tiltakstype: Tiltakstype;
 }
 
 export function TiltakstypeRad({ tiltakstype }: Props) {
-  const status = kalkulerStatusForTiltakstype(tiltakstype);
   return (
     <ListeRad
       linkTo={`/tiltakstyper/${tiltakstype.id}`}
@@ -17,17 +17,7 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
     >
       <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
       <BodyShort size="medium">
-        <Tag
-          variant={
-            status === "Aktiv"
-              ? "success"
-              : status === "Planlagt"
-              ? "info"
-              : "neutral"
-          }
-        >
-          {status}
-        </Tag>
+        <Tiltakstypestatus tiltakstype={tiltakstype} />
       </BodyShort>
       <BodyShort
         size="small"
