@@ -8,20 +8,40 @@ before("Start server", () => {
 });
 
 describe("Forside", () => {
-  it("Sjekk at navident til admin er i header", () => {
-    cy.getByTestId("header-navident").should("exist");
-    cy.checkPageA11y();
+  beforeEach(() => {
+    cy.visit("/tiltakstyper");
+  });
+
+  context("Header", () => {
+    it("Sjekk at navident til admin er i header", () => {
+      cy.getByTestId("header-navident").should("exist");
+      cy.checkPageA11y();
+    });
+  });
+
+  context("Filtrering for tiltakstyper", () => {
+    it("Bruker skal ha et søkefelt for tiltakstyper", () => {
+      cy.getByTestId("filter_sokefelt").should("exist");
+    });
+
+    it("Bruker skal ha et valg for å filtrere på statuser", () => {
+      cy.getByTestId("filter_status").should("exist");
+      cy.getByTestId("filter_status").select("AKTIV").should("exist");
+      cy.getByTestId("filter_status").select("PLANLAGT").should("exist");
+      cy.getByTestId("filter_status").select("AVSLUTTET").should("exist");
+    });
+
+    it("Bruker skal ha et valg for å filtrere på gruppe- eller individuelle tiltak", () => {
+      cy.getByTestId("filter_kategori").should("exist");
+      cy.getByTestId("filter_kategori").select("GRUPPE").should("exist");
+      cy.getByTestId("filter_kategori").select("INDIVIDUELL").should("exist");
+    });
+  });
+
+  context("Navigering til tiltakstypedetaljer", () => {
+    it("Skal kunne klikke på rad for tiltakstype og navigere til detaljer", () => {
+      cy.getByTestId("tiltakstyperad").eq(0).click();
+      cy.contains("Arenainfo");
+    });
   });
 });
-
-//Kommenterer ut denne siden den ikke er nødvendig å ha med akkurat nå, og den kræsjer
-// describe("Gjennomføringer", () => {
-//   it("Skal kunne navigere til ansatt sin liste med tiltaksgjennomføringer", () => {
-//     cy.getByTestId("tab-mine").click();
-//     cy.url("include", "/mine");
-//     cy.getByTestId("tiltaksgjennomforingsrad").eq(0).click();
-//     cy.wait(500);
-//     cy.getByTestId("fjern-favoritt").should("exist");
-//     cy.getByTestId("tilbakelenke").click();
-//   });
-// });

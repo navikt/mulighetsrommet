@@ -1,9 +1,11 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
+import classNames from "classnames";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
+import styles from "./DetaljerTiltakstypePage.module.scss";
 import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 
 export function DetaljerTiltakstypePage() {
@@ -26,16 +28,20 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <>
-      <Tilbakelenke>Tilbake</Tilbakelenke>
-      <Heading size="large" level="1">
-        {tiltakstype.navn}
-      </Heading>
+      <div className={classNames(styles.header, styles.padding_detaljer)}>
+        <Tilbakelenke>Tilbake</Tilbakelenke>
+        <Heading size="large" level="1">
+          {tiltakstype.navn}
+        </Heading>
+      </div>
       <Tabs value={tabValgt} onChange={setTabValgt}>
-        <Tabs.List>
+        <Tabs.List className={classNames(styles.padding_detaljer)}>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
-          <TiltakstypeDetaljer tiltakstype={tiltakstype} />
+          <div className={styles.padding_detaljer}>
+            <TiltakstypeDetaljer tiltakstype={tiltakstype} />
+          </div>
         </Tabs.Panel>
       </Tabs>
     </>
