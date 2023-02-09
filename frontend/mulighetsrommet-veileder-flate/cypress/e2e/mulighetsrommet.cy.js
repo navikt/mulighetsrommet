@@ -16,6 +16,7 @@ describe('Tiltaksoversikt', () => {
   const innsatsgruppe = 'innsats';
 
   beforeEach(() => {
+    cy.visit('/');
     cy.resetSortering();
   });
 
@@ -194,10 +195,7 @@ describe('Tiltaksoversikt', () => {
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
   it('Gå til en tiltaksgjennomføring', () => {
-    cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
-  });
-
-  it('Sjekk UU', () => {
+    cy.navigerTilGjennomforing();
     cy.checkPageA11y();
   });
 
@@ -207,6 +205,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
+    cy.navigerTilGjennomforing();
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
@@ -217,6 +216,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it("Sjekk 'Del med bruker'", () => {
+    cy.navigerTilGjennomforing();
     cy.getByTestId('deleknapp').should('be.visible').click();
 
     cy.getByTestId('modal_header').should('be.visible');
@@ -240,6 +240,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it('Gå tilbake til tiltaksoversikten', () => {
+    cy.navigerTilGjennomforing();
     cy.tilbakeTilListevisning();
     cy.resetSide();
     cy.getByTestId('oversikt_tiltaksgjennomforinger').children().children().should('have.length.greaterThan', 1);

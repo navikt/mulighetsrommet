@@ -1,12 +1,16 @@
 describe('Preview-funksjonalitet for redaktører', () => {
   before(() => {
-    cy.visit('/preview/11888');
-    cy.url().should('include', '/preview/');
     Cypress.on('uncaught:exception', err => {
       console.log(err);
       return false;
     });
   });
+
+  beforeEach(() => {
+    cy.visit('/preview/11888');
+    cy.url().should('include', '/preview/');
+  });
+
   it('Skal vise en warning på siden om at man er i Preview-modus', () => {
     cy.getByTestId('sanity-preview-alert').should('exist');
   });

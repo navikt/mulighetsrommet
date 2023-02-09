@@ -15,7 +15,7 @@ export function ListeRad({
   classname,
 }: TiltaksgjennomforingRadProps) {
   return (
-    <li className={styles.list_element} data-testid="tiltaksgjennomforingsrad">
+    <li className={styles.list_element} data-testid="tiltakstyperad">
       <Link to={linkTo} className={classNames(styles.listerad, classname)}>
         {children}
         <Next className={styles.pil} />

@@ -56,10 +56,6 @@ if (!app.document.head.querySelector('[data-hide-command-log-request]')) {
   app.document.head.appendChild(style);
 }
 
-before('Start server', () => {
-  cy.server();
-});
-
 Cypress.Commands.add('resetSide', () => {
   cy.visit('/');
 });
@@ -122,6 +118,11 @@ Cypress.Commands.add('antallFiltertagsKvalifiseringsgruppe', (kvalifiseringsgrup
 
 Cypress.Commands.add('resetSortering', () => {
   cy.getByTestId('sortering-select').select('tiltakstypeNavn-ascending');
+});
+
+Cypress.Commands.add('navigerTilGjennomforing', () => {
+  cy.visit('/');
+  cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
 });
 
 function terminalLog(violations) {
