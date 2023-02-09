@@ -40,7 +40,7 @@ export function DetaljerTiltakstypePage() {
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
           <div className={styles.padding_detaljer}>
-            <TiltakstypeDetaljer tiltakstype={tiltakstype} />
+            <TiltakstypeDetaljer />
           </div>
         </Tabs.Panel>
       </Tabs>

@@ -1,13 +1,15 @@
-import { Tiltakstype } from "mulighetsrommet-api-client";
+import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./Tiltakstypedetaljer.module.scss";
 
-interface Props {
-  tiltakstype: Tiltakstype;
-}
+export function TiltakstypeDetaljer() {
+  const { data } = useTiltakstypeById();
+  if (!data) {
+    return null;
+  }
 
-export function TiltakstypeDetaljer({ tiltakstype }: Props) {
+  const tiltakstype = data;
   return (
     <dl className={styles.detaljer}>
       <dt>Tiltakstype</dt>
