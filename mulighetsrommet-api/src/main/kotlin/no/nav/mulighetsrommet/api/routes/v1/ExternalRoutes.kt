@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.TiltaksgjennomforingsstatusResponse
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
@@ -41,19 +40,6 @@ fun Route.externalRoutes() {
                     status = HttpStatusCode.NotFound
                 )
             call.respond(idResponse)
-        }
-
-        get("tiltaksgjennomforinger/{id}/status") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
-            )
-            val tiltaksgjennomforing =
-                tiltaksgjennomforinger.get(id) ?: return@get call.respondText(
-                    "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                    status = HttpStatusCode.NotFound
-                )
-            call.respond(TiltaksgjennomforingsstatusResponse(tiltaksgjennomforing.status))
         }
 
         get("tiltaksgjennomforinger/arenadata/{id}") {

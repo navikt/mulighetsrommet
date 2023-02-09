@@ -1,25 +1,8 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
-
-enum class Avslutningsstatus {
-    AVLYST,
-    AVBRUTT,
-    AVSLUTTET,
-    IKKE_AVSLUTTET;
-
-    companion object {
-        fun fromArenaStatus(arenaStatus: String): Avslutningsstatus {
-            return when (arenaStatus) {
-                "AVLYST" -> AVLYST
-                "AVBRUTT" -> AVBRUTT
-                "AVSLUTT" -> AVSLUTTET
-                else -> IKKE_AVSLUTTET
-            }
-        }
-    }
-}
 
 @Serializable
 enum class Tiltaksgjennomforingsstatus {
@@ -31,6 +14,7 @@ enum class Tiltaksgjennomforingsstatus {
 
     companion object {
         fun fromDbo(
+            dagensDato: LocalDate,
             startDato: LocalDate,
             sluttDato: LocalDate?,
             avslutningsStatus: Avslutningsstatus
@@ -39,8 +23,8 @@ enum class Tiltaksgjennomforingsstatus {
                 avslutningsStatus == Avslutningsstatus.AVLYST -> AVLYST
                 avslutningsStatus == Avslutningsstatus.AVBRUTT -> AVBRUTT
                 avslutningsStatus == Avslutningsstatus.AVSLUTTET -> AVSLUTTET
-                startDato > LocalDate.now() -> APENT_FOR_INNSOK
-                sluttDato == null || sluttDato >= LocalDate.now() -> GJENNOMFORES
+                startDato > dagensDato -> APENT_FOR_INNSOK
+                sluttDato == null || sluttDato >= dagensDato -> GJENNOMFORES
                 else -> AVSLUTTET
             }
         }

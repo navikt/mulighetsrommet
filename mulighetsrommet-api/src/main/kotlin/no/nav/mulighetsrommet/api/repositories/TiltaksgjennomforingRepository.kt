@@ -7,12 +7,13 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.UUID
 
 class TiltaksgjennomforingRepository(private val db: Database) {
@@ -293,6 +294,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             sluttDato = sluttDato,
             enhet = string("enhet"),
             status = Tiltaksgjennomforingsstatus.fromDbo(
+                LocalDate.now(),
                 startDato,
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus"))

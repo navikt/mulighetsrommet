@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -23,3 +22,21 @@ data class TiltaksgjennomforingDbo(
     val enhet: String,
     val avslutningsstatus: Avslutningsstatus
 )
+
+enum class Avslutningsstatus {
+    AVLYST,
+    AVBRUTT,
+    AVSLUTTET,
+    IKKE_AVSLUTTET;
+
+    companion object {
+        fun fromArenaStatus(arenaStatus: String): Avslutningsstatus {
+            return when (arenaStatus) {
+                "AVLYST" -> AVLYST
+                "AVBRUTT" -> AVBRUTT
+                "AVSLUTT" -> AVSLUTTET
+                else -> IKKE_AVSLUTTET
+            }
+        }
+    }
+}
