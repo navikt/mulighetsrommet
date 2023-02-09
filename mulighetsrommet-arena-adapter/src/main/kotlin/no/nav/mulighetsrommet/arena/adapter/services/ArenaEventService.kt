@@ -28,7 +28,7 @@ class ArenaEventService(
     )
 
     suspend fun deleteEntities(table: String, ids: List<String>): Unit = coroutineScope {
-        logger.info("Deleting events from table=$table, ids=$ids")
+        logger.info("Deleting entities from table=$table, ids=$ids")
 
         ids.forEach { id ->
             events.get(table, id)?.also {
