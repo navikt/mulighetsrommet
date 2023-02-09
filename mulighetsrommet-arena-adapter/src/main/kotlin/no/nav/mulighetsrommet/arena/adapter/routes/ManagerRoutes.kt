@@ -56,7 +56,7 @@ fun Route.managerRoutes() {
     delete("/events") {
         val request = call.receive<DeleteEventsRequest>()
 
-        arenaEventService.deleteEvents(
+        arenaEventService.deleteEntities(
             table = request.table,
             ids = request.arenaIds
         )

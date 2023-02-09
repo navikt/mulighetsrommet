@@ -27,7 +27,7 @@ class ArenaEventService(
         val maxRetries: Int = 0
     )
 
-    suspend fun deleteEvents(table: String, ids: List<String>): Unit = coroutineScope {
+    suspend fun deleteEntities(table: String, ids: List<String>): Unit = coroutineScope {
         logger.info("Deleting events from table=$table, ids=$ids")
 
         ids.forEach { id ->
