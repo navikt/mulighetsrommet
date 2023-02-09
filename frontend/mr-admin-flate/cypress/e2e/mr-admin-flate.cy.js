@@ -42,6 +42,7 @@ describe("Forside", () => {
 describe("Detaljside for tiltakstyper", () => {
   context("Navigering til tiltakstypedetaljer", () => {
     it("Skal kunne klikke på rad for tiltakstype og navigere til detaljer", () => {
+      cy.visit("/tiltakstyper");
       cy.getByTestId("tiltakstyperad").eq(0).click();
       cy.contains("Arenainfo");
       cy.checkPageA11y();
