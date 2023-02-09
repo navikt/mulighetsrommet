@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
@@ -108,19 +109,16 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
         beforeEach {
             val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(tiltakstypeGruppe)
-            tiltakstyper.upsert(tiltakstypeIndividuell)
+            tiltakstyper.upsert(tiltakstypeGruppe).getOrThrow()
+            tiltakstyper.upsert(tiltakstypeIndividuell).getOrThrow()
 
             val saker = SakRepository(database.db)
-            saker.upsert(sak)
-            saker.upsert(sakIndividuell)
+            saker.upsert(sak).getOrThrow()
+            saker.upsert(sakIndividuell).getOrThrow()
 
-            val tiltaksgjennomforinger =
-                TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
-            tiltaksgjennomforinger.upsert(
-                tiltaksgjennomforingIndividuell
-            )
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            tiltaksgjennomforinger.upsert(tiltaksgjennomforing).getOrThrow()
+            tiltaksgjennomforinger.upsert(tiltaksgjennomforingIndividuell).getOrThrow()
 
             val mappings = ArenaEntityMappingRepository(database.db)
             mappings.insert(
