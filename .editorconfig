@@ -4,7 +4,13 @@ root = true
 disabled_rules = no-wildcard-imports
 end_of_line = lf
 insert_final_newline = true
-indent_style = space
-indent_size = 2
 charset = utf-8
 trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+indent_size = 4
+indent_style = space
+
+[*.{js,ts,tsx,json}]
+indent_size = 2
+indent_style = space
