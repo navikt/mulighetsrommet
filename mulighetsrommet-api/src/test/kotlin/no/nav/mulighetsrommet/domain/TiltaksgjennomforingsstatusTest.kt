@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 
 class TiltaksgjennomforingsstatusTest : FunSpec({
-    val dagensDato = LocalDate.of(2023,1,1)
+    val dagensDato = LocalDate.of(2023, 1, 1)
     val enManedFrem = dagensDato.plusMonths(1)
     val enManedTilbake = dagensDato.minusMonths(1)
     val toManederFrem = dagensDato.plusMonths(2)
