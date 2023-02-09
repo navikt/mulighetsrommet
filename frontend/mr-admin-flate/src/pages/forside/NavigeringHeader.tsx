@@ -4,7 +4,7 @@ import { Laster } from "../../components/Laster";
 import { Navbar } from "../../components/navbar/Navbar";
 import { shortcuts } from "../../constants";
 
-export function ForsideFagansvarlig() {
+export function NavigeringHeader() {
   const { data, isLoading } = useFeatureToggles();
 
   if (isLoading) return <Laster size="xlarge" />;
