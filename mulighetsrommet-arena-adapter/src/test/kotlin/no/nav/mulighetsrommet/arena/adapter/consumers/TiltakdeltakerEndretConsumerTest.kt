@@ -284,7 +284,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val engine = createMockEngine(
                 "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/internal/arena/tiltakshistorikk([\\d\\D]*)" to { respondOk() }
+                "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
 
@@ -367,7 +367,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             test("should call api with mapped event payload when all services responds with success") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk([\\d\\D]*)" to { respondOk() },
+                    "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() },
                     "/ords/arbeidsgiver" to {
                         respondJson(
                             ArenaOrdsArrangor(

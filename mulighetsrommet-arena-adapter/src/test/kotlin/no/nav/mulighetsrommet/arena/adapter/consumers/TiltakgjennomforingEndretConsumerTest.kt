@@ -296,7 +296,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "000000"))
                 },
-                "/api/v1/internal/arena/tiltaksgjennomforing([\\d\\D]*)" to { respondOk() }
+                "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
             )
 
             val consumer = createConsumer(database.db, engine)
@@ -404,7 +404,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                             )
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing([\\d\\D]*)" to { respondOk() }
+                    "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
                 )
 
                 val consumer = createConsumer(database.db, engine)

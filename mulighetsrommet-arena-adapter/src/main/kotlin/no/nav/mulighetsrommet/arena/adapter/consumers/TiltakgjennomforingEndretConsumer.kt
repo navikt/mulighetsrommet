@@ -79,9 +79,8 @@ class TiltakgjennomforingEndretConsumer(
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
             .mapLeft { ConsumptionError.fromResponseException(it) }
-            .map { ArenaEvent.ConsumptionStatus.Processed }
+            .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
             .bind()
-        entities.deleteTiltaksgjennomforing(mapping.entityId).bind()
     }
 
     private suspend fun upsertTiltaksgjennomforing(
@@ -104,17 +103,14 @@ class TiltakgjennomforingEndretConsumer(
         val dbo = tiltaksgjennomforing
             .toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
-        if (operation == ArenaEventData.Operation.Delete) {
+        val response = if (operation == ArenaEventData.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
-                .mapLeft { ConsumptionError.fromResponseException(it) }
-                .map { ArenaEvent.ConsumptionStatus.Processed }
-                .bind()
         } else {
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
-                .mapLeft { ConsumptionError.fromResponseException(it) }
-                .map { ArenaEvent.ConsumptionStatus.Processed }
-                .bind()
         }
+        response.mapLeft { ConsumptionError.fromResponseException(it) }
+            .map { ArenaEvent.ConsumptionStatus.Processed }
+            .bind()
     }
 
     private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
