@@ -35,4 +35,9 @@ class TiltaksgjennomforingsstatusTest : FunSpec({
         Tiltaksgjennomforingsstatus.fromDbo(toManederTiltabke, enManedTilbake, Avslutningsstatus.IKKE_AVSLUTTET) shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
         Tiltaksgjennomforingsstatus.fromDbo(enManedFrem, toManederFrem, Avslutningsstatus.IKKE_AVSLUTTET) shouldBe Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK
     }
+
+    test("hvis sluttdato mangler så regnes den som pågående") {
+        Tiltaksgjennomforingsstatus.fromDbo(enManedTilbake, null, Avslutningsstatus.IKKE_AVSLUTTET) shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+        Tiltaksgjennomforingsstatus.fromDbo(enManedFrem, null, Avslutningsstatus.IKKE_AVSLUTTET) shouldBe Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK
+    }
 })

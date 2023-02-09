@@ -278,7 +278,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val startDato = localDateOrNull("start_dato")
+        val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
         return TiltaksgjennomforingAdminDto(
             id = uuid("id"),
@@ -294,7 +294,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             sluttDato = sluttDato,
             enhet = string("enhet"),
             status = Tiltaksgjennomforingsstatus.fromDbo(
-                startDato ?: LocalDate.of(2022,1,1),
+                startDato,
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus"))
             )
