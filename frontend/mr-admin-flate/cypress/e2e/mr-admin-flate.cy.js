@@ -37,11 +37,14 @@ describe("Forside", () => {
       cy.getByTestId("filter_kategori").select("INDIVIDUELL").should("exist");
     });
   });
+});
 
+describe("Detaljside for tiltakstyper", () => {
   context("Navigering til tiltakstypedetaljer", () => {
     it("Skal kunne klikke på rad for tiltakstype og navigere til detaljer", () => {
       cy.getByTestId("tiltakstyperad").eq(0).click();
       cy.contains("Arenainfo");
+      cy.checkPageA11y();
     });
   });
 });

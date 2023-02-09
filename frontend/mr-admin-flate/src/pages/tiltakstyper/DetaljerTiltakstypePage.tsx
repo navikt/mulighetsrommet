@@ -27,10 +27,10 @@ export function DetaljerTiltakstypePage() {
 
   const tiltakstype = optionalTiltakstype.data;
   return (
-    <>
+    <main>
       <div className={classNames(styles.header, styles.padding_detaljer)}>
         <Tilbakelenke>Tilbake</Tilbakelenke>
-        <Heading size="large" level="1">
+        <Heading size="large" level="2">
           {tiltakstype.navn}
         </Heading>
       </div>
@@ -44,6 +44,6 @@ export function DetaljerTiltakstypePage() {
           </div>
         </Tabs.Panel>
       </Tabs>
-    </>
+    </main>
   );
 }

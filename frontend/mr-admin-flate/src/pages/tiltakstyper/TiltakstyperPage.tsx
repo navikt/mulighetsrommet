@@ -20,7 +20,9 @@ export function TiltakstyperPage() {
       <NavigeringHeader />
       <MainContent>
         <div className={styles.header_wrapper}>
-          <Heading size="large">Oversikt over tiltakstyper</Heading>
+          <Heading level="2" size="large">
+            Oversikt over tiltakstyper
+          </Heading>
         </div>
         <div className={styles.filterseksjon}>
           <Search
