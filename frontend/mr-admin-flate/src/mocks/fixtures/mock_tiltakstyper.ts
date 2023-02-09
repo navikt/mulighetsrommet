@@ -12,7 +12,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       navn: "Arbeid med Bistand (AB)",
       arenaKode: "ABIST",
       fraDato: "2023-01-11",
-      tilDato: "2023-01-15",
+      tilDato: "2023-05-15",
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee36c",

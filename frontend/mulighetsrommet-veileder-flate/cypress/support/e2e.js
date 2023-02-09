@@ -120,6 +120,10 @@ Cypress.Commands.add('antallFiltertagsKvalifiseringsgruppe', (kvalifiseringsgrup
   }
 });
 
+Cypress.Commands.add('resetSortering', () => {
+  cy.getByTestId('sortering-select').select('tiltakstypeNavn-ascending');
+});
+
 function terminalLog(violations) {
   cy.task(
     'log',
