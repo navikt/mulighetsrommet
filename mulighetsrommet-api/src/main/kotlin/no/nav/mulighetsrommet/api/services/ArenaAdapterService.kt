@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
-import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import java.util.UUID
 
 class ArenaAdapterService(

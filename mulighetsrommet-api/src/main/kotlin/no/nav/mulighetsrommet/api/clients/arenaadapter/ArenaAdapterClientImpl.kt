@@ -8,8 +8,8 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
-import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import org.slf4j.LoggerFactory
 import java.util.*
 

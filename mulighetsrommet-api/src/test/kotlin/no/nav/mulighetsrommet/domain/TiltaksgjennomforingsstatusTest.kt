@@ -16,7 +16,7 @@ class TiltaksgjennomforingsstatusTest : FunSpec({
         Tiltaksgjennomforingsstatus.fromDbo(enManedTilbake, enManedFrem, Avslutningsstatus.AVLYST) shouldBe Tiltaksgjennomforingsstatus.AVLYST
         Tiltaksgjennomforingsstatus.fromDbo(toManederTiltabke, enManedTilbake, Avslutningsstatus.AVLYST) shouldBe Tiltaksgjennomforingsstatus.AVLYST
         Tiltaksgjennomforingsstatus.fromDbo(enManedFrem, toManederFrem, Avslutningsstatus.AVLYST) shouldBe Tiltaksgjennomforingsstatus.AVLYST
-     }
+    }
 
     test("avbrutt skal forbli avbrutt uavhengig av datoer") {
         Tiltaksgjennomforingsstatus.fromDbo(enManedTilbake, enManedFrem, Avslutningsstatus.AVBRUTT) shouldBe Tiltaksgjennomforingsstatus.AVBRUTT

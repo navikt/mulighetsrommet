@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.clients.arenaadapter
 
-import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
+import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import java.util.*
 
 interface ArenaAdaperClient {
