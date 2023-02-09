@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.time.LocalDate
@@ -45,6 +46,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
                 enhet = "",
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 startDato = LocalDate.of(2022, 1, 1)
             )
         )

@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
@@ -428,6 +429,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
                                 virksomhetsnummer shouldBe "123456"
                                 startDato shouldBe LocalDate.of(2022, 11, 11)
                                 sluttDato shouldBe LocalDate.of(2023, 11, 11)
+                                avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                             }
 
                         tiltaksgjennomforing.id

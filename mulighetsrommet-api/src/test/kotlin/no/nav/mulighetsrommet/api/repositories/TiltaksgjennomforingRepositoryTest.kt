@@ -8,9 +8,11 @@ import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -51,7 +53,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         virksomhetsnummer = "123456789",
         startDato = LocalDate.of(2022, 1, 1),
         sluttDato = LocalDate.of(2022, 1, 1),
-        enhet = "2990"
+        enhet = "2990",
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET
     )
 
     val tiltak2 = TiltaksgjennomforingDbo(
@@ -61,6 +64,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksnummer = "54321",
         virksomhetsnummer = "123456789",
         enhet = "2990",
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1)
     )
 
@@ -90,7 +94,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 virksomhetsnummer = tiltak1.virksomhetsnummer,
                 startDato = tiltak1.startDato,
                 sluttDato = tiltak1.sluttDato,
-                enhet = tiltak1.enhet
+                enhet = tiltak1.enhet,
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET
             )
 
             tiltaksgjennomforinger.delete(tiltak1.id)
@@ -215,6 +220,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     tiltaksnummer = "$it",
                     virksomhetsnummer = "123456789",
                     enhet = "2990",
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                     startDato = LocalDate.of(2022, 1, 1)
                 )
             )

@@ -19,5 +19,24 @@ data class TiltaksgjennomforingDbo(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
-    val enhet: String
+    val enhet: String,
+    val avslutningsstatus: Avslutningsstatus
 )
+
+enum class Avslutningsstatus {
+    AVLYST,
+    AVBRUTT,
+    AVSLUTTET,
+    IKKE_AVSLUTTET;
+
+    companion object {
+        fun fromArenaStatus(arenaStatus: String): Avslutningsstatus {
+            return when (arenaStatus) {
+                "AVLYST" -> AVLYST
+                "AVBRUTT" -> AVBRUTT
+                "AVSLUTT" -> AVSLUTTET
+                else -> IKKE_AVSLUTTET
+            }
+        }
+    }
+}

@@ -7,10 +7,13 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.UUID
 
 class TiltaksgjennomforingRepository(private val db: Database) {
@@ -22,8 +25,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet, avslutningsstatus)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet, :avslutningsstatus::avslutningsstatus)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
@@ -31,7 +34,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               virksomhetsnummer = excluded.virksomhetsnummer,
                               start_dato        = excluded.start_dato,
                               slutt_dato        = excluded.slutt_dato,
-                              enhet             = excluded.enhet
+                              enhet             = excluded.enhet,
+                              avslutningsstatus = excluded.avslutningsstatus
             returning *
         """.trimIndent()
 
@@ -53,7 +57,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    slutt_dato,
                    tiltakskode,
                    t.navn as tiltakstype_navn,
-                   enhet
+                   enhet,
+                   avslutningsstatus
             from tiltaksgjennomforing tg
                      join tiltakstype t on t.id = tg.tiltakstype_id
             where tg.id = ?::uuid
@@ -77,6 +82,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
+                   avslutningsstatus,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -111,6 +117,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
+                   avslutningsstatus,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -146,6 +153,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
+                   avslutningsstatus,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -165,7 +173,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    fun getAllByNavident(navIdent: String, pagination: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+    fun getAllByNavident(
+        navIdent: String,
+        pagination: PaginationParams
+    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         logger.info("Henter alle tiltaksgjennomføringer for ansatt")
 
         @Language("PostgreSQL")
@@ -180,6 +191,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    slutt_dato,
                    t.navn           as tiltakstype_navn,
                    enhet,
+                   avslutningsstatus,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -212,7 +224,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    start_dato,
                    slutt_dato,
                    t.navn as tiltakstype_navn,
-                   enhet
+                   enhet,
+                   avslutningsstatus
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltaksnummer like concat('%', ?, '%')
@@ -248,7 +261,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "virksomhetsnummer" to virksomhetsnummer,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "enhet" to enhet
+        "enhet" to enhet,
+        "avslutningsstatus" to avslutningsstatus.name
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -259,21 +273,32 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         virksomhetsnummer = stringOrNull("virksomhetsnummer"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        enhet = string("enhet")
+        enhet = string("enhet"),
+        avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus"))
     )
 
-    private fun Row.toTiltaksgjennomforingAdminDto() = TiltaksgjennomforingAdminDto(
-        id = uuid("id"),
-        tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
-            id = uuid("tiltakstype_id"),
-            navn = string("tiltakstype_navn"),
-            arenaKode = string("tiltakskode")
-        ),
-        navn = stringOrNull("navn"),
-        tiltaksnummer = string("tiltaksnummer"),
-        virksomhetsnummer = stringOrNull("virksomhetsnummer"),
-        startDato = localDateOrNull("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
-        enhet = string("enhet")
-    )
+    private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
+        val startDato = localDate("start_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
+        return TiltaksgjennomforingAdminDto(
+            id = uuid("id"),
+            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+                id = uuid("tiltakstype_id"),
+                navn = string("tiltakstype_navn"),
+                arenaKode = string("tiltakskode")
+            ),
+            navn = stringOrNull("navn"),
+            tiltaksnummer = string("tiltaksnummer"),
+            virksomhetsnummer = stringOrNull("virksomhetsnummer"),
+            startDato = startDato,
+            sluttDato = sluttDato,
+            enhet = string("enhet"),
+            status = Tiltaksgjennomforingsstatus.fromDbo(
+                LocalDate.now(),
+                startDato,
+                sluttDato,
+                Avslutningsstatus.valueOf(string("avslutningsstatus"))
+            )
+        )
+    }
 }
