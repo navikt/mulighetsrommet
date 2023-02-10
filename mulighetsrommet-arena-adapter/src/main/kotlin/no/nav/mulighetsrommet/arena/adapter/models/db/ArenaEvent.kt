@@ -25,5 +25,8 @@ data class ArenaEvent(
 
         /** Event payload is invalid and needs manual intervention */
         Invalid,
+
+        /** Event should be replayed by replay events task */
+        Replay,
     }
 }

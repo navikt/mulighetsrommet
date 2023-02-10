@@ -8,10 +8,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
-import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEventsTaskData
 import org.koin.ktor.ext.inject
 
 fun Route.managerRoutes() {
@@ -35,9 +35,11 @@ fun Route.managerRoutes() {
     val replayEvents: ReplayEvents by inject()
 
     put("/events/replay") {
-        val request = call.receive<ReplayEventsTaskData>()
+        val (table, status) = call.receive<ReplayEventsTaskData>()
 
-        replayEvents.schedule(request)
+        arenaEventService.setReplayStatusForEvents(table = table, status = status)
+
+        replayEvents.schedule()
 
         call.respond(HttpStatusCode.Created)
     }
@@ -75,4 +77,10 @@ data class ReplayTopicEventRequest(
 data class DeleteEventsRequest(
     val table: String,
     val arenaIds: List<String>
+)
+
+@Serializable
+data class ReplayEventsTaskData(
+    val table: String?,
+    val status: ArenaEvent.ConsumptionStatus?
 )
