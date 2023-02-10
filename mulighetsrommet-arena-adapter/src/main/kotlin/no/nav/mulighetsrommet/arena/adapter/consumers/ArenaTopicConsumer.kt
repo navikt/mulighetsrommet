@@ -26,11 +26,11 @@ abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
         logger.info("Persisting data: table=${e.arenaTable}, arena_id=${e.arenaId}")
         val event = events.upsert(e)
 
-        logger.info("Handling event: table=${e.arenaTable}, key=${event.arenaId}")
+        logger.info("Handling event: table=${event.arenaTable}, key=${event.arenaId}")
         val (status, message) = handleEvent(event)
             .map { Pair(it, null) }
             .getOrHandle {
-                logger.info("Event consumption failed: ${it.message}")
+                logger.info("Event consumption failed: table=${event.arenaTable}, key=${event.arenaId}, message=${it.message}")
                 Pair(it.status, it.message)
             }
         return events.upsert(event.copy(status = status, message = message))
