@@ -6,16 +6,11 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Delete
+import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Insert
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -46,15 +41,15 @@ class TiltakEndretConsumerTest : FunSpec({
     test("should treat all operations as upserts") {
         val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-        val e1 = createEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
+        val e1 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
         consumer.processEvent(e1).status shouldBe Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
-        val e2 = createEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
+        val e2 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
         consumer.processEvent(e2).status shouldBe Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 2")
 
-        val e3 = createEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
+        val e3 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
         consumer.processEvent(e3).status shouldBe Processed
         database.assertThat("tiltakstype").row()
             .value("navn").isEqualTo("Oppfølging 1")
@@ -94,7 +89,7 @@ class TiltakEndretConsumerTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            consumer.processEvent(createEvent(Insert))
+            consumer.processEvent(createArenaTiltakEvent(Insert))
 
             val generatedId = engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
@@ -107,7 +102,7 @@ class TiltakEndretConsumerTest : FunSpec({
                 tiltakstype.id
             }
 
-            consumer.processEvent(createEvent(Delete))
+            consumer.processEvent(createArenaTiltakEvent(Delete))
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Delete
@@ -119,7 +114,7 @@ class TiltakEndretConsumerTest : FunSpec({
         test("should treat a 500 response as error") {
             val consumer = createConsumer(database.db, MockEngine { respondError(HttpStatusCode.InternalServerError) })
 
-            val event = consumer.processEvent(createEvent(Insert))
+            val event = consumer.processEvent(createArenaTiltakEvent(Insert))
 
             event.status shouldBe Failed
             database.assertThat("arena_events").row().value("consumption_status").isEqualTo("Failed")
@@ -148,16 +143,4 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
         entities,
         client
     )
-}
-
-private fun createEvent(
-    operation: ArenaEventData.Operation,
-    tiltak: ArenaTiltak = TiltakstypeFixtures.ArenaGruppetiltak,
-    modify: (tiltak: ArenaTiltak) -> ArenaTiltak = { it }
-): ArenaEvent {
-    return modify(tiltak).let {
-        createArenaEvent(
-            ArenaTables.Tiltakstype, it.TILTAKSKODE, operation, Json.encodeToJsonElement(it).toString()
-        )
-    }
 }

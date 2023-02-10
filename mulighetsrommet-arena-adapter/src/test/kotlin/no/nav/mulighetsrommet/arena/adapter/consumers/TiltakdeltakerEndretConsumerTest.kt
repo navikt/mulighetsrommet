@@ -7,20 +7,15 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
-import no.nav.mulighetsrommet.arena.adapter.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
@@ -67,7 +62,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             val consumer =
                 createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = consumer.processEvent(createEvent(Insert))
+            val event = consumer.processEvent(createArenaTiltakdeltakerEvent(Insert))
 
             event.status shouldBe Failed
             database.assertThat("deltaker").isEmpty
@@ -156,32 +151,22 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
             val events = ArenaEventRepository(database.db)
             events.upsert(
-                createArenaEvent(
-                    ArenaTables.Tiltaksgjennomforing,
-                    tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
-                    operation = Insert,
-                    data = Json.encodeToString(tiltaksgjennomforing),
-                    status = Processed
-                )
+                createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
+                }
             )
 
             events.upsert(
-                createArenaEvent(
-                    ArenaTables.Tiltaksgjennomforing,
-                    tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
-                    operation = Insert,
-                    data = Json.encodeToString(
-                        tiltaksgjennomforingIndividuell
-                    ),
-                    status = Processed
-                )
+                createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId)
+                }
             )
         }
 
         test("should be ignored when REG_DATO is before aktivitetsplanen") {
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = createEvent(Insert) { it.copy(REG_DATO = regDatoBeforeAktivitetsplanen) }
+            val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(REG_DATO = regDatoBeforeAktivitetsplanen) }
 
             consumer.processEvent(event).status shouldBe Ignored
         }
@@ -189,17 +174,13 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
             val events = ArenaEventRepository(database.db)
             events.upsert(
-                createArenaEvent(
-                    ArenaTables.Tiltaksgjennomforing,
-                    tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
-                    operation = Insert,
-                    data = Json.encodeToString(tiltaksgjennomforing),
-                    status = Ignored
-                )
+                createArenaTiltakgjennomforingEvent(Insert, status = Ignored) {
+                    it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
+                }
             )
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = createEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+            val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
 
             consumer.processEvent(event).status shouldBe Ignored
         }
@@ -211,16 +192,16 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             )
             val consumer = createConsumer(database.db, engine)
 
-            val e1 = createEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") }
+            val e1 = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") }
             consumer.processEvent(e1).status shouldBe Processed
             database.assertThat("deltaker").row().value("status").isEqualTo("DELTAR")
 
-            val e2 = createEvent(Update) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+            val e2 = createArenaTiltakdeltakerEvent(Update) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
             consumer.processEvent(e2).status shouldBe Processed
             database.assertThat("deltaker")
                 .row().value("status").isEqualTo("AVSLUTTET")
 
-            val e3 = createEvent(Delete) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+            val e3 = createArenaTiltakdeltakerEvent(Delete) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
             consumer.processEvent(e3).status shouldBe Processed
             database.assertThat("deltaker").row().value("status").isEqualTo("AVSLUTTET")
         }
@@ -234,7 +215,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
                 val consumer = createConsumer(database.db, engine)
 
-                val event = consumer.processEvent(createEvent(Insert))
+                val event = consumer.processEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 event.status shouldBe Failed
             }
@@ -248,7 +229,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
                 val consumer = createConsumer(database.db, engine)
 
-                val event = consumer.processEvent(createEvent(Insert))
+                val event = consumer.processEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 event.status shouldBe Invalid
             }
@@ -265,7 +246,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
                 val consumer = createConsumer(database.db, engine)
 
-                val event = consumer.processEvent(createEvent(Insert))
+                val event = consumer.processEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 event.status shouldBe Failed
             }
@@ -286,7 +267,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
 
                 val consumer = createConsumer(database.db, engine)
 
-                consumer.processEvent(createEvent(Insert))
+                consumer.processEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -301,7 +282,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     deltaker.id
                 }
 
-                consumer.processEvent(createEvent(Delete))
+                consumer.processEvent(createArenaTiltakdeltakerEvent(Delete))
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
@@ -309,7 +290,7 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     url.getLastPathParameterAsUUID() shouldBe generatedId
                 }
 
-                val event = createEvent(Insert) {
+                val event = createArenaTiltakdeltakerEvent(Insert) {
                     it.copy(
                         TILTAKDELTAKER_ID = 2,
                         TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId
@@ -363,16 +344,4 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
         client,
         ords
     )
-}
-
-private fun createEvent(
-    operation: ArenaEventData.Operation,
-    deltaker: ArenaTiltakdeltaker = DeltakerFixtures.ArenaTiltakdeltaker,
-    modify: (deltaker: ArenaTiltakdeltaker) -> ArenaTiltakdeltaker = { it }
-): ArenaEvent {
-    return modify(deltaker).let {
-        createArenaEvent(
-            ArenaTables.Tiltakstype, it.TILTAKDELTAKER_ID.toString(), operation, Json.encodeToJsonElement(it).toString()
-        )
-    }
 }
