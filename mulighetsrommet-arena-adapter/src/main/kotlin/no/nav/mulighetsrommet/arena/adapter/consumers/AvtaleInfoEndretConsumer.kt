@@ -29,6 +29,9 @@ class AvtaleInfoEndretConsumer(
 ) : ArenaTopicConsumer(
     ArenaTables.AvtaleInfo
 ) {
+    companion object {
+        val ArenaAvtaleCutoffDate = ArenaUtils.parseTimestamp("2023-01-01 00:00:00")
+    }
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -86,8 +89,7 @@ class AvtaleInfoEndretConsumer(
             return true
         }
 
-        val relevantAvtaleDatoTil = ArenaUtils.parseTimestamp("2023-01-01 00:00:00")
-        return relevantAvtaleDatoTil.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
+        return ArenaAvtaleCutoffDate.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
     }
 
     private fun ArenaAvtaleInfo.toAvtale(id: UUID) = Either
