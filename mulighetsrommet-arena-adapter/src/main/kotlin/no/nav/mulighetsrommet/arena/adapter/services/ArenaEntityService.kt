@@ -13,7 +13,8 @@ class ArenaEntityService(
     private val tiltakstyper: TiltakstypeRepository,
     private val saker: SakRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakere: DeltakerRepository
+    private val deltakere: DeltakerRepository,
+    private val avtaler: AvtaleRepository,
 ) {
 
     fun getEvent(arenaTable: String, arenaId: String): Either<ConsumptionError, ArenaEvent> {
@@ -99,6 +100,16 @@ class ArenaEntityService(
 
     fun deleteDeltaker(id: UUID): Either<ConsumptionError, Unit> {
         return deltakere.delete(id)
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+    }
+
+    fun upsertAvtale(avtale: Avtale): Either<ConsumptionError, Avtale> {
+        return avtaler.upsert(avtale)
+            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+    }
+
+    fun deleteAvtale(id: UUID): Either<ConsumptionError, Unit> {
+        return avtaler.delete(id)
             .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
     }
 }

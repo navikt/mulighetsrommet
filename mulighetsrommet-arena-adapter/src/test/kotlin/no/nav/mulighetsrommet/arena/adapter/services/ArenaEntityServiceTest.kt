@@ -43,7 +43,8 @@ class ArenaEntityServiceTest : FunSpec({
             tiltakstyper = mockk(),
             saker = mockk(),
             tiltaksgjennomforinger = mockk(),
-            deltakere = mockk()
+            deltakere = mockk(),
+            avtaler = mockk(),
         )
 
         arenaEntityMappingRepository.insert(

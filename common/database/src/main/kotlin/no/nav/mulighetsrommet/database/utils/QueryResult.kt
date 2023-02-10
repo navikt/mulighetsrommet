@@ -1,9 +1,20 @@
 package no.nav.mulighetsrommet.database.utils
 
 import arrow.core.Either
+import arrow.core.getOrHandle
 import org.postgresql.util.PSQLException
 
 typealias QueryResult<T> = Either<DatabaseOperationError, T>
+
+/**
+ * Utility function to unwrap the value from the [QueryResult] when it's [Either.Right], or throwing the underlying
+ * [PSQLException] when it's [Either.Left].
+ *
+ * It's best to avoid using this method, but it can be convenient during e.g. testing.
+ */
+fun <T> QueryResult<T>.getOrThrow(): T {
+    return getOrHandle { throw it.error }
+}
 
 /**
  * Runs the provided [queryRunner] and returns a [QueryResult] with the value [T] when it runs successfully,

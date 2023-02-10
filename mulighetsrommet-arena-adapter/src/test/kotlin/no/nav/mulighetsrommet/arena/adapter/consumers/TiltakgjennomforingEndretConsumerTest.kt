@@ -10,16 +10,13 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
-import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
-import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
-import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
@@ -35,8 +32,6 @@ import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
@@ -62,41 +57,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     context("when dependent events has not been processed") {
         test("should save the event with status Failed when dependent tiltakstype is missing") {
             val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(
-                Tiltakstype(
-                    id = UUID.randomUUID(),
-                    navn = "Oppfølging",
-                    tiltakskode = "INDOPPFAG",
-                    rettPaaTiltakspenger = true,
-                    fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-                    tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
-                    tiltaksgruppekode = "tiltaksgruppekode",
-                    administrasjonskode = Administrasjonskode.AMO,
-                    sendTilsagnsbrevTilDeltaker = true,
-                    tiltakstypeSkalHaAnskaffelsesprosess = false,
-                    maksAntallPlasser = 10,
-                    maksAntallSokere = 10,
-                    harFastAntallPlasser = true,
-                    skalSjekkeAntallDeltakere = true,
-                    visLonnstilskuddskalkulator = false,
-                    rammeavtale = Rammeavtale.SKAL,
-                    opplaeringsgruppe = "opplaeringsgruppe",
-                    handlingsplan = Handlingsplan.AKT,
-                    tiltaksgjennomforingKreverSluttdato = true,
-                    maksPeriodeIMnd = 6,
-                    tiltaksgjennomforingKreverMeldeplikt = false,
-                    tiltaksgjennomforingKreverVedtak = false,
-                    tiltaksgjennomforingReservertForIABedrift = false,
-                    harRettPaaTilleggsstonader = false,
-                    harRettPaaUtdanning = false,
-                    tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
-                    visBegrunnelseForInnsoking = false,
-                    sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
-                    sendKopibrevOgHovedbrevTilArbeidsgiver = false,
-                    registrertIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-                    sistEndretIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-                )
-            )
+            tiltakstyper.upsert(TiltakstypeFixtures.Gruppe)
 
             val consumer = createConsumer(
                 database.db,
@@ -133,39 +94,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     }
 
     context("when tiltaksgjennomføring is individuell") {
-        val tiltakstype = Tiltakstype(
-            id = UUID.randomUUID(),
-            navn = "AMO",
-            tiltakskode = "AMO",
-            rettPaaTiltakspenger = false,
-            fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
-            tiltaksgruppekode = "tiltaksgruppekode",
-            administrasjonskode = Administrasjonskode.AMO,
-            sendTilsagnsbrevTilDeltaker = true,
-            tiltakstypeSkalHaAnskaffelsesprosess = false,
-            maksAntallPlasser = 10,
-            maksAntallSokere = 10,
-            harFastAntallPlasser = true,
-            skalSjekkeAntallDeltakere = true,
-            visLonnstilskuddskalkulator = false,
-            rammeavtale = Rammeavtale.SKAL,
-            opplaeringsgruppe = "opplaeringsgruppe",
-            handlingsplan = Handlingsplan.AKT,
-            tiltaksgjennomforingKreverSluttdato = true,
-            maksPeriodeIMnd = 6,
-            tiltaksgjennomforingKreverMeldeplikt = false,
-            tiltaksgjennomforingKreverVedtak = false,
-            tiltaksgjennomforingReservertForIABedrift = false,
-            harRettPaaTilleggsstonader = false,
-            harRettPaaUtdanning = false,
-            tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
-            visBegrunnelseForInnsoking = false,
-            sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
-            sendKopibrevOgHovedbrevTilArbeidsgiver = false,
-            registrertIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            sistEndretIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        )
+        val tiltakstype = TiltakstypeFixtures.Individuell
 
         beforeEach {
             val saker = SakRepository(database.db)
@@ -239,39 +168,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     }
 
     context("when tiltaksgjennomføring is gruppetiltak") {
-        val tiltakstype = Tiltakstype(
-            id = UUID.randomUUID(),
-            navn = "Oppfølging",
-            tiltakskode = "INDOPPFAG",
-            rettPaaTiltakspenger = true,
-            fraDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            tilDato = LocalDateTime.of(2023, 1, 12, 0, 0, 0),
-            tiltaksgruppekode = "tiltaksgruppekode",
-            administrasjonskode = Administrasjonskode.AMO,
-            sendTilsagnsbrevTilDeltaker = true,
-            tiltakstypeSkalHaAnskaffelsesprosess = false,
-            maksAntallPlasser = 10,
-            maksAntallSokere = 10,
-            harFastAntallPlasser = true,
-            skalSjekkeAntallDeltakere = true,
-            visLonnstilskuddskalkulator = false,
-            rammeavtale = Rammeavtale.SKAL,
-            opplaeringsgruppe = "opplaeringsgruppe",
-            handlingsplan = Handlingsplan.AKT,
-            tiltaksgjennomforingKreverSluttdato = true,
-            maksPeriodeIMnd = 6,
-            tiltaksgjennomforingKreverMeldeplikt = false,
-            tiltaksgjennomforingKreverVedtak = false,
-            tiltaksgjennomforingReservertForIABedrift = false,
-            harRettPaaTilleggsstonader = false,
-            harRettPaaUtdanning = false,
-            tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = false,
-            visBegrunnelseForInnsoking = false,
-            sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = false,
-            sendKopibrevOgHovedbrevTilArbeidsgiver = false,
-            registrertIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-            sistEndretIArenaDato = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        )
+        val tiltakstype = TiltakstypeFixtures.Gruppe
 
         beforeEach {
             val saker = SakRepository(database.db)
@@ -287,8 +184,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(tiltakstype)
 
-            val mappings =
-                ArenaEntityMappingRepository(database.db)
+            val mappings = ArenaEntityMappingRepository(database.db)
             mappings.insert(ArenaEntityMapping(ArenaTables.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id))
         }
 
@@ -462,7 +358,8 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-        deltakere = DeltakerRepository(db)
+        deltakere = DeltakerRepository(db),
+        avtaler = AvtaleRepository(db),
     )
 
     return TiltakgjennomforingEndretConsumer(

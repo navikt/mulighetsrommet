@@ -72,6 +72,7 @@ private fun createConsumer(db: Database): SakEndretConsumer {
         saker = SakRepository(db),
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
         deltakere = DeltakerRepository(db),
+        avtaler = AvtaleRepository(db),
     )
 
     return SakEndretConsumer(

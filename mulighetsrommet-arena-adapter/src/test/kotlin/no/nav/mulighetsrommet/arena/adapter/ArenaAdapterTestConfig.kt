@@ -50,7 +50,8 @@ fun createKafkaConfig(): KafkaConfig {
                 "tiltakendret" to "tiltakendret",
                 "tiltakgjennomforingendret" to "tiltakgjennomforingendret",
                 "tiltakdeltakerendret" to "tiltakdeltakerendret",
-                "sakendret" to "sakendret"
+                "sakendret" to "sakendret",
+                "avtaleinfoendret" to "avtaleinfoendret",
             )
         )
     )
