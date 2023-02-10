@@ -1,13 +1,44 @@
 package no.nav.mulighetsrommet.arena.adapter.fixtures
 
-import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
-import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
-import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
+import no.nav.mulighetsrommet.arena.adapter.models.arena.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import java.time.LocalDateTime
 import java.util.*
 
 object TiltakstypeFixtures {
+    val ArenaGruppetiltak = ArenaTiltak(
+        TILTAKSNAVN = "Oppfølging",
+        TILTAKSGRUPPEKODE = "UTFAS",
+        TILTAKSKODE = "INDOPPFAG",
+        REG_DATO = "2010-01-11 00:00:00",
+        MOD_DATO = "2022-01-11 00:00:00",
+        DATO_FRA = "2022-01-11 00:00:00",
+        DATO_TIL = "2022-01-15 00:00:00",
+        STATUS_BASISYTELSE = JaNeiStatus.Ja,
+        ADMINISTRASJONKODE = Administrasjonskode.IND,
+        STATUS_KOPI_TILSAGN = JaNeiStatus.Ja,
+        STATUS_ANSKAFFELSE = JaNeiStatus.Nei,
+        MAKS_ANT_PLASSER = null,
+        MAKS_ANT_SOKERE = 10,
+        STATUS_FAST_ANT_PLASSER = null,
+        STATUS_SJEKK_ANT_DELTAKERE = JaNeiStatus.Ja,
+        STATUS_KALKULATOR = JaNeiStatus.Nei,
+        RAMMEAVTALE = Rammeavtale.IKKE,
+        OPPLAERINGSGRUPPE = null,
+        HANDLINGSPLAN = Handlingsplan.TIL,
+        STATUS_SLUTTDATO = JaNeiStatus.Nei,
+        MAKS_PERIODE = 6,
+        STATUS_MELDEPLIKT = null,
+        STATUS_VEDTAK = JaNeiStatus.Nei,
+        STATUS_IA_AVTALE = JaNeiStatus.Nei,
+        STATUS_TILLEGGSSTONADER = JaNeiStatus.Nei,
+        STATUS_UTDANNING = JaNeiStatus.Nei,
+        AUTOMATISK_TILSAGNSBREV = JaNeiStatus.Nei,
+        STATUS_BEGRUNNELSE_INNSOKT = JaNeiStatus.Ja,
+        STATUS_HENVISNING_BREV = JaNeiStatus.Nei,
+        STATUS_KOPIBREV = JaNeiStatus.Nei,
+    )
+
     val Gruppe = Tiltakstype(
         id = UUID.randomUUID(),
         navn = "Oppfølging",

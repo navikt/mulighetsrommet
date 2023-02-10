@@ -6,11 +6,16 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -41,16 +46,16 @@ class TiltakEndretConsumerTest : FunSpec({
     test("should treat all operations as upserts") {
         val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-        val e1 = consumer.processEvent(createEvent(Insert, name = "Oppfølging 1"))
-        e1.status shouldBe Processed
+        val e1 = createEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
+        consumer.processEvent(e1).status shouldBe Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
-        val e2 = consumer.processEvent(createEvent(Update, name = "Oppfølging 2"))
-        e2.status shouldBe Processed
+        val e2 = createEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
+        consumer.processEvent(e2).status shouldBe Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 2")
 
-        val e3 = consumer.processEvent(createEvent(Delete, name = "Oppfølging 1"))
-        e3.status shouldBe Processed
+        val e3 = createEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
+        consumer.processEvent(e3).status shouldBe Processed
         database.assertThat("tiltakstype").row()
             .value("navn").isEqualTo("Oppfølging 1")
             .value("rett_paa_tiltakspenger").isTrue
@@ -145,40 +150,14 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
     )
 }
 
-private fun createEvent(operation: ArenaEventData.Operation = Insert, name: String = "Oppfølging") = createArenaEvent(
-    ArenaTables.Tiltakstype,
-    "INDOPPFAG",
-    operation,
-    """{
-        "TILTAKSNAVN": "$name",
-        "TILTAKSGRUPPEKODE": "UTFAS",
-        "TILTAKSKODE": "INDOPPFAG",
-        "REG_DATO": "2010-01-11 00:00:00",
-        "MOD_DATO": "2022-01-11 00:00:00",
-        "DATO_FRA": "2022-01-11 00:00:00",
-        "DATO_TIL": "2022-01-15 00:00:00",
-        "STATUS_BASISYTELSE": "J",
-        "ADMINISTRASJONKODE": "IND",
-        "STATUS_KOPI_TILSAGN": "J",
-        "STATUS_ANSKAFFELSE": "N",
-        "MAKS_ANT_PLASSER": null,
-        "MAKS_ANT_SOKERE": 10,
-        "STATUS_FAST_ANT_PLASSER": null,
-        "STATUS_SJEKK_ANT_DELTAKERE": "J",
-        "STATUS_KALKULATOR": "N",
-        "RAMMEAVTALE": "IKKE",
-        "OPPLAERINGSGRUPPE": null,
-        "HANDLINGSPLAN": "TIL",
-        "STATUS_SLUTTDATO": "N",
-        "MAKS_PERIODE": 6,
-        "STATUS_MELDEPLIKT": null,
-        "STATUS_VEDTAK": "N",
-        "STATUS_IA_AVTALE": "N",
-        "STATUS_TILLEGGSSTONADER": "N",
-        "STATUS_UTDANNING": "N",
-        "AUTOMATISK_TILSAGNSBREV": "N",
-        "STATUS_BEGRUNNELSE_INNSOKT": "J",
-        "STATUS_HENVISNING_BREV": "N",
-        "STATUS_KOPIBREV": "N"
-    }"""
-)
+private fun createEvent(
+    operation: ArenaEventData.Operation,
+    tiltak: ArenaTiltak = TiltakstypeFixtures.ArenaGruppetiltak,
+    modify: (tiltak: ArenaTiltak) -> ArenaTiltak = { it }
+): ArenaEvent {
+    return modify(tiltak).let {
+        createArenaEvent(
+            ArenaTables.Tiltakstype, it.TILTAKSKODE, operation, Json.encodeToJsonElement(it).toString()
+        )
+    }
+}

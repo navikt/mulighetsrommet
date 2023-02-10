@@ -125,9 +125,9 @@ private fun createConsumer(db: Database): AvtaleInfoEndretConsumer {
 private fun createEvent(
     operation: ArenaEventData.Operation,
     avtale: ArenaAvtaleInfo = AvtaleFixtures.ArenaAvtaleInfo,
-    alterAvtale: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it }
+    modify: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it }
 ): ArenaEvent {
-    return alterAvtale(avtale).let {
+    return modify(avtale).let {
         createArenaEvent(
             ArenaTables.AvtaleInfo, it.AVTALE_ID.toString(), operation, Json.encodeToJsonElement(it).toString()
         )

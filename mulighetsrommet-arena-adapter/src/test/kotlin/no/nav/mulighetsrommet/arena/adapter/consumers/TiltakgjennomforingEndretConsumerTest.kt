@@ -7,14 +7,19 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
@@ -118,32 +123,28 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val event = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    tiltakskode = "AMO",
-                    regDato = regDatoBeforeAktivitetsplanen
+            val event = createEvent(Insert, TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell) {
+                it.copy(
+                    REG_DATO = regDatoBeforeAktivitetsplanen
                 )
-            )
+            }
 
-            event.status shouldBe Ignored
+            consumer.processEvent(event).status shouldBe Ignored
             database.assertThat("tiltaksgjennomforing").isEmpty
             engine.requestHistory.shouldBeEmpty()
         }
 
-        test("should ignore if FRA_DATO is null") {
+        test("should ignore if DATO_FRA is null") {
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val event = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    tiltakskode = "AMO",
-                    fraDato = null
+            val event = createEvent(Insert, TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell) {
+                it.copy(
+                    DATO_FRA = null
                 )
-            )
+            }
 
-            event.status shouldBe Ignored
+            consumer.processEvent(event).status shouldBe Ignored
             database.assertThat("tiltaksgjennomforing").isEmpty
             engine.requestHistory.shouldBeEmpty()
         }
@@ -152,15 +153,13 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val event = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    tiltakskode = "AMO",
-                    regDato = regDatoAfterAktivitetsplanen
+            val event = createEvent(Insert, TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell) {
+                it.copy(
+                    REG_DATO = regDatoAfterAktivitetsplanen
                 )
-            )
+            }
 
-            event.status shouldBe Processed
+            consumer.processEvent(event).status shouldBe Processed
             database.assertThat("tiltaksgjennomforing").row()
                 .value("tiltakskode").isEqualTo("AMO")
             engine.requestHistory.shouldBeEmpty()
@@ -198,38 +197,27 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
             val consumer = createConsumer(database.db, engine)
 
-            val e1 = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    regDato = regDatoBeforeAktivitetsplanen,
-                    name = "Navn 1"
+            val e1 = createEvent(Insert) {
+                it.copy(
+                    REG_DATO = regDatoBeforeAktivitetsplanen,
+                    LOKALTNAVN = "Navn 1"
                 )
-            )
-            e1.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing").row()
-                .value("navn").isEqualTo("Navn 1")
-                .value("status").isEqualTo("GJENNOMFOR")
+            }
+            consumer.processEvent(e1).status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 1")
 
-            val e2 = consumer.processEvent(
-                createEvent(
-                    Update,
-                    regDato = regDatoAfterAktivitetsplanen,
-                    name = "Navn 2"
+            val e2 = createEvent(Update) {
+                it.copy(
+                    REG_DATO = regDatoAfterAktivitetsplanen,
+                    LOKALTNAVN = "Navn 2"
                 )
-            )
-            e2.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing").row()
-                .value("navn").isEqualTo("Navn 2")
+            }
+            consumer.processEvent(e2).status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 2")
 
-            val e3 = consumer.processEvent(
-                createEvent(
-                    Delete,
-                    name = "Navn 1"
-                )
-            )
-            e3.status shouldBe Processed
-            database.assertThat("tiltaksgjennomforing").row()
-                .value("navn").isEqualTo("Navn 1")
+            val e3 = createEvent(Delete) { it.copy(LOKALTNAVN = "Navn 1") }
+            consumer.processEvent(e3).status shouldBe Processed
+            database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 1")
         }
 
         context("api responses") {
@@ -306,30 +294,28 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
 
                 val consumer = createConsumer(database.db, engine)
 
-                consumer.processEvent(
-                    createEvent(
-                        Insert,
-                        fraDato = "2022-11-11 00:00:00",
-                        tilDato = "2023-11-11 00:00:00"
+                val event = createEvent(Insert) {
+                    it.copy(
+                        DATO_FRA = "2022-11-11 00:00:00",
+                        DATO_TIL = "2023-11-11 00:00:00"
                     )
-                )
+                }
+                consumer.processEvent(event)
 
-                val generatedId =
-                    engine.requestHistory.last().run {
-                        method shouldBe HttpMethod.Put
+                val generatedId = engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Put
 
-                        val tiltaksgjennomforing =
-                            decodeRequestBody<TiltaksgjennomforingDbo>().apply {
-                                tiltakstypeId shouldBe tiltakstype.id
-                                tiltaksnummer shouldBe "2022#123"
-                                virksomhetsnummer shouldBe "123456"
-                                startDato shouldBe LocalDate.of(2022, 11, 11)
-                                sluttDato shouldBe LocalDate.of(2023, 11, 11)
-                                avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
-                            }
-
-                        tiltaksgjennomforing.id
+                    val tiltaksgjennomforing = decodeRequestBody<TiltaksgjennomforingDbo>().apply {
+                        tiltakstypeId shouldBe tiltakstype.id
+                        tiltaksnummer shouldBe "2022#123"
+                        virksomhetsnummer shouldBe "123456"
+                        startDato shouldBe LocalDate.of(2022, 11, 11)
+                        sluttDato shouldBe LocalDate.of(2023, 11, 11)
+                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                     }
+
+                    tiltaksgjennomforing.id
+                }
 
                 consumer.processEvent(createEvent(Delete))
 
@@ -373,26 +359,15 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
 
 private fun createEvent(
     operation: ArenaEventData.Operation,
-    tiltakskode: String = "INDOPPFAG",
-    name: String = "Navn",
-    regDato: String = "2022-10-10 00:00:00",
-    fraDato: String? = "2022-10-10 00:00:00",
-    tilDato: String? = null
-) = createArenaEvent(
-    ArenaTables.Tiltaksgjennomforing,
-    "3780431",
-    operation,
-    """{
-        "TILTAKGJENNOMFORING_ID": 3780431,
-        "LOKALTNAVN": "$name",
-        "TILTAKSKODE": "$tiltakskode",
-        "ARBGIV_ID_ARRANGOR": 49612,
-        "SAK_ID": 13572352,
-        "REG_DATO": "$regDato",
-        "DATO_FRA": ${fraDato?.let { "\"$fraDato\"" }},
-        "DATO_TIL": ${tilDato?.let { "\"$tilDato\"" }},
-        "STATUS_TREVERDIKODE_INNSOKNING": "J",
-        "ANTALL_DELTAKERE": 5,
-        "TILTAKSTATUSKODE": "GJENNOMFOR"
-    }"""
-)
+    tiltaksgjennomforing: ArenaTiltaksgjennomforing = TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingGruppe,
+    modify: (tiltaksgjennomforing: ArenaTiltaksgjennomforing) -> ArenaTiltaksgjennomforing = { it }
+): ArenaEvent {
+    return modify(tiltaksgjennomforing).let {
+        createArenaEvent(
+            ArenaTables.Tiltaksgjennomforing,
+            it.TILTAKGJENNOMFORING_ID.toString(),
+            operation,
+            Json.encodeToJsonElement(it).toString()
+        )
+    }
+}

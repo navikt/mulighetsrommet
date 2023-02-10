@@ -9,14 +9,18 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
@@ -175,17 +179,11 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
         }
 
         test("should be ignored when REG_DATO is before aktivitetsplanen") {
-            val consumer =
-                createConsumer(database.db, MockEngine { respondOk() })
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    regDato = regDatoBeforeAktivitetsplanen
-                )
-            )
+            val event = createEvent(Insert) { it.copy(REG_DATO = regDatoBeforeAktivitetsplanen) }
 
-            event.status shouldBe Ignored
+            consumer.processEvent(event).status shouldBe Ignored
         }
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
@@ -199,17 +197,11 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     status = Ignored
                 )
             )
-            val consumer =
-                createConsumer(database.db, MockEngine { respondOk() })
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
-            val event = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    status = "FULLF"
-                )
-            )
+            val event = createEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
 
-            event.status shouldBe Ignored
+            consumer.processEvent(event).status shouldBe Ignored
         }
 
         test("should treat all operations as upserts") {
@@ -219,35 +211,18 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             )
             val consumer = createConsumer(database.db, engine)
 
-            val e1 = consumer.processEvent(
-                createEvent(
-                    Insert,
-                    status = "GJENN"
-                )
-            )
-            e1.status shouldBe Processed
-            database.assertThat("deltaker")
-                .row().value("status").isEqualTo("DELTAR")
+            val e1 = createEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") }
+            consumer.processEvent(e1).status shouldBe Processed
+            database.assertThat("deltaker").row().value("status").isEqualTo("DELTAR")
 
-            val e2 = consumer.processEvent(
-                createEvent(
-                    Update,
-                    status = "FULLF"
-                )
-            )
-            e2.status shouldBe Processed
+            val e2 = createEvent(Update) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+            consumer.processEvent(e2).status shouldBe Processed
             database.assertThat("deltaker")
                 .row().value("status").isEqualTo("AVSLUTTET")
 
-            val e3 = consumer.processEvent(
-                createEvent(
-                    Delete,
-                    status = "FULLF"
-                )
-            )
-            e3.status shouldBe Processed
-            database.assertThat("deltaker")
-                .row().value("status").isEqualTo("AVSLUTTET")
+            val e3 = createEvent(Delete) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+            consumer.processEvent(e3).status shouldBe Processed
+            database.assertThat("deltaker").row().value("status").isEqualTo("AVSLUTTET")
         }
 
         context("api responses") {
@@ -334,13 +309,14 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
                     url.getLastPathParameterAsUUID() shouldBe generatedId
                 }
 
-                consumer.processEvent(
-                    createEvent(
-                        Insert,
-                        tiltaksgjennomforing = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId,
-                        id = 2
+                val event = createEvent(Insert) {
+                    it.copy(
+                        TILTAKDELTAKER_ID = 2,
+                        TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId
                     )
-                )
+                }
+
+                consumer.processEvent(event)
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -391,21 +367,12 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakdeltak
 
 private fun createEvent(
     operation: ArenaEventData.Operation,
-    status: String = "GJENN",
-    tiltaksgjennomforing: Int = 3,
-    id: Int = 1,
-    regDato: String = "2023-01-01 00:00:00"
-) = createArenaEvent(
-    ArenaTables.Deltaker,
-    id.toString(),
-    operation,
-    """{
-        "TILTAKDELTAKER_ID": $id,
-        "PERSON_ID": 2,
-        "TILTAKGJENNOMFORING_ID": $tiltaksgjennomforing,
-        "DELTAKERSTATUSKODE": "$status",
-        "DATO_FRA": null,
-        "DATO_TIL": null,
-        "REG_DATO": "$regDato"
-    }"""
-)
+    deltaker: ArenaTiltakdeltaker = DeltakerFixtures.ArenaTiltakdeltaker,
+    modify: (deltaker: ArenaTiltakdeltaker) -> ArenaTiltakdeltaker = { it }
+): ArenaEvent {
+    return modify(deltaker).let {
+        createArenaEvent(
+            ArenaTables.Tiltakstype, it.TILTAKDELTAKER_ID.toString(), operation, Json.encodeToJsonElement(it).toString()
+        )
+    }
+}
