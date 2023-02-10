@@ -45,16 +45,6 @@ class ArenaEventService(
         }
     }
 
-    suspend fun replayEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
-        logger.info("Replaying events from table=$table, status=$status")
-
-        consumeEvents(table, status) { event ->
-            Metrics.replayArenaEventTimer(event.arenaTable).recordSuspend {
-                processEvent(event)
-            }
-        }
-    }
-
     suspend fun retryEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
         logger.info("Retrying events from table=$table, status=$status")
 
