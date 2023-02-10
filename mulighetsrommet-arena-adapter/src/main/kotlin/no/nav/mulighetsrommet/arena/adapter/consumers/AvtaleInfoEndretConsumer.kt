@@ -107,7 +107,7 @@ class AvtaleInfoEndretConsumer(
                 tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
                 ansvarligEnhet = ORGENHET_ANSVARLIG,
                 rammeavtale = AVTALEKODE == Avtalekode.Rammeavtale,
-                status = Avtale.Status.valueOf(AVTALESTATUSKODE.name),
+                status = Avtale.Status.fromArenaAvtalestatuskode(AVTALESTATUSKODE),
                 prisbetingelser = PRIS_BETBETINGELSER,
             )
         }

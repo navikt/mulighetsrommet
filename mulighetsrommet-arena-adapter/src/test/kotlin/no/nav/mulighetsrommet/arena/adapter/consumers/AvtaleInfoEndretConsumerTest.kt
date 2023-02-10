@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
@@ -51,17 +52,17 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
             val e1 = consumer.processEvent(createEvent(ArenaEventData.Operation.Insert))
             e1.status shouldBe ArenaEvent.ConsumptionStatus.Processed
             database.assertThat("avtale").row()
-                .value("status").isEqualTo("Gjennomforer")
+                .value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
             val e2 = consumer.processEvent(createEvent(ArenaEventData.Operation.Update, status = "PLAN"))
             e2.status shouldBe ArenaEvent.ConsumptionStatus.Processed
             database.assertThat("avtale").row()
-                .value("status").isEqualTo("Planlagt")
+                .value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
             val e3 = consumer.processEvent(createEvent(ArenaEventData.Operation.Delete, status = "AVSLU"))
             e3.status shouldBe ArenaEvent.ConsumptionStatus.Processed
             database.assertThat("avtale").row()
-                .value("status").isEqualTo("Avsluttet")
+                .value("status").isEqualTo(Avtale.Status.Avsluttet.name)
         }
     }
 })
