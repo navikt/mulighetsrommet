@@ -4,6 +4,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: mulighetsrommet-alarmer-arena-adapter
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
 spec:
   groups:
   - name: Arena-adapter nede
