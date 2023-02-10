@@ -23,7 +23,7 @@ class ReplayEvents(private val arenaEventService: ArenaEventService, val databas
     val task: OneTimeTask<Void> = Tasks
         .oneTime("replay-events")
         .execute { instance, context ->
-            logger.info("Running task ${instance.taskName}, data: ${instance.data}")
+            logger.info("Running task ${instance.taskName}")
 
             runBlocking {
                 val job = async {
@@ -45,7 +45,7 @@ class ReplayEvents(private val arenaEventService: ArenaEventService, val databas
         }
 
     private val client =
-        SchedulerClient.Builder.create(database.getDatasource(), task).serializer(DbSchedulerKotlinSerializer()).build()
+        SchedulerClient.Builder.create(database.getDatasource(), task).build()
 
     fun schedule() {
         // Id er alltid det samme slik at bare en instans kan kjøre samtidig

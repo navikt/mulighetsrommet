@@ -89,7 +89,6 @@ private fun tasks(tasks: TaskConfig) = module {
 
         Scheduler
             .create(db.getDatasource(), replayEvents.task)
-            .serializer(DbSchedulerKotlinSerializer())
             .startTasks(retryFailedEvents.task)
             .registerShutdownHook()
             .build()
