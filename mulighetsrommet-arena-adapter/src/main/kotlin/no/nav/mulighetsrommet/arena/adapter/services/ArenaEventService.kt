@@ -70,7 +70,7 @@ class ArenaEventService(
         logger.info("Setting replay status to events from table=$table, status=$status")
 
         consumeEvents(table, status) { event ->
-            events.upsert(event.copy(status = ArenaEvent.ConsumptionStatus.Replay))
+            events.upsert(event.copy(status = ArenaEvent.ConsumptionStatus.Replay, retries = 0))
         }
     }
 
