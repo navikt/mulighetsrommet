@@ -4,7 +4,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: "mulighetsrommet-alarmer"
-
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
 spec:
   groups:
     - name: API nede
