@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
 import arrow.core.continuations.either
@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
-import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
-class AvtaleInfoEndretConsumer(
+class AvtaleInfoEventProcessor(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
-) : ArenaTopicConsumer(
+) : ArenaEventProcessor(
     ArenaTable.AvtaleInfo
 ) {
     companion object {
@@ -51,7 +51,7 @@ class AvtaleInfoEndretConsumer(
             arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.AVTALE_ID.toString(),
             payload = payload,
-            status = ArenaEvent.ConsumptionStatus.Pending
+            status = ArenaEvent.ProcessingStatus.Pending
         )
     }
 
@@ -59,27 +59,27 @@ class AvtaleInfoEndretConsumer(
         val (_, operation, data) = ArenaEventData.decode<ArenaAvtaleInfo>(event.payload)
 
         ensureNotNull(data.AVTALENAVN) {
-            ConsumptionError.Ignored("Avtale mangler navn")
+            ProcessingError.Ignored("Avtale mangler navn")
         }
 
         ensureNotNull(data.DATO_FRA) {
-            ConsumptionError.Ignored("Avtale mangler fra-dato")
+            ProcessingError.Ignored("Avtale mangler fra-dato")
         }
 
         ensureNotNull(data.DATO_TIL) {
-            ConsumptionError.Ignored("Avtale mangler til-dato")
+            ProcessingError.Ignored("Avtale mangler til-dato")
         }
 
         ensureNotNull(data.ARBGIV_ID_LEVERANDOR) {
-            ConsumptionError.Ignored("Avtale mangler leverandør")
+            ProcessingError.Ignored("Avtale mangler leverandør")
         }
 
         ensure(Tiltakskoder.isGruppetiltak(data.TILTAKSKODE)) {
-            ConsumptionError.Ignored("Avtale er ikke knyttet til et gruppetiltak")
+            ProcessingError.Ignored("Avtale er ikke knyttet til et gruppetiltak")
         }
 
         ensure(isRecentAvtale(data)) {
-            ConsumptionError.Ignored("Avtale har en til-dato som er før 2023")
+            ProcessingError.Ignored("Avtale har en til-dato som er før 2023")
         }
 
         val mapping = entities.getOrCreateMapping(event)
@@ -94,13 +94,13 @@ class AvtaleInfoEndretConsumer(
                 } else {
                     client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)
                 }
-                response.mapLeft { ConsumptionError.fromResponseException(it) }
+                response.mapLeft { ProcessingError.fromResponseException(it) }
             }
-            .map { ArenaEvent.ConsumptionStatus.Processed }
+            .map { ArenaEvent.ProcessingStatus.Processed }
             .bind()
     }
 
-    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         entities.getMapping(event.arenaTable, event.arenaId)
             .map { entities.deleteAvtale(it.entityId) }
             .bind()
@@ -136,15 +136,15 @@ class AvtaleInfoEndretConsumer(
                 prisbetingelser = PRIS_BETBETINGELSER,
             )
         }
-        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
+        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
-    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
+    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ProcessingError, AvtaleDbo> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, avtale.tiltakskode)
             .bind()
         val leverandorOrganisasjonsnummer = ords.getArbeidsgiver(avtale.leverandorId)
-            .mapLeft { ConsumptionError.fromResponseException(it) }
-            .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke leverandør i Arena ORDS") }
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .leftIfNull { ProcessingError.InvalidPayload("Fant ikke leverandør i Arena ORDS") }
             .map { it.organisasjonsnummerMorselskap }
             .bind()
 

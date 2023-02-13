@@ -26,7 +26,7 @@ class ArenaEntityServiceTest : FunSpec({
     val uuid = UUID.randomUUID()
 
     val event = ArenaEvent(
-        status = ArenaEvent.ConsumptionStatus.Processed,
+        status = ArenaEvent.ProcessingStatus.Processed,
         arenaTable = ArenaTable.Tiltaksgjennomforing,
         arenaId = tiltaksnummer,
         payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
@@ -65,7 +65,7 @@ class ArenaEntityServiceTest : FunSpec({
         }
 
         test("event should not be fetched if status is pending") {
-            arenaEventRepository.upsert(event.copy(status = ArenaEvent.ConsumptionStatus.Pending))
+            arenaEventRepository.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Pending))
 
             arenaEntityService.getMappingIfProcessed(
                 ArenaTable.Tiltaksgjennomforing,
