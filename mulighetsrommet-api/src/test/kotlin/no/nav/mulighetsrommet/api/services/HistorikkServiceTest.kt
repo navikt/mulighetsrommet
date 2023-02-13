@@ -5,8 +5,7 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -84,13 +83,14 @@ class HistorikkServiceTest : FunSpec({
     )
 
     beforeSpec {
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
-        val tiltaksgjennomforingRepository =
-            TiltaksgjennomforingRepository(database.db)
-        val tiltakshistorikkRepository = TiltakshistorikkRepository(database.db)
-        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-        val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
-        val service = ArenaService(tiltakstypeRepository, tiltaksgjennomforingRepository, tiltakshistorikkRepository, tiltaksgjennomforingKafkaProducer, tiltakstypeKafkaProducer)
+        val service = ArenaService(
+            tiltakstyper = TiltakstypeRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = TiltakshistorikkRepository(database.db),
+            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+            tiltakstypeKafkaProducer = mockk(relaxed = true),
+        )
 
         service.upsert(tiltakstype)
         service.upsert(tiltaksgjennomforing)

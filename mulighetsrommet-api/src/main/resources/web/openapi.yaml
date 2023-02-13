@@ -29,6 +29,51 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/avtaler:
+    get:
+      tags:
+        - Avtaler
+      operationId: getAvtaler
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+      responses:
+        200:
+          description: Object of paginated avtaler.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertAvtale"
+
+  /api/v1/internal/avtaler/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Avtaler
+      operationId: getAvtale
+      responses:
+        200:
+          description: The specified avtale.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Avtale"
+        404:
+          description: "The specified avtale was not found."
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/tiltaksgjennomforinger:
     get:
       tags:
@@ -282,21 +327,6 @@ paths:
             text/plain:
               schema:
                 type: string
-
-  /api/v1/internal/tiltakstyper/{id}/avtaler:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getAvtalerForTiltakstype
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: List of avtaler for the specified tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertAvtale"
 
   /api/v1/internal/sanity:
     get:
@@ -589,6 +619,78 @@ components:
         tilDato:
           type: string
 
+    Avtale:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/EmbeddedTiltakstype"
+        navn:
+          type: string
+        avtalenummer:
+          type: string
+        leverandorOrganisasjonsnummer:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+        avtalestatus:
+          $ref: "#/components/schemas/Avtalestatus"
+        prisbetingelser:
+          type: string
+          nullable: true
+      required:
+        - id
+        - tiltakstype
+        - navn
+        - avtalenummer
+        - leverandorOrganisasjonsnummer
+        - startDato
+        - sluttDato
+        - enhet
+        - avtaletype
+        - avtalestatus
+        - prisbetingelser
+
+    EmbeddedTiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        arenaKode:
+          type: string
+      required:
+        - id
+        - navn
+        - arenaKode
+
+    Avtaletype:
+      type: string
+      enum:
+        - Avtale
+        - Rammeavtale
+        - Foraandsgodkjent
+
+    Avtalestatus:
+      type: string
+      enum:
+        - Planlagt
+        - Aktiv
+        - Avsluttet
+        - Avbrutt
+
     Tiltaksgjennomforing:
       type: object
       properties:
@@ -596,7 +698,7 @@ components:
           type: string
           format: uuid
         tiltakstype:
-          $ref: "#/components/schemas/Tiltakstype"
+          $ref: "#/components/schemas/EmbeddedTiltakstype"
         navn:
           type: string
         tiltaksnummer:
@@ -617,36 +719,6 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
-
-    Avtale:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltakstypeID:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        virksomhetsnummer:
-          type: string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type: string
-          format: date
-        enhet:
-          type: string
-      required:
-        - id
-        - tiltakstypeID
-        - navn
-        - virksomhetsnummer
-        - startDato
-        - sluttDato
-        - enhet
 
     Bruker:
       type: object
