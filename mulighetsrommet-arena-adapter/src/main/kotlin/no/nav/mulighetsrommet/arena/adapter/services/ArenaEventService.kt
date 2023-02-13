@@ -56,12 +56,10 @@ class ArenaEventService(
         }
     }
 
-    suspend fun setReplayStatusForEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) {
+    fun setReplayStatusForEvents(table: String, status: ArenaEvent.ConsumptionStatus? = null) {
         logger.info("Setting replay status to events from table=$table, status=$status")
 
-        consumeEvents(table, status) { event ->
-            events.upsert(event.copy(status = ArenaEvent.ConsumptionStatus.Replay, retries = 0))
-        }
+        events.updateStatus(table, status, ArenaEvent.ConsumptionStatus.Replay)
     }
 
     private suspend fun processEvent(event: ArenaEvent) {

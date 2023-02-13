@@ -6,8 +6,7 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Pending
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
@@ -64,5 +63,12 @@ class ArenaEventRepositoryTest : FunSpec({
         val events = repository.getAll(limit = 3, idGreaterThan = "2")
 
         events.map { it.arenaId } shouldContainInOrder listOf("3", "4", "5")
+    }
+
+    test("update events consumption status specified by table and consumption status") {
+        val events = repository.updateStatus(table = "table", oldStatus = Processed, newStatus = Replay)
+
+        repository.getAll(status = Replay) shouldHaveSize 5
+        repository.getAll(status = Pending) shouldHaveSize 5
     }
 })
