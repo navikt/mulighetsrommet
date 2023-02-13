@@ -9,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
-import no.nav.mulighetsrommet.arena.adapter.utils.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.time.Instant
