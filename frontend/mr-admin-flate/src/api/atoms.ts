@@ -1,3 +1,4 @@
+import { atom } from "jotai";
 import { atomWithHash } from "jotai-location";
 import { atomWithStorage } from "jotai/utils";
 import {
@@ -32,3 +33,15 @@ export const tiltakstypefilter = atomWithHash<{
     setHash: "replaceState",
   }
 );
+
+export const avtaleFilter = atom<{
+  sok: string;
+  status: string; // TODO Type opp status,
+  enhet: string;
+  sortering: string;
+}>({
+  sok: "",
+  status: "",
+  enhet: "",
+  sortering: "",
+});

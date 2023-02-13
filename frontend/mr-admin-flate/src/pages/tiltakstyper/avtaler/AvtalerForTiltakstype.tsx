@@ -1,9 +1,10 @@
+import { Avtalefilter } from "../../../components/avtaler/Avtalefilter";
 import { AvtaleTabell } from "./AvtaleTabell";
 
 export function AvtalerForTiltakstype() {
   return (
     <>
-      {/** TODO Her kommer filtrering for avtaler */}
+      <Avtalefilter />
       <AvtaleTabell />
       {/** TODO Her kommer paginering for avtaler */}
     </>
