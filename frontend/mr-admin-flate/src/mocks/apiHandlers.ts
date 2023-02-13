@@ -38,7 +38,7 @@ export const apiHandlers = [
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
       const avtaler =
-        mockAvtaler.data.filter((gj) => gj.tiltakstypeID === id) ?? [];
+        mockAvtaler.data.filter((a) => a.tiltakstype.id === id) ?? [];
       return res(
         ctx.status(200),
 

@@ -41,6 +41,7 @@ fun Application.configure(config: AppConfig) {
 
         authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
+            avtaleRoutes()
             tiltaksgjennomforingRoutes()
             sanityRoutes()
             brukerRoutes()

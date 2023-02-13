@@ -7,15 +7,14 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,6 +43,20 @@ class ArenaServiceTest : FunSpec({
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
         tilDato = LocalDate.of(2023, 1, 12)
+    )
+
+    val avtale = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Arbeidstrening",
+        tiltakstypeId = tiltakstype.id,
+        avtalenummer = "2023#1000",
+        leverandorOrganisasjonsnummer = "123456789",
+        startDato = LocalDate.of(2022, 11, 11),
+        sluttDato = LocalDate.of(2023, 11, 11),
+        enhet = "2990",
+        avtaletype = Avtaletype.Rammeavtale,
+        avtalestatus = Avtalestatus.Aktiv,
+        prisbetingelser = "💸",
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -110,11 +123,12 @@ class ArenaServiceTest : FunSpec({
     context("tiltakstype") {
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
         val service = ArenaService(
-            TiltakstypeRepository(database.db),
-            TiltaksgjennomforingRepository(database.db),
-            TiltakshistorikkRepository(database.db),
-            mockk(relaxed = true),
-            tiltakstypeKafkaProducer
+            tiltakstyper = TiltakstypeRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = TiltakshistorikkRepository(database.db),
+            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+            tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
         )
 
         afterTest {
@@ -155,16 +169,52 @@ class ArenaServiceTest : FunSpec({
             verify(exactly = 0) { tiltakstypeKafkaProducer.retract(any()) }
         }
     }
+    context("avtaler") {
+        val service = ArenaService(
+            tiltakstyper = TiltakstypeRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = TiltakshistorikkRepository(database.db),
+            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+            tiltakstypeKafkaProducer = mockk(relaxed = true),
+        )
+
+        test("CRUD") {
+            service.upsert(tiltakstype)
+
+            service.upsert(avtale).getOrThrow()
+            database.assertThat("avtale").row()
+                .value("id").isEqualTo(avtale.id)
+                .value("navn").isEqualTo(avtale.navn)
+                .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
+                .value("avtalenummer").isEqualTo(avtale.avtalenummer)
+                .value("leverandor_organisasjonsnummer").isEqualTo(avtale.leverandorOrganisasjonsnummer)
+                .value("start_dato").isEqualTo(avtale.startDato)
+                .value("slutt_dato").isEqualTo(avtale.sluttDato)
+                .value("enhet").isEqualTo(avtale.enhet)
+                .value("avtaletype").isEqualTo(avtale.avtaletype.name)
+                .value("avtalestatus").isEqualTo(avtale.avtalestatus.name)
+                .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
+
+            val updated = tiltaksgjennomforing.copy(navn = "Arbeidsovertrening")
+            service.upsert(updated).getOrThrow()
+            database.assertThat("tiltaksgjennomforing").row()
+                .value("navn").isEqualTo(updated.navn)
+
+            service.removeTiltaksgjennomforing(updated.id)
+            database.assertThat("tiltaksgjennomforing").isEmpty
+        }
+    }
 
     context("tiltaksgjennomføring") {
-        val tiltaksgjennomforingKafkaProducer =
-            mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val service = ArenaService(
-            TiltakstypeRepository(database.db),
-            TiltaksgjennomforingRepository(database.db),
-            TiltakshistorikkRepository(database.db),
-            tiltaksgjennomforingKafkaProducer,
-            mockk(relaxed = true)
+            tiltakstyper = TiltakstypeRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = TiltakshistorikkRepository(database.db),
+            tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
+            tiltakstypeKafkaProducer = mockk(relaxed = true),
         )
 
         afterTest {
@@ -224,11 +274,12 @@ class ArenaServiceTest : FunSpec({
 
     context("tiltakshistorikk") {
         val service = ArenaService(
-            TiltakstypeRepository(database.db),
-            TiltaksgjennomforingRepository(database.db),
-            TiltakshistorikkRepository(database.db),
-            mockk(relaxed = true),
-            mockk(relaxed = true)
+            tiltakstyper = TiltakstypeRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = TiltakshistorikkRepository(database.db),
+            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+            tiltakstypeKafkaProducer = mockk(relaxed = true),
         )
 
         beforeTest {
