@@ -46,8 +46,8 @@ class ReplayEvents(private val arenaEventService: ArenaEventService, val databas
     private val client =
         SchedulerClient.Builder.create(database.getDatasource(), task).build()
 
-    fun schedule() {
+    fun schedule(startTime: Instant = Instant.now()) {
         // Id er alltid det samme slik at bare en instans kan kjøre samtidig
-        client.schedule(task.instance("1"), Instant.now())
+        client.schedule(task.instance("1"), startTime)
     }
 }

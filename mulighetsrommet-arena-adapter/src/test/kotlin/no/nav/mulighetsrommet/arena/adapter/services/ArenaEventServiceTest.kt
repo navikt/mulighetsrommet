@@ -99,9 +99,9 @@ class ArenaEventServiceTest : FunSpec({
             )
 
             database.assertThat("arena_events")
-                .row().value("consumption_status").isEqualTo("Replay")
-                .row().value("consumption_status").isEqualTo("Replay")
-                .row().value("consumption_status").isEqualTo("Ignored")
+                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Replay.name)
+                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Replay.name)
+                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Ignored.name)
         }
     }
 

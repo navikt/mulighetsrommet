@@ -27,7 +27,7 @@ class ArenaEventService(
         val maxRetries: Int = 0
     )
 
-    suspend fun deleteEntities(table: String, ids: List<String>): Unit = coroutineScope {
+    suspend fun deleteEntities(table: String, ids: List<String>) {
         logger.info("Deleting entities from table=$table, ids=$ids")
 
         ids.forEach { id ->
@@ -37,15 +37,15 @@ class ArenaEventService(
         }
     }
 
-    suspend fun replayEvent(table: String, id: String): ArenaEvent? = coroutineScope {
+    suspend fun replayEvent(table: String, id: String): ArenaEvent? {
         logger.info("Replaying event table=$table, id=$id")
 
-        events.get(table, id)?.also { event ->
+        return events.get(table, id)?.also { event ->
             processEvent(event)
         }
     }
 
-    suspend fun retryEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
+    suspend fun retryEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) {
         logger.info("Retrying events from table=$table, status=$status")
 
         consumeEvents(table, status, config.maxRetries) { event ->
@@ -56,7 +56,7 @@ class ArenaEventService(
         }
     }
 
-    suspend fun setReplayStatusForEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) = coroutineScope {
+    suspend fun setReplayStatusForEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) {
         logger.info("Setting replay status to events from table=$table, status=$status")
 
         consumeEvents(table, status) { event ->

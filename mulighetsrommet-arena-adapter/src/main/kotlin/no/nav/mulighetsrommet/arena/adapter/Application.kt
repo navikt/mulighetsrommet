@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
+import java.time.Instant
 
 fun main() {
     val (server, app) = loadConfiguration<Config>()
@@ -55,7 +56,7 @@ fun Application.configure(config: AppConfig) {
 
         scheduler.start()
 
-        replayEvents.schedule()
+        replayEvents.schedule(Instant.now().plusSeconds(60))
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
