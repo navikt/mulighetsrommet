@@ -11,7 +11,7 @@ import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useState("avtaler"); // TODO Sett tilbake til arenaInfo
+  const [tabValgt, setTabValgt] = useState("arenaInfo");
 
   if (optionalTiltakstype.isFetching) {
     return <Laster tekst="Laster tiltakstype" />;
