@@ -9,7 +9,7 @@ export function useAvtalerForTiltakstype() {
   if (!tiltakstypeId)
     throw new Error("Kan ikke hente avtaler for tiltakstype uten id");
 
-  return useQuery(QueryKeys.avtaler(tiltakstypeId), () =>
+  return useQuery(QueryKeys.avtalerForTiltakstype(tiltakstypeId), () =>
     mulighetsrommetClient.tiltakstyper.getAvtalerForTiltakstype({
       id: tiltakstypeId,
     })

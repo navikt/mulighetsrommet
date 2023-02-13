@@ -25,5 +25,5 @@ export const QueryKeys = {
       page,
       "tiltaksgjennomforinger",
     ] as const,
-  avtaler: (tiltakstypeId: string) => [tiltakstypeId, "avtaler"],
+  avtalerForTiltakstype: (tiltakstypeId: string) => [tiltakstypeId, "avtaler"],
 };
