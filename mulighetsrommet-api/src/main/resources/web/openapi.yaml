@@ -283,6 +283,21 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/{id}/avtaler:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getAvtalerForTiltakstype
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: List of avtaler for the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertAvtale"
+
   /api/v1/internal/sanity:
     get:
       tags:
@@ -540,6 +555,19 @@ components:
           items:
             $ref: "#/components/schemas/Tiltaksgjennomforing"
 
+    PaginertAvtale:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Avtale"
+
     Tiltakstype:
       type: object
       required:
@@ -589,6 +617,36 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
+
+    Avtale:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstypeID:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        virksomhetsnummer:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+      required:
+        - id
+        - tiltakstypeID
+        - navn
+        - virksomhetsnummer
+        - startDato
+        - sluttDato
+        - enhet
 
     Bruker:
       type: object

@@ -23,3 +23,16 @@ export function ListeheaderTiltakstyper() {
     </Listeheader>
   );
 }
+
+export function ListeheaderAvtaler() {
+  return (
+    <Listeheader classname={styles.listeheader_avtaler}>
+      <BodyShort size="medium">Tittel</BodyShort>
+      <BodyShort size="medium">Leverandør</BodyShort>
+      <BodyShort size="medium">Enhet</BodyShort>
+      <BodyShort size="medium">Dato fra</BodyShort>
+      <BodyShort size="medium">Dato til</BodyShort>
+      <BodyShort size="medium">Status</BodyShort>
+    </Listeheader>
+  );
+}
