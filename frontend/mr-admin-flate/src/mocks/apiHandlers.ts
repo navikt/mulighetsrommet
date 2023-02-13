@@ -1,12 +1,14 @@
 import { rest } from "msw";
 import {
   Ansatt,
+  PaginertAvtale,
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
   Tiltaksgjennomforing,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
 import { mockFagansvarlig, mockTiltaksansvarlig } from "./fixtures/mock_ansatt";
+import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
 import { mockTiltaksgjennomforingerKobletTilAnsatt } from "./fixtures/mock_tiltaksgjennomforinger_koblet_til_ansatt";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
@@ -27,6 +29,27 @@ export const apiHandlers = [
         ctx.status(200),
 
         ctx.json(mockTiltakstyper.data.find((gj) => gj.id === id))
+      );
+    }
+  ),
+
+  rest.get<any, { id: string }, PaginertAvtale>(
+    "*/api/v1/internal/tiltakstyper/:id/avtaler",
+    (req, res, ctx) => {
+      const { id } = req.params as { id: string };
+      const avtaler =
+        mockAvtaler.data.filter((gj) => gj.tiltakstypeID === id) ?? [];
+      return res(
+        ctx.status(200),
+
+        ctx.json({
+          pagination: {
+            currentPage: 1,
+            pageSize: 50,
+            totalCount: avtaler.length,
+          },
+          data: avtaler,
+        })
       );
     }
   ),

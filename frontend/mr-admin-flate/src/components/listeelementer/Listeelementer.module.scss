@@ -1,4 +1,5 @@
 $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
+$avtaleGrid: 2fr 0.5fr 0.5fr repeat(2, 0.5fr) 10% 1%;
 
 .oversikt {
   margin: 0;
@@ -24,6 +25,10 @@ $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
 
   &_tiltakstyper {
     grid-template-columns: $tiltakstypeGrid;
+  }
+
+  &_avtaler {
+    grid-template-columns: $avtaleGrid;
   }
 }
 
@@ -55,5 +60,9 @@ $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
       grid-template-columns: 1fr 1fr;
       margin-right: 10rem;
     }
+  }
+
+  &_avtale {
+    grid-template-columns: $avtaleGrid;
   }
 }
