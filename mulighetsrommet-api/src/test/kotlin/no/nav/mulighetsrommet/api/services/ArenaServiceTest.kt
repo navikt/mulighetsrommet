@@ -103,7 +103,7 @@ class ArenaServiceTest : FunSpec({
             startDato = startDato,
             sluttDato = sluttDato,
             enhet = enhet,
-            status = Tiltaksgjennomforingsstatus.GJENNOMFORES
+            status = Tiltaksgjennomforingsstatus.AVSLUTTET
         )
     }
 
