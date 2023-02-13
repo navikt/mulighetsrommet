@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaSak
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -36,11 +35,11 @@ class AvtaleInfoEndretConsumer(
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     override fun decodeArenaData(payload: JsonElement): ArenaEvent {
-        val decoded = ArenaEventData.decode<ArenaSak>(payload)
+        val decoded = ArenaEventData.decode<ArenaAvtaleInfo>(payload)
 
         return ArenaEvent(
             arenaTable = decoded.table,
-            arenaId = decoded.data.SAK_ID.toString(),
+            arenaId = decoded.data.AVTALE_ID.toString(),
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending
         )
