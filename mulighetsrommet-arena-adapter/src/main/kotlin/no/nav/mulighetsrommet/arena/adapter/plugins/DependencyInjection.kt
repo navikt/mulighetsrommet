@@ -11,10 +11,7 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
-import no.nav.mulighetsrommet.arena.adapter.consumers.SakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakdeltakerEndretConsumer
-import no.nav.mulighetsrommet.arena.adapter.consumers.TiltakgjennomforingEndretConsumer
+import no.nav.mulighetsrommet.arena.adapter.consumers.*
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -71,7 +68,8 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get(),
                 get()
             ),
-            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get())
+            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
+            AvtaleInfoEndretConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get(), get()),
         )
         ConsumerGroup(consumers)
     }
@@ -132,6 +130,7 @@ private fun repositories() = module {
     single { DeltakerRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { ArenaEntityMappingRepository(get()) }
+    single { AvtaleRepository(get()) }
 }
 
 private fun services(services: ServiceConfig, tokenClient: MachineToMachineTokenClient): Module = module {
@@ -149,7 +148,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
         }
     }
     single { ArenaEventService(services.arenaEventService, get(), get()) }
-    single { ArenaEntityService(get(), get(), get(), get(), get(), get()) }
+    single { ArenaEntityService(get(), get(), get(), get(), get(), get(), get()) }
 }
 
 private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
