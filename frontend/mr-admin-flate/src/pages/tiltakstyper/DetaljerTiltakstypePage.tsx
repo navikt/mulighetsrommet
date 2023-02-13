@@ -2,6 +2,7 @@ import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
 import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
@@ -12,6 +13,8 @@ import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
   const [tabValgt, setTabValgt] = useState("arenaInfo");
+  const features = useFeatureToggles();
+  console.log(features);
 
   if (optionalTiltakstype.isFetching) {
     return <Laster tekst="Laster tiltakstype" />;
@@ -40,7 +43,10 @@ export function DetaljerTiltakstypePage() {
       <Tabs value={tabValgt} onChange={setTabValgt}>
         <Tabs.List className={classNames(styles.padding_detaljer)}>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
-          <Tabs.Tab value="avtaler" label="Avtaler" />
+          {features?.data &&
+          features?.data["mulighetsrommet.vis-avtaler-for-tiltakstyper"] ? (
+            <Tabs.Tab value="avtaler" label="Avtaler" />
+          ) : null}
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
           <div className={styles.padding_detaljer}>

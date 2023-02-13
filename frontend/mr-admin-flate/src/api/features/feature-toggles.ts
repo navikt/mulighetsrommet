@@ -2,13 +2,15 @@ import { headers } from "../headers";
 import { useQuery } from "@tanstack/react-query";
 
 export const ENABLE_ADMIN_FLATE = "mulighetsrommet.enable-admin-flate";
-
 export const ENABLE_OPPRETT_GJENNOMFORING =
   "mulighetsrommet.enable-opprett-gjennomforing";
+export const ENABLE_AVTALER_FOR_TILTAKSTYPER =
+  "mulighetsrommet.vis-avtaler-for-tiltakstyper";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
   ENABLE_OPPRETT_GJENNOMFORING,
+  ENABLE_AVTALER_FOR_TILTAKSTYPER,
 ] as const;
 
 export type Features = Record<typeof ALL_TOGGLES[number], boolean>;
@@ -16,6 +18,7 @@ export type Features = Record<typeof ALL_TOGGLES[number], boolean>;
 export const initialFeatures: Features = {
   "mulighetsrommet.enable-admin-flate": false,
   "mulighetsrommet.enable-opprett-gjennomforing": false,
+  "mulighetsrommet.vis-avtaler-for-tiltakstyper": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");
