@@ -11,11 +11,13 @@ import no.nav.mulighetsrommet.arena.adapter.plugins.configureHTTP
 import no.nav.mulighetsrommet.arena.adapter.plugins.configureSerialization
 import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
+import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
+import java.time.Instant
 
 fun main() {
     val (server, app) = loadConfiguration<Config>()
@@ -38,6 +40,8 @@ fun Application.configure(config: AppConfig) {
 
     val scheduler: Scheduler by inject()
 
+    val replayEvents: ReplayEvents by inject()
+
     routing {
         authenticate {
             apiRoutes()
@@ -51,6 +55,8 @@ fun Application.configure(config: AppConfig) {
         }
 
         scheduler.start()
+
+        replayEvents.schedule(Instant.now().plusSeconds(60))
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {

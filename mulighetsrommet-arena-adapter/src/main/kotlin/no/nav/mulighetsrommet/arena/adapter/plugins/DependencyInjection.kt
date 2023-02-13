@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
-import no.nav.mulighetsrommet.arena.adapter.utils.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
@@ -87,7 +86,6 @@ private fun tasks(tasks: TaskConfig) = module {
 
         Scheduler
             .create(db.getDatasource(), replayEvents.task)
-            .serializer(DbSchedulerKotlinSerializer())
             .startTasks(retryFailedEvents.task)
             .registerShutdownHook()
             .build()

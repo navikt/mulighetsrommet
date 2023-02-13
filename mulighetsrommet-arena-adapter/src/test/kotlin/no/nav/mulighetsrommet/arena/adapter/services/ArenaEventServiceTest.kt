@@ -41,6 +41,12 @@ class ArenaEventServiceTest : FunSpec({
         arenaId = "2",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
     )
+    val bazEvent = ArenaEvent(
+        status = ConsumptionStatus.Ignored,
+        arenaTable = table,
+        arenaId = "3",
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Baz")))
+    )
 
     val consumer = mockk<ArenaTopicConsumer>()
     val group = ConsumerGroup(listOf(consumer))
@@ -81,29 +87,21 @@ class ArenaEventServiceTest : FunSpec({
     }
 
     context("replay events") {
-        test("should run gracefully when there are no events to replay") {
-            val service = ArenaEventService(events = events, group = group)
-            service.replayEvents(table)
-
-            coVerify(exactly = 0) {
-                consumer.handleEvent(any())
-            }
-        }
-
-        test("should replay all events in order") {
+        test("should set consumption status to Replay for specified table and status") {
             events.upsert(fooEvent)
             events.upsert(barEvent)
+            events.upsert(bazEvent)
 
             val service = ArenaEventService(events = events, group = group)
-            service.replayEvents(
+            service.setReplayStatusForEvents(
                 table,
                 ConsumptionStatus.Processed
             )
 
-            coVerify(exactly = 1) {
-                consumer.handleEvent(fooEvent)
-                consumer.handleEvent(barEvent)
-            }
+            database.assertThat("arena_events")
+                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Replay.name)
+                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Replay.name)
+                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Ignored.name)
         }
     }
 
