@@ -3,14 +3,10 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
-import no.nav.mulighetsrommet.arena.adapter.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
@@ -38,7 +34,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
         test("should save the event with status Failed when dependent tiltakstype is missing") {
             val consumer = createConsumer(database.db)
 
-            val event = consumer.processEvent(createEvent(ArenaEventData.Operation.Insert))
+            val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
 
             event.status shouldBe ArenaEvent.ConsumptionStatus.Failed
             database.assertThat("avtale").isEmpty
@@ -55,13 +51,13 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
             val consumer = createConsumer(database.db)
 
             val events = listOf(
-                createEvent(ArenaEventData.Operation.Insert) {
+                createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
                     it.copy(DATO_FRA = null)
                 },
-                createEvent(ArenaEventData.Operation.Insert) {
+                createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
                     it.copy(DATO_TIL = null)
                 },
-                createEvent(ArenaEventData.Operation.Insert) {
+                createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
                     it.copy(ARBGIV_ID_LEVERANDOR = null)
                 },
             )
@@ -75,7 +71,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
         test("ignore avtaler ended before 2023") {
             val consumer = createConsumer(database.db)
 
-            val event = createEvent(ArenaEventData.Operation.Insert) {
+            val event = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
                 it.copy(DATO_TIL = "2022-12-31 00:00:00")
             }
             consumer.processEvent(event).status shouldBe ArenaEvent.ConsumptionStatus.Ignored
@@ -85,17 +81,17 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
         test("should treat all operations as upserts") {
             val consumer = createConsumer(database.db)
 
-            val e1 = createEvent(ArenaEventData.Operation.Insert)
+            val e1 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert)
             consumer.processEvent(e1).status shouldBe ArenaEvent.ConsumptionStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
-            val e2 = createEvent(ArenaEventData.Operation.Update) {
+            val e2 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
             }
             consumer.processEvent(e2).status shouldBe ArenaEvent.ConsumptionStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
-            val e3 = createEvent(ArenaEventData.Operation.Update) {
+            val e3 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
             }
             consumer.processEvent(e3).status shouldBe ArenaEvent.ConsumptionStatus.Processed
@@ -120,16 +116,4 @@ private fun createConsumer(db: Database): AvtaleInfoEndretConsumer {
         ArenaEventRepository(db),
         entities,
     )
-}
-
-private fun createEvent(
-    operation: ArenaEventData.Operation,
-    avtale: ArenaAvtaleInfo = AvtaleFixtures.ArenaAvtaleInfo,
-    alterAvtale: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it }
-): ArenaEvent {
-    return alterAvtale(avtale).let {
-        createArenaEvent(
-            ArenaTables.AvtaleInfo, it.AVTALE_ID.toString(), operation, Json.encodeToJsonElement(it).toString()
-        )
-    }
 }
