@@ -29,10 +29,7 @@ import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -93,6 +90,7 @@ private fun kafka(config: KafkaConfig) = module {
 }
 
 private fun repositories() = module {
+    single { AvtaleRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { TiltakshistorikkRepository(get()) }
@@ -172,7 +170,8 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { ArenaAdapterService(get()) }
-    single { ArenaService(get(), get(), get(), get(), get()) }
+    single { ArenaService(get(), get(), get(), get(), get(), get()) }
+    single { AvtaleService(get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(get()) }
