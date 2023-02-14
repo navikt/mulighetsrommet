@@ -25,14 +25,20 @@ fun Route.managerRoutes() {
         useResources = true
         react("web")
     }
+
     get("/topics") {
         val topics = kafka.getTopics()
         call.respond(topics)
     }
+
     put("/topics") {
         val topics = call.receive<List<Topic>>()
         kafka.updateRunningTopics(topics)
         call.respond(HttpStatusCode.OK)
+    }
+
+    get("/arena-tables") {
+        call.respond(ArenaTable.values())
     }
 
     val replayEvents: ReplayEvents by inject()

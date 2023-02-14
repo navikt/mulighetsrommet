@@ -6,9 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "^/topics": {
+      "^/mulighetsrommet-arena-adapter": {
         target: "http://0.0.0.0:8084",
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/mulighetsrommet-arena-adapter/, ""),
       },
     },
   },
