@@ -32,8 +32,11 @@ class ArenaEventRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun updateStatus(table: String?, oldStatus: ArenaEvent.ConsumptionStatus?, newStatus: ArenaEvent.ConsumptionStatus) {
-        val where = andWhereParameterNotNull(table to "arena_table = :table", oldStatus to "consumption_status = :old_status::consumption_status")
+    fun updateStatus(table: String, oldStatus: ArenaEvent.ConsumptionStatus?, newStatus: ArenaEvent.ConsumptionStatus) {
+        val where = andWhereParameterNotNull(
+            table to "arena_table = :table",
+            oldStatus to "consumption_status = :old_status::consumption_status"
+        )
 
         @Language("PostgreSQL")
         val query = """
