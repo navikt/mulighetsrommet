@@ -6,7 +6,8 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -42,16 +43,16 @@ fun Route.managerRoutes() {
     put("/events/replay") {
         val (table, status) = call.receive<ReplayEventsTaskData>()
 
-        launch {
+        launch(Dispatchers.IO) {
             try {
-                logger.info("6d9405a1b248f239a4689660a4334fbfbc310cee")
                 arenaEventService.setReplayStatusForEvents(table = table, status = status)
 
                 replayEvents.schedule()
             } catch (e: Throwable) {
-                logger.error("Replaying of events failed with error: $e")
+                logger.error("Failed to schedule task ${replayEvents.task.name}", e)
             }
         }
+        logger.info("først..")
 
         call.respond(HttpStatusCode.Created)
     }
