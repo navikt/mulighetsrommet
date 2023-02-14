@@ -32,6 +32,24 @@ class ArenaEventRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
+    fun updateStatus(table: String, oldStatus: ArenaEvent.ConsumptionStatus?, newStatus: ArenaEvent.ConsumptionStatus) {
+        val where = andWhereParameterNotNull(
+            table to "arena_table = :table",
+            oldStatus to "consumption_status = :old_status::consumption_status"
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            update arena_events
+            set consumption_status = :new_status::consumption_status, retries = 0
+            $where
+        """.trimIndent()
+
+        return queryOf(query, mapOf("table" to table, "old_status" to oldStatus?.name, "new_status" to newStatus.name))
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun get(table: String, id: String): ArenaEvent? {
         logger.info("Getting event id=$id")
 
