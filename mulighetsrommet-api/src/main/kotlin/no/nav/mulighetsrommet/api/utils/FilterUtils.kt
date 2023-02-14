@@ -11,7 +11,7 @@ data class TiltakstypeFilter(
 )
 
 data class AvtaleFilter(
-    val search: String? = "",
+    val search: String?,
     val avtalestatus: Avtalestatus,
     val enhet: String?
 )
