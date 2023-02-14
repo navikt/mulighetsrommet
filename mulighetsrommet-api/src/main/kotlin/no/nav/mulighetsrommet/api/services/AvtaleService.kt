@@ -25,4 +25,17 @@ class AvtaleService(private val avtaler: AvtaleRepository) {
             )
         )
     }
+
+    fun getAvtalerForTiltakstype(tiltakstypeId: UUID, pagination: PaginationParams): PaginatedResponse<AvtaleAdminDto> {
+        val (totalCount, items) = avtaler.getAvtalerForTiltakstype(tiltakstypeId, pagination)
+
+        return PaginatedResponse(
+            data = items,
+            pagination = Pagination(
+                totalCount = totalCount,
+                currentPage = pagination.page,
+                pageSize = pagination.limit
+            )
+        )
+    }
 }

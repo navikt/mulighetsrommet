@@ -74,6 +74,32 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/avtaler/tiltakstype/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Avtaler
+      operationId: getAvtalerForTiltakstype
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+      responses:
+        200:
+          description: Object of paginated avtaler connected to specified tiltakstype-id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertAvtale"
+
   /api/v1/internal/tiltaksgjennomforinger:
     get:
       tags:
