@@ -4,7 +4,7 @@ import React, { Dispatch, useEffect, useRef, useState } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
-import { erPreview } from '../../../utils/Utils';
+import { erPreview, formaterDato } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import { logDelMedbrukerEvent } from './Delemodal';
 import delemodalStyles from './Delemodal.module.scss';
@@ -35,6 +35,8 @@ export function DelMedBrukerContent({
   const tiltaksgjennomforingId = tiltaksgjennomforing?._id.toString();
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
+  const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
+  const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
 
   useEffect(() => {
     personligHilsenRef?.current?.focus();
@@ -90,9 +92,13 @@ export function DelMedBrukerContent({
       >
         Del med bruker
       </Heading>
-      <Heading size="large" level="1">
+      <Heading size="large" level="1" className={delemodalStyles.heading}>
         {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
       </Heading>
+      {/*{state.sendtStatus !== 'SENDT_OK' && <DelePaNyttModal />}*/}
+      {state.sendtStatus !== 'SENDT_OK' && (
+        <Alert variant="warning">{`Dette tiltaket ble delt med bruker ${datoSidenSistDelt}.`}</Alert>
+      )}
 
       {visPersonligMelding && !state.deletekst ? null : (
         <BodyShort
@@ -127,11 +133,9 @@ export function DelMedBrukerContent({
             data-testid="textarea_hilsen"
             error={handleError()}
           />
-          <p>
-            <Alert inline variant="info">
-              Ikke del personopplysninger i din personlige hilsen
-            </Alert>
-          </p>
+          <Alert inline variant="info" className={delemodalStyles.personopplysninger}>
+            Ikke del personopplysninger i din personlige hilsen
+          </Alert>
         </>
       ) : null}
       {!veiledernavn && (
@@ -145,7 +149,7 @@ export function DelMedBrukerContent({
           • Mangler ferdigutfylt tekst som kan deles med bruker{' '}
         </ErrorMessage>
       )}
-      <div className={classNames(modalStyles.modal_btngroup, delemodalStyles.btn_row)}>
+      <div className={delemodalStyles.delemodal_btngroup}>
         <Button
           onClick={handleSend}
           data-testid="modal_btn-send"

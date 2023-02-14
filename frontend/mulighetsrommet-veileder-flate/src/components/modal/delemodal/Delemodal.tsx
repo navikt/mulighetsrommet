@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Button, Modal } from '@navikt/ds-react';
+import { BodyShort, Modal } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
@@ -6,10 +6,11 @@ import { capitalize } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
-import { DelMedBrukerContent } from './DelMedBrukerContent';
 import { DelMedBrukerFeiletContent } from './DelMedBrukerFeiletContent';
 import { SendtOkContent } from './SendtOkContent';
 import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
+import { DelMedBrukerContent } from './DelMedBrukerContent';
+import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Redigerer hilsen'
@@ -93,18 +94,6 @@ const Delemodal = ({
     log && logDelMedbrukerEvent('Avbrutt del med bruker');
   };
 
-  const feilmelding = () => {
-    if (manuellOppfolging)
-      return 'Brukeren får manuell oppfølging og kan ikke benytte seg av de digitale tjenestene våre.';
-    else if (krrStatusErReservert)
-      return 'Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
-    else if (!brukerdata.data?.manuellStatus)
-      return 'Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.';
-    else if (!kanDeleMedBruker)
-      return 'Brukeren får manuell oppfølging og kan derfor ikke benytte seg av de digitale tjenestene våre. Brukeren har også reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).';
-    else return 'Det har oppstått en feil. Vennligst prøv igjen senere.';
-  };
-
   return (
     <Modal
       shouldCloseOnOverlayClick={!kanDeleMedBruker}
@@ -116,32 +105,35 @@ const Delemodal = ({
     >
       <Modal.Content>
         {!kanDeleMedBruker ? (
-          <>
-            <Alert variant="warning" data-testid="delemodal-alert">
-              {feilmelding()}
-            </Alert>
-            <Button variant="primary" className={delemodalStyles.alert_btn} onClick={() => setModalOpen()}>
-              Lukk
-            </Button>
-          </>
+          <KanIkkeDeleMedBrukerModal
+            setModalOpen={setModalOpen}
+            manuellOppfolging={manuellOppfolging!}
+            kanDeleMedBruker={kanDeleMedBruker!}
+            krrStatusErReservert={krrStatusErReservert!}
+            manuellStatus={!brukerdata.data?.manuellStatus}
+          />
         ) : (
-          !['SENDT_OK', 'SENDING_FEILET'].includes(state.sendtStatus) && (
-            <>
-              <DelMedBrukerContent
-                tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
-                onCancel={clickCancel}
-                state={state}
-                dispatch={dispatch}
-                veiledernavn={veiledernavn}
-                brukernavn={brukernavn}
-              />
-              <BodyShort className={classNames(modalStyles.infomelding)}>
-                Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen
-              </BodyShort>
-            </>
-          )
+          <>
+            {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
+              <>
+                <DelMedBrukerContent
+                  tiltaksgjennomforingsnavn={tiltaksgjennomforingsnavn}
+                  onCancel={clickCancel}
+                  state={state}
+                  dispatch={dispatch}
+                  veiledernavn={veiledernavn}
+                  brukernavn={brukernavn}
+                />
+                <BodyShort size="small">
+                  Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
+                </BodyShort>
+              </>
+            )}
+          </>
         )}
+
         {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}
+
         {state.sendtStatus === 'SENDING_FEILET' && (
           <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
         )}

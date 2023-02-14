@@ -24,15 +24,15 @@ export function SendtOkContent({ onCancel, state }: Props) {
       </Heading>
       <BodyShort>Du kan fortsette dialogen om dette tiltaket i Dialogen.</BodyShort>
       <div className={classNames(modalStyles.modal_btngroup, modalStyles.modal_btngroup_success)}>
+        <Button variant="tertiary" onClick={() => onCancel(false)} data-testid="modal_btn-cancel">
+          Lukk
+        </Button>
         <Button
           variant="primary"
           onClick={() => navigerTilDialogen(fnr, state.dialogId)}
           data-testid="modal_btn-dialog"
         >
           Gå til Dialogen
-        </Button>
-        <Button variant="secondary" onClick={() => onCancel(false)} data-testid="modal_btn-cancel">
-          Lukk
         </Button>
       </div>
     </div>
