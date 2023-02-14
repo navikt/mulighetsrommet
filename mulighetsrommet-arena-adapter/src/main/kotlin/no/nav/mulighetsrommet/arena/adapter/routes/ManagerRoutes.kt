@@ -44,6 +44,7 @@ fun Route.managerRoutes() {
 
         launch {
             try {
+                logger.info("6d9405a1b248f239a4689660a4334fbfbc310cee")
                 arenaEventService.setReplayStatusForEvents(table = table, status = status)
 
                 replayEvents.schedule()
