@@ -83,6 +83,21 @@ paths:
       operationId: getAvtalerForTiltakstype
       parameters:
         - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for avtaler by the name
+        - in: query
+          name: avtalestatus
+          schema:
+            $ref: "#/components/schemas/Avtalestatus"
+          description: Status for avtale
+        - in: query
+          name: enhet
+          schema:
+            type: string
+          description: 4 digit enhetskode
+        - in: query
           name: page
           schema:
             type: number
