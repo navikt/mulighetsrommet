@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.api.utils.Status
-import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
+import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -89,7 +86,7 @@ class TiltakstypeRepository(private val db: Database) {
             "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
         )
 
-        val where = andWhereParameterNotNull(
+        val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
             when (tiltakstypeFilter.status) {
                 Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
@@ -143,13 +140,6 @@ class TiltakstypeRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
     }
-
-    private fun andWhereParameterNotNull(vararg parts: Pair<Any?, String?>): String = parts
-        .filter { it.first != null }
-        .map { it.second }
-        .reduceOrNull { where, part -> "$where and $part" }
-        ?.let { "where $it" }
-        ?: ""
 
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,

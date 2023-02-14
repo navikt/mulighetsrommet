@@ -1,5 +1,6 @@
 import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { Avtalestatus } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { avtaleFilter } from "../../api/atoms";
 import styles from "./Avtalefilter.module.scss";
@@ -27,13 +28,16 @@ export function Avtalefilter() {
             value={filter.status}
             data-testid="filter_avtale_status"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              setFilter({ ...filter, status: e.currentTarget.value });
+              setFilter({
+                ...filter,
+                status: e.currentTarget.value as Avtalestatus,
+              });
             }}
           >
-            <option value="AKTIV">Aktiv</option>
-            <option value="PLANLAGT">Planlagt</option>
-            <option value="AVSLUTTET">Avsluttet</option>
-            <option value="ALLE">Alle</option>
+            <option value="Aktiv">Aktiv</option>
+            <option value="Planlagt">Planlagt</option>
+            <option value="Avsluttet">Avsluttet</option>
+            <option value="Avbrutt">Avbrutt</option>
           </Select>
           <Select
             label="Enhet"

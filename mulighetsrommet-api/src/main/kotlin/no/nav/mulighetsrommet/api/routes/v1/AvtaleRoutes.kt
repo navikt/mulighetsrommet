@@ -5,8 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.services.AvtaleService
+import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.api.utils.getTiltakstypeFilter
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 
@@ -38,13 +38,13 @@ fun Route.avtaleRoutes() {
 
         get("tiltakstype/{tiltakstypeId}") {
             val pagination = getPaginationParams()
-            getTiltakstypeFilter()
+            val filter = getAvtaleFilter()
             val id = call.parameters["tiltakstypeId"]?.toUUID() ?: return@get call.respondText(
                 text = "Mangler eller ugyldig id for tiltakstype",
                 status = HttpStatusCode.BadRequest,
             )
 
-            call.respond(avtaler.getAvtalerForTiltakstype(id, pagination))
+            call.respond(avtaler.getAvtalerForTiltakstype(id, filter, pagination))
         }
     }
 }
