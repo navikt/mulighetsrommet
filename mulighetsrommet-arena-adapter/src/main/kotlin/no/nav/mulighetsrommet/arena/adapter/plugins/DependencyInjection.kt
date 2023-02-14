@@ -68,7 +68,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
                 get()
             ),
             SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
-            AvtaleInfoEndretConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get(), get()),
+            AvtaleInfoEndretConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get(), get(), get(), get()),
         )
         ConsumerGroup(consumers)
     }
