@@ -34,11 +34,11 @@ export const apiHandlers = [
   ),
 
   rest.get<any, { id: string }, PaginertAvtale>(
-    "*/api/v1/internal/tiltakstyper/:id/avtaler",
+    "*/api/v1/internal/avtaler/tiltakstype/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
       const avtaler =
-        mockAvtaler.data.filter((gj) => gj.tiltakstypeID === id) ?? [];
+        mockAvtaler.data.filter((a) => a.tiltakstype.id === id) ?? [];
       return res(
         ctx.status(200),
 

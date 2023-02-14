@@ -14,7 +14,7 @@ export function useAvtalerForTiltakstype() {
     throw new Error("Kan ikke hente avtaler for tiltakstype uten id");
   // TODO Må oppdatere queryKeys med filter når vi skal hente fra backend
   return useQuery(QueryKeys.avtalerForTiltakstype(tiltakstypeId), () =>
-    mulighetsrommetClient.tiltakstyper.getAvtalerForTiltakstype({
+    mulighetsrommetClient.avtaler.getAvtalerForTiltakstype({
       id: tiltakstypeId,
     })
   );

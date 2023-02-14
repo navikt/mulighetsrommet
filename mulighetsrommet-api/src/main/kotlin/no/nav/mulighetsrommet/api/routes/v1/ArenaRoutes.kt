@@ -9,6 +9,7 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
+import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
@@ -24,6 +25,7 @@ fun Route.arenaRoutes() {
     route("/api/v1/internal/arena/") {
         put("tiltakstype") {
             val tiltakstype = call.receive<TiltakstypeDbo>()
+
             arenaService.upsert(tiltakstype)
                 .map { call.respond(it) }
                 .mapLeft {
@@ -37,6 +39,7 @@ fun Route.arenaRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
+
             arenaService.removeTiltakstype(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -45,8 +48,34 @@ fun Route.arenaRoutes() {
                 }
         }
 
+        put("avtale") {
+            val dbo = call.receive<AvtaleDbo>()
+
+            arenaService.upsert(dbo)
+                .map { call.respond(it) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette avtale")
+                }
+        }
+
+        delete("avtale/{id}") {
+            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+
+            arenaService.removeAvtale(id)
+                .map { call.response.status(HttpStatusCode.OK) }
+                .mapLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette avtale")
+                }
+        }
+
         put("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
+
             arenaService.upsert(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
@@ -60,6 +89,7 @@ fun Route.arenaRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
+
             arenaService.removeTiltaksgjennomforing(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -70,6 +100,7 @@ fun Route.arenaRoutes() {
 
         put("tiltakshistorikk") {
             val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
+
             arenaService.upsert(tiltakshistorikk)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
