@@ -15,14 +15,10 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import org.koin.ktor.ext.inject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 fun Route.managerRoutes() {
     val kafka: KafkaConsumerOrchestrator by inject()
     val arenaEventService: ArenaEventService by inject()
-
-    val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     singlePageApplication {
         useResources = true
@@ -49,10 +45,9 @@ fun Route.managerRoutes() {
 
                 replayEvents.schedule()
             } catch (e: Throwable) {
-                logger.error("Failed to schedule task ${replayEvents.task.name}", e)
+                application.log.error("Failed to schedule task ${replayEvents.task.name}", e)
             }
         }
-        logger.info("først..")
 
         call.respond(HttpStatusCode.Created)
     }
