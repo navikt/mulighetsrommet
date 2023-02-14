@@ -138,6 +138,46 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAvtalerForTiltakstype(
+        tiltakstypeId: UUID,
+        pagination: PaginationParams = PaginationParams()
+    ): Pair<Int, List<AvtaleAdminDto>> {
+        logger.info("Henter avtaler for tiltakstype med id: '$tiltakstypeId'")
+        @Language("PostgreSQL")
+        val query = """
+           select a.id,
+                   a.navn,
+                   a.tiltakstype_id,
+                   a.avtalenummer,
+                   a.leverandor_organisasjonsnummer,
+                   a.start_dato,
+                   a.slutt_dato,
+                   a.enhet,
+                   a.avtaletype,
+                   a.avtalestatus,
+                   a.prisbetingelser,
+                   t.navn as tiltakstype_navn,
+                   t.tiltakskode,
+                   count(*) over () as full_count
+            from avtale a
+                     join tiltakstype t on a.tiltakstype_id = t.id
+            where a.tiltakstype_id = ?
+            order by a.navn
+            limit ? offset ?
+        """.trimIndent()
+
+        val results = queryOf(query, tiltakstypeId, pagination.limit, pagination.offset)
+            .map {
+                it.int("full_count") to it.toAvtaleAdminDto()
+            }
+            .asList
+            .let { db.run(it) }
+
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+        val avtaler = results.map { it.second }
+        return Pair(totaltAntall, avtaler)
+    }
+
     private fun AvtaleDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
@@ -149,7 +189,7 @@ class AvtaleRepository(private val db: Database) {
         "enhet" to enhet,
         "avtaletype" to avtaletype.name,
         "avtalestatus" to avtalestatus.name,
-        "prisbetingelser" to prisbetingelser,
+        "prisbetingelser" to prisbetingelser
     )
 
     private fun Row.toAvtaleDbo() = AvtaleDbo(
@@ -163,7 +203,7 @@ class AvtaleRepository(private val db: Database) {
         enhet = string("enhet"),
         avtaletype = Avtaletype.valueOf(string("avtaletype")),
         avtalestatus = Avtalestatus.valueOf(string("avtalestatus")),
-        prisbetingelser = stringOrNull("prisbetingelser"),
+        prisbetingelser = stringOrNull("prisbetingelser")
     )
 
     private fun Row.toAvtaleAdminDto() = AvtaleAdminDto(
@@ -172,7 +212,7 @@ class AvtaleRepository(private val db: Database) {
         tiltakstype = AvtaleAdminDto.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
-            arenaKode = string("tiltakskode"),
+            arenaKode = string("tiltakskode")
         ),
         avtalenummer = string("avtalenummer"),
         leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
@@ -181,6 +221,6 @@ class AvtaleRepository(private val db: Database) {
         enhet = string("enhet"),
         avtaletype = Avtaletype.valueOf(string("avtaletype")),
         avtalestatus = Avtalestatus.valueOf(string("avtalestatus")),
-        prisbetingelser = stringOrNull("prisbetingelser"),
+        prisbetingelser = stringOrNull("prisbetingelser")
     )
 }
