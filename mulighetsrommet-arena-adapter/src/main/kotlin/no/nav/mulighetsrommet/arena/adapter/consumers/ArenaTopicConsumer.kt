@@ -7,16 +7,17 @@ import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.Logger
 
-abstract class ArenaTopicConsumer(val arenaTable: String) : TopicConsumer() {
+abstract class ArenaTopicConsumer(val arenaTable: ArenaTable) : TopicConsumer() {
     abstract val logger: Logger
     abstract val events: ArenaEventRepository
 
     override suspend fun run(event: JsonElement) {
-        Metrics.processArenaEventTimer(arenaTable).recordSuspend {
+        Metrics.processArenaEventTimer(arenaTable.table).recordSuspend {
             val data = decodeArenaData(event)
             processEvent(data)
         }

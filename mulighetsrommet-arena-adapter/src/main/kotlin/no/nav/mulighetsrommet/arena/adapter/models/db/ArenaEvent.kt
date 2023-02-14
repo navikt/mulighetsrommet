@@ -1,9 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import kotlinx.serialization.json.JsonElement
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 
 data class ArenaEvent(
-    val arenaTable: String,
+    val arenaTable: ArenaTable,
     val arenaId: String,
     val payload: JsonElement,
     val status: ConsumptionStatus,

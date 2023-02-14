@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -36,7 +36,7 @@ class TiltakgjennomforingEndretConsumer(
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
 ) : ArenaTopicConsumer(
-    ArenaTables.Tiltaksgjennomforing
+    ArenaTable.Tiltaksgjennomforing
 ) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -45,7 +45,7 @@ class TiltakgjennomforingEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(payload)
 
         return ArenaEvent(
-            arenaTable = decoded.table,
+            arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.TILTAKGJENNOMFORING_ID.toString(),
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending
@@ -89,7 +89,7 @@ class TiltakgjennomforingEndretConsumer(
         tiltaksgjennomforing: Tiltaksgjennomforing
     ): Either<ConsumptionError, ArenaEvent.ConsumptionStatus> = either {
         val tiltakstypeMapping = entities
-            .getMapping(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+            .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
             .bind()
         val sak = entities
             .getSak(tiltaksgjennomforing.sakId)

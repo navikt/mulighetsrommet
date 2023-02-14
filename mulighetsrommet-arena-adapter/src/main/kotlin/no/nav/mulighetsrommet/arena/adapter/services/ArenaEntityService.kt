@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter.services
 import arrow.core.Either
 import arrow.core.rightIfNotNull
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import java.util.*
@@ -17,7 +18,7 @@ class ArenaEntityService(
     private val avtaler: AvtaleRepository,
 ) {
 
-    fun getEvent(arenaTable: String, arenaId: String): Either<ConsumptionError, ArenaEvent> {
+    fun getEvent(arenaTable: ArenaTable, arenaId: String): Either<ConsumptionError, ArenaEvent> {
         return events.get(arenaTable, arenaId)
             .rightIfNotNull { ConsumptionError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
     }
@@ -27,12 +28,12 @@ class ArenaEntityService(
             ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID()))
     }
 
-    fun getMapping(arenaTable: String, arenaId: String): Either<ConsumptionError, ArenaEntityMapping> {
+    fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ConsumptionError, ArenaEntityMapping> {
         return mappings.get(arenaTable, arenaId)
             .rightIfNotNull { ConsumptionError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
     }
 
-    fun getMappingIfProcessed(arenaTable: String, arenaId: String): ArenaEntityMapping? {
+    fun getMappingIfProcessed(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
         return mappings.get(arenaTable, arenaId)
             .takeIf { events.get(arenaTable, arenaId)?.status == ArenaEvent.ConsumptionStatus.Processed }
     }
@@ -86,7 +87,7 @@ class ArenaEntityService(
             .rightIfNotNull { ConsumptionError.MissingDependency("Tiltaksgjennomforing med id=$id mangler") }
     }
 
-    fun isIgnored(arenaTable: String, arenaId: String): Either<ConsumptionError, Boolean> {
+    fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ConsumptionError, Boolean> {
         // TODO: burde status Ignored settes på ArenaEntityMapping i stedet?
         //       Da har vi mulighet til å slette data fra events-tabellen, samtidig som vi har oversikt over hvilke entitier som ikke er relevante
         return getEvent(arenaTable, arenaId)

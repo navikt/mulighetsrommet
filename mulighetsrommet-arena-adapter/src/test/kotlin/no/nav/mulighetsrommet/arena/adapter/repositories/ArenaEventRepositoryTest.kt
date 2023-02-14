@@ -5,6 +5,7 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -26,7 +27,7 @@ class ArenaEventRepositoryTest : FunSpec({
         (1..5).forEach {
             repository.upsert(
                 ArenaEvent(
-                    arenaTable = "table",
+                    arenaTable = ArenaTable.Tiltakstype,
                     arenaId = it.toString(),
                     payload = Json.parseToJsonElement("{}"),
                     status = Processed,
@@ -37,7 +38,7 @@ class ArenaEventRepositoryTest : FunSpec({
         (6..10).forEach {
             repository.upsert(
                 ArenaEvent(
-                    arenaTable = "table",
+                    arenaTable = ArenaTable.AvtaleInfo,
                     arenaId = it.toString(),
                     payload = Json.parseToJsonElement("{}"),
                     status = Pending,
@@ -49,9 +50,9 @@ class ArenaEventRepositoryTest : FunSpec({
     }
 
     test("should get events specified by table") {
-        val events = repository.getAll(table = "table")
 
-        events shouldHaveSize 10
+        repository.getAll(table = ArenaTable.Tiltakstype) shouldHaveSize 5
+        repository.getAll(table = ArenaTable.AvtaleInfo) shouldHaveSize 5
     }
 
     test("should get events specified by consumption status") {
@@ -66,7 +67,7 @@ class ArenaEventRepositoryTest : FunSpec({
     }
 
     test("update events consumption status specified by table and consumption status") {
-        repository.updateStatus(table = "table", oldStatus = Processed, newStatus = Replay)
+        repository.updateStatus(table = ArenaTable.Tiltakstype, oldStatus = Processed, newStatus = Replay)
 
         repository.getAll(status = Replay) shouldHaveSize 5
         repository.getAll(status = Pending) shouldHaveSize 5

@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
@@ -122,28 +122,28 @@ class TiltakdeltakerEndretConsumerTest : FunSpec({
             val mappings = ArenaEntityMappingRepository(database.db)
             mappings.insert(
                 ArenaEntityMapping(
-                    ArenaTables.Tiltaksgjennomforing,
+                    ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
                     tiltaksgjennomforing.id
                 )
             )
             mappings.insert(
                 ArenaEntityMapping(
-                    ArenaTables.Tiltaksgjennomforing,
+                    ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
                     tiltaksgjennomforingIndividuell.id
                 )
             )
             mappings.insert(
                 ArenaEntityMapping(
-                    ArenaTables.Tiltakstype,
+                    ArenaTable.Tiltakstype,
                     tiltakstypeGruppe.tiltakskode,
                     tiltakstypeGruppe.id
                 )
             )
             mappings.insert(
                 ArenaEntityMapping(
-                    ArenaTables.Tiltakstype,
+                    ArenaTable.Tiltakstype,
                     tiltakstypeIndividuell.tiltakskode,
                     tiltakstypeIndividuell.id
                 )

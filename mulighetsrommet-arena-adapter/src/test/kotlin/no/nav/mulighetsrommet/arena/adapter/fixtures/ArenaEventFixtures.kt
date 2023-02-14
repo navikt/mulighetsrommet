@@ -12,7 +12,7 @@ fun createArenaAvtaleInfoEvent(
     modify: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it }
 ): ArenaEvent = modify(avtale).let {
     createArenaEvent(
-        ArenaTables.AvtaleInfo,
+        ArenaTable.AvtaleInfo,
         it.AVTALE_ID.toString(),
         operation,
         Json.encodeToJsonElement(it).toString()
@@ -25,7 +25,7 @@ fun createArenaSakEvent(
     modify: (sak: ArenaSak) -> ArenaSak = { it }
 ): ArenaEvent = modify(sak).let {
     createArenaEvent(
-        ArenaTables.Sak,
+        ArenaTable.Sak,
         it.SAK_ID.toString(),
         operation,
         Json.encodeToJsonElement(it).toString()
@@ -38,7 +38,7 @@ fun createArenaTiltakdeltakerEvent(
     modify: (deltaker: ArenaTiltakdeltaker) -> ArenaTiltakdeltaker = { it }
 ): ArenaEvent = modify(deltaker).let {
     createArenaEvent(
-        ArenaTables.Deltaker,
+        ArenaTable.Deltaker,
         it.TILTAKDELTAKER_ID.toString(),
         operation,
         Json.encodeToJsonElement(it).toString()
@@ -51,7 +51,7 @@ fun createArenaTiltakEvent(
     modify: (tiltak: ArenaTiltak) -> ArenaTiltak = { it }
 ): ArenaEvent = modify(tiltak).let {
     createArenaEvent(
-        ArenaTables.Tiltakstype,
+        ArenaTable.Tiltakstype,
         it.TILTAKSKODE,
         operation,
         Json.encodeToJsonElement(it).toString()
@@ -65,7 +65,7 @@ fun createArenaTiltakgjennomforingEvent(
     modify: (tiltaksgjennomforing: ArenaTiltaksgjennomforing) -> ArenaTiltaksgjennomforing = { it }
 ): ArenaEvent = modify(tiltaksgjennomforing).let {
     createArenaEvent(
-        ArenaTables.Tiltaksgjennomforing,
+        ArenaTable.Tiltaksgjennomforing,
         it.TILTAKGJENNOMFORING_ID.toString(),
         operation,
         Json.encodeToJsonElement(it).toString(),
@@ -74,7 +74,7 @@ fun createArenaTiltakgjennomforingEvent(
 }
 
 private fun createArenaEvent(
-    table: String,
+    table: ArenaTable,
     id: String,
     operation: ArenaEventData.Operation,
     data: String,
@@ -99,7 +99,7 @@ private fun createArenaEvent(
         arenaId = id,
         payload = Json.parseToJsonElement(
             """{
-                "table": "$table",
+                "table": "${table.table}",
                 "op_type": $opType,
                 "before": $before,
                 "after": $after

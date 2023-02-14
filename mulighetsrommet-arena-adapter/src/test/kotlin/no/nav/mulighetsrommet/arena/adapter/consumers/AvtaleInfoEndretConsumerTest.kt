@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -64,7 +64,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.insert(ArenaEntityMapping(ArenaTables.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id))
+            mappings.insert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id))
         }
 
         test("ignore avtaler when required fields are missing") {

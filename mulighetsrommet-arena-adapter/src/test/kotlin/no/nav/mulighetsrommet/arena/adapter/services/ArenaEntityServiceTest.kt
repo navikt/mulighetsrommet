@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
@@ -27,7 +27,7 @@ class ArenaEntityServiceTest : FunSpec({
 
     val event = ArenaEvent(
         status = ArenaEvent.ConsumptionStatus.Processed,
-        arenaTable = ArenaTables.Tiltaksgjennomforing,
+        arenaTable = ArenaTable.Tiltaksgjennomforing,
         arenaId = tiltaksnummer,
         payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
     )
@@ -49,7 +49,7 @@ class ArenaEntityServiceTest : FunSpec({
 
         arenaEntityMappingRepository.insert(
             ArenaEntityMapping(
-                ArenaTables.Tiltaksgjennomforing,
+                ArenaTable.Tiltaksgjennomforing,
                 tiltaksnummer,
                 uuid
             )
@@ -59,7 +59,7 @@ class ArenaEntityServiceTest : FunSpec({
             arenaEventRepository.upsert(event)
 
             arenaEntityService.getMappingIfProcessed(
-                ArenaTables.Tiltaksgjennomforing,
+                ArenaTable.Tiltaksgjennomforing,
                 tiltaksnummer
             )?.entityId shouldBe uuid
         }
@@ -68,7 +68,7 @@ class ArenaEntityServiceTest : FunSpec({
             arenaEventRepository.upsert(event.copy(status = ArenaEvent.ConsumptionStatus.Pending))
 
             arenaEntityService.getMappingIfProcessed(
-                ArenaTables.Tiltaksgjennomforing,
+                ArenaTable.Tiltaksgjennomforing,
                 tiltaksnummer
             )?.entityId shouldBe null
         }
