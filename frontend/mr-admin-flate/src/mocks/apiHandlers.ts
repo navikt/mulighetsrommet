@@ -34,7 +34,7 @@ export const apiHandlers = [
   ),
 
   rest.get<any, { id: string }, PaginertAvtale>(
-    "*/api/v1/internal/tiltakstyper/:id/avtaler",
+    "*/api/v1/internal/avtaler/tiltakstype/:id",
     (req, res, ctx) => {
       const { id } = req.params as { id: string };
       const avtaler =
