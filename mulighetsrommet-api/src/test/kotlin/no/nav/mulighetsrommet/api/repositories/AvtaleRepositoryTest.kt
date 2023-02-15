@@ -4,81 +4,36 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
     val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
-    val tiltakstypeId = UUID.fromString("0c565576-6a74-4bc2-ad5a-765580014ef9")
+    val avtaleFixture = AvtaleFixtures(database)
 
     context("Filter for avtaler") {
 
         beforeTest {
-            database.db.clean()
-            database.db.migrate()
-            val tiltakstypeRepository = TiltakstypeRepository(database.db)
-
-            tiltakstypeRepository.upsert(
-                TiltakstypeDbo(
-                    tiltakstypeId,
-                    "",
-                    "",
-                    rettPaaTiltakspenger = true,
-                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12)
-                )
-            )
+            avtaleFixture.runBeforeTests()
         }
 
         test("Filtrere på avtalenavn skal returnere avtaler som matcher søket") {
-            val avtaleRepository = AvtaleRepository(database.db)
-
-            avtaleRepository.upsert(
-                AvtaleDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om opplæring av blinde krokodiller",
-                    avtalenummer = "2023#1",
-                    tiltakstypeId = tiltakstypeId,
-                    leverandorOrganisasjonsnummer = "12345678910",
-                    startDato = LocalDate.of(2023, 1, 11),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                    enhet = "1801",
-                    avtaletype = Avtaletype.Rammeavtale,
-                    avtalestatus = Avtalestatus.Aktiv,
-                    prisbetingelser = null
-                )
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale om opplæring av blinde krokodiller"
             )
-
-            avtaleRepository.upsert(
-                AvtaleDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om kurs for elleville elefanter",
-                    avtalenummer = "2023#2",
-                    tiltakstypeId = tiltakstypeId,
-                    leverandorOrganisasjonsnummer = "12345678910",
-                    startDato = LocalDate.of(2023, 1, 11),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                    enhet = "1801",
-                    avtaletype = Avtaletype.Rammeavtale,
-                    avtalestatus = Avtalestatus.Aktiv,
-                    prisbetingelser = null
-                )
+            val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale om undervisning av underlige ulver"
             )
+            val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
 
             val result = avtaleRepository.getAvtalerForTiltakstype(
-                tiltakstypeId = tiltakstypeId,
+                tiltakstypeId = avtaleFixture.tiltakstypeId,
                 filter = AvtaleFilter(search = "Kroko", avtalestatus = Avtalestatus.Aktiv, enhet = null)
             )
 
@@ -89,88 +44,39 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Filtrere på avtalestatus returnere avtaler med korrekt status") {
-            val avtaleRepository = AvtaleRepository(database.db)
-
-            avtaleRepository.upsert(
-                AvtaleDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om opplæring av blinde krokodiller",
-                    avtalenummer = "2023#1",
-                    tiltakstypeId = tiltakstypeId,
-                    leverandorOrganisasjonsnummer = "12345678910",
-                    startDato = LocalDate.of(2023, 1, 11),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                    enhet = "1801",
-                    avtaletype = Avtaletype.Rammeavtale,
-                    avtalestatus = Avtalestatus.Aktiv,
-                    prisbetingelser = null
-                )
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale om opplæring av blinde krokodiller",
+                avtalestatus = Avtalestatus.Aktiv,
             )
-
-            avtaleRepository.upsert(
-                AvtaleDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om kurs for elleville elefanter",
-                    avtalenummer = "2023#2",
-                    tiltakstypeId = tiltakstypeId,
-                    leverandorOrganisasjonsnummer = "12345678910",
-                    startDato = LocalDate.of(2023, 1, 11),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                    enhet = "1801",
-                    avtaletype = Avtaletype.Rammeavtale,
-                    avtalestatus = Avtalestatus.Avbrutt,
-                    prisbetingelser = null
-                )
+            val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale om undervisning av underlige ulver",
+                avtalestatus = Avtalestatus.Avbrutt,
             )
+            val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
 
             val result = avtaleRepository.getAvtalerForTiltakstype(
-                tiltakstypeId = tiltakstypeId,
+                tiltakstypeId = avtaleFixture.tiltakstypeId,
                 filter = AvtaleFilter(search = null, avtalestatus = Avtalestatus.Avbrutt, enhet = null)
             )
 
             result.second shouldHaveSize 1
-            result.second[0].navn shouldBe "Avtale om kurs for elleville elefanter"
+            result.second[0].navn shouldBe "Avtale om undervisning av underlige ulver"
             result.second[0].avtaletype shouldBe Avtaletype.Rammeavtale
             result.second[0].avtalestatus shouldBe Avtalestatus.Avbrutt
         }
 
         test("Filtrere på enhet returnerer avtaler for gitt enhet") {
-            val avtaleRepository = AvtaleRepository(database.db)
-
-            avtaleRepository.upsert(
-                AvtaleDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om opplæring av blinde krokodiller",
-                    avtalenummer = "2023#1",
-                    tiltakstypeId = tiltakstypeId,
-                    leverandorOrganisasjonsnummer = "12345678910",
-                    startDato = LocalDate.of(2023, 1, 11),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                    enhet = "1801",
-                    avtaletype = Avtaletype.Rammeavtale,
-                    avtalestatus = Avtalestatus.Aktiv,
-                    prisbetingelser = null
-                )
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale om opplæring av blinde krokodiller",
+                enhet = "1801"
             )
-
-            avtaleRepository.upsert(
-                AvtaleDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om kurs for elleville elefanter",
-                    avtalenummer = "2023#2",
-                    tiltakstypeId = tiltakstypeId,
-                    leverandorOrganisasjonsnummer = "12345678910",
-                    startDato = LocalDate.of(2023, 1, 11),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                    enhet = "1900",
-                    avtaletype = Avtaletype.Rammeavtale,
-                    avtalestatus = Avtalestatus.Avbrutt,
-                    prisbetingelser = null
-                )
+            val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                navn = "Avtale om undervisning av underlige ulver",
+                enhet = "1900"
             )
-
+            val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
             val result = avtaleRepository.getAvtalerForTiltakstype(
-                tiltakstypeId = tiltakstypeId,
+                tiltakstypeId = avtaleFixture.tiltakstypeId,
                 filter = AvtaleFilter(search = null, avtalestatus = Avtalestatus.Aktiv, enhet = "1801")
             )
 
