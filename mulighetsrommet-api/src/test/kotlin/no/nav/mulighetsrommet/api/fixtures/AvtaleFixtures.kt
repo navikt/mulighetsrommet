@@ -47,7 +47,7 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
 
     fun createAvtaleForTiltakstype(
         tiltakstypeId: UUID = this.tiltakstypeId,
-        navn: String,
+        navn: String = "Avtalenavn",
         avtalenummer: String = "2023#1",
         enhet: String = "1801",
         avtaletype: Avtaletype = Avtaletype.Rammeavtale,
