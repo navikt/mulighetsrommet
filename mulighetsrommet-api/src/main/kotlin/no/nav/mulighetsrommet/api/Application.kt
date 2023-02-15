@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -56,5 +57,15 @@ fun Application.configure(config: AppConfig) {
         authenticate(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
             externalRoutes()
         }
+    }
+
+    val scheduler: Scheduler by inject()
+
+    environment.monitor.subscribe(ApplicationStarted) {
+        scheduler.start()
+    }
+
+    environment.monitor.subscribe(ApplicationStopPreparing) {
+        scheduler.stop()
     }
 }

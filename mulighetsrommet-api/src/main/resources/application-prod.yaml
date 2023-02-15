@@ -68,3 +68,7 @@ app:
   arenaAdapter:
     url: http://mulighetsrommet-arena-adapter
     scope: api://prod-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default
+
+  tasks:
+    synchronizeNorgEnheter:
+      delayOfMinutes: 90
