@@ -5,20 +5,23 @@ import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { paginationAtom, tiltakstypefilter } from "../atoms";
 import { Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { useDebounce } from "mulighetsrommet-frontend-common";
 
 export function useTiltakstyper() {
   const [page] = useAtom(paginationAtom);
   const [sokefilter] = useAtom(tiltakstypefilter);
+  const debouncedSok = useDebounce(sokefilter.sok, 300);
+
   return useQuery(
     QueryKeys.tiltakstyper(
-      sokefilter.sok,
+      debouncedSok,
       sokefilter.status,
       sokefilter.kategori,
       page
     ),
     () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstyper({
-        search: sokefilter.sok !== "" ? sokefilter.sok : undefined,
+        search: debouncedSok !== "" ? debouncedSok : undefined,
         tiltakstypestatus: sokefilter.status ?? Tiltakstypestatus.AKTIV,
         tiltakstypekategori: sokefilter.kategori ?? undefined,
         page,

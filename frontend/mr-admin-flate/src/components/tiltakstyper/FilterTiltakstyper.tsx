@@ -10,6 +10,7 @@ export function FilterTiltakstyper() {
   const resetPagination = () => {
     setPage(1);
   };
+
   return (
     <>
       <Search

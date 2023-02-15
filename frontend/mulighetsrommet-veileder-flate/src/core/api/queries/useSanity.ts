@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
 import { QueryKeys } from '../query-keys';
-import useDebounce from '../../../hooks/useDebounce';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { useErrorHandler } from 'react-error-boundary';
 import { mulighetsrommetClient } from '../clients';
+import { useDebounce } from 'mulighetsrommet-frontend-common';
 
 interface Options {
   enabled?: boolean;

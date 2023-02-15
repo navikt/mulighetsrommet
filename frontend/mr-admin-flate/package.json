@@ -34,7 +34,8 @@
     "react-router-dom": "^6.8.1",
     "vite-plugin-require": "^1.1.10",
     "zod": "^3.20.6",
-    "zod-formik-adapter": "1.2.0"
+    "zod-formik-adapter": "1.2.0",
+    "mulighetsrommet-frontend-common": "*"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
