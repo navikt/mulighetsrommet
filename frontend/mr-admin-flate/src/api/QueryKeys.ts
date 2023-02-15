@@ -1,8 +1,8 @@
 import {
+  Avtalestatus,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
-import { avtaleFilterType } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
@@ -26,9 +26,11 @@ export const QueryKeys = {
       page,
       "tiltaksgjennomforinger",
     ] as const,
-  avtalerForTiltakstype: (tiltakstypeId: string, filter: avtaleFilterType) => [
-    tiltakstypeId,
-    { ...filter },
-    "avtaler",
-  ],
+  avtalerForTiltakstype: (
+    tiltakstypeId: string,
+    sok: string,
+    status: Avtalestatus,
+    enhet: string,
+    sortering: string
+  ) => [sok, status, enhet, sortering, tiltakstypeId, "avtaler"],
 };

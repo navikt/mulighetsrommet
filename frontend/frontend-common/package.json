@@ -1,0 +1,20 @@
+{
+  "name": "mulighetsrommet-frontend-common",
+  "version": "1.0.0",
+  "description": "Felleskode for frontend-applikasjoner for Team Valp",
+  "module": "index.ts",
+  "types": "index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/navikt/mulighetsrommet.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/navikt/mulighetsrommet/issues"
+  },
+  "homepage": "https://github.com/navikt/mulighetsrommet#readme"
+}
