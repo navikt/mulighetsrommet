@@ -79,19 +79,18 @@ class AvtaleInfoEndretConsumer(
 
         val mapping = entities.getOrCreateMapping(event)
 
-        val avtale = data
+        data
             .toAvtale(mapping.entityId)
             .flatMap { entities.upsertAvtale(it) }
-            .bind()
-
-        val dbo = resolveAvtaleDbo(avtale).bind()
-
-        val response = if (operation == ArenaEventData.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${dbo.id}")
-        } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", dbo)
-        }
-        response.mapLeft { ConsumptionError.fromResponseException(it) }
+            .flatMap { toAvtaleDbo(it) }
+            .flatMap { avtale ->
+                val response = if (operation == ArenaEventData.Operation.Delete) {
+                    client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${avtale.id}")
+                } else {
+                    client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)
+                }
+                response.mapLeft { ConsumptionError.fromResponseException(it) }
+            }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
@@ -133,7 +132,7 @@ class AvtaleInfoEndretConsumer(
         }
         .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
 
-    private suspend fun resolveAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
+    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTables.Tiltakstype, avtale.tiltakskode)
             .bind()
