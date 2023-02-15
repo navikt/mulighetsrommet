@@ -70,3 +70,7 @@ app:
   arenaAdapter:
     url: http://0.0.0.0:8084
     scope: default
+
+  tasks:
+    synchronizeNorgEnheter:
+      delayOfMinutes: 1
