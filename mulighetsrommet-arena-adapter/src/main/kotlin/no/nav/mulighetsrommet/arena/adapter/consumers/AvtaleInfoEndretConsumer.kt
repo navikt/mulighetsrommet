@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleInfoEndretConsumer(
@@ -79,19 +80,18 @@ class AvtaleInfoEndretConsumer(
 
         val mapping = entities.getOrCreateMapping(event)
 
-        val avtale = data
+        data
             .toAvtale(mapping.entityId)
             .flatMap { entities.upsertAvtale(it) }
-            .bind()
-
-        val dbo = resolveAvtaleDbo(avtale).bind()
-
-        val response = if (operation == ArenaEventData.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${dbo.id}")
-        } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", dbo)
-        }
-        response.mapLeft { ConsumptionError.fromResponseException(it) }
+            .flatMap { toAvtaleDbo(it) }
+            .flatMap { avtale ->
+                val response = if (operation == ArenaEventData.Operation.Delete) {
+                    client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${avtale.id}")
+                } else {
+                    client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)
+                }
+                response.mapLeft { ConsumptionError.fromResponseException(it) }
+            }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
@@ -133,7 +133,7 @@ class AvtaleInfoEndretConsumer(
         }
         .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
 
-    private suspend fun resolveAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
+    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTables.Tiltakstype, avtale.tiltakskode)
             .bind()
@@ -143,26 +143,31 @@ class AvtaleInfoEndretConsumer(
             .map { it.organisasjonsnummerMorselskap }
             .bind()
 
+        val startDato = avtale.fraDato.toLocalDate()
+        val sluttDato = avtale.tilDato.toLocalDate()
+
+        val avtalestatus = when (avtale.status) {
+            Avtale.Status.Avsluttet -> Avtalestatus.Avsluttet
+            Avtale.Status.Avbrutt -> Avtalestatus.Avbrutt
+            else -> Avtalestatus.resolveFromDates(LocalDate.now(), startDato, sluttDato)
+        }
+
+        val avtaletype = when {
+            avtale.rammeavtale -> Avtaletype.Rammeavtale
+            else -> Avtaletype.Avtale
+        }
+
         AvtaleDbo(
             id = avtale.id,
             navn = avtale.navn,
             tiltakstypeId = tiltakstypeMapping.entityId,
             avtalenummer = "${avtale.aar}#${avtale.lopenr}",
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-            startDato = avtale.fraDato.toLocalDate(),
-            sluttDato = avtale.tilDato.toLocalDate(),
+            startDato = startDato,
+            sluttDato = sluttDato,
             enhet = avtale.ansvarligEnhet,
-            avtaletype = if (avtale.rammeavtale) {
-                Avtaletype.Rammeavtale
-            } else {
-                Avtaletype.Avtale
-            },
-            avtalestatus = when (avtale.status) {
-                Avtale.Status.Planlagt -> Avtalestatus.Planlagt
-                Avtale.Status.Aktiv -> Avtalestatus.Aktiv
-                Avtale.Status.Avsluttet -> Avtalestatus.Avsluttet
-                Avtale.Status.Avbrutt -> Avtalestatus.Avbrutt
-            },
+            avtaletype = avtaletype,
+            avtalestatus = avtalestatus,
             prisbetingelser = avtale.prisbetingelser,
         )
     }
