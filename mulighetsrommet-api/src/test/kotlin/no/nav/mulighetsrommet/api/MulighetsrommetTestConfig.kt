@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -32,7 +33,12 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
     msGraphConfig = createServiceClientConfig("ms-graph"),
-    arenaAdapter = createServiceClientConfig("arena-adapter")
+    arenaAdapter = createServiceClientConfig("arena-adapter"),
+    tasks = TaskConfig(
+        synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
+            delayOfMinutes = 10
+        )
+    )
 )
 
 fun createKafkaConfig(): KafkaConfig {

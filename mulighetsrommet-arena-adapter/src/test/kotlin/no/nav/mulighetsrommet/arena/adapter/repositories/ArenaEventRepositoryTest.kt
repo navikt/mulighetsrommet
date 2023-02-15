@@ -66,7 +66,7 @@ class ArenaEventRepositoryTest : FunSpec({
     }
 
     test("update events consumption status specified by table and consumption status") {
-        val events = repository.updateStatus(table = "table", oldStatus = Processed, newStatus = Replay)
+        repository.updateStatus(table = "table", oldStatus = Processed, newStatus = Replay)
 
         repository.getAll(status = Replay) shouldHaveSize 5
         repository.getAll(status = Pending) shouldHaveSize 5

@@ -91,5 +91,5 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.5")
 
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
-    implementation("com.github.kagkarlsson:db-scheduler:11.5")
+    implementation("com.github.kagkarlsson:db-scheduler:11.6")
 }
