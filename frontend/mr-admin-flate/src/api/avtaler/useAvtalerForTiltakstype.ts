@@ -8,14 +8,16 @@ import { QueryKeys } from "../QueryKeys";
 export function useAvtalerForTiltakstype() {
   const { tiltakstypeId } = useParams();
   const [filter] = useAtom(avtaleFilter);
-  // TODO Send filter for avtaler til backend
 
   if (!tiltakstypeId)
     throw new Error("Kan ikke hente avtaler for tiltakstype uten id");
   // TODO Må oppdatere queryKeys med filter når vi skal hente fra backend
-  return useQuery(QueryKeys.avtalerForTiltakstype(tiltakstypeId), () =>
+  return useQuery(QueryKeys.avtalerForTiltakstype(tiltakstypeId, filter), () =>
     mulighetsrommetClient.avtaler.getAvtalerForTiltakstype({
       id: tiltakstypeId,
+      search: filter.sok ?? "",
+      avtalestatus: filter.status,
+      enhet: filter.enhet ?? "",
     })
   );
 }

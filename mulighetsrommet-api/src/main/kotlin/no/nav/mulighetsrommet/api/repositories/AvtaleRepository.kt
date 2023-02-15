@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.utils.AvtaleFilter
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -140,9 +142,26 @@ class AvtaleRepository(private val db: Database) {
 
     fun getAvtalerForTiltakstype(
         tiltakstypeId: UUID,
+        filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams()
     ): Pair<Int, List<AvtaleAdminDto>> {
         logger.info("Henter avtaler for tiltakstype med id: '$tiltakstypeId'")
+        val parameters = mapOf(
+            "tiltakstype_id" to tiltakstypeId,
+            "search" to "%${filter.search}%",
+            "avtalestatus" to filter.avtalestatus.name,
+            "enhet" to filter.enhet,
+            "limit" to pagination.limit,
+            "offset" to pagination.offset
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
+            filter.search to "(lower(a.navn) like lower(:search))",
+            filter.avtalestatus to "a.avtalestatus = :avtalestatus::Avtalestatus",
+            filter.enhet to "lower(a.enhet) = lower(:enhet)"
+        )
+
         @Language("PostgreSQL")
         val query = """
            select a.id,
@@ -161,12 +180,13 @@ class AvtaleRepository(private val db: Database) {
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
-            where a.tiltakstype_id = ?
+            $where
             order by a.navn
-            limit ? offset ?
+            limit :limit
+            offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, tiltakstypeId, pagination.limit, pagination.offset)
+        val results = queryOf(query, parameters)
             .map {
                 it.int("full_count") to it.toAvtaleAdminDto()
             }
