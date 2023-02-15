@@ -6,11 +6,13 @@ import { capitalize } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
-import { DelMedBrukerFeiletContent } from './DelMedBrukerFeiletContent';
-import { SendtOkContent } from './SendtOkContent';
 import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
-import { DelMedBrukerContent } from './DelMedBrukerContent';
 import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
+import { DelMedBrukerFeiletContent } from './DelMedBrukerFeiletContent';
+import { DelMedBrukerContent } from './DelMedBrukerContent';
+import { StatusModal } from './StatusModal';
+import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
+import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Redigerer hilsen'
@@ -22,7 +24,7 @@ export const logDelMedbrukerEvent = (
 
 interface DelemodalProps {
   modalOpen: boolean;
-  setModalOpen: () => void;
+  lukkModal: () => void;
   tiltaksgjennomforingsnavn: string;
   brukernavn?: string;
   chattekst: string;
@@ -72,7 +74,7 @@ function sySammenHilsenTekst(veiledernavn?: string) {
 
 const Delemodal = ({
   modalOpen,
-  setModalOpen,
+  lukkModal,
   tiltaksgjennomforingsnavn,
   brukernavn,
   chattekst,
@@ -81,39 +83,55 @@ const Delemodal = ({
   const deletekst = sySammenBrukerTekst(chattekst, tiltaksgjennomforingsnavn, brukernavn);
   const originalHilsen = sySammenHilsenTekst(veiledernavn);
   const [state, dispatch] = useReducer(reducer, { deletekst, originalHilsen }, initInitialState);
+  const { navigerTilDialogen } = useNavigerTilDialogen();
+  const fnr = useHentFnrFraUrl();
 
   const brukerdata = useHentBrukerdata();
   const manuellOppfolging = brukerdata.data?.manuellStatus?.erUnderManuellOppfolging;
   const krrStatusErReservert = brukerdata.data?.manuellStatus?.krrStatus?.erReservert;
   const kanVarsles = brukerdata?.data?.manuellStatus?.krrStatus?.kanVarsles;
-  const kanDeleMedBruker = !manuellOppfolging && !krrStatusErReservert && kanVarsles;
+  const kanIkkeDeleMedBruker = manuellOppfolging && krrStatusErReservert && !kanVarsles;
+  const manuellStatus = !brukerdata.data?.manuellStatus;
+
+  const feilmodal = manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker;
 
   const clickCancel = (log = true) => {
-    setModalOpen();
+    lukkModal();
     dispatch({ type: 'Avbryt' });
     log && logDelMedbrukerEvent('Avbrutt del med bruker');
   };
 
   return (
-    <Modal
-      shouldCloseOnOverlayClick={!kanDeleMedBruker}
-      closeButton={kanDeleMedBruker!}
-      open={modalOpen}
-      onClose={clickCancel}
-      className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
-      aria-label="modal"
-    >
-      <Modal.Content>
-        {!kanDeleMedBruker ? (
-          <KanIkkeDeleMedBrukerModal
-            setModalOpen={setModalOpen}
-            manuellOppfolging={manuellOppfolging!}
-            kanDeleMedBruker={kanDeleMedBruker!}
-            krrStatusErReservert={krrStatusErReservert!}
-            manuellStatus={!brukerdata.data?.manuellStatus}
-          />
-        ) : (
-          <>
+    <>
+      {feilmodal ? (
+        <Modal
+          shouldCloseOnOverlayClick={true}
+          closeButton={false}
+          open={modalOpen}
+          onClose={clickCancel}
+          className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
+          aria-label="modal"
+        >
+          <Modal.Content>
+            <KanIkkeDeleMedBrukerModal
+              lukkModal={lukkModal}
+              manuellOppfolging={manuellOppfolging!}
+              kanIkkeDeleMedBruker={kanIkkeDeleMedBruker!}
+              krrStatusErReservert={krrStatusErReservert!}
+              manuellStatus={manuellStatus}
+            />
+          </Modal.Content>
+        </Modal>
+      ) : (
+        <Modal
+          shouldCloseOnOverlayClick={false}
+          closeButton={true}
+          open={modalOpen}
+          onClose={clickCancel}
+          className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
+          aria-label="modal"
+        >
+          <Modal.Content>
             {state.sendtStatus !== 'SENDT_OK' && state.sendtStatus !== 'SENDING_FEILET' && (
               <>
                 <DelMedBrukerContent
@@ -129,16 +147,24 @@ const Delemodal = ({
                 </BodyShort>
               </>
             )}
-          </>
-        )}
-
-        {state.sendtStatus === 'SENDT_OK' && <SendtOkContent state={state} onCancel={clickCancel} />}
-
-        {state.sendtStatus === 'SENDING_FEILET' && (
-          <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
-        )}
-      </Modal.Content>
-    </Modal>
+            {state.sendtStatus === 'SENDT_OK' && (
+              <StatusModal
+                ikonVariant="success"
+                heading="Tiltaket er delt med brukeren"
+                text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
+                primaryButtonText="Gå til dialogen"
+                primaryButtonOnClick={() => navigerTilDialogen(fnr, state.dialogId)}
+                secondaryButtonText="Lukk"
+                secondaryButtonOnClick={() => clickCancel(false)}
+              />
+            )}
+            {state.sendtStatus === 'SENDING_FEILET' && (
+              <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
+            )}
+          </Modal.Content>
+        </Modal>
+      )}
+    </>
   );
 };
 export default Delemodal;

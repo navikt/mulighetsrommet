@@ -13,7 +13,7 @@ interface Props {
 
 export function DelMedBrukerFeiletContent({ dispatch, onCancel }: Props) {
   return (
-    <div className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
+    <div className={classNames(delemodalStyles.delemodal_status)}>
       <Feilmelding
         header="Tiltaket kunne ikke deles"
         beskrivelse={`Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta
