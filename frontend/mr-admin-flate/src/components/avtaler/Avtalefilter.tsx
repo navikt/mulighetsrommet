@@ -2,13 +2,19 @@ import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
-import { avtaleFilter } from "../../api/atoms";
+import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import styles from "./Avtalefilter.module.scss";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
+  const [, setPage] = useAtom(avtalePaginationAtom);
+
+  const resetPaginering = () => {
+    setPage(1);
+  };
+
   return (
     <>
       <div className={styles.filter_container}>
@@ -17,7 +23,9 @@ export function Avtalefilter() {
             label="Søk etter avtale"
             hideLabel
             variant="simple"
-            onChange={(sok: string) => setFilter({ ...filter, sok })}
+            onChange={(sok: string) => {
+              setFilter({ ...filter, sok });
+            }}
             value={filter.sok}
             aria-label="Søk etter avtale"
             data-testid="filter_avtale_sokefelt"
@@ -30,6 +38,7 @@ export function Avtalefilter() {
             value={filter.status}
             data-testid="filter_avtale_status"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering();
               setFilter({
                 ...filter,
                 status: e.currentTarget.value as Avtalestatus,
@@ -49,6 +58,7 @@ export function Avtalefilter() {
             value={filter.enhet}
             data-testid="filter_avtale_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering();
               setFilter({ ...filter, enhet: e.currentTarget.value });
             }}
           >
