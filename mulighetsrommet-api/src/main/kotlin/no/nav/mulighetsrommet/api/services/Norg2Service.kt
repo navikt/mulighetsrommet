@@ -14,7 +14,7 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
         enheter.forEach {
             enhetRepository.upsert(
                 Norg2EnhetDbo(
-                    enhetId = it.enhetId,
+                    enhet_id = it.enhetId,
                     navn = it.navn,
                     enhetNr = it.enhetNr,
                     status = EnhetStatus.valueOf(it.status.name)

@@ -20,7 +20,7 @@ class Norg2ClientImpl(
             response.body()
         } catch (exe: Exception) {
             log.error("Klarte ikke hente enheter fra NORG2. Konsekvensen er at oppdatering av enheter mot database ikke blir kjørt")
-            emptyList()
+            throw exe
         }
     }
 }

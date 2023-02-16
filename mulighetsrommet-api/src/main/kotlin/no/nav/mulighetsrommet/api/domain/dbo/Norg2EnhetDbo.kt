@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Norg2EnhetDbo(
-    val enhetId: Int,
+    val enhet_id: Int,
     val navn: String,
     val enhetNr: String,
     val status: EnhetStatus

@@ -14,13 +14,13 @@ class EnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(enhet: Norg2EnhetDbo): QueryResult<Norg2EnhetDbo> = query {
-        logger.info("Lagrer enhet id=${enhet.enhetId}")
+        logger.info("Lagrer enhet id=${enhet.enhet_id}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into enhet(enhetid, navn, enhetsnummer, status)
-            values (:enhetId, :navn, :enhetsnummer, :status)
-            on conflict (enhetId)
+            insert into enhet(enhet_id, navn, enhetsnummer, status)
+            values (:enhet_id, :navn, :enhetsnummer, :status)
+            on conflict (enhet_id)
                 do update set   navn            = excluded.navn,
                                 enhetsnummer    = excluded.enhetsnummer,
                                 status          = excluded.status
@@ -35,14 +35,14 @@ class EnhetRepository(private val db: Database) {
 }
 
 private fun Norg2EnhetDbo.toSqlParameters() = mapOf(
-    "enhetId" to enhetId,
+    "enhet_id" to enhet_id,
     "navn" to navn,
     "enhetsnummer" to enhetNr,
     "status" to status.name
 )
 
 private fun Row.toEnhetDbo() = Norg2EnhetDbo(
-    enhetId = int("enhetId"),
+    enhet_id = int("enhet_id"),
     navn = string("navn"),
     enhetNr = string("enhetsNr"),
     status = EnhetStatus.valueOf(string("status"))
