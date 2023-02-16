@@ -214,12 +214,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun getAllByDateIntervalAndAvslutningsstatus(
-        dateIntervalStartExclusive: LocalDate,
-        dateIntervalEndInclusive: LocalDate,
+        dateIntervalStart: LocalDate,
+        dateIntervalEnd: LocalDate,
         avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams
     ): List<TiltaksgjennomforingDbo> {
-        logger.info("Henter alle tiltaksgjennomføringer med start eller slutt dato mellom $dateIntervalStartExclusive og $dateIntervalEndInclusive, med avslutningsstatus $avslutningsstatus")
+        logger.info("Henter alle tiltaksgjennomføringer med start eller slutt dato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
 
         @Language("PostgreSQL")
         val query = """
@@ -235,7 +235,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
-                (slutt_dato > :date_interval_start and slutt_dato <= :date_interval_end))
+                (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end))
             order by id
             limit :limit offset :offset
         """.trimIndent()
@@ -244,8 +244,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             query,
             mapOf(
                 "avslutningsstatus" to avslutningsstatus.name,
-                "date_interval_start" to dateIntervalStartExclusive,
-                "date_interval_end" to dateIntervalEndInclusive,
+                "date_interval_start" to dateIntervalStart,
+                "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
                 "offset" to pagination.offset,
             )

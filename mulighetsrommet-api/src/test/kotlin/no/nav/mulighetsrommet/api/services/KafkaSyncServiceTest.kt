@@ -85,12 +85,12 @@ class KafkaSyncServiceTest : FunSpec({
             createTiltaksgjennomforing(avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET)
         val sluttdatoInnenforMenAvbruttStatus = createTiltaksgjennomforing(
             startDato = lastSuccessDate,
-            sluttDato = today,
+            sluttDato = lastSuccessDate,
             avslutningsstatus = Avslutningsstatus.AVBRUTT
         )
         val sluttdatoInnenfor = createTiltaksgjennomforing(
             startDato = lastSuccessDate,
-            sluttDato = today,
+            sluttDato = lastSuccessDate,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
         )
         val datoerUtenfor = createTiltaksgjennomforing(
