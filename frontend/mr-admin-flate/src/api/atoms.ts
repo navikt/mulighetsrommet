@@ -3,6 +3,7 @@ import { atomWithHash } from "jotai-location";
 import { atomWithStorage } from "jotai/utils";
 import {
   Avtalestatus,
+  SorteringAvtaler,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -39,12 +40,12 @@ const avtaleFilter = atom<{
   sok: string;
   status: Avtalestatus;
   enhet: string;
-  sortering: string;
+  sortering: SorteringAvtaler;
 }>({
   sok: "",
   status: Avtalestatus.AKTIV,
   enhet: "",
-  sortering: "",
+  sortering: SorteringAvtaler.NAVN_ASCENDING,
 });
 
 export type avtaleFilterType = ExtractAtomValue<typeof avtaleFilter>;

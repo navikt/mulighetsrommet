@@ -107,6 +107,10 @@ paths:
           schema:
             type: number
           description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringAvtaler"
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
@@ -752,6 +756,14 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
+
+    SorteringAvtaler:
+        type: string
+        enum:
+          - navn-ascending
+          - navn-descending
+          - status-ascending
+          - status-descending
 
     Tiltaksgjennomforing:
       type: object
