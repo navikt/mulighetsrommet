@@ -195,7 +195,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           <TiltaksdetaljerFane />
           <Delemodal
             modalOpen={delemodalApen}
-            setModalOpen={() => setDelemodalApen(false)}
+            lukkModal={() => setDelemodalApen(false)}
             tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
             brukernavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn}
             chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}

@@ -220,21 +220,15 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('deleknapp').should('be.visible').click();
 
     cy.getByTestId('modal_header').should('be.visible');
-    cy.getByTestId('modal_btn-cancel').click();
-    cy.getByTestId('modal_header').should('not.exist');
-
-    cy.getByTestId('deleknapp').click();
-    cy.getByTestId('modal_header').should('be.visible');
-
     cy.getByTestId('personlig_hilsen_btn').click();
 
     cy.getByTestId('textarea_hilsen').type('Test');
     cy.get('.navds-error-message').should('not.exist');
-    cy.getByTestId('modal_btn-send').should('not.be.disabled');
 
-    cy.getByTestId('modal_btn-send').click();
-    cy.getByTestId('modal_header').should('contain', 'Meldingen er sendt');
+    cy.getByTestId('modal_btn-send').should('not.be.disabled').click();
 
+    cy.getByTestId('modal_header').should('contain', 'Tiltaket er delt med brukeren');
+    //
     cy.getByTestId('modal_btn-cancel').click();
     cy.getByTestId('modal_header').should('not.exist');
   });

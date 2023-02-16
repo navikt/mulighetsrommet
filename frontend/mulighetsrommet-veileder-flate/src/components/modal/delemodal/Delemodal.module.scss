@@ -3,16 +3,10 @@
     max-width: 65ch;
   }
 
-  &_tilbakemelding {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .modal_btngroup {
-      justify-content: space-around;
-    }
+  .heading {
+    margin-bottom: 1rem;
   }
+
 
   .feilmeldinger {
     margin-bottom: 1rem;
@@ -25,29 +19,33 @@
     align-self: center;
   }
 
-  .btn_row button {
-    margin-right: 1rem;
+  .personopplysninger {
+    margin-top: 1rem;
   }
 
   .personlig_melding_btn {
     margin-top: 1rem;
   }
+
+  .deletekst {
+    margin-top: 1rem;
+    max-width: 65ch;
+    white-space: pre-wrap;
+    border-radius: 5px;
+    padding: 1rem;
+    background-color: #f7f7f7;
+  }
+
+  .personligHilsen {
+    margin-top: 0.5rem;
+  }
+
+  .delemodal_btngroup {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    justify-content: space-between;
+  }
 }
 
-.deletekst {
-  margin-top: 1rem;
-  max-width: 65ch;
-  white-space: pre-wrap;
-  border-radius: 5px;
-  padding: 1rem;
-  background-color: #f7f7f7;
-}
-
-.personligHilsen {
-  margin-top: 0.5rem;
-}
-
-.alert_btn {
-  width: 100%;
-  margin-top: 1rem !important;
-}
