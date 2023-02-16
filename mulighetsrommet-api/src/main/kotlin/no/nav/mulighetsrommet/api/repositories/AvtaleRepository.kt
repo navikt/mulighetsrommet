@@ -162,6 +162,14 @@ class AvtaleRepository(private val db: Database) {
             filter.enhet to "lower(a.enhet) = lower(:enhet)"
         )
 
+        val order = when (filter.sortering) {
+            "navn-ascending" -> "a.navn asc"
+            "navn-descending" -> "a.navn desc"
+            "status-ascending" -> "a.avtalestatus asc"
+            "status-descending" -> "a.avtalestatus desc"
+            else -> "a.navn asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
            select a.id,
@@ -181,7 +189,7 @@ class AvtaleRepository(private val db: Database) {
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
             $where
-            order by a.navn
+            order by $order
             limit :limit
             offset :offset
         """.trimIndent()

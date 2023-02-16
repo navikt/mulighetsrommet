@@ -27,6 +27,7 @@ export function useAvtalerForTiltakstype() {
         search: debouncedSok || undefined,
         avtalestatus: filter.status ? filter.status : undefined,
         enhet: filter.enhet ? filter.enhet : undefined,
+        sort: filter.sortering,
       })
   );
 }
