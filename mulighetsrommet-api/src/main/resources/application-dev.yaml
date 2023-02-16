@@ -74,4 +74,7 @@ app:
 
   tasks:
     synchronizeNorgEnheter:
-      delayOfMinutes: 90
+      delayOfMinutes: 360 # Hver 6. time
+
+  norg2:
+    baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
