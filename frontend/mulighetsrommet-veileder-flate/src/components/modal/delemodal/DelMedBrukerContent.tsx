@@ -95,7 +95,6 @@ export function DelMedBrukerContent({
       <Heading size="large" level="1" className={delemodalStyles.heading}>
         {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
       </Heading>
-      {/*{state.sendtStatus !== 'SENDT_OK' && <DelePaNyttModal />}*/}
       {state.sendtStatus !== 'SENDT_OK' && (
         <Alert variant="warning">{`Dette tiltaket ble delt med bruker ${datoSidenSistDelt}.`}</Alert>
       )}
