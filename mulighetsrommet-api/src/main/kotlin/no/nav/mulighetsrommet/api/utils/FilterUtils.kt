@@ -14,7 +14,8 @@ data class TiltakstypeFilter(
 data class AvtaleFilter(
     val search: String?,
     val avtalestatus: Avtalestatus? = null,
-    val enhet: String? = null
+    val enhet: String? = null,
+    val sortering: String? = null
 )
 
 data class EnhetFilter(
@@ -48,10 +49,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     val avtalestatus =
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
     val enhet = call.request.queryParameters["enhet"]
+    val sortering = call.request.queryParameters["sort"]
     return AvtaleFilter(
         search = search,
         avtalestatus = avtalestatus,
-        enhet = enhet
+        enhet = enhet,
+        sortering = sortering
     )
 }
 

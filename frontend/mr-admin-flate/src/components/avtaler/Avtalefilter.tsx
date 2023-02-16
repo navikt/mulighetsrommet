@@ -1,6 +1,6 @@
 import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { avtaleFilter } from "../../api/atoms";
 import { useEnheter } from "../../api/enhet/useEnheter";
@@ -68,10 +68,17 @@ export function Avtalefilter() {
             value={filter.sortering}
             data-testid="filter_avtale_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              setFilter({ ...filter, sortering: e.currentTarget.value });
+              setFilter({
+                ...filter,
+                sortering: e.currentTarget.value as SorteringAvtaler,
+              });
             }}
           >
-            <option value="">Sorter</option>
+            <option value="navn-ascending">Sorter</option>
+            <option value="navn-ascending">Navn A-Å</option>
+            <option value="navn-descending">Navn Å-A</option>
+            <option value="status-ascending">Status A-Å</option>
+            <option value="status-descending">Status Å-A</option>
           </Select>
         </div>
       </div>
