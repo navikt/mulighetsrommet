@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
@@ -34,7 +34,7 @@ class TiltakdeltakerEndretConsumer(
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
 ) : ArenaTopicConsumer(
-    ArenaTables.Deltaker
+    ArenaTable.Deltaker
 ) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -43,7 +43,7 @@ class TiltakdeltakerEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(payload)
 
         return ArenaEvent(
-            arenaTable = decoded.table,
+            arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.TILTAKDELTAKER_ID.toString(),
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending
@@ -58,7 +58,7 @@ class TiltakdeltakerEndretConsumer(
         }
 
         val tiltaksgjennomforingIsIgnored = entities
-            .isIgnored(ArenaTables.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
+            .isIgnored(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
         ensure(!tiltaksgjennomforingIsIgnored) {
             ConsumptionError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
@@ -71,7 +71,7 @@ class TiltakdeltakerEndretConsumer(
             .bind()
 
         val tiltaksgjennomforingMapping = entities
-            .getMapping(ArenaTables.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
+            .getMapping(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
         val tiltaksgjennomforing = entities
             .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
@@ -82,7 +82,7 @@ class TiltakdeltakerEndretConsumer(
             .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke norsk ident i Arena ORDS for Arena personId=${deltaker.personId}") }
             .bind()
         val tiltakstypeMapping = entities
-            .getMapping(ArenaTables.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+            .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
             .bind()
         val tiltakstype = entities
             .getTiltakstype(tiltakstypeMapping.entityId)

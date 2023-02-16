@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
@@ -24,14 +25,20 @@ fun Route.managerRoutes() {
         useResources = true
         react("web")
     }
+
     get("/topics") {
         val topics = kafka.getTopics()
         call.respond(topics)
     }
+
     put("/topics") {
         val topics = call.receive<List<Topic>>()
         kafka.updateRunningTopics(topics)
         call.respond(HttpStatusCode.OK)
+    }
+
+    get("/arena-tables") {
+        call.respond(ArenaTable.values())
     }
 
     val replayEvents: ReplayEvents by inject()
@@ -77,18 +84,18 @@ fun Route.managerRoutes() {
 
 @Serializable
 data class ReplayTopicEventRequest(
-    val table: String,
+    val table: ArenaTable,
     val arenaId: String
 )
 
 @Serializable
 data class DeleteEventsRequest(
-    val table: String,
+    val table: ArenaTable,
     val arenaIds: List<String>
 )
 
 @Serializable
 data class ReplayEventsTaskData(
-    val table: String,
+    val table: ArenaTable,
     val status: ArenaEvent.ConsumptionStatus?
 )

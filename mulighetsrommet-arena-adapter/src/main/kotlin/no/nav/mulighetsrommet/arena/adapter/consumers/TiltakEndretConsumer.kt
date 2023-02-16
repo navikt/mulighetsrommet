@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
@@ -27,7 +27,7 @@ class TiltakEndretConsumer(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient
 ) : ArenaTopicConsumer(
-    ArenaTables.Tiltakstype
+    ArenaTable.Tiltakstype
 ) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -36,7 +36,7 @@ class TiltakEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaTiltak>(payload)
 
         return ArenaEvent(
-            arenaTable = decoded.table,
+            arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.TILTAKSKODE,
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending

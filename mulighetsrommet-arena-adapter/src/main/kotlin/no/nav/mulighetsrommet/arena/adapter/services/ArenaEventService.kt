@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
@@ -27,7 +28,7 @@ class ArenaEventService(
         val maxRetries: Int = 0
     )
 
-    suspend fun deleteEntities(table: String, ids: List<String>) {
+    suspend fun deleteEntities(table: ArenaTable, ids: List<String>) {
         logger.info("Deleting entities from table=$table, ids=$ids")
 
         ids.forEach { id ->
@@ -37,7 +38,7 @@ class ArenaEventService(
         }
     }
 
-    suspend fun replayEvent(table: String, id: String): ArenaEvent? {
+    suspend fun replayEvent(table: ArenaTable, id: String): ArenaEvent? {
         logger.info("Replaying event table=$table, id=$id")
 
         return events.get(table, id)?.also { event ->
@@ -45,18 +46,18 @@ class ArenaEventService(
         }
     }
 
-    suspend fun retryEvents(table: String? = null, status: ArenaEvent.ConsumptionStatus? = null) {
+    suspend fun retryEvents(table: ArenaTable? = null, status: ArenaEvent.ConsumptionStatus? = null) {
         logger.info("Retrying events from table=$table, status=$status")
 
         consumeEvents(table, status, config.maxRetries) { event ->
-            Metrics.retryArenaEventTimer(event.arenaTable).recordSuspend {
+            Metrics.retryArenaEventTimer(event.arenaTable.table).recordSuspend {
                 val eventToRetry = event.copy(retries = event.retries + 1)
                 processEvent(eventToRetry)
             }
         }
     }
 
-    fun setReplayStatusForEvents(table: String, status: ArenaEvent.ConsumptionStatus? = null) {
+    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEvent.ConsumptionStatus? = null) {
         logger.info("Setting replay status to events from table=$table, status=$status")
 
         events.updateStatus(table, status, ArenaEvent.ConsumptionStatus.Replay)
@@ -104,7 +105,7 @@ class ArenaEventService(
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     private suspend fun consumeEvents(
-        table: String?,
+        table: ArenaTable?,
         status: ArenaEvent.ConsumptionStatus?,
         maxRetries: Int? = null,
         consumer: suspend (ArenaEvent) -> Unit

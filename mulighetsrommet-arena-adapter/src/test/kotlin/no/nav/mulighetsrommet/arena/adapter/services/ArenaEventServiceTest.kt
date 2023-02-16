@@ -8,6 +8,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
@@ -27,7 +28,7 @@ class ArenaEventServiceTest : FunSpec({
         database.db.clean()
     }
 
-    val table = "foo"
+    val table = ArenaTable.Tiltakstype
 
     val fooEvent = ArenaEvent(
         status = ConsumptionStatus.Processed,

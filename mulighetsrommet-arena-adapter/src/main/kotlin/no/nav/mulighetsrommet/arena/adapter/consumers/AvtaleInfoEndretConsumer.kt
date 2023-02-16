@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
@@ -36,7 +36,7 @@ class AvtaleInfoEndretConsumer(
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
 ) : ArenaTopicConsumer(
-    ArenaTables.AvtaleInfo
+    ArenaTable.AvtaleInfo
 ) {
     companion object {
         val ArenaAvtaleCutoffDate = ArenaUtils.parseTimestamp("2023-01-01 00:00:00")
@@ -48,7 +48,7 @@ class AvtaleInfoEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaAvtaleInfo>(payload)
 
         return ArenaEvent(
-            arenaTable = decoded.table,
+            arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.AVTALE_ID.toString(),
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending
@@ -135,7 +135,7 @@ class AvtaleInfoEndretConsumer(
 
     private suspend fun toAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
         val tiltakstypeMapping = entities
-            .getMapping(ArenaTables.Tiltakstype, avtale.tiltakskode)
+            .getMapping(ArenaTable.Tiltakstype, avtale.tiltakskode)
             .bind()
         val leverandorOrganisasjonsnummer = ords.getArbeidsgiver(avtale.leverandorId)
             .mapLeft { ConsumptionError.fromResponseException(it) }
