@@ -10,7 +10,7 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
     private val log = LoggerFactory.getLogger(javaClass)
     suspend fun synkroniserEnheter() {
         val enheter = norg2Client.hentEnheter()
-        log.info("Hentet ${enheter.size} fra NORG2")
+        log.info("Hentet ${enheter.size} enheter fra NORG2")
         enheter.forEach {
             enhetRepository.upsert(
                 Norg2EnhetDbo(

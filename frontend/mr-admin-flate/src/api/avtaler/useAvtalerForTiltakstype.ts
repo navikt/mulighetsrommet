@@ -24,9 +24,9 @@ export function useAvtalerForTiltakstype() {
     () =>
       mulighetsrommetClient.avtaler.getAvtalerForTiltakstype({
         id: tiltakstypeId,
-        search: debouncedSok ?? "",
-        avtalestatus: filter.status,
-        enhet: filter.enhet ?? "",
+        search: debouncedSok || undefined,
+        avtalestatus: filter.status ? filter.status : undefined,
+        enhet: filter.enhet ? filter.enhet : undefined,
       })
   );
 }

@@ -543,6 +543,27 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/enheter:
+    get:
+      tags:
+        - Hent enheter
+      operationId: hentEnheter
+      parameters:
+        - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: ID for tiltakstypen knyttet til avtaler med enheter
+      responses:
+        200:
+          description: "Enheter knyttet til avtaler"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enhet"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -937,3 +958,21 @@ components:
           type: string
         updated_by:
           type: string
+
+    Enhet:
+      type: object
+      properties:
+        enhetId:
+          type: number
+        enhetNr:
+          type: string
+        navn:
+          type: string
+        status:
+          type: string
+          enum:
+            - UNDER_ETABLERING
+            - AKTIV
+            - UNDER_AVVIKLING
+            - NEDLAGT
+

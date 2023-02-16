@@ -149,7 +149,7 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "tiltakstype_id" to tiltakstypeId,
             "search" to "%${filter.search}%",
-            "avtalestatus" to filter.avtalestatus.name,
+            "avtalestatus" to filter.avtalestatus?.name,
             "enhet" to filter.enhet,
             "limit" to pagination.limit,
             "offset" to pagination.offset
