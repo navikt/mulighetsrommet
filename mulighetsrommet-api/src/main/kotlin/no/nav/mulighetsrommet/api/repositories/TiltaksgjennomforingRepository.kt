@@ -219,7 +219,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams
     ): List<TiltaksgjennomforingDbo> {
-        logger.info("Henter alle tiltaksgjennomføringer for ansatt")
+        logger.info("Henter alle tiltaksgjennomføringer med start eller slutt dato mellom $dateIntervalStartExclusive og $dateIntervalEndInclusive, med avslutningsstatus $avslutningsstatus")
 
         @Language("PostgreSQL")
         val query = """
@@ -231,9 +231,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    start_dato,
                    slutt_dato,
                    enhet,
-                   avslutningsstatus
+                   avslutningsstatus::avslutningsstatus
             from tiltaksgjennomforing
-            where avslutningsstatus = :avslutningsstatus and (
+            where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
                 (slutt_dato > :date_interval_start and slutt_dato <= :date_interval_end))
             order by id
@@ -242,7 +242,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         return queryOf(
             query, mapOf(
-                "avslutningsstatus" to avslutningsstatus,
+                "avslutningsstatus" to avslutningsstatus.name,
                 "date_interval_start" to dateIntervalStartExclusive,
                 "date_interval_end" to dateIntervalEndInclusive,
                 "limit" to pagination.limit,

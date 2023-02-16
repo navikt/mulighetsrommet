@@ -196,6 +196,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltaksgjennomforingService(get(), get()) }
     single { TiltakstypeService(get()) }
     single { Norg2Service(get(), get()) }
+    single { KafkaSyncService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

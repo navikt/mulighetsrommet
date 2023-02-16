@@ -15,9 +15,7 @@ class KafkaSyncService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun oppdaterTiltaksgjennomforingsstatus(today: LocalDate, lastSuccessDate: LocalDate) {
-        val limit = 1000
-        var offset = 0
-
+        var offset = 1
         var count = 0
 
         do {
@@ -25,9 +23,9 @@ class KafkaSyncService(
                 dateIntervalStartExclusive = lastSuccessDate,
                 dateIntervalEndInclusive = today,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                pagination = PaginationParams(nullablePage = offset, nullableLimit = limit)
+                pagination = PaginationParams(nullablePage = offset, nullableLimit = 1000)
             )
-            offset += limit
+            offset += 1
 
             tiltaksgjennomforinger.forEach { it ->
                 tiltaksgjennomforingRepository.get(it.id)?.let {
