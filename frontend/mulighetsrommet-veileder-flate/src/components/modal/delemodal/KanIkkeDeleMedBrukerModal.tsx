@@ -24,7 +24,7 @@ export const KanIkkeDeleMedBrukerModal = ({
 
   const [, setData] = useState(brukerdata);
   const [loaderModalApen, setLoaderModalApen] = useState(false);
-  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const provIgjen = async () => {
     setData(brukerdata);
