@@ -2,11 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { useParams } from "react-router-dom";
-import { avtaleFilter } from "../atoms";
+import { AVTALE_PAGE_SIZE } from "../../constants";
+import { avtaleFilter, avtalePaginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useAvtalerForTiltakstype() {
+  const [page] = useAtom(avtalePaginationAtom);
   const { tiltakstypeId } = useParams();
   const [filter] = useAtom(avtaleFilter);
   const debouncedSok = useDebounce(filter.sok, 300);
@@ -19,7 +21,8 @@ export function useAvtalerForTiltakstype() {
       debouncedSok,
       filter.status,
       filter.enhet,
-      filter.sortering
+      filter.sortering,
+      page
     ),
     () =>
       mulighetsrommetClient.avtaler.getAvtalerForTiltakstype({
@@ -28,6 +31,8 @@ export function useAvtalerForTiltakstype() {
         avtalestatus: filter.status ? filter.status : undefined,
         enhet: filter.enhet ? filter.enhet : undefined,
         sort: filter.sortering,
+        page,
+        size: AVTALE_PAGE_SIZE,
       })
   );
 }
