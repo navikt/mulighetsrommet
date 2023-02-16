@@ -196,7 +196,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           <Delemodal
             modalOpen={delemodalApen}
             lukkModal={() => setDelemodalApen(false)}
-            apneModal={() => setDelemodalApen(true)}
             tiltaksgjennomforingsnavn={tiltaksgjennomforing.tiltaksgjennomforingNavn}
             brukernavn={erPreview ? '{Navn}' : brukerdata?.data?.fornavn}
             chattekst={tiltaksgjennomforing.tiltakstype.delingMedBruker ?? ''}

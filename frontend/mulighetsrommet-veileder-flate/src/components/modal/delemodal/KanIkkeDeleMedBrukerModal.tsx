@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { LoaderModal } from '../loaderModal/LoaderModal';
 
 interface KanIkkeDeleMedBrukerModalProps {
+  modalOpen: boolean;
   lukkModal: () => void;
   manuellOppfolging: boolean;
   krrStatusErReservert: boolean;
@@ -12,6 +13,7 @@ interface KanIkkeDeleMedBrukerModalProps {
 }
 
 export const KanIkkeDeleMedBrukerModal = ({
+  modalOpen,
   lukkModal,
   manuellOppfolging,
   krrStatusErReservert,
@@ -19,9 +21,9 @@ export const KanIkkeDeleMedBrukerModal = ({
   kanIkkeDeleMedBruker,
 }: KanIkkeDeleMedBrukerModalProps) => {
   const brukerdata = useHentBrukerdata();
-  const [_, setData] = useState(brukerdata);
+  const [, setData] = useState(brukerdata);
   const [loaderModalApen, setLoaderModalApen] = useState(false);
-  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+  // const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
   const feilmelding = () => {
     if (manuellOppfolging)
@@ -43,13 +45,16 @@ export const KanIkkeDeleMedBrukerModal = ({
   const provIgjen = async () => {
     setData(brukerdata);
     setLoaderModalApen(true);
-    await sleep(500); //ja, det skal være sleep her fordi brukerne skal se at brukerdata hentes på nytt
+    //tester om det er nødvendig med denne
+    // await sleep(500); //ja, det skal være sleep h  er fordi brukerne skal se at brukerdata hentes på nytt
     setLoaderModalApen(false);
   };
 
   return (
     <>
       <StatusModal
+        modalOpen={modalOpen}
+        onClose={lukkModal}
         ikonVariant="warning"
         heading={heading}
         text={feilmelding()}

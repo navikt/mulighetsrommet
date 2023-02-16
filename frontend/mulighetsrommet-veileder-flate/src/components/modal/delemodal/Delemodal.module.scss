@@ -47,38 +47,5 @@
     margin-bottom: 1rem;
     justify-content: space-between;
   }
-
-  :global(.navds-modal__content) {
-    display: flex;
-    flex-direction: column;
-
-    .feilmelding_heading {
-      margin: 1rem 0;
-      text-align: center;
-    }
-
-    .feilmelding_text {
-      text-align: center;
-      margin: 0 1rem
-    }
-
-    .feilmelding_btngroup {
-      display: flex;
-      justify-items: center;
-      align-self: center;
-      gap: 2rem;
-
-      .feilmelding_btn {
-        margin-top: 1rem !important;
-        width: 10rem;
-      }
-    }
-
-    .feilmelding_btn {
-      margin-top: 1rem !important;
-      width: 7rem;
-      align-self: center;
-    }
-  }
 }
 

@@ -1,8 +1,11 @@
 import { ErrorColored, SuccessColored, WarningColored } from '@navikt/ds-icons';
-import { BodyShort, Button, Heading } from '@navikt/ds-react';
+import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
 import style from './Statusmodal.module.scss';
+import modalStyles from '../Modal.module.scss';
 
 interface StatusModalProps {
+  modalOpen: boolean;
+  onClose: () => void;
   ikonVariant: string;
   heading?: string | null;
   text: string;
@@ -13,6 +16,8 @@ interface StatusModalProps {
 }
 
 export function StatusModal({
+  modalOpen,
+  onClose,
   ikonVariant,
   heading,
   text,
@@ -28,24 +33,34 @@ export function StatusModal({
   };
 
   return (
-    <div className={style.container}>
-      {ikon()}
-      {heading && (
-        <Heading level="1" size="medium" data-testid="modal_header">
-          {heading}
-        </Heading>
-      )}
-      <BodyShort className={style.text}>{text}</BodyShort>
-      <div className={style.modal_btngroup}>
-        <Button variant="primary" onClick={primaryButtonOnClick}>
-          {primaryButtonText}
-        </Button>
-        {secondaryButtonText && (
-          <Button variant="secondary" onClick={secondaryButtonOnClick} data-testid="modal_btn-cancel">
-            {secondaryButtonText}
-          </Button>
-        )}
-      </div>
-    </div>
+    <Modal
+      open={modalOpen}
+      onClose={onClose}
+      closeButton={false}
+      shouldCloseOnOverlayClick={true}
+      className={modalStyles.overstyrte_styles_fra_ds_modal}
+    >
+      <Modal.Content>
+        <div className={style.container}>
+          {ikon()}
+          {heading && (
+            <Heading level="1" size="medium" data-testid="modal_header">
+              {heading}
+            </Heading>
+          )}
+          <BodyShort className={style.text}>{text}</BodyShort>
+          <div className={style.modal_btngroup}>
+            <Button variant="primary" onClick={primaryButtonOnClick}>
+              {primaryButtonText}
+            </Button>
+            {secondaryButtonText && (
+              <Button variant="secondary" onClick={secondaryButtonOnClick} data-testid="modal_btn-cancel">
+                {secondaryButtonText}
+              </Button>
+            )}
+          </div>
+        </div>
+      </Modal.Content>
+    </Modal>
   );
 }

@@ -104,24 +104,14 @@ const Delemodal = ({
   return (
     <>
       {feilmodal ? (
-        <Modal
-          shouldCloseOnOverlayClick={true}
-          closeButton={false}
-          open={modalOpen}
-          onClose={clickCancel}
-          className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
-          aria-label="modal"
-        >
-          <Modal.Content>
-            <KanIkkeDeleMedBrukerModal
-              lukkModal={lukkModal}
-              manuellOppfolging={manuellOppfolging!}
-              kanIkkeDeleMedBruker={kanIkkeDeleMedBruker!}
-              krrStatusErReservert={krrStatusErReservert!}
-              manuellStatus={manuellStatus}
-            />
-          </Modal.Content>
-        </Modal>
+        <KanIkkeDeleMedBrukerModal
+          modalOpen={modalOpen}
+          lukkModal={lukkModal}
+          manuellOppfolging={manuellOppfolging!}
+          kanIkkeDeleMedBruker={kanIkkeDeleMedBruker!}
+          krrStatusErReservert={krrStatusErReservert!}
+          manuellStatus={manuellStatus}
+        />
       ) : (
         <Modal
           shouldCloseOnOverlayClick={false}
@@ -147,22 +137,24 @@ const Delemodal = ({
                 </BodyShort>
               </>
             )}
-            {state.sendtStatus === 'SENDT_OK' && (
-              <StatusModal
-                ikonVariant="success"
-                heading="Tiltaket er delt med brukeren"
-                text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
-                primaryButtonText="Gå til dialogen"
-                primaryButtonOnClick={() => navigerTilDialogen(fnr, state.dialogId)}
-                secondaryButtonText="Lukk"
-                secondaryButtonOnClick={() => clickCancel(false)}
-              />
-            )}
             {state.sendtStatus === 'SENDING_FEILET' && (
               <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
             )}
           </Modal.Content>
         </Modal>
+      )}
+      {state.sendtStatus === 'SENDT_OK' && (
+        <StatusModal
+          modalOpen={modalOpen}
+          onClose={clickCancel}
+          ikonVariant="success"
+          heading="Tiltaket er delt med brukeren"
+          text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
+          primaryButtonText="Gå til dialogen"
+          primaryButtonOnClick={() => navigerTilDialogen(fnr, state.dialogId)}
+          secondaryButtonText="Lukk"
+          secondaryButtonOnClick={() => clickCancel(false)}
+        />
       )}
     </>
   );
