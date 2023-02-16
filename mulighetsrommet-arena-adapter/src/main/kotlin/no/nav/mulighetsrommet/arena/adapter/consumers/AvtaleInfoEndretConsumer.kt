@@ -4,8 +4,12 @@ import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
+import arrow.core.leftIfNull
+import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
+import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
@@ -17,14 +21,20 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleInfoEndretConsumer(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
-    private val entities: ArenaEntityService
+    private val entities: ArenaEntityService,
+    private val client: MulighetsrommetApiClient,
+    private val ords: ArenaOrdsProxyClient
 ) : ArenaTopicConsumer(
     ArenaTables.AvtaleInfo
 ) {
@@ -46,7 +56,7 @@ class AvtaleInfoEndretConsumer(
     }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
-        val (_, _, data) = ArenaEventData.decode<ArenaAvtaleInfo>(event.payload)
+        val (_, operation, data) = ArenaEventData.decode<ArenaAvtaleInfo>(event.payload)
 
         ensureNotNull(data.DATO_FRA) {
             ConsumptionError.Ignored("Avtale mangler fra-dato")
@@ -73,6 +83,15 @@ class AvtaleInfoEndretConsumer(
         data
             .toAvtale(mapping.entityId)
             .flatMap { entities.upsertAvtale(it) }
+            .flatMap { toAvtaleDbo(it) }
+            .flatMap { avtale ->
+                val response = if (operation == ArenaEventData.Operation.Delete) {
+                    client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${avtale.id}")
+                } else {
+                    client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)
+                }
+                response.mapLeft { ConsumptionError.fromResponseException(it) }
+            }
             .map { ArenaEvent.ConsumptionStatus.Processed }
             .bind()
     }
@@ -113,4 +132,43 @@ class AvtaleInfoEndretConsumer(
             )
         }
         .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
+
+    private suspend fun toAvtaleDbo(avtale: Avtale): Either<ConsumptionError, AvtaleDbo> = either {
+        val tiltakstypeMapping = entities
+            .getMapping(ArenaTables.Tiltakstype, avtale.tiltakskode)
+            .bind()
+        val leverandorOrganisasjonsnummer = ords.getArbeidsgiver(avtale.leverandorId)
+            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke leverandør i Arena ORDS") }
+            .map { it.organisasjonsnummerMorselskap }
+            .bind()
+
+        val startDato = avtale.fraDato.toLocalDate()
+        val sluttDato = avtale.tilDato.toLocalDate()
+
+        val avtalestatus = when (avtale.status) {
+            Avtale.Status.Avsluttet -> Avtalestatus.Avsluttet
+            Avtale.Status.Avbrutt -> Avtalestatus.Avbrutt
+            else -> Avtalestatus.resolveFromDates(LocalDate.now(), startDato, sluttDato)
+        }
+
+        val avtaletype = when {
+            avtale.rammeavtale -> Avtaletype.Rammeavtale
+            else -> Avtaletype.Avtale
+        }
+
+        AvtaleDbo(
+            id = avtale.id,
+            navn = avtale.navn,
+            tiltakstypeId = tiltakstypeMapping.entityId,
+            avtalenummer = "${avtale.aar}#${avtale.lopenr}",
+            leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            enhet = avtale.ansvarligEnhet,
+            avtaletype = avtaletype,
+            avtalestatus = avtalestatus,
+            prisbetingelser = avtale.prisbetingelser,
+        )
+    }
 }

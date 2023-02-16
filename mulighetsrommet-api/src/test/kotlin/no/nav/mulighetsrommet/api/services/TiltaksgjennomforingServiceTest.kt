@@ -22,10 +22,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     beforeSpec {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val tiltakstypeReposity = TiltakstypeRepository(database.db)
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltakstypeId = UUID.fromString("0c565576-6a74-4bc2-ad5a-765580014ef9")
 
-        tiltakstypeReposity.upsert(
+        tiltakstypeRepository.upsert(
             TiltakstypeDbo(
                 tiltakstypeId,
                 "",

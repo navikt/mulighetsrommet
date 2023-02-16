@@ -1,11 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.routes
 
 import io.ktor.http.*
-import io.ktor.server.application.call
+import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -37,9 +39,15 @@ fun Route.managerRoutes() {
     put("/events/replay") {
         val (table, status) = call.receive<ReplayEventsTaskData>()
 
-        arenaEventService.setReplayStatusForEvents(table = table, status = status)
+        launch(Dispatchers.IO) {
+            try {
+                arenaEventService.setReplayStatusForEvents(table = table, status = status)
 
-        replayEvents.schedule()
+                replayEvents.schedule()
+            } catch (e: Throwable) {
+                application.log.error("Failed to schedule task ${replayEvents.task.name}", e)
+            }
+        }
 
         call.respond(HttpStatusCode.Created)
     }
@@ -81,6 +89,6 @@ data class DeleteEventsRequest(
 
 @Serializable
 data class ReplayEventsTaskData(
-    val table: String?,
+    val table: String,
     val status: ArenaEvent.ConsumptionStatus?
 )

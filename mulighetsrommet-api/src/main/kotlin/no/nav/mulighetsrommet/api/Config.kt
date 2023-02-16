@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -24,7 +25,8 @@ data class AppConfig(
     val poaoTilgang: ServiceClientConfig,
     val amtEnhetsregister: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
-    val msGraphConfig: ServiceClientConfig
+    val msGraphConfig: ServiceClientConfig,
+    val tasks: TaskConfig
 )
 
 data class AuthConfig(
@@ -62,4 +64,8 @@ data class SwaggerConfig(
 data class ServiceClientConfig(
     val url: String,
     val scope: String
+)
+
+data class TaskConfig(
+    val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config
 )

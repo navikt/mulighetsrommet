@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.plugins
 
+import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
@@ -11,6 +12,7 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
+import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -29,11 +31,9 @@ import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
 import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
@@ -58,7 +58,8 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
-            services(appConfig)
+            services(appConfig),
+            tasks(appConfig.tasks)
         )
     }
 }
@@ -93,6 +94,7 @@ private fun kafka(config: KafkaConfig) = module {
 }
 
 private fun repositories() = module {
+    single { AvtaleRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { TiltakshistorikkRepository(get()) }
@@ -172,7 +174,8 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { ArenaAdapterService(get()) }
-    single { ArenaService(get(), get(), get(), get(), get()) }
+    single { ArenaService(get(), get(), get(), get(), get(), get()) }
+    single { AvtaleService(get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(get()) }
@@ -184,6 +187,20 @@ private fun services(appConfig: AppConfig) = module {
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get()) }
     single { TiltakstypeService(get()) }
+}
+
+private fun tasks(config: TaskConfig) = module {
+    single {
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter)
+
+        val db: Database by inject()
+
+        Scheduler
+            .create(db.getDatasource())
+            // .startTasks(synchronizeNorgEnheterTask.task)
+            .registerShutdownHook()
+            .build()
+    }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {

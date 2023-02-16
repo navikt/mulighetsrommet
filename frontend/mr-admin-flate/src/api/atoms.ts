@@ -1,6 +1,8 @@
+import { atom, ExtractAtomValue } from "jotai";
 import { atomWithHash } from "jotai-location";
 import { atomWithStorage } from "jotai/utils";
 import {
+  Avtalestatus,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -32,3 +34,19 @@ export const tiltakstypefilter = atomWithHash<{
     setHash: "replaceState",
   }
 );
+
+const avtaleFilter = atom<{
+  sok: string;
+  status: Avtalestatus;
+  enhet: string;
+  sortering: string;
+}>({
+  sok: "",
+  status: Avtalestatus.AKTIV,
+  enhet: "",
+  sortering: "",
+});
+
+export type avtaleFilterType = ExtractAtomValue<typeof avtaleFilter>;
+
+export { avtaleFilter };

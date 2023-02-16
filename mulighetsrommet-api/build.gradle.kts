@@ -102,4 +102,7 @@ dependencies {
     // OpenAPI
     // PS: Hvis man oppdaterer denne må man også rename mappen til riktig versjon i resources
     runtimeOnly("org.webjars:swagger-ui:4.14.0")
+
+    // DB-scheduler
+    implementation("com.github.kagkarlsson:db-scheduler:11.6")
 }

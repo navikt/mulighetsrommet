@@ -13,9 +13,11 @@ data class TiltaksgjennomforingDto(
     val tiltakstype: Tiltakstype,
     val navn: String?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate? = null,
+    val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate? = null
+    val sluttDato: LocalDate? = null,
+    val status: Tiltaksgjennomforingsstatus,
+    val virksomhetsnummer: String?
 ) {
 
     @Serializable
@@ -39,7 +41,9 @@ data class TiltaksgjennomforingDto(
                 },
                 navn = navn,
                 startDato = startDato,
-                sluttDato = sluttDato
+                sluttDato = sluttDato,
+                status = status,
+                virksomhetsnummer = virksomhetsnummer
             )
         }
     }
