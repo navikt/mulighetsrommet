@@ -1,0 +1,49 @@
+package no.nav.mulighetsrommet.api.repositories
+
+import kotliquery.Row
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.EnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.Norg2EnhetDbo
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.database.utils.query
+import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
+
+class EnhetRepository(private val db: Database) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    fun upsert(enhet: Norg2EnhetDbo): QueryResult<Norg2EnhetDbo> = query {
+        logger.info("Lagrer enhet id=${enhet.enhet_id}")
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into enhet(enhet_id, navn, enhetsnummer, status)
+            values (:enhet_id, :navn, :enhetsnummer, :status)
+            on conflict (enhet_id)
+                do update set   navn            = excluded.navn,
+                                enhetsnummer    = excluded.enhetsnummer,
+                                status          = excluded.status
+            returning *
+        """.trimIndent()
+
+        queryOf(query, enhet.toSqlParameters())
+            .map { it.toEnhetDbo() }
+            .asSingle
+            .let { db.run(it)!! }
+    }
+}
+
+private fun Norg2EnhetDbo.toSqlParameters() = mapOf(
+    "enhet_id" to enhet_id,
+    "navn" to navn,
+    "enhetsnummer" to enhetNr,
+    "status" to status.name
+)
+
+private fun Row.toEnhetDbo() = Norg2EnhetDbo(
+    enhet_id = int("enhet_id"),
+    navn = string("navn"),
+    enhetNr = string("enhetsNr"),
+    status = EnhetStatus.valueOf(string("status"))
+)

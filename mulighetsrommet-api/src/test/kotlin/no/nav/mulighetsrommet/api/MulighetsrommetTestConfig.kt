@@ -37,8 +37,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 10
-        )
-    )
+        ),
+    ),
+    norg2 = Norg2Config(baseUrl = "")
 )
 
 fun createKafkaConfig(): KafkaConfig {

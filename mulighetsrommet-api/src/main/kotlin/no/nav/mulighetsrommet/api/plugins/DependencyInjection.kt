@@ -21,6 +21,8 @@ import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClientImpl
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClientImpl
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2ClientImpl
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -99,6 +101,7 @@ private fun repositories() = module {
     single { TiltakstypeRepository(get()) }
     single { TiltakshistorikkRepository(get()) }
     single { AnsattTiltaksgjennomforingRepository(get()) }
+    single { EnhetRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -173,6 +176,11 @@ private fun services(appConfig: AppConfig) = module {
             machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) }
         )
     }
+    single<Norg2Client> {
+        Norg2ClientImpl(
+            baseUrl = appConfig.norg2.baseUrl
+        )
+    }
     single { ArenaAdapterService(get()) }
     single { ArenaService(get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get()) }
@@ -187,17 +195,18 @@ private fun services(appConfig: AppConfig) = module {
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get()) }
     single { TiltakstypeService(get()) }
+    single { Norg2Service(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
     single {
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter)
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
 
         val db: Database by inject()
 
         Scheduler
             .create(db.getDatasource())
-            // .startTasks(synchronizeNorgEnheterTask.task)
+            .startTasks(synchronizeNorgEnheterTask.task)
             .registerShutdownHook()
             .build()
     }

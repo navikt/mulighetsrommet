@@ -22,7 +22,7 @@ type AvailableEnhet = Required<
 >;
 
 const relevantEnhetStatus: Array<string | undefined> = [
-  "Under utvikling",
+  "Under avvikling",
   "Aktiv",
 ];
 

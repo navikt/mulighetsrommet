@@ -26,7 +26,8 @@ data class AppConfig(
     val amtEnhetsregister: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
-    val tasks: TaskConfig
+    val tasks: TaskConfig,
+    val norg2: Norg2Config
 )
 
 data class AuthConfig(
@@ -68,4 +69,8 @@ data class ServiceClientConfig(
 
 data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config
+)
+
+data class Norg2Config(
+    val baseUrl: String
 )
