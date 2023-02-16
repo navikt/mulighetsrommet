@@ -73,7 +73,6 @@ class KafkaSyncServiceTest : FunSpec({
         )
     }
 
-
     context("oppdater statuser på tiltaksgjennomføringer") {
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
@@ -118,5 +117,3 @@ class KafkaSyncServiceTest : FunSpec({
         }
     }
 })
-
-

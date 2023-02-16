@@ -68,4 +68,3 @@ relevant
 sluttdato >= last success
 
  */
-

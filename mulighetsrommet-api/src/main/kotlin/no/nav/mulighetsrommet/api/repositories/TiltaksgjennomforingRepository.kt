@@ -241,7 +241,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(
-            query, mapOf(
+            query,
+            mapOf(
                 "avslutningsstatus" to avslutningsstatus.name,
                 "date_interval_start" to dateIntervalStartExclusive,
                 "date_interval_end" to dateIntervalEndInclusive,
