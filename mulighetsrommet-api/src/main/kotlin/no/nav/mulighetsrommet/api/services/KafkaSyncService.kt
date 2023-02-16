@@ -40,31 +40,3 @@ class KafkaSyncService(
         logger.info("Oppdaterte status for $count tiltaksgjennomføringer")
     }
 }
-/*
-Hva er relevante?
-avslutningsstatus = IKKE_AVSLUTTET
-sluttDato er etter last success
-startDato er på eller etter last success
-
-bare startDato er etter last success?
-
-last success = 14.feb
-today 16. feb
-
-sluttdato = 15. feb
-
-relevant
-
-sluttdato >= last success
-
-----------
-last success = 14.feb
-today 16. feb
-
-startDato = 15. feb
-
-relevant
-
-sluttdato >= last success
-
- */
