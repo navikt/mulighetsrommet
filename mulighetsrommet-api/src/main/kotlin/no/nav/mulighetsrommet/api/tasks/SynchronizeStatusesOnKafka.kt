@@ -14,12 +14,14 @@ class SynchronizeStatusesOnKafka(kafkaSyncService: KafkaSyncService) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: RecurringTask<Void> = Tasks
-        // .recurring("synchronize-statuses-kafka", Daily(LocalTime.MIDNIGHT))
-        .recurring("synchronize-statuses-kafka", Daily(LocalTime.now().plusMinutes(5)))
+        .recurring("synchronize-statuses-kafka", Daily(LocalTime.MIDNIGHT))
         .execute { _, context ->
             runBlocking {
                 logger.info("Kjører synkronisering av statuser på kafka")
-                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(LocalDate.now(), context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) } ?: LocalDate.of(2023, 2, 1))
+                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(
+                    LocalDate.now(),
+                    context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
+                        ?: LocalDate.of(2023, 2, 1))
             }
         }
 }
