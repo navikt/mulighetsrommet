@@ -12,7 +12,7 @@ import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useState("avtaler"); // arenaInfo
+  const [tabValgt, setTabValgt] = useState("arenaInfo");
   const features = useFeatureToggles();
 
   if (optionalTiltakstype.isFetching) {
