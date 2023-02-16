@@ -8,11 +8,11 @@ import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
 import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 import { KanIkkeDeleMedBrukerModal } from './KanIkkeDeleMedBrukerModal';
-import { DelMedBrukerFeiletContent } from './DelMedBrukerFeiletContent';
 import { DelMedBrukerContent } from './DelMedBrukerContent';
-import { StatusModal } from './StatusModal';
 import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { StatusModal } from './StatusModal';
+import { porten } from '../../../constants';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Redigerer hilsen'
@@ -137,11 +137,26 @@ const Delemodal = ({
                 </BodyShort>
               </>
             )}
-            {state.sendtStatus === 'SENDING_FEILET' && (
-              <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
-            )}
           </Modal.Content>
         </Modal>
+      )}
+      {state.sendtStatus === 'SENDING_FEILET' && (
+        <StatusModal
+          modalOpen={modalOpen}
+          ikonVariant="error"
+          heading="Tiltaket kunne ikke deles"
+          text={
+            <>
+              Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta{' '}
+              <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
+            </>
+          }
+          onClose={clickCancel}
+          primaryButtonOnClick={() => dispatch({ type: 'Reset' })}
+          primaryButtonText="Prøv igjen"
+          secondaryButtonOnClick={clickCancel}
+          secondaryButtonText="Avbryt"
+        />
       )}
       {state.sendtStatus === 'SENDT_OK' && (
         <StatusModal

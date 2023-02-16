@@ -2,13 +2,14 @@ import { ErrorColored, SuccessColored, WarningColored } from '@navikt/ds-icons';
 import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
 import style from './Statusmodal.module.scss';
 import modalStyles from '../Modal.module.scss';
+import React from 'react';
 
 interface StatusModalProps {
   modalOpen: boolean;
   onClose: () => void;
   ikonVariant: string;
   heading?: string | null;
-  text: string;
+  text: string | React.ReactNode;
   primaryButtonText: string | React.ReactNode;
   primaryButtonOnClick: () => void;
   secondaryButtonText?: string | null;
