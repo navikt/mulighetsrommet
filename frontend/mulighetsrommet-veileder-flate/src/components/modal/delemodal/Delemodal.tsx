@@ -104,6 +104,7 @@ const Delemodal = ({
   return (
     <>
       {feilmodal ? (
+<<<<<<< HEAD
         <KanIkkeDeleMedBrukerModal
           modalOpen={modalOpen}
           lukkModal={lukkModal}
@@ -112,6 +113,26 @@ const Delemodal = ({
           krrStatusErReservert={krrStatusErReservert!}
           manuellStatus={manuellStatus}
         />
+=======
+        <Modal
+          shouldCloseOnOverlayClick={true}
+          closeButton={false}
+          open={modalOpen}
+          onClose={clickCancel}
+          className={classNames(modalStyles.overstyrte_styles_fra_ds_modal, delemodalStyles.delemodal)}
+          aria-label="modal"
+        >
+          <Modal.Content>
+            <KanIkkeDeleMedBrukerModal
+              lukkModal={lukkModal}
+              manuellOppfolging={manuellOppfolging!}
+              kanIkkeDeleMedBruker={kanIkkeDeleMedBruker!}
+              krrStatusErReservert={krrStatusErReservert!}
+              manuellStatus={manuellStatus}
+            />
+          </Modal.Content>
+        </Modal>
+>>>>>>> a82247d1 (merge)
       ) : (
         <Modal
           shouldCloseOnOverlayClick={false}
@@ -137,12 +158,27 @@ const Delemodal = ({
                 </BodyShort>
               </>
             )}
+<<<<<<< HEAD
+=======
+            {state.sendtStatus === 'SENDT_OK' && (
+              <StatusModal
+                ikonVariant="success"
+                heading="Tiltaket er delt med brukeren"
+                text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
+                primaryButtonText="Gå til dialogen"
+                primaryButtonOnClick={() => navigerTilDialogen(fnr, state.dialogId)}
+                secondaryButtonText="Lukk"
+                secondaryButtonOnClick={() => clickCancel(false)}
+              />
+            )}
+>>>>>>> a82247d1 (merge)
             {state.sendtStatus === 'SENDING_FEILET' && (
               <DelMedBrukerFeiletContent dispatch={dispatch} onCancel={clickCancel} />
             )}
           </Modal.Content>
         </Modal>
       )}
+<<<<<<< HEAD
       {state.sendtStatus === 'SENDT_OK' && (
         <StatusModal
           modalOpen={modalOpen}
@@ -156,6 +192,8 @@ const Delemodal = ({
           secondaryButtonOnClick={() => clickCancel(false)}
         />
       )}
+=======
+>>>>>>> a82247d1 (merge)
     </>
   );
 };

@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { LoaderModal } from '../loaderModal/LoaderModal';
 
 interface KanIkkeDeleMedBrukerModalProps {
+<<<<<<< HEAD
   modalOpen: boolean;
+=======
+>>>>>>> a82247d1 (merge)
   lukkModal: () => void;
   manuellOppfolging: boolean;
   krrStatusErReservert: boolean;
@@ -13,7 +16,10 @@ interface KanIkkeDeleMedBrukerModalProps {
 }
 
 export const KanIkkeDeleMedBrukerModal = ({
+<<<<<<< HEAD
   modalOpen,
+=======
+>>>>>>> a82247d1 (merge)
   lukkModal,
   manuellOppfolging,
   krrStatusErReservert,
@@ -21,9 +27,15 @@ export const KanIkkeDeleMedBrukerModal = ({
   kanIkkeDeleMedBruker,
 }: KanIkkeDeleMedBrukerModalProps) => {
   const brukerdata = useHentBrukerdata();
+<<<<<<< HEAD
   const [, setData] = useState(brukerdata);
   const [loaderModalApen, setLoaderModalApen] = useState(false);
   // const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+=======
+  const [_, setData] = useState(brukerdata);
+  const [loaderModalApen, setLoaderModalApen] = useState(false);
+  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+>>>>>>> a82247d1 (merge)
 
   const feilmelding = () => {
     if (manuellOppfolging)
@@ -45,16 +57,23 @@ export const KanIkkeDeleMedBrukerModal = ({
   const provIgjen = async () => {
     setData(brukerdata);
     setLoaderModalApen(true);
+<<<<<<< HEAD
     //tester om det er nødvendig med denne
     // await sleep(500); //ja, det skal være sleep h  er fordi brukerne skal se at brukerdata hentes på nytt
+=======
+    await sleep(500); //ja, det skal være sleep her fordi brukerne skal se at brukerdata hentes på nytt
+>>>>>>> a82247d1 (merge)
     setLoaderModalApen(false);
   };
 
   return (
     <>
       <StatusModal
+<<<<<<< HEAD
         modalOpen={modalOpen}
         onClose={lukkModal}
+=======
+>>>>>>> a82247d1 (merge)
         ikonVariant="warning"
         heading={heading}
         text={feilmelding()}
