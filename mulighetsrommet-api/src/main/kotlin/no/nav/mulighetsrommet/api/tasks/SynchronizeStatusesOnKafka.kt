@@ -21,7 +21,8 @@ class SynchronizeStatusesOnKafka(kafkaSyncService: KafkaSyncService) {
                 kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(
                     LocalDate.now(),
                     context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
-                        ?: LocalDate.of(2023, 2, 1))
+                        ?: LocalDate.of(2023, 2, 1)
+                )
             }
         }
 }
