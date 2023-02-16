@@ -1,9 +1,14 @@
-import {Topic} from "../domain";
+import { Topic } from "../domain";
 
 export const getTopics = async () =>
-    fetch("/mulighetsrommet-arena-adapter/topics", {
-        method: "GET",
-    }).then((response) => response.json());
+  fetch("/mulighetsrommet-arena-adapter/topics", {
+    method: "GET",
+  }).then((response) => response.json());
+
+export const getArenaTables = async () =>
+  fetch("/mulighetsrommet-arena-adapter/arena-tables", {
+    method: "GET",
+  }).then((response) => response.json());
 
 export const putTopicRunningState = async (topics: Topic[]) => {
     return fetch("/mulighetsrommet-arena-adapter/topics", {

@@ -1,8 +1,6 @@
 import { Button } from '@navikt/ds-react';
-import classNames from 'classnames';
 import { Dispatch } from 'react';
 import modalStyles from '../Modal.module.scss';
-import delemodalStyles from './Delemodal.module.scss';
 import { Actions } from './DelemodalActions';
 import { Feilmelding } from '../../feilmelding/Feilmelding';
 
@@ -13,17 +11,15 @@ interface Props {
 
 export function DelMedBrukerFeiletContent({ dispatch, onCancel }: Props) {
   return (
-    <div className={classNames(delemodalStyles.delemodal_tilbakemelding)}>
+    <div>
       <Feilmelding
-        ikonvariant={'error'}
-        header={<>Tiltaket kunne ikke deles</>}
-        beskrivelse={
-          <>
-            Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta&nbsp;
-            <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a> i Porten dersom du
-            trenger mer hjelp.
-          </>
-        }
+        header="Tiltaket kunne ikke deles"
+        beskrivelse={`Tiltaket kunne ikke deles på grunn av en teknisk feil hos oss. Forsøk på nytt eller ta
+            ${(
+              <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a>
+            )} i Porten dersom du
+            trenger mer hjelp.`}
+        ikonvariant="error"
         utenMargin={true}
       />
 

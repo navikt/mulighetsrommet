@@ -4,7 +4,7 @@ import React, { Dispatch, useEffect, useRef, useState } from 'react';
 import { mulighetsrommetClient } from '../../../core/api/clients';
 import { useHentDeltMedBrukerStatus } from '../../../core/api/queries/useHentDeltMedbrukerStatus';
 import useTiltaksgjennomforingById from '../../../core/api/queries/useTiltaksgjennomforingById';
-import { erPreview } from '../../../utils/Utils';
+import { erPreview, formaterDato } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import { logDelMedbrukerEvent } from './Delemodal';
 import delemodalStyles from './Delemodal.module.scss';
@@ -22,19 +22,21 @@ interface Props {
 }
 
 export function DelMedBrukerContent({
-  tiltaksgjennomforingsnavn,
-  onCancel,
-  state,
-  dispatch,
-  veiledernavn,
-  brukernavn,
-}: Props) {
+                                      tiltaksgjennomforingsnavn,
+                                      onCancel,
+                                      state,
+                                      dispatch,
+                                      veiledernavn,
+                                      brukernavn,
+                                    }: Props) {
   const [visPersonligMelding, setVisPersonligMelding] = useState(false);
   const senderTilDialogen = state.sendtStatus === 'SENDER';
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
+  const {data: tiltaksgjennomforing} = useTiltaksgjennomforingById();
   const tiltaksgjennomforingId = tiltaksgjennomforing?._id.toString();
-  const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
+  const {lagreVeilederHarDeltTiltakMedBruker} = useHentDeltMedBrukerStatus();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
+  const {harDeltMedBruker} = useHentDeltMedBrukerStatus();
+  const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
 
   useEffect(() => {
     personligHilsenRef?.current?.focus();
@@ -49,7 +51,7 @@ export function DelMedBrukerContent({
   };
 
   const enablePersonligMelding = () => {
-    dispatch({ type: 'Sett hilsen', payload: state.originalHilsen });
+    dispatch({type: 'Sett hilsen', payload: state.originalHilsen});
     setVisPersonligMelding(true);
   };
 
@@ -61,23 +63,23 @@ export function DelMedBrukerContent({
     if (state.hilsen.trim().length > getAntallTegn()) return;
     logDelMedbrukerEvent('Delte med bruker');
 
-    dispatch({ type: 'Send melding' });
+    dispatch({type: 'Send melding'});
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const tekst = sySammenDeletekst();
     try {
-      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ requestBody: { overskrift, tekst } });
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({requestBody: {overskrift, tekst}});
       if (tiltaksgjennomforingId) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingId);
       }
-      dispatch({ type: 'Sendt ok', payload: res.id });
+      dispatch({type: 'Sendt ok', payload: res.id});
     } catch {
-      dispatch({ type: 'Sending feilet' });
+      dispatch({type: 'Sending feilet'});
       logDelMedbrukerEvent('Del med bruker feilet');
     }
   };
 
   const redigerHilsen = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    dispatch({ type: 'Sett hilsen', payload: e.currentTarget.value });
+    dispatch({type: 'Sett hilsen', payload: e.currentTarget.value});
   };
 
   return (
@@ -90,9 +92,12 @@ export function DelMedBrukerContent({
       >
         Del med bruker
       </Heading>
-      <Heading size="large" level="1">
+      <Heading size="large" level="1" className={delemodalStyles.heading}>
         {'Tiltak gjennom NAV: ' + tiltaksgjennomforingsnavn}
       </Heading>
+      {harDeltMedBruker && (
+        <Alert variant="warning">{`Dette tiltaket ble delt med bruker ${datoSidenSistDelt}.`}</Alert>
+      )}
 
       {visPersonligMelding && !state.deletekst ? null : (
         <BodyShort
@@ -127,11 +132,9 @@ export function DelMedBrukerContent({
             data-testid="textarea_hilsen"
             error={handleError()}
           />
-          <p>
-            <Alert inline variant="info">
-              Ikke del personopplysninger i din personlige hilsen
-            </Alert>
-          </p>
+          <Alert inline variant="info" className={delemodalStyles.personopplysninger}>
+            Ikke del personopplysninger i din personlige hilsen
+          </Alert>
         </>
       ) : null}
       {!veiledernavn && (
@@ -145,7 +148,7 @@ export function DelMedBrukerContent({
           • Mangler ferdigutfylt tekst som kan deles med bruker{' '}
         </ErrorMessage>
       )}
-      <div className={classNames(modalStyles.modal_btngroup, delemodalStyles.btn_row)}>
+      <div className={delemodalStyles.delemodal_btngroup}>
         <Button
           onClick={handleSend}
           data-testid="modal_btn-send"

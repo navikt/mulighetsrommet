@@ -121,13 +121,10 @@ const Tiltaksgjennomforingsoversikt = () => {
   if (!brukerdata?.data?.oppfolgingsenhet) {
     return (
       <Feilmelding
-        header={<>Kunne ikke hente brukers oppfølgingsenhet</>}
+        header="Kunne ikke hente brukers oppfølgingsenhet"
         beskrivelse={
           <>
-            <>
-              Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena,
-              og&nbsp;
-            </>
+            Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena, og{' '}
             {forsokPaNyttLink()}
           </>
         }
@@ -139,12 +136,11 @@ const Tiltaksgjennomforingsoversikt = () => {
   if (!brukerdata?.data?.innsatsgruppe && !brukerdata?.data?.servicegruppe) {
     return (
       <Feilmelding
-        header={<>Kunne ikke hente brukers innsatsgruppe eller servicegruppe</>}
+        header="Kunne ikke hente brukers innsatsgruppe eller servicegruppe"
         beskrivelse={
           <>
             Vi kan ikke hente brukerens innsatsgruppe eller servicegruppe. Kontroller at brukeren er under oppfølging og
-            finnes i Arena, og&nbsp;
-            {forsokPaNyttLink()}
+            finnes i Arena, og <br /> {forsokPaNyttLink()}
           </>
         }
         ikonvariant="error"
@@ -155,9 +151,9 @@ const Tiltaksgjennomforingsoversikt = () => {
   if (tiltaksgjennomforinger.length === 0) {
     return (
       <Feilmelding
+        header="Ingen tiltaksgjennomføringer funnet"
+        beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
         ikonvariant="warning"
-        header={<>Ingen tiltaksgjennomføringer funnet</>}
-        beskrivelse={<>Prøv å justere søket eller filteret for å finne det du leter etter</>}
       >
         <>
           <Button

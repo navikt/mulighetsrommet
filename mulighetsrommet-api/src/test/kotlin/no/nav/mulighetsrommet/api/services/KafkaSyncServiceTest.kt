@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
-import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
@@ -24,10 +23,6 @@ class KafkaSyncServiceTest : FunSpec({
 
     beforeEach {
         database.db.migrate()
-    }
-
-    afterEach {
-        database.db.clean()
     }
 
     val lastSuccessDate = LocalDate.of(2023, 2, 14)
@@ -62,60 +57,64 @@ class KafkaSyncServiceTest : FunSpec({
         )
     }
 
-    fun TiltaksgjennomforingDbo.toAdmin(): TiltaksgjennomforingAdminDto {
-        return TiltaksgjennomforingAdminDto(
+    fun TiltaksgjennomforingDbo.toDto(): TiltaksgjennomforingDto {
+        return TiltaksgjennomforingDto(
             id = id,
-            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                 id = tiltakstype.id,
                 navn = tiltakstype.navn,
                 arenaKode = tiltakstype.tiltakskode,
             ),
             navn = navn,
-            tiltaksnummer = tiltaksnummer,
             virksomhetsnummer = virksomhetsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = enhet,
-            status = Tiltaksgjennomforingsstatus.AVSLUTTET
+            status = Tiltaksgjennomforingsstatus.fromDbo(today, startDato, sluttDato, avslutningsstatus)
         )
     }
 
 
-    context("tiltaksgjennomføring") {
+    context("oppdater statuser på tiltaksgjennomføringer") {
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val kafkaSyncService =
+            KafkaSyncService(TiltaksgjennomforingRepository(database.db), tiltaksgjennomforingKafkaProducer)
 
-        afterTest {
-            clearAllMocks()
-        }
+        val startdatoInnenforMenAvsluttetStatus = createTiltaksgjennomforing()
+        val startdatoInnenfor =
+            createTiltaksgjennomforing(avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET)
+        val sluttdatoInnenforMenAvbruttStatus = createTiltaksgjennomforing(
+            startDato = lastSuccessDate,
+            sluttDato = today,
+            avslutningsstatus = Avslutningsstatus.AVBRUTT
+        )
+        val sluttdatoInnenfor = createTiltaksgjennomforing(
+            startDato = lastSuccessDate,
+            sluttDato = today,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
+        )
+        val datoerUtenfor = createTiltaksgjennomforing(
+            startDato = lastSuccessDate,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
+        )
 
-        test("CRUD") {
-            val tiltakstypeRepository = TiltakstypeRepository(database.db)
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-            val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-            val kafkaSyncService =
-                KafkaSyncService(TiltaksgjennomforingRepository(database.db), tiltaksgjennomforingKafkaProducer)
-
-            val tiltaksgjennomforingStartdatoInnenforMenAvsluttetStatus = createTiltaksgjennomforing()
-            val tiltaksgjennomforingStartdatoInnenfor =
-                createTiltaksgjennomforing(avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET)
-            val tiltaksgjennomforingSluttdatoInnenforMenAvbruttStatus = createTiltaksgjennomforing(
-                startDato = lastSuccessDate,
-                sluttDato = today,
-                avslutningsstatus = Avslutningsstatus.AVBRUTT
-            )
-            val tiltaksgjennomforingSluttdatoInnenfor = createTiltaksgjennomforing(
-                startDato = lastSuccessDate,
-                sluttDato = today,
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
-            )
+        test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
             tiltakstypeRepository.upsert(tiltakstype)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingStartdatoInnenforMenAvsluttetStatus)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingStartdatoInnenfor)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingSluttdatoInnenforMenAvbruttStatus)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingSluttdatoInnenfor)
+
+            tiltaksgjennomforingRepository.upsert(startdatoInnenforMenAvsluttetStatus)
+            tiltaksgjennomforingRepository.upsert(startdatoInnenfor)
+            tiltaksgjennomforingRepository.upsert(sluttdatoInnenforMenAvbruttStatus)
+            tiltaksgjennomforingRepository.upsert(sluttdatoInnenfor)
+            tiltaksgjennomforingRepository.upsert(datoerUtenfor)
 
             kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(today, lastSuccessDate)
 
-            verify(exactly = 2) { tiltaksgjennomforingKafkaProducer.publish(any()) }
+            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto()) }
+            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto()) }
+            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(startdatoInnenforMenAvsluttetStatus.toDto()) }
+            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenforMenAvbruttStatus.toDto()) }
+            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(datoerUtenfor.toDto()) }
         }
     }
 })

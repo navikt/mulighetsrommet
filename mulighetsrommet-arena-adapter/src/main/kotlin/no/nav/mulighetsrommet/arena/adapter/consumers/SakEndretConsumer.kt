@@ -3,13 +3,12 @@ package no.nav.mulighetsrommet.arena.adapter.consumers
 import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.flatMap
-import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaSak
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTables
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
@@ -22,7 +21,7 @@ class SakEndretConsumer(
     override val events: ArenaEventRepository,
     private val entities: ArenaEntityService
 ) : ArenaTopicConsumer(
-    ArenaTables.Sak
+    ArenaTable.Sak
 ) {
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -31,7 +30,7 @@ class SakEndretConsumer(
         val decoded = ArenaEventData.decode<ArenaSak>(payload)
 
         return ArenaEvent(
-            arenaTable = decoded.table,
+            arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.SAK_ID.toString(),
             payload = payload,
             status = ArenaEvent.ConsumptionStatus.Pending
