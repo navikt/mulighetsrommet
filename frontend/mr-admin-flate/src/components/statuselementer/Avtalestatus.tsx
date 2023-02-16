@@ -1,27 +1,23 @@
 import { Tag } from "@navikt/ds-react";
 import { Avtale } from "mulighetsrommet-api-client";
-import { kalkulerStatusBasertPaaFraOgTilDato } from "../../utils/Utils";
 
 interface Props {
   avtale: Avtale;
 }
 
 export function Avtalestatus({ avtale }: Props) {
-  const status = kalkulerStatusBasertPaaFraOgTilDato({
-    fraDato: avtale.startDato,
-    tilDato: avtale.sluttDato,
-  });
+  const { avtalestatus } = avtale;
   return (
     <Tag
       variant={
-        status === "Aktiv"
+        avtalestatus === "Aktiv"
           ? "success"
-          : status === "Planlagt"
+          : avtalestatus === "Planlagt"
           ? "info"
           : "neutral"
       }
     >
-      {status}
+      {avtalestatus}
     </Tag>
   );
 }

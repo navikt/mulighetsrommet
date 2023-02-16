@@ -13,20 +13,16 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-class SynchronizeStatusesOnKafka(config: Config, kafkaSyncService: KafkaSyncService) {
+class SynchronizeStatusesOnKafka(kafkaSyncService: KafkaSyncService) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    data class Config(
-        val delayOfMinutes: Int,
-        val schedulerStatePollDelay: Long = 1000
-    )
-
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-statuses-kafka", Daily(LocalTime.MIDNIGHT))
+        //.recurring("synchronize-statuses-kafka", Daily(LocalTime.MIDNIGHT))
+        .recurring("synchronize-statuses-kafka", Daily(LocalTime.now().plusMinutes(5)))
         .execute { _, context ->
             runBlocking {
                 logger.info("Kjører synkronisering av statuser på kafka")
-                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(LocalDate.now(), LocalDate.ofInstant(context.execution.lastSuccess, ZoneId.systemDefault()))
+                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(LocalDate.now(), context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) } ?: LocalDate.of(2023,2,1))
             }
         }
 }

@@ -18,6 +18,7 @@ class KafkaSyncService(
         var offset = 1
         var count = 0
 
+        logger.info("Oppdaterer statuser for gjennomføringer med start eller sluttdato mellom $lastSuccessDate og $today")
         do {
             val tiltaksgjennomforinger = tiltaksgjennomforingRepository.getAllByDateIntervalAndAvslutningsstatus(
                 dateIntervalStartExclusive = lastSuccessDate,

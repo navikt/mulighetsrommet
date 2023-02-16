@@ -2,8 +2,11 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.Norg2Enhet
 import no.nav.mulighetsrommet.api.domain.dbo.EnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.Norg2EnhetDbo
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -32,6 +35,34 @@ class EnhetRepository(private val db: Database) {
             .asSingle
             .let { db.run(it)!! }
     }
+
+    fun getAll(filter: EnhetFilter): List<Norg2Enhet> {
+        logger.info("Henter enheter med status: ${filter.statuser.joinToString(", ")}")
+        val parameters = mapOf(
+            "statuser" to db.createTextArray(filter.statuser.map { it.name }),
+            "tiltakstypeId" to filter.tiltakstypeId
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            filter.statuser to "e.status = any(:statuser)",
+            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid"
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status
+            from enhet e
+            join avtale a
+            on a.enhet = e.enhetsnummer
+            $where
+            order by e.navn asc
+        """.trimIndent()
+
+        return queryOf(query, parameters)
+            .map { it.toEnhetDto() }
+            .asList
+            .let { db.run(it) }
+    }
 }
 
 private fun Norg2EnhetDbo.toSqlParameters() = mapOf(
@@ -46,4 +77,11 @@ private fun Row.toEnhetDbo() = Norg2EnhetDbo(
     navn = string("navn"),
     enhetNr = string("enhetsNr"),
     status = EnhetStatus.valueOf(string("status"))
+)
+
+private fun Row.toEnhetDto() = Norg2Enhet(
+    enhetId = int("enhet_id"),
+    navn = string("navn"),
+    enhetNr = string("enhetsnummer"),
+    status = no.nav.mulighetsrommet.api.domain.EnhetStatus.valueOf(string("status"))
 )

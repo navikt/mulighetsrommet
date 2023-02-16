@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeStatusesOnKafka
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
@@ -197,17 +198,19 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { Norg2Service(get(), get()) }
     single { KafkaSyncService(get(), get()) }
+    single { EnhetService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
     single {
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
+        val synchronizeStatusesOnKafka = SynchronizeStatusesOnKafka(get())
 
         val db: Database by inject()
 
         Scheduler
             .create(db.getDatasource())
-            .startTasks(synchronizeNorgEnheterTask.task)
+            .startTasks(synchronizeNorgEnheterTask.task, synchronizeStatusesOnKafka.task)
             .registerShutdownHook()
             .build()
     }
