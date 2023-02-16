@@ -50,6 +50,7 @@ fun Application.configure(config: AppConfig) {
             frontendLoggerRoutes()
             dialogRoutes()
             delMedBrukerRoutes()
+            enhetRoutes()
         }
         authenticate(AuthProvider.AzureAdDefaultApp.name) {
             arenaRoutes()

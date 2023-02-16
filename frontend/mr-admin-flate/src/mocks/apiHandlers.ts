@@ -1,6 +1,7 @@
 import { rest } from "msw";
 import {
   Ansatt,
+  Enhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
@@ -9,6 +10,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { mockFagansvarlig, mockTiltaksansvarlig } from "./fixtures/mock_ansatt";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
+import { mockEnheter } from "./fixtures/mock_enheter";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
 import { mockTiltaksgjennomforingerKobletTilAnsatt } from "./fixtures/mock_tiltaksgjennomforinger_koblet_til_ansatt";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
@@ -53,6 +55,11 @@ export const apiHandlers = [
       );
     }
   ),
+
+  rest.get<any, any, Enhet[]>("*/api/v1/internal/enheter", (req, res, ctx) => {
+    const enheter = mockEnheter;
+    return res(ctx.status(200), ctx.json(enheter));
+  }),
 
   rest.get<any, any, PaginertTiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",

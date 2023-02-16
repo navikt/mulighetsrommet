@@ -3,10 +3,12 @@ import { useAtom } from "jotai";
 import { Avtalestatus } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { avtaleFilter } from "../../api/atoms";
+import { useEnheter } from "../../api/enhet/useEnheter";
 import styles from "./Avtalefilter.module.scss";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
+  const { data: enheter } = useEnheter();
   return (
     <>
       <div className={styles.filter_container}>
@@ -38,6 +40,7 @@ export function Avtalefilter() {
             <option value="Planlagt">Planlagt</option>
             <option value="Avsluttet">Avsluttet</option>
             <option value="Avbrutt">Avbrutt</option>
+            <option value="">Alle</option>
           </Select>
           <Select
             label="Enhet"
@@ -49,7 +52,12 @@ export function Avtalefilter() {
               setFilter({ ...filter, enhet: e.currentTarget.value });
             }}
           >
-            <option value="ALLE">Alle</option>
+            <option value="">Alle</option>
+            {enheter?.map((enhet) => (
+              <option key={enhet.enhetId} value={enhet.enhetNr}>
+                {enhet.navn} - {enhet.enhetNr}
+              </option>
+            ))}
           </Select>
         </div>
         <div>
