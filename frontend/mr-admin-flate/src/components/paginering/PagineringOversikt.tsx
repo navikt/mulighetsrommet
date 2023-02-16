@@ -5,13 +5,21 @@ interface Props {
   page: number;
   antall: number;
   maksAntall?: number;
+  type: string;
 }
 
-export function PagineringsOversikt({ page, antall, maksAntall = 0 }: Props) {
+export function PagineringsOversikt({
+  page,
+  antall,
+  maksAntall = 0,
+  type,
+}: Props) {
+  if (antall === 0) return null;
+
   return (
     <Heading level="1" size="xsmall" data-testid="antall-tiltak">
       Viser {(page - 1) * PAGE_SIZE + 1}-{antall + (page - 1) * PAGE_SIZE} av{" "}
-      {maksAntall} tiltak
+      {maksAntall} {type}
     </Heading>
   );
 }
