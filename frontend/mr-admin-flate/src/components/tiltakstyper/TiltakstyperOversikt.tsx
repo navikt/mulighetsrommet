@@ -1,12 +1,13 @@
-import { Alert, Heading, Pagination } from "@navikt/ds-react";
+import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../Laster";
-import { TiltakstypeRad } from "./TiltakstypeRad";
 import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeheaderTiltakstyper } from "../listeelementer/Listeheader";
+import { PagineringsOversikt } from "../paginering/PagineringOversikt";
+import { TiltakstypeRad } from "./TiltakstypeRad";
 
 export function TiltakstyperOversikt() {
   const { data, isLoading } = useTiltakstyper();
@@ -20,19 +21,14 @@ export function TiltakstyperOversikt() {
   }
   const { data: tiltakstyper, pagination: paginering } = data;
 
-  const PagineringsOversikt = () => {
-    return (
-      <Heading level="3" size="xsmall" data-testid="antall-tiltak">
-        Viser {(page - 1) * PAGE_SIZE + 1}-
-        {tiltakstyper.length + (page - 1) * PAGE_SIZE} av{" "}
-        {paginering?.totalCount} tiltak
-      </Heading>
-    );
-  };
-
   return (
     <>
-      {tiltakstyper.length > 0 ? <PagineringsOversikt /> : null}
+      <PagineringsOversikt
+        page={page}
+        antall={tiltakstyper.length}
+        maksAntall={paginering.totalCount}
+        type="tiltakstyper"
+      />
       {tiltakstyper.length === 0 ? (
         <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
       ) : (
@@ -46,7 +42,12 @@ export function TiltakstyperOversikt() {
           <div className={styles.under_oversikt}>
             {tiltakstyper.length > 0 && (
               <>
-                <PagineringsOversikt />
+                <PagineringsOversikt
+                  page={page}
+                  antall={tiltakstyper.length}
+                  maksAntall={paginering.totalCount}
+                  type="tiltakstyper"
+                />
                 <Pagination
                   size="small"
                   data-testid="paginering"
