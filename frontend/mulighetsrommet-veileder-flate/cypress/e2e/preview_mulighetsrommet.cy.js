@@ -15,9 +15,9 @@ describe('Preview-funksjonalitet for redaktører', () => {
     cy.getByTestId('sanity-preview-alert').should('exist');
   });
 
-  it('Skal kunne åpne del med bruker, men send via Dialog-knapp er disabled', () => {
+  it('Skal kunne åpne del med bruker, men send via Dialog-knapp gir feilmodal', () => {
     cy.getByTestId('deleknapp').should('exist').click();
-    cy.getByTestId('delemodal-alert').should('be.visible');
-    cy.get('.navds-modal__button').click();
+    cy.getByTestId('modal_header').should('contain', 'Kunne ikke dele tiltaket');
+    cy.getByTestId('modal_btn-cancel').click();
   });
 });
