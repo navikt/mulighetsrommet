@@ -1,12 +1,12 @@
 import { Feilmelding, forsokPaNyttLink } from '../components/feilmelding/Feilmelding';
+import { porten } from '../constants';
 
 export function ErrorFallback({ error }: any) {
   let feilmelding = (
     <>
       Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss. Vennligst {forsokPaNyttLink()} eller
       ta&nbsp;
-      <a href="https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4442">kontakt</a> i Porten dersom du trenger
-      mer hjelp.
+      <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
     </>
   );
 
