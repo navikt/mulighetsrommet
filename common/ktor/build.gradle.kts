@@ -35,10 +35,6 @@ dependencies {
     val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
     implementation("no.nav.common:audit-log:$navCommonModules")
 
-    // Slack-SDK
-    val slackVersion = "1.27.3"
-    implementation("com.slack.api:slack-api-client:$slackVersion")
-
     // Cache
     val caffeineVersion = "3.1.2"
     implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
