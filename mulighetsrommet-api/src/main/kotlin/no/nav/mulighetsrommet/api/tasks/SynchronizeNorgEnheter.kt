@@ -24,9 +24,7 @@ class SynchronizeNorgEnheter(config: Config, norg2Service: Norg2Service, slackNo
         .execute { _, _ ->
             runBlocking {
                 logger.info("Kjører synkronisering av NORG2-enheter")
-                slackNotifier.sendMessage("Synkroniserer NORG2-enheter...")
-                val enheter = norg2Service.synkroniserEnheter()
-                slackNotifier.sendMessage("Synkroniserte ${enheter.size} enheter fra NORG2")
+                norg2Service.synkroniserEnheter()
             }
         }
 }
