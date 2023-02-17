@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.mockk.mockk
-import io.mockk.verify
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
