@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -57,7 +58,7 @@ class KafkaSyncServiceTest : FunSpec({
         )
     }
 
-    fun TiltaksgjennomforingDbo.toDto(): TiltaksgjennomforingDto {
+    fun TiltaksgjennomforingDbo.toDto(tiltaksgjennomforingsstatus: Tiltaksgjennomforingsstatus): TiltaksgjennomforingDto {
         return TiltaksgjennomforingDto(
             id = id,
             tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
@@ -69,7 +70,7 @@ class KafkaSyncServiceTest : FunSpec({
             virksomhetsnummer = virksomhetsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.fromDbo(today, startDato, sluttDato, avslutningsstatus)
+            status = tiltaksgjennomforingsstatus
         )
     }
 
@@ -78,7 +79,7 @@ class KafkaSyncServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val kafkaSyncService =
-            KafkaSyncService(TiltaksgjennomforingRepository(database.db), tiltaksgjennomforingKafkaProducer)
+            KafkaSyncService(tiltaksgjennomforingRepository, tiltaksgjennomforingKafkaProducer)
 
         val startdatoInnenforMenAvsluttetStatus = createTiltaksgjennomforing()
         val startdatoInnenfor =
@@ -109,11 +110,10 @@ class KafkaSyncServiceTest : FunSpec({
 
             kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(today, lastSuccessDate)
 
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto()) }
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto()) }
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(startdatoInnenforMenAvsluttetStatus.toDto()) }
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenforMenAvbruttStatus.toDto()) }
-            verify(exactly = 0) { tiltaksgjennomforingKafkaProducer.publish(datoerUtenfor.toDto()) }
+            verifyAll {
+                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(Tiltaksgjennomforingsstatus.GJENNOMFORES))
+                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(Tiltaksgjennomforingsstatus.AVSLUTTET))
+            }
         }
     }
 })

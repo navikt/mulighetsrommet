@@ -11,17 +11,20 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-class SynchronizeStatusesOnKafka(kafkaSyncService: KafkaSyncService, slackNotifier: SlackNotifier) {
+class SynchronizeTiltaksgjennomforingsstatuserOnKafka(
+    kafkaSyncService: KafkaSyncService,
+    slackNotifier: SlackNotifier
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-statuses-kafka", Daily(LocalTime.MIDNIGHT))
+        .recurring("synchronize-tiltaksgjennomforingsstatuser-kafka", Daily(LocalTime.MIDNIGHT))
         .onFailure { _, _ ->
             slackNotifier.sendMessage("Klarte ikke synkronisere tiltaksgjennomføringsstatuser på kafka. Konsekvensen er at statuser på tiltaksgjennomføringer kan være utdaterte på kafka.")
         }
         .execute { _, context ->
             runBlocking {
-                logger.info("Kjører synkronisering av statuser på kafka")
+                logger.info("Kjører synkronisering av tiltaksgjennomforingsstatuser på kafka")
                 kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(
                     LocalDate.now(),
                     context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
