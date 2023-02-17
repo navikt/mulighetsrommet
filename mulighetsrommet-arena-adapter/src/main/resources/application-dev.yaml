@@ -50,6 +50,6 @@ app:
         avtaleinfoendret: teamarenanais.aapen-arena-avtaleinfoendret-v1-q2
 
   slack:
-    token: ${SLACK_DEV_TOKEN}
+    token: ${SLACK_TOKEN}
     channel: "#team-valp-monitoring"
     enable: true

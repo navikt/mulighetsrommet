@@ -49,6 +49,6 @@ app:
         avtaleinfoendret: avtaleinfoendret
 
   slack:
-    token: ${SLACK_DEV_TOKEN:-""}
+    token: ${SLACK_TOKEN:-""}
     channel: "#team-valp-monitoring"
     enable: false
