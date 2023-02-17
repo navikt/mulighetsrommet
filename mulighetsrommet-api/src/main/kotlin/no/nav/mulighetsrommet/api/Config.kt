@@ -27,7 +27,8 @@ data class AppConfig(
     val arenaAdapter: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
     val tasks: TaskConfig,
-    val norg2: Norg2Config
+    val norg2: Norg2Config,
+    val slack: SlackConfig
 )
 
 data class AuthConfig(
@@ -73,4 +74,10 @@ data class TaskConfig(
 
 data class Norg2Config(
     val baseUrl: String
+)
+
+data class SlackConfig(
+    val token: String,
+    val channel: String,
+    val enable: Boolean
 )

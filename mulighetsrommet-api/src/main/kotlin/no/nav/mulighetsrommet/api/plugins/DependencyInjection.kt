@@ -12,6 +12,7 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
+import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
@@ -41,6 +42,8 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.StringSerializer
@@ -61,8 +64,17 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             kafka(appConfig.kafka),
             repositories(),
             services(appConfig),
-            tasks(appConfig.tasks)
+            tasks(appConfig.tasks),
+            slack(appConfig.slack)
         )
+    }
+}
+
+fun slack(slack: SlackConfig): Module {
+    return module(createdAtStart = true) {
+        single<SlackNotifier> {
+            SlackNotifierImpl(slack.token, slack.channel, slack.enable)
+        }
     }
 }
 
@@ -201,7 +213,7 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single {
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
 
         val db: Database by inject()
 

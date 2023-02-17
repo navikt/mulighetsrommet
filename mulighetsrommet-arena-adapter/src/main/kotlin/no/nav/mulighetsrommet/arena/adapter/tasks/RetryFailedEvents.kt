@@ -9,9 +9,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import org.slf4j.LoggerFactory
 
-class RetryFailedEvents(private val config: Config, private val arenaEventService: ArenaEventService) {
+class RetryFailedEvents(
+    private val config: Config,
+    private val arenaEventService: ArenaEventService,
+    private val slackNotifier: SlackNotifier
+) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -22,6 +27,9 @@ class RetryFailedEvents(private val config: Config, private val arenaEventServic
 
     val task: RecurringTask<Void> = Tasks
         .recurring("retry-failed-events", FixedDelay.ofMinutes(config.delayOfMinutes))
+        .onFailure { _, _ ->
+            slackNotifier.sendMessage("Klarte ikke retry'e feilede hendelser i arena-adapter. En utvikler bør se på hvorfor.")
+        }
         .execute { instance, context ->
             logger.info("Running task ${instance.taskName}")
 

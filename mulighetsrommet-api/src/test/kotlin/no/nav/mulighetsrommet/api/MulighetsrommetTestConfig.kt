@@ -39,7 +39,12 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
             delayOfMinutes = 10
         ),
     ),
-    norg2 = Norg2Config(baseUrl = "")
+    norg2 = Norg2Config(baseUrl = ""),
+    slack = SlackConfig(
+        token = "",
+        channel = "",
+        enable = false
+    )
 )
 
 fun createKafkaConfig(): KafkaConfig {

@@ -106,6 +106,13 @@ Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltaksty
 | Url (dev-miljø)  | <https://mulighetsrommet-admin-flate.dev.intern.nav.no>                                 |
 | Url (prod-miljø) | <https://mulighetsrommet-admin-flate.intern.nav.no>                                     |
 
+## Overvåking av automatiske jobber
+Vi har satt opp to Slack-bots som kan gi beskjed til oss på Slack i kanalen #team-valp-monitoring dersom det oppstår feil under kjøring av de automatiske jobbene.
+
+Botene finner man her:
+- Dev-monitorering: https://api.slack.com/apps/A04PW7S8J94/general
+- Prod-monitorering: https://api.slack.com/apps/A04Q2NNABDZ
+
 ## Henvendelser
 
 Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.

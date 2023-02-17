@@ -16,7 +16,8 @@ data class AppConfig(
     val services: ServiceConfig,
     val database: FlywayDatabaseConfig,
     val kafka: KafkaConfig,
-    val auth: AuthConfig
+    val auth: AuthConfig,
+    val slack: SlackConfig
 )
 
 data class TaskConfig(
@@ -67,4 +68,10 @@ data class ConsumerConfig(
     val id: String,
     val topic: String,
     val initialRunningState: Boolean = false,
+)
+
+data class SlackConfig(
+    val token: String,
+    val channel: String,
+    val enable: Boolean
 )

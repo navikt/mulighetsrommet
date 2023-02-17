@@ -37,6 +37,11 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
             maxRetries = 0
         ),
         arenaOrdsProxy = ServiceClientConfig(url = "arena-ords-proxy", scope = "")
+    ),
+    slack = SlackConfig(
+        token = "",
+        channel = "",
+        enable = false
     )
 )
 

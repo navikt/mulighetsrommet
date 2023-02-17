@@ -75,3 +75,8 @@ app:
 
   norg2:
     baseUrl: https://norg2.prod-fss-pub.nais.io/norg2/api/v1
+
+  slack:
+    token: ${SLACK_TOKEN}
+    channel: "#team-valp-monitoring"
+    enable: true
