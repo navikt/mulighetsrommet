@@ -3,16 +3,19 @@ package no.nav.mulighetsrommet.database
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
 import kotlin.system.measureTimeMillis
 
 class FlywayDatabaseAdapter(
     config: FlywayDatabaseConfig,
+    slackNotifier: SlackNotifier? = null
 ) : DatabaseAdapter(config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private val flyway: Flyway
+    private var slackNotifier: SlackNotifier? = null
 
     init {
         flyway = Flyway
@@ -30,6 +33,10 @@ class FlywayDatabaseAdapter(
                 config.schema?.let { schemas(it) }
             }
             .load()
+
+        if (slackNotifier != null) {
+            this.slackNotifier = slackNotifier
+        }
 
         when (config.migrationConfig.strategy) {
             InitializationStrategy.Migrate -> {
@@ -79,6 +86,7 @@ class FlywayDatabaseAdapter(
                 }
                 logger.info("Flyway task finished in ${time}ms")
             } catch (e: Throwable) {
+                slackNotifier?.sendMessage("Async Flyway-migrering feilet. Sjekk med utviklerne på teamet om noen kjører en stor async migrering.")
                 logger.warn("Flyway task was cancelled with exception", e)
                 throw e
             }
