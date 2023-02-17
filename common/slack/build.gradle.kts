@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
+    `java-test-fixtures`
     id("org.jlleitschuh.gradle.ktlint")
 }
 

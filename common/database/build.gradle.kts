@@ -23,9 +23,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation(project(":common:slack"))
 
     // Test
     val kotestVersion = "5.3.1"
     testFixturesImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testFixturesImplementation("org.assertj:assertj-db:2.0.2")
+
+    testFixturesImplementation(project(":common:slack"))
 }
