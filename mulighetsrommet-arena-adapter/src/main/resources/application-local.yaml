@@ -47,3 +47,8 @@ app:
         tiltakdeltakerendret: tiltakdeltakerendret
         sakendret: sakendret
         avtaleinfoendret: avtaleinfoendret
+
+  slack:
+    token: ${SLACK_DEV_TOKEN}
+    channel: "#team-valp-monitoring"
+    enable: true

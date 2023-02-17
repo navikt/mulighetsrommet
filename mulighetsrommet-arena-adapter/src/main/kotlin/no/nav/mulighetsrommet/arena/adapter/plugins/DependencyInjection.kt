@@ -23,6 +23,8 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -44,8 +46,17 @@ fun Application.configureDependencyInjection(
             kafka(appConfig.kafka),
             repositories(),
             services(appConfig.services, tokenClient),
-            tasks(appConfig.tasks)
+            tasks(appConfig.tasks),
+            slack(appConfig.slack)
         )
+    }
+}
+
+fun slack(slack: SlackConfig): Module {
+    return module(createdAtStart = true) {
+        single<SlackNotifier> {
+            SlackNotifierImpl(slack.token, slack.channel, slack.enable)
+        }
     }
 }
 
@@ -79,7 +90,7 @@ private fun tasks(tasks: TaskConfig) = module {
         ReplayEvents(get(), get())
     }
     single {
-        val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get())
+        val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get(), get())
         val replayEvents: ReplayEvents = get()
 
         val db: Database by inject()

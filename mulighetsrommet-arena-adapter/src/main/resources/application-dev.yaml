@@ -48,3 +48,8 @@ app:
         tiltakdeltakerendret: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
         sakendret: teamarenanais.aapen-arena-sakendret-v1-q2
         avtaleinfoendret: teamarenanais.aapen-arena-avtaleinfoendret-v1-q2
+
+  slack:
+    token: ${SLACK_DEV_TOKEN}
+    channel: "#team-valp-monitoring"
+    enable: true
