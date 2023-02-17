@@ -65,4 +65,4 @@ spec:
         - application: mulighetsrommet-api
 
   envFrom:
-    - mulighetsrommet-arena-adapter
+    - secret: mulighetsrommet-arena-adapter
