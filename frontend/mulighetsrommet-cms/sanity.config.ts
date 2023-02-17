@@ -3,8 +3,6 @@ import { deskTool } from "sanity/desk";
 import { schemas } from "./schemas/schemas";
 import { visionTool } from "@sanity/vision";
 import { defaultDocumentNode, structure } from "./deskStructures/deskStrukture";
-import { Samtykke } from "./tools/samtykke-tool/Samtykke";
-import { FaRegHandshake } from "react-icons/fa";
 
 const PROJECT_ID = "xegcworx";
 export const API_VERSION = "2021-10-21";
@@ -39,17 +37,6 @@ const createCommonConfig = (
   ],
   schema: {
     types: schemas,
-  },
-  tools: (prev) => {
-    return [
-      ...prev,
-      {
-        name: "samtykke",
-        title: "Samtykke",
-        component: Samtykke,
-        icon: FaRegHandshake,
-      },
-    ];
   },
   auth: createAuthStore({
     dataset,
