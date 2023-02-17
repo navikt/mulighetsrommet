@@ -87,7 +87,7 @@ private fun consumers(kafkaConfig: KafkaConfig) = module {
 
 private fun tasks(tasks: TaskConfig) = module {
     single {
-        ReplayEvents(get(), get())
+        ReplayEvents(get(), get(), get())
     }
     single {
         val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get(), get())

@@ -10,17 +10,25 @@ import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
 private const val SCHEDULER_STATE_POLL_DELAY = 1000L
 
-class ReplayEvents(private val arenaEventService: ArenaEventService, val database: Database) {
+class ReplayEvents(
+    private val arenaEventService: ArenaEventService,
+    val database: Database,
+    private val slackNotifier: SlackNotifier
+) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: OneTimeTask<Void> = Tasks
         .oneTime("replay-events")
+        .onFailure { _, _ ->
+            slackNotifier.sendMessage("Klarte ikke kjøre task 'replay-events'. Konsekvensen er at man ikke manuelt får gjenspilt events man er interessert i.")
+        }
         .execute { instance, context ->
             logger.info("Running task ${instance.taskName}")
 

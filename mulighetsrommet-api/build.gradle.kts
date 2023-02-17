@@ -35,6 +35,7 @@ dependencies {
     implementation(project(":common:domain"))
     implementation(project(":common:ktor"))
     implementation(project(":common:database"))
+    implementation(project(":common:slack"))
     testImplementation(testFixtures(project(":common:database")))
 
     // Kotlin

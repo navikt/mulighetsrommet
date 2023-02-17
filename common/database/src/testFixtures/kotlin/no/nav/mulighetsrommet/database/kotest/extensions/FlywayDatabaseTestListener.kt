@@ -16,7 +16,7 @@ class FlywayDatabaseTestListener(private val config: FlywayDatabaseConfig) : Bef
         get() = delegate ?: throw RuntimeException("Database has not yet been initialized")
 
     override suspend fun beforeSpec(spec: Spec) {
-        delegate = FlywayDatabaseAdapter(config)
+        delegate = FlywayDatabaseAdapter(config, slackNotifier = null)
     }
 
     override suspend fun afterSpec(spec: Spec) {
