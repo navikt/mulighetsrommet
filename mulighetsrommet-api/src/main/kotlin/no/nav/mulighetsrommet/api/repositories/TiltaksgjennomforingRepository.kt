@@ -219,7 +219,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams
     ): List<TiltaksgjennomforingDbo> {
-        logger.info("Henter alle tiltaksgjennomføringer med start eller slutt dato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
+        logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
 
         @Language("PostgreSQL")
         val query = """

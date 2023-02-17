@@ -60,3 +60,6 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
+
+  envFrom:
+    - secret: mulighetsrommet-arena-adapter

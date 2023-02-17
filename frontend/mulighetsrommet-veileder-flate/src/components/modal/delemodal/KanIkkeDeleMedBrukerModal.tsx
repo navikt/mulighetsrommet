@@ -1,7 +1,7 @@
 import { StatusModal } from './StatusModal';
-import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
-import { useState } from 'react';
 import { LoaderModal } from '../loaderModal/LoaderModal';
+import { useState } from 'react';
+import { useHentBrukerdata } from '../../../core/api/queries/useHentBrukerdata';
 
 interface KanIkkeDeleMedBrukerModalProps {
   modalOpen: boolean;
@@ -21,10 +21,18 @@ export const KanIkkeDeleMedBrukerModal = ({
   kanIkkeDeleMedBruker,
 }: KanIkkeDeleMedBrukerModalProps) => {
   const brukerdata = useHentBrukerdata();
+
   const [, setData] = useState(brukerdata);
   const [loaderModalApen, setLoaderModalApen] = useState(false);
-  // const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  const provIgjen = async () => {
+    setData(brukerdata);
+    setLoaderModalApen(true);
+    //tester om det er nødvendig med denne
+    await sleep(500);
+    setLoaderModalApen(false);
+  };
   const feilmelding = () => {
     if (manuellOppfolging)
       return 'Brukeren er under manuell oppfølging og kan derfor ikke benytte seg av våre digitale tjenester.';
@@ -41,14 +49,6 @@ export const KanIkkeDeleMedBrukerModal = ({
     manuellOppfolging || krrStatusErReservert || manuellStatus || kanIkkeDeleMedBruker
       ? 'Kunne ikke dele tiltaket'
       : null;
-
-  const provIgjen = async () => {
-    setData(brukerdata);
-    setLoaderModalApen(true);
-    //tester om det er nødvendig med denne
-    // await sleep(500); //ja, det skal være sleep h  er fordi brukerne skal se at brukerdata hentes på nytt
-    setLoaderModalApen(false);
-  };
 
   return (
     <>
