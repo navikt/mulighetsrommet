@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import kotlin.system.measureTimeMillis
 
 class FlywayDatabaseAdapter(
-    config: FlywayDatabaseConfig
+    config: FlywayDatabaseConfig,
 ) : DatabaseAdapter(config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -18,6 +18,7 @@ class FlywayDatabaseAdapter(
         flyway = Flyway
             .configure()
             .cleanDisabled(config.migrationConfig.cleanDisabled)
+            .lockRetryCount(-1) // -1 = prøv for alltid https://flywaydb.org/documentation/configuration/parameters/lockRetryCount
             .configuration(
                 mapOf(
                     // Disable transactional locks in order to support concurrent indexes
