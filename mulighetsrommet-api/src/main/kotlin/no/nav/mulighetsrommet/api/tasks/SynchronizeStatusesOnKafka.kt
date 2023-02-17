@@ -17,7 +17,7 @@ class SynchronizeStatusesOnKafka(kafkaSyncService: KafkaSyncService, slackNotifi
     val task: RecurringTask<Void> = Tasks
         .recurring("synchronize-statuses-kafka", Daily(LocalTime.MIDNIGHT))
         .onFailure { _, _ ->
-            slackNotifier.sendMessage("Klarte ikke synkronisere tiltaksgjennomføringsstatuser på kafka. Konsekvensen er at statuser på tiltaksgjennomføringer kan være utaderte på kafka.")
+            slackNotifier.sendMessage("Klarte ikke synkronisere tiltaksgjennomføringsstatuser på kafka. Konsekvensen er at statuser på tiltaksgjennomføringer kan være utdaterte på kafka.")
         }
         .execute { _, context ->
             runBlocking {
