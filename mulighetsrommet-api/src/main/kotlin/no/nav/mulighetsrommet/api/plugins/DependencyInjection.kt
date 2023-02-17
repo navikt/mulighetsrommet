@@ -215,7 +215,7 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single {
-        val synchronizeStatusesOnKafka = SynchronizeStatusesOnKafka(get())
+        val synchronizeStatusesOnKafka = SynchronizeStatusesOnKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
 
         val db: Database by inject()
