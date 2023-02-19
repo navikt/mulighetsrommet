@@ -58,6 +58,10 @@ class AvtaleInfoEndretConsumer(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val (_, operation, data) = ArenaEventData.decode<ArenaAvtaleInfo>(event.payload)
 
+        ensureNotNull(data.AVTALENAVN) {
+            ConsumptionError.Ignored("Avtale mangler navn")
+        }
+
         ensureNotNull(data.DATO_FRA) {
             ConsumptionError.Ignored("Avtale mangler fra-dato")
         }
@@ -112,6 +116,7 @@ class AvtaleInfoEndretConsumer(
 
     private fun ArenaAvtaleInfo.toAvtale(id: UUID) = Either
         .catch {
+            requireNotNull(AVTALENAVN)
             requireNotNull(DATO_FRA)
             requireNotNull(DATO_TIL)
             requireNotNull(ARBGIV_ID_LEVERANDOR)
