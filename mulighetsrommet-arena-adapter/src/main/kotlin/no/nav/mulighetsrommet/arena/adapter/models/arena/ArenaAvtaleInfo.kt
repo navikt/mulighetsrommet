@@ -8,7 +8,7 @@ data class ArenaAvtaleInfo(
     val AVTALE_ID: Int,
     val AAR: Int,
     val LOPENRAVTALE: Int,
-    val AVTALENAVN: String,
+    val AVTALENAVN: String?,
     val ARKIVREF: String?,
     // Leverandør kan mangle for avtaler med status={PLAN,AVBRU}
     val ARBGIV_ID_LEVERANDOR: Int?,
