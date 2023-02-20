@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import io.ktor.utils.io.core.*
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.services.Sokefilter
@@ -210,6 +211,48 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val totaltAntall = results.firstOrNull()?.first ?: 0
 
         return Pair(totaltAntall, tiltaksgjennomforinger)
+    }
+
+    fun getAllByDateIntervalAndAvslutningsstatus(
+        dateIntervalStart: LocalDate,
+        dateIntervalEnd: LocalDate,
+        avslutningsstatus: Avslutningsstatus,
+        pagination: PaginationParams
+    ): List<TiltaksgjennomforingDbo> {
+        logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
+
+        @Language("PostgreSQL")
+        val query = """
+            select id::uuid,
+                   navn,
+                   tiltakstype_id,
+                   tiltaksnummer,
+                   virksomhetsnummer,
+                   start_dato,
+                   slutt_dato,
+                   enhet,
+                   avslutningsstatus::avslutningsstatus
+            from tiltaksgjennomforing
+            where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
+                (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
+                (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end))
+            order by id
+            limit :limit offset :offset
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            mapOf(
+                "avslutningsstatus" to avslutningsstatus.name,
+                "date_interval_start" to dateIntervalStart,
+                "date_interval_end" to dateIntervalEnd,
+                "limit" to pagination.limit,
+                "offset" to pagination.offset,
+            )
+        )
+            .map { it.toTiltaksgjennomforingDbo() }
+            .asList
+            .let { db.run(it) }
     }
 
     fun sok(filter: Sokefilter): List<TiltaksgjennomforingAdminDto> {
