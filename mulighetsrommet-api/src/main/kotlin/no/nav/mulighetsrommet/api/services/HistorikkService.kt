@@ -21,7 +21,7 @@ class HistorikkService(
 
     private suspend fun hentArrangorNavn(virksomhetsnummer: String): String? {
         return try {
-            arrangorService.hentArrangornavn(virksomhetsnummer)
+            arrangorService.hentOverordnetEnhetNavnForArrangor(virksomhetsnummer)
         } catch (e: Throwable) {
             log.error("Feil oppstod ved henting arrangørnavn, sjekk securelogs")
             SecureLog.logger.error("Feil oppstod ved henting arrangørnavn", e)

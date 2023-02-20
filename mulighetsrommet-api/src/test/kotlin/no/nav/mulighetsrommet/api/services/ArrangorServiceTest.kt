@@ -30,16 +30,16 @@ class ArrangorServiceTest : FunSpec({
     }
 
     test("henter navn på arrangør basert på virksomhetsnummer tilhørende arrangør id") {
-        arrangorService.hentArrangornavn("111") shouldBe "Overordnetbedrift 1"
-        arrangorService.hentArrangornavn("222") shouldBe "Overordnetbedrift 2"
+        arrangorService.hentOverordnetEnhetNavnForArrangor("111") shouldBe "Overordnetbedrift 1"
+        arrangorService.hentOverordnetEnhetNavnForArrangor("222") shouldBe "Overordnetbedrift 2"
     }
 
     test("arrangør navn blir cachet basert på arrangør id") {
-        arrangorService.hentArrangornavn("111")
-        arrangorService.hentArrangornavn("222")
-        arrangorService.hentArrangornavn("222")
-        arrangorService.hentArrangornavn("222")
-        arrangorService.hentArrangornavn("111")
+        arrangorService.hentOverordnetEnhetNavnForArrangor("111")
+        arrangorService.hentOverordnetEnhetNavnForArrangor("222")
+        arrangorService.hentOverordnetEnhetNavnForArrangor("222")
+        arrangorService.hentOverordnetEnhetNavnForArrangor("222")
+        arrangorService.hentOverordnetEnhetNavnForArrangor("111")
 
         coVerify(exactly = 2) { amtEnhetsregister.hentVirksomhet(any()) }
     }

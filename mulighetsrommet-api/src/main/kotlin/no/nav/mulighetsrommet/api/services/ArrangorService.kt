@@ -24,7 +24,7 @@ class ArrangorService(
             }
     }
 
-    suspend fun hentArrangornavn(virksomhetsnummer: String): String {
+    suspend fun hentOverordnetEnhetNavnForArrangor(virksomhetsnummer: String): String {
         return hentVirksomhet(virksomhetsnummer)?.overordnetEnhetNavn ?: ""
     }
 }
