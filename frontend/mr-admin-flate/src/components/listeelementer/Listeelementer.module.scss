@@ -1,6 +1,11 @@
 $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
 $avtaleGrid: 2fr 0.5fr 0.5fr repeat(2, 0.5fr) 10% 1%;
 
+@mixin avtaleGridProperties {
+  grid-template-columns: $avtaleGrid;
+  gap: 0.5rem;
+}
+
 .oversikt {
   margin: 0;
   margin-top: 1rem;
@@ -28,7 +33,7 @@ $avtaleGrid: 2fr 0.5fr 0.5fr repeat(2, 0.5fr) 10% 1%;
   }
 
   &_avtaler {
-    grid-template-columns: $avtaleGrid;
+    @include avtaleGridProperties();
   }
 }
 
@@ -63,6 +68,6 @@ $avtaleGrid: 2fr 0.5fr 0.5fr repeat(2, 0.5fr) 10% 1%;
   }
 
   &_avtale {
-    grid-template-columns: $avtaleGrid;
+    @include avtaleGridProperties();
   }
 }

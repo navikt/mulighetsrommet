@@ -18,7 +18,7 @@ export function Avtalerad({ avtale }: Props) {
     >
       <BodyShort size="medium">{avtale.navn}</BodyShort>
       <BodyShort size="medium">
-        {avtale.leverandornavn ?? avtale.leverandorOrganisasjonsnummer}
+        {avtale.leverandornavn || avtale.leverandorOrganisasjonsnummer}
       </BodyShort>
       <BodyShort size="medium">{avtale.enhet}</BodyShort>
 
