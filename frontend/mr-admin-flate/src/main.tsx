@@ -13,7 +13,7 @@ import "./index.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: true, // sett til false for å ta bort refetch ved fokus
+      refetchOnWindowFocus: process.env.NODE_ENV !== "development",
     },
   },
 });
