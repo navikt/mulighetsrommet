@@ -1,6 +1,6 @@
 import React from 'react';
 import { Accordion, Alert, Checkbox, CheckboxGroup, Loader } from '@navikt/ds-react';
-import { kebabCase } from '../../utils/Utils';
+import { formatMetrikker, kebabCase } from '../../utils/Utils';
 import { logEvent } from '../../core/api/logger';
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
@@ -33,7 +33,10 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       ? valgteTypeIDer.concat(value)
       : valgteTypeIDer.filter((id: string) => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
-    logEvent(`mulighetsrommet.filtrering.${accordionNavn.toLowerCase()}`, { filtertypeTittel });
+
+    logEvent(`mulighetsrommet.filtrering.${kebabCaseAccordionNavn}`, {
+      filtertypeTittel: formatMetrikker(filtertypeTittel),
+    });
   };
 
   const checkbox = (filtertype: T) => {

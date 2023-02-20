@@ -8,12 +8,16 @@ export const inneholderUrl = (string: string) => {
 
 export const erPreview = inneholderUrl('/preview/');
 
-export function specialChar(string: string | { label: string }) {
+function specialChar(string: string | { label: string }) {
   return string.toString().toLowerCase().split('æ').join('ae').split('ø').join('o').split('å').join('a');
 }
 
 export function kebabCase(string: string | { label: string }) {
-  return specialChar(string).replace(/\s+/g, '-');
+  return specialChar(string).trim().replace(/\s+/g, '-').replace(/_/g, '-');
+}
+
+export function formatMetrikker(string: string) {
+  return kebabCase(string).substring(0, 40);
 }
 
 export function capitalize(text?: string): string {
