@@ -1,7 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import { FilterTiltakstyper } from "../../components/tiltakstyper/FilterTiltakstyper";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
-import { MainContent } from "../../components/visuals/MainContent";
+import { DetaljLayout } from "../../layouts/DetaljLayout";
 import { NavigeringHeader } from "../forside/NavigeringHeader";
 import styles from "../Page.module.scss";
 
@@ -9,7 +9,7 @@ export function TiltakstyperPage() {
   return (
     <>
       <NavigeringHeader />
-      <MainContent>
+      <DetaljLayout>
         <div className={styles.header_wrapper}>
           <Heading level="2" size="large">
             Oversikt over tiltakstyper
@@ -19,7 +19,7 @@ export function TiltakstyperPage() {
           <FilterTiltakstyper />
         </div>
         <TiltakstyperOversikt />
-      </MainContent>
+      </DetaljLayout>
     </>
   );
 }

@@ -1,14 +1,14 @@
-import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import classNames from "classnames";
+import { Alert, Tabs } from "@navikt/ds-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
+import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/Laster";
-import { Tilbakelenke } from "../../components/navigering/Tilbakelenke";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
-import styles from "./DetaljerTiltakstypePage.module.scss";
 import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
+import "./DetaljerTiltakstypePage.module.scss";
+import { ListLayout } from "../../layouts/ListLayout";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
@@ -33,14 +33,9 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <main>
-      <div className={classNames(styles.header, styles.padding_detaljer)}>
-        <Tilbakelenke>Tilbake</Tilbakelenke>
-        <Heading size="large" level="2">
-          {tiltakstype.navn}
-        </Heading>
-      </div>
+      <Header>{tiltakstype.navn}</Header>
       <Tabs value={tabValgt} onChange={setTabValgt}>
-        <Tabs.List className={classNames(styles.padding_detaljer)}>
+        <Tabs.List>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
           {features?.data &&
           features?.data["mulighetsrommet.vis-avtaler-for-tiltakstyper"] ? (
@@ -48,14 +43,14 @@ export function DetaljerTiltakstypePage() {
           ) : null}
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
-          <div className={styles.padding_detaljer}>
+          <ListLayout>
             <TiltakstypeDetaljer />
-          </div>
+          </ListLayout>
         </Tabs.Panel>
         <Tabs.Panel value="avtaler" className="h-24 w-full bg-gray-50 p-4">
-          <div className={styles.padding_detaljer}>
+          <ListLayout>
             <AvtalerForTiltakstype />
-          </div>
+          </ListLayout>
         </Tabs.Panel>
       </Tabs>
     </main>
