@@ -15,8 +15,8 @@ spec:
       expr: kube_deployment_status_replicas_available{deployment="mulighetsrommet-api"} == 0
       for: 2m
       annotations:
-        consequence: "App \{{ $labels.log_app }} er nede i namespace \{{ $labels.namespace }}"
-        action: "`kubectl describe pod -l app=\{{ $labels.log_app }} -n \{{ $labels.namespace }}` for events, og `kubectl logs -l app=\{{ $labels.log_app }} -n \{{ $labels.namespace }}` for logger"
+        consequence: "App {{ $labels.log_app }} er nede i namespace {{ $labels.namespace }}"
+        action: "`kubectl describe pod -l app={{ $labels.log_app }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.log_app }} -n {{ $labels.namespace }}` for logger"
         summary: |-
           API er nede og vil ikke motta forespørsel. Ingen konsumenter kan hente data fra oss
       labels:
@@ -24,12 +24,12 @@ spec:
         severity: critical
   - name: Feilrate
     rules:
-    - alert: "høy feilrate i logger for \{{ $labels.log_app }}"
+    - alert: "høy feilrate i logger for {{ $labels.log_app }}"
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="mulighetsrommet-api",log_level=~"Warning|Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="mulighetsrommet-api"}[3m]))) > 10
       for: 3m
       annotations:
         consequence: Konsumenter kan oppleve ustabilitet mot API
-        action: "Sjekk loggene til app \{{ $labels.log_app }} i namespace \{{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
+        action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
         summary: |-
           Vi ser mange feilmeldinger i loggene.
           Det kan resultere i ustabile tjenester hos konsumenter som
@@ -44,7 +44,7 @@ spec:
       for: 3m
       annotations:
         consequence: 500-feil fra API
-        action: "Sjekk loggene til '\{{ $labels.log_app }}' for å se hvorfor '\{{ $labels.route }}' returnerer feilkoder"
+        action: "Sjekk loggene til '{{ $labels.log_app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
         summary: |-
           Vi ser mange 500-feil fra API. Vi bør undersøke hvorfor, da det kan tyde på en
           feil som må rettes opp i.
@@ -59,7 +59,7 @@ spec:
       for: 3m
       annotations:
         consequense: API returnerer mange 4xx-feil
-        action: "Sjekk loggene til '\{{ $labels.log_app }}' for å se hvorfor '\{{ $labels.route }}' returnerer feilkoder"
+        action: "Sjekk loggene til '{{ $labels.log_app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
         summary: |-
           API returnerer mange 4xx-feil. Dette gjør at
           konsumenter kan oppleve ustabilitet mot API.
@@ -73,7 +73,7 @@ spec:
         for: 1m
         annotations:
           consequence: Selftest svarer ikke og dermed vil ikke appen starte opp
-          action: "Sjekk app \{{ $labels.log_app }} i namespace \{{ $labels.namespace }} sine selftest for å se hva som er galt"
+          action: "Sjekk app {{ $labels.log_app }} i namespace {{ $labels.namespace }} sine selftest for å se hva som er galt"
         labels:
           namespace: team-mulighetsrommet
           severity: critical
