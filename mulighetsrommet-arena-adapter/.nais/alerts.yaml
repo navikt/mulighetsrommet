@@ -15,16 +15,16 @@ spec:
       expr: kube_deployment_status_replicas_available{deployment="mulighetsrommet-arena-adapater"} == 0
       for: 2m
       annotations:
-        consequence: "App {{ $labels.app }} er nede i namespace {{ $labels.namespace }}"
-        action: "`kubectl describe pod -l app={{ $labels.app }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.app }} -n {{ $labels.namespace }}` for logger"
+        consequence: "App {{ $labels.log_app }} er nede i namespace {{ $labels.namespace }}"
+        action: "`kubectl describe pod -l app={{ $labels.log_app }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.log_app }} -n {{ $labels.namespace }}` for logger"
         summary: |-
-          {{ $labels.app }} er nede og vil ikke konsumere data eller tilby data til API. Dette bør fikses asap.
+          {{ $labels.log_app }} er nede og vil ikke konsumere data eller tilby data til API. Dette bør fikses asap.
       labels:
         namespace: team-mulighetsrommet
         severity: critical
   - name: Feilrate i loggen
     rules:
-    - alert: "høy feilrate i logger for {{ $labels.app }}"
+    - alert: "høy feilrate i logger for {{ $labels.log_app }}"
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="mulighetsrommet-arena-adapter",log_level=~"Warning|Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="mulighetsrommet-arena-adapter"}[3m]))) > 10
       for: 3m
       annotations:
@@ -37,8 +37,8 @@ spec:
       expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^5\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])))) > 10
       for: 3m
       annotations:
-        consequence: "{{ $labels.app }} logger mange 5xx feil. Det kan tyde på en bug eller dårlig feilhåndtering i tjenesten."
-        action: "Sjekk loggene til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+        consequence: "{{ $labels.log_app }} logger mange 5xx feil. Det kan tyde på en bug eller dårlig feilhåndtering i tjenesten."
+        action: "Sjekk loggene til '{{ $labels.log_app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
       labels:
         namespace: team-mulighetsrommet
         severity: warning
@@ -48,8 +48,8 @@ spec:
       expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter", route!~'.*(/api/exchange/{arenaId})'}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
       for: 3m
       annotations:
-        consequence: "{{ $labels.app }} returnerer mye 4xx feil til konsumenter. Det kan føre til ustabilitet hos klientene og bør sees på."
-        action: "Sjekk loggene til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+        consequence: "{{ $labels.log_app }} returnerer mye 4xx feil til konsumenter. Det kan føre til ustabilitet hos klientene og bør sees på."
+        action: "Sjekk loggene til '{{ $labels.log_app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
       labels:
         namespace: team-mulighetsrommet
         severity: warning
@@ -59,8 +59,8 @@ spec:
       expr: selftests_aggregate_result_status{app="mulighetsrommet-arena-adapter"} > 0
       for: 1m
       annotations:
-        consequence: Selftest feiler for {{ $labels.app }} og appen vil ikke starte opp
-        action: "Sjekk app {{ $labels.app }} i namespace {{ $labels.namespace }} sine selftest for å se hva som er galt"
+        consequence: Selftest feiler for {{ $labels.log_app }} og appen vil ikke starte opp
+        action: "Sjekk app {{ $labels.log_app }} i namespace {{ $labels.namespace }} sine selftest for å se hva som er galt"
       labels:
         namespace: team-mulighetsrommet
         severity: critical
