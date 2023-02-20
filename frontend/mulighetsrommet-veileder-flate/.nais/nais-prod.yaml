@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.01.13_08.09-36c09678654f
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.02.20_07.25-25d2fa8d05b8
   port: 8080
   ingresses:
     - https://mulighetsrommet-veileder-flate.intern.nav.no
@@ -22,7 +22,7 @@ spec:
     cpuThresholdPercentage: 75
   resources:
     limits:
-      cpu: '1'
+      cpu: "1"
       memory: 512Mi
     requests:
       cpu: 250m
@@ -71,7 +71,7 @@ spec:
                 "namespace": "poao",
                 "cluster": "prod-gcp"
               }
-            },  
+            },
             {
               "fromPath": "/mulighetsrommet-api",
               "toUrl": "http://mulighetsrommet-api",
