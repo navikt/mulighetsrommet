@@ -15,17 +15,25 @@ object DatabaseUtils {
 enum class StatusDbStatement {
     AVLYST,
     PLANLAGT,
-    GJENNOMFORES,
+    AKTIV,
     AVSLUTTET,
     AVBRUTT;
 
-    fun getDbStatement(dagensDato: LocalDate): String {
+    fun getDbStatementMedAvslutningsstatus(dagensDato: LocalDate): String {
         return when (this) {
             AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            PLANLAGT -> "('$dagensDato' < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            GJENNOMFORES -> "('$dagensDato' >= start_dato and '$dagensDato' <= slutt_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            AVSLUTTET -> "('$dagensDato' > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            PLANLAGT -> "(${getDbStatement(dagensDato)} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AKTIV -> "(${getDbStatement(dagensDato)} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AVSLUTTET -> "(${getDbStatement(dagensDato)} or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
             AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+        }
+    }
+
+    fun getDbStatement(dagensDato: LocalDate, startDatoNavn: String = "start_dato", sluttDatoNavn: String = "slutt_dato"): String {
+        return when (this) {
+            PLANLAGT -> "('$dagensDato' < $startDatoNavn)"
+            AKTIV -> "('$dagensDato' >= $startDatoNavn and '$dagensDato' <= $sluttDatoNavn)"
+            else -> "('$dagensDato' > $sluttDatoNavn)"
         }
     }
 }

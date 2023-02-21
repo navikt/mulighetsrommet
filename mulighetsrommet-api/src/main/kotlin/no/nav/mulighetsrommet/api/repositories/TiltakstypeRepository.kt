@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class TiltakstypeRepository(private val db: Database) {
@@ -86,12 +87,14 @@ class TiltakstypeRepository(private val db: Database) {
             "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
         )
 
+        val dagensDato = LocalDate.now()
+
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
             when (tiltakstypeFilter.status) {
-                Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
-                Status.PLANLAGT -> "" to "(now()::timestamp < fra_dato)"
-                Status.AVSLUTTET -> "" to "(now()::timestamp > til_dato)"
+                Status.AKTIV -> "" to StatusDbStatement.AKTIV.getDbStatement(dagensDato, "fra_dato", "til_dato")
+                Status.PLANLAGT -> "" to StatusDbStatement.PLANLAGT.getDbStatement(dagensDato, "fra_dato", "til_dato")
+                Status.AVSLUTTET -> "" to StatusDbStatement.AVSLUTTET.getDbStatement(dagensDato, "fra_dato", "til_dato")
                 Status.ALLE -> null to null
             },
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {

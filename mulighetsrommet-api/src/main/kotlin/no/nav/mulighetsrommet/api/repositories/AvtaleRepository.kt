@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.*
@@ -14,11 +13,7 @@ import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.sql.Timestamp
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class AvtaleRepository(private val db: Database) {
@@ -269,10 +264,10 @@ class AvtaleRepository(private val db: Database) {
     }
     private fun Avtalestatus.toDbStatement(dagensDato: LocalDate): String {
         return when (this) {
-            Avtalestatus.Aktiv -> StatusDbStatement.GJENNOMFORES.getDbStatement(dagensDato)
-            Avtalestatus.Avsluttet -> StatusDbStatement.AVSLUTTET.getDbStatement(dagensDato)
-            Avtalestatus.Avbrutt -> StatusDbStatement.AVBRUTT.getDbStatement(dagensDato)
-            Avtalestatus.Planlagt -> StatusDbStatement.PLANLAGT.getDbStatement(dagensDato)
+            Avtalestatus.Aktiv -> StatusDbStatement.AKTIV.getDbStatementMedAvslutningsstatus(dagensDato)
+            Avtalestatus.Avsluttet -> StatusDbStatement.AVSLUTTET.getDbStatementMedAvslutningsstatus(dagensDato)
+            Avtalestatus.Avbrutt -> StatusDbStatement.AVBRUTT.getDbStatementMedAvslutningsstatus(dagensDato)
+            Avtalestatus.Planlagt -> StatusDbStatement.PLANLAGT.getDbStatementMedAvslutningsstatus(dagensDato)
         }
     }
 }
