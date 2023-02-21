@@ -9,8 +9,9 @@ import java.time.LocalDateTime
 
 data class TiltakstypeFilter(
     val search: String?,
-    val status: Status,
-    val kategori: Tiltakstypekategori?
+    val status: Status? = null,
+    val kategori: Tiltakstypekategori?,
+    val dagensDato: LocalDate = LocalDate.now()
 )
 
 data class AvtaleFilter(
@@ -31,7 +32,7 @@ data class EnhetFilter(
 )
 
 enum class Status {
-    AKTIV, PLANLAGT, AVSLUTTET, ALLE
+    AKTIV, PLANLAGT, AVSLUTTET
 }
 
 enum class Tiltakstypekategori {
@@ -49,6 +50,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
     val search = call.request.queryParameters["search"]
+    // TODO null verdi her
     val avtalestatus =
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
     val enhet = call.request.queryParameters["enhet"]

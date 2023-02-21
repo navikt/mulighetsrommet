@@ -19,21 +19,21 @@ enum class StatusDbStatement {
     AVSLUTTET,
     AVBRUTT;
 
-    fun getDbStatementMedAvslutningsstatus(dagensDato: LocalDate): String {
+    fun getDbStatementMedAvslutningsstatus(): String {
         return when (this) {
             AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            PLANLAGT -> "(${getDbStatement(dagensDato)} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            AKTIV -> "(${getDbStatement(dagensDato)} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            AVSLUTTET -> "(${getDbStatement(dagensDato)} or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            PLANLAGT -> "(${getDbStatement()} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AKTIV -> "(${getDbStatement()} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AVSLUTTET -> "(${getDbStatement()} or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
             AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
         }
     }
 
-    fun getDbStatement(dagensDato: LocalDate, startDatoNavn: String = "start_dato", sluttDatoNavn: String = "slutt_dato"): String {
+    fun getDbStatement(startDatoNavn: String = "start_dato", sluttDatoNavn: String = "slutt_dato"): String {
         return when (this) {
-            PLANLAGT -> "('$dagensDato' < $startDatoNavn)"
-            AKTIV -> "('$dagensDato' >= $startDatoNavn and '$dagensDato' <= $sluttDatoNavn)"
-            else -> "('$dagensDato' > $sluttDatoNavn)"
+            PLANLAGT -> "(:today < $startDatoNavn)"
+            AKTIV -> "(:today >= $startDatoNavn and :today <= $sluttDatoNavn)"
+            else -> "(:today > $sluttDatoNavn)"
         }
     }
 }

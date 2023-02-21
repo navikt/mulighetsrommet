@@ -152,13 +152,14 @@ class AvtaleRepository(private val db: Database) {
             "avslutningsstatus" to filter.avtalestatus?.name,
             "enhet" to filter.enhet,
             "limit" to pagination.limit,
-            "offset" to pagination.offset
+            "offset" to pagination.offset,
+            "today" to filter.dagensDato
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
-            filter.avtalestatus to filter.avtalestatus?.toDbStatement(filter.dagensDato),
+            filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
             filter.enhet to "lower(a.enhet) = lower(:enhet)"
         )
 
@@ -262,12 +263,12 @@ class AvtaleRepository(private val db: Database) {
             prisbetingelser = stringOrNull("prisbetingelser")
         )
     }
-    private fun Avtalestatus.toDbStatement(dagensDato: LocalDate): String {
+    private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
-            Avtalestatus.Aktiv -> StatusDbStatement.AKTIV.getDbStatementMedAvslutningsstatus(dagensDato)
-            Avtalestatus.Avsluttet -> StatusDbStatement.AVSLUTTET.getDbStatementMedAvslutningsstatus(dagensDato)
-            Avtalestatus.Avbrutt -> StatusDbStatement.AVBRUTT.getDbStatementMedAvslutningsstatus(dagensDato)
-            Avtalestatus.Planlagt -> StatusDbStatement.PLANLAGT.getDbStatementMedAvslutningsstatus(dagensDato)
+            Avtalestatus.Aktiv -> StatusDbStatement.AKTIV.getDbStatementMedAvslutningsstatus()
+            Avtalestatus.Avsluttet -> StatusDbStatement.AVSLUTTET.getDbStatementMedAvslutningsstatus()
+            Avtalestatus.Avbrutt -> StatusDbStatement.AVBRUTT.getDbStatementMedAvslutningsstatus()
+            Avtalestatus.Planlagt -> StatusDbStatement.PLANLAGT.getDbStatementMedAvslutningsstatus()
         }
     }
 }

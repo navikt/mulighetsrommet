@@ -84,18 +84,17 @@ class TiltakstypeRepository(private val db: Database) {
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
-            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
+            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak),
+            "today" to tiltakstypeFilter.dagensDato
         )
-
-        val dagensDato = LocalDate.now()
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
             when (tiltakstypeFilter.status) {
-                Status.AKTIV -> "" to StatusDbStatement.AKTIV.getDbStatement(dagensDato, "fra_dato", "til_dato")
-                Status.PLANLAGT -> "" to StatusDbStatement.PLANLAGT.getDbStatement(dagensDato, "fra_dato", "til_dato")
-                Status.AVSLUTTET -> "" to StatusDbStatement.AVSLUTTET.getDbStatement(dagensDato, "fra_dato", "til_dato")
-                Status.ALLE -> null to null
+                Status.AKTIV -> "" to StatusDbStatement.AKTIV.getDbStatement("fra_dato", "til_dato")
+                Status.PLANLAGT -> "" to StatusDbStatement.PLANLAGT.getDbStatement("fra_dato", "til_dato")
+                Status.AVSLUTTET -> "" to StatusDbStatement.AVSLUTTET.getDbStatement("fra_dato", "til_dato")
+                null -> null to null
             },
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
                 when (it) {

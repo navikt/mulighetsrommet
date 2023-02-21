@@ -56,7 +56,13 @@ class TiltakstypeRepositoryTest : FunSpec({
         ).second shouldHaveSize 0
 
         val arbeidstrening =
-            tiltakstyper.getAll(TiltakstypeFilter(search = "Arbeidstrening", status = Status.AVSLUTTET, kategori = null))
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = "Arbeidstrening",
+                    status = Status.AVSLUTTET,
+                    kategori = null
+                )
+            )
         arbeidstrening.second shouldHaveSize 1
         arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
         arbeidstrening.second[0].arenaKode shouldBe "ARBTREN"
@@ -72,48 +78,46 @@ class TiltakstypeRepositoryTest : FunSpec({
         database.db.migrate()
 
         val tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(
-            TiltakstypeDbo(
-                id = UUID.randomUUID(),
-                navn = "Arbeidsforberedende trening",
-                tiltakskode = "ARBFORB",
-                rettPaaTiltakspenger = true,
-                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-                fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12)
-            )
+        val dagensDato = LocalDate.of(2023, 1, 12)
+        val tiltakstypePlanlagt = TiltakstypeDbo(
+            id = UUID.randomUUID(),
+            navn = "Arbeidsforberedende trening",
+            tiltakskode = "ARBFORB",
+            rettPaaTiltakspenger = true,
+            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
+            fraDato = LocalDate.of(2023, 1, 13),
+            tilDato = LocalDate.of(2023, 1, 15)
         )
-        tiltakstyper.upsert(
-            TiltakstypeDbo(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb",
-                tiltakskode = "JOBBK",
-                rettPaaTiltakspenger = true,
-                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-                fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12)
-            )
+        val tiltakstypeAktiv = TiltakstypeDbo(
+            id = UUID.randomUUID(),
+            navn = "Jobbklubb",
+            tiltakskode = "JOBBK",
+            rettPaaTiltakspenger = true,
+            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
+            fraDato = LocalDate.of(2023, 1, 11),
+            tilDato = LocalDate.of(2023, 1, 15)
         )
-        tiltakstyper.upsert(
-            TiltakstypeDbo(
-                id = UUID.randomUUID(),
-                navn = "Oppfølging",
-                tiltakskode = "INDOPPFOLG",
-                rettPaaTiltakspenger = true,
-                registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12)
-            )
+        val tiltakstypeAvsluttet = TiltakstypeDbo(
+            id = UUID.randomUUID(),
+            navn = "Oppfølgning",
+            tiltakskode = "INDOPPFOLG",
+            rettPaaTiltakspenger = true,
+            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
+            fraDato = LocalDate.of(2023, 1, 9),
+            tilDato = LocalDate.of(2023, 1, 11)
         )
+
+        tiltakstyper.upsert(tiltakstypePlanlagt)
+        tiltakstyper.upsert(tiltakstypeAktiv)
+        tiltakstyper.upsert(tiltakstypeAvsluttet)
 
         test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
             tiltakstyper.getAll(
                 TiltakstypeFilter(
                     search = null,
-                    status = Status.AVSLUTTET,
                     kategori = Tiltakstypekategori.GRUPPE
                 )
             ).second shouldHaveSize 2
@@ -123,14 +127,66 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAll(
                 TiltakstypeFilter(
                     search = null,
-                    status = Status.AVSLUTTET,
                     kategori = Tiltakstypekategori.INDIVIDUELL
                 )
             ).second shouldHaveSize 1
         }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAll(TiltakstypeFilter(search = null, status = Status.AVSLUTTET, kategori = null)).second shouldHaveSize 3
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    kategori = null
+                )
+            ).second shouldHaveSize 3
+        }
+
+        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
+            tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    kategori = null
+                )
+            ).second shouldHaveSize 3
+        }
+
+        test("Filter på planlagt returnerer planlagte tiltakstyper") {
+            val typer = tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    kategori = null,
+                    status = Status.PLANLAGT,
+                    dagensDato = dagensDato
+                )
+            )
+            typer.second shouldHaveSize 1
+            typer.second.first().id shouldBe tiltakstypePlanlagt.id
+        }
+
+        test("Filter på aktiv returnerer aktive tiltakstyper") {
+            val typer = tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    kategori = null,
+                    status = Status.AKTIV,
+                    dagensDato = dagensDato
+                )
+            )
+            typer.second shouldHaveSize 1
+            typer.second.first().id shouldBe tiltakstypeAktiv.id
+        }
+
+        test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
+            val typer = tiltakstyper.getAll(
+                TiltakstypeFilter(
+                    search = null,
+                    kategori = null,
+                    status = Status.AVSLUTTET,
+                    dagensDato = dagensDato
+                )
+            )
+            typer.second shouldHaveSize 1
+            typer.second.first().id shouldBe tiltakstypeAvsluttet.id
         }
     }
 
