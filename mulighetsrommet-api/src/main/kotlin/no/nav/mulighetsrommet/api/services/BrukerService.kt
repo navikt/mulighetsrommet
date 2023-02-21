@@ -20,7 +20,7 @@ class BrukerService(
     private val veilarbpersonClient: VeilarbpersonClient
 ) {
 
-    val brukerCache: Cache<String, Brukerdata> = Caffeine.newBuilder()
+    private val brukerCache: Cache<String, Brukerdata> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()

@@ -697,15 +697,17 @@ components:
           type: string
         avtalenummer:
           type: string
-        leverandorOrganisasjonsnummer:
-          type: string
+        leverandor:
+          $ref: "#/components/schemas/Leverandor"
         startDato:
           type: string
           format: date
         sluttDato:
           type: string
           format: date
-        enhet:
+        navEnhet:
+          $ref: "#/components/schemas/NavEnhet"
+        enhetsnavn:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
@@ -987,3 +989,18 @@ components:
             - UNDER_AVVIKLING
             - NEDLAGT
 
+    Leverandor:
+      type: object
+      properties:
+        navn:
+          type: string
+        organisasjonsnummer:
+          type: string
+
+    NavEnhet:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string

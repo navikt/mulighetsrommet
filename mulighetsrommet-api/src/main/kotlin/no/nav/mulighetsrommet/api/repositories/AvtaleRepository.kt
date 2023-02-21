@@ -55,7 +55,7 @@ class AvtaleRepository(private val db: Database) {
                                            slutt_dato                     = excluded.slutt_dato,
                                            enhet                          = excluded.enhet,
                                            avtaletype                     = excluded.avtaletype,
-                                           avslutningsstatus                   = excluded.avslutningsstatus,
+                                           avslutningsstatus              = excluded.avslutningsstatus,
                                            prisbetingelser                = excluded.prisbetingelser
             returning *
         """.trimIndent()
@@ -249,10 +249,14 @@ class AvtaleRepository(private val db: Database) {
                 arenaKode = string("tiltakskode")
             ),
             avtalenummer = string("avtalenummer"),
-            leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
+            leverandor = AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = string("leverandor_organisasjonsnummer")
+            ),
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = string("enhet"),
+            navEnhet = AvtaleAdminDto.NavEnhet(
+                enhetsnummer = string("enhet"),
+            ),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),
@@ -263,6 +267,7 @@ class AvtaleRepository(private val db: Database) {
             prisbetingelser = stringOrNull("prisbetingelser")
         )
     }
+
     private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
             Avtalestatus.Aktiv -> StatusDbStatement.AKTIV.getDbStatementMedAvslutningsstatus()
