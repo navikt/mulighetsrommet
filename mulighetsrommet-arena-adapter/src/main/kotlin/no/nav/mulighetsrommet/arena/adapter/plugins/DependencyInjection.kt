@@ -13,9 +13,7 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
-import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
@@ -105,13 +103,11 @@ private fun kafka(kafkaConfig: KafkaConfig) = module {
             ArenaEventConsumer(kafkaConfig.getTopic("sakendret"), get()),
             ArenaEventConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get()),
         )
-        val group = ConsumerGroup<TopicConsumer>(consumers)
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
             config = KafkaConsumerOrchestrator.Config(kafkaConfig.topics.topicStatePollDelay),
             db = get(),
-            group = group,
-            topicRepository = get(),
+            consumers = consumers,
         )
     }
 }
