@@ -15,7 +15,7 @@ export function DetaljerTiltakstypePage() {
   const [tabValgt, setTabValgt] = useState("arenaInfo");
   const features = useFeatureToggles();
 
-  if (optionalTiltakstype.isFetching) {
+  if (!optionalTiltakstype.data && optionalTiltakstype.isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
   }
 
