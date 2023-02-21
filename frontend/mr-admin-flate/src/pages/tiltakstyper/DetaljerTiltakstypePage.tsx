@@ -1,18 +1,19 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useState } from "react";
+import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
+import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/Laster";
-import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
-import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
-import "./DetaljerTiltakstypePage.module.scss";
 import { ListLayout } from "../../layouts/ListLayout";
+import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
+import "./DetaljerTiltakstypePage.module.scss";
+import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useState("arenaInfo");
+  const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
   const features = useFeatureToggles();
 
   if (!optionalTiltakstype.data && optionalTiltakstype.isLoading) {
@@ -34,7 +35,11 @@ export function DetaljerTiltakstypePage() {
   return (
     <main>
       <Header>{tiltakstype.navn}</Header>
-      <Tabs value={tabValgt} onChange={setTabValgt}>
+
+      <Tabs
+        value={tabValgt}
+        onChange={(value) => setTabValgt(value as AvtaleTabs)}
+      >
         <Tabs.List>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
           {features?.data &&
