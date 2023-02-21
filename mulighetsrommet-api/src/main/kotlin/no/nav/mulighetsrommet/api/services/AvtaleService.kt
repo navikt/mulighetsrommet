@@ -11,7 +11,7 @@ import java.util.*
 class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val arrangorService: ArrangorService,
-    private val enhetService: EnhetService
+    private val navEnhetService: NavEnhetService
 ) {
 
     fun get(id: UUID): AvtaleAdminDto? {
@@ -54,20 +54,19 @@ class AvtaleService(
 
     private suspend fun List<AvtaleAdminDto>.hentVirksomhetsnavnForAvtaler(): List<AvtaleAdminDto> {
         return this.map {
-            val virksomhet = arrangorService.hentVirksomhet(it.leverandorOrganisasjonsnummer)
-            it.copy(leverandornavn = virksomhet?.navn ?: null)
+            val virksomhet = arrangorService.hentVirksomhet(it.leverandor.organisasjonsnummer)
+            it.copy(leverandor = it.leverandor.copy(navn = virksomhet?.navn))
         }
     }
 
     private fun List<AvtaleAdminDto>.hentEnhetsnavnForAvtaler(): List<AvtaleAdminDto> {
         return this.map {
-            val enhet = enhetService.hentEnhet(it.enhet)
-            it.copy(enhetsnavn = enhet?.navn ?: null)
+            it.hentEnhetsnavnForAvtale()
         }
     }
 
     private fun AvtaleAdminDto.hentEnhetsnavnForAvtale(): AvtaleAdminDto {
-        val enhet = enhetService.hentEnhet(this.enhet)
-        return this.copy(enhetsnavn = enhet?.navn)
+        val enhet = navEnhetService.hentEnhet(this.navEnhet.enhetsnummer)
+        return this.copy(navEnhet = this.navEnhet.copy(navn = enhet?.navn))
     }
 }

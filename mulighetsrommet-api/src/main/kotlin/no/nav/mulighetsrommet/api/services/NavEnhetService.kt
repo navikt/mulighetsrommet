@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
-class EnhetService(private val enhetRepository: EnhetRepository) {
+class NavEnhetService(private val enhetRepository: EnhetRepository) {
 
     val cache: Cache<String, Norg2Enhet> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)

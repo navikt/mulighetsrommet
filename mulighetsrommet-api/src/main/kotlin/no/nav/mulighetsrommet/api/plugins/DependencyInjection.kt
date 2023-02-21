@@ -210,7 +210,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { Norg2Service(get(), get()) }
     single { KafkaSyncService(get(), get()) }
-    single { EnhetService(get()) }
+    single { NavEnhetService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
