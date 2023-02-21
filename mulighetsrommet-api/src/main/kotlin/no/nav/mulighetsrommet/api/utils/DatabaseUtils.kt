@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utils
 
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import java.time.LocalDate
 
 object DatabaseUtils {
     fun andWhereParameterNotNull(vararg parts: Pair<Any?, String?>): String = parts

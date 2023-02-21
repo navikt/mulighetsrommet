@@ -345,4 +345,3 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 }
-

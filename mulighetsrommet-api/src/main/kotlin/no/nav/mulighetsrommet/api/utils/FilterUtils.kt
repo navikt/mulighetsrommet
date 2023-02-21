@@ -5,7 +5,6 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.EnhetStatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class TiltakstypeFilter(
     val search: String?,
