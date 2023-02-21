@@ -196,7 +196,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { ArenaAdapterService(get()) }
     single { ArenaService(get(), get(), get(), get(), get(), get()) }
-    single { AvtaleService(get(), get()) }
+    single { AvtaleService(get(), get(), get()) }
     single { HistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(get()) }
@@ -210,7 +210,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { Norg2Service(get(), get()) }
     single { KafkaSyncService(get(), get()) }
-    single { EnhetService(get()) }
+    single { NavEnhetService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

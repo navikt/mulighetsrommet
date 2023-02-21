@@ -243,10 +243,14 @@ class AvtaleRepository(private val db: Database) {
             arenaKode = string("tiltakskode")
         ),
         avtalenummer = string("avtalenummer"),
-        leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
+        leverandor = AvtaleAdminDto.Leverandor(
+            organisasjonsnummer = string("leverandor_organisasjonsnummer")
+        ),
         startDato = localDate("start_dato"),
         sluttDato = localDate("slutt_dato"),
-        enhet = string("enhet"),
+        navEnhet = AvtaleAdminDto.NavEnhet(
+            enhetsnummer = string("enhet"),
+        ),
         avtaletype = Avtaletype.valueOf(string("avtaletype")),
         avtalestatus = Avtalestatus.valueOf(string("avtalestatus")),
         prisbetingelser = stringOrNull("prisbetingelser")

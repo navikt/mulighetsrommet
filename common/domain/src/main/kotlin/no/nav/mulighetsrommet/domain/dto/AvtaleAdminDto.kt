@@ -13,15 +13,14 @@ data class AvtaleAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String,
-    val leverandorOrganisasjonsnummer: String,
-    val leverandornavn: String? = null,
+    val leverandor: Leverandor,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String,
+    val navEnhet: NavEnhet,
     val avtaletype: Avtaletype,
-    val avtalestatus : Avtalestatus,
+    val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
 ) {
     @Serializable
@@ -30,5 +29,17 @@ data class AvtaleAdminDto(
         val id: UUID,
         val navn: String,
         val arenaKode: String,
+    )
+
+    @Serializable
+    data class NavEnhet(
+        val enhetsnummer: String,
+        val navn: String? = null
+    )
+
+    @Serializable
+    data class Leverandor(
+        val organisasjonsnummer: String,
+        val navn: String? = null,
     )
 }
