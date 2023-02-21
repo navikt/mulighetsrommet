@@ -5,7 +5,6 @@ import arrow.core.continuations.either
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -15,27 +14,19 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltakdeltakerEventProcessor(
-    override val config: ConsumerConfig,
-    override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
-) : ArenaEventProcessor(
-    ArenaTable.Deltaker
-) {
-
-    override val logger: Logger = LoggerFactory.getLogger(javaClass)
+) : ArenaEventProcessor {
+    override val arenaTable: ArenaTable = ArenaTable.Deltaker
 
     override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
         val data = event.decodePayload<ArenaTiltakdeltaker>()

@@ -3,26 +3,18 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.flatMap
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaSak
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class SakEventProcessor(
-    override val config: ConsumerConfig,
-    override val events: ArenaEventRepository,
     private val entities: ArenaEntityService
-) : ArenaEventProcessor(
-    ArenaTable.Sak
-) {
+) : ArenaEventProcessor {
 
-    override val logger: Logger = LoggerFactory.getLogger(javaClass)
+    override val arenaTable: ArenaTable = ArenaTable.Sak
 
     override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
         val data = event.decodePayload<ArenaSak>()
@@ -48,7 +40,7 @@ class SakEventProcessor(
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
 
-    private fun sakHasEnhet(payload: ArenaSak): Boolean = !payload.AETATENHET_ANSVARLIG.isNullOrBlank()
+    private fun sakHasEnhet(payload: ArenaSak): Boolean = payload.AETATENHET_ANSVARLIG.isNotBlank()
 
     private fun ArenaSak.toSak() = Either
         .catch {

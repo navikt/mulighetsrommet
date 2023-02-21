@@ -4,37 +4,26 @@ import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.flatMap
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltakEventProcessor(
-    override val config: ConsumerConfig,
-    override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient
-) : ArenaEventProcessor(
-    ArenaTable.Tiltakstype
-) {
-
-    override val logger: Logger = LoggerFactory.getLogger(javaClass)
+) : ArenaEventProcessor {
+    override val arenaTable: ArenaTable = ArenaTable.Tiltakstype
 
     override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
-        val data = event.decodePayload<ArenaTiltak>()
-
         val mapping = entities.getOrCreateMapping(event)
-        val tiltakstype = data
+        val tiltakstype = event.decodePayload<ArenaTiltak>()
             .toTiltakstype(mapping.entityId)
             .flatMap { entities.upsertTiltakstype(it) }
             .bind()

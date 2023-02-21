@@ -1,14 +1,17 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
@@ -42,15 +45,15 @@ class TiltakEventProcessorTest : FunSpec({
         val consumer = createConsumer(database.db, MockEngine { respondOk() })
 
         val e1 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
-        consumer.processEvent(e1).status shouldBe Processed
+        consumer.handleEvent(e1) shouldBeRight Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
-        val e2 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
-        consumer.processEvent(e2).status shouldBe Processed
+        val e2 = createArenaTiltakEvent(Update) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
+        consumer.handleEvent(e2) shouldBeRight Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 2")
 
-        val e3 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
-        consumer.processEvent(e3).status shouldBe Processed
+        val e3 = createArenaTiltakEvent(Delete) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
+        consumer.handleEvent(e3) shouldBeRight Processed
         database.assertThat("tiltakstype").row()
             .value("navn").isEqualTo("Oppfølging 1")
             .value("rett_paa_tiltakspenger").isTrue
@@ -89,7 +92,7 @@ class TiltakEventProcessorTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            consumer.processEvent(createArenaTiltakEvent(Insert))
+            consumer.handleEvent(createArenaTiltakEvent(Insert)).shouldBeRight()
 
             val generatedId = engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put
@@ -102,7 +105,7 @@ class TiltakEventProcessorTest : FunSpec({
                 tiltakstype.id
             }
 
-            consumer.processEvent(createArenaTiltakEvent(Delete))
+            consumer.handleEvent(createArenaTiltakEvent(Delete)).shouldBeRight()
 
             engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Delete
@@ -113,10 +116,9 @@ class TiltakEventProcessorTest : FunSpec({
 
         test("should treat a 500 response as error") {
             val consumer = createConsumer(database.db, MockEngine { respondError(HttpStatusCode.InternalServerError) })
+            val event = createArenaTiltakEvent(Insert)
 
-            val event = consumer.processEvent(createArenaTiltakEvent(Insert))
-
-            event.status shouldBe Failed
+            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Failed }
         }
     }
 })
@@ -136,10 +138,5 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEventP
         avtaler = AvtaleRepository(db),
     )
 
-    return TiltakEventProcessor(
-        ConsumerConfig("tiltakendret", "tiltakendret"),
-        ArenaEventRepository(db),
-        entities,
-        client
-    )
+    return TiltakEventProcessor(entities, client)
 }

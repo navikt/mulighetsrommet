@@ -1,13 +1,15 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixtures
@@ -15,8 +17,8 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -60,14 +62,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             val tiltakstyper = TiltakstypeRepository(database.db)
             tiltakstyper.upsert(TiltakstypeFixtures.Gruppe)
 
-            val consumer = createConsumer(
-                database.db,
-                MockEngine { respondOk() }
-            )
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+            val event = createArenaTiltakgjennomforingEvent(Insert)
 
-            val event = consumer.processEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-            event.status shouldBe Failed
+            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Failed }
             database.assertThat("tiltaksgjennomforing").isEmpty
         }
 
@@ -82,14 +80,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
             )
 
-            val consumer = createConsumer(
-                database.db,
-                MockEngine { respondOk() }
-            )
+            val consumer = createConsumer(database.db, MockEngine { respondOk() })
+            val event = createArenaTiltakgjennomforingEvent(Insert)
 
-            val event = consumer.processEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-            event.status shouldBe Failed
+            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Failed }
             database.assertThat("tiltaksgjennomforing").isEmpty
         }
     }
@@ -119,13 +113,14 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val event = createArenaTiltakgjennomforingEvent(Insert, TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell) {
-                it.copy(
-                    REG_DATO = regDatoBeforeAktivitetsplanen
-                )
+            val event = createArenaTiltakgjennomforingEvent(
+                Insert,
+                TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell
+            ) {
+                it.copy(REG_DATO = regDatoBeforeAktivitetsplanen)
             }
 
-            consumer.processEvent(event).status shouldBe Ignored
+            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
             database.assertThat("tiltaksgjennomforing").isEmpty
             engine.requestHistory.shouldBeEmpty()
         }
@@ -134,13 +129,14 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val event = createArenaTiltakgjennomforingEvent(Insert, TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell) {
-                it.copy(
-                    DATO_FRA = null
-                )
+            val event = createArenaTiltakgjennomforingEvent(
+                Insert,
+                TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell
+            ) {
+                it.copy(DATO_FRA = null)
             }
 
-            consumer.processEvent(event).status shouldBe Ignored
+            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
             database.assertThat("tiltaksgjennomforing").isEmpty
             engine.requestHistory.shouldBeEmpty()
         }
@@ -149,13 +145,14 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
 
-            val event = createArenaTiltakgjennomforingEvent(Insert, TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell) {
-                it.copy(
-                    REG_DATO = regDatoAfterAktivitetsplanen
-                )
+            val event = createArenaTiltakgjennomforingEvent(
+                Insert,
+                TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell
+            ) {
+                it.copy(REG_DATO = regDatoAfterAktivitetsplanen)
             }
 
-            consumer.processEvent(event).status shouldBe Processed
+            consumer.handleEvent(event) shouldBeRight Processed
             database.assertThat("tiltaksgjennomforing").row()
                 .value("tiltakskode").isEqualTo("AMO")
             engine.requestHistory.shouldBeEmpty()
@@ -199,7 +196,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     LOKALTNAVN = "Navn 1"
                 )
             }
-            consumer.processEvent(e1).status shouldBe Processed
+            consumer.handleEvent(e1) shouldBeRight Processed
             database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 1")
 
             val e2 = createArenaTiltakgjennomforingEvent(Update) {
@@ -208,11 +205,11 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     LOKALTNAVN = "Navn 2"
                 )
             }
-            consumer.processEvent(e2).status shouldBe Processed
+            consumer.handleEvent(e2) shouldBeRight Processed
             database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 2")
 
             val e3 = createArenaTiltakgjennomforingEvent(Delete) { it.copy(LOKALTNAVN = "Navn 1") }
-            consumer.processEvent(e3).status shouldBe Processed
+            consumer.handleEvent(e3) shouldBeRight Processed
             database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 1")
         }
 
@@ -227,10 +224,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event =
-                    consumer.processEvent(createArenaTiltakgjennomforingEvent(Insert))
+                val event = createArenaTiltakgjennomforingEvent(Insert)
 
-                event.status shouldBe Failed
+                consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Failed }
             }
 
             // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
@@ -244,11 +240,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val event = createArenaTiltakgjennomforingEvent(Insert)
 
-                val event =
-                    consumer.processEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-                event.status shouldBe Invalid
+                consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Invalid }
             }
 
             test("should mark the event as Failed when api responds with an error") {
@@ -269,10 +263,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event =
-                    consumer.processEvent(createArenaTiltakgjennomforingEvent(Insert))
+                val event = createArenaTiltakgjennomforingEvent(Insert)
 
-                event.status shouldBe Failed
+                consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Failed }
             }
 
             test("should call api with mapped event payload when all services responds with success") {
@@ -296,7 +289,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         DATO_TIL = "2023-11-11 00:00:00"
                     )
                 }
-                consumer.processEvent(event)
+                consumer.handleEvent(event).shouldBeRight()
 
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -313,7 +306,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     tiltaksgjennomforing.id
                 }
 
-                consumer.processEvent(createArenaTiltakgjennomforingEvent(Delete))
+                consumer.handleEvent(createArenaTiltakgjennomforingEvent(Delete)).shouldBeRight()
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
@@ -344,11 +337,5 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         avtaler = AvtaleRepository(db),
     )
 
-    return TiltakgjennomforingEventProcessor(
-        ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
-        ArenaEventRepository(db),
-        entities,
-        client,
-        ords
-    )
+    return TiltakgjennomforingEventProcessor(entities, client, ords)
 }

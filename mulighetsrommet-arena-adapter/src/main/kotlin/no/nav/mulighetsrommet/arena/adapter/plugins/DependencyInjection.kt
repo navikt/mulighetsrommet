@@ -11,9 +11,11 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
@@ -42,7 +44,6 @@ fun Application.configureDependencyInjection(
         SLF4JLogger()
         modules(
             db(appConfig.database),
-            consumers(appConfig.kafka),
             kafka(appConfig.kafka),
             repositories(),
             services(appConfig.services, tokenClient),
@@ -57,31 +58,6 @@ fun slack(slack: SlackConfig): Module {
         single<SlackNotifier> {
             SlackNotifierImpl(slack.token, slack.channel, slack.enable)
         }
-    }
-}
-
-private fun consumers(kafkaConfig: KafkaConfig) = module {
-    single {
-        val consumers = listOf(
-            TiltakEventProcessor(kafkaConfig.getTopic("tiltakendret"), get(), get(), get()),
-            TiltakgjennomforingEventProcessor(
-                kafkaConfig.getTopic("tiltakgjennomforingendret"),
-                get(),
-                get(),
-                get(),
-                get()
-            ),
-            TiltakdeltakerEventProcessor(
-                kafkaConfig.getTopic("tiltakdeltakerendret"),
-                get(),
-                get(),
-                get(),
-                get()
-            ),
-            SakEventProcessor(kafkaConfig.getTopic("sakendret"), get(), get()),
-            AvtaleInfoEventProcessor(kafkaConfig.getTopic("avtaleinfoendret"), get(), get(), get(), get()),
-        )
-        ConsumerGroup(consumers)
     }
 }
 
@@ -122,12 +98,20 @@ private fun kafka(kafkaConfig: KafkaConfig) = module {
     }
 
     single {
+        val consumers = listOf(
+            ArenaEventConsumer(kafkaConfig.getTopic("tiltakendret"), get()),
+            ArenaEventConsumer(kafkaConfig.getTopic("tiltakgjennomforingendret"), get()),
+            ArenaEventConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get()),
+            ArenaEventConsumer(kafkaConfig.getTopic("sakendret"), get()),
+            ArenaEventConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get()),
+        )
+        val group = ConsumerGroup<TopicConsumer>(consumers)
         KafkaConsumerOrchestrator(
-            properties,
-            KafkaConsumerOrchestrator.Config(kafkaConfig.topics.topicStatePollDelay),
-            get(),
-            get(),
-            get(),
+            consumerPreset = properties,
+            config = KafkaConsumerOrchestrator.Config(kafkaConfig.topics.topicStatePollDelay),
+            db = get(),
+            group = group,
+            topicRepository = get(),
         )
     }
 }
@@ -157,7 +141,16 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
         }
     }
-    single { ArenaEventService(services.arenaEventService, get(), get()) }
+    single {
+        val processors = listOf(
+            TiltakEventProcessor(get(), get()),
+            TiltakgjennomforingEventProcessor(get(), get(), get()),
+            TiltakdeltakerEventProcessor(get(), get(), get()),
+            SakEventProcessor(get()),
+            AvtaleInfoEventProcessor(get(), get(), get()),
+        )
+        ArenaEventService(config = services.arenaEventService, events = get(), processors = processors)
+    }
     single { ArenaEntityService(get(), get(), get(), get(), get(), get(), get()) }
 }
 

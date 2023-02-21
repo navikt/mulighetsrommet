@@ -6,7 +6,6 @@ import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -16,28 +15,20 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
-    override val config: ConsumerConfig,
-    override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
-) : ArenaEventProcessor(
-    ArenaTable.Tiltaksgjennomforing
-) {
-
-    override val logger: Logger = LoggerFactory.getLogger(javaClass)
+) : ArenaEventProcessor {
+    override val arenaTable: ArenaTable = ArenaTable.Tiltaksgjennomforing
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltaksgjennomforing>()
@@ -46,6 +37,7 @@ class TiltakgjennomforingEventProcessor(
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
             ProcessingError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
+
         ensureNotNull(data.DATO_FRA) {
             ProcessingError.Ignored("Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
         }
@@ -108,6 +100,7 @@ class TiltakgjennomforingEventProcessor(
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either
         .catch {
             requireNotNull(DATO_FRA)
+
             Tiltaksgjennomforing(
                 id = id,
                 tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,

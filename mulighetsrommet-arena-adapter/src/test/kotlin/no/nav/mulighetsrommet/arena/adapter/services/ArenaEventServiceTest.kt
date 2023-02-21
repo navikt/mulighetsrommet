@@ -7,7 +7,6 @@ import io.mockk.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
-import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
@@ -46,20 +45,20 @@ class ArenaEventServiceTest : FunSpec({
     )
     val bazEvent = ArenaEvent(
         status = ProcessingStatus.Ignored,
-        operation = ArenaEvent.Operation.Insert,
         arenaTable = table,
+        operation = ArenaEvent.Operation.Insert,
         arenaId = "3",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Baz")))
     )
 
-    val consumer = mockk<ArenaEventProcessor>()
-    val group = ConsumerGroup(listOf(consumer))
+    val processor = mockk<ArenaEventProcessor>()
+    val processors = listOf(processor)
 
     lateinit var events: ArenaEventRepository
 
     beforeEach {
-        every { consumer.arenaTable } returns table
-        coEvery { consumer.handleEvent(any()) } answers { Either.Right(ProcessingStatus.Processed) }
+        every { processor.arenaTable } returns table
+        coEvery { processor.handleEvent(any()) } answers { Either.Right(ProcessingStatus.Processed) }
 
         events = ArenaEventRepository(database.db)
     }
@@ -70,22 +69,22 @@ class ArenaEventServiceTest : FunSpec({
 
     context("replay event") {
         test("should run gracefully when specified event does not exist") {
-            val service = ArenaEventService(events = events, group = group)
+            val service = ArenaEventService(events = events, processors = processors)
             service.replayEvent(table, "1")
 
             coVerify(exactly = 0) {
-                consumer.handleEvent(any())
+                processor.handleEvent(any())
             }
         }
 
         test("should replay event payload specified by id") {
             events.upsert(fooEvent)
 
-            val service = ArenaEventService(events = events, group = group)
+            val service = ArenaEventService(events = events, processors = processors)
             service.replayEvent(table, "1")
 
             coVerify(exactly = 1) {
-                consumer.handleEvent(fooEvent)
+                processor.handleEvent(fooEvent)
             }
         }
     }
@@ -96,7 +95,7 @@ class ArenaEventServiceTest : FunSpec({
             events.upsert(barEvent)
             events.upsert(bazEvent)
 
-            val service = ArenaEventService(events = events, group = group)
+            val service = ArenaEventService(events = events, processors = processors)
             service.setReplayStatusForEvents(table, ProcessingStatus.Processed)
 
             database.assertThat("arena_events")
@@ -110,11 +109,11 @@ class ArenaEventServiceTest : FunSpec({
         test("should run gracefully when there are no events to retry") {
             events.upsert(fooEvent)
 
-            val service = ArenaEventService(events = events, group = group)
+            val service = ArenaEventService(events = events, processors = processors)
             service.retryEvents(table)
 
             coVerify(exactly = 0) {
-                consumer.handleEvent(any())
+                processor.handleEvent(any())
             }
         }
 
@@ -127,13 +126,13 @@ class ArenaEventServiceTest : FunSpec({
                     maxRetries = 0
                 ),
                 events = events,
-                group = ConsumerGroup(listOf(consumer))
+                processors = processors
             )
             service.retryEvents(table)
 
             coVerify(exactly = 0) {
-                consumer.handleEvent(fooEvent)
-                consumer.handleEvent(barEvent)
+                processor.handleEvent(fooEvent)
+                processor.handleEvent(barEvent)
             }
 
             database.assertThat("arena_events")
@@ -150,12 +149,12 @@ class ArenaEventServiceTest : FunSpec({
                     maxRetries = 1
                 ),
                 events = events,
-                group = ConsumerGroup(listOf(consumer))
+                processors = processors
             )
             service.retryEvents(table)
 
             coVerify(exactly = 1) {
-                consumer.handleEvent(any())
+                processor.handleEvent(any())
             }
 
             database.assertThat("arena_events")
