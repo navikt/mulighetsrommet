@@ -33,10 +33,7 @@ const Tiltaksgjennomforingsoversikt = () => {
     }
   }, [tiltaksgjennomforinger]);
 
-  if (
-    tiltaksgjennomforinger.length === 0 &&
-    (isLoading || isFetching || brukerdata.isLoading || brukerdata.isFetching)
-  ) {
+  if (tiltaksgjennomforinger.length === 0 && (isLoading || brukerdata.isLoading)) {
     return (
       <div className={styles.filter_loader}>
         <Loader size="xlarge" />
