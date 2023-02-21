@@ -15,14 +15,14 @@ class AvtaleService(
 ) {
 
     fun get(id: UUID): AvtaleAdminDto? {
-        return avtaler.get(id)
+        return avtaler.get(id)?.hentEnhetsnavnForAvtale()
     }
 
     suspend fun getAll(pagination: PaginationParams): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(pagination)
 
         return PaginatedResponse(
-            data = items.hentVirksomhetsnavnForAvtaler(),
+            data = items.hentVirksomhetsnavnForAvtaler().hentEnhetsnavnForAvtaler(),
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = pagination.page,
@@ -64,5 +64,10 @@ class AvtaleService(
             val enhet = enhetService.hentEnhet(it.enhet)
             it.copy(enhetsnavn = enhet?.navn ?: null)
         }
+    }
+
+    private fun AvtaleAdminDto.hentEnhetsnavnForAvtale(): AvtaleAdminDto {
+        val enhet = enhetService.hentEnhet(this.enhet)
+        return this.copy(enhetsnavn = enhet?.navn)
     }
 }
