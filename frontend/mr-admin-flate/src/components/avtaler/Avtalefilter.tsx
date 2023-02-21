@@ -1,15 +1,25 @@
 import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect, useRef } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
+import { useAvtalerForTiltakstype } from "../../api/avtaler/useAvtalerForTiltakstype";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import styles from "./Avtalefilter.module.scss";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
+  const { data } = useAvtalerForTiltakstype();
   const [, setPage] = useAtom(avtalePaginationAtom);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    // Hold fokus på søkefelt dersom bruker skriver i søkefelt
+    if (filter.sok !== "") {
+      searchRef?.current?.focus();
+    }
+  }, [data]);
 
   const resetPaginering = () => {
     setPage(1);
@@ -20,6 +30,8 @@ export function Avtalefilter() {
       <div className={styles.filter_container}>
         <div className={styles.filter_left}>
           <Search
+            ref={searchRef}
+            style={{ height: "34px" }} // Samme høyde som select-komponentene under
             label="Søk etter avtale"
             hideLabel
             variant="simple"
@@ -49,7 +61,7 @@ export function Avtalefilter() {
             <option value="Planlagt">Planlagt</option>
             <option value="Avsluttet">Avsluttet</option>
             <option value="Avbrutt">Avbrutt</option>
-            <option value="">Alle</option>
+            <option value="">Alle statuser</option>
           </Select>
           <Select
             label="Enhet"
@@ -62,7 +74,7 @@ export function Avtalefilter() {
               setFilter({ ...filter, enhet: e.currentTarget.value });
             }}
           >
-            <option value="">Alle</option>
+            <option value="">Alle enheter</option>
             {enheter?.map((enhet) => (
               <option key={enhet.enhetId} value={enhet.enhetNr}>
                 {enhet.navn} - {enhet.enhetNr}
