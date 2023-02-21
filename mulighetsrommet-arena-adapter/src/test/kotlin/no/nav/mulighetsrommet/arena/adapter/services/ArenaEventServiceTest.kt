@@ -33,17 +33,20 @@ class ArenaEventServiceTest : FunSpec({
     val fooEvent = ArenaEvent(
         status = ProcessingStatus.Processed,
         arenaTable = table,
+        operation = ArenaEvent.Operation.Insert,
         arenaId = "1",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
     )
     val barEvent = ArenaEvent(
         status = ProcessingStatus.Processed,
         arenaTable = table,
+        operation = ArenaEvent.Operation.Insert,
         arenaId = "2",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
     )
     val bazEvent = ArenaEvent(
         status = ProcessingStatus.Ignored,
+        operation = ArenaEvent.Operation.Insert,
         arenaTable = table,
         arenaId = "3",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Baz")))

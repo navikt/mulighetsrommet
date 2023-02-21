@@ -5,11 +5,9 @@ import arrow.core.continuations.either
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
@@ -39,19 +37,8 @@ class TiltakdeltakerEventProcessor(
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
-        val decoded = ArenaEventData.decode<ArenaTiltakdeltaker>(payload)
-
-        return ArenaEvent(
-            arenaTable = ArenaTable.fromTable(decoded.table),
-            arenaId = decoded.data.TILTAKDELTAKER_ID.toString(),
-            payload = payload,
-            status = ArenaEvent.ProcessingStatus.Pending
-        )
-    }
-
     override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
-        val (_, operation, data) = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
+        val data = event.decodePayload<ArenaTiltakdeltaker>()
 
         ensure(isRegisteredAfterAktivitetsplanen(data)) {
             ProcessingError.Ignored("Deltaker ignorert fordi den registrert før Aktivitetsplanen")
@@ -101,7 +88,7 @@ class TiltakdeltakerEventProcessor(
             deltaker.toIndividuellDbo(tiltaksgjennomforing, tiltakstype, virksomhetsnummer, norskIdent)
         }
 
-        val response = if (operation == ArenaEventData.Operation.Delete) {
+        val response = if (event.operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${tiltakshistorikk.id}")
         } else {
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)

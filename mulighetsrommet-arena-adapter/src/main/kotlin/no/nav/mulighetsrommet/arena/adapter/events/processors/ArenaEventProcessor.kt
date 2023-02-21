@@ -18,7 +18,7 @@ abstract class ArenaEventProcessor(val arenaTable: ArenaTable) : TopicConsumer()
 
     override suspend fun run(event: JsonElement) {
         Metrics.processArenaEventTimer(arenaTable.table).recordSuspend {
-            val data = decodeArenaData(event)
+            val data = ArenaEvent.decodeFromJson(event)
             processEvent(data)
         }
     }
@@ -36,8 +36,6 @@ abstract class ArenaEventProcessor(val arenaTable: ArenaTable) : TopicConsumer()
             }
         return events.upsert(event.copy(status = status, message = message))
     }
-
-    abstract fun decodeArenaData(payload: JsonElement): ArenaEvent
 
     abstract suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ArenaEvent.ProcessingStatus>
 

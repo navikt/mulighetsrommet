@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.SakFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Insert
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*

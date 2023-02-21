@@ -29,6 +29,7 @@ class ArenaEventRepositoryTest : FunSpec({
                 ArenaEvent(
                     arenaTable = ArenaTable.Tiltakstype,
                     arenaId = it.toString(),
+                    operation = ArenaEvent.Operation.Insert,
                     payload = Json.parseToJsonElement("{}"),
                     status = Processed,
                 )
@@ -40,6 +41,7 @@ class ArenaEventRepositoryTest : FunSpec({
                 ArenaEvent(
                     arenaTable = ArenaTable.AvtaleInfo,
                     arenaId = it.toString(),
+                    operation = ArenaEvent.Operation.Insert,
                     payload = Json.parseToJsonElement("{}"),
                     status = Pending,
                 )
@@ -50,7 +52,6 @@ class ArenaEventRepositoryTest : FunSpec({
     }
 
     test("should get events specified by table") {
-
         repository.getAll(table = ArenaTable.Tiltakstype) shouldHaveSize 5
         repository.getAll(table = ArenaTable.AvtaleInfo) shouldHaveSize 5
     }

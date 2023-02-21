@@ -6,11 +6,9 @@ import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
@@ -41,19 +39,8 @@ class TiltakgjennomforingEventProcessor(
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
-        val decoded = ArenaEventData.decode<ArenaTiltaksgjennomforing>(payload)
-
-        return ArenaEvent(
-            arenaTable = ArenaTable.fromTable(decoded.table),
-            arenaId = decoded.data.TILTAKGJENNOMFORING_ID.toString(),
-            payload = payload,
-            status = ArenaEvent.ProcessingStatus.Pending
-        )
-    }
-
     override suspend fun handleEvent(event: ArenaEvent) = either {
-        val (_, operation, data) = ArenaEventData.decode<ArenaTiltaksgjennomforing>(event.payload)
+        val data = event.decodePayload<ArenaTiltaksgjennomforing>()
 
         val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
         ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
@@ -70,7 +57,7 @@ class TiltakgjennomforingEventProcessor(
             .bind()
 
         if (isGruppetiltak) {
-            upsertTiltaksgjennomforing(operation, tiltaksgjennomforing).bind()
+            upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
             ArenaEvent.ProcessingStatus.Processed
         }
@@ -85,7 +72,7 @@ class TiltakgjennomforingEventProcessor(
     }
 
     private suspend fun upsertTiltaksgjennomforing(
-        operation: ArenaEventData.Operation,
+        operation: ArenaEvent.Operation,
         tiltaksgjennomforing: Tiltaksgjennomforing
     ): Either<ProcessingError, ArenaEvent.ProcessingStatus> = either {
         val tiltakstypeMapping = entities
@@ -104,7 +91,7 @@ class TiltakgjennomforingEventProcessor(
         val dbo = tiltaksgjennomforing
             .toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
 
-        val response = if (operation == ArenaEventData.Operation.Delete) {
+        val response = if (operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
         } else {
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)

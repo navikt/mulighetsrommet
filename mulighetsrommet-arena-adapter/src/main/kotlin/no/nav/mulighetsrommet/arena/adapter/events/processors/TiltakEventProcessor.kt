@@ -4,10 +4,8 @@ import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.flatMap
 import io.ktor.http.*
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
@@ -32,28 +30,17 @@ class TiltakEventProcessor(
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
-        val decoded = ArenaEventData.decode<ArenaTiltak>(payload)
-
-        return ArenaEvent(
-            arenaTable = ArenaTable.fromTable(decoded.table),
-            arenaId = decoded.data.TILTAKSKODE,
-            payload = payload,
-            status = ArenaEvent.ProcessingStatus.Pending
-        )
-    }
-
     override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
-        val decoded = ArenaEventData.decode<ArenaTiltak>(event.payload)
+        val data = event.decodePayload<ArenaTiltak>()
 
         val mapping = entities.getOrCreateMapping(event)
-        val tiltakstype = decoded.data
+        val tiltakstype = data
             .toTiltakstype(mapping.entityId)
             .flatMap { entities.upsertTiltakstype(it) }
             .bind()
         val dbo = tiltakstype.toDbo()
 
-        val response = if (decoded.operation == ArenaEventData.Operation.Delete) {
+        val response = if (event.operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakstype/${dbo.id}")
         } else {
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakstype", dbo)

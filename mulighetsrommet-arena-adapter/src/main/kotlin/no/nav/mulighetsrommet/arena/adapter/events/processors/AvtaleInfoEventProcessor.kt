@@ -6,11 +6,9 @@ import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
 import arrow.core.leftIfNull
 import io.ktor.http.*
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -43,19 +41,8 @@ class AvtaleInfoEventProcessor(
 
     override val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun decodeArenaData(payload: JsonElement): ArenaEvent {
-        val decoded = ArenaEventData.decode<ArenaAvtaleInfo>(payload)
-
-        return ArenaEvent(
-            arenaTable = ArenaTable.fromTable(decoded.table),
-            arenaId = decoded.data.AVTALE_ID.toString(),
-            payload = payload,
-            status = ArenaEvent.ProcessingStatus.Pending
-        )
-    }
-
     override suspend fun handleEvent(event: ArenaEvent) = either {
-        val (_, operation, data) = ArenaEventData.decode<ArenaAvtaleInfo>(event.payload)
+        val data = event.decodePayload<ArenaAvtaleInfo>()
 
         ensureNotNull(data.AVTALENAVN) {
             ProcessingError.Ignored("Avtale mangler navn")
@@ -88,7 +75,7 @@ class AvtaleInfoEventProcessor(
             .flatMap { entities.upsertAvtale(it) }
             .flatMap { toAvtaleDbo(it) }
             .flatMap { avtale ->
-                val response = if (operation == ArenaEventData.Operation.Delete) {
+                val response = if (event.operation == ArenaEvent.Operation.Delete) {
                     client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${avtale.id}")
                 } else {
                     client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)

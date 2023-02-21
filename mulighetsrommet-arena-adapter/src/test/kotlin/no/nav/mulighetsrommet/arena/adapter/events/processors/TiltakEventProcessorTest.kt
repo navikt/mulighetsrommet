@@ -9,8 +9,8 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Delete
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Insert
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
