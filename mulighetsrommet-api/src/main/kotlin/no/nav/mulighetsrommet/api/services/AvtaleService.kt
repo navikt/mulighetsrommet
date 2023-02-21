@@ -49,7 +49,7 @@ class AvtaleService(private val avtaler: AvtaleRepository, private val arrangorS
     private suspend fun List<AvtaleAdminDto>.hentVirksomhetsnavnForAvtaler(): List<AvtaleAdminDto> {
         return this.map {
             val virksomhet = arrangorService.hentVirksomhet(it.leverandorOrganisasjonsnummer)
-            it.copy(leverandornavn = virksomhet?.navn ?: "")
+            it.copy(leverandornavn = virksomhet?.navn ?: null)
         }
     }
 }
