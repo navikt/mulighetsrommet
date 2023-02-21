@@ -2,7 +2,7 @@ import { BodyShort, Modal } from '@navikt/ds-react';
 import classNames from 'classnames';
 import { useReducer } from 'react';
 import { logEvent } from '../../../core/api/logger';
-import { capitalize } from '../../../utils/Utils';
+import { capitalize, kebabCase } from '../../../utils/Utils';
 import modalStyles from '../Modal.module.scss';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
@@ -15,10 +15,10 @@ import { StatusModal } from './StatusModal';
 import { porten } from '../../../constants';
 
 export const logDelMedbrukerEvent = (
-  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Redigerer hilsen'
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
 ) => {
   logEvent('mulighetsrommet.del-med-bruker', {
-    value: action,
+    value: kebabCase(action),
   });
 };
 

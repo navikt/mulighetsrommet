@@ -29,13 +29,9 @@ export interface RESET_ACTION {
   type: 'Reset';
 }
 
-export interface SET_HILSEN_ACTION {
+export interface SETT_HILSEN_ACTION {
   type: 'Sett hilsen';
   payload: string;
-}
-
-export interface REDIGERER_HILSEN_ACTION {
-  type: 'Redigerer hilsen';
 }
 
 export type Actions =
@@ -44,5 +40,4 @@ export type Actions =
   | SENDT_OK_ACTION
   | RESET_ACTION
   | SENDING_FEILET_ACTION
-  | SET_HILSEN_ACTION
-  | REDIGERER_HILSEN_ACTION;
+  | SETT_HILSEN_ACTION;
