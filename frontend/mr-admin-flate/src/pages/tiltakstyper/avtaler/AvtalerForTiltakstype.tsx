@@ -19,8 +19,8 @@ export function AvtalerForTiltakstype() {
   const { data: avtaler = [], pagination } = data;
 
   return (
-    <>
-      <Avtalefilter />
+    <div>
+      {avtaler.length > 0 ? <Avtalefilter /> : null}
       <PagineringsOversikt
         page={page}
         antall={avtaler.length}
@@ -48,6 +48,6 @@ export function AvtalerForTiltakstype() {
           />
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
