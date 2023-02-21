@@ -35,8 +35,5 @@
   display: flex;
   align-items: center;
   justify-content: end;
-
-  :global(.navds-button) {
-    padding-right: 0;
-  }
+  gap: 4px;
 }
