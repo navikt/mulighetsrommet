@@ -1,7 +1,8 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import classNames from "classnames";
-import { useState } from "react";
+import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
+import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Laster } from "../../components/Laster";
@@ -12,10 +13,10 @@ import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
-  const [tabValgt, setTabValgt] = useState("arenaInfo");
+  const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
   const features = useFeatureToggles();
 
-  if (optionalTiltakstype.isFetching) {
+  if (!optionalTiltakstype.data && optionalTiltakstype.isFetching) {
     return <Laster tekst="Laster tiltakstype" />;
   }
 
@@ -39,7 +40,10 @@ export function DetaljerTiltakstypePage() {
           {tiltakstype.navn}
         </Heading>
       </div>
-      <Tabs value={tabValgt} onChange={setTabValgt}>
+      <Tabs
+        value={tabValgt}
+        onChange={(value) => setTabValgt(value as AvtaleTabs)}
+      >
         <Tabs.List className={classNames(styles.padding_detaljer)}>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
           {features?.data &&

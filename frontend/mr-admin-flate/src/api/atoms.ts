@@ -58,6 +58,16 @@ const avtaleFilter = atomWithHash<{
   { setHash: "replaceState" }
 );
 
+export type AvtaleTabs = "arenaInfo" | "avtaler";
+
+export const avtaleTabAtom = atomWithHash<AvtaleTabs>(
+  "avtaleTab",
+  "arenaInfo",
+  {
+    setHash: "replaceState",
+  }
+);
+
 export type avtaleFilterType = ExtractAtomValue<typeof avtaleFilter>;
 
 export { avtaleFilter };
