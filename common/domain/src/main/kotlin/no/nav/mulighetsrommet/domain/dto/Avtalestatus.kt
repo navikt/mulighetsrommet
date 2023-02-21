@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.domain.dto
 
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
 
 enum class Avtalestatus {
@@ -9,7 +10,14 @@ enum class Avtalestatus {
     Avbrutt;
 
     companion object {
-        fun resolveFromDates(now: LocalDate, startDato: LocalDate, sluttDato: LocalDate): Avtalestatus = when {
+        fun resolveFromDatesAndAvslutningsstatus(
+            now: LocalDate,
+            startDato: LocalDate,
+            sluttDato: LocalDate,
+            avslutningsstatus: Avslutningsstatus
+        ): Avtalestatus = when {
+            avslutningsstatus == Avslutningsstatus.AVBRUTT -> Avbrutt
+            avslutningsstatus == Avslutningsstatus.AVSLUTTET -> Avsluttet
             now < startDato -> Planlagt
             now <= sluttDato -> Aktiv
             else -> Avsluttet

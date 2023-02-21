@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -191,7 +192,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
                         avtalenummer shouldBe "2022#2000"
                         leverandorOrganisasjonsnummer shouldBe "1000000"
                         avtaletype shouldBe Avtaletype.Rammeavtale
-                        avtalestatus shouldBe Avtalestatus.Aktiv
+                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                     }
 
                     avtale.id

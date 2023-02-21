@@ -55,7 +55,7 @@ class ArenaServiceTest : FunSpec({
         sluttDato = LocalDate.of(2023, 11, 11),
         enhet = "2990",
         avtaletype = Avtaletype.Rammeavtale,
-        avtalestatus = Avtalestatus.Aktiv,
+        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
     )
 
@@ -193,7 +193,7 @@ class ArenaServiceTest : FunSpec({
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("enhet").isEqualTo(avtale.enhet)
                 .value("avtaletype").isEqualTo(avtale.avtaletype.name)
-                .value("avtalestatus").isEqualTo(avtale.avtalestatus.name)
+                .value("avtalestatus").isEqualTo(avtale.avslutningsstatus.name)
                 .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
 
             val updated = tiltaksgjennomforing.copy(navn = "Arbeidsovertrening")

@@ -21,12 +21,11 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.*
 
 class AvtaleInfoEndretConsumer(
@@ -151,10 +150,10 @@ class AvtaleInfoEndretConsumer(
         val startDato = avtale.fraDato.toLocalDate()
         val sluttDato = avtale.tilDato.toLocalDate()
 
-        val avtalestatus = when (avtale.status) {
-            Avtale.Status.Avsluttet -> Avtalestatus.Avsluttet
-            Avtale.Status.Avbrutt -> Avtalestatus.Avbrutt
-            else -> Avtalestatus.resolveFromDates(LocalDate.now(), startDato, sluttDato)
+        val avslutningsstatus = when (avtale.status) {
+            Avtale.Status.Avsluttet -> Avslutningsstatus.AVSLUTTET
+            Avtale.Status.Avbrutt -> Avslutningsstatus.AVBRUTT
+            else -> Avslutningsstatus.IKKE_AVSLUTTET
         }
 
         val avtaletype = when {
@@ -172,7 +171,7 @@ class AvtaleInfoEndretConsumer(
             sluttDato = sluttDato,
             enhet = avtale.ansvarligEnhet,
             avtaletype = avtaletype,
-            avtalestatus = avtalestatus,
+            avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
         )
     }

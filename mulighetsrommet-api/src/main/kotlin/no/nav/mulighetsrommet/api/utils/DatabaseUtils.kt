@@ -7,4 +7,6 @@ object DatabaseUtils {
         .reduceOrNull { where, part -> "$where and $part" }
         ?.let { "where $it" }
         ?: ""
+
+
 }

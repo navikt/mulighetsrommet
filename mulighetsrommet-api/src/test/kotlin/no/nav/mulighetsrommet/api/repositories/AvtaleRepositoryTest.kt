@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 
 class AvtaleRepositoryTest : FunSpec({
@@ -42,10 +43,10 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Filtrere på avtalestatus returnere avtaler med korrekt status") {
             val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                avtalestatus = Avtalestatus.Aktiv,
+                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             )
             val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                avtalestatus = Avtalestatus.Avbrutt,
+                avslutningsstatus = Avslutningsstatus.AVBRUTT,
             )
             val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
 

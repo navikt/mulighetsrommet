@@ -5,15 +5,18 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.utils.Status
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleRepository(private val db: Database) {
@@ -34,7 +37,7 @@ class AvtaleRepository(private val db: Database) {
                                slutt_dato,
                                enhet,
                                avtaletype,
-                               avtalestatus,
+                               avslutningsstatus,
                                prisbetingelser)
             values (:id::uuid,
                     :navn,
@@ -45,7 +48,7 @@ class AvtaleRepository(private val db: Database) {
                     :slutt_dato,
                     :enhet,
                     :avtaletype::avtaletype,
-                    :avtalestatus::avtalestatus,
+                    :avslutningsstatus::avslutningsstatus,
                     :prisbetingelser)
             on conflict (id) do update set navn                           = excluded.navn,
                                            tiltakstype_id                 = excluded.tiltakstype_id,
@@ -55,7 +58,7 @@ class AvtaleRepository(private val db: Database) {
                                            slutt_dato                     = excluded.slutt_dato,
                                            enhet                          = excluded.enhet,
                                            avtaletype                     = excluded.avtaletype,
-                                           avtalestatus                   = excluded.avtalestatus,
+                                           avslutningsstatus                   = excluded.avslutningsstatus,
                                            prisbetingelser                = excluded.prisbetingelser
             returning *
         """.trimIndent()
@@ -78,7 +81,7 @@ class AvtaleRepository(private val db: Database) {
                    a.slutt_dato,
                    a.enhet,
                    a.avtaletype,
-                   a.avtalestatus,
+                   a.avslutningsstatus,
                    a.prisbetingelser,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode
@@ -104,7 +107,7 @@ class AvtaleRepository(private val db: Database) {
                    a.slutt_dato,
                    a.enhet,
                    a.avtaletype,
-                   a.avtalestatus,
+                   a.avslutningsstatus,
                    a.prisbetingelser,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
@@ -149,7 +152,7 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "tiltakstype_id" to tiltakstypeId,
             "search" to "%${filter.search}%",
-            "avtalestatus" to filter.avtalestatus?.name,
+            "avslutningsstatus" to filter.avtalestatus?.name,
             "enhet" to filter.enhet,
             "limit" to pagination.limit,
             "offset" to pagination.offset
@@ -158,15 +161,15 @@ class AvtaleRepository(private val db: Database) {
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
-            filter.avtalestatus to "a.avtalestatus = :avtalestatus::Avtalestatus",
+            filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
             filter.enhet to "lower(a.enhet) = lower(:enhet)"
         )
 
         val order = when (filter.sortering) {
             "navn-ascending" -> "a.navn asc"
             "navn-descending" -> "a.navn desc"
-            "status-ascending" -> "a.avtalestatus asc"
-            "status-descending" -> "a.avtalestatus desc"
+            "status-ascending" -> "a.avslutningsstatus asc"
+            "status-descending" -> "a.avslutningsstatus desc"
             else -> "a.navn asc"
         }
 
@@ -181,7 +184,7 @@ class AvtaleRepository(private val db: Database) {
                    a.slutt_dato,
                    a.enhet,
                    a.avtaletype,
-                   a.avtalestatus,
+                   a.avslutningsstatus,
                    a.prisbetingelser,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
@@ -216,39 +219,59 @@ class AvtaleRepository(private val db: Database) {
         "slutt_dato" to sluttDato,
         "enhet" to enhet,
         "avtaletype" to avtaletype.name,
-        "avtalestatus" to avtalestatus.name,
+        "avslutningsstatus" to avslutningsstatus.name,
         "prisbetingelser" to prisbetingelser
     )
 
-    private fun Row.toAvtaleDbo() = AvtaleDbo(
-        id = uuid("id"),
-        navn = string("navn"),
-        tiltakstypeId = uuid("tiltakstype_id"),
-        avtalenummer = string("avtalenummer"),
-        leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
-        startDato = localDate("start_dato"),
-        sluttDato = localDate("slutt_dato"),
-        enhet = string("enhet"),
-        avtaletype = Avtaletype.valueOf(string("avtaletype")),
-        avtalestatus = Avtalestatus.valueOf(string("avtalestatus")),
-        prisbetingelser = stringOrNull("prisbetingelser")
-    )
+    private fun Row.toAvtaleDbo(): AvtaleDbo {
+        return AvtaleDbo(
+            id = uuid("id"),
+            navn = string("navn"),
+            tiltakstypeId = uuid("tiltakstype_id"),
+            avtalenummer = string("avtalenummer"),
+            leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
+            startDato = localDate("start_dato"),
+            sluttDato = localDate("slutt_dato"),
+            enhet = string("enhet"),
+            avtaletype = Avtaletype.valueOf(string("avtaletype")),
+            avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
+            prisbetingelser = stringOrNull("prisbetingelser")
+        )
+    }
 
-    private fun Row.toAvtaleAdminDto() = AvtaleAdminDto(
-        id = uuid("id"),
-        navn = string("navn"),
-        tiltakstype = AvtaleAdminDto.Tiltakstype(
-            id = uuid("tiltakstype_id"),
-            navn = string("tiltakstype_navn"),
-            arenaKode = string("tiltakskode")
-        ),
-        avtalenummer = string("avtalenummer"),
-        leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
-        startDato = localDate("start_dato"),
-        sluttDato = localDate("slutt_dato"),
-        enhet = string("enhet"),
-        avtaletype = Avtaletype.valueOf(string("avtaletype")),
-        avtalestatus = Avtalestatus.valueOf(string("avtalestatus")),
-        prisbetingelser = stringOrNull("prisbetingelser")
-    )
+    private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
+        val startDato = localDate("start_dato")
+        val sluttDato = localDate("slutt_dato")
+        return AvtaleAdminDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            tiltakstype = AvtaleAdminDto.Tiltakstype(
+                id = uuid("tiltakstype_id"),
+                navn = string("tiltakstype_navn"),
+                arenaKode = string("tiltakskode")
+            ),
+            avtalenummer = string("avtalenummer"),
+            leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
+            startDato = startDato,
+            sluttDato = sluttDato,
+            enhet = string("enhet"),
+            avtaletype = Avtaletype.valueOf(string("avtaletype")),
+            avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
+                LocalDate.now(),
+                startDato,
+                sluttDato,
+                Avslutningsstatus.valueOf(string("avslutningsstatus"))
+            ),
+            prisbetingelser = stringOrNull("prisbetingelser")
+        )
+    }
+
+    private fun Avtalestatus.toDbStatement(): String {
+        return when (this) {
+            Avtalestatus.Aktiv -> "(now()::timestamp >= start_dato and now()::timestamp <= slutt_dato and avslutningsstatus = IKKE_AVSLUTTET)"
+            Avtalestatus.Avsluttet -> "(now()::timestamp > slutt_dato or avslutningsstatus = AVSLUTTET)"
+            Avtalestatus.Avbrutt -> "avslutningsstatus = AVBRUTT"
+            Avtalestatus.Planlagt -> "(now()::timestamp < start_dato and avslutningsstatus = IKKE_AVSLUTTET)"
+        }
+    }
 }
