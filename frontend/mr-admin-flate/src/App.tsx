@@ -26,7 +26,7 @@ export function App() {
     );
   }
 
-  if (!optionalAnsatt.data && optionalAnsatt.isFetching) {
+  if (!optionalAnsatt.data && optionalAnsatt.isLoading) {
     return (
       <main>
         <Laster tekst="Laster..." size="xlarge" />
