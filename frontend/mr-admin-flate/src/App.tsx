@@ -26,7 +26,7 @@ export function App() {
     );
   }
 
-  if (optionalAnsatt.isFetching || !optionalAnsatt.data) {
+  if (!optionalAnsatt.data && optionalAnsatt.isFetching) {
     return (
       <main>
         <Laster tekst="Laster..." size="xlarge" />
@@ -34,7 +34,7 @@ export function App() {
     );
   }
 
-  if (optionalAnsatt?.data.tilganger.length === 0) {
+  if (optionalAnsatt?.data?.tilganger.length === 0) {
     return <IkkeAutentisertApp />;
   }
 
