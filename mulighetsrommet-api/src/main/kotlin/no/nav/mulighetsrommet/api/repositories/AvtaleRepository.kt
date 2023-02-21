@@ -3,10 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.AvtaleFilter
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
-import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.api.utils.Status
+import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -272,10 +269,10 @@ class AvtaleRepository(private val db: Database) {
     }
     private fun Avtalestatus.toDbStatement(dagensDato: LocalDate): String {
         return when (this) {
-            Avtalestatus.Aktiv -> "('$dagensDato' >= start_dato and '$dagensDato' <= slutt_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Avtalestatus.Avsluttet -> "('$dagensDato' > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
-            Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Avtalestatus.Planlagt -> "('$dagensDato' < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Avtalestatus.Aktiv -> StatusDbStatement.GJENNOMFORES.getDbStatement(dagensDato)
+            Avtalestatus.Avsluttet -> StatusDbStatement.AVSLUTTET.getDbStatement(dagensDato)
+            Avtalestatus.Avbrutt -> StatusDbStatement.AVBRUTT.getDbStatement(dagensDato)
+            Avtalestatus.Planlagt -> StatusDbStatement.PLANLAGT.getDbStatement(dagensDato)
         }
     }
 }
