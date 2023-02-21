@@ -149,7 +149,6 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "tiltakstype_id" to tiltakstypeId,
             "search" to "%${filter.search}%",
-            "avslutningsstatus" to filter.avtalestatus?.name,
             "enhet" to filter.enhet,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
@@ -166,8 +165,8 @@ class AvtaleRepository(private val db: Database) {
         val order = when (filter.sortering) {
             "navn-ascending" -> "a.navn asc"
             "navn-descending" -> "a.navn desc"
-            "status-ascending" -> "a.avslutningsstatus asc"
-            "status-descending" -> "a.avslutningsstatus desc"
+            "status-ascending" -> "a.avslutningsstatus asc, a.start_dato asc, a.slutt_dato desc"
+            "status-descending" -> "a.avslutningsstatus desc, a.slutt_dato asc, a.start_dato desc"
             else -> "a.navn asc"
         }
 
