@@ -699,6 +699,8 @@ components:
           type: string
         leverandorOrganisasjonsnummer:
           type: string
+        leverandornavn:
+          type: string
         startDato:
           type: string
           format: date

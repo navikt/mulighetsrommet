@@ -8,17 +8,17 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import java.util.*
 
-class AvtaleService(private val avtaler: AvtaleRepository) {
+class AvtaleService(private val avtaler: AvtaleRepository, private val arrangorService: ArrangorService) {
 
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
 
-    fun getAll(pagination: PaginationParams): PaginatedResponse<AvtaleAdminDto> {
+    suspend fun getAll(pagination: PaginationParams): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(pagination)
 
         return PaginatedResponse(
-            data = items,
+            data = items.hentVirksomhetsnavnForAvtaler(),
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = pagination.page,
@@ -27,16 +27,29 @@ class AvtaleService(private val avtaler: AvtaleRepository) {
         )
     }
 
-    fun getAvtalerForTiltakstype(tiltakstypeId: UUID, filter: AvtaleFilter, pagination: PaginationParams = PaginationParams()): PaginatedResponse<AvtaleAdminDto> {
+    suspend fun getAvtalerForTiltakstype(
+        tiltakstypeId: UUID,
+        filter: AvtaleFilter,
+        pagination: PaginationParams = PaginationParams()
+    ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAvtalerForTiltakstype(tiltakstypeId, filter, pagination)
 
+        val avtalerMedLeverandorNavn = items.hentVirksomhetsnavnForAvtaler()
+
         return PaginatedResponse(
-            data = items,
+            data = avtalerMedLeverandorNavn,
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = pagination.page,
                 pageSize = pagination.limit
             )
         )
+    }
+
+    private suspend fun List<AvtaleAdminDto>.hentVirksomhetsnavnForAvtaler(): List<AvtaleAdminDto> {
+        return this.map {
+            val virksomhet = arrangorService.hentVirksomhet(it.leverandorOrganisasjonsnummer)
+            it.copy(leverandornavn = virksomhet?.navn ?: null)
+        }
     }
 }
