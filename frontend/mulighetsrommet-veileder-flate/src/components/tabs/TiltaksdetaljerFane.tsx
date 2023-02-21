@@ -41,7 +41,7 @@ const TiltaksdetaljerFane = () => {
       selectionFollowsFocus
       className={styles.fane_root}
       onChange={value => {
-        logEvent('mulighetsrommet.faner', { value: tabValueTilFaneoverSkrifter[value] ?? value });
+        logEvent('mulighetsrommet.faner', { value: kebabCase(tabValueTilFaneoverSkrifter[value]) });
         setFane(value);
       }}
     >
