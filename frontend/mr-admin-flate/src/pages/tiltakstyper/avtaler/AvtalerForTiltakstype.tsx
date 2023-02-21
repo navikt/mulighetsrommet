@@ -20,7 +20,7 @@ export function AvtalerForTiltakstype() {
 
   return (
     <div>
-      {avtaler.length > 0 ? <Avtalefilter /> : null}
+      <Avtalefilter />
       <PagineringsOversikt
         page={page}
         antall={avtaler.length}
