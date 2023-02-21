@@ -20,8 +20,9 @@ data class AvtaleAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
     val enhet: String,
+    val enhetsnavn: String? = null,
     val avtaletype: Avtaletype,
-    val avtalestatus : Avtalestatus,
+    val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
 ) {
     @Serializable

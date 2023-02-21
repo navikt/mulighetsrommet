@@ -8,7 +8,11 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import java.util.*
 
-class AvtaleService(private val avtaler: AvtaleRepository, private val arrangorService: ArrangorService) {
+class AvtaleService(
+    private val avtaler: AvtaleRepository,
+    private val arrangorService: ArrangorService,
+    private val enhetService: EnhetService
+) {
 
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
@@ -34,7 +38,9 @@ class AvtaleService(private val avtaler: AvtaleRepository, private val arrangorS
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAvtalerForTiltakstype(tiltakstypeId, filter, pagination)
 
-        val avtalerMedLeverandorNavn = items.hentVirksomhetsnavnForAvtaler()
+        val avtalerMedLeverandorNavn = items
+            .hentVirksomhetsnavnForAvtaler()
+            .hentEnhetsnavnForAvtaler()
 
         return PaginatedResponse(
             data = avtalerMedLeverandorNavn,
@@ -50,6 +56,13 @@ class AvtaleService(private val avtaler: AvtaleRepository, private val arrangorS
         return this.map {
             val virksomhet = arrangorService.hentVirksomhet(it.leverandorOrganisasjonsnummer)
             it.copy(leverandornavn = virksomhet?.navn ?: null)
+        }
+    }
+
+    private fun List<AvtaleAdminDto>.hentEnhetsnavnForAvtaler(): List<AvtaleAdminDto> {
+        return this.map {
+            val enhet = enhetService.hentEnhet(it.enhet)
+            it.copy(enhetsnavn = enhet?.navn ?: null)
         }
     }
 }

@@ -709,6 +709,8 @@ components:
           format: date
         enhet:
           type: string
+        enhetsnavn:
+          type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:

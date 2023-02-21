@@ -1,9 +1,9 @@
 $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
-$avtaleGrid: 2fr 2fr 0.5fr repeat(2, 0.5fr) 10% 1%;
+$avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
 
 @mixin avtaleGridProperties {
   grid-template-columns: $avtaleGrid;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .oversikt {
