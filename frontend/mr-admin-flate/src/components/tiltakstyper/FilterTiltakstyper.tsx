@@ -30,9 +30,10 @@ export function FilterTiltakstyper() {
         data-testid="filter_status"
         onChange={(e: ChangeEvent<HTMLSelectElement>) => {
           resetPagination();
+          const status = e.currentTarget.value as any;
           setSokefilter({
             ...sokefilter,
-            status: e.currentTarget.value as any,
+            status: status === "ALLE" ? undefined : status,
           });
         }}
       >

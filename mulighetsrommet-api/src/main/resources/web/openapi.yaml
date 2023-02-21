@@ -859,7 +859,6 @@ components:
         - AKTIV
         - PLANLAGT
         - AVSLUTTET
-        - ALLE
 
     Tiltakstypekategori:
       type: string

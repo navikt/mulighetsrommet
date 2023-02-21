@@ -42,7 +42,7 @@ enum class Tiltakstypekategori {
 fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
     val search = call.request.queryParameters["search"]
     val status =
-        call.request.queryParameters["tiltakstypestatus"]?.let { status -> Status.valueOf(status) } ?: Status.AKTIV
+        call.request.queryParameters["tiltakstypestatus"]?.let { status -> Status.valueOf(status) }
     val kategori =
         call.request.queryParameters["tiltakstypekategori"]?.let { kategori -> Tiltakstypekategori.valueOf(kategori) }
     return TiltakstypeFilter(search, status, kategori)
@@ -50,7 +50,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
     val search = call.request.queryParameters["search"]
-    // TODO null verdi her
     val avtalestatus =
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
     val enhet = call.request.queryParameters["enhet"]
