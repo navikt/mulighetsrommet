@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
@@ -16,7 +17,11 @@ import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.sql.Timestamp
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class AvtaleRepository(private val db: Database) {
@@ -161,7 +166,7 @@ class AvtaleRepository(private val db: Database) {
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
-            filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
+            filter.avtalestatus to filter.avtalestatus?.toDbStatement(filter.dagensDato),
             filter.enhet to "lower(a.enhet) = lower(:enhet)"
         )
 
@@ -265,13 +270,12 @@ class AvtaleRepository(private val db: Database) {
             prisbetingelser = stringOrNull("prisbetingelser")
         )
     }
-
-    private fun Avtalestatus.toDbStatement(): String {
+    private fun Avtalestatus.toDbStatement(dagensDato: LocalDate): String {
         return when (this) {
-            Avtalestatus.Aktiv -> "(now()::timestamp >= start_dato and now()::timestamp <= slutt_dato and avslutningsstatus = IKKE_AVSLUTTET)"
-            Avtalestatus.Avsluttet -> "(now()::timestamp > slutt_dato or avslutningsstatus = AVSLUTTET)"
-            Avtalestatus.Avbrutt -> "avslutningsstatus = AVBRUTT"
-            Avtalestatus.Planlagt -> "(now()::timestamp < start_dato and avslutningsstatus = IKKE_AVSLUTTET)"
+            Avtalestatus.Aktiv -> "('$dagensDato' >= start_dato and '$dagensDato' <= slutt_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Avtalestatus.Avsluttet -> "('$dagensDato' > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+            Avtalestatus.Planlagt -> "('$dagensDato' < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
         }
     }
 }

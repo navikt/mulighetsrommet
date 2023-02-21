@@ -4,6 +4,8 @@ import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.EnhetStatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class TiltakstypeFilter(
     val search: String?,
@@ -15,7 +17,8 @@ data class AvtaleFilter(
     val search: String?,
     val avtalestatus: Avtalestatus? = null,
     val enhet: String? = null,
-    val sortering: String? = null
+    val sortering: String? = null,
+    val dagensDato: LocalDate = LocalDate.now()
 )
 
 data class EnhetFilter(

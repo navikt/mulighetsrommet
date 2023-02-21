@@ -51,7 +51,9 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
         avtalenummer: String = "2023#1",
         enhet: String = "1801",
         avtaletype: Avtaletype = Avtaletype.Rammeavtale,
-        avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
+        avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        startDato: LocalDate = LocalDate.of(2023, 1, 11),
+        sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -59,8 +61,8 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
             avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,
             leverandorOrganisasjonsnummer = "12345678910",
-            startDato = LocalDate.of(2023, 1, 11),
-            sluttDato = LocalDate.of(2023, 2, 28),
+            startDato = startDato,
+            sluttDato = sluttDato,
             enhet = enhet,
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,

@@ -346,14 +346,3 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 }
 
-/*
-dagens >= db.startdato
-dagens <= db.sluttdato
-avslutningsstatus = db.avslutningsstatus
-
-gjennomfores ->
-startDato = dagens, sluttDato = dagens, avslutningsstatus = ikke-avsluttet
-
-avsluttet ->
-dagens
- */

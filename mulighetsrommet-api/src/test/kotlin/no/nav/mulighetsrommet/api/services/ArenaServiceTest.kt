@@ -193,7 +193,7 @@ class ArenaServiceTest : FunSpec({
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("enhet").isEqualTo(avtale.enhet)
                 .value("avtaletype").isEqualTo(avtale.avtaletype.name)
-                .value("avtalestatus").isEqualTo(avtale.avslutningsstatus.name)
+                .value("avslutningsstatus").isEqualTo(avtale.avslutningsstatus.name)
                 .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
 
             val updated = tiltaksgjennomforing.copy(navn = "Arbeidsovertrening")
