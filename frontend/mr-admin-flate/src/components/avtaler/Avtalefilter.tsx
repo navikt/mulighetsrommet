@@ -31,7 +31,6 @@ export function Avtalefilter() {
         <div className={styles.filter_left}>
           <Search
             ref={searchRef}
-            style={{ height: "34px" }} // Samme høyde som select-komponentene under
             label="Søk etter avtale"
             hideLabel
             variant="simple"
