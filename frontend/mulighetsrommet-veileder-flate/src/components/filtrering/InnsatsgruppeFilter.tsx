@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { InnsatsgruppeNokler } from '../../core/api/models';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
-import { formatMetrikker, kebabCase } from '../../utils/Utils';
+import { kebabCase } from '../../utils/Utils';
 import styles from './Filtermeny.module.scss';
 import { logEvent } from '../../core/api/logger';
 
@@ -82,7 +82,7 @@ function InnsatsgruppeFilter() {
         },
       });
     }
-    logEvent('mulighetsrommet.filtrering.innsatsgruppe', { value: formatMetrikker(innsatsgruppe) });
+    logEvent('mulighetsrommet.filtrering.innsatsgruppe', { innsatsgruppe });
   };
 
   return (

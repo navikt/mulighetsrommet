@@ -16,10 +16,6 @@ export function kebabCase(string: string | { label: string }) {
   return specialChar(string).trim().replace(/\s+/g, '-').replace(/_/g, '-');
 }
 
-export function formatMetrikker(string: string) {
-  return kebabCase(string).substring(0, 40);
-}
-
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : '';
 }
