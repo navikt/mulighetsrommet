@@ -1,16 +1,12 @@
-import { Tag } from "@navikt/ds-react";
-import { Tiltakstype } from "mulighetsrommet-api-client";
-import { kalkulerStatusBasertPaaFraOgTilDato } from "../../utils/Utils";
+import {Tag} from "@navikt/ds-react";
+import {Tiltakstype} from "mulighetsrommet-api-client";
 
 interface Props {
   tiltakstype: Tiltakstype;
 }
 
-export function Tiltakstypestatus({ tiltakstype }: Props) {
-  const status = kalkulerStatusBasertPaaFraOgTilDato({
-    fraDato: tiltakstype.fraDato,
-    tilDato: tiltakstype.tilDato,
-  });
+export function Tiltakstypestatus({tiltakstype}: Props) {
+  const status = tiltakstype.status;
 
   return (
     <Tag
@@ -18,8 +14,8 @@ export function Tiltakstypestatus({ tiltakstype }: Props) {
         status === "Aktiv"
           ? "success"
           : status === "Planlagt"
-          ? "info"
-          : "neutral"
+            ? "info"
+            : "neutral"
       }
     >
       {status}

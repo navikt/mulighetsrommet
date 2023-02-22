@@ -1,4 +1,4 @@
-import { PaginertTiltakstype } from "mulighetsrommet-api-client";
+import {PaginertTiltakstype, Tiltakstypestatus} from "mulighetsrommet-api-client";
 
 export const mockTiltakstyper: PaginertTiltakstype = {
   pagination: {
@@ -13,6 +13,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ABIST",
       fraDato: "2023-01-11",
       tilDato: "2023-05-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee36c",
@@ -20,6 +21,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ABOPPF",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3caf",
@@ -27,6 +29,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ABTBOPPF",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca1",
@@ -34,6 +37,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ABUOPPF",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca2",
@@ -41,6 +45,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMBF1",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca3",
@@ -48,6 +53,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMBF2",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca4",
@@ -55,6 +61,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMBF3",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca5",
@@ -62,6 +69,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMO",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3caf6",
@@ -69,6 +77,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMOB",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca7",
@@ -76,6 +85,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMOE",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca8",
@@ -83,6 +93,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AMOY",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3ca9",
@@ -90,6 +101,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ANNUTDANN",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c10",
@@ -97,6 +109,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBDOGNSM",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c14",
@@ -104,6 +117,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBFORB",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c15",
@@ -111,6 +125,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBRDAGSM",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c16",
@@ -118,6 +133,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBRRDOGN",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c17",
@@ -125,6 +141,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBRRHBAG",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c18",
@@ -132,6 +149,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBRRHBSM",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c19",
@@ -139,6 +157,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBRRHDAG",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c20",
@@ -146,6 +165,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ARBTREN",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c21",
@@ -153,6 +173,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ASV",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c22",
@@ -160,6 +181,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ATG",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c23",
@@ -167,6 +189,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AVKLARAG",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c24",
@@ -174,6 +197,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AVKLARKV",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c25",
@@ -181,6 +205,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AVKLARSP",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c26",
@@ -188,6 +213,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AVKLARSV",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c27",
@@ -195,6 +221,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "AVKLARUS",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c28",
@@ -202,6 +229,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "BIA",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c29",
@@ -209,6 +237,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "BIO",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c30",
@@ -216,6 +245,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "BREVKURS",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c31",
@@ -223,6 +253,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "DIGIOPPARB",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c32",
@@ -230,6 +261,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "DIVTILT",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c33",
@@ -237,6 +269,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "EKSPEBIST",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c34",
@@ -244,6 +277,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ENKELAMO",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c35",
@@ -251,6 +285,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ENKFAGYRKE",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c36",
@@ -258,6 +293,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "ETAB",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c37",
@@ -265,6 +301,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FLEKSJOBB",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c38",
@@ -272,6 +309,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FORSAMOENK",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c39",
@@ -279,6 +317,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FORSAMOGRU",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c40",
@@ -286,6 +325,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FORSFAGENK",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c41",
@@ -293,6 +333,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FORSFAGGRU",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c42",
@@ -300,6 +341,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FORSHOYUTD",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c43",
@@ -307,6 +349,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "FUNKSJASS",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c44",
@@ -314,6 +357,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "GRUFAGYRKE",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c45",
@@ -321,6 +365,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "GRUNNSKOLE",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c46",
@@ -328,6 +373,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "GRUPPEAMO",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c47",
@@ -335,6 +381,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "HOYEREUTD",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AKTIV,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c48",
@@ -342,6 +389,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "HOYSKOLE",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.PLANLAGT,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c49",
@@ -349,6 +397,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "INDJOBSTOT",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AVSLUTTET,
     },
     {
       id: "186df85f-c773-4f34-8904-1983787a3c50",
@@ -356,6 +405,7 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       arenaKode: "INDOPPFAG",
       fraDato: "2023-01-11",
       tilDato: "2023-01-15",
+      status: Tiltakstypestatus.AVSLUTTET,
     },
   ],
 };

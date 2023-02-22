@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -50,7 +51,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.getAll(
             TiltakstypeFilter(
                 search = "Førerhund",
-                status = Status.AKTIV,
+                status = Tiltakstypestatus.Aktiv,
                 kategori = null
             )
         ).second shouldHaveSize 0
@@ -59,7 +60,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAll(
                 TiltakstypeFilter(
                     search = "Arbeidstrening",
-                    status = Status.AVSLUTTET,
+                    status = Tiltakstypestatus.Avsluttet,
                     kategori = null
                 )
             )
@@ -155,7 +156,7 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeFilter(
                     search = null,
                     kategori = null,
-                    status = Status.PLANLAGT,
+                    status = Tiltakstypestatus.Planlagt,
                     dagensDato = dagensDato
                 )
             )
@@ -168,7 +169,7 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeFilter(
                     search = null,
                     kategori = null,
-                    status = Status.AKTIV,
+                    status = Tiltakstypestatus.Aktiv,
                     dagensDato = dagensDato
                 )
             )
@@ -181,7 +182,7 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeFilter(
                     search = null,
                     kategori = null,
-                    status = Status.AVSLUTTET,
+                    status = Tiltakstypestatus.Avsluttet,
                     dagensDato = dagensDato
                 )
             )

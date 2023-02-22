@@ -23,7 +23,8 @@ data class TiltakstypeDto(
     val fraDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val tilDato: LocalDate,
-    val rettPaaTiltakspenger: Boolean
+    val rettPaaTiltakspenger: Boolean,
+    val status: Tiltakstypestatus
 ) {
     companion object {
         fun from(tiltakstype: TiltakstypeDbo) = tiltakstype.run {
@@ -35,7 +36,8 @@ data class TiltakstypeDto(
                 sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,
                 tilDato = tilDato,
-                rettPaaTiltakspenger = rettPaaTiltakspenger
+                rettPaaTiltakspenger = rettPaaTiltakspenger,
+                status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato)
             )
         }
     }

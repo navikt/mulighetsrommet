@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -395,7 +395,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/dialog:
     post:
@@ -672,6 +672,7 @@ components:
         - arenaKode
         - fraDato
         - tilDato
+        - status
       properties:
         id:
           type: string
@@ -684,6 +685,8 @@ components:
           type: string
         tilDato:
           type: string
+        status:
+          $ref: "#/components/schemas/Tiltakstypestatus"
 
     Avtale:
       type: object
@@ -760,12 +763,12 @@ components:
         - Avbrutt
 
     SorteringAvtaler:
-        type: string
-        enum:
-          - navn-ascending
-          - navn-descending
-          - status-ascending
-          - status-descending
+      type: string
+      enum:
+        - navn-ascending
+        - navn-descending
+        - status-ascending
+        - status-descending
 
     Tiltaksgjennomforing:
       type: object
@@ -858,9 +861,9 @@ components:
     Tiltakstypestatus:
       type: string
       enum:
-        - AKTIV
-        - PLANLAGT
-        - AVSLUTTET
+        - Aktiv
+        - Planlagt
+        - Avsluttet
 
     Tiltakstypekategori:
       type: string
