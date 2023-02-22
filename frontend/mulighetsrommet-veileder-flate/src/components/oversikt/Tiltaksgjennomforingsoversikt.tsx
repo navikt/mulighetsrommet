@@ -37,7 +37,7 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   useEffect(() => {
     //sørger for at vi ikke logger metrikker for første render
-    if (didMountRef.current) logEvent(`mulighetsrommet.sortering`, { sortValue });
+    if (didMountRef.current) logEvent('mulighetsrommet.sortering', { value: sortValue });
     didMountRef.current = true;
   }, [sortValue]);
 

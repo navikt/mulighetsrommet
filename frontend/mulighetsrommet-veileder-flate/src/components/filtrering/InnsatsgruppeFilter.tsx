@@ -82,7 +82,7 @@ function InnsatsgruppeFilter() {
         },
       });
     }
-    logEvent('mulighetsrommet.filtrering.innsatsgruppe', { innsatsgruppe: formatMetrikker(innsatsgruppe) });
+    logEvent('mulighetsrommet.filtrering.innsatsgruppe', { value: formatMetrikker(innsatsgruppe) });
   };
 
   return (
