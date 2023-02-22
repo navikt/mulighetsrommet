@@ -35,7 +35,7 @@ class RetryFailedEvents(
 
             runBlocking {
                 val job = async {
-                    arenaEventService.retryEvents(status = ArenaEvent.ConsumptionStatus.Failed)
+                    arenaEventService.retryEvents(status = ArenaEvent.ProcessingStatus.Failed)
                 }
 
                 while (job.isActive) {

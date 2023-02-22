@@ -16,12 +16,12 @@ class ArenaEventRepository(private val db: Database) {
     fun upsert(event: ArenaEvent): ArenaEvent {
         @Language("PostgreSQL")
         val query = """
-            insert into arena_events(arena_table, arena_id, payload, consumption_status, message, retries)
-            values (:arena_table, :arena_id, :payload::jsonb, :status::consumption_status, :message, :retries)
+            insert into arena_events(arena_table, arena_id, payload, processing_status, message, retries)
+            values (:arena_table, :arena_id, :payload::jsonb, :status::processing_status, :message, :retries)
             on conflict (arena_table, arena_id)
             do update set
                 payload            = excluded.payload,
-                consumption_status = excluded.consumption_status,
+                processing_status  = excluded.processing_status,
                 message            = excluded.message,
                 retries            = excluded.retries
             returning *
@@ -35,18 +35,18 @@ class ArenaEventRepository(private val db: Database) {
 
     fun updateStatus(
         table: ArenaTable,
-        oldStatus: ArenaEvent.ConsumptionStatus?,
-        newStatus: ArenaEvent.ConsumptionStatus
+        oldStatus: ArenaEvent.ProcessingStatus?,
+        newStatus: ArenaEvent.ProcessingStatus,
     ) {
         val where = andWhereParameterNotNull(
             table to "arena_table = :table",
-            oldStatus to "consumption_status = :old_status::consumption_status"
+            oldStatus to "processing_status = :old_status::processing_status"
         )
 
         @Language("PostgreSQL")
         val query = """
             update arena_events
-            set consumption_status = :new_status::consumption_status, retries = 0
+            set processing_status= :new_status::processing_status, retries = 0
             $where
         """.trimIndent()
 
@@ -63,7 +63,7 @@ class ArenaEventRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select arena_table, arena_id, payload, consumption_status, message, retries
+            select arena_table, arena_id, payload, processing_status, message, retries
             from arena_events
             where arena_table = :arena_table and arena_id = :arena_id
         """.trimIndent()
@@ -77,7 +77,7 @@ class ArenaEventRepository(private val db: Database) {
     fun getAll(
         table: ArenaTable? = null,
         idGreaterThan: String? = null,
-        status: ArenaEvent.ConsumptionStatus? = null,
+        status: ArenaEvent.ProcessingStatus? = null,
         maxRetries: Int? = null,
         limit: Int = 1000,
     ): List<ArenaEvent> {
@@ -86,13 +86,13 @@ class ArenaEventRepository(private val db: Database) {
         val where = andWhereParameterNotNull(
             table to "arena_table = :arena_table",
             idGreaterThan to "arena_id > :arena_id",
-            status to "consumption_status = :status::consumption_status",
+            status to "processing_status= :status::processing_status",
             maxRetries to "retries < :max_retries",
         )
 
         @Language("PostgreSQL")
         val query = """
-            select arena_table, arena_id, payload, consumption_status, message, retries
+            select arena_table, arena_id, payload, processing_status, message, retries
             from arena_events
             $where
             order by arena_id
@@ -134,7 +134,7 @@ class ArenaEventRepository(private val db: Database) {
         arenaTable = ArenaTable.fromTable(string("arena_table")),
         arenaId = string("arena_id"),
         payload = Json.parseToJsonElement(string("payload")),
-        status = ArenaEvent.ConsumptionStatus.valueOf(string("consumption_status")),
+        status = ArenaEvent.ProcessingStatus.valueOf(string("processing_status")),
         message = stringOrNull("message"),
         retries = int("retries"),
     )

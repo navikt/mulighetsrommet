@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
 import arrow.core.continuations.either
@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
-import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -21,12 +21,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class TiltakEndretConsumer(
+class TiltakEventProcessor(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient
-) : ArenaTopicConsumer(
+) : ArenaEventProcessor(
     ArenaTable.Tiltakstype
 ) {
 
@@ -39,11 +39,11 @@ class TiltakEndretConsumer(
             arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.TILTAKSKODE,
             payload = payload,
-            status = ArenaEvent.ConsumptionStatus.Pending
+            status = ArenaEvent.ProcessingStatus.Pending
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
         val decoded = ArenaEventData.decode<ArenaTiltak>(event.payload)
 
         val mapping = entities.getOrCreateMapping(event)
@@ -58,15 +58,15 @@ class TiltakEndretConsumer(
         } else {
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakstype", dbo)
         }
-        response.mapLeft { ConsumptionError.fromResponseException(it) }
-            .map { ArenaEvent.ConsumptionStatus.Processed }
+        response.mapLeft { ProcessingError.fromResponseException(it) }
+            .map { ArenaEvent.ProcessingStatus.Processed }
             .bind()
     }
 
-    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakstype/${mapping.entityId}")
-            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltakstype(mapping.entityId) }
             .bind()
     }
@@ -107,7 +107,7 @@ class TiltakEndretConsumer(
                 sendKopibrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_KOPIBREV)
             )
         }
-        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
+        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
     private fun Tiltakstype.toDbo() = TiltakstypeDbo(
         id = id,

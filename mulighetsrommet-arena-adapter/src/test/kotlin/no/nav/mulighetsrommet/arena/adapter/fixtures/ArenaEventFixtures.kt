@@ -61,7 +61,7 @@ fun createArenaTiltakEvent(
 fun createArenaTiltakgjennomforingEvent(
     operation: ArenaEventData.Operation,
     tiltaksgjennomforing: ArenaTiltaksgjennomforing = TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingGruppe,
-    status: ArenaEvent.ConsumptionStatus = ArenaEvent.ConsumptionStatus.Pending,
+    status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
     modify: (tiltaksgjennomforing: ArenaTiltaksgjennomforing) -> ArenaTiltaksgjennomforing = { it }
 ): ArenaEvent = modify(tiltaksgjennomforing).let {
     createArenaEvent(
@@ -78,7 +78,7 @@ private fun createArenaEvent(
     id: String,
     operation: ArenaEventData.Operation,
     data: String,
-    status: ArenaEvent.ConsumptionStatus = ArenaEvent.ConsumptionStatus.Pending
+    status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending
 ): ArenaEvent {
     val before = if (operation == ArenaEventData.Operation.Delete) {
         data

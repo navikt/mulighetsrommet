@@ -4,7 +4,7 @@ import arrow.core.getOrHandle
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
@@ -18,7 +18,7 @@ import kotlin.time.measureTime
 class ArenaEventService(
     private val config: Config = Config(),
     private val events: ArenaEventRepository,
-    private val group: ConsumerGroup<ArenaTopicConsumer>
+    private val group: ConsumerGroup<ArenaEventProcessor>
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -46,7 +46,7 @@ class ArenaEventService(
         }
     }
 
-    suspend fun retryEvents(table: ArenaTable? = null, status: ArenaEvent.ConsumptionStatus? = null) {
+    suspend fun retryEvents(table: ArenaTable? = null, status: ArenaEvent.ProcessingStatus? = null) {
         logger.info("Retrying events from table=$table, status=$status")
 
         consumeEvents(table, status, config.maxRetries) { event ->
@@ -57,10 +57,10 @@ class ArenaEventService(
         }
     }
 
-    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEvent.ConsumptionStatus? = null) {
+    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEvent.ProcessingStatus? = null) {
         logger.info("Setting replay status to events from table=$table, status=$status")
 
-        events.updateStatus(table, status, ArenaEvent.ConsumptionStatus.Replay)
+        events.updateStatus(table, status, ArenaEvent.ProcessingStatus.Replay)
     }
 
     private suspend fun processEvent(event: ArenaEvent) {
@@ -82,7 +82,7 @@ class ArenaEventService(
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", it)
                     events.upsert(
                         event.copy(
-                            status = ArenaEvent.ConsumptionStatus.Failed,
+                            status = ArenaEvent.ProcessingStatus.Failed,
                             message = it.localizedMessage
                         )
                     )
@@ -106,7 +106,7 @@ class ArenaEventService(
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     private suspend fun consumeEvents(
         table: ArenaTable?,
-        status: ArenaEvent.ConsumptionStatus?,
+        status: ArenaEvent.ProcessingStatus?,
         maxRetries: Int? = null,
         consumer: suspend (ArenaEvent) -> Unit
     ) = coroutineScope {

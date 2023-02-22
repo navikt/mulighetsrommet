@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomfor
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 
-class TiltakgjennomforingEndretConsumerTest : FunSpec({
+class TiltakgjennomforingEventProcessorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
@@ -325,7 +325,7 @@ class TiltakgjennomforingEndretConsumerTest : FunSpec({
     }
 })
 
-private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakgjennomforingEndretConsumer {
+private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakgjennomforingEventProcessor {
     val client = MulighetsrommetApiClient(engine, baseUri = "api") {
         "Bearer token"
     }
@@ -344,7 +344,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): Tiltakgjenno
         avtaler = AvtaleRepository(db),
     )
 
-    return TiltakgjennomforingEndretConsumer(
+    return TiltakgjennomforingEventProcessor(
         ConsumerConfig("tiltakgjennomforing", "tiltakgjennomforing"),
         ArenaEventRepository(db),
         entities,

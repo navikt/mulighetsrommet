@@ -11,7 +11,7 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
-import no.nav.mulighetsrommet.arena.adapter.consumers.*
+import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -63,23 +63,23 @@ fun slack(slack: SlackConfig): Module {
 private fun consumers(kafkaConfig: KafkaConfig) = module {
     single {
         val consumers = listOf(
-            TiltakEndretConsumer(kafkaConfig.getTopic("tiltakendret"), get(), get(), get()),
-            TiltakgjennomforingEndretConsumer(
+            TiltakEventProcessor(kafkaConfig.getTopic("tiltakendret"), get(), get(), get()),
+            TiltakgjennomforingEventProcessor(
                 kafkaConfig.getTopic("tiltakgjennomforingendret"),
                 get(),
                 get(),
                 get(),
                 get()
             ),
-            TiltakdeltakerEndretConsumer(
+            TiltakdeltakerEventProcessor(
                 kafkaConfig.getTopic("tiltakdeltakerendret"),
                 get(),
                 get(),
                 get(),
                 get()
             ),
-            SakEndretConsumer(kafkaConfig.getTopic("sakendret"), get(), get()),
-            AvtaleInfoEndretConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get(), get(), get(), get()),
+            SakEventProcessor(kafkaConfig.getTopic("sakendret"), get(), get()),
+            AvtaleInfoEventProcessor(kafkaConfig.getTopic("avtaleinfoendret"), get(), get(), get(), get()),
         )
         ConsumerGroup(consumers)
     }
