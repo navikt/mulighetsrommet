@@ -1,6 +1,6 @@
 import { BodyShort } from "@navikt/ds-react";
 import { Avtale } from "mulighetsrommet-api-client";
-import { formaterDato } from "../../utils/Utils";
+import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeRad } from "../listeelementer/ListeRad";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
@@ -10,14 +10,15 @@ interface Props {
 }
 
 export function Avtalerad({ avtale }: Props) {
-  // TODO Fiks korrekt url for avtaler
   return (
     <ListeRad
       linkTo={`/avtaler/${avtale.id}`}
       classname={styles.listerad_avtale}
     >
       <BodyShort size="medium">{avtale.navn}</BodyShort>
-      <BodyShort size="medium">{avtale.leverandor?.navn || ""}</BodyShort>
+      <BodyShort size="medium">
+        {capitalizeEveryWord(avtale.leverandor?.navn, ["og"]) || ""}
+      </BodyShort>
       <BodyShort size="medium">
         {avtale.navEnhet?.navn || avtale?.navEnhet?.enhetsnummer}
       </BodyShort>
