@@ -63,6 +63,20 @@ class EnhetRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
     }
+
+    fun get(enhet: String): Norg2Enhet? {
+        @Language("PostgreSQL")
+        val query = """
+            select navn, enhet_id, enhetsnummer, status
+            from enhet
+            where enhetsnummer = ?
+        """.trimIndent()
+
+        return queryOf(query, enhet)
+            .map { it.toEnhetDto() }
+            .asSingle
+            .let { db.run(it) }
+    }
 }
 
 private fun Norg2EnhetDbo.toSqlParameters() = mapOf(

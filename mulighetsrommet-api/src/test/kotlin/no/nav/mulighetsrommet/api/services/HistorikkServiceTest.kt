@@ -102,8 +102,8 @@ class HistorikkServiceTest : FunSpec({
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         val bedriftsnavn = "Bedriftsnavn"
         val bedriftsnavn2 = "Bedriftsnavn 2"
-        coEvery { arrangorService.hentArrangornavn("123456789") } returns bedriftsnavn
-        coEvery { arrangorService.hentArrangornavn("12343") } returns bedriftsnavn2
+        coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("123456789") } returns bedriftsnavn
+        coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("12343") } returns bedriftsnavn2
 
         val historikkService =
             HistorikkService(arrangorService, TiltakshistorikkRepository(database.db))

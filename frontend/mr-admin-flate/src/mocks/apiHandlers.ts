@@ -1,6 +1,7 @@
 import { rest } from "msw";
 import {
   Ansatt,
+  Avtale,
   Enhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
@@ -60,6 +61,15 @@ export const apiHandlers = [
     const enheter = mockEnheter;
     return res(ctx.status(200), ctx.json(enheter));
   }),
+
+  rest.get<any, any, Avtale | undefined>(
+    "*/api/v1/internal/avtaler/:id",
+    (req, res, ctx) => {
+      const { id } = req.params as { id: string };
+      const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
+      return res(ctx.status(200), ctx.json(avtale));
+    }
+  ),
 
   rest.get<any, any, PaginertTiltaksgjennomforing>(
     "*/api/v1/internal/tiltaksgjennomforinger",

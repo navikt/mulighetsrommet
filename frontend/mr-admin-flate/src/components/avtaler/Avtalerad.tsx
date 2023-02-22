@@ -17,8 +17,10 @@ export function Avtalerad({ avtale }: Props) {
       classname={styles.listerad_avtale}
     >
       <BodyShort size="medium">{avtale.navn}</BodyShort>
-      <BodyShort size="medium">{avtale.leverandorOrganisasjonsnummer}</BodyShort>
-      <BodyShort size="medium">{avtale.enhet}</BodyShort>
+      <BodyShort size="medium">{avtale.leverandor?.navn || ""}</BodyShort>
+      <BodyShort size="medium">
+        {avtale.navEnhet?.navn || avtale?.navEnhet?.enhetsnummer}
+      </BodyShort>
 
       <BodyShort
         size="small"

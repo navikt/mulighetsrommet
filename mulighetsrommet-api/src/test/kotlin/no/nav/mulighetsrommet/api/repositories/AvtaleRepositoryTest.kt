@@ -72,7 +72,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             result.second shouldHaveSize 1
-            result.second[0].enhet shouldBe "1801"
+            result.second[0].navEnhet.enhetsnummer shouldBe "1801"
         }
     }
 })
