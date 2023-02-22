@@ -37,6 +37,7 @@ export function AvtalerForTiltakstype() {
             type="avtaler"
           />
           <Pagination
+            style={{ paddingBottom: "24px" }}
             size="small"
             data-testid="paginering"
             page={page}
