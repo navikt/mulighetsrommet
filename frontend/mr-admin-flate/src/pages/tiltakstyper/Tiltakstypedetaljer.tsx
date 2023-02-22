@@ -1,4 +1,5 @@
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
+import { Metadata } from "../../components/detaljside/Metadata";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { formaterDato } from "../../utils/Utils";
 import styles from "./Tiltakstypedetaljer.module.scss";
@@ -14,18 +15,20 @@ export function TiltakstypeDetaljer() {
   return (
     <div>
       <dl className={styles.detaljer}>
-        <dt>Tiltakstype</dt>
-        <dd>{tiltakstype.navn}</dd>
-        <dt>Tiltakskode</dt>
-        <dd>{tiltakstype.arenaKode}</dd>
-        <dt>Status</dt>
-        <dd>
-          <Tiltakstypestatus tiltakstype={tiltakstype} />
-        </dd>
-        <dt>Start</dt>
-        <dd>{formaterDato(tiltakstype.fraDato)}</dd>
-        <dt>Slutt</dt>
-        <dd>{formaterDato(tiltakstype.tilDato)}</dd>
+        <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
+        <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
+        <Metadata
+          header="Status"
+          verdi={<Tiltakstypestatus tiltakstype={tiltakstype} />}
+        />
+        <Metadata
+          header="Startdato"
+          verdi={formaterDato(tiltakstype.fraDato)}
+        />
+        <Metadata
+          header="Sluttdato"
+          verdi={formaterDato(tiltakstype.tilDato)}
+        />
       </dl>
     </div>
   );
