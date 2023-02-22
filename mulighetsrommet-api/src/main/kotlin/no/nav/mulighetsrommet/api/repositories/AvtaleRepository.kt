@@ -269,10 +269,10 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
-            Avtalestatus.Aktiv -> DbStatus.AKTIV.getFilterMedAvslutningsstatus()
-            Avtalestatus.Avsluttet -> DbStatus.AVSLUTTET.getFilterMedAvslutningsstatus()
-            Avtalestatus.Avbrutt -> DbStatus.AVBRUTT.getFilterMedAvslutningsstatus()
-            Avtalestatus.Planlagt -> DbStatus.PLANLAGT.getFilterMedAvslutningsstatus()
+            Avtalestatus.Aktiv -> "((:today >= start_dato and :today <= slutt_dato) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Avtalestatus.Avsluttet -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+            Avtalestatus.Planlagt -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
         }
     }
 }

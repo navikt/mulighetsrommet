@@ -89,12 +89,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
-            when (tiltakstypeFilter.status) {
-                Status.AKTIV -> "" to DbStatus.AKTIV.getFilter("fra_dato", "til_dato")
-                Status.PLANLAGT -> "" to DbStatus.PLANLAGT.getFilter("fra_dato", "til_dato")
-                Status.AVSLUTTET -> "" to DbStatus.AVSLUTTET.getFilter("fra_dato", "til_dato")
-                null -> null to null
-            },
+            tiltakstypeFilter.status to tiltakstypeFilter.status?.toDbStatement(),
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
                 when (it) {
                     Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
@@ -174,4 +169,12 @@ class TiltakstypeRepository(private val db: Database) {
         tilDato = localDate("til_dato"),
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
+
+    private fun Status.toDbStatement(): String {
+        return when (this) {
+            Status.PLANLAGT -> "(:today < fra_dato)"
+            Status.AKTIV -> "(:today >= fra_dato and :today <= til_dato)"
+            else -> "(:today > til_dato)"
+        }
+    }
 }
