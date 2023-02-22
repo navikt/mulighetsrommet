@@ -11,24 +11,24 @@ object DatabaseUtils {
         ?: ""
 }
 
-enum class StatusDbStatement {
+enum class DbStatus {
     AVLYST,
     PLANLAGT,
     AKTIV,
     AVSLUTTET,
     AVBRUTT;
 
-    fun getDbStatementMedAvslutningsstatus(): String {
+    fun getFilterMedAvslutningsstatus(): String {
         return when (this) {
             AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            PLANLAGT -> "(${getDbStatement()} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            AKTIV -> "(${getDbStatement()} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            AVSLUTTET -> "(${getDbStatement()} or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            PLANLAGT -> "(${getFilter()} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AKTIV -> "(${getFilter()} and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            AVSLUTTET -> "(${getFilter()} or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
             AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
         }
     }
 
-    fun getDbStatement(startDatoNavn: String = "start_dato", sluttDatoNavn: String = "slutt_dato"): String {
+    fun getFilter(startDatoNavn: String = "start_dato", sluttDatoNavn: String = "slutt_dato"): String {
         return when (this) {
             PLANLAGT -> "(:today < $startDatoNavn)"
             AKTIV -> "(:today >= $startDatoNavn and :today <= $sluttDatoNavn)"

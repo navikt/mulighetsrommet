@@ -90,9 +90,9 @@ class TiltakstypeRepository(private val db: Database) {
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
             when (tiltakstypeFilter.status) {
-                Status.AKTIV -> "" to StatusDbStatement.AKTIV.getDbStatement("fra_dato", "til_dato")
-                Status.PLANLAGT -> "" to StatusDbStatement.PLANLAGT.getDbStatement("fra_dato", "til_dato")
-                Status.AVSLUTTET -> "" to StatusDbStatement.AVSLUTTET.getDbStatement("fra_dato", "til_dato")
+                Status.AKTIV -> "" to DbStatus.AKTIV.getFilter("fra_dato", "til_dato")
+                Status.PLANLAGT -> "" to DbStatus.PLANLAGT.getFilter("fra_dato", "til_dato")
+                Status.AVSLUTTET -> "" to DbStatus.AVSLUTTET.getFilter("fra_dato", "til_dato")
                 null -> null to null
             },
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {

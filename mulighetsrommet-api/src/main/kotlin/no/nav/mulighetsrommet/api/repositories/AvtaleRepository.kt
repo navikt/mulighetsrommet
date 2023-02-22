@@ -269,10 +269,10 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
-            Avtalestatus.Aktiv -> StatusDbStatement.AKTIV.getDbStatementMedAvslutningsstatus()
-            Avtalestatus.Avsluttet -> StatusDbStatement.AVSLUTTET.getDbStatementMedAvslutningsstatus()
-            Avtalestatus.Avbrutt -> StatusDbStatement.AVBRUTT.getDbStatementMedAvslutningsstatus()
-            Avtalestatus.Planlagt -> StatusDbStatement.PLANLAGT.getDbStatementMedAvslutningsstatus()
+            Avtalestatus.Aktiv -> DbStatus.AKTIV.getFilterMedAvslutningsstatus()
+            Avtalestatus.Avsluttet -> DbStatus.AVSLUTTET.getFilterMedAvslutningsstatus()
+            Avtalestatus.Avbrutt -> DbStatus.AVBRUTT.getFilterMedAvslutningsstatus()
+            Avtalestatus.Planlagt -> DbStatus.PLANLAGT.getFilterMedAvslutningsstatus()
         }
     }
 }
