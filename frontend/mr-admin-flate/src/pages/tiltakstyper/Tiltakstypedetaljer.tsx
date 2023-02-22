@@ -21,6 +21,7 @@ export function TiltakstypeDetaljer() {
           header="Status"
           verdi={<Tiltakstypestatus tiltakstype={tiltakstype} />}
         />
+        <div>&nbsp;</div>
         <Metadata
           header="Startdato"
           verdi={formaterDato(tiltakstype.fraDato)}
