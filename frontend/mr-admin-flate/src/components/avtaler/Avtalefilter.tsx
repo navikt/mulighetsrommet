@@ -95,7 +95,6 @@ export function Avtalefilter() {
               });
             }}
           >
-            <option value="navn-ascending">Sorter</option>
             <option value="navn-ascending">Navn A-Å</option>
             <option value="navn-descending">Navn Å-A</option>
             <option value="status-ascending">Status A-Å</option>
