@@ -39,7 +39,7 @@ class ArenaEventService(
 
     suspend fun processEvent(event: ArenaEvent) {
         Metrics.processArenaEventTimer(event.arenaTable.table).recordSuspend {
-            logger.info("Persiting event: table=${event.arenaTable}, id=${event.arenaId}")
+            logger.info("Persisting event: table=${event.arenaTable}, id=${event.arenaId}")
             val eventToProcess = events.upsert(event)
 
             handleEvent(eventToProcess)
