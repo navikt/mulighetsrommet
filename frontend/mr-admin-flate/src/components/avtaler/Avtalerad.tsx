@@ -18,7 +18,7 @@ export function Avtalerad({ avtale }: Props) {
     >
       <BodyShort size="medium">{avtale.navn}</BodyShort>
       <BodyShort size="medium">
-        {capitalizeEveryWord(avtale.leverandor?.navn, ["og"]) || ""}
+        {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
       </BodyShort>
       <BodyShort size="medium">
         {avtale.navEnhet?.navn || avtale?.navEnhet?.enhetsnummer}
