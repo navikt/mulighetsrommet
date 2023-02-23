@@ -13,7 +13,7 @@ export function HistorikkButton() {
 
   const handleClick = () => {
     toggleModal();
-    logEvent(`mulighetsrommet.historikk`);
+    logEvent('mulighetsrommet.historikk');
   };
 
   return (
