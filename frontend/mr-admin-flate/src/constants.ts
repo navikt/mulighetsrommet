@@ -7,6 +7,7 @@ export const AVTALE_PAGE_SIZE = 15;
 
 export const shortcuts: Shortcut[] = [
   { url: "/tiltakstyper", navn: "Tiltakstyper" },
+  { url: "/avtaler", navn: "Avtaler" },
 ];
 
 export const forsideKort: { navn: string; url: string; tekst?: string }[] = [
@@ -14,5 +15,10 @@ export const forsideKort: { navn: string; url: string; tekst?: string }[] = [
     navn: "Tiltakstyper",
     url: "tiltakstyper",
     tekst: "Her finner du informasjon om tiltakstyper",
+  },
+  {
+    navn: "Avtaler",
+    url: "avtaler",
+    tekst: "Her finner du informasjon om avtaler",
   },
 ];

@@ -62,6 +62,13 @@ export const apiHandlers = [
     return res(ctx.status(200), ctx.json(enheter));
   }),
 
+  rest.get<any, any, PaginertAvtale | undefined>(
+    "*/api/v1/internal/avtaler",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockAvtaler));
+    }
+  ),
+
   rest.get<any, any, Avtale | undefined>(
     "*/api/v1/internal/avtaler/:id",
     (req, res, ctx) => {

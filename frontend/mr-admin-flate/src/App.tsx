@@ -5,6 +5,7 @@ import { Laster } from "./components/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { RootLayout } from "./layouts/RootLayout";
+import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
@@ -54,6 +55,15 @@ export function App() {
         element={
           <RootLayout>
             <DetaljerTiltakstypePage />
+          </RootLayout>
+        }
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/"
+        element={
+          <RootLayout>
+            <AvtalerPage />
           </RootLayout>
         }
         errorElement={<ErrorPage />}

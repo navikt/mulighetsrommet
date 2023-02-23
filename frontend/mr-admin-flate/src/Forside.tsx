@@ -14,7 +14,12 @@ export function Forside() {
       <div className={styles.card_container}>
         <div className={styles.cards}>
           {forsideKort.map((card) => (
-            <Link key={card.url} className={styles.card} to={card.url}>
+            <Link
+              key={card.url}
+              className={styles.card}
+              to={card.url}
+              data-testid={card.navn.toLowerCase()}
+            >
               <span className={styles.circle}></span>
               <h3>{card.navn}</h3>
               <p className={styles.infotekst}>{card.tekst}</p>

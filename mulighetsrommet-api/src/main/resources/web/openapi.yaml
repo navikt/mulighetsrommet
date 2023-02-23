@@ -29,30 +29,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler:
-    get:
-      tags:
-        - Avtaler
-      operationId: getAvtaler
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-      responses:
-        200:
-          description: Object of paginated avtaler.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertAvtale"
-
   /api/v1/internal/avtaler/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -74,14 +50,18 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler/tiltakstype/{id}:
-    parameters:
-      - $ref: "#/components/parameters/ID"
+  /api/v1/internal/avtaler:
     get:
       tags:
         - Avtaler
-      operationId: getAvtalerForTiltakstype
+      operationId: getAvtaler
       parameters:
+        - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
+          nullable: true
         - in: query
           name: search
           schema:
@@ -535,7 +515,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DelMedBruker"
         204:
-          description:
+          description: ""
           content:
             text/plain:
               schema:
@@ -558,6 +538,7 @@ paths:
           schema:
             type: string
           description: ID for tiltakstypen knyttet til avtaler med enheter
+          nullable: true
       responses:
         200:
           description: "Enheter knyttet til avtaler"

@@ -18,25 +18,11 @@ class AvtaleService(
         return avtaler.get(id)?.hentEnhetsnavnForAvtale()
     }
 
-    suspend fun getAll(pagination: PaginationParams): PaginatedResponse<AvtaleAdminDto> {
-        val (totalCount, items) = avtaler.getAll(pagination)
-
-        return PaginatedResponse(
-            data = items.hentVirksomhetsnavnForAvtaler().hentEnhetsnavnForAvtaler(),
-            pagination = Pagination(
-                totalCount = totalCount,
-                currentPage = pagination.page,
-                pageSize = pagination.limit
-            )
-        )
-    }
-
-    suspend fun getAvtalerForTiltakstype(
-        tiltakstypeId: UUID,
+    suspend fun getAll(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams()
     ): PaginatedResponse<AvtaleAdminDto> {
-        val (totalCount, items) = avtaler.getAvtalerForTiltakstype(tiltakstypeId, filter, pagination)
+        val (totalCount, items) = avtaler.getAll(filter, pagination)
 
         val avtalerMedLeverandorNavn = items
             .hentVirksomhetsnavnForAvtaler()
