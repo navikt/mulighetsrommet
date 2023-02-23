@@ -15,21 +15,21 @@ spec:
       expr: kube_deployment_status_replicas_available{deployment="mulighetsrommet-arena-adapater"} == 0
       for: 2m
       annotations:
-        consequence: "App {{ $labels.deployment }} er nede i namespace {{ $labels.namespace }}"
+        consequence: "mulighetsrommet-arena-adapter er nede i namespace {{ $labels.namespace }}"
         action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
         summary: |-
-          {{ $labels.log_app }} er nede og vil ikke konsumere data eller tilby data til API. Dette bør fikses asap.
+          mulighetsrommet-arena-adapter er nede og vil ikke konsumere data eller tilby data til API. Dette bør fikses asap.
       labels:
         namespace: team-mulighetsrommet
         severity: critical
   - name: Feilrate i loggen
     rules:
-    - alert: "høy feilrate i logger for {{ $labels.log_app }}"
+    - alert: "høy feilrate i logger for mulighetsrommet-arena-adapter"
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="mulighetsrommet-arena-adapter",log_level=~"Warning|Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="mulighetsrommet-arena-adapter"}[3m]))) > 10
       for: 3m
       annotations:
         consequence: "Det er mye feil i loggene for arena-adapter"
-        action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
+        action: "Sjekk loggene til mulighetsrommet-arena-adapter i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
       labels:
         namespace: team-mulighetsrommet
         severity: warning
@@ -37,8 +37,8 @@ spec:
       expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^5\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter"}[3m])))) > 10
       for: 3m
       annotations:
-        consequence: "{{ $labels.app }} logger mange 5xx feil. Det kan tyde på en bug eller dårlig feilhåndtering i tjenesten."
-        action: "Sjekk loggene til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+        consequence: "mulighetsrommet-arena-adapter logger mange 5xx feil. Det kan tyde på en bug eller dårlig feilhåndtering i tjenesten."
+        action: "Sjekk loggene til mulighetsrommet-arena-adapter for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
       labels:
         namespace: team-mulighetsrommet
         severity: warning
@@ -48,8 +48,8 @@ spec:
       expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^4\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-arena-adapter", route!~'.*(/api/exchange/{arenaId})'}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])))) > 10
       for: 3m
       annotations:
-        consequence: "{{ $labels.app }} returnerer mye 4xx feil til konsumenter. Det kan føre til ustabilitet hos klientene og bør sees på."
-        action: "Sjekk loggene til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+        consequence: "mulighetsrommet-arena-adapter returnerer mye 4xx feil til konsumenter. Det kan føre til ustabilitet hos klientene og bør sees på."
+        action: "Sjekk loggene til mulighetsrommet-arena-adapter for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
       labels:
         namespace: team-mulighetsrommet
         severity: warning
