@@ -1,4 +1,7 @@
-import {PaginertTiltakstype, Tiltakstypestatus} from "mulighetsrommet-api-client";
+import {
+  PaginertTiltakstype,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
 
 export const mockTiltakstyper: PaginertTiltakstype = {
   pagination: {
