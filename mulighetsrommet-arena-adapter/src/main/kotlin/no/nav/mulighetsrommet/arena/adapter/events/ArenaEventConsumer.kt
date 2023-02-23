@@ -4,14 +4,13 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
-import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 class ArenaEventConsumer(
-    config: ConsumerConfig,
+    config: KafkaTopicConsumer.Config,
     private val arenaEventService: ArenaEventService,
 ) : KafkaTopicConsumer<String, JsonElement>(config, stringDeserializer(), ArenaJsonElementDeserializer()) {
     override suspend fun run(event: JsonElement) {

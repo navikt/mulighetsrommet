@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
-import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
@@ -23,6 +22,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -114,7 +114,6 @@ private fun kafka(kafkaConfig: KafkaConfig) = module {
 
 private fun repositories() = module {
     single { ArenaEventRepository(get()) }
-    single { TopicRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { SakRepository(get()) }
     single { DeltakerRepository(get()) }

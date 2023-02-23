@@ -1,6 +1,5 @@
-package no.nav.mulighetsrommet.arena.adapter.repositories
+package no.nav.mulighetsrommet.kafka
 
-import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
@@ -67,11 +66,3 @@ class TopicRepository(private val db: Database) {
         running = boolean("running")
     )
 }
-
-@Serializable
-data class Topic(
-    val id: String,
-    val topic: String,
-    val type: TopicType,
-    val running: Boolean
-)

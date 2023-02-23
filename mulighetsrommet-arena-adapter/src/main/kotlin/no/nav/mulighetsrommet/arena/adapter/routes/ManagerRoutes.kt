@@ -9,12 +9,12 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.Topic
 import org.koin.ktor.ext.inject
 
 fun Route.managerRoutes() {

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.kafka
 
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
@@ -6,9 +6,6 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.util.*

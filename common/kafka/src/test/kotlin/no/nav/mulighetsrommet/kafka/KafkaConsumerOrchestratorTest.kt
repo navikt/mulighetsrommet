@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.kafka
 
 import io.kotest.assertions.timing.eventually
 import io.kotest.core.extensions.install
@@ -12,8 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -27,22 +25,19 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
-
     val kafka = install(
         TestContainerExtension(
             KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
         )
     ) { withEmbeddedZookeeper() }
 
+    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+
     fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)
         .withBaseProperties()
         .withConsumerGroupId("consumer")
-        .withDeserializers(
-            ByteArrayDeserializer::class.java,
-            ByteArrayDeserializer::class.java
-        )
+        .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
     fun uniqueTopicName() = UUID.randomUUID().toString()
