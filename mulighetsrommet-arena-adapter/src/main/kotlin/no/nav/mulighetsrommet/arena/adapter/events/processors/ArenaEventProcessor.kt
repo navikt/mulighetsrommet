@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
 import arrow.core.getOrHandle
@@ -6,13 +6,13 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
-import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.Logger
 
-abstract class ArenaTopicConsumer(val arenaTable: ArenaTable) : TopicConsumer() {
+abstract class ArenaEventProcessor(val arenaTable: ArenaTable) : TopicConsumer() {
     abstract val logger: Logger
     abstract val events: ArenaEventRepository
 
@@ -39,7 +39,7 @@ abstract class ArenaTopicConsumer(val arenaTable: ArenaTable) : TopicConsumer() 
 
     abstract fun decodeArenaData(payload: JsonElement): ArenaEvent
 
-    abstract suspend fun handleEvent(event: ArenaEvent): Either<ConsumptionError, ArenaEvent.ConsumptionStatus>
+    abstract suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ArenaEvent.ProcessingStatus>
 
-    abstract suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit>
+    abstract suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit>
 }

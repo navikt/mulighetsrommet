@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -31,7 +32,7 @@ import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 
-class AvtaleInfoEndretConsumerTest : FunSpec({
+class AvtaleInfoEventProcessorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
@@ -51,7 +52,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
 
             val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
 
-            event.status shouldBe ArenaEvent.ConsumptionStatus.Failed
+            event.status shouldBe ArenaEvent.ProcessingStatus.Failed
             database.assertThat("avtale").isEmpty
         }
     }
@@ -83,7 +84,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
             )
 
             events.forEach {
-                consumer.processEvent(it).status shouldBe ArenaEvent.ConsumptionStatus.Ignored
+                consumer.processEvent(it).status shouldBe ArenaEvent.ProcessingStatus.Ignored
             }
             database.assertThat("avtale").isEmpty
         }
@@ -94,7 +95,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
             val event = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
                 it.copy(DATO_TIL = "2022-12-31 00:00:00")
             }
-            consumer.processEvent(event).status shouldBe ArenaEvent.ConsumptionStatus.Ignored
+            consumer.processEvent(event).status shouldBe ArenaEvent.ProcessingStatus.Ignored
             database.assertThat("avtale").isEmpty
         }
 
@@ -108,19 +109,19 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
             val consumer = createConsumer(database.db, engine)
 
             val e1 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert)
-            consumer.processEvent(e1).status shouldBe ArenaEvent.ConsumptionStatus.Processed
+            consumer.processEvent(e1).status shouldBe ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
             val e2 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
             }
-            consumer.processEvent(e2).status shouldBe ArenaEvent.ConsumptionStatus.Processed
+            consumer.processEvent(e2).status shouldBe ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
             val e3 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
             }
-            consumer.processEvent(e3).status shouldBe ArenaEvent.ConsumptionStatus.Processed
+            consumer.processEvent(e3).status shouldBe ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Avsluttet.name)
         }
 
@@ -135,7 +136,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
                 val consumer = createConsumer(database.db, engine)
                 val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
 
-                event.status shouldBe ArenaEvent.ConsumptionStatus.Failed
+                event.status shouldBe ArenaEvent.ProcessingStatus.Failed
             }
 
             // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
@@ -149,7 +150,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
                 val consumer = createConsumer(database.db, engine)
                 val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
 
-                event.status shouldBe ArenaEvent.ConsumptionStatus.Invalid
+                event.status shouldBe ArenaEvent.ProcessingStatus.Invalid
             }
 
             test("should mark the event as Failed when api responds with an error") {
@@ -167,7 +168,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
                 val consumer = createConsumer(database.db, engine)
                 val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
 
-                event.status shouldBe ArenaEvent.ConsumptionStatus.Failed
+                event.status shouldBe ArenaEvent.ProcessingStatus.Failed
             }
 
             test("should call api with mapped event payload when all services responds with success") {
@@ -212,7 +213,7 @@ class AvtaleInfoEndretConsumerTest : FunSpec({
 private fun createConsumer(
     db: Database,
     engine: HttpClientEngine = MockEngine { respondOk() }
-): AvtaleInfoEndretConsumer {
+): AvtaleInfoEventProcessor {
     val client = MulighetsrommetApiClient(engine, baseUri = "api") {
         "Bearer token"
     }
@@ -220,7 +221,6 @@ private fun createConsumer(
     val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
         "Bearer token"
     }
-
     val entities = ArenaEntityService(
         events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
@@ -231,7 +231,7 @@ private fun createConsumer(
         avtaler = AvtaleRepository(db),
     )
 
-    return AvtaleInfoEndretConsumer(
+    return AvtaleInfoEventProcessor(
         ConsumerConfig("avtaleinfoendret", "avtaleinfoendret"),
         ArenaEventRepository(db),
         entities,

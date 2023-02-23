@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
@@ -7,15 +7,15 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.SakFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Insert
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Ignored
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
-class SakEndretConsumerTest : FunSpec({
+class SakEventProcessorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
@@ -58,7 +58,7 @@ class SakEndretConsumerTest : FunSpec({
     }
 })
 
-private fun createConsumer(db: Database): SakEndretConsumer {
+private fun createConsumer(db: Database): SakEventProcessor {
     val entities = ArenaEntityService(
         events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
@@ -69,7 +69,7 @@ private fun createConsumer(db: Database): SakEndretConsumer {
         avtaler = AvtaleRepository(db),
     )
 
-    return SakEndretConsumer(
+    return SakEventProcessor(
         ConsumerConfig("sakendret", "sakendret"),
         ArenaEventRepository(db),
         entities,

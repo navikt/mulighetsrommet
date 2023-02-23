@@ -6,11 +6,11 @@ import io.kotest.core.test.TestCaseOrder
 import io.mockk.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import no.nav.mulighetsrommet.arena.adapter.consumers.ArenaTopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.kafka.ConsumerGroup
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -31,32 +31,32 @@ class ArenaEventServiceTest : FunSpec({
     val table = ArenaTable.Tiltakstype
 
     val fooEvent = ArenaEvent(
-        status = ConsumptionStatus.Processed,
+        status = ProcessingStatus.Processed,
         arenaTable = table,
         arenaId = "1",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
     )
     val barEvent = ArenaEvent(
-        status = ConsumptionStatus.Processed,
+        status = ProcessingStatus.Processed,
         arenaTable = table,
         arenaId = "2",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
     )
     val bazEvent = ArenaEvent(
-        status = ConsumptionStatus.Ignored,
+        status = ProcessingStatus.Ignored,
         arenaTable = table,
         arenaId = "3",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Baz")))
     )
 
-    val consumer = mockk<ArenaTopicConsumer>()
+    val consumer = mockk<ArenaEventProcessor>()
     val group = ConsumerGroup(listOf(consumer))
 
     lateinit var events: ArenaEventRepository
 
     beforeEach {
         every { consumer.arenaTable } returns table
-        coEvery { consumer.handleEvent(any()) } answers { Either.Right(ConsumptionStatus.Processed) }
+        coEvery { consumer.handleEvent(any()) } answers { Either.Right(ProcessingStatus.Processed) }
 
         events = ArenaEventRepository(database.db)
     }
@@ -88,21 +88,18 @@ class ArenaEventServiceTest : FunSpec({
     }
 
     context("replay events") {
-        test("should set consumption status to Replay for specified table and status") {
+        test("should set processing status to Replay for specified table and status") {
             events.upsert(fooEvent)
             events.upsert(barEvent)
             events.upsert(bazEvent)
 
             val service = ArenaEventService(events = events, group = group)
-            service.setReplayStatusForEvents(
-                table,
-                ConsumptionStatus.Processed
-            )
+            service.setReplayStatusForEvents(table, ProcessingStatus.Processed)
 
             database.assertThat("arena_events")
-                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Replay.name)
-                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Replay.name)
-                .row().value("consumption_status").isEqualTo(ConsumptionStatus.Ignored.name)
+                .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
+                .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
+                .row().value("processing_status").isEqualTo(ProcessingStatus.Ignored.name)
         }
     }
 

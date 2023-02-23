@@ -7,11 +7,11 @@ data class ArenaEvent(
     val arenaTable: ArenaTable,
     val arenaId: String,
     val payload: JsonElement,
-    val status: ConsumptionStatus,
-    val message: String? = null,
+    val status: ProcessingStatus,
     val retries: Int = 0,
+    val message: String? = null,
 ) {
-    enum class ConsumptionStatus {
+    enum class ProcessingStatus {
         /** Event processing is pending and will be started (or retried) on the next schedule */
         Pending,
 

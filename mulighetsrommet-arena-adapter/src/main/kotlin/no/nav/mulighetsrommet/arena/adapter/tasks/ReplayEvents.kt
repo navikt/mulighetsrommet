@@ -34,7 +34,7 @@ class ReplayEvents(
 
             runBlocking {
                 val job = async {
-                    arenaEventService.retryEvents(status = ArenaEvent.ConsumptionStatus.Replay)
+                    arenaEventService.retryEvents(status = ArenaEvent.ProcessingStatus.Replay)
                 }
 
                 while (job.isActive) {

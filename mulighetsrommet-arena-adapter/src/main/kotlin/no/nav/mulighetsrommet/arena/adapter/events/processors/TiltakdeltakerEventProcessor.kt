@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
 import arrow.core.continuations.either
@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
-import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -27,13 +27,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class TiltakdeltakerEndretConsumer(
+class TiltakdeltakerEventProcessor(
     override val config: ConsumerConfig,
     override val events: ArenaEventRepository,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
-) : ArenaTopicConsumer(
+) : ArenaEventProcessor(
     ArenaTable.Deltaker
 ) {
 
@@ -46,22 +46,22 @@ class TiltakdeltakerEndretConsumer(
             arenaTable = ArenaTable.fromTable(decoded.table),
             arenaId = decoded.data.TILTAKDELTAKER_ID.toString(),
             payload = payload,
-            status = ArenaEvent.ConsumptionStatus.Pending
+            status = ArenaEvent.ProcessingStatus.Pending
         )
     }
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ConsumptionError, ArenaEvent.ConsumptionStatus> {
+    override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
         val (_, operation, data) = ArenaEventData.decode<ArenaTiltakdeltaker>(event.payload)
 
         ensure(isRegisteredAfterAktivitetsplanen(data)) {
-            ConsumptionError.Ignored("Deltaker ignorert fordi den registrert før Aktivitetsplanen")
+            ProcessingError.Ignored("Deltaker ignorert fordi den registrert før Aktivitetsplanen")
         }
 
         val tiltaksgjennomforingIsIgnored = entities
             .isIgnored(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
         ensure(!tiltaksgjennomforingIsIgnored) {
-            ConsumptionError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
+            ProcessingError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
         }
 
         val mapping = entities.getOrCreateMapping(event)
@@ -77,9 +77,9 @@ class TiltakdeltakerEndretConsumer(
             .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
             .bind()
         val norskIdent = ords.getFnr(deltaker.personId)
-            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .mapLeft { ProcessingError.fromResponseException(it) }
             .map { it?.fnr }
-            .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke norsk ident i Arena ORDS for Arena personId=${deltaker.personId}") }
+            .leftIfNull { ProcessingError.InvalidPayload("Fant ikke norsk ident i Arena ORDS for Arena personId=${deltaker.personId}") }
             .bind()
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
@@ -93,8 +93,8 @@ class TiltakdeltakerEndretConsumer(
         } else {
             val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
                 ords.getArbeidsgiver(id)
-                    .mapLeft { ConsumptionError.fromResponseException(it) }
-                    .leftIfNull { ConsumptionError.InvalidPayload("Fant ikke arrangør i Arena ORDS for arrangorId=${tiltaksgjennomforing.arrangorId}") }
+                    .mapLeft { ProcessingError.fromResponseException(it) }
+                    .leftIfNull { ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS for arrangorId=${tiltaksgjennomforing.arrangorId}") }
                     .map { it.virksomhetsnummer }
                     .bind()
             }
@@ -106,15 +106,15 @@ class TiltakdeltakerEndretConsumer(
         } else {
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
         }
-        response.mapLeft { ConsumptionError.fromResponseException(it) }
-            .map { ArenaEvent.ConsumptionStatus.Processed }
+        response.mapLeft { ProcessingError.fromResponseException(it) }
+            .map { ArenaEvent.ProcessingStatus.Processed }
             .bind()
     }
 
-    override suspend fun deleteEntity(event: ArenaEvent): Either<ConsumptionError, Unit> = either {
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
-            .mapLeft { ConsumptionError.fromResponseException(it) }
+            .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteDeltaker(mapping.entityId) }
             .bind()
     }
@@ -135,7 +135,7 @@ class TiltakdeltakerEndretConsumer(
                 status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
             )
         }
-        .mapLeft { ConsumptionError.InvalidPayload(it.localizedMessage) }
+        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
     private fun Deltaker.toGruppeDbo(
         tiltaksgjennomforing: Tiltaksgjennomforing,

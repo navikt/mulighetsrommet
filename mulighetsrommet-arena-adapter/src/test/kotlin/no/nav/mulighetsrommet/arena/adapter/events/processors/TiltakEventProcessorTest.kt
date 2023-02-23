@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.consumers
+package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Delete
 import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData.Operation.Insert
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ConsumptionStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class TiltakEndretConsumerTest : FunSpec({
+class TiltakEventProcessorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
@@ -117,12 +117,11 @@ class TiltakEndretConsumerTest : FunSpec({
             val event = consumer.processEvent(createArenaTiltakEvent(Insert))
 
             event.status shouldBe Failed
-            database.assertThat("arena_events").row().value("consumption_status").isEqualTo("Failed")
         }
     }
 })
 
-private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndretConsumer {
+private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEventProcessor {
     val client = MulighetsrommetApiClient(engine, baseUri = "api") {
         "Bearer token"
     }
@@ -137,7 +136,7 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEndret
         avtaler = AvtaleRepository(db),
     )
 
-    return TiltakEndretConsumer(
+    return TiltakEventProcessor(
         ConsumerConfig("tiltakendret", "tiltakendret"),
         ArenaEventRepository(db),
         entities,

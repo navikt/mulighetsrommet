@@ -4,6 +4,21 @@ export function capitalize(text?: string): string {
     : "";
 }
 
+export function capitalizeEveryWord(
+  text: string = "",
+  ignoreWords: string[] = []
+): string {
+  return text
+    .split(" ")
+    .map((it) => {
+      if (ignoreWords.includes(it.toLowerCase())) {
+        return it.toLowerCase();
+      }
+      return capitalize(it);
+    })
+    .join(" ");
+}
+
 export function formaterDato(dato?: string | Date, fallback = ""): string {
   if (!dato) return fallback;
 

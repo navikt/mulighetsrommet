@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.services
 
 import arrow.core.Either
 import arrow.core.rightIfNotNull
-import no.nav.mulighetsrommet.arena.adapter.models.ConsumptionError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -18,9 +18,9 @@ class ArenaEntityService(
     private val avtaler: AvtaleRepository,
 ) {
 
-    fun getEvent(arenaTable: ArenaTable, arenaId: String): Either<ConsumptionError, ArenaEvent> {
+    fun getEvent(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEvent> {
         return events.get(arenaTable, arenaId)
-            .rightIfNotNull { ConsumptionError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
+            .rightIfNotNull { ProcessingError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
     }
 
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
@@ -28,89 +28,89 @@ class ArenaEntityService(
             ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID()))
     }
 
-    fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ConsumptionError, ArenaEntityMapping> {
+    fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {
         return mappings.get(arenaTable, arenaId)
-            .rightIfNotNull { ConsumptionError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
+            .rightIfNotNull { ProcessingError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
     }
 
     fun getMappingIfProcessed(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
         return mappings.get(arenaTable, arenaId)
-            .takeIf { events.get(arenaTable, arenaId)?.status == ArenaEvent.ConsumptionStatus.Processed }
+            .takeIf { events.get(arenaTable, arenaId)?.status == ArenaEvent.ProcessingStatus.Processed }
     }
 
-    fun upsertTiltakstype(tiltakstype: Tiltakstype): Either<ConsumptionError, Tiltakstype> {
+    fun upsertTiltakstype(tiltakstype: Tiltakstype): Either<ProcessingError, Tiltakstype> {
         return tiltakstyper.upsert(tiltakstype)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun deleteTiltakstype(id: UUID): Either<ConsumptionError, Unit> {
+    fun deleteTiltakstype(id: UUID): Either<ProcessingError, Unit> {
         return tiltakstyper.delete(id)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun getTiltakstype(id: UUID): Either<ConsumptionError, Tiltakstype> {
+    fun getTiltakstype(id: UUID): Either<ProcessingError, Tiltakstype> {
         return tiltakstyper.get(id)
-            .rightIfNotNull { ConsumptionError.MissingDependency("Tiltakstype med id=$id mangler") }
+            .rightIfNotNull { ProcessingError.MissingDependency("Tiltakstype med id=$id mangler") }
     }
 
-    fun upsertSak(sak: Sak): Either<ConsumptionError, Sak> {
+    fun upsertSak(sak: Sak): Either<ProcessingError, Sak> {
         return saker.upsert(sak)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun getSak(id: Int): Either<ConsumptionError.MissingDependency, Sak> {
+    fun getSak(id: Int): Either<ProcessingError.MissingDependency, Sak> {
         return saker.get(id)
-            .rightIfNotNull { ConsumptionError.MissingDependency("Sak med id=$id mangler") }
+            .rightIfNotNull { ProcessingError.MissingDependency("Sak med id=$id mangler") }
     }
 
-    fun deleteSak(id: Int): Either<ConsumptionError, Unit> {
+    fun deleteSak(id: Int): Either<ProcessingError, Unit> {
         return saker.delete(id)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Either<ConsumptionError, Tiltaksgjennomforing> {
+    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Either<ProcessingError, Tiltaksgjennomforing> {
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun deleteTiltaksgjennomforing(id: UUID): Either<ConsumptionError, Unit> {
+    fun deleteTiltaksgjennomforing(id: UUID): Either<ProcessingError, Unit> {
         return tiltaksgjennomforinger.delete(id)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
     fun getTiltaksgjennomforingOrNull(id: UUID): Tiltaksgjennomforing? {
         return tiltaksgjennomforinger.get(id)
     }
 
-    fun getTiltaksgjennomforing(id: UUID): Either<ConsumptionError, Tiltaksgjennomforing> {
+    fun getTiltaksgjennomforing(id: UUID): Either<ProcessingError, Tiltaksgjennomforing> {
         return tiltaksgjennomforinger.get(id)
-            .rightIfNotNull { ConsumptionError.MissingDependency("Tiltaksgjennomforing med id=$id mangler") }
+            .rightIfNotNull { ProcessingError.MissingDependency("Tiltaksgjennomforing med id=$id mangler") }
     }
 
-    fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ConsumptionError, Boolean> {
+    fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         // TODO: burde status Ignored settes på ArenaEntityMapping i stedet?
         //       Da har vi mulighet til å slette data fra events-tabellen, samtidig som vi har oversikt over hvilke entitier som ikke er relevante
         return getEvent(arenaTable, arenaId)
-            .map { it.status == ArenaEvent.ConsumptionStatus.Ignored }
+            .map { it.status == ArenaEvent.ProcessingStatus.Ignored }
     }
 
-    fun upsertDeltaker(deltaker: Deltaker): Either<ConsumptionError, Deltaker> {
+    fun upsertDeltaker(deltaker: Deltaker): Either<ProcessingError, Deltaker> {
         return deltakere.upsert(deltaker)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun deleteDeltaker(id: UUID): Either<ConsumptionError, Unit> {
+    fun deleteDeltaker(id: UUID): Either<ProcessingError, Unit> {
         return deltakere.delete(id)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun upsertAvtale(avtale: Avtale): Either<ConsumptionError, Avtale> {
+    fun upsertAvtale(avtale: Avtale): Either<ProcessingError, Avtale> {
         return avtaler.upsert(avtale)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun deleteAvtale(id: UUID): Either<ConsumptionError, Unit> {
+    fun deleteAvtale(id: UUID): Either<ProcessingError, Unit> {
         return avtaler.delete(id)
-            .mapLeft { ConsumptionError.fromDatabaseOperationError(it) }
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 }

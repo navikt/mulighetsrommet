@@ -97,5 +97,5 @@ data class DeleteEventsRequest(
 @Serializable
 data class ReplayEventsTaskData(
     val table: ArenaTable,
-    val status: ArenaEvent.ConsumptionStatus?
+    val status: ArenaEvent.ProcessingStatus?
 )
