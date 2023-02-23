@@ -9,8 +9,10 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class TiltakstypeRepository(private val db: Database) {
@@ -83,17 +85,13 @@ class TiltakstypeRepository(private val db: Database) {
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
-            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak)
+            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak),
+            "today" to tiltakstypeFilter.dagensDato
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
-            when (tiltakstypeFilter.status) {
-                Status.AKTIV -> "" to "(now()::timestamp >= fra_dato and now()::timestamp <= til_dato)"
-                Status.PLANLAGT -> "" to "(now()::timestamp < fra_dato)"
-                Status.AVSLUTTET -> "" to "(now()::timestamp > til_dato)"
-                Status.ALLE -> null to null
-            },
+            tiltakstypeFilter.status to tiltakstypeFilter.status?.toDbStatement(),
             tiltakstypeFilter.kategori to tiltakstypeFilter.kategori?.let {
                 when (it) {
                     Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
@@ -163,14 +161,27 @@ class TiltakstypeRepository(private val db: Database) {
         rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
     )
 
-    private fun Row.toTiltakstypeDto() = TiltakstypeDto(
-        id = uuid("id"),
-        navn = string("navn"),
-        arenaKode = string("tiltakskode"),
-        registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
-        sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
-        fraDato = localDate("fra_dato"),
-        tilDato = localDate("til_dato"),
-        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
-    )
+    private fun Row.toTiltakstypeDto(): TiltakstypeDto {
+        val fraDato = localDate("fra_dato")
+        val tilDato = localDate("til_dato")
+        return TiltakstypeDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            arenaKode = string("tiltakskode"),
+            registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
+            sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
+            fraDato = fraDato,
+            tilDato = tilDato,
+            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
+            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato)
+        )
+    }
+
+    private fun Tiltakstypestatus.toDbStatement(): String {
+        return when (this) {
+            Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
+            Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
+            else -> "(:today > til_dato)"
+        }
+    }
 }

@@ -30,16 +30,17 @@ export function FilterTiltakstyper() {
         data-testid="filter_status"
         onChange={(e: ChangeEvent<HTMLSelectElement>) => {
           resetPagination();
+          const status = e.currentTarget.value as any;
           setSokefilter({
             ...sokefilter,
-            status: e.currentTarget.value as any,
+            status: status === "Alle" ? undefined : status,
           });
         }}
       >
-        <option value="AKTIV">Aktiv</option>
-        <option value="PLANLAGT">Planlagt</option>
-        <option value="AVSLUTTET">Avsluttet</option>
-        <option value="ALLE">Alle</option>
+        <option value="Aktiv">Aktiv</option>
+        <option value="Planlagt">Planlagt</option>
+        <option value="Avsluttet">Avsluttet</option>
+        <option value="Alle">Alle</option>
       </Select>
       <Select
         label="Gruppetiltak eller individuelle tiltak"

@@ -147,6 +147,6 @@ class TiltakgjennomforingEventProcessor(
             startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
             enhet = sak.enhet,
-            avslutningsstatus = Avslutningsstatus.fromArenaStatus(status)
+            avslutningsstatus = Avslutningsstatus.fromArenastatus(status)
         )
 }

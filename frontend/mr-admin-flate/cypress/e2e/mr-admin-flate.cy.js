@@ -26,9 +26,9 @@ describe("Forside", () => {
 
     it("Bruker skal ha et valg for å filtrere på statuser", () => {
       cy.getByTestId("filter_status").should("exist");
-      cy.getByTestId("filter_status").select("AKTIV").should("exist");
-      cy.getByTestId("filter_status").select("PLANLAGT").should("exist");
-      cy.getByTestId("filter_status").select("AVSLUTTET").should("exist");
+      cy.getByTestId("filter_status").select("Aktiv").should("exist");
+      cy.getByTestId("filter_status").select("Planlagt").should("exist");
+      cy.getByTestId("filter_status").select("Avsluttet").should("exist");
     });
 
     it("Bruker skal ha et valg for å filtrere på gruppe- eller individuelle tiltak", () => {
