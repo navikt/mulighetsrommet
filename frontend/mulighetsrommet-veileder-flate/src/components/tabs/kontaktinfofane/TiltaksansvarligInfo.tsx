@@ -1,6 +1,7 @@
 import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
 import styles from './Arrangorinfo.module.scss';
 import { Tiltaksansvarlig } from '../../../core/api/models';
+import { logEvent } from '../../../core/api/logger';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
@@ -33,7 +34,12 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
               <div className={styles.rad}>
                 <Label size="small">Epost</Label>
                 <BodyShort>
-                  <a href={`mailto:${tiltaksansvarlig.epost}`}>{tiltaksansvarlig.epost}</a>
+                  <a
+                    href={`mailto:${tiltaksansvarlig.epost}`}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
+                  >
+                    {tiltaksansvarlig.epost}
+                  </a>
                 </BodyShort>
               </div>
               <div className={styles.rad}>
@@ -43,6 +49,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
                     target="_blank"
                     rel="noreferrer"
                     href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
                   >
                     Kontakt {tiltaksansvarlig.navn} på Teams
                   </a>

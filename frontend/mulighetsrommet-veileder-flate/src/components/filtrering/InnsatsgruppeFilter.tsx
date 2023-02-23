@@ -5,6 +5,7 @@ import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import styles from './Filtermeny.module.scss';
+import { logEvent } from '../../core/api/logger';
 
 interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }> {
   accordionNavn: string;
@@ -68,22 +69,28 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
 function InnsatsgruppeFilter() {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const innsatsgrupper = useInnsatsgrupper();
+
+  const handleEndreFilter = (innsatsgruppe: string) => {
+    const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
+    if (foundInnsatsgruppe) {
+      setFilter({
+        ...filter,
+        innsatsgruppe: {
+          id: foundInnsatsgruppe?._id,
+          tittel: foundInnsatsgruppe?.tittel,
+          nokkel: foundInnsatsgruppe?.nokkel,
+        },
+      });
+    }
+    logEvent('mulighetsrommet.filtrering.innsatsgruppe', { value: kebabCase(innsatsgruppe) });
+  };
+
   return (
     <InnsatsgruppeAccordion
       accordionNavn="Innsatsgruppe"
       option={filter.innsatsgruppe?.nokkel}
       setOption={innsatsgruppe => {
-        const foundInnsatsgruppe = innsatsgrupper.data?.find(gruppe => gruppe.nokkel === innsatsgruppe);
-        if (foundInnsatsgruppe) {
-          setFilter({
-            ...filter,
-            innsatsgruppe: {
-              id: foundInnsatsgruppe?._id,
-              tittel: foundInnsatsgruppe?.tittel,
-              nokkel: foundInnsatsgruppe?.nokkel,
-            },
-          });
-        }
+        handleEndreFilter(innsatsgruppe);
       }}
       data={
         innsatsgrupper.data?.map(innsatsgruppe => {

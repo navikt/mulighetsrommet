@@ -53,6 +53,7 @@ export function DelMedBrukerContent({
   const enablePersonligMelding = () => {
     dispatch({ type: 'Sett hilsen', payload: state.originalHilsen });
     setVisPersonligMelding(true);
+    logDelMedbrukerEvent('Sett hilsen');
   };
 
   const handleError = () => {

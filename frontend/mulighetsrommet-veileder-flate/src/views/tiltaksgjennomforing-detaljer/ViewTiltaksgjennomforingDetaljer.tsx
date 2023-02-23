@@ -26,6 +26,7 @@ import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVa
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { Ansatt } from 'mulighetsrommet-api-client';
 import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
+import { logEvent } from '../../core/api/logger';
 
 const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
 
@@ -94,6 +95,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const kanBrukerFaaAvtale = () => {
     const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
     window.open(url, '_blank');
+    logEvent('mulighetsrommet.opprett-avtale');
   };
 
   const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
