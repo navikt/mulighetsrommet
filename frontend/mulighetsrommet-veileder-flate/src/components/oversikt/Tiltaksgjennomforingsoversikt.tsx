@@ -1,7 +1,7 @@
 import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
@@ -12,6 +12,7 @@ import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
+import { logEvent } from '../../core/api/logger';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -25,6 +26,7 @@ const Tiltaksgjennomforingsoversikt = () => {
 
   const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforinger();
   const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
+  const didMountRef = useRef(false);
 
   useEffect(() => {
     if (tiltaksgjennomforinger.length <= elementsPerPage && !isFetching) {
@@ -32,6 +34,12 @@ const Tiltaksgjennomforingsoversikt = () => {
       setPage(1);
     }
   }, [tiltaksgjennomforinger]);
+
+  useEffect(() => {
+    //sørger for at vi ikke logger metrikker for første render
+    if (didMountRef.current) logEvent('mulighetsrommet.sortering', { value: sortValue });
+    didMountRef.current = true;
+  }, [sortValue]);
 
   if (tiltaksgjennomforinger.length === 0 && (isLoading || brukerdata.isLoading)) {
     return (
@@ -58,15 +66,10 @@ const Tiltaksgjennomforingsoversikt = () => {
   ): Tiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
-
       const comparator = (a: any, b: any, orderBy: string | number) => {
         const compare = (item1: any, item2: any) => {
-          if (item2 < item1 || item2 === undefined) {
-            return -1;
-          }
-          if (item2 > item1) {
-            return 1;
-          }
+          if (item2 < item1 || item2 === undefined) return -1;
+          if (item2 > item1) return 1;
           return 0;
         };
 

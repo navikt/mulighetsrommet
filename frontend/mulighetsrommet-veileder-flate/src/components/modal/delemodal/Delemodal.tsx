@@ -15,11 +15,9 @@ import { StatusModal } from './StatusModal';
 import { porten } from '../../../constants';
 
 export const logDelMedbrukerEvent = (
-  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Redigerer hilsen'
+  action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
 ) => {
-  logEvent('mulighetsrommet.del-med-bruker', {
-    value: action,
-  });
+  logEvent('mulighetsrommet.del-med-bruker', { value: action });
 };
 
 interface DelemodalProps {

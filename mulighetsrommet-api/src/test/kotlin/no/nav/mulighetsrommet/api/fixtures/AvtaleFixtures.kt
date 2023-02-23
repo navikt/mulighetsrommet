@@ -4,9 +4,9 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,7 +45,7 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
         val avtaleRepository = AvtaleRepository(database.db)
 
         avtaler.forEachIndexed { index, avtaleDbo ->
-            val avtale = avtaleDbo.copy(avtalenummer = "2023#${index + 1}")
+            val avtale = avtaleDbo.copy(avtalenummer = "2023#${index + 1}-${UUID.randomUUID()}")
             avtaleRepository.upsert(avtale).getOrThrow()
         }
 
@@ -58,7 +58,9 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
         avtalenummer: String = "2023#1",
         enhet: String = "1801",
         avtaletype: Avtaletype = Avtaletype.Rammeavtale,
-        avtalestatus: Avtalestatus = Avtalestatus.Aktiv
+        avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        startDato: LocalDate = LocalDate.of(2023, 1, 11),
+        sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -66,11 +68,11 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
             avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,
             leverandorOrganisasjonsnummer = "12345678910",
-            startDato = LocalDate.of(2023, 1, 11),
-            sluttDato = LocalDate.of(2023, 2, 28),
+            startDato = startDato,
+            sluttDato = sluttDato,
             enhet = enhet,
             avtaletype = avtaletype,
-            avtalestatus = avtalestatus,
+            avslutningsstatus = avslutningsstatus,
             prisbetingelser = null
         )
     }

@@ -23,6 +23,6 @@ data class AvtaleDbo(
     val sluttDato: LocalDate,
     val enhet: String,
     val avtaletype: Avtaletype,
-    val avtalestatus : Avtalestatus,
+    val avslutningsstatus: Avslutningsstatus,
     val prisbetingelser: String?,
 )

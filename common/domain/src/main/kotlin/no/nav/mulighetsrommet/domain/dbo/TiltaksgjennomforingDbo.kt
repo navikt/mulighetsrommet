@@ -30,7 +30,7 @@ enum class Avslutningsstatus {
     IKKE_AVSLUTTET;
 
     companion object {
-        fun fromArenaStatus(arenaStatus: String): Avslutningsstatus {
+        fun fromArenastatus(arenaStatus: String): Avslutningsstatus {
             return when (arenaStatus) {
                 "AVLYST" -> AVLYST
                 "AVBRUTT" -> AVBRUTT

@@ -5,14 +5,20 @@ import { HistorikkForBrukerModal } from './HistorikkForBrukerModal';
 import styles from './HistorikkForBrukerModal.module.scss';
 import btnStyles from './HistorikkButton.module.scss';
 import { Historic } from '@navikt/ds-icons';
+import { logEvent } from '../../core/api/logger';
 
 export function HistorikkButton() {
   const [apneModal, setApneModal] = useState(false);
   const toggleModal = () => setApneModal(!apneModal);
 
+  const handleClick = () => {
+    toggleModal();
+    logEvent('mulighetsrommet.historikk');
+  };
+
   return (
     <>
-      <Button onClick={toggleModal} variant="tertiary" className={btnStyles.historikk_knapp}>
+      <Button onClick={handleClick} variant="tertiary" className={btnStyles.historikk_knapp}>
         <Historic aria-label="Historikk" />
       </Button>
       <StandardModal

@@ -28,7 +28,7 @@ export const rolleAtom = atomWithStorage<Rolle | undefined>(
 
 export const tiltakstypefilter = atomWithHash<{
   sok: string;
-  status: Tiltakstypestatus;
+  status?: Tiltakstypestatus;
   kategori?: Tiltakstypekategori;
 }>(
   "tiltakstypefilter",
