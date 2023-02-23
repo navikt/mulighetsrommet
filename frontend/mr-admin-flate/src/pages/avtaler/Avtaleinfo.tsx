@@ -26,25 +26,25 @@ export function Avtaleinfo() {
 
   return (
     <div className={styles.container}>
-      <dl>
-        <Grid>
-          <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
-          <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
-        </Grid>
-        <Separator />
-        <Grid>
-          <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
-          <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
-          <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
-          <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
-          <Metadata header="Leverandør" verdi={avtale.leverandor?.navn} />
-        </Grid>
-        <Separator />
+      <Grid as="dl">
+        <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
+        <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
+      </Grid>
+      <Separator />
+      <Grid as="dl">
+        <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
+        <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
+        <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
+        <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
+        <Metadata header="Leverandør" verdi={avtale.leverandor?.navn} />
+      </Grid>
+      <Separator />
+      <Grid as="dl">
         <Metadata
           header="Pris og betalingsbetingelser"
           verdi={avtale.prisbetingelser}
         />
-      </dl>
+      </Grid>
     </div>
   );
 }

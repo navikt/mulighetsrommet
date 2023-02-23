@@ -15,7 +15,7 @@ export function DetaljerAvtalePage() {
   }
 
   return (
-    <div>
+    <main>
       <Header>
         <div
           style={{
@@ -27,18 +27,16 @@ export function DetaljerAvtalePage() {
           <Avtalestatus avtale={avtale} />
         </div>{" "}
       </Header>
-      <main>
-        <Tabs value={tabValgt} onChange={setTabValgt}>
-          <Tabs.List style={{ paddingLeft: "4rem" }}>
-            <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
-          </Tabs.List>
-          <Tabs.Panel value="avtaleinfo" className="h-24 w-full bg-gray-50 p-4">
-            <DetaljLayout>
-              <Avtaleinfo />
-            </DetaljLayout>
-          </Tabs.Panel>
-        </Tabs>
-      </main>
-    </div>
+      <Tabs value={tabValgt} onChange={setTabValgt}>
+        <Tabs.List style={{ paddingLeft: "4rem" }}>
+          <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
+        </Tabs.List>
+        <Tabs.Panel value="avtaleinfo" className="h-24 w-full bg-gray-50 p-4">
+          <DetaljLayout>
+            <Avtaleinfo />
+          </DetaljLayout>
+        </Tabs.Panel>
+      </Tabs>
+    </main>
   );
 }

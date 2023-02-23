@@ -55,7 +55,11 @@ export function DetaljerTiltakstypePage() {
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
           {features?.data &&
           features?.data["mulighetsrommet.vis-avtaler-for-tiltakstyper"] ? (
-            <Tabs.Tab value="avtaler" label="Avtaler" />
+            <Tabs.Tab
+              value="avtaler"
+              label="Avtaler"
+              data-testid="tab_avtaler"
+            />
           ) : null}
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">

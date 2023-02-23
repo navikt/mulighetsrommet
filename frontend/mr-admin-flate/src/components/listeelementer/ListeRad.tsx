@@ -7,15 +7,17 @@ interface TiltaksgjennomforingRadProps {
   children: any;
   linkTo: string;
   classname?: string;
+  testId?: string;
 }
 
 export function ListeRad({
   children,
   linkTo,
   classname,
+  testId = "",
 }: TiltaksgjennomforingRadProps) {
   return (
-    <li className={styles.list_element} data-testid="tiltakstyperad">
+    <li className={styles.list_element} data-testid={testId}>
       <Link to={linkTo} className={classNames(styles.listerad, classname)}>
         {children}
         <Next className={styles.pil} />

@@ -14,6 +14,7 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
     <ListeRad
       linkTo={`/tiltakstyper/${tiltakstype.id}`}
       classname={styles.listerad_tiltakstype}
+      testId="tiltakstyperad"
     >
       <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
       <BodyShort size="medium">

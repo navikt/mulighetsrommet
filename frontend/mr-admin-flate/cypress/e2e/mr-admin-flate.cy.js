@@ -49,3 +49,16 @@ describe("Detaljside for tiltakstyper", () => {
     });
   });
 });
+
+describe("Detaljside for avtale", () => {
+  context("Navigering til avtaledetaljer", () => {
+    it("Skal kunne klikke på en avtale og navigere til avtaledetaljer", () => {
+      cy.visit("/tiltakstyper");
+      cy.getByTestId("tiltakstyperad").eq(0).click();
+      cy.contains("Avtaler");
+      cy.getByTestId("tab_avtaler").click();
+      cy.getByTestId("avtalerad").eq(0).click();
+      cy.checkPageA11y();
+    });
+  });
+});
