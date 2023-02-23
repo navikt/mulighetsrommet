@@ -11,9 +11,9 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
@@ -29,11 +29,7 @@ class ArenaOrdsProxyClientImpl(
         expectSuccess = false
 
         install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                }
-            )
+            json(JsonIgnoreUnknownKeys)
         }
 
         defaultRequest {

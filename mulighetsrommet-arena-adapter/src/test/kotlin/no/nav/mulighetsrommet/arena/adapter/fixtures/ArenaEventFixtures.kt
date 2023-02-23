@@ -2,12 +2,11 @@ package no.nav.mulighetsrommet.arena.adapter.fixtures
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.arena.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 
 fun createArenaAvtaleInfoEvent(
-    operation: ArenaEventData.Operation,
+    operation: ArenaEvent.Operation,
     avtale: ArenaAvtaleInfo = AvtaleFixtures.ArenaAvtaleInfo,
     modify: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it }
 ): ArenaEvent = modify(avtale).let {
@@ -20,7 +19,7 @@ fun createArenaAvtaleInfoEvent(
 }
 
 fun createArenaSakEvent(
-    operation: ArenaEventData.Operation,
+    operation: ArenaEvent.Operation,
     sak: ArenaSak = SakFixtures.ArenaTiltakSak,
     modify: (sak: ArenaSak) -> ArenaSak = { it }
 ): ArenaEvent = modify(sak).let {
@@ -33,7 +32,7 @@ fun createArenaSakEvent(
 }
 
 fun createArenaTiltakdeltakerEvent(
-    operation: ArenaEventData.Operation,
+    operation: ArenaEvent.Operation,
     deltaker: ArenaTiltakdeltaker = DeltakerFixtures.ArenaTiltakdeltaker,
     modify: (deltaker: ArenaTiltakdeltaker) -> ArenaTiltakdeltaker = { it }
 ): ArenaEvent = modify(deltaker).let {
@@ -46,7 +45,7 @@ fun createArenaTiltakdeltakerEvent(
 }
 
 fun createArenaTiltakEvent(
-    operation: ArenaEventData.Operation,
+    operation: ArenaEvent.Operation,
     tiltak: ArenaTiltak = TiltakstypeFixtures.ArenaGruppetiltak,
     modify: (tiltak: ArenaTiltak) -> ArenaTiltak = { it }
 ): ArenaEvent = modify(tiltak).let {
@@ -59,7 +58,7 @@ fun createArenaTiltakEvent(
 }
 
 fun createArenaTiltakgjennomforingEvent(
-    operation: ArenaEventData.Operation,
+    operation: ArenaEvent.Operation,
     tiltaksgjennomforing: ArenaTiltaksgjennomforing = TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingGruppe,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
     modify: (tiltaksgjennomforing: ArenaTiltaksgjennomforing) -> ArenaTiltaksgjennomforing = { it }
@@ -76,35 +75,34 @@ fun createArenaTiltakgjennomforingEvent(
 private fun createArenaEvent(
     table: ArenaTable,
     id: String,
-    operation: ArenaEventData.Operation,
+    operation: ArenaEvent.Operation,
     data: String,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending
 ): ArenaEvent {
-    val before = if (operation == ArenaEventData.Operation.Delete) {
+    val before = if (operation == ArenaEvent.Operation.Delete) {
         data
     } else {
         null
     }
 
-    val after = if (operation != ArenaEventData.Operation.Delete) {
+    val after = if (operation != ArenaEvent.Operation.Delete) {
         data
     } else {
         null
     }
-
-    val opType = Json.encodeToString(ArenaEventData.Operation.serializer(), operation)
 
     return ArenaEvent(
         arenaTable = table,
         arenaId = id,
+        operation = operation,
         payload = Json.parseToJsonElement(
             """{
                 "table": "${table.table}",
-                "op_type": $opType,
+                "op_type": "${operation.opType}",
                 "before": $before,
                 "after": $after
             }
-            """
+            """.trimIndent()
         ),
         status = status
     )

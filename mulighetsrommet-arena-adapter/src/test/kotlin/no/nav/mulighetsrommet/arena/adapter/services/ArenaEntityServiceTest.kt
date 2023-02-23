@@ -28,6 +28,7 @@ class ArenaEntityServiceTest : FunSpec({
     val event = ArenaEvent(
         status = ArenaEvent.ProcessingStatus.Processed,
         arenaTable = ArenaTable.Tiltaksgjennomforing,
+        operation = ArenaEvent.Operation.Insert,
         arenaId = tiltaksnummer,
         payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
     )
