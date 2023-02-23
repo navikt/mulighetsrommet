@@ -2,6 +2,8 @@
   background: white;
   padding: 1rem;
   width: 40rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 
   dt,
   dd {

@@ -707,8 +707,6 @@ components:
           format: date
         navEnhet:
           $ref: "#/components/schemas/NavEnhet"
-        enhetsnavn:
-          type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:

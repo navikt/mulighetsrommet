@@ -14,6 +14,7 @@ export function Avtalerad({ avtale }: Props) {
     <ListeRad
       linkTo={`/avtaler/${avtale.id}`}
       classname={styles.listerad_avtale}
+      testId="avtalerad"
     >
       <BodyShort size="medium">{avtale.navn}</BodyShort>
       <BodyShort size="medium">

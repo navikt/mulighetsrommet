@@ -6,6 +6,7 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/Laster";
+import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { ListLayout } from "../../layouts/ListLayout";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import "./DetaljerTiltakstypePage.module.scss";
@@ -34,17 +35,31 @@ export function DetaljerTiltakstypePage() {
   const tiltakstype = optionalTiltakstype.data;
   return (
     <main>
-      <Header>{tiltakstype.navn}</Header>
+      <Header>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+          }}
+        >
+          <span>{tiltakstype?.navn ?? "..."}</span>
+          <Tiltakstypestatus tiltakstype={tiltakstype} />
+        </div>{" "}
+      </Header>
 
       <Tabs
         value={tabValgt}
         onChange={(value) => setTabValgt(value as AvtaleTabs)}
       >
-        <Tabs.List>
+        <Tabs.List style={{ paddingLeft: "4rem" }}>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
           {features?.data &&
           features?.data["mulighetsrommet.vis-avtaler-for-tiltakstyper"] ? (
-            <Tabs.Tab value="avtaler" label="Avtaler" />
+            <Tabs.Tab
+              value="avtaler"
+              label="Avtaler"
+              data-testid="tab_avtaler"
+            />
           ) : null}
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
