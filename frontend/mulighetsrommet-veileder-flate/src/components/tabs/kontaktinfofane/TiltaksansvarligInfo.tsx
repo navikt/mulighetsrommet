@@ -36,7 +36,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
                 <BodyShort>
                   <a
                     href={`mailto:${tiltaksansvarlig.epost}`}
-                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig', 'epost')}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
                   >
                     {tiltaksansvarlig.epost}
                   </a>
@@ -49,7 +49,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
                     target="_blank"
                     rel="noreferrer"
                     href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
-                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig', 'teamslenke')}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
                   >
                     Kontakt {tiltaksansvarlig.navn} på Teams
                   </a>
