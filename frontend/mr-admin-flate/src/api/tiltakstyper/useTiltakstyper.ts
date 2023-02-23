@@ -4,7 +4,6 @@ import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
 import { PAGE_SIZE } from "../../constants";
 import { paginationAtom, tiltakstypefilter } from "../atoms";
-import { Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 
 export function useTiltakstyper() {
@@ -22,7 +21,7 @@ export function useTiltakstyper() {
     () =>
       mulighetsrommetClient.tiltakstyper.getTiltakstyper({
         search: debouncedSok !== "" ? debouncedSok : undefined,
-        tiltakstypestatus: sokefilter.status ?? Tiltakstypestatus.AKTIV,
+        tiltakstypestatus: sokefilter.status ?? undefined,
         tiltakstypekategori: sokefilter.kategori ?? undefined,
         page,
         size: PAGE_SIZE,
