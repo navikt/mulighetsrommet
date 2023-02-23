@@ -1,10 +1,9 @@
-package no.nav.mulighetsrommet.arena.adapter
+package no.nav.mulighetsrommet.arena.adapter.events
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import no.nav.mulighetsrommet.arena.adapter.kafka.ArenaJsonElementDeserializer
 
 class ArenaJsonElementDeserializerTest : FunSpec({
 
@@ -18,6 +17,6 @@ class ArenaJsonElementDeserializerTest : FunSpec({
             }
             """.trimIndent().toByteArray()
         )
-        result.jsonObject["FOO"]!!.jsonPrimitive.content shouldBe ""
+        result.jsonObject.getValue("FOO").jsonPrimitive.content shouldBe ""
     }
 })

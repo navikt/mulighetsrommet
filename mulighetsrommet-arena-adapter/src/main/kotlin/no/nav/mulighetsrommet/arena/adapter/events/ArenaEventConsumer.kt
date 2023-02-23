@@ -3,16 +3,17 @@ package no.nav.mulighetsrommet.arena.adapter.events
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
-import no.nav.mulighetsrommet.arena.adapter.kafka.TopicConsumer
+import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 
 class ArenaEventConsumer(
-    override val config: ConsumerConfig,
+    config: ConsumerConfig,
     private val arenaEventService: ArenaEventService,
-) : TopicConsumer() {
+) : KafkaTopicConsumer<String, JsonElement>(config, stringDeserializer(), ArenaJsonElementDeserializer()) {
     override suspend fun run(event: JsonElement) {
         val data = decodeArenaEvent(event)
         arenaEventService.processEvent(data)

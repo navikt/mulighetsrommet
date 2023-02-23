@@ -1,24 +1,14 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
+import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 
-class TestConsumer(name: String) : TopicConsumer() {
-    override val config: ConsumerConfig = ConsumerConfig(name, name, true)
-
-    override suspend fun run(event: JsonElement) {
-        val data = Json.decodeFromJsonElement<TestEvent>(event)
-
-        if (!data.success) {
-            throw RuntimeException("success must be true")
+class TestConsumer(name: String) : KafkaTopicConsumer<String, String>(
+    ConsumerConfig(name, name, true), stringDeserializer(), stringDeserializer()
+) {
+    override suspend fun run(event: String) {
+        if (event != "true") {
+            throw RuntimeException("event must be 'true'")
         }
     }
-
-    @Serializable
-    data class TestEvent(
-        val success: Boolean
-    )
 }
