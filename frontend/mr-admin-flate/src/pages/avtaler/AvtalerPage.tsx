@@ -1,8 +1,9 @@
-import { Heading, Pagination } from "@navikt/ds-react";
+import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { Avtalefilter } from "../../components/avtaler/Avtalefilter";
+import { Laster } from "../../components/Laster";
 import { PagineringContainer } from "../../components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../constants";
@@ -12,12 +13,23 @@ import styles from "../Page.module.scss";
 import { AvtaleTabell } from "../tiltakstyper/avtaler/AvtaleTabell";
 
 export function AvtalerPage() {
-  const { data } = useAvtaler();
+  const { data, isLoading, isError } = useAvtaler();
   const [page, setPage] = useAtom(avtalePaginationAtom);
 
-  if (!data) {
-    return null;
+  if (!data && isLoading) {
+    return <Laster tekst="Laster avtaler..." />;
   }
+
+  if (!data) {
+    return <Alert variant="info">Fant ingen avtaler</Alert>;
+  }
+
+  if (isError) {
+    return (
+      <Alert variant="error">Vi hadde problemer med henting av avtaler</Alert>
+    );
+  }
+
   const pagination = data.pagination;
   const avtaler = data.data ?? [];
 
