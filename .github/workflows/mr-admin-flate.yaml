@@ -31,7 +31,7 @@ env:
 
 jobs:
   test:
-    name: Setup frontend and test
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
