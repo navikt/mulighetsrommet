@@ -92,40 +92,6 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<AvtaleAdminDto>> {
-        @Language("PostgreSQL")
-        val query = """
-            select a.id,
-                   a.navn,
-                   a.tiltakstype_id,
-                   a.avtalenummer,
-                   a.leverandor_organisasjonsnummer,
-                   a.start_dato,
-                   a.slutt_dato,
-                   a.enhet,
-                   a.avtaletype,
-                   a.avslutningsstatus,
-                   a.prisbetingelser,
-                   t.navn as tiltakstype_navn,
-                   t.tiltakskode,
-                   count(*) over () as full_count
-            from avtale a
-                     join tiltakstype t on a.tiltakstype_id = t.id
-            order by a.navn
-            limit ? offset ?
-        """.trimIndent()
-        val results = queryOf(query, pagination.limit, pagination.offset)
-            .map {
-                it.int("full_count") to it.toAvtaleAdminDto()
-            }
-            .asList
-            .let { db.run(it) }
-
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        val avtaler = results.map { it.second }
-        return Pair(totaltAntall, avtaler)
-    }
-
     fun delete(id: UUID): QueryResult<Int> = query {
         logger.info("Sletter avtale id=$id")
 
@@ -140,14 +106,17 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAvtalerForTiltakstype(
-        tiltakstypeId: UUID,
+    fun getAll(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams()
     ): Pair<Int, List<AvtaleAdminDto>> {
-        logger.info("Henter avtaler for tiltakstype med id: '$tiltakstypeId'")
+        if (filter.tiltakstypeId != null) {
+            logger.info("Henter avtaler for tiltakstype med id: '${filter.tiltakstypeId}'")
+        } else {
+            logger.info("Henter alle avtaler")
+        }
         val parameters = mapOf(
-            "tiltakstype_id" to tiltakstypeId,
+            "tiltakstype_id" to filter.tiltakstypeId,
             "search" to "%${filter.search}%",
             "enhet" to filter.enhet,
             "limit" to pagination.limit,
@@ -156,7 +125,7 @@ class AvtaleRepository(private val db: Database) {
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
+            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
             filter.enhet to "lower(a.enhet) = lower(:enhet)"

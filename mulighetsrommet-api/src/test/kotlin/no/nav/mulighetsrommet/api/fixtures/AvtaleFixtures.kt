@@ -34,11 +34,18 @@ class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListene
         ).getOrThrow()
     }
 
+    fun upserTiltakstype(tiltakstyper: List<TiltakstypeDbo>) {
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        tiltakstyper.forEach {
+            tiltakstypeRepository.upsert(it)
+        }
+    }
+
     fun upsertAvtaler(avtaler: List<AvtaleDbo>): AvtaleRepository {
         val avtaleRepository = AvtaleRepository(database.db)
 
         avtaler.forEachIndexed { index, avtaleDbo ->
-            val avtale = avtaleDbo.copy(avtalenummer = "2023#${index + 1}")
+            val avtale = avtaleDbo.copy(avtalenummer = "2023#${index + 1}-${UUID.randomUUID()}")
             avtaleRepository.upsert(avtale).getOrThrow()
         }
 

@@ -4,12 +4,9 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useEnheter() {
-  const { tiltakstypeId } = useParams<{ tiltakstypeId: string }>();
+  const { tiltakstypeId = null } = useParams<{ tiltakstypeId: string }>();
 
-  if (!tiltakstypeId) {
-    throw new Error("Fant ingen tiltakstype-id i URL");
-  }
-  return useQuery(QueryKeys.enheter(), () =>
-    mulighetsrommetClient.hentEnheter.hentEnheter({ tiltakstypeId })
-  );
+  return useQuery(QueryKeys.enheter(), () => {
+    return mulighetsrommetClient.hentEnheter.hentEnheter({ tiltakstypeId });
+  });
 }
