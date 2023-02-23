@@ -79,5 +79,7 @@ spec:
         - application: mulighetsrommet-arena-adapter
         - application: poao-tilgang
           namespace: poao
+        - application: amt-enhetsregister
+          namespace: amt
   envFrom:
     - secret: mulighetsrommet-api
