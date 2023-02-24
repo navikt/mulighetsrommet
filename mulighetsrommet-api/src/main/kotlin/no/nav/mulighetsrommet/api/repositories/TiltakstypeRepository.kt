@@ -122,6 +122,38 @@ class TiltakstypeRepository(private val db: Database) {
         return Pair(totaltAntall, tiltakstyper)
     }
 
+    fun getAllByDateInterval(
+        dateIntervalStart: LocalDate,
+        dateIntervalEnd: LocalDate,
+        pagination: PaginationParams
+    ): List<TiltakstypeDto> {
+        logger.info("Henter alle tiltakstyper med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd")
+
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            from tiltakstype
+            where
+                (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
+                (til_dato >= :date_interval_start and til_dato < :date_interval_end)
+            order by navn
+            limit :limit offset :offset
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            mapOf(
+                "date_interval_start" to dateIntervalStart,
+                "date_interval_end" to dateIntervalEnd,
+                "limit" to pagination.limit,
+                "offset" to pagination.offset,
+            )
+        )
+            .map { it.toTiltakstypeDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun delete(id: UUID): QueryResult<Int> = query {
         logger.info("Sletter tiltakstype id=$id")
 

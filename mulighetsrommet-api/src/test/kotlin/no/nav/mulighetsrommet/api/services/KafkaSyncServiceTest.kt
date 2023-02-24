@@ -5,6 +5,7 @@ import io.kotest.core.test.TestCaseOrder
 import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -21,7 +22,8 @@ class KafkaSyncServiceTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
 
-    beforeEach {
+    beforeContainer {
+        database.db.clean()
         database.db.migrate()
     }
 
@@ -36,7 +38,7 @@ class KafkaSyncServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
+        tilDato = LocalDate.of(2099, 1, 12)
     )
 
     fun createTiltaksgjennomforing(
@@ -73,12 +75,31 @@ class KafkaSyncServiceTest : FunSpec({
         )
     }
 
+    fun TiltakstypeDbo.toDto(tiltakstypestatus: Tiltakstypestatus): TiltakstypeDto {
+        return TiltakstypeDto(
+            id = id,
+            navn = navn,
+            arenaKode = tiltakskode,
+            registrertIArenaDato = registrertDatoIArena,
+            sistEndretIArenaDato = sistEndretDatoIArena,
+            fraDato = fraDato,
+            tilDato = tilDato,
+            rettPaaTiltakspenger = rettPaaTiltakspenger,
+            status = tiltakstypestatus
+        )
+    }
+
     context("oppdater statuser på tiltaksgjennomføringer") {
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val kafkaSyncService =
-            KafkaSyncService(tiltaksgjennomforingRepository, tiltaksgjennomforingKafkaProducer)
+            KafkaSyncService(
+                tiltaksgjennomforingRepository,
+                tiltakstypeRepository,
+                tiltaksgjennomforingKafkaProducer,
+                mockk()
+            )
 
         val startdatoInnenforMenAvsluttetStatus = createTiltaksgjennomforing()
         val startdatoInnenfor =
@@ -112,6 +133,31 @@ class KafkaSyncServiceTest : FunSpec({
             verifyAll {
                 tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(Tiltaksgjennomforingsstatus.GJENNOMFORES))
                 tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(Tiltaksgjennomforingsstatus.AVSLUTTET))
+            }
+        }
+    }
+
+    context("oppdater statuser på tiltakstyper") {
+        val tiltakstypeRepository = TiltakstypeRepository(database.db)
+        val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
+        val kafkaSyncService =
+            KafkaSyncService(mockk(), tiltakstypeRepository, mockk(), tiltakstypeKafkaProducer)
+
+        val startdatoInnenfor =
+            tiltakstype.copy(id = UUID.randomUUID(), fraDato = LocalDate.of(2023, 2, 15))
+        val sluttdatoInnenfor =
+            tiltakstype.copy(id = UUID.randomUUID(), fraDato = LocalDate.of(2023, 2, 13), tilDato = lastSuccessDate)
+
+        test("oppdater statuser på kafka på relevante tiltakstyper") {
+            tiltakstypeRepository.upsert(tiltakstype)
+            tiltakstypeRepository.upsert(startdatoInnenfor)
+            tiltakstypeRepository.upsert(sluttdatoInnenfor)
+
+            kafkaSyncService.oppdaterTiltakstypestatus(today, lastSuccessDate)
+
+            verifyAll {
+                tiltakstypeKafkaProducer.publish(startdatoInnenfor.toDto(Tiltakstypestatus.Aktiv))
+                tiltakstypeKafkaProducer.publish(sluttdatoInnenfor.toDto(Tiltakstypestatus.Avsluttet))
             }
         }
     }

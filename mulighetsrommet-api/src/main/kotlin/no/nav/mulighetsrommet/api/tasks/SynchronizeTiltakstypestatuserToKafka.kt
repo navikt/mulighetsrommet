@@ -11,21 +11,21 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-class SynchronizeTiltaksgjennomforingsstatuserOnKafka(
+class SynchronizeTiltakstypestatuserToKafka(
     kafkaSyncService: KafkaSyncService,
     slackNotifier: SlackNotifier
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-tiltaksgjennomforingsstatuser-kafka", Daily(LocalTime.MIDNIGHT))
+        .recurring("synchronize-tiltakstypestatuser-kafka", Daily(LocalTime.MIDNIGHT))
         .onFailure { _, _ ->
-            slackNotifier.sendMessage("Klarte ikke synkronisere tiltaksgjennomføringsstatuser på kafka. Konsekvensen er at statuser på tiltaksgjennomføringer kan være utdaterte på kafka.")
+            slackNotifier.sendMessage("Klarte ikke synkronisere tiltakstypestatuser på kafka. Konsekvensen er at statuser på tiltakstyper kan være utdaterte på kafka.")
         }
         .execute { _, context ->
             runBlocking {
-                logger.info("Kjører synkronisering av tiltaksgjennomforingsstatuser på kafka")
-                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(
+                logger.info("Kjører synkronisering av tiltakstypestatuser på kafka")
+                kafkaSyncService.oppdaterTiltakstypestatus(
                     LocalDate.now(),
                     context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
                         ?: LocalDate.of(2023, 2, 1)
