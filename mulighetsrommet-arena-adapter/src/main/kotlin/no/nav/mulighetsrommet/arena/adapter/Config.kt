@@ -50,19 +50,15 @@ data class ServiceClientConfig(
 data class KafkaConfig(
     val brokerUrl: String? = null,
     val consumerGroupId: String,
-    val topics: TopicsConfig
+    val consumers: KafkaConsumers,
 )
 
-fun KafkaConfig.getTopic(id: String): KafkaTopicConsumer.Config {
-    val topic = topics.consumer.getOrElse(id) {
-        throw RuntimeException("No topic configured for id '$id'")
-    }
-    return KafkaTopicConsumer.Config(id, topic)
-}
-
-data class TopicsConfig(
-    val topicStatePollDelay: Long,
-    val consumer: Map<String, String>
+data class KafkaConsumers(
+    val arenaTiltakEndret: KafkaTopicConsumer.Config,
+    val arenaTiltakgjennomforingEndret: KafkaTopicConsumer.Config,
+    val arenaTiltakdeltakerEndret: KafkaTopicConsumer.Config,
+    val arenaSakEndret: KafkaTopicConsumer.Config,
+    val arenaAvtaleInfoEndret: KafkaTopicConsumer.Config,
 )
 
 data class SlackConfig(

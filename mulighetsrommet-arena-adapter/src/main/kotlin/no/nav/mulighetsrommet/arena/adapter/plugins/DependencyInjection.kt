@@ -83,29 +83,28 @@ private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
     }
 }
 
-private fun kafka(kafkaConfig: KafkaConfig) = module {
+private fun kafka(config: KafkaConfig) = module {
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
-            .withConsumerGroupId(kafkaConfig.consumerGroupId)
-            .withBrokerUrl(kafkaConfig.brokerUrl)
+            .withConsumerGroupId(config.consumerGroupId)
+            .withBrokerUrl(config.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(kafkaConfig.consumerGroupId)
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
     }
 
     single {
         val consumers = listOf(
-            ArenaEventConsumer(kafkaConfig.getTopic("tiltakendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("tiltakgjennomforingendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("sakendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get()),
+            ArenaEventConsumer(config.consumers.arenaTiltakEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaTiltakgjennomforingEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaTiltakdeltakerEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaSakEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaAvtaleInfoEndret, get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
-            config = KafkaConsumerOrchestrator.Config(kafkaConfig.topics.topicStatePollDelay),
             db = get(),
             consumers = consumers,
         )

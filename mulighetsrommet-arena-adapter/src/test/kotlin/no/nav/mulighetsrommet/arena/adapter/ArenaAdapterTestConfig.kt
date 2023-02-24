@@ -4,6 +4,7 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun <R> withArenaAdapterApp(
@@ -49,16 +50,13 @@ fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
         brokerUrl = "localhost:29092",
         consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
-        topics = TopicsConfig(
-            topicStatePollDelay = 10000,
-            consumer = mapOf(
-                "tiltakendret" to "tiltakendret",
-                "tiltakgjennomforingendret" to "tiltakgjennomforingendret",
-                "tiltakdeltakerendret" to "tiltakdeltakerendret",
-                "sakendret" to "sakendret",
-                "avtaleinfoendret" to "avtaleinfoendret",
-            )
-        )
+        consumers = KafkaConsumers(
+            KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
+            KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
+            KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
+            KafkaTopicConsumer.Config("sakendret", "sakendret"),
+            KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
+        ),
     )
 }
 
