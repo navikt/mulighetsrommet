@@ -22,12 +22,12 @@ class KafkaSyncService(
     fun oppdaterTiltaksgjennomforingsstatus(today: LocalDate, lastSuccessDate: LocalDate) {
         logger.info("Oppdaterer statuser for gjennomføringer med start eller sluttdato mellom $lastSuccessDate og $today")
 
-        val numberOfUpdates = paginate { offset ->
+        val numberOfUpdates = paginate(limit = 1000) { paginationParams ->
             val tiltaksgjennomforinger = tiltaksgjennomforingRepository.getAllByDateIntervalAndAvslutningsstatus(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                pagination = PaginationParams(nullablePage = offset, nullableLimit = 1000)
+                pagination = paginationParams
             )
 
             tiltaksgjennomforinger.forEach { it ->
@@ -44,11 +44,11 @@ class KafkaSyncService(
     fun oppdaterTiltakstypestatus(today: LocalDate, lastSuccessDate: LocalDate) {
         logger.info("Oppdaterer statuser for tiltakstyper med start eller sluttdato mellom $lastSuccessDate og $today")
 
-        val numberOfUpdates = paginate { offset ->
+        val numberOfUpdates = paginate(limit = 1000) { paginationParams ->
             val tiltakstyper = tiltakstypeRepository.getAllByDateInterval(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
-                pagination = PaginationParams(nullablePage = offset, nullableLimit = 1000)
+                pagination = paginationParams
             )
 
             tiltakstyper.forEach { it ->

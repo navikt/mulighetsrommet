@@ -8,12 +8,12 @@ object DatabaseUtils {
         ?.let { "where $it" }
         ?: ""
 
-    fun <T> paginate(operation: (Int) -> List<T>): Int {
+    fun <T> paginate(limit: Int, operation: (PaginationParams) -> List<T>): Int {
         var offset = 1
         var count = 0
 
         do {
-            val list = operation(offset)
+            val list = operation(PaginationParams(offset, limit))
             offset += 1
             count += list.size
         } while (list.isNotEmpty())
