@@ -1,5 +1,6 @@
 import {
   Avtalestatus,
+  SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -10,8 +11,9 @@ export const QueryKeys = {
     sokestreng: string,
     status?: Tiltakstypestatus,
     kategori?: Tiltakstypekategori,
+    sortering?: SorteringTiltakstyper,
     page?: number
-  ) => [sokestreng, status, kategori, page, "tiltakstyper"] as const,
+  ) => [sokestreng, status, kategori, sortering, page, "tiltakstyper"] as const,
   tiltaksgjennomforinger: (page?: number) =>
     [page, "tiltaksgjennomforinger"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
@@ -26,7 +28,7 @@ export const QueryKeys = {
       page,
       "tiltaksgjennomforinger",
     ] as const,
-  avtalerForTiltakstype: (
+  avtaler: (
     tiltakstypeId: string,
     sok: string,
     status: Avtalestatus,

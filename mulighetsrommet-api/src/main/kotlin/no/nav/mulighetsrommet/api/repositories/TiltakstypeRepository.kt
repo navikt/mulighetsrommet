@@ -102,12 +102,18 @@ class TiltakstypeRepository(private val db: Database) {
             }
         )
 
+        val order = when (tiltakstypeFilter.sortering) {
+            "navn-ascending" -> "navn asc"
+            "navn-descending" -> "navn desc"
+            else -> "navn asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
             from tiltakstype
             $where
-            order by navn asc
+            order by $order
             limit :limit
             offset :offset
         """.trimIndent()

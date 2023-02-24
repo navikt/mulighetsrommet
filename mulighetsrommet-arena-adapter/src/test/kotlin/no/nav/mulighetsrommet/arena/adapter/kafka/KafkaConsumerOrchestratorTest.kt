@@ -11,10 +11,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
-import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
@@ -72,8 +70,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
             database.db,
-            ConsumerGroup(listOf(consumer)),
-            TopicRepository(database.db),
+            listOf(consumer),
         )
 
         orchestrator.getTopics() shouldContainExactly listOf(
@@ -93,8 +90,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = 10),
             database.db,
-            ConsumerGroup(listOf(consumer)),
-            TopicRepository(database.db),
+            listOf(consumer),
         )
 
         orchestrator.getConsumers().first().isRunning shouldBe true
@@ -112,7 +108,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
-        producer.send(ProducerRecord(topic, """{ "success": true }"""))
+        producer.send(ProducerRecord(topic, "true"))
         producer.close()
 
         val consumer = spyk(TestConsumer(topic))
@@ -121,13 +117,12 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
             database.db,
-            ConsumerGroup(listOf(consumer)),
-            TopicRepository(database.db),
+            listOf(consumer),
         )
 
         eventually(5.seconds) {
             coVerify {
-                consumer.run(Json.parseToJsonElement("""{ "success": true }"""))
+                consumer.run("true")
             }
         }
     }
@@ -137,7 +132,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
-        producer.send(ProducerRecord(topic, """{ "success": false }"""))
+        producer.send(ProducerRecord(topic, "false"))
         producer.close()
 
         val consumer = spyk(TestConsumer(topic))
@@ -146,13 +141,12 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
             database.db,
-            ConsumerGroup(listOf(consumer)),
-            TopicRepository(database.db),
+            listOf(consumer),
         )
 
         eventually(5.seconds) {
             coVerify {
-                consumer.run(Json.parseToJsonElement("""{ "success": false }"""))
+                consumer.run("false")
             }
 
             consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 1

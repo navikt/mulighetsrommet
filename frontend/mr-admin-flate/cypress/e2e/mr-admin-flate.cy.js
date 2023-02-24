@@ -9,6 +9,32 @@ before("Start server", () => {
 
 describe("Forside", () => {
   beforeEach(() => {
+    cy.visit("/");
+  });
+  context("Landingssiden ved innlogging", () => {
+    it("Skal vise kort for tiltaktyper og avtaler på forsiden", () => {
+      cy.getByTestId("tiltakstyper").contains("Tiltakstyper");
+      cy.getByTestId("avtaler").contains("Avtaler");
+    });
+
+    it("Skal navigere til tiltakstyper og sjekke UU", () => {
+      cy.getByTestId("tiltakstyper").click();
+      cy.url().should("include", "/tiltakstyper");
+      cy.contains("Oversikt over tiltakstyper");
+      cy.checkPageA11y();
+    });
+
+    it("Skal navigere til avtaler og sjekke UU", () => {
+      cy.getByTestId("avtaler").click();
+      cy.url().should("include", "/avtaler");
+      cy.contains("Oversikt over avtaler");
+      cy.checkPageA11y();
+    });
+  });
+});
+
+describe("Tiltakstyper", () => {
+  beforeEach(() => {
     cy.visit("/tiltakstyper");
   });
 

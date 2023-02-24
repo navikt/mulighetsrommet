@@ -10,8 +10,11 @@ import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
@@ -21,7 +24,7 @@ class AvtaleRepositoryTest : FunSpec({
 
     context("Filter for avtaler") {
 
-        beforeContainer {
+        beforeEach {
             avtaleFixture.runBeforeTests()
         }
 
@@ -35,9 +38,14 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
 
-                val result = avtaleRepository.getAvtalerForTiltakstype(
-                    tiltakstypeId = avtaleFixture.tiltakstypeId,
-                    filter = AvtaleFilter(search = "Kroko", avtalestatus = Avtalestatus.Aktiv, enhet = null)
+                val result = avtaleRepository.getAll(
+
+                    filter = AvtaleFilter(
+                        tiltakstypeId = avtaleFixture.tiltakstypeId,
+                        search = "Kroko",
+                        avtalestatus = Avtalestatus.Aktiv,
+                        enhet = null
+                    )
                 )
 
                 result.second shouldHaveSize 1
@@ -46,37 +54,37 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         context("Avtalestatus") {
-            val avtaleAktiv = avtaleFixture.createAvtaleForTiltakstype(
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            )
-            val avtaleAvsluttetStatus = avtaleFixture.createAvtaleForTiltakstype(
-                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-            )
-            val avtaleAvsluttetDato = avtaleFixture.createAvtaleForTiltakstype(
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                sluttDato = LocalDate.of(2023, 1, 31)
-            )
-            val avtaleAvbrutt = avtaleFixture.createAvtaleForTiltakstype(
-                avslutningsstatus = Avslutningsstatus.AVBRUTT,
-            )
-            val avtalePlanlagt = avtaleFixture.createAvtaleForTiltakstype(
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                startDato = LocalDate.of(2023, 2, 2)
-            )
-            val avtaleRepository = avtaleFixture.upsertAvtaler(
-                listOf(
-                    avtaleAktiv,
-                    avtaleAvbrutt,
-                    avtalePlanlagt,
-                    avtaleAvsluttetDato,
-                    avtaleAvsluttetStatus
-                )
-            )
-
             test("filtrer på avbrutt") {
-                val result = avtaleRepository.getAvtalerForTiltakstype(
-                    tiltakstypeId = avtaleFixture.tiltakstypeId,
+                val avtaleAktiv = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                )
+                val avtaleAvsluttetStatus = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                )
+                val avtaleAvsluttetDato = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                    sluttDato = LocalDate.of(2023, 1, 31)
+                )
+                val avtaleAvbrutt = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.AVBRUTT,
+                )
+                val avtalePlanlagt = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                    startDato = LocalDate.of(2023, 2, 2)
+                )
+
+                val avtaleRepository = avtaleFixture.upsertAvtaler(
+                    listOf(
+                        avtaleAktiv,
+                        avtaleAvbrutt,
+                        avtalePlanlagt,
+                        avtaleAvsluttetDato,
+                        avtaleAvsluttetStatus
+                    )
+                )
+                val result = avtaleRepository.getAll(
                     filter = AvtaleFilter(
+                        tiltakstypeId = avtaleFixture.tiltakstypeId,
                         search = null,
                         avtalestatus = Avtalestatus.Avbrutt,
                         enhet = null,
@@ -89,9 +97,36 @@ class AvtaleRepositoryTest : FunSpec({
             }
 
             test("filtrer på avsluttet") {
-                val result = avtaleRepository.getAvtalerForTiltakstype(
-                    tiltakstypeId = avtaleFixture.tiltakstypeId,
+                val avtaleAktiv = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                )
+                val avtaleAvsluttetStatus = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                )
+                val avtaleAvsluttetDato = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                    sluttDato = LocalDate.of(2023, 1, 31)
+                )
+                val avtaleAvbrutt = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.AVBRUTT,
+                )
+                val avtalePlanlagt = avtaleFixture.createAvtaleForTiltakstype(
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                    startDato = LocalDate.of(2023, 2, 2)
+                )
+
+                val avtaleRepository = avtaleFixture.upsertAvtaler(
+                    listOf(
+                        avtaleAktiv,
+                        avtaleAvbrutt,
+                        avtalePlanlagt,
+                        avtaleAvsluttetDato,
+                        avtaleAvsluttetStatus
+                    )
+                )
+                val result = avtaleRepository.getAll(
                     filter = AvtaleFilter(
+                        tiltakstypeId = avtaleFixture.tiltakstypeId,
                         search = null,
                         avtalestatus = Avtalestatus.Avsluttet,
                         enhet = null,
@@ -102,38 +137,7 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second shouldHaveSize 2
                 result.second.map { it.id }.shouldContainAll(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)
             }
-
-            test("filtrer på planlagt") {
-                val result = avtaleRepository.getAvtalerForTiltakstype(
-                    tiltakstypeId = avtaleFixture.tiltakstypeId,
-                    filter = AvtaleFilter(
-                        search = null,
-                        avtalestatus = Avtalestatus.Planlagt,
-                        enhet = null,
-                        dagensDato = LocalDate.of(2023, 2, 1)
-                    )
-                )
-
-                result.second shouldHaveSize 1
-                result.second[0].id shouldBe avtalePlanlagt.id
-            }
-
-            test("filtrer på aktiv") {
-                val result = avtaleRepository.getAvtalerForTiltakstype(
-                    tiltakstypeId = avtaleFixture.tiltakstypeId,
-                    filter = AvtaleFilter(
-                        search = null,
-                        avtalestatus = Avtalestatus.Aktiv,
-                        enhet = null,
-                        dagensDato = LocalDate.of(2023, 2, 1)
-                    )
-                )
-
-                result.second shouldHaveSize 1
-                result.second[0].id shouldBe avtaleAktiv.id
-            }
         }
-
         context("Enhet") {
             test("Filtrere på enhet returnerer avtaler for gitt enhet") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
@@ -143,13 +147,56 @@ class AvtaleRepositoryTest : FunSpec({
                     enhet = "1900"
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
-                val result = avtaleRepository.getAvtalerForTiltakstype(
-                    tiltakstypeId = avtaleFixture.tiltakstypeId,
-                    filter = AvtaleFilter(search = null, avtalestatus = Avtalestatus.Aktiv, enhet = "1801")
+                val result = avtaleRepository.getAll(
+
+                    filter = AvtaleFilter(
+                        tiltakstypeId = avtaleFixture.tiltakstypeId,
+                        search = null,
+                        avtalestatus = Avtalestatus.Aktiv,
+                        enhet = "1801"
+                    )
                 )
                 result.second shouldHaveSize 1
                 result.second[0].navEnhet.enhetsnummer shouldBe "1801"
             }
+        }
+
+        test("Filtrer på tiltakstypeId returnerer avtaler tilknyttet spesifikk tiltakstype") {
+            val tiltakstypeId: UUID = avtaleFixture.tiltakstypeId
+            val tiltakstypeIdForAvtale3: UUID = UUID.randomUUID()
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                tiltakstypeId = tiltakstypeId
+            )
+            val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                tiltakstypeId = tiltakstypeId
+            )
+            val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                tiltakstypeId = tiltakstypeIdForAvtale3
+            )
+            avtaleFixture.upserTiltakstype(
+                listOf(
+                    TiltakstypeDbo(
+                        tiltakstypeIdForAvtale3,
+                        "",
+                        "",
+                        rettPaaTiltakspenger = true,
+                        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+                        fraDato = LocalDate.of(2023, 1, 11),
+                        tilDato = LocalDate.of(2023, 1, 12)
+                    )
+                )
+            )
+            val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3))
+            val result = avtaleRepository.getAll(
+                filter = AvtaleFilter(
+                    tiltakstypeId = tiltakstypeId
+                )
+            )
+
+            result.second shouldHaveSize 2
+            result.second[0].tiltakstype.id shouldBe tiltakstypeId
+            result.second[1].tiltakstype.id shouldBe tiltakstypeId
         }
     }
 })

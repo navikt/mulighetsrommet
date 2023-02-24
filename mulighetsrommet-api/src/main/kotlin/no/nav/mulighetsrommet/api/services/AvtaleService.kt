@@ -14,29 +14,17 @@ class AvtaleService(
     private val navEnhetService: NavEnhetService
 ) {
 
-    fun get(id: UUID): AvtaleAdminDto? {
-        return avtaler.get(id)?.hentEnhetsnavnForAvtale()
+    suspend fun get(id: UUID): AvtaleAdminDto? {
+        return avtaler.get(id)
+            ?.hentEnhetsnavnForAvtale()
+            ?.hentVirksomhetsnavnForAvtale()
     }
 
-    suspend fun getAll(pagination: PaginationParams): PaginatedResponse<AvtaleAdminDto> {
-        val (totalCount, items) = avtaler.getAll(pagination)
-
-        return PaginatedResponse(
-            data = items.hentVirksomhetsnavnForAvtaler().hentEnhetsnavnForAvtaler(),
-            pagination = Pagination(
-                totalCount = totalCount,
-                currentPage = pagination.page,
-                pageSize = pagination.limit
-            )
-        )
-    }
-
-    suspend fun getAvtalerForTiltakstype(
-        tiltakstypeId: UUID,
+    suspend fun getAll(
         filter: AvtaleFilter,
         pagination: PaginationParams = PaginationParams()
     ): PaginatedResponse<AvtaleAdminDto> {
-        val (totalCount, items) = avtaler.getAvtalerForTiltakstype(tiltakstypeId, filter, pagination)
+        val (totalCount, items) = avtaler.getAll(filter, pagination)
 
         val avtalerMedLeverandorNavn = items
             .hentVirksomhetsnavnForAvtaler()
@@ -54,9 +42,13 @@ class AvtaleService(
 
     private suspend fun List<AvtaleAdminDto>.hentVirksomhetsnavnForAvtaler(): List<AvtaleAdminDto> {
         return this.map {
-            val virksomhet = arrangorService.hentVirksomhet(it.leverandor.organisasjonsnummer)
-            it.copy(leverandor = it.leverandor.copy(navn = virksomhet?.navn))
+            it.hentVirksomhetsnavnForAvtale()
         }
+    }
+
+    private suspend fun AvtaleAdminDto.hentVirksomhetsnavnForAvtale(): AvtaleAdminDto {
+        val virksomhet = arrangorService.hentVirksomhet(this.leverandor.organisasjonsnummer)
+        return this.copy(leverandor = this.leverandor.copy(navn = virksomhet?.navn))
     }
 
     private fun List<AvtaleAdminDto>.hentEnhetsnavnForAvtaler(): List<AvtaleAdminDto> {

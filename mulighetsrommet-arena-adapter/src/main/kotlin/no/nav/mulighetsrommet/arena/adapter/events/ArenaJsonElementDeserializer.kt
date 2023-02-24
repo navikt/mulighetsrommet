@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.arena.adapter.events
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement

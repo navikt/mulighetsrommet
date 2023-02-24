@@ -74,8 +74,9 @@ dependencies {
     val kotestVersion = "5.4.2"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
+    testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("org.testcontainers:kafka:1.17.6")
     testImplementation("org.assertj:assertj-db:2.0.2")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")

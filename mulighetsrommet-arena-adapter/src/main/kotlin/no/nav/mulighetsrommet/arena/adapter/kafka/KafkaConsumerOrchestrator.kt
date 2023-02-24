@@ -1,33 +1,30 @@
 package no.nav.mulighetsrommet.arena.adapter.kafka
 
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonElement
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
-import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.util.*
-import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     consumerPreset: Properties,
     config: Config,
     db: Database,
-    private val group: ConsumerGroup<TopicConsumer>,
-    private val topicRepository: TopicRepository,
+    consumers: List<KafkaTopicConsumer<*, *>>,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val consumerClients: Map<String, KafkaConsumerClient>
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
     private val topicPoller: Poller
+    private val topicRepository = TopicRepository(db)
+    private val kafkaConsumerRepository = KafkaConsumerRepository(db)
 
     data class Config(
         val topicStatePollDelay: Long,
@@ -36,21 +33,20 @@ class KafkaConsumerOrchestrator(
     init {
         logger.info("Initializing Kafka consumer clients")
 
-        updateTopics(group.consumers)
+        updateTopics(consumers)
 
-        val kafkaConsumerRepository = KafkaConsumerRepository(db)
-        val consumerTopicsConfig = configureConsumersTopics(kafkaConsumerRepository)
-        val lockProvider = JdbcLockProvider(db.getDatasource())
-
-        consumerClients = mutableMapOf()
-        consumerTopicsConfig.forEach {
+        val consumerTopicsConfig = consumers.map { consumer ->
+            consumer.toTopicConfig(kafkaConsumerRepository)
+        }
+        consumerClients = consumerTopicsConfig.associate {
             val client = KafkaConsumerClientBuilder.builder()
                 .withProperties(consumerPreset)
                 .withTopicConfig(it)
                 .build()
-            consumerClients.put(it.consumerConfig.topic, client)
+            it.consumerConfig.topic to client
         }
 
+        val lockProvider = JdbcLockProvider(db.getDatasource())
         consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
             .builder()
             .withLockProvider(lockProvider)
@@ -106,7 +102,7 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun updateTopics(consumers: List<TopicConsumer>) {
+    private fun updateTopics(consumers: List<KafkaTopicConsumer<*, *>>) {
         val currentTopics = topicRepository.selectAll()
 
         val topics = consumers.map { consumer ->
@@ -128,22 +124,4 @@ class KafkaConsumerOrchestrator(
 
     private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) =
         updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
-
-    private fun configureConsumersTopics(repository: KafkaConsumerRepository): List<KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>> {
-        return group.consumers.map { consumer ->
-            KafkaConsumerClientBuilder.TopicConfig<String, JsonElement>()
-                .withStoreOnFailure(repository)
-                .withLogging()
-                .withConsumerConfig(
-                    consumer.config.topic,
-                    stringDeserializer(),
-                    ArenaJsonElementDeserializer(),
-                    Consumer { event ->
-                        runBlocking {
-                            consumer.run(event.value())
-                        }
-                    }
-                )
-        }
-    }
 }

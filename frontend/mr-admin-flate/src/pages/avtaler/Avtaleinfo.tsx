@@ -36,7 +36,12 @@ export function Avtaleinfo() {
         <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
         <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
         <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
-        <Metadata header="Leverandør" verdi={avtale.leverandor?.navn} />
+        <Metadata
+          header="Leverandør"
+          verdi={
+            avtale.leverandor?.navn || avtale.leverandor?.organisasjonsnummer
+          }
+        />
       </Grid>
       <Separator />
       <Grid as="dl">

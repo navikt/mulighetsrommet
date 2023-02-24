@@ -2,12 +2,11 @@ import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
 import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
-import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/Laster";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
-import { ListLayout } from "../../layouts/ListLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import "./DetaljerTiltakstypePage.module.scss";
 import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
@@ -15,7 +14,6 @@ import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
   const [tabValgt, setTabValgt] = useAtom(avtaleTabAtom);
-  const features = useFeatureToggles();
 
   if (!optionalTiltakstype.data && optionalTiltakstype.isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
@@ -53,24 +51,17 @@ export function DetaljerTiltakstypePage() {
       >
         <Tabs.List style={{ paddingLeft: "4rem" }}>
           <Tabs.Tab value="arenaInfo" label="Arenainfo" />
-          {features?.data &&
-          features?.data["mulighetsrommet.vis-avtaler-for-tiltakstyper"] ? (
-            <Tabs.Tab
-              value="avtaler"
-              label="Avtaler"
-              data-testid="tab_avtaler"
-            />
-          ) : null}
+          <Tabs.Tab value="avtaler" label="Avtaler" data-testid="tab_avtaler" />
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
-          <ListLayout>
+          <ContainerLayout>
             <TiltakstypeDetaljer />
-          </ListLayout>
+          </ContainerLayout>
         </Tabs.Panel>
         <Tabs.Panel value="avtaler" className="h-24 w-full bg-gray-50 p-4">
-          <ListLayout>
+          <ContainerLayout>
             <AvtalerForTiltakstype />
-          </ListLayout>
+          </ContainerLayout>
         </Tabs.Panel>
       </Tabs>
     </main>

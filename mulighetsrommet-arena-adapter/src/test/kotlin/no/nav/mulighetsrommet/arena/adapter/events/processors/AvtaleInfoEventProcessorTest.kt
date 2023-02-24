@@ -1,21 +1,23 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.ConsumerConfig
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ArenaEventData
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
@@ -50,9 +52,9 @@ class AvtaleInfoEventProcessorTest : FunSpec({
         test("should save the event with status Failed when dependent tiltakstype is missing") {
             val consumer = createConsumer(database.db)
 
-            val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
+            val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
 
-            event.status shouldBe ArenaEvent.ProcessingStatus.Failed
+            result.shouldBeLeft().should { it.status shouldBe Failed }
             database.assertThat("avtale").isEmpty
         }
     }
@@ -72,19 +74,19 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             val consumer = createConsumer(database.db)
 
             val events = listOf(
-                createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
+                createArenaAvtaleInfoEvent(Insert) {
                     it.copy(DATO_FRA = null)
                 },
-                createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
+                createArenaAvtaleInfoEvent(Insert) {
                     it.copy(DATO_TIL = null)
                 },
-                createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
+                createArenaAvtaleInfoEvent(Insert) {
                     it.copy(ARBGIV_ID_LEVERANDOR = null)
                 },
             )
 
-            events.forEach {
-                consumer.processEvent(it).status shouldBe ArenaEvent.ProcessingStatus.Ignored
+            events.forEach { event ->
+                consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
             }
             database.assertThat("avtale").isEmpty
         }
@@ -92,10 +94,11 @@ class AvtaleInfoEventProcessorTest : FunSpec({
         test("ignore avtaler ended before 2023") {
             val consumer = createConsumer(database.db)
 
-            val event = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert) {
+            val event = createArenaAvtaleInfoEvent(Insert) {
                 it.copy(DATO_TIL = "2022-12-31 00:00:00")
             }
-            consumer.processEvent(event).status shouldBe ArenaEvent.ProcessingStatus.Ignored
+
+            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
             database.assertThat("avtale").isEmpty
         }
 
@@ -108,20 +111,20 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             )
             val consumer = createConsumer(database.db, engine)
 
-            val e1 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert)
-            consumer.processEvent(e1).status shouldBe ArenaEvent.ProcessingStatus.Processed
+            val e1 = createArenaAvtaleInfoEvent(Insert)
+            consumer.handleEvent(e1) shouldBeRight ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
-            val e2 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Update) {
+            val e2 = createArenaAvtaleInfoEvent(Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
             }
-            consumer.processEvent(e2).status shouldBe ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e2) shouldBeRight ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
-            val e3 = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Update) {
+            val e3 = createArenaAvtaleInfoEvent(Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
             }
-            consumer.processEvent(e3).status shouldBe ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e3) shouldBeRight ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Avsluttet.name)
         }
 
@@ -134,9 +137,9 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
+                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
 
-                event.status shouldBe ArenaEvent.ProcessingStatus.Failed
+                result.shouldBeLeft().should { it.status shouldBe Failed }
             }
 
             // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
@@ -148,9 +151,9 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
+                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
 
-                event.status shouldBe ArenaEvent.ProcessingStatus.Invalid
+                result.shouldBeLeft().should { it.status shouldBe Invalid }
             }
 
             test("should mark the event as Failed when api responds with an error") {
@@ -166,9 +169,9 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
-                val event = consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert))
+                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
 
-                event.status shouldBe ArenaEvent.ProcessingStatus.Failed
+                result.shouldBeLeft().should { it.status shouldBe Failed }
             }
 
             test("should call api with mapped event payload when all services responds with success") {
@@ -181,8 +184,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
 
                 val consumer = createConsumer(database.db, engine)
 
-                val event = createArenaAvtaleInfoEvent(ArenaEventData.Operation.Insert)
-                consumer.processEvent(event)
+                val event = createArenaAvtaleInfoEvent(Insert)
+                consumer.handleEvent(event).shouldBeRight()
 
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -198,7 +201,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     avtale.id
                 }
 
-                consumer.processEvent(createArenaAvtaleInfoEvent(ArenaEventData.Operation.Delete))
+                consumer.handleEvent(createArenaAvtaleInfoEvent(Delete)).shouldBeRight()
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
@@ -231,11 +234,5 @@ private fun createConsumer(
         avtaler = AvtaleRepository(db),
     )
 
-    return AvtaleInfoEventProcessor(
-        ConsumerConfig("avtaleinfoendret", "avtaleinfoendret"),
-        ArenaEventRepository(db),
-        entities,
-        client,
-        ords,
-    )
+    return AvtaleInfoEventProcessor(entities, client, ords)
 }

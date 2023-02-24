@@ -7,32 +7,31 @@ import { avtaleFilter, avtalePaginationAtom } from "../atoms";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useAvtalerForTiltakstype() {
+export function useAvtaler() {
+  const { tiltakstypeId } = useParams<{ tiltakstypeId: string | undefined }>();
   const [page] = useAtom(avtalePaginationAtom);
-  const { tiltakstypeId } = useParams();
   const [filter] = useAtom(avtaleFilter);
   const debouncedSok = useDebounce(filter.sok, 300);
 
-  if (!tiltakstypeId)
-    throw new Error("Kan ikke hente avtaler for tiltakstype uten id");
   return useQuery(
-    QueryKeys.avtalerForTiltakstype(
-      tiltakstypeId,
+    QueryKeys.avtaler(
+      tiltakstypeId || "",
       debouncedSok,
       filter.status,
       filter.enhet,
       filter.sortering,
       page
     ),
-    () =>
-      mulighetsrommetClient.avtaler.getAvtalerForTiltakstype({
-        id: tiltakstypeId,
+    () => {
+      return mulighetsrommetClient.avtaler.getAvtaler({
+        tiltakstypeId,
         search: debouncedSok || undefined,
         avtalestatus: filter.status ? filter.status : undefined,
         enhet: filter.enhet ? filter.enhet : undefined,
         sort: filter.sortering,
         page,
         size: AVTALE_PAGE_SIZE,
-      })
+      });
+    }
   );
 }

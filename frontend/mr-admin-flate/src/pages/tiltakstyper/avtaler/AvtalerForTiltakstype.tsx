@@ -1,16 +1,16 @@
 import { Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { avtalePaginationAtom } from "../../../api/atoms";
-import { useAvtalerForTiltakstype } from "../../../api/avtaler/useAvtalerForTiltakstype";
-import { Avtalefilter } from "../../../components/avtaler/Avtalefilter";
+import { useAvtaler } from "../../../api/avtaler/useAvtaler";
+import { Avtalefilter } from "../../../components/filter/Avtalefilter";
+import { PagineringContainer } from "../../../components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "../../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../../constants";
-import styles from "./AvtalerForTiltakstype.module.scss";
 import { AvtaleTabell } from "./AvtaleTabell";
 
 export function AvtalerForTiltakstype() {
   const [page, setPage] = useAtom(avtalePaginationAtom);
-  const { data } = useAvtalerForTiltakstype();
+  const { data } = useAvtaler();
 
   if (!data) {
     return null;
@@ -29,7 +29,7 @@ export function AvtalerForTiltakstype() {
       />
       <AvtaleTabell />
       {avtaler.length > 0 ? (
-        <div className={styles.paginering}>
+        <PagineringContainer>
           <PagineringsOversikt
             page={page}
             antall={avtaler.length}
@@ -47,7 +47,7 @@ export function AvtalerForTiltakstype() {
             )}
             data-version="v1"
           />
-        </div>
+        </PagineringContainer>
       ) : null}
     </div>
   );

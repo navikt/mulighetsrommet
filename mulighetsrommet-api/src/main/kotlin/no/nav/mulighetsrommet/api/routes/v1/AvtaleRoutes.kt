@@ -16,8 +16,8 @@ fun Route.avtaleRoutes() {
     route("/api/v1/internal/avtaler") {
         get {
             val pagination = getPaginationParams()
-
-            val result = avtaler.getAll(pagination)
+            val filter = getAvtaleFilter()
+            val result = avtaler.getAll(filter, pagination)
 
             call.respond(result)
         }
@@ -34,17 +34,6 @@ fun Route.avtaleRoutes() {
             )
 
             call.respond(avtale)
-        }
-
-        get("tiltakstype/{tiltakstypeId}") {
-            val pagination = getPaginationParams()
-            val filter = getAvtaleFilter()
-            val id = call.parameters["tiltakstypeId"]?.toUUID() ?: return@get call.respondText(
-                text = "Mangler eller ugyldig id for tiltakstype",
-                status = HttpStatusCode.BadRequest,
-            )
-
-            call.respond(avtaler.getAvtalerForTiltakstype(id, filter, pagination))
         }
     }
 }

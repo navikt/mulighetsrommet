@@ -1,6 +1,6 @@
 import "@navikt/ds-css";
 import "@navikt/ds-css-internal";
-import { Alert, Button, Heading } from "@navikt/ds-react";
+import { Alert, Heading } from "@navikt/ds-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
