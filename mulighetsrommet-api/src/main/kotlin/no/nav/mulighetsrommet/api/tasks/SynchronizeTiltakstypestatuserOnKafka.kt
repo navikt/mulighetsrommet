@@ -25,7 +25,7 @@ class SynchronizeTiltakstypestatuserOnKafka(
         .execute { _, context ->
             runBlocking {
                 logger.info("Kjører synkronisering av tiltakstypestatuser på kafka")
-                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(
+                kafkaSyncService.oppdaterTiltakstypestatus(
                     LocalDate.now(),
                     context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
                         ?: LocalDate.of(2023, 2, 1)

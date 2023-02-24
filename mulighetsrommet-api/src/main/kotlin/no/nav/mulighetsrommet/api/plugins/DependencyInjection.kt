@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuserOnKafka
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserOnKafka
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
@@ -215,14 +216,20 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single {
-        val synchronizeTiltaksgjennomforingsstatuserOnKafka = SynchronizeTiltaksgjennomforingsstatuserOnKafka(get(), get())
+        val synchronizeTiltaksgjennomforingsstatuserOnKafka =
+            SynchronizeTiltaksgjennomforingsstatuserOnKafka(get(), get())
+        val synchronizeTiltakstypestatuserOnKafka = SynchronizeTiltakstypestatuserOnKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
 
         val db: Database by inject()
 
         Scheduler
             .create(db.getDatasource())
-            .startTasks(synchronizeNorgEnheterTask.task, synchronizeTiltaksgjennomforingsstatuserOnKafka.task)
+            .startTasks(
+                synchronizeNorgEnheterTask.task,
+                synchronizeTiltaksgjennomforingsstatuserOnKafka.task,
+                synchronizeTiltakstypestatuserOnKafka.task
+            )
             .registerShutdownHook()
             .build()
     }
