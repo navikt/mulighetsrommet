@@ -100,9 +100,10 @@ class TiltakstypeRepository(private val db: Database) {
             }
         )
 
+        // collate "C" gjør at alfabetisk sortering blir korrekt
         val order = when (tiltakstypeFilter.sortering) {
-            "navn-ascending" -> "navn asc"
-            "navn-descending" -> "navn desc"
+            "navn-ascending" -> "navn collate \"C\" asc"
+            "navn-descending" -> "navn collate \"C\" desc"
             else -> "navn asc"
         }
 
