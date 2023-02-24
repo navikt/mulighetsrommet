@@ -1,5 +1,4 @@
 import { Search, Select } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useAtom } from "jotai";
 import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { ChangeEvent, useEffect, useRef } from "react";
@@ -28,7 +27,7 @@ export function Avtalefilter() {
 
   return (
     <>
-      <div className={classNames(styles.filter_container)}>
+      <div className={styles.filter_container}>
         <div className={styles.filter_left}>
           <Search
             ref={searchRef}

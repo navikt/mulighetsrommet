@@ -1,9 +1,8 @@
 import { Search, Select } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
-import { tiltakstypefilter, paginationAtom } from "../../api/atoms";
+import { paginationAtom, tiltakstypefilter } from "../../api/atoms";
 import styles from "./Filter.module.scss";
 
 export function Tiltakstypefilter() {
@@ -15,7 +14,7 @@ export function Tiltakstypefilter() {
   };
 
   return (
-    <div className={classNames(styles.filter_container)}>
+    <div className={styles.filter_container}>
       <div className={styles.filter_left}>
         <Search
           label="Søk etter tiltakstype"
