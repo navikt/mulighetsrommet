@@ -1,14 +1,14 @@
 .filter_container {
   display: grid;
-  grid-template-columns: 1fr 20%;
   gap: 20rem;
+  grid-template-columns: 1fr 20%;
+  margin-bottom: 2rem;
   background-color: white;
   padding: 1rem;
-  margin-bottom: 2rem;
 }
 
 .filter_left {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 20rem);
   gap: 1rem;
 }

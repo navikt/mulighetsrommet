@@ -1,11 +1,12 @@
 import { Search, Select } from "@navikt/ds-react";
+import classNames from "classnames";
 import { useAtom } from "jotai";
 import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { ChangeEvent, useEffect, useRef } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
-import styles from "./Avtalefilter.module.scss";
+import styles from "./Filter.module.scss";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
@@ -27,7 +28,7 @@ export function Avtalefilter() {
 
   return (
     <>
-      <div className={styles.filter_container}>
+      <div className={classNames(styles.filter_container)}>
         <div className={styles.filter_left}>
           <Search
             ref={searchRef}
@@ -63,7 +64,7 @@ export function Avtalefilter() {
             <option value="">Alle statuser</option>
           </Select>
           <Select
-            label="Enhet"
+            label="Filtrer på enhet"
             hideLabel
             size="small"
             value={filter.enhet}

@@ -1,5 +1,5 @@
 import { Heading } from "@navikt/ds-react";
-import { FilterTiltakstyper } from "../../components/tiltakstyper/FilterTiltakstyper";
+import { Tiltakstypefilter } from "../../components/filter/Tiltakstypefilter";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
 import { ListLayout } from "../../layouts/ListLayout";
 import { NavigeringHeader } from "../forside/NavigeringHeader";
@@ -15,9 +15,7 @@ export function TiltakstyperPage() {
             Oversikt over tiltakstyper
           </Heading>
         </div>
-        <div className={styles.filterseksjon}>
-          <FilterTiltakstyper />
-        </div>
+        <Tiltakstypefilter />
         <TiltakstyperOversikt />
       </ListLayout>
     </main>

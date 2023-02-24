@@ -6,6 +6,7 @@ import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/Laster";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
+import { DetaljLayout } from "../../layouts/DetaljLayout";
 import { ListLayout } from "../../layouts/ListLayout";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import "./DetaljerTiltakstypePage.module.scss";
@@ -54,9 +55,9 @@ export function DetaljerTiltakstypePage() {
           <Tabs.Tab value="avtaler" label="Avtaler" data-testid="tab_avtaler" />
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
-          <ListLayout>
+          <DetaljLayout>
             <TiltakstypeDetaljer />
-          </ListLayout>
+          </DetaljLayout>
         </Tabs.Panel>
         <Tabs.Panel value="avtaler" className="h-24 w-full bg-gray-50 p-4">
           <ListLayout>

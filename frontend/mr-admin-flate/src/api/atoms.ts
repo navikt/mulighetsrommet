@@ -4,6 +4,7 @@ import { atomWithStorage } from "jotai/utils";
 import {
   Avtalestatus,
   SorteringAvtaler,
+  SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -30,12 +31,14 @@ export const tiltakstypefilter = atomWithHash<{
   sok: string;
   status?: Tiltakstypestatus;
   kategori?: Tiltakstypekategori;
+  sortering: SorteringTiltakstyper;
 }>(
   "tiltakstypefilter",
   {
     sok: "",
     status: Tiltakstypestatus.AKTIV,
     kategori: Tiltakstypekategori.GRUPPE,
+    sortering: SorteringTiltakstyper.NAVN_ASCENDING,
   },
   {
     setHash: "replaceState",

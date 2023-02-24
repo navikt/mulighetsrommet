@@ -2,7 +2,7 @@ import { Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { avtalePaginationAtom } from "../../../api/atoms";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
-import { Avtalefilter } from "../../../components/avtaler/Avtalefilter";
+import { Avtalefilter } from "../../../components/filter/Avtalefilter";
 import { PagineringContainer } from "../../../components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "../../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../../constants";

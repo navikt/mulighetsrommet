@@ -5,5 +5,9 @@ interface Props {
 }
 
 export function ListLayout({ children }: Props) {
-  return <div style={{ padding: "0.5rem" }}>{children}</div>;
+  return (
+    <div style={{ padding: "0.5rem", maxWidth: "1920px", margin: "1rem auto" }}>
+      {children}
+    </div>
+  );
 }
