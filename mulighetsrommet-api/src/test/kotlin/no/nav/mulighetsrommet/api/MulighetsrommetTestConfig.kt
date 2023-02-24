@@ -4,20 +4,32 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.koin.ktor.ext.inject
 
 fun <R> withMulighetsrommetApp(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R
 ) {
+    var flywayAdapter: FlywayDatabaseAdapter? = null
+
     testApplication {
         application {
             configure(config)
+
+            val db by inject<Database>()
+            flywayAdapter = db as FlywayDatabaseAdapter
         }
+
         test()
     }
+
+    // Småhacky måte å rydde opp databasen etter at testen er ferdig
+    flywayAdapter?.clean()
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
