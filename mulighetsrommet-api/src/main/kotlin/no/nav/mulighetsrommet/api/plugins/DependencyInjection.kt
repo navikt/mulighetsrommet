@@ -37,8 +37,8 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuserOnKafka
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserOnKafka
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuserToKafka
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserToKafka
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
@@ -216,9 +216,9 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single {
-        val synchronizeTiltaksgjennomforingsstatuserOnKafka =
-            SynchronizeTiltaksgjennomforingsstatuserOnKafka(get(), get())
-        val synchronizeTiltakstypestatuserOnKafka = SynchronizeTiltakstypestatuserOnKafka(get(), get())
+        val synchronizeTiltaksgjennomforingsstatuserToKafka =
+            SynchronizeTiltaksgjennomforingsstatuserToKafka(get(), get())
+        val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
 
         val db: Database by inject()
@@ -227,8 +227,8 @@ private fun tasks(config: TaskConfig) = module {
             .create(db.getDatasource())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
-                synchronizeTiltaksgjennomforingsstatuserOnKafka.task,
-                synchronizeTiltakstypestatuserOnKafka.task
+                synchronizeTiltaksgjennomforingsstatuserToKafka.task,
+                synchronizeTiltakstypestatuserToKafka.task
             )
             .registerShutdownHook()
             .build()
