@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class KafkaConsumerOrchestrator(
+    config: Config = Config(),
     consumerPreset: Properties,
-    config: Config,
     db: Database,
     consumers: List<KafkaTopicConsumer<*, *>>,
 ) {
@@ -24,7 +24,10 @@ class KafkaConsumerOrchestrator(
     private val kafkaConsumerRepository = KafkaConsumerRepository(db)
 
     data class Config(
-        val topicStatePollDelay: Long,
+        /**
+         * Frequency in milliseconds of how often the [Topic.running] state should be polled.
+         */
+        val topicStatePollDelay: Long = 10_000,
     )
 
     init {
@@ -70,7 +73,9 @@ class KafkaConsumerOrchestrator(
         logger.info("Stopped kafka processors")
     }
 
-    fun getTopics() = topicRepository.selectAll()
+    fun getTopics(): List<Topic> {
+        return topicRepository.selectAll()
+    }
 
     fun getConsumers(): List<KafkaConsumerClient> {
         return consumerClients.toList().map { it.second }
@@ -82,7 +87,9 @@ class KafkaConsumerOrchestrator(
         return getUpdatedTopicsOnly(topics, current)
     }
 
-    fun stopPollingTopicChanges() = topicPoller.stop()
+    fun stopPollingTopicChanges() {
+        topicPoller.stop()
+    }
 
     private fun updateClientRunningState() {
         getTopics().forEach {

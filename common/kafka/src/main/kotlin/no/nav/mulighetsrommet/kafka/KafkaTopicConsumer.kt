@@ -27,11 +27,11 @@ abstract class KafkaTopicConsumer<K, V>(
                 valueDeserializer,
                 Consumer { event ->
                     runBlocking {
-                        run(event.value())
+                        consume(event.key(), event.value())
                     }
                 }
             )
     }
 
-    abstract suspend fun run(event: V)
+    abstract suspend fun consume(key: K, message: V)
 }

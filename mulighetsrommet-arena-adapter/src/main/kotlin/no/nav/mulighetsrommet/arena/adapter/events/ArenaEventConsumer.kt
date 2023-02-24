@@ -10,11 +10,11 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 class ArenaEventConsumer(
-    config: KafkaTopicConsumer.Config,
+    config: Config,
     private val arenaEventService: ArenaEventService,
 ) : KafkaTopicConsumer<String, JsonElement>(config, stringDeserializer(), ArenaJsonElementDeserializer()) {
-    override suspend fun run(event: JsonElement) {
-        val data = decodeArenaEvent(event)
+    override suspend fun consume(key: String, message: JsonElement) {
+        val data = decodeArenaEvent(message)
         arenaEventService.processEvent(data)
     }
 }

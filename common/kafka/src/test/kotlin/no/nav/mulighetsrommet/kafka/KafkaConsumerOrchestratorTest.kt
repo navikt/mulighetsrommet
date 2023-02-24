@@ -62,8 +62,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = TestConsumer("foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -82,8 +82,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = TestConsumer("foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = 10),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -103,21 +103,23 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
-        producer.send(ProducerRecord(topic, "true"))
+        producer.send(ProducerRecord(topic, null, "true"))
+        producer.send(ProducerRecord(topic, "key", "true"))
         producer.close()
 
         val consumer = spyk(TestConsumer(topic))
 
         KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
 
         eventually(5.seconds) {
-            coVerify {
-                consumer.run("true")
+            coVerify(exactly = 1) {
+                consumer.consume(null, "true")
+                consumer.consume("key", "true")
             }
         }
     }
@@ -133,15 +135,15 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = spyk(TestConsumer(topic))
 
         KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
 
         eventually(5.seconds) {
-            coVerify {
-                consumer.run("false")
+            coVerify(exactly = 1) {
+                consumer.consume(null, "false")
             }
 
             consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 1
