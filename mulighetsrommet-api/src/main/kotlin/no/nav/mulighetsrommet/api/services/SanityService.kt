@@ -5,37 +5,36 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import no.nav.mulighetsrommet.api.SanityConfig
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
-import java.text.SimpleDateFormat
-import java.util.*
 
-private val log = LoggerFactory.getLogger(SanityService::class.java)
-
-class SanityService(sanityConfig: SanityConfig, private val brukerService: BrukerService) {
-    private val logger = LoggerFactory.getLogger(SanityService::class.java)
+class SanityService(private val config: Config, private val brukerService: BrukerService) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
-    private val sanityToken = sanityConfig.authToken
-    private val projectId = sanityConfig.projectId
-    private val dataset = sanityConfig.dataset
-    private val apiVersion = SimpleDateFormat("yyyy-MM-dd").format(Date())
-    private val sanityBaseUrl = "https://$projectId.apicdn.sanity.io/v$apiVersion/data/query/$dataset"
-    private val jsonDecoder = Json {
-        ignoreUnknownKeys = true
-    }
     private val fylkenummerCache = mutableMapOf<String?, String>()
+
+    data class Config(
+        val authToken: String?,
+        val dataset: String,
+        val projectId: String,
+        val apiVersion: String = "v2023-01-01",
+    ) {
+        val apiUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/query/$dataset"
+    }
 
     init {
         logger.debug("Init SanityHttpClient")
         client = httpJsonClient().config {
             defaultRequest {
-                bearerAuth(sanityToken)
-                url(sanityBaseUrl)
+                config.authToken?.also {
+                    bearerAuth(it)
+                }
+
+                url(config.apiUrl)
             }
         }
     }
@@ -49,8 +48,9 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
 
     private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): JsonElement? {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+        val enhetsId = brukerData.oppfolgingsenhet?.enhetId
         val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId)
-        return get(query, brukerData.oppfolgingsenhet?.enhetId ?: "", fylkesId)
+        return get(query, enhetsId, fylkesId)
     }
 
     private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): JsonElement? {
@@ -66,24 +66,25 @@ class SanityService(sanityConfig: SanityConfig, private val brukerService: Bruke
         }
     }
 
-    private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String {
+    private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
         if (fylkenummerCache[enhetsId] != null) {
-            return fylkenummerCache[enhetsId] ?: ""
+            return fylkenummerCache[enhetsId]
         }
 
         val response = get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
 
-        log.info("Hentet data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
+        logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 
         return try {
-            val fylkeResponse = response?.let { jsonDecoder.decodeFromJsonElement<FylkeResponse>(it) }
-            val fylkeNummer = fylkeResponse?.fylke?.nummer?.current ?: ""
-            if (fylkeNummer != "" && enhetsId != null) {
+            val fylkeResponse = response?.let { JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(it) }
+            val fylkeNummer = fylkeResponse?.fylke?.nummer?.current
+            if (fylkeNummer != null && enhetsId != null) {
                 fylkenummerCache[enhetsId] = fylkeNummer
             }
             fylkeNummer
-        } catch (exception: Exception) {
-            ""
+        } catch (exception: Throwable) {
+            logger.warn("Spørring mot Sanity feilet", exception)
+            null
         }
     }
 }
