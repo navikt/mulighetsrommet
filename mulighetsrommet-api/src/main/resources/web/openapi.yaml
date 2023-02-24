@@ -324,6 +324,10 @@ paths:
           schema:
             type: number
           description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringTiltakstyper"
       responses:
         200:
           description: Object of paginerte tiltakstyper.
@@ -748,6 +752,12 @@ components:
         - navn-descending
         - status-ascending
         - status-descending
+
+    SorteringTiltakstyper:
+      type: string
+      enum:
+        - navn-ascending
+        - navn-descending
 
     Tiltaksgjennomforing:
       type: object

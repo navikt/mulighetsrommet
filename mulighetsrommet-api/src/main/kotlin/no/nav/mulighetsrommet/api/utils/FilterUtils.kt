@@ -13,7 +13,8 @@ data class TiltakstypeFilter(
     val search: String?,
     val status: Tiltakstypestatus? = null,
     val kategori: Tiltakstypekategori?,
-    val dagensDato: LocalDate = LocalDate.now()
+    val dagensDato: LocalDate = LocalDate.now(),
+    val sortering: String? = null,
 )
 
 data class AvtaleFilter(
@@ -44,7 +45,8 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
         call.request.queryParameters["tiltakstypestatus"]?.let { status -> Tiltakstypestatus.valueOf(status) }
     val kategori =
         call.request.queryParameters["tiltakstypekategori"]?.let { kategori -> Tiltakstypekategori.valueOf(kategori) }
-    return TiltakstypeFilter(search, status, kategori)
+    val sortering = call.request.queryParameters["sort"]
+    return TiltakstypeFilter(search = search, status = status, kategori = kategori, sortering = sortering)
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {

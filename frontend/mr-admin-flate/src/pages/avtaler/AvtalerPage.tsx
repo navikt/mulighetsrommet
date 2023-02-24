@@ -2,12 +2,12 @@ import { Alert, Heading, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
-import { Avtalefilter } from "../../components/avtaler/Avtalefilter";
+import { Avtalefilter } from "../../components/filter/Avtalefilter";
 import { Laster } from "../../components/Laster";
 import { PagineringContainer } from "../../components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../constants";
-import { ListLayout } from "../../layouts/ListLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { NavigeringHeader } from "../forside/NavigeringHeader";
 import styles from "../Page.module.scss";
 import { AvtaleTabell } from "../tiltakstyper/avtaler/AvtaleTabell";
@@ -36,7 +36,7 @@ export function AvtalerPage() {
   return (
     <main>
       <NavigeringHeader />
-      <ListLayout>
+      <ContainerLayout>
         <div className={styles.header_wrapper}>
           <Heading level="2" size="large">
             Oversikt over avtaler
@@ -71,7 +71,7 @@ export function AvtalerPage() {
             />
           </PagineringContainer>
         ) : null}
-      </ListLayout>
+      </ContainerLayout>
     </main>
   );
 }

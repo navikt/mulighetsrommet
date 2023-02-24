@@ -16,6 +16,7 @@ export function useTiltakstyper() {
       debouncedSok,
       sokefilter.status,
       sokefilter.kategori,
+      sokefilter.sortering,
       page
     ),
     () =>
@@ -23,6 +24,7 @@ export function useTiltakstyper() {
         search: debouncedSok !== "" ? debouncedSok : undefined,
         tiltakstypestatus: sokefilter.status ?? undefined,
         tiltakstypekategori: sokefilter.kategori ?? undefined,
+        sort: sokefilter.sortering ?? undefined,
         page,
         size: PAGE_SIZE,
       })

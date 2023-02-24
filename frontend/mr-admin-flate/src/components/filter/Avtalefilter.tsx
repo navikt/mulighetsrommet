@@ -5,7 +5,7 @@ import { ChangeEvent, useEffect, useRef } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
-import styles from "./Avtalefilter.module.scss";
+import styles from "./Filter.module.scss";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
@@ -63,7 +63,7 @@ export function Avtalefilter() {
             <option value="">Alle statuser</option>
           </Select>
           <Select
-            label="Enhet"
+            label="Filtrer på enhet"
             hideLabel
             size="small"
             value={filter.enhet}
