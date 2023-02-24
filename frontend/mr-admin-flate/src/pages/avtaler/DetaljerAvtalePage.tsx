@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Header } from "../../components/detaljside/Header";
 import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
-import { DetaljLayout } from "../../layouts/DetaljLayout";
+import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { Avtaleinfo } from "./Avtaleinfo";
 
 export function DetaljerAvtalePage() {
@@ -32,9 +32,9 @@ export function DetaljerAvtalePage() {
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
         </Tabs.List>
         <Tabs.Panel value="avtaleinfo" className="h-24 w-full bg-gray-50 p-4">
-          <DetaljLayout>
+          <ContainerLayout>
             <Avtaleinfo />
-          </DetaljLayout>
+          </ContainerLayout>
         </Tabs.Panel>
       </Tabs>
     </main>
