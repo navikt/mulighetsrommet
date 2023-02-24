@@ -131,10 +131,9 @@ class AvtaleRepository(private val db: Database) {
             filter.enhet to "lower(a.enhet) = lower(:enhet)"
         )
 
-        // collate "C" gjør at alfabetisk sortering blir korrekt
         val order = when (filter.sortering) {
-            "navn-ascending" -> "a.navn collate \"C\" asc"
-            "navn-descending" -> "a.navn collate \"C\" desc"
+            "navn-ascending" -> "a.navn asc"
+            "navn-descending" -> "a.navn desc"
             "status-ascending" -> "a.avslutningsstatus asc, a.start_dato asc, a.slutt_dato desc"
             "status-descending" -> "a.avslutningsstatus desc, a.slutt_dato asc, a.start_dato desc"
             else -> "a.navn asc"
