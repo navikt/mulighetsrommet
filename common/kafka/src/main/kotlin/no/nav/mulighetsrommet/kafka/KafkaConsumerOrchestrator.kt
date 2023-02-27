@@ -33,7 +33,7 @@ class KafkaConsumerOrchestrator(
     init {
         logger.info("Initializing Kafka consumer clients")
 
-        updateTopics(consumers)
+        resetTopics(consumers)
 
         val consumerTopicsConfig = consumers.map { consumer ->
             consumer.toTopicConfig(kafkaConsumerRepository)
@@ -74,7 +74,7 @@ class KafkaConsumerOrchestrator(
     }
 
     fun getTopics(): List<Topic> {
-        return topicRepository.selectAll()
+        return topicRepository.getAll()
     }
 
     fun getConsumers(): List<KafkaConsumerClient> {
@@ -106,8 +106,8 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun updateTopics(consumers: List<KafkaTopicConsumer<*, *>>) {
-        val currentTopics = topicRepository.selectAll()
+    private fun resetTopics(consumers: List<KafkaTopicConsumer<*, *>>) {
+        val currentTopics = topicRepository.getAll()
 
         val topics = consumers.map { consumer ->
             val (id, topic, initialRunningState) = consumer.config
@@ -116,14 +116,9 @@ class KafkaConsumerOrchestrator(
                 .firstOrNull { it.id == id }
                 .let { it?.running ?: initialRunningState }
 
-            Topic(
-                id = id,
-                topic = topic,
-                type = TopicType.CONSUMER,
-                running = running
-            )
+            Topic(id = id, topic = topic, type = TopicType.CONSUMER, running = running)
         }
-        topicRepository.upsertTopics(topics)
+        topicRepository.setAll(topics)
     }
 
     private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) =

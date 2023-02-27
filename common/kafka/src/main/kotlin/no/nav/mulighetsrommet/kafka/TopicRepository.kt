@@ -11,7 +11,7 @@ enum class TopicType {
 
 class TopicRepository(private val db: Database) {
 
-    fun selectAll(): List<Topic> {
+    fun getAll(): List<Topic> {
         @Language("PostgreSQL")
         val query = """
             select id, topic, type, running from topics order by id
@@ -32,10 +32,10 @@ class TopicRepository(private val db: Database) {
         }
     }
 
-    fun upsertTopics(topics: List<Topic>) {
+    fun setAll(topics: List<Topic>) {
         @Language("PostgreSQL")
-        val query = """
-           insert into topics (id, topic, type, running)
+        val upsert = """
+            insert into topics (id, topic, type, running)
             values (:id, :topic, :type::topic_type, :running)
             on conflict (id)
             do update set
@@ -43,12 +43,23 @@ class TopicRepository(private val db: Database) {
                 type = excluded.type,
                 running = excluded.running
         """.trimIndent()
+
+        @Language("PostgreSQL")
+        val delete = """
+            delete from topics where not(id = any(?))
+        """.trimIndent()
+
         db.transaction { tx ->
             topics.forEach { topic ->
-                queryOf(query, topic.toSqlParameters())
+                queryOf(upsert, topic.toSqlParameters())
                     .asExecute
                     .let { tx.run(it) }
             }
+
+            val ids = tx.createArrayOf("text", topics.map { it.id })
+            queryOf(delete, ids)
+                .asExecute
+                .let { tx.run(it) }
         }
     }
 
