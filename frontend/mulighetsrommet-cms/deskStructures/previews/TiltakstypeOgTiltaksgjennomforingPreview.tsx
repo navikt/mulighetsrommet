@@ -210,7 +210,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
         <div>
           <h2>Beskrivelse</h2>
           <TekstFraTiltakstype>{tiltaksdata?.beskrivelse}</TekstFraTiltakstype>
-          {tiltaksdata?.tiltakstypeNavn === "Opplæring (Gruppe AMO)" && (
+          {tiltaksdata?.tiltakstypeNavn === "Opplæring - Gruppe AMO" && (
             <TekstFraGjennomforing>
               {displayed.beskrivelse}
             </TekstFraGjennomforing>
