@@ -30,8 +30,8 @@ export function ListeheaderAvtaler() {
       <BodyShort size="medium">Tittel</BodyShort>
       <BodyShort size="medium">Leverandør</BodyShort>
       <BodyShort size="medium">Enhet</BodyShort>
-      <BodyShort size="medium">Dato fra</BodyShort>
-      <BodyShort size="medium">Dato til</BodyShort>
+      <BodyShort size="medium">Startdato</BodyShort>
+      <BodyShort size="medium">Sluttdato</BodyShort>
       <BodyShort size="medium">Status</BodyShort>
     </Listeheader>
   );
