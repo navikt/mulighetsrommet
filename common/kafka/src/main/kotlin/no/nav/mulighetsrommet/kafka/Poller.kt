@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.kafka
 
 import kotlinx.coroutines.*
 

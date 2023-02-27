@@ -39,14 +39,22 @@ app:
   kafka:
     brokerUrl: localhost:29092
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
-    topics:
-      topicStatePollDelay: 10000
-      consumer:
-        tiltakendret: tiltakendret
-        tiltakgjennomforingendret: tiltakgjennomforingendret
-        tiltakdeltakerendret: tiltakdeltakerendret
-        sakendret: sakendret
-        avtaleinfoendret: avtaleinfoendret
+    consumers:
+      arenaTiltakEndret:
+        id: arena-tiltakstype-endret
+        topic: tiltak-endret
+      arenaTiltakgjennomforingEndret:
+        id: arena-tiltakgjennomforing-endret
+        topic: tiltakgjennomforingendret
+      arenaTiltakdeltakerEndret:
+        id: arena-tiltakdeltaker-endret
+        topic: tiltakdeltakerendret
+      arenaSakEndret:
+        id: arena-sakendret-endret
+        topic: sakendret
+      arenaAvtaleInfoEndret:
+        id: arena-avtaleinfo-endret
+        topic: avtaleinfoendret
 
   slack:
     token: ${SLACK_TOKEN:-""}

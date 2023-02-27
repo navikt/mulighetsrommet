@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.kafka
 
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
@@ -6,16 +6,13 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
-import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.util.*
 
 class KafkaConsumerOrchestrator(
+    config: Config = Config(),
     consumerPreset: Properties,
-    config: Config,
     db: Database,
     consumers: List<KafkaTopicConsumer<*, *>>,
 ) {
@@ -27,13 +24,16 @@ class KafkaConsumerOrchestrator(
     private val kafkaConsumerRepository = KafkaConsumerRepository(db)
 
     data class Config(
-        val topicStatePollDelay: Long,
+        /**
+         * Frequency in milliseconds of how often the [Topic.running] state should be polled.
+         */
+        val topicStatePollDelay: Long = 10_000,
     )
 
     init {
         logger.info("Initializing Kafka consumer clients")
 
-        updateTopics(consumers)
+        resetTopics(consumers)
 
         val consumerTopicsConfig = consumers.map { consumer ->
             consumer.toTopicConfig(kafkaConsumerRepository)
@@ -73,7 +73,9 @@ class KafkaConsumerOrchestrator(
         logger.info("Stopped kafka processors")
     }
 
-    fun getTopics() = topicRepository.selectAll()
+    fun getTopics(): List<Topic> {
+        return topicRepository.getAll()
+    }
 
     fun getConsumers(): List<KafkaConsumerClient> {
         return consumerClients.toList().map { it.second }
@@ -85,7 +87,9 @@ class KafkaConsumerOrchestrator(
         return getUpdatedTopicsOnly(topics, current)
     }
 
-    fun stopPollingTopicChanges() = topicPoller.stop()
+    fun stopPollingTopicChanges() {
+        topicPoller.stop()
+    }
 
     private fun updateClientRunningState() {
         getTopics().forEach {
@@ -102,8 +106,8 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun updateTopics(consumers: List<KafkaTopicConsumer<*, *>>) {
-        val currentTopics = topicRepository.selectAll()
+    private fun resetTopics(consumers: List<KafkaTopicConsumer<*, *>>) {
+        val currentTopics = topicRepository.getAll()
 
         val topics = consumers.map { consumer ->
             val (id, topic, initialRunningState) = consumer.config
@@ -112,14 +116,9 @@ class KafkaConsumerOrchestrator(
                 .firstOrNull { it.id == id }
                 .let { it?.running ?: initialRunningState }
 
-            Topic(
-                id = id,
-                topic = topic,
-                type = TopicType.CONSUMER,
-                running = running
-            )
+            Topic(id = id, topic = topic, type = TopicType.CONSUMER, running = running)
         }
-        topicRepository.upsertTopics(topics)
+        topicRepository.setAll(topics)
     }
 
     private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) =

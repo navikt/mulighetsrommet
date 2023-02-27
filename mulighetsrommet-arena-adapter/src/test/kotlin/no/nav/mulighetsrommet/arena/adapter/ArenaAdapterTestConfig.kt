@@ -3,20 +3,33 @@ package no.nav.mulighetsrommet.arena.adapter
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.koin.ktor.ext.inject
 
 fun <R> withArenaAdapterApp(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R
 ) {
+    var flywayAdapter: FlywayDatabaseAdapter? = null
+
     testApplication {
         application {
             configure(config)
+
+            val db by inject<Database>()
+            flywayAdapter = db as FlywayDatabaseAdapter
         }
+
         test()
     }
+
+    // Småhacky måte å rydde opp databasen etter at testen er ferdig
+    flywayAdapter?.clean()
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
@@ -49,16 +62,13 @@ fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
         brokerUrl = "localhost:29092",
         consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
-        topics = TopicsConfig(
-            topicStatePollDelay = 10000,
-            consumer = mapOf(
-                "tiltakendret" to "tiltakendret",
-                "tiltakgjennomforingendret" to "tiltakgjennomforingendret",
-                "tiltakdeltakerendret" to "tiltakdeltakerendret",
-                "sakendret" to "sakendret",
-                "avtaleinfoendret" to "avtaleinfoendret",
-            )
-        )
+        consumers = KafkaConsumers(
+            KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
+            KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
+            KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
+            KafkaTopicConsumer.Config("sakendret", "sakendret"),
+            KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
+        ),
     )
 }
 

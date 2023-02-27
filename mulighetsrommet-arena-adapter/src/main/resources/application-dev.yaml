@@ -40,14 +40,22 @@ app:
 
   kafka:
     consumerGroupId: mulighetsrommet-kafka-consumer.v1
-    topics:
-      topicStatePollDelay: 10000
-      consumer:
-        tiltakendret: teamarenanais.aapen-arena-tiltakendret-v1-q2
-        tiltakgjennomforingendret: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2
-        tiltakdeltakerendret: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
-        sakendret: teamarenanais.aapen-arena-sakendret-v1-q2
-        avtaleinfoendret: teamarenanais.aapen-arena-avtaleinfoendret-v1-q2
+    consumers:
+      arenaTiltakEndret:
+        id: arena-tiltakstype-endret
+        topic: tiltak-endret
+      arenaTiltakgjennomforingEndret:
+        id: arena-tiltakgjennomforing-endret
+        topic: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2
+      arenaTiltakdeltakerEndret:
+        id: arena-tiltakdeltaker-endret
+        topic: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
+      arenaSakEndret:
+        id: arena-sakendret-endret
+        topic: teamarenanais.aapen-arena-sakendret-v1-q2
+      arenaAvtaleInfoEndret:
+        id: arena-avtaleinfo-endret
+        topic: teamarenanais.aapen-arena-avtaleinfoendret-v1-q2
 
   slack:
     token: ${SLACK_TOKEN}

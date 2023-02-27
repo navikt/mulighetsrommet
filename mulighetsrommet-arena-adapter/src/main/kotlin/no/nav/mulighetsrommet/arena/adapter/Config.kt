@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.arena.adapter
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -49,25 +50,15 @@ data class ServiceClientConfig(
 data class KafkaConfig(
     val brokerUrl: String? = null,
     val consumerGroupId: String,
-    val topics: TopicsConfig
+    val consumers: KafkaConsumers,
 )
 
-fun KafkaConfig.getTopic(id: String): ConsumerConfig {
-    val topic = topics.consumer.getOrElse(id) {
-        throw RuntimeException("No topic configured for id '$id'")
-    }
-    return ConsumerConfig(id, topic)
-}
-
-data class TopicsConfig(
-    val topicStatePollDelay: Long,
-    val consumer: Map<String, String>
-)
-
-data class ConsumerConfig(
-    val id: String,
-    val topic: String,
-    val initialRunningState: Boolean = false,
+data class KafkaConsumers(
+    val arenaTiltakEndret: KafkaTopicConsumer.Config,
+    val arenaTiltakgjennomforingEndret: KafkaTopicConsumer.Config,
+    val arenaTiltakdeltakerEndret: KafkaTopicConsumer.Config,
+    val arenaSakEndret: KafkaTopicConsumer.Config,
+    val arenaAvtaleInfoEndret: KafkaTopicConsumer.Config,
 )
 
 data class SlackConfig(

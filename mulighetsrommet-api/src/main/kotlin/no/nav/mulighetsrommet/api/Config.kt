@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.ktor.ServerConfig
@@ -15,7 +16,7 @@ data class AppConfig(
     val database: FlywayDatabaseConfig,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
-    val sanity: SanityConfig,
+    val sanity: SanityService.Config,
     val swagger: SwaggerConfig? = null,
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
@@ -51,12 +52,6 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String
-)
-
-data class SanityConfig(
-    val dataset: String,
-    val projectId: String,
-    val authToken: String
 )
 
 data class SwaggerConfig(
