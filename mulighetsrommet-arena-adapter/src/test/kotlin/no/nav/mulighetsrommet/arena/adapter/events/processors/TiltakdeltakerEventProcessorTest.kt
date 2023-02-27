@@ -86,7 +86,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             sakId = 1,
             tiltakskode = "INDOPPFAG",
             arrangorId = null,
-            navn = null,
+            navn = "Gjennomføring gruppe",
             status = "GJENNOMFOR",
             fraDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         )
@@ -102,7 +102,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             sakId = 2,
             tiltakskode = "AMO",
             arrangorId = 123,
-            navn = null,
+            navn = "Gjennomføring individuell",
             status = "GJENNOMFOR",
             fraDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         )
@@ -301,7 +301,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                     val deltaker = decodeRequestBody<TiltakshistorikkDbo>().apply {
                         shouldBeInstanceOf<TiltakshistorikkDbo.IndividueltTiltak>()
-                        beskrivelse shouldBe tiltaksgjennomforing.navn
+                        beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
                         virksomhetsnummer shouldBe "123456"
                         tiltakstypeId shouldBe tiltakstypeIndividuell.id
                         norskIdent shouldBe "12345678910"

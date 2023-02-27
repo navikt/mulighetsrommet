@@ -67,7 +67,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                    t.navn as tiltakstype
             from tiltakshistorikk
                      left join tiltaksgjennomforing gjennomforing on gjennomforing.id = tiltakshistorikk.tiltaksgjennomforing_id
-                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)  
+                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)
             where norsk_ident = ?
             order by tiltakshistorikk.fra_dato desc nulls last;
         """.trimIndent()
@@ -110,7 +110,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             status = Deltakerstatus.valueOf(string("status")),
             fraDato = localDateTimeOrNull("fra_dato"),
             tilDato = localDateTimeOrNull("til_dato"),
-            beskrivelse = stringOrNull("beskrivelse"),
+            beskrivelse = string("beskrivelse"),
             tiltakstypeId = uuid("tiltakstypeid"),
             virksomhetsnummer = stringOrNull("virksomhetsnummer")
         )
