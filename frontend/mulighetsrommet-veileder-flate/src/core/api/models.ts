@@ -8,7 +8,7 @@ export type Tiltakstyper =
   | 'Oppfølging'
   | 'Avklaring'
   | 'VTA'
-  | 'Opplæring (Gruppe AMO)'
+  | 'Opplæring - Gruppe AMO'
   | 'Midlertidig lønnstilskudd';
 
 type Innsatsgrupper =

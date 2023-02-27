@@ -18,7 +18,7 @@ const TiltaksgjennomforingsHeader = () => {
       >
         {tiltaksgjennomforingNavn}
       </Heading>
-      {tiltakstype?.tiltakstypeNavn === 'Opplæring (Gruppe AMO)'
+      {tiltakstype?.tiltakstypeNavn === 'Opplæring - Gruppe AMO'
         ? beskrivelse && <Ingress>{beskrivelse}</Ingress>
         : null}
       {tiltakstype.beskrivelse && <Ingress className={styles.beskrivelse}>{tiltakstype.beskrivelse}</Ingress>}
