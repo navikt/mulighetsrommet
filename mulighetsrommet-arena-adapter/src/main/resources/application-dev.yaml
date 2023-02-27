@@ -43,7 +43,7 @@ app:
     consumers:
       arenaTiltakEndret:
         id: arena-tiltakstype-endret
-        topic: tiltak-endret
+        topic: teamarenanais.aapen-arena-tiltakendret-v1-q2
       arenaTiltakgjennomforingEndret:
         id: arena-tiltakgjennomforing-endret
         topic: teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2
