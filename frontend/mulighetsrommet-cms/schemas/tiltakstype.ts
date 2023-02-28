@@ -28,7 +28,7 @@ export const tiltakstype = defineType({
       title: "Beskrivelse",
       type: "text",
       rows: 5,
-      validation: (Rule) => Rule.max(500),
+      validation: (Rule) => Rule.max(1500),
       description:
         "Her kan du legge til en tekstlig beskrivelse av tiltakstypen.",
     }),
@@ -82,14 +82,14 @@ export const tiltakstype = defineType({
       title: "Faneinnhold",
       type: "faneinnhold",
     }),
-    defineField({
-      name: "forskningsrapport",
-      title: "Forskningsrapport",
-      description:
-        "Legg til en eller flere forskningsrapporter som gjelder for tiltakstypen. Disse vil bli vist under 'Innsikt'-fanen.",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
-    }),
+    // defineField({
+    //   name: "forskningsrapport",
+    //   title: "Forskningsrapport",
+    //   description:
+    //     "Legg til en eller flere forskningsrapporter som gjelder for tiltakstypen. Disse vil bli vist under 'Innsikt'-fanen.",
+    //   type: "array",
+    //   of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
+    // }),
     defineField({
       name: "delingMedBruker",
       title: "Informasjon til å dele med bruker",
