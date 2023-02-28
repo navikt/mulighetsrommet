@@ -37,14 +37,14 @@ export function Avtalerad({ avtale }: Props) {
       <BodyShort
         size="small"
         title={`Startdato ${formaterDato(avtale.startDato)}`}
-        aria-label={`Startdato ${formaterDato(avtale.startDato)}`}
+        aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}
       >
         {formaterDato(avtale.startDato)}
       </BodyShort>
       <BodyShort
         size="small"
         title={`Sluttdato ${formaterDato(avtale.sluttDato)}`}
-        aria-label={`Sluttdato ${formaterDato(avtale.sluttDato)}`}
+        aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}
       >
         {formaterDato(avtale.sluttDato)}
       </BodyShort>
