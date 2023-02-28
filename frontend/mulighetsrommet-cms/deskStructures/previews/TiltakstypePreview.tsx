@@ -53,12 +53,12 @@ export function TiltakstypePreview({ document }: any) {
               {tiltaksdata?.regelverkLenker.map((lenke) => {
                 return (
                   <a
-                    key={lenke.regelverkUrl}
+                    key={lenke?.regelverkUrl}
                     target="_blank"
                     rel="noreferrer noopener"
-                    href={lenke.regelverkUrl}
+                    href={lenke?.regelverkUrl}
                   >
-                    {lenke.regelverkLenkeNavn}
+                    {lenke?.regelverkLenkeNavn}
                   </a>
                 );
               })}
