@@ -34,7 +34,8 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       : valgteTypeIDer.filter((id: string) => id !== value);
     setOptions(data?.filter(type => valgteTyper.includes(type.id)) ?? []);
 
-    logEvent(`mulighetsrommet.filtrering.${kebabCase(accordionNavn)}`, {
+    logEvent(`mulighetsrommet.filtrering`, {
+      type: kebabCase(accordionNavn),
       value: kebabCase(filtertypeTittel),
     });
   };

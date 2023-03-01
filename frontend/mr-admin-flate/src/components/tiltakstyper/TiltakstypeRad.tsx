@@ -16,19 +16,26 @@ export function TiltakstypeRad({ tiltakstype }: Props) {
       classname={styles.listerad_tiltakstype}
       testId="tiltakstyperad"
     >
-      <BodyShort size="medium">{tiltakstype.navn}</BodyShort>
+      <BodyShort
+        aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
+        size="medium"
+      >
+        {tiltakstype.navn}
+      </BodyShort>
       <BodyShort size="medium">
         <Tiltakstypestatus tiltakstype={tiltakstype} />
       </BodyShort>
       <BodyShort
         size="small"
         title={`Startdato ${formaterDato(tiltakstype.fraDato)}`}
+        aria-label={`Startdato: ${formaterDato(tiltakstype.fraDato)}`}
       >
         {formaterDato(tiltakstype.fraDato)}
       </BodyShort>
       <BodyShort
         size="small"
         title={`Sluttdato ${formaterDato(tiltakstype.tilDato)}`}
+        aria-label={`Sluttdato: ${formaterDato(tiltakstype.tilDato)}`}
       >
         {formaterDato(tiltakstype.tilDato)}
       </BodyShort>

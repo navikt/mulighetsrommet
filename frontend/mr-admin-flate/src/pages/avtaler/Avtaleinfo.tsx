@@ -6,7 +6,7 @@ import {
   Separator,
 } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/Laster";
-import { formaterDato } from "../../utils/Utils";
+import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import styles from "./Avtaleinfo.module.scss";
 
 export function Avtaleinfo() {
@@ -39,7 +39,8 @@ export function Avtaleinfo() {
         <Metadata
           header="Leverandør"
           verdi={
-            avtale.leverandor?.navn || avtale.leverandor?.organisasjonsnummer
+            capitalizeEveryWord(avtale.leverandor?.navn) ||
+            avtale.leverandor?.organisasjonsnummer
           }
         />
       </Grid>

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter.kafka
+package no.nav.mulighetsrommet.kafka
 
 import io.kotest.assertions.timing.eventually
 import io.kotest.core.extensions.install
@@ -12,8 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.mulighetsrommet.arena.adapter.repositories.Topic
-import no.nav.mulighetsrommet.arena.adapter.repositories.TopicType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -27,22 +25,19 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
-
     val kafka = install(
         TestContainerExtension(
             KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
         )
     ) { withEmbeddedZookeeper() }
 
+    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+
     fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)
         .withBaseProperties()
         .withConsumerGroupId("consumer")
-        .withDeserializers(
-            ByteArrayDeserializer::class.java,
-            ByteArrayDeserializer::class.java
-        )
+        .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
     fun uniqueTopicName() = UUID.randomUUID().toString()
@@ -67,8 +62,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = TestConsumer("foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -87,8 +82,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = TestConsumer("foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = 10),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -108,21 +103,23 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val topic = uniqueTopicName()
 
         val producer = kafka.createStringStringProducer()
-        producer.send(ProducerRecord(topic, "true"))
+        producer.send(ProducerRecord(topic, null, "true"))
+        producer.send(ProducerRecord(topic, "key", "true"))
         producer.close()
 
         val consumer = spyk(TestConsumer(topic))
 
         KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
 
         eventually(5.seconds) {
-            coVerify {
-                consumer.run("true")
+            coVerify(exactly = 1) {
+                consumer.consume(null, "true")
+                consumer.consume("key", "true")
             }
         }
     }
@@ -138,15 +135,15 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = spyk(TestConsumer(topic))
 
         KafkaConsumerOrchestrator(
-            kafka.getConsumerProperties(),
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
 
         eventually(5.seconds) {
-            coVerify {
-                consumer.run("false")
+            coVerify(exactly = 1) {
+                consumer.consume(null, "false")
             }
 
             consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 1

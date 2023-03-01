@@ -59,7 +59,8 @@ const redaktorAvdirStructure = (S, context) => [
         "arrangor",
         "regelverkfil",
         "regelverklenke",
-        "forskningsrapport",
+        // fjernet frem til vi har innsiktsfanen på plass
+        // "forskningsrapport",
         "innsatsgruppe",
         "statistikkfil",
         "redaktor",
@@ -71,9 +72,8 @@ const redaktorAvdirStructure = (S, context) => [
   ),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["regelverkfil", "regelverklenke", "forskningsrapport"].includes(
-      listItem.getId()
-    )
+    // ["regelverkfil", "regelverklenke", "forskningsrapport"].includes(
+    ["regelverkfil", "regelverklenke"].includes(listItem.getId())
   ),
 ];
 

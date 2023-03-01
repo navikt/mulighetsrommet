@@ -25,7 +25,7 @@ const redaktorTiltaksgjennomforingStructure = (S, context) => [
         "arrangor",
         "regelverkfil",
         "regelverklenke",
-        "forskningsrapport",
+        // "forskningsrapport",
         "innsatsgruppe",
         "statistikkfil",
         "redaktor",

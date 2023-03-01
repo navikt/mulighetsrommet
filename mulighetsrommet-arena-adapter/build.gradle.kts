@@ -39,11 +39,12 @@ repositories {
 
 dependencies {
     implementation(project(":common:domain"))
-    implementation(project(":common:ktor"))
-    implementation(project(mapOf("path" to ":common:slack")))
-    testImplementation(testFixtures(project(":common:ktor")))
     implementation(project(":common:database"))
     testImplementation(testFixtures(project(":common:database")))
+    implementation(project(":common:kafka"))
+    implementation(project(":common:ktor"))
+    testImplementation(testFixtures(project(":common:ktor")))
+    implementation(project(":common:slack"))
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")

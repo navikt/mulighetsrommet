@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
-import no.nav.mulighetsrommet.arena.adapter.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
@@ -23,6 +22,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -83,29 +83,28 @@ private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
     }
 }
 
-private fun kafka(kafkaConfig: KafkaConfig) = module {
+private fun kafka(config: KafkaConfig) = module {
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
-            .withConsumerGroupId(kafkaConfig.consumerGroupId)
-            .withBrokerUrl(kafkaConfig.brokerUrl)
+            .withConsumerGroupId(config.consumerGroupId)
+            .withBrokerUrl(config.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(kafkaConfig.consumerGroupId)
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
     }
 
     single {
         val consumers = listOf(
-            ArenaEventConsumer(kafkaConfig.getTopic("tiltakendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("tiltakgjennomforingendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("tiltakdeltakerendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("sakendret"), get()),
-            ArenaEventConsumer(kafkaConfig.getTopic("avtaleinfoendret"), get()),
+            ArenaEventConsumer(config.consumers.arenaTiltakEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaTiltakgjennomforingEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaTiltakdeltakerEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaSakEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaAvtaleInfoEndret, get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
-            config = KafkaConsumerOrchestrator.Config(kafkaConfig.topics.topicStatePollDelay),
             db = get(),
             consumers = consumers,
         )
@@ -114,7 +113,6 @@ private fun kafka(kafkaConfig: KafkaConfig) = module {
 
 private fun repositories() = module {
     single { ArenaEventRepository(get()) }
-    single { TopicRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { SakRepository(get()) }
     single { DeltakerRepository(get()) }
