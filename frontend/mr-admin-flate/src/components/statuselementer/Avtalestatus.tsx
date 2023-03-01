@@ -9,6 +9,7 @@ export function Avtalestatus({ avtale }: Props) {
   const { avtalestatus } = avtale;
   return (
     <Tag
+      aria-label={`Avtalestatus: ${avtalestatus}`}
       variant={
         avtalestatus === "Aktiv"
           ? "success"
