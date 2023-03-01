@@ -31,7 +31,7 @@ class AvtaleRepositoryTest : FunSpec({
         context("Avtalenavn") {
             test("Filtrere på avtalenavn skal returnere avtaler som matcher søket") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale om opplæring av blinde krokodiller"
+                    navn = "Avtale om opplæring av blinde krokodiller",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
                     navn = "Avtale om undervisning av underlige ulver",
@@ -39,11 +39,9 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
 
                 val result = avtaleRepository.getAll(
-
                     filter = AvtaleFilter(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
                         search = "Kroko",
-                        avtalestatus = Avtalestatus.Aktiv,
                         enhet = null
                     )
                 )
@@ -152,7 +150,6 @@ class AvtaleRepositoryTest : FunSpec({
                     filter = AvtaleFilter(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
                         search = null,
-                        avtalestatus = Avtalestatus.Aktiv,
                         enhet = "1801"
                     )
                 )
