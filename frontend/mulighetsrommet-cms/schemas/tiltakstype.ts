@@ -66,12 +66,6 @@ export const tiltakstype = defineType({
       to: [{ type: "innsatsgruppe" }],
     }),
     defineField({
-      name: "varighet",
-      title: "Varighet",
-      description: "Her kan du legge til hvor lang varighet tiltakstypen har.",
-      type: "string",
-    }),
-    defineField({
       name: "regelverkLenker",
       title: "Regelverkslenker",
       type: "array",
