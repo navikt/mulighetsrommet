@@ -81,5 +81,7 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
+        - application: veilarboppfolging
+          namespace: pto
   envFrom:
     - secret: mulighetsrommet-api
