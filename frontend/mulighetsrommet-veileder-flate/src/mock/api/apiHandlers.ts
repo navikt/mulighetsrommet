@@ -1,7 +1,5 @@
-import SanityClient from '@sanity/client';
+import { createClient, SanityClient } from '@sanity/client';
 import { rest, RestHandler } from 'msw';
-import { badReq, ok } from './responses';
-import { historikk } from '../fixtures/historikk';
 import {
   Ansatt,
   Bruker,
@@ -10,6 +8,8 @@ import {
   HistorikkForBruker,
   Innsatsgruppe,
 } from 'mulighetsrommet-api-client';
+import { historikk } from '../fixtures/historikk';
+import { badReq, ok } from './responses';
 
 export const apiHandlers: RestHandler[] = [
   rest.get<any, any, Bruker>('*/api/v1/internal/bruker', (req, res, ctx) => {
@@ -51,8 +51,8 @@ export const apiHandlers: RestHandler[] = [
         ident: 'V12345',
         navn: 'Veiledersen, Veileder',
         tilganger: [],
-        hovedenhet: "2990",
-        hovedenhetNavn: "Østfold"
+        hovedenhet: '2990',
+        hovedenhetNavn: 'Østfold',
       })
     );
   }),
@@ -102,14 +102,14 @@ export const apiHandlers: RestHandler[] = [
   }),
 ];
 
-let cachedClient: ReturnType<typeof SanityClient> | null = null;
+let cachedClient: SanityClient | null = null;
 
 function getSanityClient() {
   if (cachedClient) {
     return cachedClient;
   }
 
-  cachedClient = new SanityClient({
+  cachedClient = createClient({
     apiVersion: '2022-06-20',
     projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
     dataset: import.meta.env.VITE_SANITY_DATASET,
