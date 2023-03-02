@@ -5,7 +5,6 @@ export interface Tiltaksgjennomforingsfilter {
   search?: string;
   innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
-  tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[];
   lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
@@ -19,7 +18,6 @@ export const initialTiltaksgjennomforingsfilter = {
   search: '',
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  tiltaksgruppe: [],
   lokasjoner: [],
 };
 

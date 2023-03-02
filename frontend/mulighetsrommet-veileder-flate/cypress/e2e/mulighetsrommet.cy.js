@@ -91,21 +91,6 @@ describe('Tiltaksoversikt', () => {
       cy.apneLukketFilterAccordion('tiltakstyper', false);
     });
 
-    it('Filtrer på individuelle eller gruppetiltak', () => {
-      cy.apneLukketFilterAccordion('gruppe--eller-individuelle-tiltak', true);
-      cy.velgFilter('gruppetiltak');
-      cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 2);
-
-      cy.getByTestId('filter_checkbox_gruppetiltak').should('be.checked');
-      cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
-
-      cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
-
-      cy.getByTestId('filter_checkbox_gruppetiltak').should('not.be.checked');
-      cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
-      cy.apneLukketFilterAccordion('gruppe--eller-individuelle-tiltak', false);
-    });
-
     it('Filtrer på lokasjoner', () => {
       cy.apneLukketFilterAccordion('lokasjon', true);
       cy.getByTestId('checkboxgroup_lokasjon').children().children().last().click();

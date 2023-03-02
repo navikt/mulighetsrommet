@@ -33,22 +33,6 @@ export const tiltakstype = defineType({
         "Her kan du legge til en tekstlig beskrivelse av tiltakstypen.",
     }),
     defineField({
-      name: "tiltaksgruppe",
-      title: "Individuelt- eller gruppetiltak?",
-      description:
-        "Her velger du om tiltaket er et individuelt- eller et gruppetiltak.",
-      type: "string",
-      options: {
-        list: [
-          { title: "Individuelt tiltak", value: "individuelt" },
-          { title: "Gruppetiltak", value: "gruppe" },
-        ],
-        layout: "radio",
-      },
-      validation: (Rule) =>
-        Rule.required().error("Du må velge ett av alternativene."),
-    }),
-    defineField({
       name: "nokkelinfoKomponenter",
       title: "Nøkkelinfo",
       type: "array",
