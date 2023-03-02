@@ -8,7 +8,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
@@ -43,7 +42,7 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDTO? {
         return CacheUtils.tryCacheFirstNotNull(siste14aVedtakCache, fnr) {
-            return try {
+            try {
                 val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
                     bearerAuth(tokenProvider.invoke(accessToken))
                 }
