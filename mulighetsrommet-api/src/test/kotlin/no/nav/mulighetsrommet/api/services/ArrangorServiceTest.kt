@@ -6,7 +6,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
-import no.nav.mulighetsrommet.api.domain.VirksomhetDTO
+import no.nav.mulighetsrommet.api.clients.enhetsregister.VirksomhetDto
 
 class ArrangorServiceTest : FunSpec({
 
@@ -15,13 +15,13 @@ class ArrangorServiceTest : FunSpec({
     val arrangorService = ArrangorService(amtEnhetsregister)
 
     beforeSpec {
-        coEvery { amtEnhetsregister.hentVirksomhet(111) } returns VirksomhetDTO(
+        coEvery { amtEnhetsregister.hentVirksomhet(111) } returns VirksomhetDto(
             organisasjonsnummer = "789",
             navn = "Bedrift 1",
             overordnetEnhetOrganisasjonsnummer = "1011",
             overordnetEnhetNavn = "Overordnetbedrift 1"
         )
-        coEvery { amtEnhetsregister.hentVirksomhet(222) } returns VirksomhetDTO(
+        coEvery { amtEnhetsregister.hentVirksomhet(222) } returns VirksomhetDto(
             organisasjonsnummer = "7891",
             navn = "Bedrift 2",
             overordnetEnhetOrganisasjonsnummer = "1011",

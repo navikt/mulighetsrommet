@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
-import no.nav.mulighetsrommet.api.domain.EnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.utils.toUUID
@@ -23,14 +23,14 @@ data class AvtaleFilter(
     val avtalestatus: Avtalestatus? = null,
     val enhet: String? = null,
     val sortering: String? = null,
-    val dagensDato: LocalDate = LocalDate.now()
+    val dagensDato: LocalDate = LocalDate.now(),
 )
 
 data class EnhetFilter(
-    val statuser: List<EnhetStatus> = listOf(
-        EnhetStatus.AKTIV,
-        EnhetStatus.UNDER_AVVIKLING,
-        EnhetStatus.UNDER_ETABLERING
+    val statuser: List<NavEnhetStatus> = listOf(
+        NavEnhetStatus.AKTIV,
+        NavEnhetStatus.UNDER_AVVIKLING,
+        NavEnhetStatus.UNDER_ETABLERING
     ),
     val tiltakstypeId: String? = null
 )
@@ -50,7 +50,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { it?.toUUID() }
+    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.toUUID()
     val search = call.request.queryParameters["search"]
     val avtalestatus =
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }

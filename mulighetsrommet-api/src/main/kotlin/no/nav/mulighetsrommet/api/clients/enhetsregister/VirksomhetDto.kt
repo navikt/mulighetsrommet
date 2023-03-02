@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.api.domain
+package no.nav.mulighetsrommet.api.clients.enhetsregister
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class VirksomhetDTO(
+data class VirksomhetDto(
     val organisasjonsnummer: String,
     val navn: String,
     val overordnetEnhetOrganisasjonsnummer: String? = null,

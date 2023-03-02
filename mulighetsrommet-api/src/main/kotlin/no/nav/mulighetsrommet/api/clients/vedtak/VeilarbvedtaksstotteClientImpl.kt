@@ -9,7 +9,6 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
-import no.nav.mulighetsrommet.api.domain.VedtakDTO
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.secure_log.SecureLog
@@ -28,7 +27,7 @@ class VeilarbvedtaksstotteClientImpl(
         install(HttpCache)
     }
 
-    private val siste14aVedtakCache: Cache<String, VedtakDTO> = Caffeine.newBuilder()
+    private val siste14aVedtakCache: Cache<String, VedtakDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -40,7 +39,7 @@ class VeilarbvedtaksstotteClientImpl(
         cacheMetrics.addCache("siste14aVedtakCache", siste14aVedtakCache)
     }
 
-    override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDTO? {
+    override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDto? {
         return CacheUtils.tryCacheFirstNotNull(siste14aVedtakCache, fnr) {
             try {
                 val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {

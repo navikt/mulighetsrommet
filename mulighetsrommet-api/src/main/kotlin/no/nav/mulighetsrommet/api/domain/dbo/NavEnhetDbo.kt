@@ -3,15 +3,15 @@ package no.nav.mulighetsrommet.api.domain.dbo
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Norg2EnhetDbo(
-    val enhet_id: Int,
+data class NavEnhetDbo(
+    val enhetId: Int,
     val navn: String,
     val enhetNr: String,
-    val status: EnhetStatus
+    val status: NavEnhetStatus
 )
 
 @Serializable
-enum class EnhetStatus() {
+enum class NavEnhetStatus {
     UNDER_ETABLERING,
     AKTIV,
     UNDER_AVVIKLING,
