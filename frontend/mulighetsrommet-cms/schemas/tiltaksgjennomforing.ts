@@ -67,29 +67,6 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Her skriver du inn tiltaksnummeret for gjennomføringen. Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn tiltaksnummer.",
       type: "slug",
-      validation: (rule) =>
-        rule.custom(async (tiltaksnummer, { document, getClient }) => {
-          if (!document?.tiltakstype) return true;
-
-          const tiltaksgruppe = await getClient({
-            apiVersion: API_VERSION,
-          }).fetch(
-            "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
-            { tiltakstype: document.tiltakstype._ref }
-          );
-
-          if (tiltaksgruppe?.includes("individuelt")) {
-            return !tiltaksnummer
-              ? true
-              : "Tiltaksnummer skal ikke settes for individuelle tiltak.";
-          }
-
-          if (!tiltaksnummer) {
-            return "Du må sette et tiltaksnummer.";
-          }
-
-          return true;
-        }),
     }),
     defineField({
       name: "kontaktinfoArrangor",
@@ -98,28 +75,6 @@ export const tiltaksgjennomforing = defineType({
         "Ikke velg arrangør dersom tiltakstypen gjelder individuelle tiltak.",
       type: "reference",
       to: [{ type: "arrangor" }],
-      validation: (rule) =>
-        rule.custom(async (arrangor, { document, getClient }) => {
-          const tiltaksgruppe = await getClient({
-            apiVersion: API_VERSION,
-          }).fetch(
-            "*[_type == 'tiltakstype' && _id == $tiltakstype].tiltaksgruppe",
-            { tiltakstype: document.tiltakstype._ref }
-          );
-
-          if (tiltaksgruppe?.includes("individuelt")) {
-            if (arrangor) {
-              return "Individuelle tiltak skal ikke ha noen arrangør.";
-            }
-            return true;
-          }
-
-          if (!arrangor) {
-            return "For tiltak som ikke er individuelle må man velge en arrangør.";
-          }
-
-          return true;
-        }),
     }),
     defineField({
       name: "beskrivelse",
