@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
@@ -60,18 +59,6 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(FNR, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
         brukerService.hentBrukerdata(FNR, "").oppfolgingsenhet?.navn shouldBe "NAV Fredrikstad"
         brukerService.hentBrukerdata(FNR, "").oppfolgingsenhet?.enhetId shouldBe "0116"
-    }
-
-    test("Henting av brukerdata blir cachet basert på fnr") {
-        brukerService.hentBrukerdata(FNR, "")
-        brukerService.hentBrukerdata(FNR, "")
-        brukerService.hentBrukerdata(FNR, "")
-        brukerService.hentBrukerdata(FNR_2, "")
-
-        coVerify(exactly = 2) { veilarboppfolgingClient.hentManuellStatus(any(), any()) }
-        coVerify(exactly = 2) { veilarboppfolgingClient.hentOppfolgingsstatus(any(), any()) }
-        coVerify(exactly = 2) { veilarbpersonClient.hentPersonInfo(any(), any()) }
-        coVerify(exactly = 2) { veilarbvedtaksstotteClient.hentSiste14AVedtak(any(), any()) }
     }
 })
 

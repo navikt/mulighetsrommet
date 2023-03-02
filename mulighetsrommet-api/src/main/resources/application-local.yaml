@@ -30,6 +30,7 @@ app:
   sanity:
     dataset: test
     projectId: xegcworx
+    authToken: ${SANITY_AUTH_TOKEN:-""}
 
   swagger:
     enable: true
