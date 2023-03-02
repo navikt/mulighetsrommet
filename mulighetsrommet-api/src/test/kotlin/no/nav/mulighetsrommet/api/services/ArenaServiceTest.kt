@@ -126,7 +126,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = TiltakshistorikkRepository(database.db),
+            tiltakshistorikk = TiltakshistorikkRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
         )
@@ -174,7 +174,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = TiltakshistorikkRepository(database.db),
+            tiltakshistorikk = TiltakshistorikkRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
         )
@@ -212,7 +212,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = TiltakshistorikkRepository(database.db),
+            tiltakshistorikk = TiltakshistorikkRepository(database.db),
             tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             tiltakstypeKafkaProducer = mockk(relaxed = true),
         )
@@ -277,7 +277,7 @@ class ArenaServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = TiltakshistorikkRepository(database.db),
+            tiltakshistorikk = TiltakshistorikkRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
         )

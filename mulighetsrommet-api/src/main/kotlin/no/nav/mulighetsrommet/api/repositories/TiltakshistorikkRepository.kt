@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -67,7 +67,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                    t.navn as tiltakstype
             from tiltakshistorikk
                      left join tiltaksgjennomforing gjennomforing on gjennomforing.id = tiltakshistorikk.tiltaksgjennomforing_id
-                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)  
+                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)
             where norsk_ident = ?
             order by tiltakshistorikk.fra_dato desc nulls last;
         """.trimIndent()

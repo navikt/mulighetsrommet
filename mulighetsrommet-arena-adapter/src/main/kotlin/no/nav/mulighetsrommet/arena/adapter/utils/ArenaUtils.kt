@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
 import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
