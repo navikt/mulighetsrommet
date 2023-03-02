@@ -14,20 +14,20 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/vision": "^3.2.4",
+    "@sanity/vision": "^3.5.1",
     "prop-types": "^15.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.7.1",
     "react-is": "^18.2.0",
     "react-switch": "^7.0.0",
-    "sanity": "^3.2.4",
-    "styled-components": "^5.3.6"
+    "sanity": "^3.5.1",
+    "styled-components": "^5.3.8"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^1.4.1",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "eslint": "^8.32.0"
+    "@eslint/eslintrc": "^2.0.0",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "eslint": "^8.35.0"
   }
 }
