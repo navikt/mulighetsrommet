@@ -7,6 +7,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.domain.VedtakDTO
@@ -42,19 +43,22 @@ class VeilarbvedtaksstotteClientImpl(
 
     override suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): VedtakDTO? {
         return CacheUtils.tryCacheFirstNotNull(siste14aVedtakCache, fnr) {
+            val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
+                bearerAuth(tokenProvider.invoke(accessToken))
+            }
+
+            if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
+                log.info("Fant ikke siste 14A-vedtak for bruker")
+                return null
+            }
+
             try {
-                val response = client.get("$baseUrl/siste-14a-vedtak?fnr=$fnr") {
-                    bearerAuth(tokenProvider.invoke(accessToken))
-                }
-
-                if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.NoContent) {
-                    log.info("Fant ikke siste 14A-vedtak for bruker")
-                    return null
-                }
-
                 response.body()
-            } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr", exe)
+            } catch (e: Throwable) {
+                SecureLog.logger.error(
+                    "Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr, response: $response, body: ${response.bodyAsText()}",
+                    e
+                )
                 log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i secureLogs.")
                 return null
             }
