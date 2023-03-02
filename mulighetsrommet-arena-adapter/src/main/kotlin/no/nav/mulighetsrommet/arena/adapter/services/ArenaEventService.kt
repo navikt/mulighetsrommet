@@ -18,6 +18,7 @@ class ArenaEventService(
     private val config: Config = Config(),
     private val events: ArenaEventRepository,
     private val processors: List<ArenaEventProcessor>,
+    private val entities: ArenaEntityService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -77,7 +78,8 @@ class ArenaEventService(
             .forEach { processor ->
                 try {
                     logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
-
+                    val mapping = entities.getOrCreateMapping(event)
+                    // getOrCreateEntityMapping her? Lagre forrige status
                     val (status, message) = processor.handleEvent(event)
                         .map { Pair(it, null) }
                         .getOrHandle {
@@ -85,6 +87,8 @@ class ArenaEventService(
                             Pair(it.status, it.message)
                         }
 
+                    // sjekk hva status blir nå
+                    // hvis status var prosessert og nå er
                     events.upsert(event.copy(status = status, message = message))
                 } catch (e: Throwable) {
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)

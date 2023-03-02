@@ -12,12 +12,12 @@ class ArenaEntityMappingRepository(private val db: Database) {
     fun insert(mapping: ArenaEntityMapping): ArenaEntityMapping {
         @Language("PostgreSQL")
         val query = """
-            insert into arena_entity_mapping(arena_table, arena_id, entity_id)
-            values (?, ?, ?::uuid)
-            returning arena_table, arena_id, entity_id
+            insert into arena_entity_mapping(arena_table, arena_id, entity_id, status)
+            values (?, ?, ?::uuid, ?::entity_status)
+            returning arena_table, arena_id, entity_id, status
         """.trimIndent()
 
-        return queryOf(query, mapping.arenaTable.table, mapping.arenaId, mapping.entityId)
+        return queryOf(query, mapping.arenaTable.table, mapping.arenaId, mapping.entityId, mapping.status)
             .map { it.toMapping() }
             .asSingle
             .let { db.run(it)!! }
@@ -26,7 +26,7 @@ class ArenaEntityMappingRepository(private val db: Database) {
     fun get(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
         @Language("PostgreSQL")
         val query = """
-            select arena_table, arena_id, entity_id
+            select arena_table, arena_id, entity_id, status
             from arena_entity_mapping
             where arena_table = ? and arena_id = ?
         """.trimIndent()
@@ -41,7 +41,8 @@ class ArenaEntityMappingRepository(private val db: Database) {
         return ArenaEntityMapping(
             arenaTable = ArenaTable.fromTable(string("arena_table")),
             arenaId = string("arena_id"),
-            entityId = uuid("entity_id")
+            entityId = uuid("entity_id"),
+            status = ArenaEntityMapping.Status.valueOf(string("status"))
         )
     }
 }

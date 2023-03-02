@@ -25,7 +25,7 @@ class ArenaEntityService(
 
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
         return mappings.get(event.arenaTable, event.arenaId)
-            ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID()))
+            ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.UNHANDLED))
     }
 
     fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {

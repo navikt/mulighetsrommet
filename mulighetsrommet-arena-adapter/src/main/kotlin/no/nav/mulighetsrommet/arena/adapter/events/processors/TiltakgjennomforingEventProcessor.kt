@@ -46,7 +46,7 @@ class TiltakgjennomforingEventProcessor(
             ProcessingError.Ignored("Tiltaksgjennomføring ignorert fordi LOKALTNAVN er null")
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val tiltaksgjennomforing = data
             .toTiltaksgjennomforing(mapping.entityId)
             .flatMap { entities.upsertTiltaksgjennomforing(it) }
