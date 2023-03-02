@@ -41,7 +41,7 @@ class VeilarbpersonClientImpl(
 
     override suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDTO? {
         return CacheUtils.tryCacheFirstNotNull(personInfoCache, fnr) {
-            return try {
+            try {
                 client.get("$baseUrl/v2/person?fnr=$fnr") {
                     bearerAuth(tokenProvider.invoke(accessToken))
                 }.body()

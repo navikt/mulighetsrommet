@@ -81,8 +81,7 @@ class VeilarboppfolgingClientImpl(
                     return null
                 }
 
-                val body = response.body<ManuellStatusDTO>()
-                body
+                response.body()
             } catch (exe: Exception) {
                 SecureLog.logger.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
                 log.error("Klarte ikke hente manuell status. Se detaljer i secureLogs.")
