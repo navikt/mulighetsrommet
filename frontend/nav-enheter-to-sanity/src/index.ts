@@ -1,11 +1,11 @@
-import SanityClient from "@sanity/client";
+import { createClient } from "@sanity/client";
 import { EnhetskontaktinfoService, OpenAPI } from "norg2-api-client";
 import { toSanityEnheter } from "./sanity-enhet";
 import { run } from "./script";
 
 OpenAPI.BASE = process.env.NORG2_API_ENDPOINT ?? "";
 
-const client = SanityClient({
+const client = createClient({
   projectId: process.env.SANITY_PROJECT_ID,
   dataset: process.env.SANITY_DATASET,
   token: process.env.SANITY_AUTH_TOKEN,
