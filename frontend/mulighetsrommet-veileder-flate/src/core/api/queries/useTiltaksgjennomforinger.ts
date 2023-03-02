@@ -9,11 +9,10 @@ export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
 
-  const sanityQueryString = groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**")) 
-  ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)} 
+  const sanityQueryString = groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+  ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)}
   ${byggTiltakstypeFilter(filter.tiltakstyper)}
   ${byggSokefilter(filter.search)}
-  ${byggTiltaksgruppeFilterStreng(filter.tiltaksgruppe ?? [])}
   ${byggLokasjonsFilter(filter.lokasjoner ?? [])}
   ${byggEnhetOgFylkeFilter()}
   ]
@@ -45,14 +44,6 @@ function byggLokasjonsFilter(lokasjoner: Tiltaksgjennomforingsfiltergruppe<strin
   const lokasjonsStreng = lokasjoner.map(({ tittel }) => `"${tittel}"`).join(', ');
 
   return groq`&& lokasjon in [${lokasjonsStreng}]`;
-}
-
-function byggTiltaksgruppeFilterStreng(tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
-  if (tiltaksgruppe.length === 0) return '';
-
-  const tiltaksgruppeStreng = idSomListe(tiltaksgruppe);
-
-  return groq`&& tiltakstype->tiltaksgruppe in [${tiltaksgruppeStreng}]`;
 }
 
 function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
