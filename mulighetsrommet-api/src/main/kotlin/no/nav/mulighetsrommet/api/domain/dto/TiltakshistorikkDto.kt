@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.models
+package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class TiltakshistorikkDTO(
+data class TiltakshistorikkDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -18,5 +18,11 @@ data class TiltakshistorikkDTO(
     val status: Deltakerstatus,
     val tiltaksnavn: String?,
     val tiltakstype: String,
-    val arrangor: String?
-)
+    val arrangor: Arrangor?,
+) {
+    @Serializable
+    data class Arrangor(
+        val virksomhetsnummer: String,
+        val navn: String?,
+    )
+}
