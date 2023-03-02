@@ -551,7 +551,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Enhet"
+                  $ref: "#/components/schemas/NavEnhet"
 
 components:
   securitySchemes:
@@ -694,7 +694,7 @@ components:
           type: string
           format: date
         navEnhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/AvtaleNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
@@ -964,7 +964,7 @@ components:
         updated_by:
           type: string
 
-    Enhet:
+    NavEnhet:
       type: object
       properties:
         enhetId:
@@ -989,7 +989,7 @@ components:
         organisasjonsnummer:
           type: string
 
-    NavEnhet:
+    AvtaleNavEnhet:
       type: object
       properties:
         navn:
