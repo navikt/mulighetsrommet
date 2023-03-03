@@ -13,10 +13,10 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
       <Heading size="medium" level="2" className={styles.header}>
         Arrangør
       </Heading>
-      <Heading size="small" level="3" className={styles.navn}>
-        {kontaktinfoArrangor?.selskapsnavn}
-      </Heading>
       <div className={styles.container}>
+        <Heading size="small" level="3" className={styles.navn}>
+          {kontaktinfoArrangor?.selskapsnavn}
+        </Heading>
         <div className={styles.rad}>
           <Label size="small">Telefon</Label>
           <BodyShort>{kontaktinfoArrangor?.telefonnummer}</BodyShort>
