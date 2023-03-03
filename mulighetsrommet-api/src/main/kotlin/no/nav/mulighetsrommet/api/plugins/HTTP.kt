@@ -33,6 +33,7 @@ fun Application.configureHTTP() {
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
 
+        allowHeader("call-id")
         allowHeadersPrefixed("nav-")
     }
     install(DefaultHeaders) {
