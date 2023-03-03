@@ -25,7 +25,7 @@ export const regelverklenke = defineType({
     defineField({
       name: "regelverkLenkeNavn",
       title: "Navn til lenke",
-      description: "Her velger du hvilken tekst som skal vises i lenken.",
+      description: "Hvilken tekst som skal vises i lenken.",
       type: "string",
       validation: (rule) =>
         rule.custom((field, context) =>
@@ -39,7 +39,7 @@ export const regelverklenke = defineType({
       name: "beskrivelse",
       title: "Valgfri beskrivelse av lenken",
       description:
-        "Her skriver du en beskrivelse om hva lenken brukes til eller omhandler. Beskrivelsen vises ikke til veiledere, den er kun for intern bruk i Sanity.",
+        "Beskrivelse av hva lenken brukes til eller omhandler. Beskrivelsen vises ikke til veiledere, den er kun for internt bruk i Sanity.",
       type: "text",
       rows: 1,
       validation: (rule) => rule.max(100),

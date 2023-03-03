@@ -34,16 +34,16 @@ export const faneinnhold = defineType({
     defineField({
       name: "forHvemInfoboks",
       title:
-        'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "For hvem"',
+        'Fremhevet informasjon til veileder som legger seg i blå infoboks under fanen "For hvem"',
       description:
-        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring for å få et inntrykk av hvordan det vil se ut."',
+        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring" for å få et inntrykk av hvordan det vil se ut.',
       ...infoboksOptions,
       group: "forHvem",
     }),
     defineField({
       name: "forHvem",
       title: "For hvem",
-      description: `Her kan du skrive en beskrivelse av hvem tiltakstypen gjelder for. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
+      description: `Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
       type: "blockContent",
       group: "forHvem",
       validation: (Rule) =>
@@ -60,14 +60,14 @@ export const faneinnhold = defineType({
       title:
         'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "Detaljer og innhold"',
       description:
-        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring for å få et inntrykk av hvordan det vil se ut."',
+        'Fremhevet informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring" for å få et inntrykk av hvordan det vil se ut.',
       ...infoboksOptions,
       group: "detaljerOgInnhold",
     }),
     defineField({
       name: "detaljerOgInnhold",
       title: "Detaljer og innhold",
-      description: `Her kan du skrive om detaljer og innhold som gjelder for tiltakstypen. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
+      description: `Beskrivelse av detaljer og innhold for tiltaktypen. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
       type: "blockContent",
       group: "detaljerOgInnhold",
       validation: (Rule) =>
@@ -84,14 +84,14 @@ export const faneinnhold = defineType({
       title:
         'Ekstra viktig informasjon til veileder som legger seg i blå infoboks under fanen "Påmelding og varighet"',
       description:
-        'Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring for å få et inntrykk av hvordan det vil se ut."',
+        'Fremhevet informasjon om påmelding og varighet. Bruk gjerne "forhåndsvisning av tiltaksgjennomføring" for å få et inntrykk av hvordan det vil se ut.',
       ...infoboksOptions,
       group: "pameldingOgVarighet",
     }),
     defineField({
       name: "pameldingOgVarighet",
       title: "Påmelding og varighet",
-      description: `Her kan du skrive om påmelding og varighet for tiltakstypen. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
+      description: `Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
       type: "blockContent",
       group: "pameldingOgVarighet",
       validation: (Rule) =>
