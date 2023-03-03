@@ -1,18 +1,18 @@
-package no.nav.mulighetsrommet.api.domain
+package no.nav.mulighetsrommet.api.clients.norg2
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Norg2Enhet(
+data class Norg2EnhetDto(
     val enhetId: Int,
     val navn: String,
     val enhetNr: String,
-    val status: EnhetStatus
+    val status: Norg2EnhetStatus
 )
 
 @Serializable
-enum class EnhetStatus() {
+enum class Norg2EnhetStatus {
     @SerialName("Under etablering")
     UNDER_ETABLERING,
 

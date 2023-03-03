@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.api.domain
+package no.nav.mulighetsrommet.api.clients.veileder
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class VeilederDTO(
+data class VeilederDto(
     val etternavn: String? = null,
     val fornavn: String? = null,
     val ident: String? = null,

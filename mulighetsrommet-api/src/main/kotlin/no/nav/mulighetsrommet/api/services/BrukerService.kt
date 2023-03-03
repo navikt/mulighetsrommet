@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
+import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
+import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
-import no.nav.mulighetsrommet.api.domain.Innsatsgruppe
-import no.nav.mulighetsrommet.api.domain.ManuellStatusDTO
-import no.nav.mulighetsrommet.api.domain.Oppfolgingsenhet
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -37,6 +37,6 @@ class BrukerService(
         val oppfolgingsenhet: Oppfolgingsenhet?,
         val servicegruppe: String?,
         val fornavn: String?,
-        val manuellStatus: ManuellStatusDTO?
+        val manuellStatus: ManuellStatusDto?
     )
 }

@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.api.domain
+package no.nav.mulighetsrommet.api.clients.vedtak
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class VedtakDTO(
+data class VedtakDto(
     val innsatsgruppe: Innsatsgruppe?
 )
 

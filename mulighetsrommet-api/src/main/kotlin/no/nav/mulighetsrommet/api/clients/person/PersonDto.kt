@@ -1,8 +1,8 @@
-package no.nav.mulighetsrommet.api.domain
+package no.nav.mulighetsrommet.api.clients.person
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PersonDTO(
+data class PersonDto(
     val fornavn: String
 )

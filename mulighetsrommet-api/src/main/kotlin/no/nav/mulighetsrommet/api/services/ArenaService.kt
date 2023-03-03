@@ -18,7 +18,7 @@ class ArenaService(
     private val tiltakstyper: TiltakstypeRepository,
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakere: TiltakshistorikkRepository,
+    private val tiltakshistorikk: TiltakshistorikkRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
@@ -65,10 +65,10 @@ class ArenaService(
     }
 
     fun upsert(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> {
-        return deltakere.upsert(tiltakshistorikk)
+        return this.tiltakshistorikk.upsert(tiltakshistorikk)
     }
 
     fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
-        return deltakere.delete(id)
+        return tiltakshistorikk.delete(id)
     }
 }
