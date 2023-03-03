@@ -5,10 +5,11 @@ import styles from './Detaljerfane.module.scss';
 interface FaneMalTiltakProps {
   children: any;
   harInnhold: boolean;
+  className?: string;
 }
 
-const FaneTiltaksinformasjon = ({ children, harInnhold }: FaneMalTiltakProps) => {
-  return <div className={classNames(styles.tiltaksdetaljer_maksbredde)}>{harInnhold ? children : null}</div>;
+const FaneTiltaksinformasjon = ({ children, harInnhold, className }: FaneMalTiltakProps) => {
+  return <div className={classNames(styles.tiltaksdetaljer_maksbredde, className)}>{harInnhold ? children : null}</div>;
 };
 
 export default FaneTiltaksinformasjon;
