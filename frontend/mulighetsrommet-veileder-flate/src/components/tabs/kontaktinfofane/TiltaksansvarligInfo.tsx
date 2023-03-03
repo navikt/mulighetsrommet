@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
-import styles from './Arrangorinfo.module.scss';
+import styles from './Kontaktinfo.module.scss';
 import { Tiltaksansvarlig } from '../../../core/api/models';
 import { logEvent } from '../../../core/api/logger';
 
@@ -19,7 +19,10 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
     );
 
   return (
-    <>
+    <div>
+      <Heading size="medium" level="2" className={styles.header}>
+        Tiltaksansvarlig
+      </Heading>
       {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
@@ -63,7 +66,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
           </div>
         );
       })}
-    </>
+    </div>
   );
 };
 
