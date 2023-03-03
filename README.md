@@ -47,11 +47,11 @@ løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/featu
 
 ### `mulighetsrommet-veileder-flate`
 
-| | |
+| |                                                                                                         |
 |------------------|---------------------------------------------------------------------------------------------------------|
 | Kildekode        | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (dev-miljø)  | <https://veilarbpersonflate.dev.intern.nav.no/12118323058>                                              |
+| Url (dev-miljø)  | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
 | Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/>                                                  |
 
 ### `mulighetsrommet-api-client`
@@ -77,33 +77,33 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 
 ### `mulighetsrommet-api`
 
-| | |
+| |                                                                                     |
 |-----------------|-------------------------------------------------------------------------------------|
 | Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api>           |
 | README          | <https://github.com/navikt/mulighetsrommet/blob/main/mulighetsrommet-api/README.md> |
-| Url (dev-miljø) | <https://mulighetsrommet-api.dev.intern.nav.no/>                                    |
-| API             | <https://mulighetsrommet-api.dev.intern.nav.no/swagger-ui>                          |
+| Url (dev-miljø) | <https://mulighetsrommet-api.intern.dev.nav.no/>                                    |
+| API             | <https://mulighetsrommet-api.intern.dev.nav.no/swagger-ui>                          |
 
 ### `mulighetsrommet-kafka-manager`
 
 Applikasjon som gir oversikt over kafka-topics relevante for dette prosjektet.
 
-| | |
-| --------------- | ----------------------------------------------------------------------------------- |
-| README | <https://github.com/navikt/kafka-manager> |
+| |                                                                         |
+| --------------- |-------------------------------------------------------------------------|
+| README | <https://github.com/navikt/kafka-manager>                               |
 | Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/iac/kafka-manager> |
-| Url (dev-miljø) | <https://mulighetsrommet-kafka-manager.dev.intern.nav.no> |
-| Url (prod-miljø | <https://mulighetsrommet-kafka-manager.intern.nav.no> |
+| Url (dev-miljø) | <https://mulighetsrommet-kafka-manager.intern.dev.nav.no>               |
+| Url (prod-miljø | <https://mulighetsrommet-kafka-manager.intern.nav.no>                   |
 
 ### `mr-admin-flate`
 
 Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltakstyper og tiltaksgjennomføringer.
 
-| | |
+| |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mr-admin-flate/README.md> |
 | Demo-miljø       | <https://mulighetsrommet-admin-flate.labs.nais.io>                                      |
-| Url (dev-miljø)  | <https://mulighetsrommet-admin-flate.dev.intern.nav.no>                                 |
+| Url (dev-miljø)  | <https://mulighetsrommet-admin-flate.intern.dev.nav.no>                                 |
 | Url (prod-miljø) | <https://mulighetsrommet-admin-flate.intern.nav.no>                                     |
 
 ## Overvåking av automatiske jobber
