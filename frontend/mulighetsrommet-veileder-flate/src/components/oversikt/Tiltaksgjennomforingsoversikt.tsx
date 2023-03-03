@@ -8,12 +8,12 @@ import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomf
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
+import { ApiError } from 'mulighetsrommet-api-client';
+import { logEvent } from '../../core/api/logger';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
-import { logEvent } from '../../core/api/logger';
-import { ApiError } from 'mulighetsrommet-api-client';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -51,7 +51,6 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   if (isError) {
-    let callId = '';
     if (error instanceof ApiError) {
       return (
         <Alert variant="error">
