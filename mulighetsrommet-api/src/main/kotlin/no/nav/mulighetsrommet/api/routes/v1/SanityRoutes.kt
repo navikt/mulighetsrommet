@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.api.services.SanityResponse
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import org.koin.ktor.ext.inject
@@ -28,8 +29,18 @@ fun Route.sanityRoutes() {
             }
             val accessToken = call.getAccessToken()
 
-            val result = sanityService.executeQuery(query, fnr, accessToken)
-            call.respondText(result.toString(), ContentType.Application.Json)
+            when (val response = sanityService.executeQuery(query, fnr, accessToken)) {
+                is SanityResponse.Result -> call.respondText(
+                    text = response.result.toString(),
+                    contentType = ContentType.Application.Json
+                )
+
+                is SanityResponse.Error -> call.respondText(
+                    text = response.error.toString(),
+                    contentType = ContentType.Application.Json,
+                    status = HttpStatusCode.InternalServerError
+                )
+            }
         }
     }
 }

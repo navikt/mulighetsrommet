@@ -13,6 +13,7 @@ import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
 import { logEvent } from '../../core/api/logger';
+import { ApiError } from 'mulighetsrommet-api-client';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -24,7 +25,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
 
-  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforinger();
+  const { data: tiltaksgjennomforinger = [], isLoading, isError, error, isFetching } = useTiltaksgjennomforinger();
   const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
   const didMountRef = useRef(false);
 
@@ -50,7 +51,19 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   if (isError) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
+    let callId = '';
+    if (error instanceof ApiError) {
+      return (
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg så ta kontakt med Porten.
+          <pre>{JSON.stringify({ message: error.message, status: error.status, url: error.url }, null, 2)}</pre>
+        </Alert>
+      );
+    } else {
+      return (
+        <Alert variant="error">Det har dessverre skjedd en feil. Om feilen gjentar seg så ta kontakt med Porten.</Alert>
+      );
+    }
   }
 
   const getSort = (sortValue: string) => {
