@@ -9,7 +9,7 @@ plugins {
     val kotlinVersion = "1.8.0"
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.serialization") version kotlinVersion apply false
-    id("org.flywaydb.flyway") version "8.5.10" apply false
+    id("org.flywaydb.flyway") version "9.15.1" apply false
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
     id("com.github.johnrengelman.shadow") version "7.1.2" apply false
 }
