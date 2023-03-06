@@ -15,7 +15,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    val ktorVersion = "2.2.1"
+    val ktorVersion = "2.2.4"
     testFixturesImplementation("io.ktor:ktor-client-core:$ktorVersion")
     testFixturesImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testFixturesImplementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")

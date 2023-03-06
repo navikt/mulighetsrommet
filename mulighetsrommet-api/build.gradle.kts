@@ -33,7 +33,7 @@ dependencies {
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
     implementation("io.arrow-kt:arrow-core:1.1.3")
 
-    val ktorVersion = "2.2.1"
+    val ktorVersion = "2.2.4"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
@@ -61,7 +61,7 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
 
-    val koinVersion = "3.2.0"
+    val koinVersion = "3.3.1"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
