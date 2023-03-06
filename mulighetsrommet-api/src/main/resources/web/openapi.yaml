@@ -551,7 +551,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Enhet"
+                  $ref: "#/components/schemas/NavEnhet"
 
 components:
   securitySchemes:
@@ -694,7 +694,7 @@ components:
           type: string
           format: date
         navEnhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/AvtaleNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
@@ -930,8 +930,7 @@ components:
         tiltakstype:
           type: string
         arrangor:
-          type: string
-          nullable: true
+          $ref: "#/components/schemas/TiltakshistorikkArrangor"
       required:
         - id
         - fnr
@@ -941,6 +940,16 @@ components:
         - tiltaksnavn
         - tiltakstype
         - arrangor
+
+    TiltakshistorikkArrangor:
+      type: object
+      nullable: true
+      properties:
+        virksomhetsnummer:
+          type: string
+        navn:
+          type: string
+          nullable: true
 
     DelMedBruker:
       type: object
@@ -964,7 +973,7 @@ components:
         updated_by:
           type: string
 
-    Enhet:
+    NavEnhet:
       type: object
       properties:
         enhetId:
@@ -989,7 +998,7 @@ components:
         organisasjonsnummer:
           type: string
 
-    NavEnhet:
+    AvtaleNavEnhet:
       type: object
       properties:
         navn:

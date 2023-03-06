@@ -2,7 +2,7 @@ import { rest } from "msw";
 import {
   Ansatt,
   Avtale,
-  Enhet,
+  NavEnhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
@@ -57,10 +57,13 @@ export const apiHandlers = [
     }
   ),
 
-  rest.get<any, any, Enhet[]>("*/api/v1/internal/enheter", (req, res, ctx) => {
-    const enheter = mockEnheter;
-    return res(ctx.status(200), ctx.json(enheter));
-  }),
+  rest.get<any, any, NavEnhet[]>(
+    "*/api/v1/internal/enheter",
+    (req, res, ctx) => {
+      const enheter = mockEnheter;
+      return res(ctx.status(200), ctx.json(enheter));
+    }
+  ),
 
   rest.get<any, any, PaginertAvtale | undefined>(
     "*/api/v1/internal/avtaler",

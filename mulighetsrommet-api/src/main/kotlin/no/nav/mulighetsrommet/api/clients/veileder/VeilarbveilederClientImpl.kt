@@ -8,7 +8,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
-import no.nav.mulighetsrommet.api.domain.VeilederDTO
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -23,7 +22,7 @@ class VeilarbveilederClientImpl(
 ) : VeilarbveilederClient {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val cache: Cache<UUID, VeilederDTO> = Caffeine.newBuilder()
+    private val cache: Cache<UUID, VeilederDto> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -39,7 +38,7 @@ class VeilarbveilederClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentVeilederdata(accessToken: String, navAnsattAzureId: UUID): VeilederDTO? {
+    override suspend fun hentVeilederdata(accessToken: String, navAnsattAzureId: UUID): VeilederDto? {
         return CacheUtils.tryCacheFirstNotNull(cache, navAnsattAzureId) {
             try {
                 client.get("$baseUrl/veileder/me") {

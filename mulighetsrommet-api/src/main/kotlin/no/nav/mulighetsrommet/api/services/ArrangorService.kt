@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
-import no.nav.mulighetsrommet.api.domain.VirksomhetDTO
+import no.nav.mulighetsrommet.api.clients.enhetsregister.VirksomhetDto
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
@@ -13,7 +13,7 @@ class ArrangorService(
     private val amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) {
 
-    private val cache: Cache<String, VirksomhetDTO> = Caffeine.newBuilder()
+    private val cache: Cache<String, VirksomhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(10000)
         .build()
@@ -24,10 +24,10 @@ class ArrangorService(
         cacheMetrics.addCache("enhetsregisterCache", cache)
     }
 
-    suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDTO? {
+    suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDto? {
         return CacheUtils
             .tryCacheFirstNullable(cache, virksomhetsnummer) {
-                val virksomhet: VirksomhetDTO? = virksomhetsnummer.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
+                val virksomhet: VirksomhetDto? = virksomhetsnummer.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
                 virksomhet
             }
     }

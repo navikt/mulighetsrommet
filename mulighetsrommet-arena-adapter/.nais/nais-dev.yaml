@@ -9,7 +9,7 @@ spec:
   image: {{image}}
   port: 8084
   ingresses:
-    - https://mulighetsrommet-arena-adapter.dev.intern.nav.no
+    - https://mulighetsrommet-arena-adapter.intern.dev.nav.no
   secureLogs:
     enabled: true
   prometheus:

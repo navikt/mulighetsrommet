@@ -5,9 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -39,21 +37,21 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         }
     }
 
-    suspend fun executeQuery(query: String, fnr: String?, accessToken: String): JsonElement? {
+    suspend fun executeQuery(query: String, fnr: String?, accessToken: String): SanityResponse {
         if (fnr !== null) {
             return getMedBrukerdata(query, fnr, accessToken)
         }
         return get(query)
     }
 
-    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): JsonElement? {
+    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.oppfolgingsenhet?.enhetId
-        val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId)
+        val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
+        val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId) ?: ""
         return get(query, enhetsId, fylkesId)
     }
 
-    private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): JsonElement? {
+    private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): SanityResponse {
         client.get {
             url {
                 parameters.append("query", query)
@@ -61,8 +59,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
                 fylkeId?.let { parameters.append("\$fylkeId", "\"enhet.fylke.$it\"") }
             }
         }.let {
-            val response = it.body<JsonObject>()
-            return response["result"]
+            return it.body()
         }
     }
 
@@ -75,8 +72,17 @@ class SanityService(private val config: Config, private val brukerService: Bruke
 
         logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 
+        val fylkeResponse = when (response) {
+            is SanityResponse.Result -> response?.result?.let {
+                JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(
+                    it
+                )
+            }
+
+            else -> null
+        }
+
         return try {
-            val fylkeResponse = response?.let { JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(it) }
             val fylkeNummer = fylkeResponse?.fylke?.nummer?.current
             if (fylkeNummer != null && enhetsId != null) {
                 fylkenummerCache[enhetsId] = fylkeNummer
@@ -103,3 +109,25 @@ private data class Fylke(
 private data class Slug(
     val current: String
 )
+
+@Serializable(with = SanityReponseSerializer::class)
+sealed class SanityResponse {
+    @Serializable
+    data class Result(
+        val ms: Int,
+        val query: String,
+        val result: JsonElement?,
+    ) : SanityResponse()
+
+    @Serializable
+    data class Error(
+        val error: JsonObject,
+    ) : SanityResponse()
+}
+
+object SanityReponseSerializer : JsonContentPolymorphicSerializer<SanityResponse>(SanityResponse::class) {
+    override fun selectDeserializer(element: JsonElement) = when {
+        "result" in element.jsonObject -> SanityResponse.Result.serializer()
+        else -> SanityResponse.Error.serializer()
+    }
+}

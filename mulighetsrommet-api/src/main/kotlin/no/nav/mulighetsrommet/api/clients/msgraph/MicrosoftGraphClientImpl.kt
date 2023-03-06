@@ -6,7 +6,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.domain.MSGraphBrukerdata
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
@@ -23,7 +22,7 @@ class MicrosoftGraphClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentHovedenhetForBruker(accessToken: String, navAnsattAzureId: UUID): MSGraphBrukerdata {
+    override suspend fun hentHovedenhetForBruker(accessToken: String, navAnsattAzureId: UUID): MSGraphBrukerHovedenhetDto {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId?\$select=streetAddress,city") {
             bearerAuth(tokenProvider(accessToken))
         }
@@ -35,7 +34,7 @@ class MicrosoftGraphClientImpl(
         }
 
         val user = response.body<MSGraphUser>()
-        return MSGraphBrukerdata(
+        return MSGraphBrukerHovedenhetDto(
             hovedenhetKode = user.streetAddress,
             hovedenhetNavn = user.city
         )

@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

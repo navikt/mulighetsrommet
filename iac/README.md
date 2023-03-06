@@ -37,7 +37,7 @@ Deployment av topic skjer automatisk via Github Actions når man merger kode rel
 ## Kafka manager
 Kafka manager er en applikasjon som kan nås på følgende url'er:
 
-**Dev**: https://mulighetsrommet-kafka-manager.dev.intern.nav.no
+**Dev**: https://mulighetsrommet-kafka-manager.intern.dev.nav.no
 **Prod**: https://mulighetsrommet-kafka-manager.intern.nav.no
 
 Man kan bruke manageren for å lese meldinger på topics som er definert i konfigurasjonen.

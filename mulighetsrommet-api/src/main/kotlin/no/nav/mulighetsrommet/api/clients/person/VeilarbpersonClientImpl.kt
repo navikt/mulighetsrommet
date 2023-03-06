@@ -8,7 +8,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
-import no.nav.mulighetsrommet.api.domain.PersonDTO
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.secure_log.SecureLog
@@ -27,7 +26,7 @@ class VeilarbpersonClientImpl(
         install(HttpCache)
     }
 
-    private val personInfoCache: Cache<String, PersonDTO> = Caffeine.newBuilder()
+    private val personInfoCache: Cache<String, PersonDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -39,7 +38,7 @@ class VeilarbpersonClientImpl(
         cacheMetrics.addCache("personInfoCache", personInfoCache)
     }
 
-    override suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDTO? {
+    override suspend fun hentPersonInfo(fnr: String, accessToken: String): PersonDto? {
         return CacheUtils.tryCacheFirstNotNull(personInfoCache, fnr) {
             try {
                 client.get("$baseUrl/v2/person?fnr=$fnr") {

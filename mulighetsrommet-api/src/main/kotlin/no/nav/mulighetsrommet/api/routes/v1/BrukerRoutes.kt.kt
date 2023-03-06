@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.BrukerService
-import no.nav.mulighetsrommet.api.services.HistorikkService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.audit_log.AuditLog
 import no.nav.mulighetsrommet.secure_log.SecureLog
@@ -23,7 +23,7 @@ fun Route.brukerRoutes() {
     val auditLog = AuditLog.auditLogger
     val secureLog = SecureLog.logger
     val brukerService: BrukerService by inject()
-    val historikkService: HistorikkService by inject()
+    val historikkService: TiltakshistorikkService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("/api/v1/internal/bruker") {
