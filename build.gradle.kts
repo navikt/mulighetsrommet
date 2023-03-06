@@ -6,7 +6,7 @@ group = "no.nav.mulighetsrommet"
 version = "0.0.1"
 
 plugins {
-    val kotlinVersion = "1.8.0"
+    val kotlinVersion = "1.8.10"
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.serialization") version kotlinVersion apply false
     id("org.flywaydb.flyway") version "9.15.1" apply false
@@ -20,6 +20,7 @@ allprojects {
     }
 
     tasks.withType<JavaCompile> {
+        targetCompatibility = "17"
         options.encoding = "UTF-8"
     }
 
