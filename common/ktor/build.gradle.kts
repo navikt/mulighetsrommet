@@ -29,7 +29,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
     // Metrikker
-    implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
 
     // Audit-logging
     implementation("com.github.navikt.common-java-modules:audit-log:2023.02.08_14.02-e5f1a7a4b9e4")
@@ -37,7 +37,7 @@ dependencies {
     // Cache
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
-    val hopliteVersion = "2.4.0"
+    val hopliteVersion = "2.7.2"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     api("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
 }

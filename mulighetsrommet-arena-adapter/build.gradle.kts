@@ -62,27 +62,26 @@ dependencies {
     implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
     implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
 
-    val kotestVersion = "5.4.2"
+    val kotestVersion = "5.5.5"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
-    testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("org.testcontainers:kafka:1.17.6")
     testImplementation("org.assertj:assertj-db:2.0.2")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.8")
 
     val koinVersion = "3.3.1"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.5")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
+    implementation("org.slf4j:slf4j-api:2.0.6")
 
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
     implementation("com.github.kagkarlsson:db-scheduler:11.6")
 }
