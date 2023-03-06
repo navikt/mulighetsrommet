@@ -1,5 +1,5 @@
 import { GrUserAdmin } from "react-icons/gr";
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
 
 export const redaktor = defineType({
   name: "redaktor",
@@ -30,7 +30,7 @@ export const redaktor = defineType({
     defineField({
       name: "enhet",
       title: "NAV-enhet",
-      description: "Her velger du hvilken NAV-enhet du tilhører",
+      description: "Tilhørende NAV-enhet.",
       type: "string",
       validation: (rule) => rule.required().min(2).max(200),
     }),

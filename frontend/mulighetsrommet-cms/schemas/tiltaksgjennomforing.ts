@@ -23,8 +23,7 @@ export const tiltaksgjennomforing = defineType({
       name: "redaktor",
       title: "Redaktører",
       type: "array",
-      description:
-        "Her velger du hvem som eier innholdet i denne tiltaksgjennomføringen.",
+      description: "Eier av innholdet i denne tiltaksgjennomføringen.",
       of: [
         {
           type: "reference",
@@ -49,15 +48,12 @@ export const tiltaksgjennomforing = defineType({
       name: "tiltakstype",
       title: "Tiltakstype",
       type: "reference",
-      description:
-        "Her velger du hvilken tiltakstype gjennomføringen gjelder for.",
       to: [{ type: "tiltakstype" }],
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
-      description: "Her legger du inn navn for tiltaksgjennomføringen.",
       type: "string",
       validation: (rule) => rule.required(),
     }),
@@ -65,7 +61,7 @@ export const tiltaksgjennomforing = defineType({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description:
-        "Her skriver du inn tiltaksnummeret for gjennomføringen. Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn tiltaksnummer.",
+        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn tiltaksnummer.",
       type: "slug",
     }),
     defineField({
@@ -79,8 +75,7 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
-      description:
-        "Her kan du legge til en tekstlig beskrivelse av tiltaksgjennomføringen.",
+      description: "Beskrivelse av formålet med tiltaksgjennomføringen.",
       type: "text",
       rows: 5,
       validation: (rule) => rule.max(500),
@@ -88,9 +83,8 @@ export const tiltaksgjennomforing = defineType({
 
     defineField({
       name: "estimert_ventetid",
-      title: "Estimert ventetid eller stengt til",
-      description:
-        "Her kan du oppgi estimert ventetid for tiltaket. Dersom tiltaket har status 'stengt' kan du skrive hvor lenge det er stengt til, dersom du vet det. Det kan være lurt å sjekke at dette feltet stemmer dersom det er lagt inn en estimert ventetid og ventetiden endrer seg gjennom året.",
+      title: "Merknad til tilgjengelighetsstatus",
+      description: "F.eks estimert ventetid eller stengt til dato.",
       type: "string",
     }),
 
@@ -98,14 +92,14 @@ export const tiltaksgjennomforing = defineType({
       name: "lokasjon",
       title: "Lokasjon",
       description:
-        "Her skriver du inn hvor i tiltaket gjelder, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
+        "Sted for gjennomføring, f.eks. Fredrikstad eller Tromsø. Veileder kan filtrere på verdiene i dette feltet, så ikke skriv fulle adresser.",
       type: "string",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "fylke",
       title: "Fylke",
-      description: "Her velger du hvilket fylke tiltaket gjelder for.",
+      description: "Hvilket fylke gjelder tiltaket for.",
       type: "reference",
       to: [{ type: "enhet" }],
       options: {
@@ -121,7 +115,7 @@ export const tiltaksgjennomforing = defineType({
       name: "enheter",
       title: "Enheter",
       description:
-        "Her velger du hvilke enheter som kan benytte seg av dette tiltaket. Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
+        "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
 
       hidden: ({ document }) => {
@@ -168,8 +162,6 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "oppstart",
       title: "Oppstart eller midlertidig stengt",
-      description:
-        "Her velger du om tiltaksgjennomføringen har oppstart på en spesifikk dato eller om det er løpende oppstart.",
       type: "string",
       options: {
         list: [
@@ -196,8 +188,7 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "kontaktinfoTiltaksansvarlige",
       title: "Tiltaksansvarlig",
-      description:
-        "Her velger du en eller flere tiltaksansvarlige for tiltaksgjennomføringen.",
+      description: "Tiltaksansvarlige for tiltaksgjennomføringen.",
       type: "array",
       of: [{ type: "reference", to: [{ type: "navKontaktperson" }] }],
       validation: (rule) => rule.required().min(1).unique(),
@@ -219,7 +210,7 @@ export const tiltaksgjennomforing = defineType({
       name: "tilgjengelighetsstatus",
       title: "Tilgjengelighetsstatus",
       description:
-        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives her i Sanity.",
+        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives i Sanity.",
       readOnly: true,
       type: "string",
       options: {
