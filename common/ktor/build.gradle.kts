@@ -32,12 +32,10 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
 
     // Audit-logging
-    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
-    implementation("no.nav.common:audit-log:$navCommonModules")
+    implementation("com.github.navikt.common-java-modules:audit-log:2023.02.08_14.02-e5f1a7a4b9e4")
 
     // Cache
-    val caffeineVersion = "3.1.2"
-    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
     val hopliteVersion = "2.4.0"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")

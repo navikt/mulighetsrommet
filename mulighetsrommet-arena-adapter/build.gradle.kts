@@ -27,16 +27,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
-repositories {
-    // Needed to get no.nav.common-java-modules to work. Deps from other repos
-    maven {
-        url = uri("https://packages.confluent.io/maven/")
-    }
-    maven {
-        url = uri("https://jitpack.io")
-    }
-}
-
 dependencies {
     implementation(project(":common:domain"))
     implementation(project(":common:database"))
@@ -68,9 +58,9 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
-    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
-    implementation("no.nav.common:kafka:$navCommonModules")
-    implementation("no.nav.common:token-client:$navCommonModules")
+    val navCommonModules = "2023.02.08_14.02-e5f1a7a4b9e4"
+    implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
+    implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
 
     val kotestVersion = "5.4.2"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")

@@ -37,5 +37,15 @@ allprojects {
 
     repositories {
         mavenCentral()
+
+        maven {
+            // Needed for kafka
+            url = uri("https://packages.confluent.io/maven/")
+        }
+
+        maven {
+            // Needed for common-java-modules
+            url = uri("https://jitpack.io")
+        }
     }
 }
