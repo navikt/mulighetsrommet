@@ -21,7 +21,7 @@ class AuthenticationTest : FunSpec({
 
     context("protected endpoints") {
         test("should respond with 401 when request is not authenticated") {
-            withMulighetsrommetApp(oauth) {
+            withTestApplication(oauth) {
                 val response = client.get(apiUrl)
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -29,7 +29,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 401 when the token has the wrong audience") {
-            withMulighetsrommetApp(oauth) {
+            withTestApplication(oauth) {
                 val response = client.get(apiUrl) {
                     bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
                 }
@@ -38,7 +38,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 401 when the token has the wrong issuer") {
-            withMulighetsrommetApp(oauth) {
+            withTestApplication(oauth) {
 
                 val response = client.get(apiUrl) {
                     bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -48,7 +48,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 401 when the token is missing the NAVident claim") {
-            withMulighetsrommetApp(oauth) {
+            withTestApplication(oauth) {
 
                 val response = client.get(apiUrl) {
                     bearerAuth(oauth.issueToken().serialize())
@@ -58,7 +58,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 200 when request is authenticated") {
-            withMulighetsrommetApp(oauth) {
+            withTestApplication(oauth) {
                 val response = client.get(apiUrl) {
                     bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
                 }

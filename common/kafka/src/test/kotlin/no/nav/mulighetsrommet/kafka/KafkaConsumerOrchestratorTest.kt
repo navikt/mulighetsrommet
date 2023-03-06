@@ -13,7 +13,6 @@ import io.mockk.coVerify
 import io.mockk.spyk
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.testcontainers.containers.KafkaContainer
@@ -31,7 +30,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         )
     ) { withEmbeddedZookeeper() }
 
-    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)

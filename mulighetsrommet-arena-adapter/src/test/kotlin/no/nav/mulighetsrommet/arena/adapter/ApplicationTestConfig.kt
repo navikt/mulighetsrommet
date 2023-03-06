@@ -1,17 +1,18 @@
-package no.nav.mulighetsrommet.api
+package no.nav.mulighetsrommet.arena.adapter
 
 import io.ktor.server.testing.*
-import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.services.SanityService
-import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.koin.ktor.ext.inject
 
-fun <R> withMulighetsrommetApp(
+fun createDatabaseTestConfig() = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
+
+fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R
@@ -34,25 +35,24 @@ fun <R> withMulighetsrommetApp(
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
-    database = createApiDatabaseTestSchema(),
+    database = createDatabaseTestConfig(),
     auth = createAuthConfig(oauth),
     kafka = createKafkaConfig(),
-    sanity = SanityService.Config(projectId = "", authToken = "", dataset = ""),
-    veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
-    veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
-    veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
-    veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
-    veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
-    poaoTilgang = createServiceClientConfig("poaotilgang"),
-    amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
-    msGraphConfig = createServiceClientConfig("ms-graph"),
-    arenaAdapter = createServiceClientConfig("arena-adapter"),
+    enableFailedRecordProcessor = false,
     tasks = TaskConfig(
-        synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
-            delayOfMinutes = 10
-        ),
+        retryFailedEvents = RetryFailedEvents.Config(
+            delayOfMinutes = 1
+        )
     ),
-    norg2 = Norg2Config(baseUrl = ""),
+    services = ServiceConfig(
+        mulighetsrommetApi = ServiceClientConfig(url = "mulighetsrommet-api", scope = ""),
+        arenaEventService = ArenaEventService.Config(
+            channelCapacity = 0,
+            numChannelConsumers = 0,
+            maxRetries = 0
+        ),
+        arenaOrdsProxy = ServiceClientConfig(url = "arena-ords-proxy", scope = "")
+    ),
     slack = SlackConfig(
         token = "",
         channel = "",
@@ -63,18 +63,14 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
         brokerUrl = "localhost:29092",
-        producerId = "producer-id",
-        producers = KafkaProducers(
-            tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
-            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1")
-        )
-    )
-}
-
-fun createServiceClientConfig(url: String): ServiceClientConfig {
-    return ServiceClientConfig(
-        url = url,
-        scope = ""
+        consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
+        consumers = KafkaConsumers(
+            KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
+            KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
+            KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
+            KafkaTopicConsumer.Config("sakendret", "sakendret"),
+            KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
+        ),
     )
 }
 
