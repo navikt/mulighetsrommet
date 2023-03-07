@@ -1,9 +1,9 @@
 import { atomWithHash } from 'jotai-location';
-import { InnsatsgruppeNokler } from '../api/models';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
+  innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
   lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[];
 }

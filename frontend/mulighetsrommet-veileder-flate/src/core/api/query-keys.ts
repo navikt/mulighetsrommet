@@ -1,7 +1,11 @@
-export const enum QueryKeys {
-  SanityQuery = 'sanityQuery',
-  Brukerdata = 'brukerdata',
-  Veilederdata = 'veilederdata',
-  Historikk = 'historikk',
-  DeltMedBrukerStatus = 'deltMedBrukerStatus',
-}
+export const QueryKeys = {
+  SanityQuery: 'sanityQuery',
+  Brukerdata: 'brukerdata',
+  Veilederdata: 'veilederdata',
+  Historikk: 'historikk',
+  DeltMedBrukerStatus: 'deltMedBrukerStatus',
+  sanity: {
+    innsatsgrupper: ['innsatsgrupper'],
+    tiltakstyper: ['tiltakstyper'],
+  },
+};

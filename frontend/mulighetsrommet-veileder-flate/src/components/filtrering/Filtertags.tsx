@@ -1,7 +1,7 @@
 import { Button } from '@navikt/ds-react';
 import { RESET } from 'jotai/utils';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 import { useErrorHandler } from 'react-error-boundary';
-import { InnsatsgruppeNokler } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { Tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
@@ -21,7 +21,7 @@ interface FiltertagsProps {
 export function Filtertags({ filter, setFilter }: FiltertagsProps) {
   const brukerdata = useHentBrukerdata();
   useErrorHandler(brukerdata?.error);
-  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: InnsatsgruppeNokler) => {
+  const brukersInnsatsgruppeErIkkeValgt = (innsatsgruppe?: Innsatsgruppe) => {
     return innsatsgruppe !== brukerdata?.data?.innsatsgruppe;
   };
 

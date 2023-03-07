@@ -6,7 +6,6 @@ import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjenno
 import { faneAtom } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import DetaljerFane from './DetaljerFane';
-import InnsiktsFane from './innsikt/InnsiktsFane';
 import KontaktinfoFane from './kontaktinfofane/KontaktinfoFane';
 import styles from './TiltaksdetaljerFane.module.scss';
 
@@ -88,11 +87,6 @@ const TiltaksdetaljerFane = () => {
         <Tabs.Panel value="tab4" data-testid="tab4">
           <KontaktinfoFane />
         </Tabs.Panel>
-        {visInnsiktsfane ? (
-          <Tabs.Panel value="tab5" data-testid="tab5">
-            <InnsiktsFane tiltakstype={tiltakstype.tiltakstypeNavn} />
-          </Tabs.Panel>
-        ) : null}
       </div>
     </Tabs>
   );

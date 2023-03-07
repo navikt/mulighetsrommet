@@ -44,6 +44,26 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         return get(query)
     }
 
+    suspend fun executeQuery(query: String): SanityResponse {
+        return get(query)
+    }
+
+    suspend fun hentInnsatsgrupper(): SanityResponse {
+        return executeQuery(
+            """
+            *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
+            """.trimIndent()
+        )
+    }
+
+    suspend fun hentTiltakstyper(): SanityResponse {
+        return executeQuery(
+            """
+                *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
+            """.trimIndent()
+        )
+    }
+
     private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""

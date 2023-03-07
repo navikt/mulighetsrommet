@@ -28,19 +28,44 @@ fun Route.sanityRoutes() {
                 else -> call.request.queryParameters["fnr"]
             }
             val accessToken = call.getAccessToken()
+            call.respondWithData(sanityService.executeQuery(query, fnr, accessToken).toResponse())
+        }
 
-            when (val response = sanityService.executeQuery(query, fnr, accessToken)) {
-                is SanityResponse.Result -> call.respondText(
-                    text = response.result.toString(),
-                    contentType = ContentType.Application.Json
-                )
+        get("/innsatsgrupper") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(sanityService.hentInnsatsgrupper().toResponse())
+        }
 
-                is SanityResponse.Error -> call.respondText(
-                    text = response.error.toString(),
-                    contentType = ContentType.Application.Json,
-                    status = HttpStatusCode.InternalServerError
-                )
-            }
+        get("/tiltakstyper") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(sanityService.hentTiltakstyper().toResponse())
         }
     }
 }
+
+private suspend fun ApplicationCall.respondWithData(apiResponse: ApiResponse) {
+    this.response.call.respondText(
+        text = apiResponse.text,
+        contentType = apiResponse.contentType,
+        status = apiResponse.status
+    )
+}
+
+private fun SanityResponse.toResponse(): ApiResponse {
+    return when (this) {
+        is SanityResponse.Result -> ApiResponse(
+            text = this.result.toString(),
+        )
+
+        is SanityResponse.Error -> ApiResponse(
+            text = this.error.toString(),
+            status = HttpStatusCode.InternalServerError
+        )
+    }
+}
+
+data class ApiResponse(
+    val text: String,
+    val contentType: ContentType? = ContentType.Application.Json,
+    val status: HttpStatusCode? = HttpStatusCode.OK
+)

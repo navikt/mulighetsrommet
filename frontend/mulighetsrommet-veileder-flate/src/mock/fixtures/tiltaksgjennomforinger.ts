@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { Innsatsgruppe, SanityInnsatsgruppe } from 'mulighetsrommet-api-client';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 
 export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
@@ -7,7 +8,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
-      tiltaksgruppe: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -19,9 +19,9 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       ],
       innsatsgruppe: {
         _id: '4',
-        tittel: 'Varig tilpasset innsats',
+        tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
         beskrivelse: faker.lorem.paragraph(),
-        nokkel: 'VARIG_TILPASSET_INNSATS',
+        nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
       },
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
@@ -52,7 +52,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
-      tiltaksgruppe: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -64,9 +63,9 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       ],
       innsatsgruppe: {
         _id: '4',
-        tittel: 'Varig tilpasset innsats',
+        tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
         beskrivelse: faker.lorem.paragraph(),
-        nokkel: 'VARIG_TILPASSET_INNSATS',
+        nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
       },
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
@@ -97,7 +96,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
-      tiltaksgruppe: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -109,9 +107,9 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       ],
       innsatsgruppe: {
         _id: '4',
-        tittel: 'Varig tilpasset innsats',
+        tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
         beskrivelse: faker.lorem.paragraph(),
-        nokkel: 'VARIG_TILPASSET_INNSATS',
+        nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
       },
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',

@@ -61,7 +61,6 @@ paths:
           schema:
             type: string
           description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
-          nullable: true
         - in: query
           name: search
           schema:
@@ -381,6 +380,36 @@ paths:
             application/json:
               schema: { }
 
+  /api/v1/internal/sanity/innsatsgrupper:
+    get:
+      tags:
+        - Sanity
+      operationId: getInnsatsgrupper
+      responses:
+        200:
+          description: Innsatsgrupper definert i Sanity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SanityInnsatsgruppe"
+
+  /api/v1/internal/sanity/tiltakstyper:
+    get:
+      tags:
+        - Sanity
+      operationId: getTiltakstyper
+      responses:
+        200:
+          description: Tiltakstyper definert i Sanity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SanityTiltakstype"
+
   /api/v1/internal/dialog:
     post:
       tags:
@@ -542,7 +571,6 @@ paths:
           schema:
             type: string
           description: ID for tiltakstypen knyttet til avtaler med enheter
-          nullable: true
       responses:
         200:
           description: "Enheter knyttet til avtaler"
@@ -1005,3 +1033,118 @@ components:
           type: string
         enhetsnummer:
           type: string
+
+    SanityInnsatsgruppe:
+      type: object
+      properties:
+        _id:
+          type: string
+        beskrivelse:
+          type: string
+        tittel:
+          type: string
+          enum:
+            - "Standard innsats"
+            - "Situasjonsbestemt innsats"
+            - "Spesielt tilpasset innsats"
+            - "Varig tilpasset innsats"
+        nokkel:
+          $ref: "#/components/schemas/Innsatsgruppe"
+      required:
+        - _id
+        - beskrivelse
+        - tittel
+        - nokkel
+
+    SanityTiltakstype:
+      type: object
+      properties:
+        _id:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        beskrivelse:
+          type: string
+        innsatsgruppe:
+          $ref: "#/components/schemas/SanityInnsatsgruppe"
+        varighet:
+          type: string
+        regelverkFiler:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityRegelverkFil"
+        regelverkLenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityRegelverkLenke"
+        nokkelinfoKomponenter:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityNokkelinfoKomponenter"
+        faneinnhold:
+          $ref: "#/components/schemas/SanityFaneinnhold"
+        delingMedBruker:
+          type: string
+      required:
+        - _id
+        - tiltakstypeNavn
+        - innsatsgruppe
+
+
+    SanityRegelverkFil:
+      type: object
+      properties:
+        _id:
+          type: string
+        regelverkFilUrl:
+          type: string
+        regelverkFilNavn:
+          type: string
+      required:
+        - _id
+        - regelverkFilUrl
+        - regelverkFilNavn
+
+    SanityRegelverkLenke:
+      type: object
+      properties:
+        _id:
+          type: string
+        regelverkUrl:
+          type: string
+        regelverkLenkeNavn:
+          type: string
+      required:
+        - _id
+        - regelverkUrl
+        - regelverkLenkeNavn
+
+
+    SanityNokkelinfoKomponenter:
+      type: object
+      properties:
+        _id:
+          type: string
+        tittel:
+          type: string
+        innhold:
+            type: object
+        hjelpetekst:
+          type: string
+
+    SanityFaneinnhold:
+      type: object
+      properties:
+        forHvemInfoboks:
+          type: string
+        forHvem:
+          type: object
+        detaljerOgInnholdInfoboks:
+          type: string
+        detaljerOgInnhold:
+          type: object
+        pameldingOgVarighetInfoboks:
+          type: string
+        pameldingOgVarighet:
+          type: object
+
