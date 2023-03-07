@@ -27,7 +27,7 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-    val ktorVersion = "2.2.1"
+    val ktorVersion = "2.2.4"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
@@ -35,6 +35,6 @@ dependencies {
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.5")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
+    implementation("org.slf4j:slf4j-api:2.0.6")
 }

@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.withArenaAdapterApp
+import no.nav.mulighetsrommet.arena.adapter.withTestApplication
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class AuthenticationTest : FunSpec({
@@ -21,7 +21,7 @@ class AuthenticationTest : FunSpec({
 
     context("protected endpoints") {
         test("should respond with 401 when request is not authenticated") {
-            withArenaAdapterApp(oauth) {
+            withTestApplication(oauth) {
                 val response = client.get(apiUrl)
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -29,7 +29,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 401 when the token has the wrong audience") {
-            withArenaAdapterApp(oauth) {
+            withTestApplication(oauth) {
                 val response = client.get(apiUrl) {
                     bearerAuth(
                         oauth.issueToken(audience = "skatteetaten").serialize()
@@ -40,7 +40,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 401 when the token has the wrong issuer") {
-            withArenaAdapterApp(oauth) {
+            withTestApplication(oauth) {
 
                 val response = client.get(apiUrl) {
                     bearerAuth(
@@ -52,7 +52,7 @@ class AuthenticationTest : FunSpec({
         }
 
         test("should respond with 200 when request is authenticated") {
-            withArenaAdapterApp(oauth) {
+            withTestApplication(oauth) {
                 val response = client.get(apiUrl) {
                     bearerAuth(oauth.issueToken().serialize())
                 }

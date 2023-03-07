@@ -5,6 +5,7 @@ import io.kotest.core.test.TestCaseOrder
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -12,7 +13,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.*
@@ -24,7 +24,7 @@ class ArenaServiceTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
         database.db.migrate()

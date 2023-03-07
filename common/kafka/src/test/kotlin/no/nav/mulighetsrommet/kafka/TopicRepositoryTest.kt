@@ -4,13 +4,12 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
 class TopicRepositoryTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val topic0 = Topic(id = "0", topic = "topic-0", type = TopicType.CONSUMER, running = false)
     val topic1 = Topic(id = "1", topic = "topic-1", type = TopicType.CONSUMER, running = false)

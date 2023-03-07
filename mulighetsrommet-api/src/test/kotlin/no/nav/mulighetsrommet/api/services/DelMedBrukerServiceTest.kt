@@ -5,8 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.string.shouldContain
 import io.ktor.server.plugins.*
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.models.DelMedBruker
 import org.assertj.db.api.Assertions.assertThat
 import org.assertj.db.type.Table
@@ -14,7 +14,7 @@ import org.assertj.db.type.Table
 class DelMedBrukerServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("DelMedBrukerService") {
         val service = DelMedBrukerService(database.db)
