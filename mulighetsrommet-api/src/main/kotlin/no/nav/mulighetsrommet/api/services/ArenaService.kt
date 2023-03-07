@@ -23,7 +23,7 @@ class ArenaService(
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
     fun upsert(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
-        return tiltakstyper.upsert(tiltakstype).tap {
+        return tiltakstyper.upsert(tiltakstype).onRight {
             tiltakstyper.get(tiltakstype.id)?.let {
                 tiltakstypeKafkaProducer.publish(it)
             }
@@ -31,7 +31,7 @@ class ArenaService(
     }
 
     fun removeTiltakstype(id: UUID): QueryResult<Int> {
-        return tiltakstyper.delete(id).tap { deletedRows ->
+        return tiltakstyper.delete(id).onRight { deletedRows ->
             if (deletedRows != 0) {
                 tiltakstypeKafkaProducer.retract(id)
             }
@@ -48,7 +48,7 @@ class ArenaService(
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingDbo> {
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
-            .tap {
+            .onRight {
                 tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.let {
                     tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
                 }
@@ -57,7 +57,7 @@ class ArenaService(
 
     fun removeTiltaksgjennomforing(id: UUID): QueryResult<Int> {
         return tiltaksgjennomforinger.delete(id)
-            .tap { deletedRows ->
+            .onRight { deletedRows ->
                 if (deletedRows != 0) {
                     tiltaksgjennomforingKafkaProducer.retract(id)
                 }

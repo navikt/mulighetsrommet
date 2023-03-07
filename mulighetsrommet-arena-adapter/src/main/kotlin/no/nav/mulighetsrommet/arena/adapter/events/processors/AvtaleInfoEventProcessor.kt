@@ -1,10 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.continuations.either
 import arrow.core.continuations.ensureNotNull
-import arrow.core.flatMap
-import arrow.core.leftIfNull
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -122,7 +120,7 @@ class AvtaleInfoEventProcessor(
             .bind()
         val leverandorOrganisasjonsnummer = ords.getArbeidsgiver(avtale.leverandorId)
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .leftIfNull { ProcessingError.InvalidPayload("Fant ikke leverandør i Arena ORDS") }
+            .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke leverandør i Arena ORDS").left() }
             .map { it.organisasjonsnummerMorselskap }
             .bind()
 

@@ -25,10 +25,10 @@ fun Route.delMedBrukerRoutes() {
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), payload.norskIdent)
 
             delMedBrukerService.lagreDelMedBruker(payload)
-                .tap {
+                .onRight {
                     call.respond(it)
                 }
-                .tapLeft {
+                .onLeft {
                     SecureLog.logger.error("Klarte ikke lagre informasjon om deling med bruker", it.error)
                     call.respondText(
                         "Klarte ikke lagre informasjon om deling med bruker",
@@ -44,7 +44,7 @@ fun Route.delMedBrukerRoutes() {
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), fnr)
 
             delMedBrukerService.getDeltMedBruker(fnr, sanityId)
-                .tap {
+                .onRight {
                     if (it == null) {
                         call.respondText(
                             status = HttpStatusCode.NoContent,
@@ -54,7 +54,7 @@ fun Route.delMedBrukerRoutes() {
                         call.respond(it)
                     }
                 }
-                .tapLeft {
+                .onLeft {
                     call.respondText(
                         status = HttpStatusCode.InternalServerError,
                         text = "Klarte ikke innslag om at veileder har delt tiltak med bruker tidligere"

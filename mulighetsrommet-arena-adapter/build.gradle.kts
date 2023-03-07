@@ -38,7 +38,7 @@ dependencies {
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.arrow-kt:arrow-core:1.1.3")
+    implementation("io.arrow-kt:arrow-core:1.1.5")
 
     val ktorVersion = "2.2.4"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
