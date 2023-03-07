@@ -1,12 +1,7 @@
-import groq from 'groq';
-import { Innsatsgruppe } from '../models';
-import { useSanity } from './useSanity';
+import { useQuery } from 'react-query';
+import { mulighetsrommetClient } from '../clients';
+import { QueryKeys } from '../query-keys';
 
 export function useInnsatsgrupper() {
-  return useSanity<Innsatsgruppe[]>(
-    groq`*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)`,
-    {
-      includeUserdata: false,
-    }
-  );
+  return useQuery(QueryKeys.sanity.innsatsgrupper, () => mulighetsrommetClient.sanity.getInnsatsgrupper());
 }

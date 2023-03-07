@@ -4,7 +4,7 @@ import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useEnheter() {
-  const { tiltakstypeId = null } = useParams<{ tiltakstypeId: string }>();
+  const { tiltakstypeId } = useParams<{ tiltakstypeId: string }>();
 
   return useQuery(QueryKeys.enheter(), () => {
     return mulighetsrommetClient.hentEnheter.hentEnheter({ tiltakstypeId });

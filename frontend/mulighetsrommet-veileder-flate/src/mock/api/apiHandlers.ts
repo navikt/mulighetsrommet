@@ -74,7 +74,20 @@ export const apiHandlers: RestHandler[] = [
     }
 
     const client = getSanityClient();
+    const result = await client.fetch(query, { enhetsId: 'enhet.lokal.5702', fylkeId: 'enhet.fylke.5700' });
+    return ok(result);
+  }),
 
+  rest.get<any, any, any>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
+    const query = `*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))]`;
+    const client = getSanityClient();
+    const result = await client.fetch(query, { enhetsId: 'enhet.lokal.5702', fylkeId: 'enhet.fylke.5700' });
+    return ok(result);
+  }),
+
+  rest.get<any, any, any>('*/api/v1/internal/sanity/tiltakstyper', async () => {
+    const query = `*[_type == "tiltakstype" && !(_id in path("drafts.**"))]`;
+    const client = getSanityClient();
     const result = await client.fetch(query, { enhetsId: 'enhet.lokal.5702', fylkeId: 'enhet.fylke.5700' });
     return ok(result);
   }),

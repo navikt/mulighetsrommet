@@ -1,14 +1,19 @@
 import { Dialog, SuccessStroke } from '@navikt/ds-icons';
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
+import { Ansatt } from 'mulighetsrommet-api-client';
 import { useState } from 'react';
+import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
+import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
 import Nokkelinfo, { NokkelinfoProps } from '../../components/nokkelinfo/Nokkelinfo';
 import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgjengelighetsstatus';
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import { IndividuellTiltaksType, Tiltakstyper } from '../../core/api/models';
+import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
+import { logEvent } from '../../core/api/logger';
+import { IndividuellTiltaksType } from '../../core/api/models';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { useHentDeltMedBrukerStatus } from '../../core/api/queries/useHentDeltMedbrukerStatus';
@@ -16,21 +21,16 @@ import { useHentVeilederdata } from '../../core/api/queries/useHentVeilederdata'
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { environments } from '../../env';
+import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
 import { useHentFnrFraUrl } from '../../hooks/useHentFnrFraUrl';
 import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
-import { useBrukerHarRettPaaTiltak } from '../../hooks/useBrukerHarRettPaaTiltak';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
-import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
-import { Ansatt } from 'mulighetsrommet-api-client';
-import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
-import { logEvent } from '../../core/api/logger';
 
-const whiteListOpprettAvtaleKnapp: Tiltakstyper[] = ['Midlertidig lønnstilskudd'];
+const whiteListOpprettAvtaleKnapp = ['Midlertidig lønnstilskudd'];
 
-function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTiltaksType | '' {
+function tiltakstypeNavnTilUrlVerdi(tiltakstype: string): IndividuellTiltaksType | '' {
   switch (tiltakstype) {
     case 'Midlertidig lønnstilskudd':
       return 'MIDLERTIDIG_LONNSTILSKUDD';
@@ -39,7 +39,7 @@ function tiltakstypeNavnTilUrlVerdi(tiltakstype: Tiltakstyper): IndividuellTilta
   }
 }
 
-function lenkeTilOpprettAvtaleForEnv(tiltakstype: Tiltakstyper): string {
+function lenkeTilOpprettAvtaleForEnv(tiltakstype: string): string {
   const env: environments = import.meta.env.VITE_ENVIRONMENT;
   const baseUrl =
     env === 'production'

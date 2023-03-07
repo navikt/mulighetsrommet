@@ -1,21 +1,4 @@
-import React from 'react';
-
-export type Tiltakstyper =
-  | 'Digital jobbklubb'
-  | 'AFT'
-  | 'Jobbklubb'
-  | 'ARR'
-  | 'Oppfølging'
-  | 'Avklaring'
-  | 'VTA'
-  | 'Opplæring - Gruppe AMO'
-  | 'Midlertidig lønnstilskudd';
-
-type Innsatsgrupper =
-  | 'Standard innsats'
-  | 'Situasjonsbestemt innsats'
-  | 'Spesielt tilpasset innsats'
-  | 'Varig tilpasset innsats';
+import { SanityNokkelinfoKomponenter, SanityTiltakstype } from 'mulighetsrommet-api-client';
 
 export type IndividuellTiltaksType =
   | 'ARBEIDSTRENING'
@@ -27,30 +10,6 @@ export type IndividuellTiltaksType =
 
 export type Tilgjengelighetsstatus = 'Ledig' | 'Venteliste' | 'Stengt';
 export type Oppstart = 'dato' | 'lopende' | 'midlertidig_stengt';
-type Tiltaksgruppe = 'individuelt' | 'gruppe';
-
-export interface Tiltakstype {
-  _id: string;
-  tiltakstypeNavn: Tiltakstyper;
-  tiltaksgruppe: Tiltaksgruppe;
-  beskrivelse?: string;
-  innsatsgruppe: Innsatsgruppe;
-  varighet?: string;
-  regelverkFiler?: RegelverkFil[];
-  regelverkLenker?: RegelverkLenke[];
-  regelverkLenkeNavn?: string;
-  nokkelinfoKomponenter?: NokkelinfoKomponenter[];
-  faneinnhold?: {
-    forHvemInfoboks?: string;
-    forHvem?: object;
-    detaljerOgInnholdInfoboks?: string;
-    detaljerOgInnhold?: object;
-    pameldingOgVarighetInfoboks?: string;
-    pameldingOgVarighet?: object;
-  };
-  forskningsrapport?: Forskningsrapport[];
-  delingMedBruker?: string;
-}
 
 export interface Forskningsrapport {
   _id: string;
@@ -66,7 +25,7 @@ interface Lenke {
 
 export interface Tiltaksgjennomforing {
   _id: string;
-  tiltakstype: Tiltakstype;
+  tiltakstype: SanityTiltakstype;
   tiltaksgjennomforingNavn: string;
   beskrivelse?: string;
   tiltaksnummer: number;
@@ -103,35 +62,12 @@ export interface Tiltaksansvarlig {
   epost: string;
 }
 
-export interface Innsatsgruppe {
-  _id: string;
-  beskrivelse: string;
-  tittel: Innsatsgrupper;
-  nokkel: InnsatsgruppeNokler;
-}
-
-export interface RegelverkFil {
-  _id: string;
-  regelverkFilUrl: string;
-  regelverkFilNavn: string;
-}
-
-export interface RegelverkLenke {
-  _id: string;
-  regelverkUrl: string;
-  regelverkLenkeNavn: string;
-}
-
 export interface StatistikkFil {
   _id: string;
   statistikkFilUrl: string;
 }
 
-export interface NokkelinfoKomponenter {
-  _id: string;
-  tittel: string;
-  innhold: string | React.ReactNode;
-  hjelpetekst?: string;
+export interface NokkelinfoKomponenter extends SanityNokkelinfoKomponenter {
   uuTitle?: string;
 }
 
@@ -144,9 +80,3 @@ export interface StatistikkFraCsvFil {
   Tiltakstype: string;
   Ukjent: string;
 }
-
-export type InnsatsgruppeNokler =
-  | 'STANDARD_INNSATS'
-  | 'SITUASJONSBESTEMT_INNSATS'
-  | 'SPESIELT_TILPASSET_INNSATS'
-  | 'VARIG_TILPASSET_INNSATS';

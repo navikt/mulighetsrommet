@@ -1,7 +1,8 @@
 import groq from 'groq';
 import { useAtom } from 'jotai';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
-import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
+import { Tiltaksgjennomforing } from '../models';
 import { useHentBrukerdata } from './useHentBrukerdata';
 import { useSanity } from './useSanity';
 
@@ -46,7 +47,7 @@ function byggLokasjonsFilter(lokasjoner: Tiltaksgjennomforingsfiltergruppe<strin
   return groq`&& lokasjon in [${lokasjonsStreng}]`;
 }
 
-function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
+function byggInnsatsgruppeFilter(innsatsgruppe?: Innsatsgruppe): string {
   if (!innsatsgruppe) return '';
 
   const innsatsgrupperISok = utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe)
@@ -55,16 +56,28 @@ function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
   return groq`&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
 }
 
-export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler): InnsatsgruppeNokler[] {
+export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: Innsatsgruppe): Innsatsgruppe[] {
   switch (innsatsgruppe) {
     case 'STANDARD_INNSATS':
-      return ['STANDARD_INNSATS'];
+      return [Innsatsgruppe.STANDARD_INNSATS];
     case 'SITUASJONSBESTEMT_INNSATS':
-      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS'];
+      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
     case 'SPESIELT_TILPASSET_INNSATS':
-      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS', 'SPESIELT_TILPASSET_INNSATS'];
+      return [
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      ];
     case 'VARIG_TILPASSET_INNSATS':
-      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS', 'SPESIELT_TILPASSET_INNSATS', 'VARIG_TILPASSET_INNSATS'];
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+      ];
+    default:
+      return [];
   }
 }
 
