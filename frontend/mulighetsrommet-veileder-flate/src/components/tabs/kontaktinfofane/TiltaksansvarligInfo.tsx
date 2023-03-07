@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
+import { Alert, BodyShort, Heading } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
 import { Tiltaksansvarlig } from '../../../core/api/models';
 import { logEvent } from '../../../core/api/logger';
@@ -26,15 +26,17 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
       {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
-            <Label>{tiltaksansvarlig.navn}</Label>
+            <BodyShort className={styles.navn} size="small">
+              {tiltaksansvarlig.navn}
+            </BodyShort>
             <div className={styles.infofelt}>
               <div className={styles.rad}>
-                <BodyShort>Telefon</BodyShort>
-                <BodyShort>{tiltaksansvarlig.telefonnummer}</BodyShort>
+                <BodyShort size="small">Telefon</BodyShort>
+                <BodyShort size="small">{tiltaksansvarlig.telefonnummer}</BodyShort>
               </div>
               <div className={styles.rad}>
-                <BodyShort>Epost</BodyShort>
-                <BodyShort>
+                <BodyShort size="small">Epost</BodyShort>
+                <BodyShort size="small">
                   <a
                     href={`mailto:${tiltaksansvarlig.epost}`}
                     onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
@@ -44,21 +46,21 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
                 </BodyShort>
               </div>
               <div className={styles.rad}>
-                <BodyShort>Teams</BodyShort>
-                <BodyShort>
+                <BodyShort size="small">Teams</BodyShort>
+                <BodyShort size="small">
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
                     onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
                   >
-                    Kontakt {tiltaksansvarlig.navn} på Teams
+                    Kontakt meg på Teams
                   </a>
                 </BodyShort>
               </div>
               <div className={styles.rad}>
-                <BodyShort>Enhet</BodyShort>
-                <BodyShort>{tiltaksansvarlig.enhet}</BodyShort>
+                <BodyShort size="small">Enhet</BodyShort>
+                <BodyShort size="small">{tiltaksansvarlig.enhet}</BodyShort>
               </div>
             </div>
           </div>
