@@ -1,10 +1,10 @@
 :global(.mulighetsrommet-veileder-flate) {
   :global(.navds-accordion__header) {
-    border-bottom: 1px solid var(--navds-semantic-color-divider);
+    border-bottom: 1px solid var(--a-border-divider);
   }
 
   :global(.navds-accordion__content) {
-    border-bottom: 1px solid var(--navds-semantic-color-divider);
+    border-bottom: 1px solid var(--a-border-divider);
     padding: 0 0 0 0.5rem;
   }
 
