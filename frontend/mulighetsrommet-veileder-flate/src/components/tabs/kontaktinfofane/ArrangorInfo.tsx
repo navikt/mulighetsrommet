@@ -1,4 +1,4 @@
-import { BodyShort, Heading, Label } from '@navikt/ds-react';
+import { BodyShort, Heading } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
 
 interface ArrangorInfoProps {
@@ -14,15 +14,17 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
         Arrangør
       </Heading>
       <div className={styles.container}>
-        <Label>{kontaktinfoArrangor?.selskapsnavn}</Label>
+        <BodyShort className={styles.navn} size="small">
+          {kontaktinfoArrangor?.selskapsnavn}
+        </BodyShort>
         <div className={styles.infofelt}>
           <div className={styles.rad}>
-            <BodyShort>Telefon</BodyShort>
-            <BodyShort>{kontaktinfoArrangor?.telefonnummer}</BodyShort>
+            <BodyShort size="small">Telefon</BodyShort>
+            <BodyShort size="small">{kontaktinfoArrangor?.telefonnummer}</BodyShort>
           </div>
           <div className={styles.rad}>
-            <BodyShort>Adresse</BodyShort>
-            <BodyShort>{kontaktinfoArrangor?.adresse}</BodyShort>
+            <BodyShort size="small">Adresse</BodyShort>
+            <BodyShort size="small">{kontaktinfoArrangor?.adresse}</BodyShort>
           </div>
         </div>
       </div>
