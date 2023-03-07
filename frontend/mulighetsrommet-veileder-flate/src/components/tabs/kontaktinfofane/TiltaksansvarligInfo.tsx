@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
+import { Alert, BodyShort, Heading } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
 import { Tiltaksansvarlig } from '../../../core/api/models';
 import { logEvent } from '../../../core/api/logger';
@@ -19,47 +19,49 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
     );
 
   return (
-    <div>
-      <Heading size="medium" level="2" className={styles.header}>
+    <div className={styles.tiltaksansvarlig_info}>
+      <Heading size="small" level="2" className={styles.header}>
         Tiltaksansvarlig
       </Heading>
       {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
-            <Heading size="small" level="3" className={styles.navn}>
+            <BodyShort className={styles.navn} size="small">
               {tiltaksansvarlig.navn}
-            </Heading>
-            <div className={styles.rad}>
-              <Label size="small">Telefon</Label>
-              <BodyShort>{tiltaksansvarlig.telefonnummer}</BodyShort>
-            </div>
-            <div className={styles.rad}>
-              <Label size="small">Epost</Label>
-              <BodyShort>
-                <a
-                  href={`mailto:${tiltaksansvarlig.epost}`}
-                  onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
-                >
-                  {tiltaksansvarlig.epost}
-                </a>
-              </BodyShort>
-            </div>
-            <div className={styles.rad}>
-              <Label size="small">Teams</Label>
-              <BodyShort>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
-                  onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
-                >
-                  Kontakt {tiltaksansvarlig.navn} på Teams
-                </a>
-              </BodyShort>
-            </div>
-            <div className={styles.rad}>
-              <Label size="small">Enhet</Label>
-              <BodyShort>{tiltaksansvarlig.enhet}</BodyShort>
+            </BodyShort>
+            <div className={styles.infofelt}>
+              <div className={styles.rad}>
+                <BodyShort size="small">Telefon</BodyShort>
+                <BodyShort size="small">{tiltaksansvarlig.telefonnummer}</BodyShort>
+              </div>
+              <div className={styles.rad}>
+                <BodyShort size="small">Epost</BodyShort>
+                <BodyShort size="small">
+                  <a
+                    href={`mailto:${tiltaksansvarlig.epost}`}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
+                  >
+                    {tiltaksansvarlig.epost}
+                  </a>
+                </BodyShort>
+              </div>
+              <div className={styles.rad}>
+                <BodyShort size="small">Teams</BodyShort>
+                <BodyShort size="small">
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
+                  >
+                    Kontakt meg på Teams
+                  </a>
+                </BodyShort>
+              </div>
+              <div className={styles.rad}>
+                <BodyShort size="small">Enhet</BodyShort>
+                <BodyShort size="small">{tiltaksansvarlig.enhet}</BodyShort>
+              </div>
             </div>
           </div>
         );

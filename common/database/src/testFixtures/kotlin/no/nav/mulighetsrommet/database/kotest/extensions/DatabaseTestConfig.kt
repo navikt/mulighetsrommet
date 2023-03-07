@@ -12,15 +12,18 @@ fun createDatabaseTestSchema(
     port: Int,
     host: String = "localhost",
     user: String = "valp",
-    password: Password = Password("valp")
+    password: Password = Password("valp"),
 ): FlywayDatabaseConfig {
     val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd/HH/mm/ss"))
     val schema = "$currentTime:${UUID.randomUUID()}"
-    return FlywayDatabaseConfig(host, port, name, schema, user, password, 1, migrationConfig = FlywayDatabaseAdapter.MigrationConfig(cleanDisabled = false))
+    return FlywayDatabaseConfig(
+        host,
+        port,
+        name,
+        schema,
+        user,
+        password,
+        1,
+        migrationConfig = FlywayDatabaseAdapter.MigrationConfig(cleanDisabled = false),
+    )
 }
-
-// mulighetsrommet-arena-adapter
-fun createArenaAdapterDatabaseTestSchema() = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
-
-// mulighetsrommet-api
-fun createApiDatabaseTestSchema() = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)

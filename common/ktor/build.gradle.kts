@@ -15,7 +15,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    val ktorVersion = "2.2.1"
+    val ktorVersion = "2.2.4"
     testFixturesImplementation("io.ktor:ktor-client-core:$ktorVersion")
     testFixturesImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testFixturesImplementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
@@ -29,17 +29,15 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
     // Metrikker
-    implementation("io.micrometer:micrometer-registry-prometheus:1.9.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
 
     // Audit-logging
-    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
-    implementation("no.nav.common:audit-log:$navCommonModules")
+    implementation("com.github.navikt.common-java-modules:audit-log:2023.02.08_14.02-e5f1a7a4b9e4")
 
     // Cache
-    val caffeineVersion = "3.1.2"
-    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
-    val hopliteVersion = "2.4.0"
+    val hopliteVersion = "2.7.2"
     api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     api("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
 }

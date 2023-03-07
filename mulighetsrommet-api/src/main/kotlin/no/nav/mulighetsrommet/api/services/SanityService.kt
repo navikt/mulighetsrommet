@@ -93,7 +93,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 
         val fylkeResponse = when (response) {
-            is SanityResponse.Result -> response?.result?.let {
+            is SanityResponse.Result -> response.result?.let {
                 JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(
                     it
                 )

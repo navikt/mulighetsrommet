@@ -69,7 +69,7 @@ class KafkaConsumerOrchestrator(
     }
 
     fun disableFailedRecordProcessor() {
-        consumerRecordProcessor.close()
+        consumerRecordProcessor.stop()
         logger.info("Stopped kafka processors")
     }
 

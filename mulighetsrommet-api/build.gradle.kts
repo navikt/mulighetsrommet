@@ -21,16 +21,6 @@ flyway {
     password = System.getenv("DB_PASSWORD")
 }
 
-repositories {
-    // Needed to get no.nav.common-java-modules to work. Deps from other repos
-    maven {
-        url = uri("https://packages.confluent.io/maven/")
-    }
-    maven {
-        url = uri("https://jitpack.io")
-    }
-}
-
 dependencies {
     implementation(project(":common:domain"))
     implementation(project(":common:ktor"))
@@ -40,10 +30,9 @@ dependencies {
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
-    implementation("io.arrow-kt:arrow-core:1.1.3")
+    implementation("io.arrow-kt:arrow-core:1.1.5")
 
-    val ktorVersion = "2.2.1"
+    val ktorVersion = "2.2.4"
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
@@ -66,39 +55,36 @@ dependencies {
     implementation("io.ktor:ktor-server-webjars:$ktorVersion")
 
     // Cache
-    val caffeineVersion = "3.1.2"
-    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
     implementation("io.prometheus:simpleclient_caffeine:0.16.0")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
 
-    val koinVersion = "3.2.0"
+    val koinVersion = "3.3.1"
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2.2023.01.02_13.51-1c6adeb1653b"
-    implementation("no.nav.common:token-client:$navCommonModules")
-    implementation("no.nav.common:audit-log:$navCommonModules")
-    implementation("no.nav.common:kafka:$navCommonModules")
+    val navCommonModules = "2023.02.08_14.02-e5f1a7a4b9e4"
+    implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
+    implementation("com.github.navikt.common-java-modules:audit-log:$navCommonModules")
+    implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
 
     // Tilgangskontroll
-    val poaoTilgangClient = "2022.11.23_08.13-5d6b41f94eb1"
-    implementation("com.github.navikt.poao-tilgang:client:$poaoTilgangClient")
+    implementation("com.github.navikt.poao-tilgang:client:2023.03.06_12.28-f645c4624641")
 
     // Test
-    val kotestVersion = "5.4.2"
+    val kotestVersion = "5.5.5"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
     testImplementation("org.assertj:assertj-db:2.0.2")
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
+    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.8")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.5")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
+    implementation("org.slf4j:slf4j-api:2.0.6")
 
     // OpenAPI
     // PS: Hvis man oppdaterer denne må man også rename mappen til riktig versjon i resources
