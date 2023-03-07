@@ -8,15 +8,16 @@
     @media (width <= 1200px) {
       justify-content: space-evenly;
     }
+    .arrangor_info,
+    .tiltaksansvarlig_info {
+      max-width: 17rem;
+    }
   }
 
   .header {
-    margin-bottom: 1rem;
-    text-decoration: underline;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
   }
-}
-.navn {
-  margin-bottom: 0.2rem;
 }
 
 .container {
@@ -25,8 +26,11 @@
   margin-bottom: 1.5rem;
 }
 
-.rad {
-  display: grid;
-  grid-template-columns: 6rem auto;
+.infofelt {
   margin-top: 1rem;
+
+  .rad {
+    display: grid;
+    grid-template-columns: 6rem auto;
+  }
 }

@@ -9,21 +9,21 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
   const { kontaktinfoArrangor } = data;
 
   return kontaktinfoArrangor ? (
-    <div>
-      <Heading size="medium" level="2" className={styles.header}>
+    <div className={styles.arrangor_info}>
+      <Heading size="small" level="2" className={styles.header}>
         Arrangør
       </Heading>
       <div className={styles.container}>
-        <Heading size="small" level="3" className={styles.navn}>
-          {kontaktinfoArrangor?.selskapsnavn}
-        </Heading>
-        <div className={styles.rad}>
-          <Label size="small">Telefon</Label>
-          <BodyShort>{kontaktinfoArrangor?.telefonnummer}</BodyShort>
-        </div>
-        <div className={styles.rad}>
-          <Label size="small">Adresse</Label>
-          <BodyShort>{kontaktinfoArrangor?.adresse}</BodyShort>
+        <Label>{kontaktinfoArrangor?.selskapsnavn}</Label>
+        <div className={styles.infofelt}>
+          <div className={styles.rad}>
+            <BodyShort>Telefon</BodyShort>
+            <BodyShort>{kontaktinfoArrangor?.telefonnummer}</BodyShort>
+          </div>
+          <div className={styles.rad}>
+            <BodyShort>Adresse</BodyShort>
+            <BodyShort>{kontaktinfoArrangor?.adresse}</BodyShort>
+          </div>
         </div>
       </div>
     </div>
