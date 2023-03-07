@@ -19,47 +19,47 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
     );
 
   return (
-    <div>
-      <Heading size="medium" level="2" className={styles.header}>
+    <div className={styles.tiltaksansvarlig_info}>
+      <Heading size="small" level="2" className={styles.header}>
         Tiltaksansvarlig
       </Heading>
       {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
-            <Heading size="small" level="3" className={styles.navn}>
-              {tiltaksansvarlig.navn}
-            </Heading>
-            <div className={styles.rad}>
-              <Label size="small">Telefon</Label>
-              <BodyShort>{tiltaksansvarlig.telefonnummer}</BodyShort>
-            </div>
-            <div className={styles.rad}>
-              <Label size="small">Epost</Label>
-              <BodyShort>
-                <a
-                  href={`mailto:${tiltaksansvarlig.epost}`}
-                  onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
-                >
-                  {tiltaksansvarlig.epost}
-                </a>
-              </BodyShort>
-            </div>
-            <div className={styles.rad}>
-              <Label size="small">Teams</Label>
-              <BodyShort>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
-                  onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
-                >
-                  Kontakt {tiltaksansvarlig.navn} på Teams
-                </a>
-              </BodyShort>
-            </div>
-            <div className={styles.rad}>
-              <Label size="small">Enhet</Label>
-              <BodyShort>{tiltaksansvarlig.enhet}</BodyShort>
+            <Label>{tiltaksansvarlig.navn}</Label>
+            <div className={styles.infofelt}>
+              <div className={styles.rad}>
+                <BodyShort>Telefon</BodyShort>
+                <BodyShort>{tiltaksansvarlig.telefonnummer}</BodyShort>
+              </div>
+              <div className={styles.rad}>
+                <BodyShort>Epost</BodyShort>
+                <BodyShort>
+                  <a
+                    href={`mailto:${tiltaksansvarlig.epost}`}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.epost')}
+                  >
+                    {tiltaksansvarlig.epost}
+                  </a>
+                </BodyShort>
+              </div>
+              <div className={styles.rad}>
+                <BodyShort>Teams</BodyShort>
+                <BodyShort>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`${TEAMS_DYPLENKE}${encodeURIComponent(tiltaksansvarlig.epost)}`}
+                    onClick={() => logEvent('mulighetsrommet.tiltaksansvarlig.teamslenke')}
+                  >
+                    Kontakt {tiltaksansvarlig.navn} på Teams
+                  </a>
+                </BodyShort>
+              </div>
+              <div className={styles.rad}>
+                <BodyShort>Enhet</BodyShort>
+                <BodyShort>{tiltaksansvarlig.enhet}</BodyShort>
+              </div>
             </div>
           </div>
         );
