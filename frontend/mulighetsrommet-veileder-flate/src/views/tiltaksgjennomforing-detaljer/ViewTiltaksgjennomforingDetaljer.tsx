@@ -44,7 +44,7 @@ function lenkeTilOpprettAvtaleForEnv(tiltakstype: string): string {
   const baseUrl =
     env === 'production'
       ? 'https://tiltaksgjennomforing.intern.nav.no/'
-      : 'https://tiltaksgjennomforing.dev.intern.nav.no/';
+      : 'https://tiltaksgjennomforing.intern.dev.nav.no/';
   return `${baseUrl}tiltaksgjennomforing/opprett-avtale?type=${tiltakstypeNavnTilUrlVerdi(tiltakstype)}`;
 }
 

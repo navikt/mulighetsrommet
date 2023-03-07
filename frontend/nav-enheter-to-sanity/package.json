@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "lint": "tsc",
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node17 --outdir=build --sourcemap",
-    "start": "node -r dotenv/config build/index.js"
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node17 --outdir=dist --sourcemap",
+    "start": "node -r dotenv/config dist/index.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
