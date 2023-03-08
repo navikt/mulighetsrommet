@@ -35,6 +35,13 @@ data class EnhetFilter(
     val tiltakstypeId: String? = null
 )
 
+data class Tiltaksgjennomforingsfilter(
+    val innsatsgruppe: String? = null,
+    val tiltakstypeIder: List<String> = emptyList(),
+    val sokestreng: String = "",
+    val lokasjoner: List<String> = emptyList()
+)
+
 enum class Tiltakstypekategori {
     INDIVIDUELL, GRUPPE
 }
@@ -68,4 +75,17 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]
     return EnhetFilter(tiltakstypeId = tiltakstypeId)
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): Tiltaksgjennomforingsfilter {
+    val innsatsgruppe = call.parameters["innsatsgruppe"]
+    val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder") ?: emptyList()
+    val sokestreng = call.parameters["sokestreng"] ?: ""
+    val lokasjoner = call.parameters.getAll("lokasjoner") ?: emptyList()
+    return Tiltaksgjennomforingsfilter(
+        innsatsgruppe = innsatsgruppe,
+        tiltakstypeIder = tiltakstypeIder,
+        sokestreng = sokestreng,
+        lokasjoner = lokasjoner
+    )
 }

@@ -1,10 +1,10 @@
 import { Panel } from '@navikt/ds-react';
-import { Tiltaksgjennomforing } from '../../core/api/models';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
 import { formaterDato } from '../../utils/Utils';
+import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingById();
@@ -57,7 +57,7 @@ const SidemenyDetaljer = () => {
   );
 };
 
-function resolveOppstart({ oppstart, oppstartsdato }: Tiltaksgjennomforing) {
+function resolveOppstart({ oppstart, oppstartsdato }: SanityTiltaksgjennomforing) {
   if (oppstart === 'midlertidig_stengt') return 'Midlertidig stengt';
   return oppstart === 'dato' && oppstartsdato ? formaterDato(oppstartsdato) : 'Løpende';
 }

@@ -1,3 +1,6 @@
+import { Bruker } from 'mulighetsrommet-api-client';
+import { Tiltaksgjennomforingsfilter } from '../atoms/atoms';
+
 export const QueryKeys = {
   SanityQuery: 'sanityQuery',
   Brukerdata: 'brukerdata',
@@ -8,5 +11,10 @@ export const QueryKeys = {
     innsatsgrupper: ['innsatsgrupper'],
     tiltakstyper: ['tiltakstyper'],
     lokasjoner: ['lokasjoner'],
+    tiltaksgjennomforinger: (bruker?: Bruker, tiltaksgjennomforingsfilter?: Tiltaksgjennomforingsfilter) => [
+      'tiltaksgjennomforinger',
+      { ...bruker },
+      { ...tiltaksgjennomforingsfilter },
+    ],
   },
 };

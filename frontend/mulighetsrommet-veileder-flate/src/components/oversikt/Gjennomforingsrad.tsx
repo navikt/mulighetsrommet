@@ -1,19 +1,19 @@
 /* eslint-disable camelcase */
+import { Next } from '@navikt/ds-icons';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
-import { Oppstart, Tiltaksgjennomforing } from '../../core/api/models';
+import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { formaterDato } from '../../utils/Utils';
 import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
-import { Next } from '@navikt/ds-icons';
-import { formaterDato } from '../../utils/Utils';
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  tiltaksgjennomforing: SanityTiltaksgjennomforing;
 }
 
-const visOppstartsdato = (oppstart: Oppstart, oppstartsdato?: string) => {
+const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstartsdato?: string) => {
   switch (oppstart) {
     case 'dato':
       return formaterDato(oppstartsdato!);
