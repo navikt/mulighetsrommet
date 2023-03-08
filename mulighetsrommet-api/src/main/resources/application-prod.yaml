@@ -14,12 +14,17 @@ app:
       strategy: MigrateAsync
 
   kafka:
-    producerId: "mulighetsrommet-api-kafka-producer.v1"
+    producerId: mulighetsrommet-api-kafka-producer.v1
+    consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
     producers:
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:
         topic: team-mulighetsrommet.siste-tiltakstyper-v1
+    consumers:
+      amtDeltakerV1:
+        id: amt-deltaker
+        topic: amt.deltaker-v1
 
   auth:
     azure:

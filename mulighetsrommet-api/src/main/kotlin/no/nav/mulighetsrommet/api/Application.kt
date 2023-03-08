@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.routes.internal.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException
 import no.nav.mulighetsrommet.ktor.startKtorApplication
@@ -26,6 +27,7 @@ fun main() {
 
 fun Application.configure(config: AppConfig) {
     val db by inject<Database>()
+    val kafka: KafkaConsumerOrchestrator by inject()
 
     configureDependencyInjection(config)
     configureAuthentication(config.auth)
@@ -63,10 +65,15 @@ fun Application.configure(config: AppConfig) {
     val scheduler: Scheduler by inject()
 
     environment.monitor.subscribe(ApplicationStarted) {
+        kafka.enableFailedRecordProcessor()
+
         scheduler.start()
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
+        kafka.disableFailedRecordProcessor()
+        kafka.stopPollingTopicChanges()
+
         scheduler.stop()
     }
 }
