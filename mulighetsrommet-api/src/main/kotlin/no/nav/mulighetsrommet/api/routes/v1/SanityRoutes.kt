@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.SanityResponse
 import no.nav.mulighetsrommet.api.services.SanityService
@@ -39,6 +40,16 @@ fun Route.sanityRoutes() {
         get("/tiltakstyper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             call.respondWithData(sanityService.hentTiltakstyper().toResponse())
+        }
+
+        get("/lokasjoner") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(
+                sanityService.hentLokasjonerForBrukersEnhetOgFylke(
+                    getNorskIdent(),
+                    call.getAccessToken()
+                ).toResponse()
+            )
         }
     }
 }

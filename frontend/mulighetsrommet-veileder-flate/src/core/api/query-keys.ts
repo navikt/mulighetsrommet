@@ -7,5 +7,6 @@ export const QueryKeys = {
   sanity: {
     innsatsgrupper: ['innsatsgrupper'],
     tiltakstyper: ['tiltakstyper'],
+    lokasjoner: ['lokasjoner'],
   },
 };

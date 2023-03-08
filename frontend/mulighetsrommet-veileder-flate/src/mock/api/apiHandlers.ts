@@ -81,14 +81,25 @@ export const apiHandlers: RestHandler[] = [
   rest.get<any, any, any>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
     const query = `*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))]`;
     const client = getSanityClient();
-    const result = await client.fetch(query, { enhetsId: 'enhet.lokal.5702', fylkeId: 'enhet.fylke.5700' });
+    const result = await client.fetch(query);
     return ok(result);
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/tiltakstyper', async () => {
     const query = `*[_type == "tiltakstype" && !(_id in path("drafts.**"))]`;
     const client = getSanityClient();
-    const result = await client.fetch(query, { enhetsId: 'enhet.lokal.5702', fylkeId: 'enhet.fylke.5700' });
+    const result = await client.fetch(query);
+    return ok(result);
+  }),
+
+  rest.get<any, any, any>('*/api/v1/internal/sanity/lokasjoner', async () => {
+    const query = `array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+    && ('enhet.lokal.5702' in enheter[]._ref || (enheter[0] == null && 'enhet.fylke.5700' == fylke._ref))]
+    {
+      lokasjon
+    }.lokasjon)`;
+    const client = getSanityClient();
+    const result = await client.fetch(query);
     return ok(result);
   }),
 

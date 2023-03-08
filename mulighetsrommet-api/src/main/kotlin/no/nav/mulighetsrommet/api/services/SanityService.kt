@@ -64,6 +64,21 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         )
     }
 
+    suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): SanityResponse {
+        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
+        val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
+        val fylkeId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId) ?: ""
+        return executeQuery(
+            """
+            array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+            && ('enhet.lokal.$enhetsId' in enheter[]._ref || (enheter[0] == null && 'enhet.fylke.$fylkeId' == fylke._ref))]
+            {
+              lokasjon
+            }.lokasjon)
+            """.trimIndent()
+        )
+    }
+
     private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
