@@ -1,4 +1,4 @@
-import { Panel } from '@navikt/ds-react';
+import { BodyShort, Panel } from '@navikt/ds-react';
 import { Tiltaksgjennomforing } from '../../core/api/models';
 import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjennomforingById';
 import Kopiknapp from '../kopiknapp/Kopiknapp';
@@ -18,37 +18,51 @@ const SidemenyDetaljer = () => {
       <Panel className={styles.panel}>
         {tiltaksnummer && (
           <div className={styles.rad}>
-            <strong>Tiltaksnummer</strong>
-            <div className={styles.info}>
-              {tiltaksnummer} <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
+            <BodyShort size="small" className={styles.tittel}>
+              Tiltaksnummer
+            </BodyShort>
+            <div className={styles.tiltaksnummer}>
+              <BodyShort size="small">{tiltaksnummer}</BodyShort>
+              <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
             </div>
           </div>
         )}
 
         <div className={styles.rad}>
-          <strong>Tiltakstype</strong>
-          <span>{tiltakstype.tiltakstypeNavn}</span>
+          <BodyShort size="small" className={styles.tittel}>
+            Tiltakstype
+          </BodyShort>
+          <BodyShort size="small">{tiltakstype.tiltakstypeNavn} </BodyShort>
         </div>
 
-        {kontaktinfoArrangor?.selskapsnavn ? (
+        {kontaktinfoArrangor?.selskapsnavn && (
           <div className={styles.rad}>
-            <strong>Arrangør</strong>
-            <span>{kontaktinfoArrangor.selskapsnavn}</span>
+            <BodyShort size="small" className={styles.tittel}>
+              Arrangør
+            </BodyShort>
+            <BodyShort size="small">{kontaktinfoArrangor.selskapsnavn}</BodyShort>
           </div>
-        ) : null}
+        )}
 
         <div className={styles.rad}>
-          <strong>Innsatsgruppe</strong>
-          <span>{tiltakstype?.innsatsgruppe?.beskrivelse} </span>
+          <BodyShort size="small" className={styles.tittel}>
+            Innsatsgruppe
+          </BodyShort>
+          <BodyShort size="small">{tiltakstype?.innsatsgruppe?.beskrivelse} </BodyShort>
         </div>
 
         <div className={styles.rad}>
-          <strong>Oppstart</strong>
-          <span>{oppstart}</span>
+          <BodyShort size="small" className={styles.tittel}>
+            Oppstart
+          </BodyShort>
+          <BodyShort size="small">{oppstart}</BodyShort>
         </div>
+
         {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className={styles.rad}>
-            <strong>Regelverk</strong>
+            <BodyShort size="small" className={styles.tittel}>
+              Regelverk
+            </BodyShort>
             <Regelverksinfo regelverkFiler={tiltakstype.regelverkFiler} regelverkLenker={tiltakstype.regelverkLenker} />
           </div>
         )}
