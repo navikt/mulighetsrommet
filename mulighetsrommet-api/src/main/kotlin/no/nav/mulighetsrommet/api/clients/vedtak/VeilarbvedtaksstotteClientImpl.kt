@@ -58,14 +58,15 @@ class VeilarbvedtaksstotteClientImpl(
                 return null
             }
 
-            return try {
+            try {
                 JsonIgnoreUnknownKeys.decodeFromString(body)
             } catch (e: Throwable) {
                 SecureLog.logger.error(
-                    "Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr, response: $response, body: $body", e
+                    "Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr, response: $response, body: $body",
+                    e
                 )
                 log.error("Klarte ikke hente siste 14A-vedtak. Se detaljer i secureLogs.")
-                null
+                return null
             }
         }
     }
