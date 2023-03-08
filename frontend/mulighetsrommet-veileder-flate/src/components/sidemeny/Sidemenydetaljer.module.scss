@@ -2,20 +2,16 @@
   max-width: 380px;
 }
 
-.regelverk > * {
-  margin-bottom: 1rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
 .rad {
   display: flex;
   justify-content: space-between;
   text-align: right;
   min-height: 40px;
   margin-bottom: 8px;
+
+  .tittel {
+    font-weight: bolder;
+  }
 
   &:last-child {
     margin-bottom: 0;
@@ -29,11 +25,19 @@
       margin-bottom: 1rem;
     }
   }
+
+  .tiltaksnummer {
+    display: flex;
+    align-items: start;
+    justify-content: end;
+    gap: 4px;
+  }
 }
 
-.info {
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  gap: 4px;
+.regelverk > * {
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
