@@ -410,6 +410,21 @@ paths:
                 items:
                   $ref: "#/components/schemas/SanityTiltakstype"
 
+  /api/v1/internal/sanity/lokasjoner:
+    get:
+      tags:
+        - Sanity
+      operationId: getLokasjonerForBrukersEnhetOgFylke
+      responses:
+        200:
+          description: Lokasjoner fra tiltaksgjennomføringer basert på brukers enhet og fylke
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
   /api/v1/internal/dialog:
     post:
       tags:
@@ -1147,4 +1162,3 @@ components:
           type: string
         pameldingOgVarighet:
           type: object
-
