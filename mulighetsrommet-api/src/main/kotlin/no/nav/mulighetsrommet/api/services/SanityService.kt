@@ -7,7 +7,9 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
@@ -72,14 +74,19 @@ class SanityService(private val config: Config, private val brukerService: Bruke
     }
 
     private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): SanityResponse {
-        client.get {
-            url {
-                parameters.append("query", query)
-                enhetsId?.let { parameters.append("\$enhetsId", "\"enhet.lokal.$it\"") }
-                fylkeId?.let { parameters.append("\$fylkeId", "\"enhet.fylke.$it\"") }
+        try {
+            client.get {
+                url {
+                    parameters.append("query", query)
+                    enhetsId?.let { parameters.append("\$enhetsId", "\"enhet.lokal.$it\"") }
+                    fylkeId?.let { parameters.append("\$fylkeId", "\"enhet.fylke.$it\"") }
+                }
+            }.let {
+                return it.body()
             }
-        }.let {
-            return it.body()
+        } catch (exception: Exception) {
+            logger.error("Klarte ikke hente data fra Sanity", exception)
+            return SanityResponse.Error(JsonNull.jsonObject)
         }
     }
 
@@ -130,12 +137,12 @@ class SanityService(private val config: Config, private val brukerService: Bruke
     ): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
-        val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId)
+        val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
         val query = """
             *[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
               ${byggInnsatsgruppeFilter(filter.innsatsgruppe)}
               ${byggTiltakstypeFilter(filter.tiltakstypeIder)}
-              ${byggSokefilter(filter.sokestreng)}
+              ${byggSokeFilter(filter.sokestreng)}
               ${byggLokasjonsFilter(filter.lokasjoner)}
               ${byggEnhetOgFylkeFilter(enhetsId, fylkeId)}
               ]
