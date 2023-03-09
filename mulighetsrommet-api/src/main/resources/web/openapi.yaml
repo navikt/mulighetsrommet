@@ -1231,6 +1231,8 @@ components:
             type: object
         hjelpetekst:
           type: string
+      required:
+        - _id
 
     SanityFaneinnhold:
       type: object
@@ -1261,6 +1263,9 @@ components:
           type: string
         adresse:
           type: string
+      required:
+        - _id
+        - selskapsnavn
 
     SanityKontakinfoTiltaksansvarlige:
       type: object
@@ -1275,3 +1280,8 @@ components:
           type: string
         epost:
           type: string
+      required:
+        - _id
+        - navn
+        - enhet
+        - epost

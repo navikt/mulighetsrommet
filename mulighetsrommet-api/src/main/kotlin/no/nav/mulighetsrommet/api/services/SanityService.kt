@@ -1,21 +1,32 @@
 package no.nav.mulighetsrommet.api.services
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
+import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
+import java.util.concurrent.TimeUnit
 
 class SanityService(private val config: Config, private val brukerService: BrukerService) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
     private val fylkenummerCache = mutableMapOf<String?, String>()
+    private val sanityCache: Cache<String, SanityResponse> = Caffeine.newBuilder()
+        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .maximumSize(500)
+        .recordStats()
+        .build()
 
     data class Config(
         val authToken: String?,
@@ -37,6 +48,9 @@ class SanityService(private val config: Config, private val brukerService: Bruke
                 url(config.apiUrl)
             }
         }
+        val cacheMetrics: CacheMetricsCollector =
+            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
+        cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
     suspend fun executeQuery(query: String, fnr: String?, accessToken: String): SanityResponse {
@@ -70,19 +84,23 @@ class SanityService(private val config: Config, private val brukerService: Bruke
     }
 
     suspend fun hentInnsatsgrupper(): SanityResponse {
-        return executeQuery(
-            """
+        return CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
+            executeQuery(
+                """
             *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
-            """.trimIndent()
-        )
+                """.trimIndent()
+            )
+        }
     }
 
     suspend fun hentTiltakstyper(): SanityResponse {
-        return executeQuery(
-            """
+        return CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
+            executeQuery(
+                """
                 *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
-            """.trimIndent()
-        )
+                """.trimIndent()
+            )
+        }
     }
 
     suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): SanityResponse {
@@ -97,9 +115,12 @@ class SanityService(private val config: Config, private val brukerService: Bruke
               lokasjon
             }.lokasjon)
         """.trimIndent()
-        return executeQuery(
-            query
-        )
+
+        return CacheUtils.tryCacheFirstNotNull(sanityCache, fnr) {
+            executeQuery(
+                query
+            )
+        }
     }
 
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
