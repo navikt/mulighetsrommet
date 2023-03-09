@@ -163,6 +163,45 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         return executeQuery(query)
     }
 
+    suspend fun hentTiltaksgjennomforing(id: String): SanityResponse {
+        val query = """
+            *[_type == "tiltaksgjennomforing" && (_id == '$id' || _id == 'drafts.$id')] {
+                _id,
+                tiltaksgjennomforingNavn,
+                beskrivelse,
+                "tiltaksnummer": tiltaksnummer.current,
+                tilgjengelighetsstatus,
+                estimert_ventetid,
+                lokasjon,
+                oppstart,
+                oppstartsdato,
+                faneinnhold {
+                  forHvemInfoboks,
+                  forHvem,
+                  detaljerOgInnholdInfoboks,
+                  detaljerOgInnhold,
+                  pameldingOgVarighetInfoboks,
+                  pameldingOgVarighet,
+                },
+                kontaktinfoArrangor->,
+                kontaktinfoTiltaksansvarlige[]->,
+                tiltakstype->{
+                  ...,
+                  regelverkFiler[]-> {
+                    _id,
+                    "regelverkFilUrl": regelverkFilOpplastning.asset->url,
+                    regelverkFilNavn
+                  },
+                  regelverkLenker[]->,
+                  innsatsgruppe->,
+
+                }
+              }
+        """.trimIndent()
+
+        return executeQuery(query)
+    }
+
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
         if (fylkenummerCache[enhetsId] != null) {
             return fylkenummerCache[enhetsId]

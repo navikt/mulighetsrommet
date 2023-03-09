@@ -1,55 +1,20 @@
-import groq from 'groq';
-import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
-import { useSanity } from './useSanity';
-import { erPreview } from '../../../utils/Utils';
 import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { useQuery } from 'react-query';
+import { erPreview } from '../../../utils/Utils';
+import { mulighetsrommetClient } from '../clients';
+import { QueryKeys } from '../query-keys';
+import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 
 export default function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
-  const preview = erPreview;
-  const matchIdForProdEllerDrafts = `(_id == '${tiltaksgjennomforingId}' || _id == 'drafts.${tiltaksgjennomforingId}')`;
-  const response = useSanity<SanityTiltaksgjennomforing>(
-    groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
-    _id,
-    tiltaksgjennomforingNavn,
-    beskrivelse,
-    "tiltaksnummer": tiltaksnummer.current,
-    tilgjengelighetsstatus,
-    estimert_ventetid,
-    lokasjon,
-    oppstart,
-    oppstartsdato,
-    faneinnhold {
-      forHvemInfoboks,
-      forHvem,
-      detaljerOgInnholdInfoboks,
-      detaljerOgInnhold,
-      pameldingOgVarighetInfoboks,
-      pameldingOgVarighet,
-    },
-    kontaktinfoArrangor->,
-    kontaktinfoTiltaksansvarlige[]->,
-    tiltakstype->{
-      ...,
-      regelverkFiler[]-> {
-        _id,
-        "regelverkFilUrl": regelverkFilOpplastning.asset->url,
-        regelverkFilNavn
-      },
-      regelverkLenker[]->,
-      innsatsgruppe->,
-
-    }
-  }`,
-    {
-      includeUserdata: false,
-    }
+  const response = useQuery(QueryKeys.sanity.tiltaksgjennomforing(tiltaksgjennomforingId), () =>
+    mulighetsrommetClient.sanity.getTiltaksgjennomforing({ id: tiltaksgjennomforingId })
   );
 
   if (!response.data) {
     return response;
   }
-  return { ...response, data: filterDataToSingleItem(response.data, preview) };
+  return { ...response, data: filterDataToSingleItem(response.data, erPreview) };
 }
 
 function filterDataToSingleItem(data: SanityTiltaksgjennomforing | SanityTiltaksgjennomforing[], preview: boolean) {
