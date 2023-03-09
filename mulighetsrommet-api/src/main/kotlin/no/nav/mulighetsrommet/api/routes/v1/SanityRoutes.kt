@@ -14,25 +14,12 @@ import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 
+val log = LoggerFactory.getLogger("sanityRouteLogger")
 fun Route.sanityRoutes() {
-    val log = LoggerFactory.getLogger(this.javaClass)
     val sanityService: SanityService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("/api/v1/internal/sanity") {
-        get {
-            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            val query = call.request.queryParameters["query"]
-                ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
-            log.debug("Query sanity with value: $query")
-            val fnr = when (call.request.queryParameters["fnr"]) {
-                "undefined" -> null // Dersom fnr er 'undefined' så trenger vi ikke verdien og det gjør spørringer mot Sanity raskere
-                else -> call.request.queryParameters["fnr"]
-            }
-            val accessToken = call.getAccessToken()
-            call.respondWithData(sanityService.executeQuery(query, fnr, accessToken).toResponse())
-        }
-
         get("/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             call.respondWithData(sanityService.hentInnsatsgrupper().toResponse())
@@ -89,10 +76,13 @@ private fun SanityResponse.toResponse(): ApiResponse {
             text = this.result.toString(),
         )
 
-        is SanityResponse.Error -> ApiResponse(
-            text = this.error.toString(),
-            status = HttpStatusCode.InternalServerError
-        )
+        is SanityResponse.Error -> {
+            log.warn("Error fra Sanity -> {}", this.error)
+            return ApiResponse(
+                text = this.error.toString(),
+                status = HttpStatusCode.InternalServerError
+            )
+        }
     }
 }
 
