@@ -13,6 +13,7 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -46,7 +46,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
     val database = extension(
-        FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema())
+        FlywayDatabaseTestListener(createDatabaseTestConfig())
     )
 
     beforeEach {

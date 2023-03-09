@@ -1,0 +1,40 @@
+:global(.mulighetsrommet-veileder-flate) {
+  .kontaktinfo_container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 1rem 0;
+    gap: 3rem;
+
+    @media (width <= 1200px) {
+      justify-content: space-evenly;
+    }
+    .arrangor_info,
+    .tiltaksansvarlig_info {
+      max-width: 17rem;
+    }
+  }
+
+  .header {
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+  }
+
+  .navn {
+    font-weight: bolder;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.infofelt {
+  margin-top: 1rem;
+
+  .rad {
+    display: grid;
+    grid-template-columns: 6rem auto;
+  }
+}

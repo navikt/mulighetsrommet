@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime

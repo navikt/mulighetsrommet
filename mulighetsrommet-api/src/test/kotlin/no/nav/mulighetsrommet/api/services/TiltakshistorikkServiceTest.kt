@@ -5,29 +5,25 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
+import no.nav.mulighetsrommet.domain.dbo.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class HistorikkServiceTest : FunSpec({
+class TiltakshistorikkServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
     val arrangorService: ArrangorService = mockk()
 
     val database =
-        extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
+        extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
@@ -87,7 +83,7 @@ class HistorikkServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = TiltakshistorikkRepository(database.db),
+            tiltakshistorikk = TiltakshistorikkRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
         )
@@ -105,27 +101,26 @@ class HistorikkServiceTest : FunSpec({
         coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("123456789") } returns bedriftsnavn
         coEvery { arrangorService.hentOverordnetEnhetNavnForArrangor("12343") } returns bedriftsnavn2
 
-        val historikkService =
-            HistorikkService(arrangorService, TiltakshistorikkRepository(database.db))
+        val historikkService = TiltakshistorikkService(arrangorService, TiltakshistorikkRepository(database.db))
 
         val forventetHistorikk = listOf(
-            TiltakshistorikkDTO(
+            TiltakshistorikkDto(
                 id = tiltakshistorikkGruppe.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
                 tiltakstype = "Arbeidstrening",
-                arrangor = bedriftsnavn
+                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "123456789", navn = bedriftsnavn)
             ),
-            TiltakshistorikkDTO(
+            TiltakshistorikkDto(
                 id = tiltakshistorikkIndividuell.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Utdanning",
                 tiltakstype = "Høyere utdanning",
-                arrangor = bedriftsnavn2
+                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "12343", navn = bedriftsnavn2)
             )
         )
 

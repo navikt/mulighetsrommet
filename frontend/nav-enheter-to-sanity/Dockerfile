@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY ./build/index.js .
+COPY ./dist/index.js .
 
 USER node
 

@@ -1,11 +1,11 @@
 :global(.mulighetsrommet-veileder-flate) {
   :global(.navds-accordion__header) {
-    border-bottom: 1px solid var(--navds-semantic-color-divider);
+    border-bottom: 1px solid var(--a-border-divider);
   }
 
   :global(.navds-accordion__content) {
-    border-bottom: 1px solid var(--navds-semantic-color-divider);
-    padding: 0 0 0 .5rem;
+    border-bottom: 1px solid var(--a-border-divider);
+    padding: 0 0 0 0.5rem;
   }
 
   :global(.navds-accordion__item--open .navds-accordion__header) {
@@ -22,7 +22,6 @@
   }
 
   .sokefelt {
-    padding-bottom: 0.8rem;
     padding-left: 0.5rem;
 
     :global(.navds-body-short) {

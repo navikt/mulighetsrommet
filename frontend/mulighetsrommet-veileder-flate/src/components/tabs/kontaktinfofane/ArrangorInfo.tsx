@@ -1,5 +1,5 @@
-import { Alert, BodyShort, Heading, Label } from '@navikt/ds-react';
-import styles from './Arrangorinfo.module.scss';
+import { BodyShort, Heading } from '@navikt/ds-react';
+import styles from './Kontaktinfo.module.scss';
 
 interface ArrangorInfoProps {
   data: any;
@@ -8,29 +8,29 @@ interface ArrangorInfoProps {
 const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
   const { kontaktinfoArrangor } = data;
 
-  if (!kontaktinfoArrangor)
-    return (
-      <Alert variant="info" inline>
-        Konktaktinfo til arrangør er ikke lagt inn
-      </Alert>
-    );
-
-  return (
-    <>
-      <Heading size="small" level="3" className={styles.navn}>
-        {kontaktinfoArrangor?.selskapsnavn}
+  return kontaktinfoArrangor ? (
+    <div className={styles.arrangor_info}>
+      <Heading size="small" level="2" className={styles.header}>
+        Arrangør
       </Heading>
       <div className={styles.container}>
-        <div className={styles.rad}>
-          <Label size="small">Telefon</Label>
-          <BodyShort>{kontaktinfoArrangor?.telefonnummer}</BodyShort>
-        </div>
-        <div className={styles.rad}>
-          <Label size="small">Adresse</Label>
-          <BodyShort>{kontaktinfoArrangor?.adresse}</BodyShort>
+        <BodyShort className={styles.navn} size="small">
+          {kontaktinfoArrangor?.selskapsnavn}
+        </BodyShort>
+        <div className={styles.infofelt}>
+          <div className={styles.rad}>
+            <BodyShort size="small">Telefon</BodyShort>
+            <BodyShort size="small">{kontaktinfoArrangor?.telefonnummer}</BodyShort>
+          </div>
+          <div className={styles.rad}>
+            <BodyShort size="small">Adresse</BodyShort>
+            <BodyShort size="small">{kontaktinfoArrangor?.adresse}</BodyShort>
+          </div>
         </div>
       </div>
-    </>
+    </div>
+  ) : (
+    <></>
   );
 };
 export default ArrangorInfo;

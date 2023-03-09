@@ -1,9 +1,8 @@
-import { useQuery } from 'react-query';
-import { QueryKeys } from '../query-keys';
-import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
-import { useErrorHandler } from 'react-error-boundary';
-import { mulighetsrommetClient } from '../clients';
 import { useDebounce } from 'mulighetsrommet-frontend-common';
+import { useQuery } from 'react-query';
+import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
+import { mulighetsrommetClient } from '../clients';
+import { QueryKeys } from '../query-keys';
 
 interface Options {
   enabled?: boolean;
@@ -35,6 +34,6 @@ export function useSanity<T>(
       enabled: !!enabled,
     }
   );
-  useErrorHandler(hook.error);
+
   return hook;
 }

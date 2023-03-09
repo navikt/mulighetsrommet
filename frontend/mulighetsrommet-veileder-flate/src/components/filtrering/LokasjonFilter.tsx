@@ -4,7 +4,7 @@ import CheckboxFilter from './CheckboxFilter';
 import useLokasjonerForBruker from '../../core/api/queries/useLokasjonerForBruker';
 
 export function LokasjonFilter() {
-  const lokasjoner = useLokasjonerForBruker();
+  const { data: lokasjoner, isError, isLoading } = useLokasjonerForBruker();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   return (
@@ -13,15 +13,15 @@ export function LokasjonFilter() {
       options={filter.lokasjoner}
       setOptions={lokasjoner => setFilter({ ...filter, lokasjoner })}
       data={
-        lokasjoner.data?.map(lokasjon => {
+        lokasjoner?.filter(Boolean).map(lokasjon => {
           return {
-            id: lokasjon.replaceAll(' ', '-').toLowerCase(),
+            id: lokasjon?.replaceAll(' ', '-').toLowerCase(),
             tittel: lokasjon,
           };
         }) ?? []
       }
-      isLoading={lokasjoner.isLoading}
-      isError={lokasjoner.isError}
+      isLoading={isLoading}
+      isError={isError}
       sortert
       defaultOpen={filter.lokasjoner?.length > 0}
     />

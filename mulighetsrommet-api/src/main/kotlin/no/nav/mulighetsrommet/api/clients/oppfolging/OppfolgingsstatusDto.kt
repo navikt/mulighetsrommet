@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.api.domain
+package no.nav.mulighetsrommet.api.clients.oppfolging
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Oppfolgingsstatus(
+data class OppfolgingsstatusDto(
     val oppfolgingsenhet: Oppfolgingsenhet?,
     val servicegruppe: String?
 )

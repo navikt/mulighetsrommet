@@ -40,7 +40,7 @@ export function HistorikkForBrukerModal() {
               <div className={styles.historikk_for_bruker_arrangor_tiltakstype}>
                 <Detail className={styles.historikk_for_bruker_tiltakstype}>{historikk.tiltakstype}</Detail>
                 <Detail>•</Detail>
-                <Detail className={styles.historikk_for_bruker_arrangor}>{historikk.arrangor}</Detail>
+                <Detail className={styles.historikk_for_bruker_arrangor}>{historikk.arrangor?.navn}</Detail>
               </div>
             </div>
             <div className={styles.historikk_for_bruker_status_dato}>

@@ -111,7 +111,7 @@ class ArenaEventService(
             .forEach { processor ->
                 logger.info("Deleting entity: table=${event.arenaTable}, id=${event.arenaId}")
 
-                processor.deleteEntity(event).tapLeft {
+                processor.deleteEntity(event).onLeft {
                     throw RuntimeException(it.message)
                 }
             }

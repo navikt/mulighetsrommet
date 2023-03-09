@@ -60,7 +60,6 @@ describe('Tiltaksoversikt', () => {
         cy.forventetAntallFiltertags(2);
         cy.getByTestId('knapp_tilbakestill-filter').should('exist');
 
-        cy.wait(1000);
         cy.getByTestId('antall-tiltak').then($navn => {
           expect(antallTiltak).not.to.eq($navn.text());
         });
@@ -77,7 +76,6 @@ describe('Tiltaksoversikt', () => {
 
       cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 3);
 
-      cy.wait(1000);
       cy.getByTestId('antall-tiltak').then($navn => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
@@ -91,31 +89,11 @@ describe('Tiltaksoversikt', () => {
       cy.apneLukketFilterAccordion('tiltakstyper', false);
     });
 
-    it('Filtrer på individuelle eller gruppetiltak', () => {
-      cy.apneLukketFilterAccordion('gruppe--eller-individuelle-tiltak', true);
-      cy.velgFilter('gruppetiltak');
-      cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 2);
-
-      cy.getByTestId('filter_checkbox_gruppetiltak').should('be.checked');
-      cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
-
-      cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
-
-      cy.getByTestId('filter_checkbox_gruppetiltak').should('not.be.checked');
-      cy.getByTestId('filter_checkbox_individuelle-tiltak').should('not.be.checked');
-      cy.apneLukketFilterAccordion('gruppe--eller-individuelle-tiltak', false);
-    });
-
     it('Filtrer på lokasjoner', () => {
       cy.apneLukketFilterAccordion('lokasjon', true);
-      cy.getByTestId('checkboxgroup_lokasjon').children().children().last().click();
+      cy.getByTestId('checkboxgroup_lokasjon').children().children().first().click();
 
       cy.antallFiltertagsKvalifiseringsgruppe(kvalifiseringsgruppe, 2);
-
-      cy.wait(1000);
-      cy.getByTestId('antall-tiltak').then($navn => {
-        expect(antallTiltak).not.to.eq($navn.text());
-      });
 
       cy.getByTestId('knapp_tilbakestill-filter').should('exist').click();
 
@@ -130,7 +108,6 @@ describe('Tiltaksoversikt', () => {
       cy.getByTestId('filter_sokefelt').type('AFT');
       cy.forventetAntallFiltertags(3);
 
-      cy.wait(1000);
       cy.getByTestId('antall-tiltak').then($navn => {
         expect(antallTiltak).not.to.eq($navn.text());
       });
@@ -178,7 +155,7 @@ describe('Tiltaksoversikt', () => {
   it('Skal huske filtervalg mellom detaljvisning og listevisning', () => {
     cy.getByTestId('filter_checkbox_standardinnsats').click();
     cy.forventetAntallFiltertags(2);
-    cy.wait(500);
+
     cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
     cy.tilbakeTilListevisning();
     cy.getByTestId('filter_checkbox_standardinnsats').should('be.checked');

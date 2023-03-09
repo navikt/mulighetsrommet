@@ -2,29 +2,29 @@ import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useRef, useState } from 'react';
-import { Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
+import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { logEvent } from '../../core/api/logger';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
-import { logEvent } from '../../core/api/logger';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const elementsPerPage = 15;
-  const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
+  const pagination = (tiltaksgjennomforing: SanityTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
   };
   const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerdata = useHentBrukerdata();
 
-  const { data: tiltaksgjennomforinger = [], isLoading, isError, isFetching } = useTiltaksgjennomforinger();
+  const { data: tiltaksgjennomforinger = [], isLoading, isError, error, isFetching } = useTiltaksgjennomforinger();
   const [sortValue, setSortValue] = useState<string>('tiltakstypeNavn-ascending');
   const didMountRef = useRef(false);
 
@@ -50,7 +50,18 @@ const Tiltaksgjennomforingsoversikt = () => {
   }
 
   if (isError) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
+    if (error instanceof ApiError) {
+      return (
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg så ta kontakt med Porten.
+          <pre>{JSON.stringify({ message: error.message, status: error.status, url: error.url }, null, 2)}</pre>
+        </Alert>
+      );
+    } else {
+      return (
+        <Alert variant="error">Det har dessverre skjedd en feil. Om feilen gjentar seg så ta kontakt med Porten.</Alert>
+      );
+    }
   }
 
   const getSort = (sortValue: string) => {
@@ -61,9 +72,9 @@ const Tiltaksgjennomforingsoversikt = () => {
   };
 
   const sorter = (
-    tiltaksgjennomforinger: Tiltaksgjennomforing[],
+    tiltaksgjennomforinger: SanityTiltaksgjennomforing[],
     forceOrder: 'ascending' | 'descending' = 'ascending'
-  ): Tiltaksgjennomforing[] => {
+  ): SanityTiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
       const comparator = (a: any, b: any, orderBy: string | number) => {
@@ -89,10 +100,10 @@ const Tiltaksgjennomforingsoversikt = () => {
   };
 
   const lopendeOppstartForst = (
-    lopendeGjennomforinger: Tiltaksgjennomforing[],
-    gjennomforingerMedOppstartIFremtiden: Tiltaksgjennomforing[],
-    gjennomforingerMedOppstartHarVaert: Tiltaksgjennomforing[]
-  ): Tiltaksgjennomforing[] => {
+    lopendeGjennomforinger: SanityTiltaksgjennomforing[],
+    gjennomforingerMedOppstartIFremtiden: SanityTiltaksgjennomforing[],
+    gjennomforingerMedOppstartHarVaert: SanityTiltaksgjennomforing[]
+  ): SanityTiltaksgjennomforing[] => {
     return [
       ...lopendeGjennomforinger,
       ...sorter(gjennomforingerMedOppstartIFremtiden),

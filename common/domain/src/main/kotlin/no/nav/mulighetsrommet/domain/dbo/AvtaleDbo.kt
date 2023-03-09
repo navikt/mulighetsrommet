@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer

@@ -5,10 +5,10 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -19,10 +19,14 @@ import java.util.*
 class AvtaleRepositoryTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val avtaleFixture = AvtaleFixtures(database)
 
     context("Filter for avtaler") {
+
+        val defaultFilter = AvtaleFilter(
+            dagensDato = LocalDate.of(2023, 2, 1)
+        )
 
         beforeEach {
             avtaleFixture.runBeforeTests()
@@ -39,10 +43,9 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
 
                 val result = avtaleRepository.getAll(
-                    filter = AvtaleFilter(
+                    filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
                         search = "Kroko",
-                        enhet = null
                     )
                 )
 
@@ -81,12 +84,9 @@ class AvtaleRepositoryTest : FunSpec({
                     )
                 )
                 val result = avtaleRepository.getAll(
-                    filter = AvtaleFilter(
+                    filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
-                        search = null,
                         avtalestatus = Avtalestatus.Avbrutt,
-                        enhet = null,
-                        dagensDato = LocalDate.of(2023, 2, 1)
                     )
                 )
 
@@ -123,12 +123,9 @@ class AvtaleRepositoryTest : FunSpec({
                     )
                 )
                 val result = avtaleRepository.getAll(
-                    filter = AvtaleFilter(
+                    filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
-                        search = null,
                         avtalestatus = Avtalestatus.Avsluttet,
-                        enhet = null,
-                        dagensDato = LocalDate.of(2023, 2, 1)
                     )
                 )
 
@@ -147,9 +144,8 @@ class AvtaleRepositoryTest : FunSpec({
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
                 val result = avtaleRepository.getAll(
 
-                    filter = AvtaleFilter(
+                    filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
-                        search = null,
                         enhet = "1801"
                     )
                 )
@@ -186,7 +182,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
             val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3))
             val result = avtaleRepository.getAll(
-                filter = AvtaleFilter(
+                filter = defaultFilter.copy(
                     tiltakstypeId = tiltakstypeId
                 )
             )
@@ -215,7 +211,7 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
                 val result = avtaleRepository.getAll(
-                    filter = AvtaleFilter(
+                    filter = defaultFilter.copy(
                         sortering = "navn-ascending"
                     )
                 )
@@ -246,7 +242,7 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
                 val result = avtaleRepository.getAll(
-                    filter = AvtaleFilter(
+                    filter = defaultFilter.copy(
                         sortering = "navn-descending"
                     )
                 )

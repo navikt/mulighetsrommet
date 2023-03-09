@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.ktor.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.auth.principal
 import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.callloging.*
@@ -26,6 +26,14 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
         registry = Metrikker.appMicrometerRegistry
     }
 
+    install(CallId) {
+        header("call-id")
+
+        verify { callId ->
+            callId.isNotEmpty()
+        }
+    }
+
     install(CallLogging) {
         disableDefaultColors()
 
@@ -46,14 +54,6 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
         }
 
         callIdMdc("call-id")
-    }
-
-    install(CallId) {
-        header(HttpHeaders.XRequestId)
-
-        verify { callId ->
-            callId.isNotEmpty()
-        }
     }
 
     routing {

@@ -5,8 +5,8 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beOfType
+import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.SakFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -16,13 +16,12 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
 class SakEventProcessorTest : FunSpec({
 
     testOrder = TestCaseOrder.Sequential
 
-    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
         database.db.migrate()

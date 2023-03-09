@@ -1,9 +1,10 @@
 import { useSendEventTilApi } from './queries/useSendEventTilApi';
+import { erPreview } from '../../utils/Utils';
 
 export const logEvent = (logTag: string, fields?: {}, tags?: {}): void => {
-  if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true') {
-    console.log('Event', logTag, 'Fields:', fields, 'Tags:', tags);
-  } else {
+  if (!erPreview) {
     useSendEventTilApi({ name: logTag, fields, tags });
+  } else if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === 'true' || erPreview) {
+    console.log('Event', logTag, 'Fields:', fields, 'Tags:', tags);
   }
 };

@@ -1,11 +1,10 @@
 import { atomWithHash } from 'jotai-location';
-import { InnsatsgruppeNokler } from '../api/models';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
-  innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<InnsatsgruppeNokler>;
+  innsatsgruppe?: Tiltaksgjennomforingsfiltergruppe<Innsatsgruppe>;
   tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[];
-  tiltaksgruppe: Tiltaksgjennomforingsfiltergruppe<string>[];
   lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[];
 }
 
@@ -19,7 +18,6 @@ export const initialTiltaksgjennomforingsfilter = {
   search: '',
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  tiltaksgruppe: [],
   lokasjoner: [],
 };
 

@@ -1,10 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.continuations.either
 import arrow.core.continuations.ensureNotNull
-import arrow.core.flatMap
-import arrow.core.leftIfNull
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -80,7 +78,7 @@ class TiltakgjennomforingEventProcessor(
         val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
             ords.getArbeidsgiver(id)
                 .mapLeft { ProcessingError.fromResponseException(it) }
-                .leftIfNull { ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS for arrangorId=${tiltaksgjennomforing.arrangorId}") }
+                .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
                 .map { it.virksomhetsnummer }
                 .bind()
         }

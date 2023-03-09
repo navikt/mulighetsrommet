@@ -5,8 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.msgraph.MSGraphBrukerHovedenhetDto
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
-import no.nav.mulighetsrommet.api.domain.MSGraphBrukerdata
 import org.assertj.core.api.Assertions.assertThat
 import java.util.*
 
@@ -15,7 +15,7 @@ class MicrosoftGraphServiceTest : FunSpec({
 
     context("Hent hovedenhet for nav-ansatt") {
         test("Når man kaller hentHovedenhet for en nav ansatts azureId får man svar og repeterende forespørsler kommer fra cache") {
-            val mockResponse = MSGraphBrukerdata(hovedenhetKode = "2990", hovedenhetNavn = "IT-Avdelingen")
+            val mockResponse = MSGraphBrukerHovedenhetDto(hovedenhetKode = "2990", hovedenhetNavn = "IT-Avdelingen")
             val mockAccessToken = "123"
 
             val client: MicrosoftGraphClient = mockk()

@@ -1,12 +1,11 @@
-import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-import { FilterForIndividueltEllerGruppetiltak } from './FilterForIndividueltEllerGruppetiltak';
-import styles from './Filtermeny.module.scss';
-import InnsatsgruppeFilter from './InnsatsgruppeFilter';
-import { Tiltakstypefilter } from './Tiltakstypefilter';
-import { LokasjonFilter } from './LokasjonFilter';
 import { useAtom } from 'jotai';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
+import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
+import styles from './Filtermeny.module.scss';
+import InnsatsgruppeFilter from './InnsatsgruppeFilter';
+import { LokasjonFilter } from './LokasjonFilter';
 import Sokefelt from './Sokefelt';
+import { Tiltakstypefilter } from './Tiltakstypefilter';
 
 const Filtermeny = () => {
   usePrepopulerFilter();
@@ -17,7 +16,6 @@ const Filtermeny = () => {
       <Sokefelt sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
       <InnsatsgruppeFilter />
       <Tiltakstypefilter />
-      <FilterForIndividueltEllerGruppetiltak />
       <LokasjonFilter />
     </div>
   );

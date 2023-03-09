@@ -2,6 +2,7 @@
   :global(.navds-button).kopiknapp {
     padding: 5px 2px 0;
     vertical-align: bottom;
+    margin-top: -4px;
 
     :global(.navds-button--tertiary:hover) {
       background-color: transparent;

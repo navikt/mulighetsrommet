@@ -1,9 +1,7 @@
-import { useSanity } from './useSanity';
-import { Tiltakstype } from '../models';
-import groq from 'groq';
+import { useQuery } from 'react-query';
+import { mulighetsrommetClient } from '../clients';
+import { QueryKeys } from '../query-keys';
 
 export function useTiltakstyper() {
-  return useSanity<Tiltakstype[]>(groq`*[_type == "tiltakstype" && !(_id in path("drafts.**"))]`, {
-    includeUserdata: false,
-  });
+  return useQuery(QueryKeys.sanity.tiltakstyper, () => mulighetsrommetClient.sanity.getTiltakstyper());
 }

@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dto.Deltakerstatus
-import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -55,21 +55,21 @@ class TiltakshistorikkRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTiltakshistorikkForBruker(norskIdent: String): List<TiltakshistorikkDTO> {
+    fun getTiltakshistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
         @Language("PostgreSQL")
         val query = """
-            select tiltakshistorikk.id,
-                   tiltakshistorikk.fra_dato,
-                   tiltakshistorikk.til_dato,
-                   tiltakshistorikk.status,
-                   coalesce(gjennomforing.navn, tiltakshistorikk.beskrivelse) as navn,
-                   coalesce(gjennomforing.virksomhetsnummer, tiltakshistorikk.virksomhetsnummer) as virksomhetsnummer,
+            select h.id,
+                   h.fra_dato,
+                   h.til_dato,
+                   h.status,
+                   coalesce(g.navn, h.beskrivelse) as navn,
+                   coalesce(g.virksomhetsnummer, h.virksomhetsnummer) as virksomhetsnummer,
                    t.navn as tiltakstype
-            from tiltakshistorikk
-                     left join tiltaksgjennomforing gjennomforing on gjennomforing.id = tiltakshistorikk.tiltaksgjennomforing_id
-                     left join tiltakstype t on t.id = coalesce(gjennomforing.tiltakstype_id, tiltakshistorikk.tiltakstypeid)
-            where norsk_ident = ?
-            order by tiltakshistorikk.fra_dato desc nulls last;
+            from tiltakshistorikk h
+                     left join tiltaksgjennomforing g on g.id = h.tiltaksgjennomforing_id
+                     left join tiltakstype t on t.id = coalesce(g.tiltakstype_id, h.tiltakstypeid)
+            where h.norsk_ident = ?
+            order by h.fra_dato desc nulls last;
         """.trimIndent()
         val queryResult = queryOf(query, norskIdent).map { it.toTiltakshistorikk() }.asList
         return db.run(queryResult)
@@ -86,6 +86,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             is TiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
                 "tiltaksgjennomforing_id" to tiltaksgjennomforingId
             )
+
             is TiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
                 "beskrivelse" to beskrivelse,
                 "virksomhetsnummer" to virksomhetsnummer,
@@ -95,34 +96,38 @@ class TiltakshistorikkRepository(private val db: Database) {
     }
 
     private fun Row.toTiltakshistorikkDbo(): TiltakshistorikkDbo {
-        return uuidOrNull("tiltaksgjennomforing_id")?.let {
-            TiltakshistorikkDbo.Gruppetiltak(
+        return uuidOrNull("tiltaksgjennomforing_id")
+            ?.let {
+                TiltakshistorikkDbo.Gruppetiltak(
+                    id = uuid("id"),
+                    tiltaksgjennomforingId = it,
+                    norskIdent = string("norsk_ident"),
+                    status = Deltakerstatus.valueOf(string("status")),
+                    fraDato = localDateTimeOrNull("fra_dato"),
+                    tilDato = localDateTimeOrNull("til_dato")
+                )
+            }
+            ?: TiltakshistorikkDbo.IndividueltTiltak(
                 id = uuid("id"),
-                tiltaksgjennomforingId = it,
                 norskIdent = string("norsk_ident"),
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
-                tilDato = localDateTimeOrNull("til_dato")
+                tilDato = localDateTimeOrNull("til_dato"),
+                beskrivelse = string("beskrivelse"),
+                tiltakstypeId = uuid("tiltakstypeid"),
+                virksomhetsnummer = stringOrNull("virksomhetsnummer")
             )
-        } ?: TiltakshistorikkDbo.IndividueltTiltak(
-            id = uuid("id"),
-            norskIdent = string("norsk_ident"),
-            status = Deltakerstatus.valueOf(string("status")),
-            fraDato = localDateTimeOrNull("fra_dato"),
-            tilDato = localDateTimeOrNull("til_dato"),
-            beskrivelse = string("beskrivelse"),
-            tiltakstypeId = uuid("tiltakstypeid"),
-            virksomhetsnummer = stringOrNull("virksomhetsnummer")
-        )
     }
 
-    private fun Row.toTiltakshistorikk(): TiltakshistorikkDTO = TiltakshistorikkDTO(
+    private fun Row.toTiltakshistorikk() = TiltakshistorikkDto(
         id = uuid("id"),
         fraDato = localDateTimeOrNull("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
         tiltaksnavn = stringOrNull("navn"),
         tiltakstype = string("tiltakstype"),
-        arrangor = stringOrNull("virksomhetsnummer")
+        arrangor = stringOrNull("virksomhetsnummer")?.let {
+            TiltakshistorikkDto.Arrangor(virksomhetsnummer = it, navn = null)
+        }
     )
 }

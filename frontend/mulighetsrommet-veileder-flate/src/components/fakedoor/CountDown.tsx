@@ -1,21 +1,20 @@
 import { intervalToDuration, startOfDay } from 'date-fns';
+import { BodyShort } from '@navikt/ds-react';
 
 const CountDown = () => {
   const dagerTilPilot = numberOfDaysUntilPilot();
 
   if (dagerTilPilot <= 0) {
-    return (
-      <div>
-        <span>Tjenesten vil bli tilgjengelig i dag.</span>
-      </div>
-    );
+    return <BodyShort size="small">Tjenesten vil bli tilgjengelig i dag.</BodyShort>;
   }
   return (
-    <div>
-      <span>Tjenesten vil bli tilgjengelig om </span>
-      <span style={{ fontWeight: 'bold' }}> {dagerTilPilot} </span>
-      <span>{dagerTilPilot > 1 ? 'dager.' : 'dag.'}</span>
-    </div>
+    <>
+      <BodyShort size="small">Tjenesten vil bli tilgjengelig om </BodyShort>
+      <BodyShort size="small" style={{ fontWeight: 'bold' }}>
+        {dagerTilPilot}
+      </BodyShort>
+      <BodyShort size="small">{dagerTilPilot > 1 ? 'dager.' : 'dag.'}</BodyShort>
+    </>
   );
 };
 

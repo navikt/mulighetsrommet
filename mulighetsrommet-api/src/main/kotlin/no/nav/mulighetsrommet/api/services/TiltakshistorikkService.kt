@@ -1,20 +1,23 @@
 package no.nav.mulighetsrommet.api.services
 
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
-import no.nav.mulighetsrommet.domain.models.TiltakshistorikkDTO
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class HistorikkService(
+class TiltakshistorikkService(
     private val arrangorService: ArrangorService,
     private val tiltakshistorikkRepository: TiltakshistorikkRepository
 ) {
-    val log: Logger = LoggerFactory.getLogger(HistorikkService::class.java)
+    val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDTO> {
+    suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
         return tiltakshistorikkRepository.getTiltakshistorikkForBruker(norskIdent).map {
-            val arrangor = it.arrangor?.let { virksomhetsnummer -> hentArrangorNavn(virksomhetsnummer) }
+            val arrangor = it.arrangor?.let { arrangor ->
+                val navn = hentArrangorNavn(arrangor.virksomhetsnummer)
+                arrangor.copy(navn = navn)
+            }
             it.copy(arrangor = arrangor)
         }
     }

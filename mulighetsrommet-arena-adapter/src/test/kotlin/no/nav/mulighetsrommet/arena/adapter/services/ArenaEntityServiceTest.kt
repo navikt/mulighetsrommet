@@ -6,13 +6,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import java.util.*
 
 class ArenaEntityServiceTest : FunSpec({
@@ -20,7 +20,7 @@ class ArenaEntityServiceTest : FunSpec({
     testOrder = TestCaseOrder.Sequential
 
     val database =
-        extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+        extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksnummer = "123456"
     val uuid = UUID.randomUUID()

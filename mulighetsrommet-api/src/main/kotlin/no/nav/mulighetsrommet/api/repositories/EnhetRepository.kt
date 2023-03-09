@@ -2,9 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.Norg2Enhet
-import no.nav.mulighetsrommet.api.domain.dbo.EnhetStatus
-import no.nav.mulighetsrommet.api.domain.dbo.Norg2EnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
@@ -16,8 +15,8 @@ import org.slf4j.LoggerFactory
 class EnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(enhet: Norg2EnhetDbo): QueryResult<Norg2EnhetDbo> = query {
-        logger.info("Lagrer enhet id=${enhet.enhet_id}")
+    fun upsert(enhet: NavEnhetDbo): QueryResult<NavEnhetDbo> = query {
+        logger.info("Lagrer enhet id=${enhet.enhetId}")
 
         @Language("PostgreSQL")
         val query = """
@@ -36,7 +35,7 @@ class EnhetRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getAll(filter: EnhetFilter): List<Norg2Enhet> {
+    fun getAll(filter: EnhetFilter): List<NavEnhetDbo> {
         logger.info("Henter enheter med status: ${filter.statuser.joinToString(", ")}")
         val parameters = mapOf(
             "statuser" to db.createTextArray(filter.statuser.map { it.name }),
@@ -59,12 +58,12 @@ class EnhetRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, parameters)
-            .map { it.toEnhetDto() }
+            .map { it.toEnhetDbo() }
             .asList
             .let { db.run(it) }
     }
 
-    fun get(enhet: String): Norg2Enhet? {
+    fun get(enhet: String): NavEnhetDbo? {
         @Language("PostgreSQL")
         val query = """
             select navn, enhet_id, enhetsnummer, status
@@ -73,29 +72,22 @@ class EnhetRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, enhet)
-            .map { it.toEnhetDto() }
+            .map { it.toEnhetDbo() }
             .asSingle
             .let { db.run(it) }
     }
 }
 
-private fun Norg2EnhetDbo.toSqlParameters() = mapOf(
-    "enhet_id" to enhet_id,
+private fun NavEnhetDbo.toSqlParameters() = mapOf(
+    "enhet_id" to enhetId,
     "navn" to navn,
     "enhetsnummer" to enhetNr,
     "status" to status.name
 )
 
-private fun Row.toEnhetDbo() = Norg2EnhetDbo(
-    enhet_id = int("enhet_id"),
-    navn = string("navn"),
-    enhetNr = string("enhetsNr"),
-    status = EnhetStatus.valueOf(string("status"))
-)
-
-private fun Row.toEnhetDto() = Norg2Enhet(
+private fun Row.toEnhetDbo() = NavEnhetDbo(
     enhetId = int("enhet_id"),
     navn = string("navn"),
     enhetNr = string("enhetsnummer"),
-    status = no.nav.mulighetsrommet.api.domain.EnhetStatus.valueOf(string("status"))
+    status = NavEnhetStatus.valueOf(string("status"))
 )
