@@ -1,14 +1,14 @@
 import groq from 'groq';
-import { Tiltaksgjennomforing } from '../models';
 import { useGetTiltaksgjennomforingIdFraUrl } from './useGetTiltaksgjennomforingIdFraUrl';
 import { useSanity } from './useSanity';
 import { erPreview } from '../../../utils/Utils';
+import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
 export default function useTiltaksgjennomforingById() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl().replace('drafts.', '');
   const preview = erPreview;
   const matchIdForProdEllerDrafts = `(_id == '${tiltaksgjennomforingId}' || _id == 'drafts.${tiltaksgjennomforingId}')`;
-  const response = useSanity<Tiltaksgjennomforing>(
+  const response = useSanity<SanityTiltaksgjennomforing>(
     groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
     _id,
     tiltaksgjennomforingNavn,
@@ -38,7 +38,7 @@ export default function useTiltaksgjennomforingById() {
       },
       regelverkLenker[]->,
       innsatsgruppe->,
-      
+
     }
   }`,
     {
@@ -52,7 +52,7 @@ export default function useTiltaksgjennomforingById() {
   return { ...response, data: filterDataToSingleItem(response.data, preview) };
 }
 
-function filterDataToSingleItem(data: Tiltaksgjennomforing | Tiltaksgjennomforing[], preview: boolean) {
+function filterDataToSingleItem(data: SanityTiltaksgjennomforing | SanityTiltaksgjennomforing[], preview: boolean) {
   if (!Array.isArray(data)) {
     return data;
   }

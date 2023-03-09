@@ -2,13 +2,12 @@ import { Alert, BodyShort, Button, Loader, Pagination } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
 import { useEffect, useRef, useState } from 'react';
-import { Tiltaksgjennomforing } from '../../core/api/models';
 import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 
-import { ApiError } from 'mulighetsrommet-api-client';
+import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../core/api/logger';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
@@ -19,7 +18,7 @@ const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
   const { forcePrepopulerFilter } = usePrepopulerFilter();
   const elementsPerPage = 15;
-  const pagination = (tiltaksgjennomforing: Tiltaksgjennomforing[]) => {
+  const pagination = (tiltaksgjennomforing: SanityTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / elementsPerPage);
   };
   const [, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -73,9 +72,9 @@ const Tiltaksgjennomforingsoversikt = () => {
   };
 
   const sorter = (
-    tiltaksgjennomforinger: Tiltaksgjennomforing[],
+    tiltaksgjennomforinger: SanityTiltaksgjennomforing[],
     forceOrder: 'ascending' | 'descending' = 'ascending'
-  ): Tiltaksgjennomforing[] => {
+  ): SanityTiltaksgjennomforing[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
       const comparator = (a: any, b: any, orderBy: string | number) => {
@@ -101,10 +100,10 @@ const Tiltaksgjennomforingsoversikt = () => {
   };
 
   const lopendeOppstartForst = (
-    lopendeGjennomforinger: Tiltaksgjennomforing[],
-    gjennomforingerMedOppstartIFremtiden: Tiltaksgjennomforing[],
-    gjennomforingerMedOppstartHarVaert: Tiltaksgjennomforing[]
-  ): Tiltaksgjennomforing[] => {
+    lopendeGjennomforinger: SanityTiltaksgjennomforing[],
+    gjennomforingerMedOppstartIFremtiden: SanityTiltaksgjennomforing[],
+    gjennomforingerMedOppstartHarVaert: SanityTiltaksgjennomforing[]
+  ): SanityTiltaksgjennomforing[] => {
     return [
       ...lopendeGjennomforinger,
       ...sorter(gjennomforingerMedOppstartIFremtiden),

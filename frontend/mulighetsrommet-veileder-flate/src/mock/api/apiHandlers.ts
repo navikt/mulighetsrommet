@@ -1,4 +1,5 @@
 import { createClient, SanityClient } from '@sanity/client';
+import groq from 'groq';
 import { rest, RestHandler } from 'msw';
 import {
   Ansatt,
@@ -8,8 +9,12 @@ import {
   HistorikkForBruker,
   Innsatsgruppe,
 } from 'mulighetsrommet-api-client';
+import { utledInnsatsgrupperFraInnsatsgruppe } from '../../core/api/queries/useTiltaksgjennomforinger';
 import { historikk } from '../fixtures/historikk';
 import { badReq, ok } from './responses';
+
+const ENHET_FREDRIKSTAD = '0106';
+const FYLKE_NAV_OST_VIKEN = '0200';
 
 export const apiHandlers: RestHandler[] = [
   rest.get<any, any, Bruker>('*/api/v1/internal/bruker', (req, res, ctx) => {
@@ -27,8 +32,8 @@ export const apiHandlers: RestHandler[] = [
         innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
         // servicegruppe: 'BATT',
         oppfolgingsenhet: {
-          navn: 'NAV Lerkendal',
-          enhetId: '5702',
+          navn: 'NAV Fredrikstad',
+          enhetId: ENHET_FREDRIKSTAD,
         },
         fornavn: 'IHERDIG',
         manuellStatus: {
@@ -42,7 +47,7 @@ export const apiHandlers: RestHandler[] = [
     );
   }),
 
-  rest.get<any, any, Ansatt>('*/api/v1/internal/ansatt/me', (req, res, ctx) => {
+  rest.get<any, any, Ansatt>('*/api/v1/internal/ansatt/me', (_, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({
@@ -57,7 +62,7 @@ export const apiHandlers: RestHandler[] = [
     );
   }),
 
-  rest.post<any, any, DialogResponse>('*/api/v1/internal/dialog', (req, res, ctx) => {
+  rest.post<any, any, DialogResponse>('*/api/v1/internal/dialog', (_, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({
@@ -74,27 +79,30 @@ export const apiHandlers: RestHandler[] = [
     }
 
     const client = getSanityClient();
-    const result = await client.fetch(query, { enhetsId: 'enhet.lokal.5702', fylkeId: 'enhet.fylke.5700' });
+    const result = await client.fetch(query, {
+      enhetsId: `enhet.lokal.${ENHET_FREDRIKSTAD}`,
+      fylkeId: `enhet.fylke.${FYLKE_NAV_OST_VIKEN}`,
+    });
     return ok(result);
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/innsatsgrupper', async () => {
-    const query = `*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))]`;
+    const query = groq`*[_type == "innsatsgruppe" && !(_id in path("drafts.**"))]`;
     const client = getSanityClient();
     const result = await client.fetch(query);
     return ok(result);
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/tiltakstyper', async () => {
-    const query = `*[_type == "tiltakstype" && !(_id in path("drafts.**"))]`;
+    const query = groq`*[_type == "tiltakstype" && !(_id in path("drafts.**"))]`;
     const client = getSanityClient();
     const result = await client.fetch(query);
     return ok(result);
   }),
 
   rest.get<any, any, any>('*/api/v1/internal/sanity/lokasjoner', async () => {
-    const query = `array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
-    && ('enhet.lokal.5702' in enheter[]._ref || (enheter[0] == null && 'enhet.fylke.5700' == fylke._ref))]
+    const query = groq`array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+    ${enhetOgFylkeFilter()}]
     {
       lokasjon
     }.lokasjon)`;
@@ -103,7 +111,37 @@ export const apiHandlers: RestHandler[] = [
     return ok(result);
   }),
 
-  rest.get<any, any, HistorikkForBruker[]>('*/api/v1/internal/bruker/historikk', (req, res, ctx) => {
+  rest.get<any, any, any>('*/api/v1/internal/sanity/tiltaksgjennomforinger', async req => {
+    const innsatsgruppe = req.url.searchParams.get('innsatsgruppe') || '';
+    const tiltakstypeIder = req.url.searchParams.getAll('tiltakstypeIder');
+    const sokestreng = req.url.searchParams.get('sokestreng') || '';
+    const lokasjoner = req.url.searchParams.getAll('lokasjoner');
+    const sanityQueryString = groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
+    ${byggInnsatsgruppeFilter(innsatsgruppe)}
+    ${byggTiltakstypeFilter(tiltakstypeIder)}
+    ${byggSokefilter(sokestreng)}
+    ${byggLokasjonsFilter(lokasjoner)}
+    ${enhetOgFylkeFilter()}
+    ]
+    {
+      _id,
+      tiltaksgjennomforingNavn,
+      lokasjon,
+      oppstart,
+      oppstartsdato,
+      estimert_ventetid,
+      "tiltaksnummer": tiltaksnummer.current,
+      kontaktinfoArrangor->{selskapsnavn},
+      tiltakstype->{tiltakstypeNavn},
+      tilgjengelighetsstatus
+    }`;
+
+    const client = getSanityClient();
+    const result = await client.fetch(sanityQueryString);
+    return ok(result);
+  }),
+
+  rest.get<any, any, HistorikkForBruker[]>('*/api/v1/internal/bruker/historikk', (_, res, ctx) => {
     return res(ctx.status(200), ctx.json(historikk));
   }),
 
@@ -112,7 +150,7 @@ export const apiHandlers: RestHandler[] = [
     return res(ctx.status(200), ctx.json(data));
   }),
 
-  rest.get<any, any, DelMedBruker>('*/api/v1/internal/delMedBruker/*', (req, res, ctx) => {
+  rest.get<any, any, DelMedBruker>('*/api/v1/internal/delMedBruker/*', (_, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({
@@ -140,4 +178,42 @@ function getSanityClient() {
   });
 
   return cachedClient;
+}
+
+function byggLokasjonsFilter(lokasjoner: string[]): string {
+  if (lokasjoner.length === 0) return '';
+
+  const lokasjonsStreng = fnuttifiserListe(lokasjoner);
+
+  return groq`&& lokasjon in [${lokasjonsStreng}]`;
+}
+
+function byggInnsatsgruppeFilter(innsatsgruppe?: string): string {
+  if (!innsatsgruppe) return '';
+
+  const innsatsgrupperISok = utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe)
+    .map(nokkel => `"${nokkel}"`)
+    .join(', ');
+  return groq`&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
+}
+
+function byggTiltakstypeFilter(tiltakstyper: string[]): string {
+  return tiltakstyper.length > 0 ? groq`&& tiltakstype->_id in [${fnuttifiserListe(tiltakstyper)}]` : '';
+}
+
+function byggSokefilter(search: string) {
+  return search
+    ? groq`&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
+    : '';
+}
+
+function fnuttifiserListe(elementer: string[]): string {
+  return elementer.map(it => `"${it}"`).join(', ');
+}
+
+function enhetOgFylkeFilter() {
+  const enhetLokal = `enhet.lokal.${ENHET_FREDRIKSTAD}`;
+  const fylke = `enhet.fylke.${FYLKE_NAV_OST_VIKEN}`;
+  return groq`&& ('${enhetLokal}' in enheter[]._ref || (enheter[0] == null && '${fylke}' == fylke._ref))
+  && ('${enhetLokal}' in enheter[]._ref || (enheter[0] == null && '${fylke}' == fylke._ref))`;
 }

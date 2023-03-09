@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { Innsatsgruppe, SanityInnsatsgruppe } from 'mulighetsrommet-api-client';
-import { Tiltaksgjennomforing } from '../../core/api/models';
+import { Innsatsgruppe, SanityInnsatsgruppe, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
-export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
+export const tiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
     tiltakstype: {
@@ -35,7 +34,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       adresse: faker.address.streetAddress(),
     },
     lokasjon: faker.address.city(),
-    oppstart: 'dato',
+    oppstart: SanityTiltaksgjennomforing.oppstart.DATO,
     oppstartsdato: faker.date.future().toString(),
     kontaktinfoTiltaksansvarlige: [
       {
@@ -79,7 +78,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       adresse: faker.address.streetAddress(),
     },
     lokasjon: faker.address.city(),
-    oppstart: 'dato',
+    oppstart: SanityTiltaksgjennomforing.oppstart.DATO,
     oppstartsdato: faker.date.future().toString(),
     kontaktinfoTiltaksansvarlige: [
       {
@@ -123,7 +122,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       adresse: faker.address.streetAddress(),
     },
     lokasjon: faker.address.city(),
-    oppstart: 'dato',
+    oppstart: SanityTiltaksgjennomforing.oppstart.DATO,
     oppstartsdato: faker.date.future().toString(),
     kontaktinfoTiltaksansvarlige: [
       {

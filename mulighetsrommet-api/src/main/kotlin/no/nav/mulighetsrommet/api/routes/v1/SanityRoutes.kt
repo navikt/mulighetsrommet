@@ -4,12 +4,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.SanityResponse
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
+import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 
@@ -48,6 +49,17 @@ fun Route.sanityRoutes() {
                 sanityService.hentLokasjonerForBrukersEnhetOgFylke(
                     getNorskIdent(),
                     call.getAccessToken()
+                ).toResponse()
+            )
+        }
+
+        get("/tiltaksgjennomforinger") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(
+                sanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+                    getNorskIdent(),
+                    call.getAccessToken(),
+                    getTiltaksgjennomforingsFilter()
                 ).toResponse()
             )
         }
