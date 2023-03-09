@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":common:ktor"))
     implementation(project(":common:database"))
     implementation(project(":common:slack"))
+    implementation(project(":common:kafka"))
     testImplementation(testFixtures(project(":common:database")))
 
     // Kotlin
