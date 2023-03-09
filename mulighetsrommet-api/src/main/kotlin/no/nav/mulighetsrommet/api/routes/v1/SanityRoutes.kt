@@ -63,6 +63,15 @@ fun Route.sanityRoutes() {
                 ).toResponse()
             )
         }
+
+        get("/tiltaksgjennomforing/{id}") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            val id = call.parameters["id"] ?: return@get call.respondText(
+                text = "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest,
+            )
+            call.respondWithData(sanityService.hentTiltaksgjennomforing(id).toResponse())
+        }
     }
 }
 

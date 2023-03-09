@@ -141,6 +141,47 @@ export const apiHandlers: RestHandler[] = [
     return ok(result);
   }),
 
+  rest.get<any, any, any>('*/api/v1/internal/sanity/tiltaksgjennomforing/:id', async req => {
+    const id = req.params.id;
+    const matchIdForProdEllerDrafts = `(_id == '${id}' || _id == 'drafts.${id}')`;
+    const query = groq`*[_type == "tiltaksgjennomforing" && ${matchIdForProdEllerDrafts}] {
+    _id,
+    tiltaksgjennomforingNavn,
+    beskrivelse,
+    "tiltaksnummer": tiltaksnummer.current,
+    tilgjengelighetsstatus,
+    estimert_ventetid,
+    lokasjon,
+    oppstart,
+    oppstartsdato,
+    faneinnhold {
+      forHvemInfoboks,
+      forHvem,
+      detaljerOgInnholdInfoboks,
+      detaljerOgInnhold,
+      pameldingOgVarighetInfoboks,
+      pameldingOgVarighet,
+    },
+    kontaktinfoArrangor->,
+    kontaktinfoTiltaksansvarlige[]->,
+    tiltakstype->{
+      ...,
+      regelverkFiler[]-> {
+        _id,
+        "regelverkFilUrl": regelverkFilOpplastning.asset->url,
+        regelverkFilNavn
+      },
+      regelverkLenker[]->,
+      innsatsgruppe->,
+
+    }
+  }`;
+
+    const client = getSanityClient();
+    const result = await client.fetch(query);
+    return ok(result);
+  }),
+
   rest.get<any, any, HistorikkForBruker[]>('*/api/v1/internal/bruker/historikk', (_, res, ctx) => {
     return res(ctx.status(200), ctx.json(historikk));
   }),

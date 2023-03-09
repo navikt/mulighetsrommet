@@ -16,5 +16,6 @@ export const QueryKeys = {
       { ...bruker },
       { ...tiltaksgjennomforingsfilter },
     ],
+    tiltaksgjennomforing: (id: string) => ['tiltaksgjennomforing', id],
   },
 };
