@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.kafka.amt
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -35,7 +35,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             tiltak.upsert(TiltakstypeFixtures.Oppfolging).getOrThrow()
 
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging).getOrThrow()
+            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1).getOrThrow()
         }
 
         afterTest {
@@ -50,7 +50,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
 
         val amtDeltaker1 = AmtDeltakerV1Dto(
             id = UUID.randomUUID(),
-            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging.id,
+            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
@@ -81,7 +81,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
-            deltakere.getAll() shouldContainAll setOf(deltaker1Dbo, deltaker2Dbo)
+            deltakere.getAll().shouldContainExactly(deltaker1Dbo, deltaker2Dbo)
         }
 
         test("delete deltakere for tombstone messages") {

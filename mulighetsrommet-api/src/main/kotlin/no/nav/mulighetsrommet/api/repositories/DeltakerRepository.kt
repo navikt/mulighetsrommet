@@ -39,7 +39,7 @@ class DeltakerRepository(private val db: Database) {
 
     fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDbo> {
         val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltaksgjennomforingId to "tiltaksgjennomforing_id = :tiltaksgjennomforing_id"
+            tiltaksgjennomforingId to "tiltaksgjennomforing_id = :tiltaksgjennomforing_id::uuid"
         )
 
         @Language("PostgreSQL")
