@@ -8,6 +8,7 @@ import { formaterDato } from '../../utils/Utils';
 import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
+import { BodyShort } from '@navikt/ds-react';
 
 interface Props {
   tiltaksgjennomforing: SanityTiltaksgjennomforing;
@@ -46,23 +47,27 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
       >
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>
-            <span title={tiltaksgjennomforingNavn} className={classNames(styles.truncate, styles.as_link)}>
+            <BodyShort
+              size="small"
+              title={tiltaksgjennomforingNavn}
+              className={classNames(styles.truncate, styles.as_link)}
+            >
               {tiltaksgjennomforingNavn}
-            </span>
-            <span title={kontaktinfoArrangor?.selskapsnavn} className={styles.muted}>
+            </BodyShort>
+            <BodyShort size="small" title={kontaktinfoArrangor?.selskapsnavn} className={styles.muted}>
               {kontaktinfoArrangor?.selskapsnavn}
-            </span>
+            </BodyShort>
           </div>
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            <span title={tiltakstype.tiltakstypeNavn} className={styles.truncate}>
+            <BodyShort size="small" title={tiltakstype.tiltakstypeNavn} className={styles.truncate}>
               {tiltakstype.tiltakstypeNavn}
-            </span>
-            <span title={lokasjon} className={styles.truncate}>
+            </BodyShort>
+            <BodyShort size="small" title={lokasjon} className={styles.truncate}>
               {lokasjon}
-            </span>
-            <span title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
+            </BodyShort>
+            <BodyShort size="small" title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
               {visOppstartsdato(oppstart, oppstartsdato)}
-            </span>
+            </BodyShort>
             <TilgjengelighetsstatusComponent
               oppstart={oppstart}
               status={tilgjengelighetsstatus}
