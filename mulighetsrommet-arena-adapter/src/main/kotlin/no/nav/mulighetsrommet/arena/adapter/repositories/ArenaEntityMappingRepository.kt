@@ -17,7 +17,7 @@ class ArenaEntityMappingRepository(private val db: Database) {
             returning arena_table, arena_id, entity_id, status
         """.trimIndent()
 
-        return queryOf(query, mapping.arenaTable.table, mapping.arenaId, mapping.entityId, mapping.status)
+        return queryOf(query, mapping.arenaTable.table, mapping.arenaId, mapping.entityId, mapping.status.name)
             .map { it.toMapping() }
             .asSingle
             .let { db.run(it)!! }

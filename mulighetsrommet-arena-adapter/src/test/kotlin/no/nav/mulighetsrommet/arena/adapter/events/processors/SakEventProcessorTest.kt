@@ -6,10 +6,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beOfType
 import no.nav.mulighetsrommet.arena.adapter.fixtures.SakFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
@@ -36,7 +37,7 @@ class SakEventProcessorTest : FunSpec({
             val consumer = createConsumer(database.db)
             val event = createArenaSakEvent(Insert, SakFixtures.ArenaIkkeTiltakSak)
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
         }
     }
 

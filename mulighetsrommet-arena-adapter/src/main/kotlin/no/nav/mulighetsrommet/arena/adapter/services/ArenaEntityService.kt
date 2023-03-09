@@ -25,7 +25,11 @@ class ArenaEntityService(
 
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
         return mappings.get(event.arenaTable, event.arenaId)
-            ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.UNHANDLED))
+            ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+    }
+
+    fun insertMapping(arenaTable: ArenaTable, arenaId: String, status: ArenaEntityMapping.Status): ArenaEntityMapping {
+        return mappings.insert(ArenaEntityMapping(arenaTable, arenaId, UUID.randomUUID(), status))
     }
 
     fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {
@@ -90,8 +94,8 @@ class ArenaEntityService(
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         // TODO: burde status Ignored settes på ArenaEntityMapping i stedet?
         //       Da har vi mulighet til å slette data fra events-tabellen, samtidig som vi har oversikt over hvilke entitier som ikke er relevante
-        return getEvent(arenaTable, arenaId)
-            .map { it.status == ArenaEvent.ProcessingStatus.Ignored }
+        return getMapping(arenaTable, arenaId)
+            .map { it.status == ArenaEntityMapping.Status.Ignored }
     }
 
     fun upsertDeltaker(deltaker: Deltaker): Either<ProcessingError, Deltaker> {

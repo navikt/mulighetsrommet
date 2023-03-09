@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beOfType
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
@@ -125,28 +127,32 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 ArenaEntityMapping(
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
-                    tiltaksgjennomforing.id
+                    tiltaksgjennomforing.id,
+                    ArenaEntityMapping.Status.Upserted
                 )
             )
             mappings.insert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
-                    tiltaksgjennomforingIndividuell.id
+                    tiltaksgjennomforingIndividuell.id,
+                    ArenaEntityMapping.Status.Upserted
                 )
             )
             mappings.insert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltakstype,
                     tiltakstypeGruppe.tiltakskode,
-                    tiltakstypeGruppe.id
+                    tiltakstypeGruppe.id,
+                    ArenaEntityMapping.Status.Upserted
                 )
             )
             mappings.insert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltakstype,
                     tiltakstypeIndividuell.tiltakskode,
-                    tiltakstypeIndividuell.id
+                    tiltakstypeIndividuell.id,
+                    ArenaEntityMapping.Status.Upserted
                 )
             )
 
@@ -169,13 +175,13 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
             val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(REG_DATO = regDatoBeforeAktivitetsplanen) }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
         }
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
             val events = ArenaEventRepository(database.db)
             events.upsert(
-                createArenaTiltakgjennomforingEvent(Insert, status = Ignored) {
+                createArenaTiltakgjennomforingEvent(Insert, status = Processed) {
                     it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
                 }
             )
@@ -183,7 +189,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
             val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
         }
 
         test("should treat all operations as upserts") {

@@ -143,7 +143,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             SakEventProcessor(get()),
             AvtaleInfoEventProcessor(get(), get(), get()),
         )
-        ArenaEventService(config = services.arenaEventService, events = get(), processors = processors)
+        ArenaEventService(config = services.arenaEventService, events = get(), processors = processors, entities = get())
     }
     single { ArenaEntityService(get(), get(), get(), get(), get(), get(), get()) }
 }

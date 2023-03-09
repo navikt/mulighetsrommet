@@ -7,7 +7,9 @@ import kotlinx.coroutines.channels.produce
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
@@ -79,17 +81,20 @@ class ArenaEventService(
                 try {
                     logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
                     val mapping = entities.getOrCreateMapping(event)
-                    // getOrCreateEntityMapping her? Lagre forrige status
-                    val (status, message) = processor.handleEvent(event)
-                        .map { Pair(it, null) }
+
+                    val (eventStatus, message, entityStatus) = processor.handleEvent(event)
+                        .map { Triple(it, null, ArenaEntityMapping.Status.Upserted) }
                         .getOrHandle {
                             logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
-                            Pair(it.status, it.message)
+                            Triple(it.status, it.message, if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else ArenaEntityMapping.Status.Upserted)
                         }
 
-                    // sjekk hva status blir nå
-                    // hvis status var prosessert og nå er
-                    events.upsert(event.copy(status = status, message = message))
+                    if (mapping.status == ArenaEntityMapping.Status.Upserted && entityStatus == ArenaEntityMapping.Status.Ignored) {
+                        processor.deleteEntity(event)
+                    }
+
+                    entities.insertMapping(event.arenaTable, event.arenaId, entityStatus)
+                    events.upsert(event.copy(status = eventStatus, message = message))
                 } catch (e: Throwable) {
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
 

@@ -21,7 +21,7 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
     )
 
     data class Ignored(val reason: String) : ProcessingError(
-        status = ArenaEvent.ProcessingStatus.Ignored,
+        status = ArenaEvent.ProcessingStatus.Processed,
         message = "Event was ignored: $reason"
     )
 

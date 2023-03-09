@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 
@@ -46,7 +46,7 @@ class ArenaEventServiceTest : FunSpec({
         payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
     )
     val ignoredEvent = ArenaEvent(
-        status = ProcessingStatus.Ignored,
+        status = ProcessingStatus.Processed,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "3",
@@ -54,16 +54,26 @@ class ArenaEventServiceTest : FunSpec({
     )
 
     lateinit var events: ArenaEventRepository
+    lateinit var entities: ArenaEntityService
 
     beforeEach {
         events = ArenaEventRepository(database.db)
+        entities = ArenaEntityService(
+            mappings = ArenaEntityMappingRepository(db = database.db),
+            tiltakstyper = TiltakstypeRepository(db = database.db),
+            saker = SakRepository(db = database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(db = database.db),
+            deltakere = DeltakerRepository(db = database.db),
+            avtaler = AvtaleRepository(db = database.db),
+            events = events
+        )
     }
 
     context("process event") {
         test("should process and save the event") {
             val processor = ArenaEventTestProcessor()
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
             database.assertThat("arena_events").row()
@@ -76,7 +86,7 @@ class ArenaEventServiceTest : FunSpec({
                 ProcessingError.ProcessingFailed(":(")
             }
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
             database.assertThat("arena_events").row()
@@ -88,7 +98,7 @@ class ArenaEventServiceTest : FunSpec({
             val sakEvent = pendingEvent.copy(arenaTable = ArenaTable.Sak)
             val processor = spyk(ArenaEventTestProcessor(arenaTable = ArenaTable.Tiltakstype))
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(sakEvent)
 
             coVerify(exactly = 0) {
@@ -104,7 +114,7 @@ class ArenaEventServiceTest : FunSpec({
                 throw RuntimeException("Oh no!")
             }
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
             database.assertThat("arena_events").row()
@@ -117,7 +127,7 @@ class ArenaEventServiceTest : FunSpec({
         test("should run gracefully when specified event does not exist") {
             val processor = spyk(ArenaEventTestProcessor())
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.replayEvent(table, "1")
 
             coVerify(exactly = 0) {
@@ -129,7 +139,7 @@ class ArenaEventServiceTest : FunSpec({
             val processor = spyk(ArenaEventTestProcessor())
             events.upsert(pendingEvent)
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.replayEvent(table, "1")
 
             coVerify(exactly = 1) {
@@ -144,13 +154,13 @@ class ArenaEventServiceTest : FunSpec({
             events.upsert(processedEvent)
             events.upsert(ignoredEvent)
 
-            val service = ArenaEventService(events = events, processors = listOf())
+            val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
             service.setReplayStatusForEvents(table, ProcessingStatus.Processed)
 
             database.assertThat("arena_events")
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
-                .row().value("processing_status").isEqualTo(ProcessingStatus.Ignored.name)
+                .row().value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
         }
     }
 
@@ -159,7 +169,7 @@ class ArenaEventServiceTest : FunSpec({
             val processor = spyk(ArenaEventTestProcessor())
             events.upsert(pendingEvent)
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.retryEvents(table)
 
             coVerify(exactly = 0) {
@@ -175,7 +185,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(
                 config = ArenaEventService.Config(maxRetries = 0),
                 events = events,
-                processors = listOf(processor)
+                processors = listOf(processor), entities = entities
             )
             service.retryEvents(table)
 
@@ -196,7 +206,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(
                 config = ArenaEventService.Config(maxRetries = 1),
                 events = events,
-                processors = listOf(processor)
+                processors = listOf(processor), entities = entities
             )
             service.retryEvents(table)
 
@@ -217,7 +227,7 @@ class ArenaEventServiceTest : FunSpec({
             events.upsert(processedEvent)
             events.upsert(ignoredEvent)
 
-            val service = ArenaEventService(events = events, processors = listOf(processor))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.deleteEntities(table, listOf(processedEvent.arenaId, ignoredEvent.arenaId))
 
             coVerify(exactly = 1) {
