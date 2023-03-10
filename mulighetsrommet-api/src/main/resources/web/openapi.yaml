@@ -1068,13 +1068,13 @@ components:
           type: string
         dialogId:
           type: string
-        created_at:
+        createdAt:
           type: string
-        updated_at:
+        updatedAt:
           type: string
-        created_by:
+        createdBy:
           type: string
-        updated_by:
+        updatedBy:
           type: string
 
     NavEnhet:

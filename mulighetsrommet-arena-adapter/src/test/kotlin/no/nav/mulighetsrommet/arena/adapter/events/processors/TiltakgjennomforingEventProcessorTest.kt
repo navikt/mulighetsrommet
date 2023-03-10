@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -37,9 +36,6 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 
 class TiltakgjennomforingEventProcessorTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {

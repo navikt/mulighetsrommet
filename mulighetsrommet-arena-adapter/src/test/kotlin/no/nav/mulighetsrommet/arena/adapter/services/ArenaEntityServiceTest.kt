@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.JsonObject
@@ -16,11 +15,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import java.util.*
 
 class ArenaEntityServiceTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
-    val database =
-        extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksnummer = "123456"
     val uuid = UUID.randomUUID()
