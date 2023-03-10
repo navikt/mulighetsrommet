@@ -69,7 +69,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const veiledernavn = resolveName(veilederdata.data);
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
-  const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
+  const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);

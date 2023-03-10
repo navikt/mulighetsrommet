@@ -9,8 +9,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.models.DelMedBruker
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -26,7 +26,7 @@ class DelMedBrukerServiceTest : FunSpec({
     context("DelMedBrukerService") {
         val service = DelMedBrukerService(database.db)
 
-        val payload = DelMedBruker(
+        val payload = DelMedBrukerDbo(
             norskIdent = "12345678910",
             navident = "nav123",
             sanityId = "123456",
