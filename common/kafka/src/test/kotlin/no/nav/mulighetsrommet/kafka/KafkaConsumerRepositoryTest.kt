@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.kafka
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -9,9 +8,6 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 class KafkaConsumerRepositoryTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     lateinit var kafkaConsumerRepository: KafkaConsumerRepository

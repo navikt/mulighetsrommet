@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
@@ -21,9 +20,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ArenaServiceTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
