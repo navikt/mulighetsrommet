@@ -16,7 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class ArenaServiceTest : FunSpec({
+class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
@@ -115,7 +115,7 @@ class ArenaServiceTest : FunSpec({
 
     context("tiltakstype") {
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
-        val service = ArenaService(
+        val service = ArenaAdapterService(
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -130,14 +130,14 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("CRUD") {
-            service.upsert(tiltakstype)
+            service.upsertTiltakstype(tiltakstype)
 
             database.assertThat("tiltakstype").row()
                 .value("id").isEqualTo(tiltakstype.id)
                 .value("navn").isEqualTo(tiltakstype.navn)
 
             val updated = tiltakstype.copy(navn = "Arbeidsovertrening")
-            service.upsert(updated)
+            service.upsertTiltakstype(updated)
 
             database.assertThat("tiltakstype").row()
                 .value("navn").isEqualTo(updated.navn)
@@ -148,7 +148,7 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("should publish and retract tiltakstype from kafka topic") {
-            service.upsert(tiltakstype)
+            service.upsertTiltakstype(tiltakstype)
 
             verify(exactly = 1) { tiltakstypeKafkaProducer.publish(TiltakstypeDto.from(tiltakstype)) }
 
@@ -164,7 +164,7 @@ class ArenaServiceTest : FunSpec({
         }
     }
     context("avtaler") {
-        val service = ArenaService(
+        val service = ArenaAdapterService(
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -175,9 +175,9 @@ class ArenaServiceTest : FunSpec({
         )
 
         test("CRUD") {
-            service.upsert(tiltakstype)
+            service.upsertTiltakstype(tiltakstype)
 
-            service.upsert(avtale).getOrThrow()
+            service.upsertAvtale(avtale).getOrThrow()
             database.assertThat("avtale").row()
                 .value("id").isEqualTo(avtale.id)
                 .value("navn").isEqualTo(avtale.navn)
@@ -192,7 +192,7 @@ class ArenaServiceTest : FunSpec({
                 .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
 
             val updated = tiltaksgjennomforing.copy(navn = "Arbeidsovertrening")
-            service.upsert(updated).getOrThrow()
+            service.upsertTiltaksgjennomforing(updated).getOrThrow()
             database.assertThat("tiltaksgjennomforing").row()
                 .value("navn").isEqualTo(updated.navn)
 
@@ -203,7 +203,7 @@ class ArenaServiceTest : FunSpec({
 
     context("tiltaksgjennomføring") {
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-        val service = ArenaService(
+        val service = ArenaAdapterService(
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -218,9 +218,9 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("CRUD") {
-            service.upsert(tiltakstype)
+            service.upsertTiltakstype(tiltakstype)
 
-            service.upsert(tiltaksgjennomforing)
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             database.assertThat("tiltaksgjennomforing").row()
                 .value("id").isEqualTo(tiltaksgjennomforing.id)
@@ -232,7 +232,7 @@ class ArenaServiceTest : FunSpec({
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
 
             val updated = tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening")
-            service.upsert(updated)
+            service.upsertTiltaksgjennomforing(updated)
 
             database.assertThat("tiltaksgjennomforing").row()
                 .value("navn").isEqualTo(updated.navn)
@@ -249,8 +249,8 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("should publish and retract gruppetiltak from kafka topic") {
-            service.upsert(tiltakstype)
-            service.upsert(tiltaksgjennomforing)
+            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.publish(
@@ -269,7 +269,7 @@ class ArenaServiceTest : FunSpec({
     }
 
     context("tiltakshistorikk") {
-        val service = ArenaService(
+        val service = ArenaAdapterService(
             tiltakstyper = TiltakstypeRepository(database.db),
             avtaler = AvtaleRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
@@ -280,12 +280,12 @@ class ArenaServiceTest : FunSpec({
         )
 
         beforeTest {
-            service.upsert(tiltakstype)
-            service.upsert(tiltaksgjennomforing)
+            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
         }
 
         test("CRUD gruppe") {
-            service.upsert(tiltakshistorikkGruppe)
+            service.upsertTiltakshistorikk(tiltakshistorikkGruppe)
 
             database.assertThat("tiltakshistorikk").row()
                 .value("id").isEqualTo(tiltakshistorikkGruppe.id)
@@ -296,7 +296,7 @@ class ArenaServiceTest : FunSpec({
                 .value("tiltakstypeid").isNull
 
             val updated = tiltakshistorikkGruppe.copy(status = Deltakerstatus.DELTAR)
-            service.upsert(updated)
+            service.upsertTiltakshistorikk(updated)
 
             database.assertThat("tiltakshistorikk").row()
                 .value("status").isEqualTo(updated.status.name)
@@ -307,8 +307,8 @@ class ArenaServiceTest : FunSpec({
         }
 
         test("CRUD individuell") {
-            service.upsert(tiltakstypeIndividuell)
-            service.upsert(tiltakshistorikkIndividuell)
+            service.upsertTiltakstype(tiltakstypeIndividuell)
+            service.upsertTiltakshistorikk(tiltakshistorikkIndividuell)
 
             database.assertThat("tiltakshistorikk").row()
                 .value("id").isEqualTo(tiltakshistorikkIndividuell.id)
@@ -318,7 +318,7 @@ class ArenaServiceTest : FunSpec({
                 .value("tiltaksgjennomforing_id").isNull
 
             val updated = tiltakshistorikkIndividuell.copy(beskrivelse = "Ny beskrivelse")
-            service.upsert(updated)
+            service.upsertTiltakshistorikk(updated)
 
             database.assertThat("tiltakshistorikk").row()
                 .value("beskrivelse").isEqualTo("Ny beskrivelse")
