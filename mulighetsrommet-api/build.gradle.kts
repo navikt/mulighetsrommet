@@ -52,8 +52,8 @@ dependencies {
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-sessions:$ktorVersion")
+    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    implementation("io.ktor:ktor-server-webjars:$ktorVersion")
 
     // Cache
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
@@ -86,10 +86,6 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("net.logstash.logback:logstash-logback-encoder:7.3")
     implementation("org.slf4j:slf4j-api:2.0.6")
-
-    // OpenAPI
-    // PS: Hvis man oppdaterer denne må man også rename mappen til riktig versjon i resources
-    runtimeOnly("org.webjars:swagger-ui:4.14.0")
 
     // DB-scheduler
     implementation("com.github.kagkarlsson:db-scheduler:11.6")
