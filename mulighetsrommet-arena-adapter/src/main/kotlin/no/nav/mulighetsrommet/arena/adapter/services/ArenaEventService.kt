@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
-import arrow.core.getOrHandle
+import arrow.core.getOrElse
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import no.nav.mulighetsrommet.arena.adapter.events.processors.*
+import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -80,7 +80,7 @@ class ArenaEventService(
 
                     val (status, message) = processor.handleEvent(event)
                         .map { Pair(it, null) }
-                        .getOrHandle {
+                        .getOrElse {
                             logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
                             Pair(it.status, it.message)
                         }

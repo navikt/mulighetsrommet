@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
 import arrow.core.Either
-import arrow.core.rightIfNotNull
+import arrow.core.left
+import arrow.core.right
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.*
@@ -19,8 +20,9 @@ class ArenaEntityService(
 ) {
 
     fun getEvent(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEvent> {
-        return events.get(arenaTable, arenaId)
-            .rightIfNotNull { ProcessingError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
+        return events.get(arenaTable, arenaId)?.right() ?: ProcessingError
+            .MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
+            .left()
     }
 
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
@@ -29,8 +31,9 @@ class ArenaEntityService(
     }
 
     fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {
-        return mappings.get(arenaTable, arenaId)
-            .rightIfNotNull { ProcessingError.MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId") }
+        return mappings.get(arenaTable, arenaId)?.right() ?: ProcessingError
+            .MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
+            .left()
     }
 
     fun getMappingIfProcessed(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
@@ -49,8 +52,9 @@ class ArenaEntityService(
     }
 
     fun getTiltakstype(id: UUID): Either<ProcessingError, Tiltakstype> {
-        return tiltakstyper.get(id)
-            .rightIfNotNull { ProcessingError.MissingDependency("Tiltakstype med id=$id mangler") }
+        return tiltakstyper.get(id)?.right() ?: ProcessingError
+            .MissingDependency("Tiltakstype med id=$id mangler")
+            .left()
     }
 
     fun upsertSak(sak: Sak): Either<ProcessingError, Sak> {
@@ -59,8 +63,7 @@ class ArenaEntityService(
     }
 
     fun getSak(id: Int): Either<ProcessingError.MissingDependency, Sak> {
-        return saker.get(id)
-            .rightIfNotNull { ProcessingError.MissingDependency("Sak med id=$id mangler") }
+        return saker.get(id)?.right() ?: ProcessingError.MissingDependency("Sak med id=$id mangler").left()
     }
 
     fun deleteSak(id: Int): Either<ProcessingError, Unit> {
@@ -83,8 +86,9 @@ class ArenaEntityService(
     }
 
     fun getTiltaksgjennomforing(id: UUID): Either<ProcessingError, Tiltaksgjennomforing> {
-        return tiltaksgjennomforinger.get(id)
-            .rightIfNotNull { ProcessingError.MissingDependency("Tiltaksgjennomforing med id=$id mangler") }
+        return tiltaksgjennomforinger.get(id)?.right() ?: ProcessingError
+            .MissingDependency("Tiltaksgjennomforing med id=$id mangler")
+            .left()
     }
 
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
