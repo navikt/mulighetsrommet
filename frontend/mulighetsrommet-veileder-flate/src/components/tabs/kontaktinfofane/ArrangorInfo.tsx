@@ -1,4 +1,4 @@
-import { BodyShort, Heading } from '@navikt/ds-react';
+import { BodyShort } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
 
 interface ArrangorInfoProps {
@@ -10,9 +10,9 @@ const ArrangorInfo = ({ data }: ArrangorInfoProps) => {
 
   return kontaktinfoArrangor ? (
     <div className={styles.arrangor_info}>
-      <Heading size="small" level="2" className={styles.header}>
+      <BodyShort size="medium" className={styles.header}>
         Arrangør
-      </Heading>
+      </BodyShort>
       <div className={styles.container}>
         <BodyShort className={styles.navn} size="small">
           {kontaktinfoArrangor?.selskapsnavn}
