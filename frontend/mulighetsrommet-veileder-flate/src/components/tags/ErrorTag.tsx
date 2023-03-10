@@ -1,4 +1,4 @@
-import { Tag } from '@navikt/ds-react';
+import { BodyShort, Tag } from '@navikt/ds-react';
 import { kebabCase } from '../../utils/Utils';
 import { ErrorColored } from '@navikt/ds-icons';
 
@@ -12,7 +12,9 @@ export const ErrorTag = ({ innhold, title, dataTestId }: Props) => {
   return (
     <Tag variant="error" size="small" data-testid={`${kebabCase(dataTestId)}`} title={title}>
       <ErrorColored />
-      <span style={{ marginLeft: '10px' }}>{innhold}</span>
+      <BodyShort size="small" style={{ marginLeft: '10px' }}>
+        {innhold}
+      </BodyShort>
     </Tag>
   );
 };

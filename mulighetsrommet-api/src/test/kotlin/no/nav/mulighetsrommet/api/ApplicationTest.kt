@@ -8,7 +8,7 @@ import io.ktor.http.*
 class ApplicationTest : FunSpec({
     context("liveness") {
         test("should respond with 200 OK") {
-            withMulighetsrommetApp {
+            withTestApplication {
                 val response = client.get("/internal/liveness")
 
                 response.status shouldBe HttpStatusCode.OK

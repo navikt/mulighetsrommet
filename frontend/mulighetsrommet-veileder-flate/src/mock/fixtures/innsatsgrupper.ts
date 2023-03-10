@@ -1,29 +1,29 @@
-import { Innsatsgruppe } from '../../core/api/models';
 import { faker } from '@faker-js/faker';
+import { Innsatsgruppe, SanityInnsatsgruppe } from 'mulighetsrommet-api-client';
 
-export const innsatsgrupper: Innsatsgruppe[] = [
+export const innsatsgrupper: SanityInnsatsgruppe[] = [
   {
     _id: '1',
-    tittel: 'Standard innsats',
+    tittel: SanityInnsatsgruppe.tittel.STANDARD_INNSATS,
     beskrivelse: faker.lorem.paragraph(),
-    nokkel: 'STANDARD_INNSATS',
+    nokkel: Innsatsgruppe.STANDARD_INNSATS,
   },
   {
     _id: '2',
-    tittel: 'Situasjonsbestemt innsats',
+    tittel: SanityInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
     beskrivelse: faker.lorem.paragraph(),
-    nokkel: 'SITUASJONSBESTEMT_INNSATS',
+    nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
   },
   {
     _id: '3',
-    tittel: 'Spesielt tilpasset innsats',
+    tittel: SanityInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
     beskrivelse: faker.lorem.paragraph(),
-    nokkel: 'SPESIELT_TILPASSET_INNSATS',
+    nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
   },
   {
     _id: '4',
-    tittel: 'Varig tilpasset innsats',
+    tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
     beskrivelse: faker.lorem.paragraph(),
-    nokkel: 'VARIG_TILPASSET_INNSATS',
+    nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
   },
 ];

@@ -1,7 +1,7 @@
 import { Alert, BodyShort } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
-import { Tiltaksansvarlig } from '../../../core/api/models';
 import { logEvent } from '../../../core/api/logger';
+import { SanityKontakinfoTiltaksansvarlige } from 'mulighetsrommet-api-client';
 
 const TEAMS_DYPLENKE = 'https://teams.microsoft.com/l/chat/0/0?users=';
 
@@ -23,7 +23,7 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
       <BodyShort size="medium" className={styles.header}>
         Tiltaksansvarlig
       </BodyShort>
-      {tiltaksansvarlige.map((tiltaksansvarlig: Tiltaksansvarlig) => {
+      {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>
             <BodyShort className={styles.navn} size="small">

@@ -1,13 +1,12 @@
 import { faker } from '@faker-js/faker';
-import { Tiltaksgjennomforing } from '../../core/api/models';
+import { Innsatsgruppe, SanityInnsatsgruppe, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
-export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
+export const tiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
   {
     _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
-      tiltaksgruppe: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -19,9 +18,9 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       ],
       innsatsgruppe: {
         _id: '4',
-        tittel: 'Varig tilpasset innsats',
+        tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
         beskrivelse: faker.lorem.paragraph(),
-        nokkel: 'VARIG_TILPASSET_INNSATS',
+        nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
       },
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
@@ -35,7 +34,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       adresse: faker.address.streetAddress(),
     },
     lokasjon: faker.address.city(),
-    oppstart: 'dato',
+    oppstart: SanityTiltaksgjennomforing.oppstart.DATO,
     oppstartsdato: faker.date.future().toString(),
     kontaktinfoTiltaksansvarlige: [
       {
@@ -52,7 +51,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
-      tiltaksgruppe: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -64,9 +62,9 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       ],
       innsatsgruppe: {
         _id: '4',
-        tittel: 'Varig tilpasset innsats',
+        tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
         beskrivelse: faker.lorem.paragraph(),
-        nokkel: 'VARIG_TILPASSET_INNSATS',
+        nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
       },
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
@@ -80,7 +78,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       adresse: faker.address.streetAddress(),
     },
     lokasjon: faker.address.city(),
-    oppstart: 'dato',
+    oppstart: SanityTiltaksgjennomforing.oppstart.DATO,
     oppstartsdato: faker.date.future().toString(),
     kontaktinfoTiltaksansvarlige: [
       {
@@ -97,7 +95,6 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltakstype: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       tiltakstypeNavn: 'VTA',
-      tiltaksgruppe: 'gruppe',
       beskrivelse: faker.lorem.paragraph(2),
       nokkelinfoKomponenter: [
         {
@@ -109,9 +106,9 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       ],
       innsatsgruppe: {
         _id: '4',
-        tittel: 'Varig tilpasset innsats',
+        tittel: SanityInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
         beskrivelse: faker.lorem.paragraph(),
-        nokkel: 'VARIG_TILPASSET_INNSATS',
+        nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
       },
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
@@ -125,7 +122,7 @@ export const tiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       adresse: faker.address.streetAddress(),
     },
     lokasjon: faker.address.city(),
-    oppstart: 'dato',
+    oppstart: SanityTiltaksgjennomforing.oppstart.DATO,
     oppstartsdato: faker.date.future().toString(),
     kontaktinfoTiltaksansvarlige: [
       {

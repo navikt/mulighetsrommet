@@ -1,83 +1,45 @@
-import groq from 'groq';
 import { useAtom } from 'jotai';
-import { tiltaksgjennomforingsfilter, Tiltaksgjennomforingsfiltergruppe } from '../../atoms/atoms';
-import { InnsatsgruppeNokler, Tiltaksgjennomforing } from '../models';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
+import { useQuery } from 'react-query';
+import { tiltaksgjennomforingsfilter } from '../../atoms/atoms';
+import { mulighetsrommetClient } from '../clients';
+import { QueryKeys } from '../query-keys';
 import { useHentBrukerdata } from './useHentBrukerdata';
-import { useSanity } from './useSanity';
 
 export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
 
-  const sanityQueryString = groq`*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
-  ${byggInnsatsgruppeFilter(filter.innsatsgruppe?.nokkel)}
-  ${byggTiltakstypeFilter(filter.tiltakstyper)}
-  ${byggSokefilter(filter.search)}
-  ${byggLokasjonsFilter(filter.lokasjoner ?? [])}
-  ${byggEnhetOgFylkeFilter()}
-  ]
-  {
-    _id,
-    tiltaksgjennomforingNavn,
-    lokasjon,
-    oppstart,
-    oppstartsdato,
-    estimert_ventetid,
-    "tiltaksnummer": tiltaksnummer.current,
-    kontaktinfoArrangor->{selskapsnavn},
-    tiltakstype->{tiltakstypeNavn},
-    tilgjengelighetsstatus
-  }`;
-
-  return useSanity<Tiltaksgjennomforing[]>(sanityQueryString, {
-    enabled: !!brukerData.data?.oppfolgingsenhet,
-  });
+  return useQuery(QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter), () =>
+    mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({
+      innsatsgruppe: filter.innsatsgruppe?.nokkel,
+      sokestreng: filter.search,
+      lokasjoner: filter.lokasjoner.map(({ tittel }) => tittel),
+      tiltakstypeIder: filter.tiltakstyper.map(({ id }) => id),
+    })
+  );
 }
 
-function byggEnhetOgFylkeFilter(): string {
-  return groq`&& ($enhetsId in enheter[]._ref || (enheter[0] == null && $fylkeId == fylke._ref))`;
-}
-
-function byggLokasjonsFilter(lokasjoner: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
-  if (lokasjoner.length === 0) return '';
-
-  const lokasjonsStreng = lokasjoner.map(({ tittel }) => `"${tittel}"`).join(', ');
-
-  return groq`&& lokasjon in [${lokasjonsStreng}]`;
-}
-
-function byggInnsatsgruppeFilter(innsatsgruppe?: InnsatsgruppeNokler): string {
-  if (!innsatsgruppe) return '';
-
-  const innsatsgrupperISok = utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe)
-    .map(nokkel => `"${nokkel}"`)
-    .join(', ');
-  return groq`&& tiltakstype->innsatsgruppe->nokkel in [${innsatsgrupperISok}]`;
-}
-
-export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: InnsatsgruppeNokler): InnsatsgruppeNokler[] {
+export function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
   switch (innsatsgruppe) {
     case 'STANDARD_INNSATS':
-      return ['STANDARD_INNSATS'];
+      return [Innsatsgruppe.STANDARD_INNSATS];
     case 'SITUASJONSBESTEMT_INNSATS':
-      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS'];
+      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
     case 'SPESIELT_TILPASSET_INNSATS':
-      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS', 'SPESIELT_TILPASSET_INNSATS'];
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      ];
     case 'VARIG_TILPASSET_INNSATS':
-      return ['STANDARD_INNSATS', 'SITUASJONSBESTEMT_INNSATS', 'SPESIELT_TILPASSET_INNSATS', 'VARIG_TILPASSET_INNSATS'];
+      return [
+        Innsatsgruppe.STANDARD_INNSATS,
+        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+      ];
+    default:
+      return [];
   }
-}
-
-function byggTiltakstypeFilter(tiltakstyper: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
-  return tiltakstyper.length > 0 ? groq`&& tiltakstype->_id in [${idSomListe(tiltakstyper)}]` : '';
-}
-
-function byggSokefilter(search: string | undefined) {
-  return search
-    ? groq`&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn, lokasjon, kontaktinfoArrangor->selskapsnavn, oppstartsdato] match "*${search}*"`
-    : '';
-}
-
-function idSomListe(elementer: Tiltaksgjennomforingsfiltergruppe<string>[]): string {
-  return elementer.map(({ id }) => `"${id}"`).join(', ');
 }

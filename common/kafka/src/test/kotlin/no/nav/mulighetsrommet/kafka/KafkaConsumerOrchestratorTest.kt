@@ -11,9 +11,10 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createArenaAdapterDatabaseTestSchema
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.testcontainers.containers.KafkaContainer
@@ -31,7 +32,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         )
     ) { withEmbeddedZookeeper() }
 
-    val database = extension(FlywayDatabaseTestListener(createArenaAdapterDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)
@@ -104,7 +105,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         val producer = kafka.createStringStringProducer()
         producer.send(ProducerRecord(topic, null, "true"))
-        producer.send(ProducerRecord(topic, "key", "true"))
+        producer.send(ProducerRecord(topic, "key1", "true"))
+        producer.send(ProducerRecord(topic, "key2", null))
         producer.close()
 
         val consumer = spyk(TestConsumer(topic))
@@ -119,10 +121,36 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         eventually(5.seconds) {
             coVerify(exactly = 1) {
                 consumer.consume(null, "true")
-                consumer.consume("key", "true")
+                consumer.consume("key1", "true")
+                consumer.consume("key2", null)
             }
         }
     }
+
+    test("consumer should process json events from topic") {
+        val topic = uniqueTopicName()
+
+        val producer = kafka.createStringStringProducer()
+        producer.send(ProducerRecord(topic, "key1", """{ "success": true }"""))
+        producer.send(ProducerRecord(topic, "key2", null))
+        producer.close()
+
+        val consumer = spyk(JsonTestConsumer(topic))
+
+        KafkaConsumerOrchestrator(
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
+            database.db,
+            listOf(consumer),
+        )
+        eventually(5.seconds) {
+            coVerify(exactly = 1) {
+                consumer.consume("key1", Json.parseToJsonElement("""{ "success": true }"""))
+                consumer.consume("key2", JsonNull)
+            }
+        }
+    }
+
 
     test("failed events should be handled gracefully and kept in the topic consumer repository") {
         val consumerRepository = KafkaConsumerRepository(database.db)

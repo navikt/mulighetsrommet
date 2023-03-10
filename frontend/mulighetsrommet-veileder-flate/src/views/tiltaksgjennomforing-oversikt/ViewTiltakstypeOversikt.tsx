@@ -5,13 +5,10 @@ import { HistorikkButton } from '../../components/historikk/HistorikkButton';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { FiltrertFeilInnsatsgruppeVarsel } from '../../components/ikkeKvalifisertVarsel/FiltrertFeilInnsatsgruppeVarsel';
 import Tiltaksgjennomforingsoversikt from '../../components/oversikt/Tiltaksgjennomforingsoversikt';
-import { useFeatureToggles, VIS_HISTORIKK } from '../../core/api/feature-toggles';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import styles from './ViewTiltakstypeOversikt.module.scss';
 
 const ViewTiltakstypeOversikt = () => {
-  const features = useFeatureToggles();
-  const visHistorikkKnapp = features.isSuccess && features.data[VIS_HISTORIKK];
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
 
   return (
@@ -19,7 +16,7 @@ const ViewTiltakstypeOversikt = () => {
       <Filtermeny />
       <div className={styles.filtertags_og_historikk}>
         <Filtertags filter={filter} setFilter={setFilter} />
-        {visHistorikkKnapp && <HistorikkButton />}
+        <HistorikkButton />
       </div>
       <div>
         <FiltrertFeilInnsatsgruppeVarsel filter={filter} />

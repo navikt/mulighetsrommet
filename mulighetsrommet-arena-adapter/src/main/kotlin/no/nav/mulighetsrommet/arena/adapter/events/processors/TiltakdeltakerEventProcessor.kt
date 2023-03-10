@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.continuations.either
-import arrow.core.flatMap
-import arrow.core.leftIfNull
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -56,8 +54,8 @@ class TiltakdeltakerEventProcessor(
             .bind()
         val norskIdent = ords.getFnr(deltaker.personId)
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .map { it?.fnr }
-            .leftIfNull { ProcessingError.InvalidPayload("Fant ikke norsk ident i Arena ORDS for Arena personId=${deltaker.personId}") }
+            .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke norsk ident i Arena ORDS").left() }
+            .map { it.fnr }
             .bind()
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
@@ -65,19 +63,9 @@ class TiltakdeltakerEventProcessor(
         val tiltakstype = entities
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
-
-        val tiltakshistorikk = if (isGruppetiltak(tiltakstype.tiltakskode)) {
-            deltaker.toGruppeDbo(tiltaksgjennomforing, norskIdent)
-        } else {
-            val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
-                ords.getArbeidsgiver(id)
-                    .mapLeft { ProcessingError.fromResponseException(it) }
-                    .leftIfNull { ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS for arrangorId=${tiltaksgjennomforing.arrangorId}") }
-                    .map { it.virksomhetsnummer }
-                    .bind()
-            }
-            deltaker.toIndividuellDbo(tiltaksgjennomforing, tiltakstype, virksomhetsnummer, norskIdent)
-        }
+        val tiltakshistorikk = deltaker
+            .toTiltakshistorikkDbo(tiltakstype, tiltaksgjennomforing, norskIdent)
+            .bind()
 
         val response = if (event.operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${tiltakshistorikk.id}")
@@ -115,35 +103,38 @@ class TiltakdeltakerEventProcessor(
         }
         .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
-    private fun Deltaker.toGruppeDbo(
-        tiltaksgjennomforing: Tiltaksgjennomforing,
-        norskIdent: String
-    ): TiltakshistorikkDbo {
-        return TiltakshistorikkDbo.Gruppetiltak(
-            id = id,
-            norskIdent = norskIdent,
-            status = status,
-            fraDato = fraDato,
-            tilDato = tilDato,
-            tiltaksgjennomforingId = tiltaksgjennomforing.id
-        )
-    }
-
-    private fun Deltaker.toIndividuellDbo(
-        tiltaksgjennomforing: Tiltaksgjennomforing,
+    private suspend fun Deltaker.toTiltakshistorikkDbo(
         tiltakstype: Tiltakstype,
-        virksomhetsnummer: String?,
+        tiltaksgjennomforing: Tiltaksgjennomforing,
         norskIdent: String
-    ): TiltakshistorikkDbo {
-        return TiltakshistorikkDbo.IndividueltTiltak(
-            id = id,
-            norskIdent = norskIdent,
-            status = status,
-            fraDato = fraDato,
-            tilDato = tilDato,
-            beskrivelse = tiltaksgjennomforing.navn,
-            tiltakstypeId = tiltakstype.id,
-            virksomhetsnummer = virksomhetsnummer
-        )
+    ) = either<ProcessingError, TiltakshistorikkDbo> {
+        if (isGruppetiltak(tiltakstype.tiltakskode)) {
+            TiltakshistorikkDbo.Gruppetiltak(
+                id = id,
+                norskIdent = norskIdent,
+                status = status,
+                fraDato = fraDato,
+                tilDato = tilDato,
+                tiltaksgjennomforingId = tiltaksgjennomforing.id
+            )
+        } else {
+            val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+                ords.getArbeidsgiver(id)
+                    .mapLeft { ProcessingError.fromResponseException(it) }
+                    .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
+                    .map { it.virksomhetsnummer }
+                    .bind()
+            }
+            TiltakshistorikkDbo.IndividueltTiltak(
+                id = id,
+                norskIdent = norskIdent,
+                status = status,
+                fraDato = fraDato,
+                tilDato = tilDato,
+                beskrivelse = tiltaksgjennomforing.navn,
+                tiltakstypeId = tiltakstype.id,
+                virksomhetsnummer = virksomhetsnummer
+            )
+        }
     }
 }

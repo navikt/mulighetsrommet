@@ -21,6 +21,7 @@ export const regelverklenke = defineType({
       title: "Regelverk URL",
       type: "url",
       placeholder: "https://www...",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "regelverkLenkeNavn",

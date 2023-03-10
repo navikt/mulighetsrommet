@@ -43,11 +43,14 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -107,6 +110,28 @@ private fun kafka(config: KafkaConfig) = module {
 
     single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
     single { TiltakstypeKafkaProducer(producerClient, config.producers.tiltakstyper) }
+
+    val properties = when (NaisEnv.current()) {
+        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
+            .withBaseProperties()
+            .withConsumerGroupId(config.consumerGroupId)
+            .withBrokerUrl(config.brokerUrl)
+            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+            .build()
+
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
+    }
+
+    single {
+        val consumers = listOf(
+            AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get())
+        )
+        KafkaConsumerOrchestrator(
+            consumerPreset = properties,
+            db = get(),
+            consumers = consumers,
+        )
+    }
 }
 
 private fun repositories() = module {
@@ -116,6 +141,7 @@ private fun repositories() = module {
     single { TiltakshistorikkRepository(get()) }
     single { AnsattTiltaksgjennomforingRepository(get()) }
     single { EnhetRepository(get()) }
+    single { DeltakerRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {

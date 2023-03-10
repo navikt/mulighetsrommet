@@ -4,43 +4,90 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.SanityResponse
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
+import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 
+val log = LoggerFactory.getLogger("sanityRouteLogger")
 fun Route.sanityRoutes() {
-    val log = LoggerFactory.getLogger(this.javaClass)
     val sanityService: SanityService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("/api/v1/internal/sanity") {
-        get {
+        get("/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            val query = call.request.queryParameters["query"]
-                ?: return@get call.respondText("No query parameter with value '?query' present. Cannot execute query against Sanity")
-            log.debug("Query sanity with value: $query")
-            val fnr = when (call.request.queryParameters["fnr"]) {
-                "undefined" -> null // Dersom fnr er 'undefined' så trenger vi ikke verdien og det gjør spørringer mot Sanity raskere
-                else -> call.request.queryParameters["fnr"]
-            }
-            val accessToken = call.getAccessToken()
+            call.respondWithData(sanityService.hentInnsatsgrupper().toResponse())
+        }
 
-            when (val response = sanityService.executeQuery(query, fnr, accessToken)) {
-                is SanityResponse.Result -> call.respondText(
-                    text = response.result.toString(),
-                    contentType = ContentType.Application.Json
-                )
+        get("/tiltakstyper") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(sanityService.hentTiltakstyper().toResponse())
+        }
 
-                is SanityResponse.Error -> call.respondText(
-                    text = response.error.toString(),
-                    contentType = ContentType.Application.Json,
-                    status = HttpStatusCode.InternalServerError
-                )
-            }
+        get("/lokasjoner") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(
+                sanityService.hentLokasjonerForBrukersEnhetOgFylke(
+                    getNorskIdent(),
+                    call.getAccessToken()
+                ).toResponse()
+            )
+        }
+
+        get("/tiltaksgjennomforinger") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            call.respondWithData(
+                sanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+                    getNorskIdent(),
+                    call.getAccessToken(),
+                    getTiltaksgjennomforingsFilter()
+                ).toResponse()
+            )
+        }
+
+        get("/tiltaksgjennomforing/{id}") {
+            poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
+            val id = call.parameters["id"] ?: return@get call.respondText(
+                text = "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest,
+            )
+            call.respondWithData(sanityService.hentTiltaksgjennomforing(id).toResponse())
         }
     }
 }
+
+private suspend fun ApplicationCall.respondWithData(apiResponse: ApiResponse) {
+    this.response.call.respondText(
+        text = apiResponse.text,
+        contentType = apiResponse.contentType,
+        status = apiResponse.status
+    )
+}
+
+private fun SanityResponse.toResponse(): ApiResponse {
+    return when (this) {
+        is SanityResponse.Result -> ApiResponse(
+            text = this.result.toString(),
+        )
+
+        is SanityResponse.Error -> {
+            log.warn("Error fra Sanity -> {}", this.error)
+            return ApiResponse(
+                text = this.error.toString(),
+                status = HttpStatusCode.InternalServerError
+            )
+        }
+    }
+}
+
+data class ApiResponse(
+    val text: String,
+    val contentType: ContentType? = ContentType.Application.Json,
+    val status: HttpStatusCode? = HttpStatusCode.OK
+)

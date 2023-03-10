@@ -5,13 +5,13 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createApiDatabaseTestSchema
 import no.nav.mulighetsrommet.domain.dbo.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,7 +23,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val arrangorService: ArrangorService = mockk()
 
     val database =
-        extension(FlywayDatabaseTestListener(createApiDatabaseTestSchema()))
+        extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),

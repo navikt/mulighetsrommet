@@ -1,23 +1,23 @@
 import { Accordion, Alert, Loader, Radio, RadioGroup } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
-import { InnsatsgruppeNokler } from '../../core/api/models';
+import { Innsatsgruppe } from 'mulighetsrommet-api-client';
+import { logEvent } from '../../core/api/logger';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
 import styles from './Filtermeny.module.scss';
-import { logEvent } from '../../core/api/logger';
 
-interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }> {
+interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: Innsatsgruppe }> {
   accordionNavn: string;
-  option?: InnsatsgruppeNokler;
-  setOption: (type: InnsatsgruppeNokler) => void;
+  option?: Innsatsgruppe;
+  setOption: (type: Innsatsgruppe) => void;
   data: T[];
   isLoading: boolean;
   isError: boolean;
   defaultOpen?: boolean;
 }
 
-const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?: InnsatsgruppeNokler }>({
+const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?: Innsatsgruppe }>({
   accordionNavn,
   option,
   setOption,
@@ -51,7 +51,7 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
               legend=""
               hideLegend
               size="small"
-              onChange={(e: InnsatsgruppeNokler) => {
+              onChange={(e: Innsatsgruppe) => {
                 setOption(e);
               }}
               value={option}
@@ -76,9 +76,9 @@ function InnsatsgruppeFilter() {
       setFilter({
         ...filter,
         innsatsgruppe: {
-          id: foundInnsatsgruppe?._id,
-          tittel: foundInnsatsgruppe?.tittel,
-          nokkel: foundInnsatsgruppe?.nokkel,
+          id: foundInnsatsgruppe._id,
+          tittel: foundInnsatsgruppe.tittel,
+          nokkel: foundInnsatsgruppe.nokkel,
         },
       });
     }

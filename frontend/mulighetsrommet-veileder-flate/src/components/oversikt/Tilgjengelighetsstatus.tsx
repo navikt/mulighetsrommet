@@ -1,14 +1,14 @@
 /* eslint-disable camelcase */
+import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
-import { Oppstart, Tilgjengelighetsstatus } from '../../core/api/models';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
 import styles from './Tilgjengelighetsstatus.module.scss';
 
 interface Props {
-  oppstart: Oppstart;
-  status?: Tilgjengelighetsstatus;
+  oppstart?: SanityTiltaksgjennomforing.oppstart;
+  status?: SanityTiltaksgjennomforing.tilgjengelighetsstatus;
   estimert_ventetid?: string;
 }
 

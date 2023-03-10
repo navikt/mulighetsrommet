@@ -61,7 +61,6 @@ paths:
           schema:
             type: string
           description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
-          nullable: true
         - in: query
           name: search
           schema:
@@ -381,6 +380,112 @@ paths:
             application/json:
               schema: { }
 
+  /api/v1/internal/sanity/innsatsgrupper:
+    get:
+      tags:
+        - Sanity
+      operationId: getInnsatsgrupper
+      responses:
+        200:
+          description: Innsatsgrupper definert i Sanity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SanityInnsatsgruppe"
+
+  /api/v1/internal/sanity/tiltakstyper:
+    get:
+      tags:
+        - Sanity
+      operationId: getTiltakstyper
+      responses:
+        200:
+          description: Tiltakstyper definert i Sanity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SanityTiltakstype"
+
+  /api/v1/internal/sanity/lokasjoner:
+    get:
+      tags:
+        - Sanity
+      operationId: getLokasjonerForBrukersEnhetOgFylke
+      responses:
+        200:
+          description: Lokasjoner fra tiltaksgjennomføringer basert på brukers enhet og fylke
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /api/v1/internal/sanity/tiltaksgjennomforinger:
+    get:
+      tags:
+        - Sanity
+      operationId: getTiltaksgjennomforingForBruker
+      parameters:
+        - in: query
+          name: innsatsgruppe
+          schema:
+            type: string
+          description: Innsatsgruppe du ønsker å filtrere på
+        - in: query
+          name: tiltakstypeIder
+          schema:
+            type: array
+            items:
+              type: string
+          description: Liste med id'er for tiltakstyper man er interessert i
+        - in: query
+          name: sokestreng
+          schema:
+            type: string
+          description: Søkestreng for fritekstsøk etter tiltaksgjennomføringer
+        - in: query
+          name: lokasjoner
+          schema:
+            type: array
+            items:
+              type: string
+          description: Liste med lokasjoner man vil filtrere på
+      responses:
+        200:
+          description: Hent tiltaksgjennomføringer som bruker har rett på
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+
+  /api/v1/internal/sanity/tiltaksgjennomforing/{id}:
+    get:
+      tags:
+        - Sanity
+      operationId: getTiltaksgjennomforing
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          description: ID for tiltaksgjennomføring i Sanity
+      responses:
+        200:
+          description: Hent tiltaksgjennomføring for id
+          content:
+            application/json:
+              schema:
+                type: array # Sanity kan returnere prod- og draft-versjon av dokument. Derfor array og ikke enkelt objekt
+                items:
+                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+
   /api/v1/internal/dialog:
     post:
       tags:
@@ -542,7 +647,6 @@ paths:
           schema:
             type: string
           description: ID for tiltakstypen knyttet til avtaler med enheter
-          nullable: true
       responses:
         200:
           description: "Enheter knyttet til avtaler"
@@ -1005,3 +1109,200 @@ components:
           type: string
         enhetsnummer:
           type: string
+
+    SanityInnsatsgruppe:
+      type: object
+      properties:
+        _id:
+          type: string
+        beskrivelse:
+          type: string
+        tittel:
+          type: string
+          enum:
+            - "Standard innsats"
+            - "Situasjonsbestemt innsats"
+            - "Spesielt tilpasset innsats"
+            - "Varig tilpasset innsats"
+        nokkel:
+          $ref: "#/components/schemas/Innsatsgruppe"
+      required:
+        - _id
+        - beskrivelse
+        - tittel
+        - nokkel
+
+    SanityTiltakstype:
+      type: object
+      properties:
+        _id:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        beskrivelse:
+          type: string
+        innsatsgruppe:
+          $ref: "#/components/schemas/SanityInnsatsgruppe"
+        varighet:
+          type: string
+        regelverkFiler:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityRegelverkFil"
+        regelverkLenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityRegelverkLenke"
+        nokkelinfoKomponenter:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityNokkelinfoKomponenter"
+        faneinnhold:
+          $ref: "#/components/schemas/SanityFaneinnhold"
+        delingMedBruker:
+          type: string
+      required:
+        - _id
+        - tiltakstypeNavn
+        - innsatsgruppe
+
+    SanityTiltaksgjennomforing:
+      type: object
+      properties:
+        _id:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/SanityTiltakstype"
+        tiltaksgjennomforingNavn:
+          type: string
+        beskrivelse:
+          type: string
+        tiltaksnummer:
+          type:
+            number
+        kontaktinfoArrangor:
+          $ref: "#/components/schemas/SanityKontaktinfoArrangor"
+        lokasjon:
+          type: string
+        oppstart:
+          type: string
+          enum:
+            - dato
+            - lopende
+            - midlertidig_stengt
+        oppstartsdato:
+          type: string
+        estimert_ventetid:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/SanityFaneinnhold"
+        kontaktinfoTiltaksansvarlige:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
+        tilgjengelighetsstatus:
+          type: string
+          enum:
+            - Ledig
+            - Venteliste
+            - Stengt
+      required:
+        - _id
+        - tiltaksgjennomforingNavn
+        - tiltakstype
+        - oppstart
+
+    SanityRegelverkFil:
+      type: object
+      properties:
+        _id:
+          type: string
+        regelverkFilUrl:
+          type: string
+        regelverkFilNavn:
+          type: string
+      required:
+        - _id
+        - regelverkFilUrl
+        - regelverkFilNavn
+
+    SanityRegelverkLenke:
+      type: object
+      properties:
+        _id:
+          type: string
+        regelverkUrl:
+          type: string
+        regelverkLenkeNavn:
+          type: string
+      required:
+        - _id
+        - regelverkUrl
+        - regelverkLenkeNavn
+
+
+    SanityNokkelinfoKomponenter:
+      type: object
+      properties:
+        _id:
+          type: string
+        tittel:
+          type: string
+        innhold:
+            type: object
+        hjelpetekst:
+          type: string
+      required:
+        - _id
+
+    SanityFaneinnhold:
+      type: object
+      properties:
+        forHvemInfoboks:
+          type: string
+        forHvem:
+          type: object
+        detaljerOgInnholdInfoboks:
+          type: string
+        detaljerOgInnhold:
+          type: object
+        pameldingOgVarighetInfoboks:
+          type: string
+        pameldingOgVarighet:
+          type: object
+
+    SanityKontaktinfoArrangor:
+      type: object
+      properties:
+        _id:
+          type: string
+        selskapsnavn:
+          type: string
+        telefonnummer:
+          type: string
+        epost:
+          type: string
+        adresse:
+          type: string
+      required:
+        - _id
+        - selskapsnavn
+
+    SanityKontakinfoTiltaksansvarlige:
+      type: object
+      properties:
+        _id:
+          type: string
+        navn:
+          type: string
+        enhet:
+          type: string
+        telefonnummer:
+          type: string
+        epost:
+          type: string
+      required:
+        - _id
+        - navn
+        - enhet
+        - epost

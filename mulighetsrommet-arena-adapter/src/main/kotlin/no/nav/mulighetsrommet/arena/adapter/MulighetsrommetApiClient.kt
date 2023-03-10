@@ -70,7 +70,7 @@ class MulighetsrommetApiClient(
         val response = client.request(requestUri) {
             bearerAuth(getToken())
             this.method = method
-            setBody(payload)
+            payload?.let { setBody(it) }
         }
 
         if (!isValidResponse(response)) {
