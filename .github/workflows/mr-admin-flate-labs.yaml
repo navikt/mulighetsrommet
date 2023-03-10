@@ -10,6 +10,10 @@ on:
       - frontend/mr-admin-flate/**
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE: ghcr.io/navikt/mulighetsrommet/mr-admin-flate-mock:${{ github.sha }}
   CI: true
