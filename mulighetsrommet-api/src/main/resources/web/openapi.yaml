@@ -1331,5 +1331,8 @@ components:
       properties:
         antallTiltaksgjennomforinger:
           type: number
+        antallAvtaler:
+          type: number
       required:
         - antallTiltaksgjennomforinger
+        - antallAvtaler

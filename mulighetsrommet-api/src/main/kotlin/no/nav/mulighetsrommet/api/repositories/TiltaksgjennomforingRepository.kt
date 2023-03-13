@@ -354,7 +354,5 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }
-
-
     }
 }

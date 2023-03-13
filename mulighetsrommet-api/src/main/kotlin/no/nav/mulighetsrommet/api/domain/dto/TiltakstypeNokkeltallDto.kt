@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TiltakstypeNokkeltallDto(
-    val antallTiltaksgjennomforinger: Int
-
+    val antallTiltaksgjennomforinger: Int,
+    val antallAvtaler: Int
 )

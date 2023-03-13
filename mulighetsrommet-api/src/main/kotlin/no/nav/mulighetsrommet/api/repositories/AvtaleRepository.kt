@@ -244,4 +244,15 @@ class AvtaleRepository(private val db: Database) {
             Avtalestatus.Planlagt -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
         }
     }
+
+    fun countAvtalerForTiltakstypeWithId(id: UUID): Int {
+        val query = """
+            SELECT count(id) AS antall FROM avtale WHERE tiltakstype_id = ?
+            """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
+    }
 }

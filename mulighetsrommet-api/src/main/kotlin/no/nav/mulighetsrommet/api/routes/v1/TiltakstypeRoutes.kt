@@ -44,10 +44,7 @@ fun Route.tiltakstypeRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
-            val nokkeltall = tiltakstypeService.getNokkeltallForTiltakstype(id) ?: return@get call.respondText(
-                "Fant ingen nøkkeltall for tiltakstype med id $id",
-                status = HttpStatusCode.NotFound
-            )
+            val nokkeltall = tiltakstypeService.getNokkeltallForTiltakstype(id)
 
             call.respond(nokkeltall)
         }
