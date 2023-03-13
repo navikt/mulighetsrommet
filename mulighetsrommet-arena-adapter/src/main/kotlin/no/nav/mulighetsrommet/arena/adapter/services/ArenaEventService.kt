@@ -86,14 +86,14 @@ class ArenaEventService(
                         .map { Triple(it, null, ArenaEntityMapping.Status.Upserted) }
                         .getOrElse {
                             logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
-                            Triple(it.status, it.message, if (it is ProcessingError.Ignored || it is ProcessingError.ProcessingFailed) ArenaEntityMapping.Status.Ignored else ArenaEntityMapping.Status.Upserted)
+                            Triple(it.status, it.message, if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else mapping.status)
                         }
 
                     if (mapping.status == ArenaEntityMapping.Status.Upserted && entityStatus == ArenaEntityMapping.Status.Ignored) {
                         processor.deleteEntity(event)
                     }
 
-                    entities.upsertMapping(event.arenaTable, event.arenaId, entityStatus)
+                    entities.upsertMapping(mapping.copy(status = entityStatus))
                     events.upsert(event.copy(status = eventStatus, message = message))
                 } catch (e: Throwable) {
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
