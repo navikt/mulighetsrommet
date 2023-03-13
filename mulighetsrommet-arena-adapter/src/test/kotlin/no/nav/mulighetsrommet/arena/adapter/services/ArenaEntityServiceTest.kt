@@ -48,7 +48,7 @@ class ArenaEntityServiceTest : FunSpec({
                 ArenaTable.Tiltaksgjennomforing,
                 tiltaksnummer,
                 uuid,
-                ArenaEntityMapping.Status.Upserted
+                ArenaEntityMapping.Status.Handled
             )
         )
 

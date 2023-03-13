@@ -122,7 +122,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
                     tiltaksgjennomforing.id,
-                    ArenaEntityMapping.Status.Upserted
+                    ArenaEntityMapping.Status.Handled
                 )
             )
             mappings.upsert(
@@ -130,7 +130,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
                     tiltaksgjennomforingIndividuell.id,
-                    ArenaEntityMapping.Status.Upserted
+                    ArenaEntityMapping.Status.Handled
                 )
             )
             mappings.upsert(
@@ -138,7 +138,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaTable.Tiltakstype,
                     tiltakstypeGruppe.tiltakskode,
                     tiltakstypeGruppe.id,
-                    ArenaEntityMapping.Status.Upserted
+                    ArenaEntityMapping.Status.Handled
                 )
             )
             mappings.upsert(
@@ -146,7 +146,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaTable.Tiltakstype,
                     tiltakstypeIndividuell.tiltakskode,
                     tiltakstypeIndividuell.id,
-                    ArenaEntityMapping.Status.Upserted
+                    ArenaEntityMapping.Status.Handled
                 )
             )
 

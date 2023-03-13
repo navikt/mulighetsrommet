@@ -121,18 +121,38 @@ class ArenaEventServiceTest : FunSpec({
                 .value("message").isEqualTo("Oh no!")
         }
 
-        test("should delete the event if it was upserted but now should be ignored") {
+        test("should delete the entity if it was upserted but now should be ignored") {
             val processor = spyk(
                 ArenaEventTestProcessor {
                     ProcessingError.Ignored("Ignored")
                 }
             )
             val entitiesRepository = ArenaEntityMappingRepository(database.db)
-            entitiesRepository.upsert(ArenaEntityMapping(pendingEvent.arenaTable, pendingEvent.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Upserted))
+            entitiesRepository.upsert(ArenaEntityMapping(pendingEvent.arenaTable, pendingEvent.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Handled))
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
             coVerify(exactly = 1) {
+                processor.deleteEntity(pendingEvent)
+            }
+
+            database.assertThat("arena_events").row()
+                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .value("message").isEqualTo("Event was ignored: Ignored")
+            database.assertThat("arena_entity_mapping").row()
+                .value("status").isEqualTo("Ignored")
+        }
+
+        test("should not delete the entity if it was unhandled but now should be ignored") {
+            val processor = spyk(
+                ArenaEventTestProcessor {
+                    ProcessingError.Ignored("Ignored")
+                }
+            )
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
+            service.processEvent(pendingEvent)
+
+            coVerify(exactly = 0) {
                 processor.deleteEntity(pendingEvent)
             }
 

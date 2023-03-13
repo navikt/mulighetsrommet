@@ -105,7 +105,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Upserted))
+            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Handled))
         }
 
         test("should ignore individuelle tiltaksgjennomføringer created before Aktivitetsplanen") {
@@ -178,7 +178,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Upserted))
+            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Handled))
         }
 
         test("should treat all operations on gruppetiltak as upserts") {

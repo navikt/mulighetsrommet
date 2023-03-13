@@ -10,7 +10,7 @@ data class ArenaEntityMapping(
     val status: Status
 ) {
     enum class Status {
-        Upserted,
+        Handled,
         Ignored,
         Unhandled;
     }

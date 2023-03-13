@@ -82,15 +82,33 @@ class ArenaEventService(
                     logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
                     val mapping = entities.getOrCreateMapping(event)
 
+                    processor.handleEvent(event).onRight {
+                        entities.upsertMapping(mapping.copy(status = ArenaEntityMapping.Status.Handled))
+                        events.upsert(event.copy(status = it, message = null))
+                    }.onLeft {
+                        val entityStatus = if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else mapping.status
+                        if (mapping.status == ArenaEntityMapping.Status.Handled && entityStatus == ArenaEntityMapping.Status.Ignored) {
+                            processor.deleteEntity(event).map {
+                                eventStatus to message
+                            }.getOrElse {
+                                it.status to it.message
+                            }
+                        }
+                    }
+
                     val (eventStatus, message, entityStatus) = processor.handleEvent(event)
-                        .map { Triple(it, null, ArenaEntityMapping.Status.Upserted) }
+                        .map { Triple(it, null, ArenaEntityMapping.Status.Handled) }
                         .getOrElse {
                             logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
                             Triple(it.status, it.message, if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else mapping.status)
                         }
 
-                    if (mapping.status == ArenaEntityMapping.Status.Upserted && entityStatus == ArenaEntityMapping.Status.Ignored) {
-                        processor.deleteEntity(event)
+                    if (mapping.status == ArenaEntityMapping.Status.Handled && entityStatus == ArenaEntityMapping.Status.Ignored) {
+                        processor.deleteEntity(event).map {
+                            eventStatus to message
+                        }.getOrElse {
+                            it.status to it.message
+                        }
                     }
 
                     entities.upsertMapping(mapping.copy(status = entityStatus))
