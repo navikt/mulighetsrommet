@@ -248,7 +248,7 @@ class AvtaleRepository(private val db: Database) {
     fun countAvtalerForTiltakstypeWithId(id: UUID): Int {
         val query = """
             SELECT count(id) AS antall FROM avtale WHERE tiltakstype_id = ?
-            """.trimIndent()
+        """.trimIndent()
 
         return queryOf(query, id)
             .map { it.int("antall") }
