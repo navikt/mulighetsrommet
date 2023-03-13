@@ -1,0 +1,24 @@
+.nokkeltall_container {
+  background-color: white;
+  padding: 1rem;
+  flex: 1;
+}
+
+.heading {
+  font-weight: 400;
+}
+
+.nokkeltall {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.value {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.muted {
+  color: var(--a-text-subtle);
+}
