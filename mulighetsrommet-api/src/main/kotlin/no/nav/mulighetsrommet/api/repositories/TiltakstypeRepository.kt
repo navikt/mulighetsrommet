@@ -85,7 +85,7 @@ class TiltakstypeRepository(private val db: Database) {
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
-            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.gruppeTiltak),
+            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.Gruppetiltak),
             "today" to tiltakstypeFilter.dagensDato
         )
 
