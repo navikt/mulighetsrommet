@@ -27,11 +27,11 @@ class ArenaEntityService(
 
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
         return mappings.get(event.arenaTable, event.arenaId)
-            ?: mappings.insert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+            ?: mappings.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
     }
 
     fun insertMapping(arenaTable: ArenaTable, arenaId: String, status: ArenaEntityMapping.Status): ArenaEntityMapping {
-        return mappings.insert(ArenaEntityMapping(arenaTable, arenaId, UUID.randomUUID(), status))
+        return mappings.upsert(ArenaEntityMapping(arenaTable, arenaId, UUID.randomUUID(), status))
     }
 
     fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {

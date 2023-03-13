@@ -9,11 +9,15 @@ import org.intellij.lang.annotations.Language
 
 class ArenaEntityMappingRepository(private val db: Database) {
 
-    fun insert(mapping: ArenaEntityMapping): ArenaEntityMapping {
+    fun upsert(mapping: ArenaEntityMapping): ArenaEntityMapping {
         @Language("PostgreSQL")
         val query = """
             insert into arena_entity_mapping(arena_table, arena_id, entity_id, status)
             values (?, ?, ?::uuid, ?::entity_status)
+            on conflict (arena_table, arena_id)
+            do update set
+                entity_id          = excluded.entity_id,
+                status             = excluded.status
             returning arena_table, arena_id, entity_id, status
         """.trimIndent()
 

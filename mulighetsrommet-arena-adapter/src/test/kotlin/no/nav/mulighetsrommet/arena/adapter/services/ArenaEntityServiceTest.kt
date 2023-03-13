@@ -43,7 +43,7 @@ class ArenaEntityServiceTest : FunSpec({
             avtaler = mockk(),
         )
 
-        arenaEntityMappingRepository.insert(
+        arenaEntityMappingRepository.upsert(
             ArenaEntityMapping(
                 ArenaTable.Tiltaksgjennomforing,
                 tiltaksnummer,

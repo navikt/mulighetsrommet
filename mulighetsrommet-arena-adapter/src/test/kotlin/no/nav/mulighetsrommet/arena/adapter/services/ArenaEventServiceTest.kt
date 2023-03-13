@@ -42,8 +42,8 @@ class ArenaEventServiceTest : FunSpec({
         arenaId = "2",
         payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
     )
-    val ignoredEvent = ArenaEvent(
-        status = ProcessingStatus.Processed,
+    val invalidEvent = ArenaEvent(
+        status = ProcessingStatus.Invalid,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "3",
@@ -149,7 +149,7 @@ class ArenaEventServiceTest : FunSpec({
         test("should set processing status to Replay for specified table and status") {
             events.upsert(pendingEvent)
             events.upsert(processedEvent)
-            events.upsert(ignoredEvent)
+            events.upsert(invalidEvent)
 
             val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
             service.setReplayStatusForEvents(table, ProcessingStatus.Processed)
@@ -157,7 +157,7 @@ class ArenaEventServiceTest : FunSpec({
             database.assertThat("arena_events")
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
-                .row().value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .row().value("processing_status").isEqualTo(ProcessingStatus.Invalid.name)
         }
     }
 
@@ -222,14 +222,14 @@ class ArenaEventServiceTest : FunSpec({
             val processor = spyk(ArenaEventTestProcessor())
             events.upsert(pendingEvent)
             events.upsert(processedEvent)
-            events.upsert(ignoredEvent)
+            events.upsert(invalidEvent)
 
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
-            service.deleteEntities(table, listOf(processedEvent.arenaId, ignoredEvent.arenaId))
+            service.deleteEntities(table, listOf(processedEvent.arenaId, invalidEvent.arenaId))
 
             coVerify(exactly = 1) {
                 processor.deleteEntity(processedEvent)
-                processor.deleteEntity(ignoredEvent)
+                processor.deleteEntity(invalidEvent)
             }
         }
     }

@@ -117,7 +117,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             tiltaksgjennomforinger.upsert(tiltaksgjennomforingIndividuell).getOrThrow()
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
@@ -125,7 +125,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaEntityMapping.Status.Upserted
                 )
             )
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
@@ -133,7 +133,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaEntityMapping.Status.Upserted
                 )
             )
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltakstype,
                     tiltakstypeGruppe.tiltakskode,
@@ -141,7 +141,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     ArenaEntityMapping.Status.Upserted
                 )
             )
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltakstype,
                     tiltakstypeIndividuell.tiltakskode,
@@ -174,13 +174,13 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
             val events = ArenaEventRepository(database.db)
-            events.upsert(
-                createArenaTiltakgjennomforingEvent(Insert, status = Processed) {
-                    it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
-                }
-            )
+            val entities = ArenaEntityMappingRepository(database.db)
+            val gjennomforingEvent = createArenaTiltakgjennomforingEvent(Insert, status = Processed) {
+                it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
+            }
+            events.upsert(gjennomforingEvent)
+            entities.upsert(ArenaEntityMapping(gjennomforingEvent.arenaTable, gjennomforingEvent.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Ignored))
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
-
             val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
 
             consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
