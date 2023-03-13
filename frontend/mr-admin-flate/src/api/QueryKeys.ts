@@ -7,6 +7,8 @@ import {
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
+  nokkeltallTiltakstype: (id?: string) =>
+    [id, "nokkeltallTiltakstype"] as const,
   tiltakstyper: (
     sokestreng: string,
     status?: Tiltakstypestatus,

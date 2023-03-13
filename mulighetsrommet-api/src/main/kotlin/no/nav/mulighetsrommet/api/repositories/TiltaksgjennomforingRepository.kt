@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 class TiltaksgjennomforingRepository(private val db: Database) {
 
@@ -343,5 +343,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 Avslutningsstatus.valueOf(string("avslutningsstatus"))
             )
         )
+    }
+
+    fun countGjennomforingerForTiltakstypeWithId(id: UUID): Int {
+        val query = """
+            SELECT count(id) AS antall FROM tiltaksgjennomforing WHERE tiltakstype_id = ?
+            """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
     }
 }

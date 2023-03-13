@@ -35,6 +35,10 @@ export function formaterDato(dato?: string | Date, fallback = ""): string {
   return result;
 }
 
+export function formaterTall(tall: number) {
+  return Intl.NumberFormat("no-nb").format(tall);
+}
+
 export function kalkulerStatusBasertPaaFraOgTilDato(
   datoer: {
     fraDato: string;

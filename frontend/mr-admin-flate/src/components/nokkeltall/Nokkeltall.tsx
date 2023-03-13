@@ -5,19 +5,19 @@ import styles from "./Nokkeltall.module.scss";
 interface Props {
   title: string;
   subtitle: string;
-  value: string;
+  value: number | string;
 }
 
 export function Nokkeltall({ title, subtitle, value }: Props) {
   return (
-    <BodyShort
-      className={classNames(styles.nokkeltall, styles.nokkeltall_container)}
-    >
+    <div className={classNames(styles.nokkeltall, styles.nokkeltall_container)}>
       <Heading level="3" size="xsmall" className={styles.heading}>
         {title}
       </Heading>
-      <span className={styles.value}>{value}</span>
-      <span className={styles.muted}>{subtitle}</span>
-    </BodyShort>
+      <BodyShort className={styles.nokkeltall}>
+        <span className={styles.value}>{value}</span>
+        <span className={styles.muted}>{subtitle}</span>
+      </BodyShort>
+    </div>
   );
 }
