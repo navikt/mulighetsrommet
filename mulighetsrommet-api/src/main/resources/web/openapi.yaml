@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -356,6 +356,27 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/{id}/nokkeltall:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getNokkeltallForTiltakstypeWithId
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Nokkeltall for the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeNokkeltall"
+        404:
+          description: "Nøkkeltall for the specified tiltakstype was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/sanity:
     get:
       tags:
@@ -378,7 +399,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: { }
+              schema: {}
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -1178,8 +1199,7 @@ components:
         beskrivelse:
           type: string
         tiltaksnummer:
-          type:
-            number
+          type: number
         kontaktinfoArrangor:
           $ref: "#/components/schemas/SanityKontaktinfoArrangor"
         lokasjon:
@@ -1240,7 +1260,6 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
-
     SanityNokkelinfoKomponenter:
       type: object
       properties:
@@ -1249,7 +1268,7 @@ components:
         tittel:
           type: string
         innhold:
-            type: object
+          type: object
         hjelpetekst:
           type: string
       required:
@@ -1306,3 +1325,11 @@ components:
         - navn
         - enhet
         - epost
+
+    TiltakstypeNokkeltall:
+      type: object
+      properties:
+        antallTiltaksgjennomforinger:
+          type: number
+      required:
+        - antallTiltaksgjennomforinger

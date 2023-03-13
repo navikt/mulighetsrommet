@@ -1,7 +1,15 @@
 import { Nokkeltall } from "../../../components/nokkeltall/Nokkeltall";
 import styles from "./NokkeltallForTiltakstype.module.scss";
+import { useNokkeltallForTiltakstype } from "../../../api/tiltakstyper/useNokkeltallForTiltakstype";
+import { Laster } from "../../../components/Laster";
 
 export function NokkeltallForTiltakstype() {
+  const { data } = useNokkeltallForTiltakstype();
+
+  if (!data) {
+    return <Laster tekst={"Henter nøkkeltall..."} />;
+  }
+
   return (
     <div>
       <section className={styles.summary_container}>
@@ -9,7 +17,7 @@ export function NokkeltallForTiltakstype() {
         <Nokkeltall
           title="Gjennomføringer"
           subtitle="hittil i år"
-          value="987"
+          value={data.antallTiltaksgjennomforinger}
         />
       </section>
     </div>
