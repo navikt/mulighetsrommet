@@ -24,21 +24,24 @@ class TiltakstypeService(
         )
 
         return PaginatedResponse(
-            data = items, pagination = Pagination(
+            data = items,
+            pagination = Pagination(
                 totalCount = totalCount, currentPage = paginationParams.page, pageSize = paginationParams.limit
             )
         )
     }
 
     fun getWithFilter(
-        tiltakstypeFilter: TiltakstypeFilter, paginationParams: PaginationParams
+        tiltakstypeFilter: TiltakstypeFilter,
+        paginationParams: PaginationParams
     ): PaginatedResponse<TiltakstypeDto> {
         val (totalCount, items) = tiltakstypeRepository.getAll(
             tiltakstypeFilter, paginationParams
         )
 
         return PaginatedResponse(
-            data = items, pagination = Pagination(
+            data = items,
+            pagination = Pagination(
                 totalCount = totalCount, currentPage = paginationParams.page, pageSize = paginationParams.limit
             )
         )
