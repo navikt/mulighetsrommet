@@ -58,7 +58,7 @@ class AvtaleInfoEventProcessor(
             ProcessingError.Ignored("Avtale har en til-dato som er før 2023")
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
         data
             .toAvtale(mapping.entityId)

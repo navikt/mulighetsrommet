@@ -10,10 +10,12 @@ import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import java.util.UUID
 
 class ArenaEventServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -117,6 +119,28 @@ class ArenaEventServiceTest : FunSpec({
             database.assertThat("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Oh no!")
+        }
+
+        test("should delete the event if it was upserted but now should be ignored") {
+            val processor = spyk(
+                ArenaEventTestProcessor {
+                    ProcessingError.Ignored("Ignored")
+                }
+            )
+            val entitiesRepository = ArenaEntityMappingRepository(database.db)
+            entitiesRepository.upsert(ArenaEntityMapping(pendingEvent.arenaTable, pendingEvent.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Upserted))
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
+            service.processEvent(pendingEvent)
+
+            coVerify(exactly = 1) {
+                processor.deleteEntity(pendingEvent)
+            }
+
+            database.assertThat("arena_events").row()
+                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .value("message").isEqualTo("Event was ignored: Ignored")
+            database.assertThat("arena_entity_mapping").row()
+                .value("status").isEqualTo("Ignored")
         }
     }
 

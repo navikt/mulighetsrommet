@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
+import java.util.*
 
 class AvtaleInfoEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -108,8 +109,10 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 "/api/v1/internal/arena/avtale.*" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
+            val entities = ArenaEntityMappingRepository(database.db)
 
             val e1 = createArenaAvtaleInfoEvent(Insert)
+            entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
             consumer.handleEvent(e1) shouldBeRight ArenaEvent.ProcessingStatus.Processed
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
@@ -147,9 +150,11 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         respondError(HttpStatusCode.NotFound)
                     }
                 )
-
+                val entities = ArenaEntityMappingRepository(database.db)
+                val event = createArenaAvtaleInfoEvent(Insert)
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
                 val consumer = createConsumer(database.db, engine)
-                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
+                val result = consumer.handleEvent(event)
 
                 result.shouldBeLeft().should { it.status shouldBe Invalid }
             }
@@ -181,8 +186,10 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val entities = ArenaEntityMappingRepository(database.db)
 
                 val event = createArenaAvtaleInfoEvent(Insert)
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
                 consumer.handleEvent(event).shouldBeRight()
 
                 val generatedId = engine.requestHistory.last().run {

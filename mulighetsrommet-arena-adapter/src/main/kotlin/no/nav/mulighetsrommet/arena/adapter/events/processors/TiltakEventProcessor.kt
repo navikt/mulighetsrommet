@@ -22,7 +22,7 @@ class TiltakEventProcessor(
     override val arenaTable: ArenaTable = ArenaTable.Tiltakstype
 
     override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val tiltakstype = event.decodePayload<ArenaTiltak>()
             .toTiltakstype(mapping.entityId)
             .flatMap { entities.upsertTiltakstype(it) }

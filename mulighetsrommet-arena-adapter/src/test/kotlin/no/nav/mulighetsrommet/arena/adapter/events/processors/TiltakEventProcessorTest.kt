@@ -11,6 +11,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
@@ -23,6 +24,7 @@ import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 class TiltakEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -37,8 +39,10 @@ class TiltakEventProcessorTest : FunSpec({
 
     test("should treat all operations as upserts") {
         val consumer = createConsumer(database.db, MockEngine { respondOk() })
+        val entities = ArenaEntityMappingRepository(database.db)
 
         val e1 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
+        entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
         consumer.handleEvent(e1) shouldBeRight Processed
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
@@ -85,8 +89,12 @@ class TiltakEventProcessorTest : FunSpec({
         test("should call api with mapped event payload") {
             val engine = MockEngine { respondOk() }
             val consumer = createConsumer(database.db, engine)
+            val entities = ArenaEntityMappingRepository(database.db)
 
-            consumer.handleEvent(createArenaTiltakEvent(Insert)).shouldBeRight()
+            val e1 = createArenaTiltakEvent(Insert)
+            entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+
+            consumer.handleEvent(e1).shouldBeRight()
 
             val generatedId = engine.requestHistory.last().run {
                 method shouldBe HttpMethod.Put

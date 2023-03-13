@@ -40,7 +40,7 @@ class TiltakdeltakerEventProcessor(
             ProcessingError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val deltaker = data
             .toDeltaker(mapping.entityId)
             .flatMap { entities.upsertDeltaker(it) }

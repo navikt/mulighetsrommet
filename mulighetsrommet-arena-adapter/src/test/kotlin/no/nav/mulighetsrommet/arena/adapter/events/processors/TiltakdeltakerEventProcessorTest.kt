@@ -192,8 +192,10 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
+            val entities = ArenaEntityMappingRepository(database.db)
 
             val e1 = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") }
+            entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
             consumer.handleEvent(e1) shouldBeRight Processed
             database.assertThat("deltaker").row().value("status").isEqualTo("DELTAR")
 
@@ -228,8 +230,9 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val entities = ArenaEntityMappingRepository(database.db)
                 val event = createArenaTiltakdeltakerEvent(Insert)
-
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
                 consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Invalid }
             }
 
@@ -264,8 +267,13 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val entities = ArenaEntityMappingRepository(database.db)
 
-                consumer.handleEvent(createArenaTiltakdeltakerEvent(Insert)).shouldBeRight()
+                val e1 = createArenaTiltakdeltakerEvent(Insert)
+
+                entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+
+                consumer.handleEvent(e1).shouldBeRight()
 
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -293,6 +301,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                         TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId
                     )
                 }
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
 
                 consumer.handleEvent(event).shouldBeRight()
 
