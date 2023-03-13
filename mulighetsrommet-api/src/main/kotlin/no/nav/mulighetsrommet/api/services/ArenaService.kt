@@ -2,15 +2,10 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import java.util.*
 
@@ -19,6 +14,7 @@ class ArenaService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val tiltakshistorikk: TiltakshistorikkRepository,
+    private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
@@ -70,5 +66,13 @@ class ArenaService(
 
     fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
         return tiltakshistorikk.delete(id)
+    }
+
+    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
+        return query { deltakere.upsert(deltaker) }
+    }
+
+    fun removeDeltaker(id: UUID): QueryResult<Unit> {
+        return query { deltakere.delete(id) }
     }
 }
