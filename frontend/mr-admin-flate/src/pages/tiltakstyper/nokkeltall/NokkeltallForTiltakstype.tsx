@@ -8,7 +8,7 @@ import { Alert } from "@navikt/ds-react";
 export function NokkeltallForTiltakstype() {
   const { data, isLoading } = useNokkeltallForTiltakstype();
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return <Laster tekst={"Henter nøkkeltall..."} />;
   }
 
@@ -21,12 +21,12 @@ export function NokkeltallForTiltakstype() {
       <section className={styles.summary_container}>
         <Nokkeltall
           title="Avtaler"
-          subtitle="hittil i år"
+          subtitle="totalt"
           value={formaterTall(data.antallAvtaler)}
         />
         <Nokkeltall
           title="Gjennomføringer"
-          subtitle="hittil i år"
+          subtitle="totalt"
           value={formaterTall(data.antallTiltaksgjennomforinger)}
         />
       </section>
