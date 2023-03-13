@@ -1,28 +1,19 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable
 data class Tiltakstype(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
     val tiltaksgruppekode: String,
     val tiltakskode: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val registrertIArenaDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val sistEndretIArenaDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val tilDato: LocalDateTime,
     val rettPaaTiltakspenger: Boolean,
     val administrasjonskode: Administrasjonskode,

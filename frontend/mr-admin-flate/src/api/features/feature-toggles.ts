@@ -2,13 +2,19 @@ import { headers } from "../headers";
 import { useQuery } from "@tanstack/react-query";
 
 export const ENABLE_ADMIN_FLATE = "mulighetsrommet.enable-admin-flate";
+export const VIS_NOKKELTALL_ADMIN_FLATE =
+  "mulighetsrommet.admin-flate-vis-nokkeltall";
 
-export const ALL_TOGGLES = [ENABLE_ADMIN_FLATE] as const;
+export const ALL_TOGGLES = [
+  ENABLE_ADMIN_FLATE,
+  VIS_NOKKELTALL_ADMIN_FLATE,
+] as const;
 
-export type Features = Record<typeof ALL_TOGGLES[number], boolean>;
+export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
 
 export const initialFeatures: Features = {
   "mulighetsrommet.enable-admin-flate": false,
+  "mulighetsrommet.admin-flate-vis-nokkeltall": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");

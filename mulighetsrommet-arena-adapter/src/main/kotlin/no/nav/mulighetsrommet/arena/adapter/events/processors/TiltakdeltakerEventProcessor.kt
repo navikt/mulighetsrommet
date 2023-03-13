@@ -98,6 +98,7 @@ class TiltakdeltakerEventProcessor(
                 personId = PERSON_ID,
                 fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+                registrertDato = ArenaUtils.parseTimestamp(REG_DATO),
                 status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
             )
         }

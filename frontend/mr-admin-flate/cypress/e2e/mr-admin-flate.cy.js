@@ -70,7 +70,9 @@ describe("Detaljside for tiltakstyper", () => {
     it("Skal kunne klikke på rad for tiltakstype og navigere til detaljer", () => {
       cy.visit("/tiltakstyper");
       cy.getByTestId("tiltakstyperad").eq(0).click();
-      cy.contains("Arenainfo");
+      cy.getByTestId("tab_arenainfo").should("exist");
+      cy.getByTestId("tab_avtaler").should("exist");
+      cy.getByTestId("tab_nokkeltall").should("exist");
       cy.checkPageA11y();
     });
   });
