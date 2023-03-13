@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.kafka
 import io.kotest.assertions.timing.eventually
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.testcontainers.TestContainerExtension
 import io.kotest.extensions.testcontainers.kafka.createStringStringProducer
 import io.kotest.matchers.collections.shouldContainExactly
@@ -11,6 +10,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -21,9 +22,6 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class KafkaConsumerOrchestratorTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
     val kafka = install(
         TestContainerExtension(
             KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
@@ -103,7 +101,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         val producer = kafka.createStringStringProducer()
         producer.send(ProducerRecord(topic, null, "true"))
-        producer.send(ProducerRecord(topic, "key", "true"))
+        producer.send(ProducerRecord(topic, "key1", "true"))
+        producer.send(ProducerRecord(topic, "key2", null))
         producer.close()
 
         val consumer = spyk(TestConsumer(topic))
@@ -118,7 +117,32 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         eventually(5.seconds) {
             coVerify(exactly = 1) {
                 consumer.consume(null, "true")
-                consumer.consume("key", "true")
+                consumer.consume("key1", "true")
+                consumer.consume("key2", null)
+            }
+        }
+    }
+
+    test("consumer should process json events from topic") {
+        val topic = uniqueTopicName()
+
+        val producer = kafka.createStringStringProducer()
+        producer.send(ProducerRecord(topic, "key1", """{ "success": true }"""))
+        producer.send(ProducerRecord(topic, "key2", null))
+        producer.close()
+
+        val consumer = spyk(JsonTestConsumer(topic))
+
+        KafkaConsumerOrchestrator(
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
+            database.db,
+            listOf(consumer),
+        )
+        eventually(5.seconds) {
+            coVerify(exactly = 1) {
+                consumer.consume("key1", Json.parseToJsonElement("""{ "success": true }"""))
+                consumer.consume("key2", JsonNull)
             }
         }
     }

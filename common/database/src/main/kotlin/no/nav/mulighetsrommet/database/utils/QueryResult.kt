@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.database.utils
 
 import arrow.core.Either
-import arrow.core.getOrHandle
+import arrow.core.getOrElse
 import org.postgresql.util.PSQLException
 
 typealias QueryResult<T> = Either<DatabaseOperationError, T>
@@ -13,7 +13,7 @@ typealias QueryResult<T> = Either<DatabaseOperationError, T>
  * It's best to avoid using this method, but it can be convenient during e.g. testing.
  */
 fun <T> QueryResult<T>.getOrThrow(): T {
-    return getOrHandle { throw it.error }
+    return getOrElse { throw it.error }
 }
 
 /**

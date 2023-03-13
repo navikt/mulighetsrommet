@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beOfType
@@ -42,12 +41,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakdeltakerEventProcessorTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
-    val database = extension(
-        FlywayDatabaseTestListener(createDatabaseTestConfig())
-    )
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {
         database.db.migrate()

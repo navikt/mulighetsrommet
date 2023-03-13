@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Heading } from '@navikt/ds-react';
+import { Alert, BodyShort } from '@navikt/ds-react';
 import styles from './Kontaktinfo.module.scss';
 import { logEvent } from '../../../core/api/logger';
 import { SanityKontakinfoTiltaksansvarlige } from 'mulighetsrommet-api-client';
@@ -20,9 +20,9 @@ const TiltaksansvarligInfo = ({ data }: TiltaksansvarligInfoProps) => {
 
   return (
     <div className={styles.tiltaksansvarlig_info}>
-      <Heading size="small" level="2" className={styles.header}>
+      <BodyShort size="medium" className={styles.header}>
         Tiltaksansvarlig
-      </Heading>
+      </BodyShort>
       {tiltaksansvarlige.map((tiltaksansvarlig: SanityKontakinfoTiltaksansvarlige) => {
         return (
           <div className={styles.container} key={tiltaksansvarlig._id}>

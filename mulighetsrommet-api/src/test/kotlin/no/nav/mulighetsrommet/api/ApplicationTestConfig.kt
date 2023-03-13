@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.koin.ktor.ext.inject
 
@@ -65,10 +66,14 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 fun createKafkaConfig(): KafkaConfig {
     return KafkaConfig(
         brokerUrl = "localhost:29092",
-        producerId = "producer-id",
+        producerId = "mulighetsrommet-api-producer",
         producers = KafkaProducers(
             tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
             tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1")
+        ),
+        consumerGroupId = "mulighetsrommet-api-consumer",
+        consumers = KafkaConsumers(
+            amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
         )
     )
 }

@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -17,7 +18,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityService.Config,
-    val swagger: SwaggerConfig? = null,
+    val swagger: SwaggerConfig = SwaggerConfig(enable = false),
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
     val veilarbpersonConfig: ServiceClientConfig,
@@ -39,12 +40,18 @@ data class AuthConfig(
 data class KafkaConfig(
     val brokerUrl: String? = null,
     val producerId: String,
-    val producers: KafkaProducers
+    val consumerGroupId: String,
+    val producers: KafkaProducers,
+    val consumers: KafkaConsumers,
 )
 
 data class KafkaProducers(
     val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config,
     val tiltakstyper: TiltakstypeKafkaProducer.Config
+)
+
+data class KafkaConsumers(
+    val amtDeltakerV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(

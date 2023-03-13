@@ -36,7 +36,7 @@ export function DelMedBrukerContent({
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
-  const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker!.created_at!!));
+  const datoSidenSistDelt = harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
 
   useEffect(() => {
     personligHilsenRef?.current?.focus();

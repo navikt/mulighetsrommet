@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.arena.adapter.services
 
 import arrow.core.Either
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.serialization.json.JsonObject
@@ -17,8 +16,6 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 
 class ArenaEventServiceTest : FunSpec({
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     beforeEach {

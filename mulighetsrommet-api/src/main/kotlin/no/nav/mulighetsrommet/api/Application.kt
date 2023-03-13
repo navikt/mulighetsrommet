@@ -3,14 +3,15 @@ package no.nav.mulighetsrommet.api
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
-import no.nav.mulighetsrommet.api.routes.internal.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException
 import no.nav.mulighetsrommet.ktor.startKtorApplication
@@ -26,6 +27,7 @@ fun main() {
 
 fun Application.configure(config: AppConfig) {
     val db by inject<Database>()
+    val kafka: KafkaConsumerOrchestrator by inject()
 
     configureDependencyInjection(config)
     configureAuthentication(config.auth)
@@ -34,12 +36,10 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureWebjars(config.swagger)
+    configureSwagger(config.swagger)
     configureStatusPagesForStatusException()
 
     routing {
-        swaggerRoutes()
-
         authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
             avtaleRoutes()
@@ -63,10 +63,15 @@ fun Application.configure(config: AppConfig) {
     val scheduler: Scheduler by inject()
 
     environment.monitor.subscribe(ApplicationStarted) {
+        kafka.enableFailedRecordProcessor()
+
         scheduler.start()
     }
 
     environment.monitor.subscribe(ApplicationStopPreparing) {
+        kafka.disableFailedRecordProcessor()
+        kafka.stopPollingTopicChanges()
+
         scheduler.stop()
     }
 }
