@@ -93,7 +93,7 @@ class ArenaEventService(
                         processor.deleteEntity(event)
                     }
 
-                    entities.insertMapping(event.arenaTable, event.arenaId, entityStatus)
+                    entities.upsertMapping(event.arenaTable, event.arenaId, entityStatus)
                     events.upsert(event.copy(status = eventStatus, message = message))
                 } catch (e: Throwable) {
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)

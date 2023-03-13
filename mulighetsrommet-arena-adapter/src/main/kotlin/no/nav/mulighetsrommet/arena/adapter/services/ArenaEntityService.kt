@@ -30,7 +30,7 @@ class ArenaEntityService(
             ?: mappings.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
     }
 
-    fun insertMapping(arenaTable: ArenaTable, arenaId: String, status: ArenaEntityMapping.Status): ArenaEntityMapping {
+    fun upsertMapping(arenaTable: ArenaTable, arenaId: String, status: ArenaEntityMapping.Status): ArenaEntityMapping {
         return mappings.upsert(ArenaEntityMapping(arenaTable, arenaId, UUID.randomUUID(), status))
     }
 
