@@ -12,4 +12,5 @@ data class Deltaker(
     val status: Deltakerstatus,
     val fraDato: LocalDateTime? = null,
     val tilDato: LocalDateTime? = null,
+    val registrertDato: LocalDateTime,
 )
