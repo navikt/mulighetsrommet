@@ -255,4 +255,19 @@ class AvtaleRepository(private val db: Database) {
             .asSingle
             .let { db.run(it)!! }
     }
+
+    fun countTiltaksgjennomforingerForAvtale(id: UUID): Int {
+        val query = """
+            select count(*) as antall
+            from avtale
+                     join tiltakstype tt on avtale.tiltakstype_id = tt.id
+                     join tiltaksgjennomforing tg on tt.id = tg.tiltakstype_id
+            where avtale.id = ?;
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
+    }
 }

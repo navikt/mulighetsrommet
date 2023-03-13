@@ -2,6 +2,7 @@ import { rest } from "msw";
 import {
   Ansatt,
   Avtale,
+  AvtaleNokkeltall,
   NavEnhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
@@ -12,6 +13,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { mockFagansvarlig, mockTiltaksansvarlig } from "./fixtures/mock_ansatt";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
+import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockEnheter } from "./fixtures/mock_enheter";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
 import { mockTiltaksgjennomforingerKobletTilAnsatt } from "./fixtures/mock_tiltaksgjennomforinger_koblet_til_ansatt";
@@ -90,6 +92,13 @@ export const apiHandlers = [
       const { id } = req.params as { id: string };
       const avtale = mockAvtaler.data.find((a) => a.id === id) ?? undefined;
       return res(ctx.status(200), ctx.json(avtale));
+    }
+  ),
+
+  rest.get<any, any, AvtaleNokkeltall | undefined>(
+    "*/api/v1/internal/avtaler/:id/nokkeltall",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockAvtaleNokkeltall));
     }
   ),
 
