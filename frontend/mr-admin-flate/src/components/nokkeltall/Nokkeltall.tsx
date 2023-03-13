@@ -1,4 +1,4 @@
-import { Heading } from "@navikt/ds-react";
+import { BodyShort, Heading } from "@navikt/ds-react";
 import classNames from "classnames";
 import styles from "./Nokkeltall.module.scss";
 
@@ -14,8 +14,10 @@ export function Nokkeltall({ title, subtitle, value }: Props) {
       <Heading level="3" size="xsmall" className={styles.heading}>
         {title}
       </Heading>
-      <span className={styles.value}>{value}</span>
-      <span className={styles.muted}>{subtitle}</span>
+      <BodyShort className={styles.nokkeltall}>
+        <span className={styles.value}>{value}</span>
+        <span className={styles.muted}>{subtitle}</span>
+      </BodyShort>
     </div>
   );
 }
