@@ -123,12 +123,21 @@ class ArenaEventServiceTest : FunSpec({
 
         test("should delete the entity if it was upserted but now should be ignored") {
             val processor = spyk(
-                ArenaEventTestProcessor {
-                    ProcessingError.Ignored("Ignored")
-                }
+                ArenaEventTestProcessor(
+                    handleEventError = {
+                        ProcessingError.Ignored("Ignored")
+                    }
+                )
             )
             val entitiesRepository = ArenaEntityMappingRepository(database.db)
-            entitiesRepository.upsert(ArenaEntityMapping(pendingEvent.arenaTable, pendingEvent.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Handled))
+            entitiesRepository.upsert(
+                ArenaEntityMapping(
+                    pendingEvent.arenaTable,
+                    pendingEvent.arenaId,
+                    UUID.randomUUID(),
+                    ArenaEntityMapping.Status.Handled
+                )
+            )
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
@@ -138,7 +147,7 @@ class ArenaEventServiceTest : FunSpec({
 
             database.assertThat("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isEqualTo("Event was ignored: Ignored")
+                .value("message").isNull
             database.assertThat("arena_entity_mapping").row()
                 .value("status").isEqualTo("Ignored")
         }
@@ -281,17 +290,18 @@ class ArenaEventServiceTest : FunSpec({
 
 class ArenaEventTestProcessor(
     override val arenaTable: ArenaTable = ArenaTable.Tiltakstype,
-    private val error: (() -> ProcessingError)? = null
+    private val deleteEntityError: (() -> ProcessingError)? = null,
+    private val handleEventError: (() -> ProcessingError)? = null,
 ) : ArenaEventProcessor {
 
     override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingStatus> {
-        return error
+        return handleEventError
             ?.let { Either.Left(it()) }
             ?: Either.Right(ProcessingStatus.Processed)
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> {
-        return error
+        return deleteEntityError
             ?.let { Either.Left(it()) }
             ?: Either.Right(Unit)
     }

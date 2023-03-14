@@ -82,37 +82,59 @@ class ArenaEventService(
                     logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
                     val mapping = entities.getOrCreateMapping(event)
 
-                    processor.handleEvent(event).onRight {
-                        entities.upsertMapping(mapping.copy(status = ArenaEntityMapping.Status.Handled))
-                        events.upsert(event.copy(status = it, message = null))
-                    }.onLeft {
-                        val entityStatus = if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else mapping.status
-                        if (mapping.status == ArenaEntityMapping.Status.Handled && entityStatus == ArenaEntityMapping.Status.Ignored) {
-                            processor.deleteEntity(event).map {
-                                eventStatus to message
-                            }.getOrElse {
-                                it.status to it.message
+                    processor.handleEvent(event)
+                        .onRight {
+                            entities.upsertMapping(mapping.copy(status = ArenaEntityMapping.Status.Handled))
+                            events.upsert(event.copy(status = it, message = null))
+                        }
+                        .onLeft {
+                            val entityStatus = if (it is ProcessingError.Ignored) {
+                                ArenaEntityMapping.Status.Ignored
+                            } else {
+                                mapping.status
+                            }
+
+                            if (mapping.status == ArenaEntityMapping.Status.Handled && entityStatus == ArenaEntityMapping.Status.Ignored) {
+                                processor.deleteEntity(event)
+                                    .map {
+                                        entities.upsertMapping(mapping.copy(status = entityStatus))
+                                        events.upsert(
+                                            event.copy(
+                                                status = ArenaEvent.ProcessingStatus.Processed,
+                                                message = null
+                                            )
+                                        )
+                                    }
+                                    .mapLeft { error ->
+                                        events.upsert(event.copy(status = error.status, message = error.message))
+                                    }
+                            } else {
+                                entities.upsertMapping(mapping.copy(status = entityStatus))
+                                events.upsert(event.copy(status = it.status, message = it.message))
                             }
                         }
-                    }
 
-                    val (eventStatus, message, entityStatus) = processor.handleEvent(event)
-                        .map { Triple(it, null, ArenaEntityMapping.Status.Handled) }
-                        .getOrElse {
-                            logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
-                            Triple(it.status, it.message, if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else mapping.status)
-                        }
-
-                    if (mapping.status == ArenaEntityMapping.Status.Handled && entityStatus == ArenaEntityMapping.Status.Ignored) {
-                        processor.deleteEntity(event).map {
-                            eventStatus to message
-                        }.getOrElse {
-                            it.status to it.message
-                        }
-                    }
-
-                    entities.upsertMapping(mapping.copy(status = entityStatus))
-                    events.upsert(event.copy(status = eventStatus, message = message))
+//                    val (eventStatus, message, entityStatus) = processor.handleEvent(event)
+//                        .map { Triple(it, null, ArenaEntityMapping.Status.Handled) }
+//                        .getOrElse {
+//                            logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
+//                            Triple(
+//                                it.status,
+//                                it.message,
+//                                if (it is ProcessingError.Ignored) ArenaEntityMapping.Status.Ignored else mapping.status
+//                            )
+//                        }
+//
+//                    if (mapping.status == ArenaEntityMapping.Status.Handled && entityStatus == ArenaEntityMapping.Status.Ignored) {
+//                        processor.deleteEntity(event).map {
+//                            eventStatus to message
+//                        }.getOrElse {
+//                            it.status to it.message
+//                        }
+//                    }
+//
+//                    entities.upsertMapping(mapping.copy(status = entityStatus))
+//                    events.upsert(event.copy(status = eventStatus, message = message))
                 } catch (e: Throwable) {
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
 
