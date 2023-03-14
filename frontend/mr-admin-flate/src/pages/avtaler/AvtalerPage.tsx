@@ -8,6 +8,7 @@ import { PagineringContainer } from "../../components/paginering/PagineringConta
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../constants";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { MainContainer } from "../../layouts/MainContainer";
 import { NavigeringHeader } from "../forside/NavigeringHeader";
 import styles from "../Page.module.scss";
 import { AvtaleTabell } from "../tiltakstyper/avtaler/AvtaleTabell";
@@ -34,7 +35,7 @@ export function AvtalerPage() {
   const avtaler = data.data ?? [];
 
   return (
-    <main>
+    <MainContainer>
       <NavigeringHeader />
       <ContainerLayout>
         <div className={styles.header_wrapper}>
@@ -72,6 +73,6 @@ export function AvtalerPage() {
           </PagineringContainer>
         ) : null}
       </ContainerLayout>
-    </main>
+    </MainContainer>
   );
 }
