@@ -272,19 +272,27 @@ class AvtaleRepositoryTest : FunSpec({
 
                 val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     id = UUID.randomUUID(),
-                    tiltakstypeId = avtaleFixture.tiltakstypeId
+                    tiltakstypeId = avtaleFixture.tiltakstypeId,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2022, 10, 15)
                 )
                 val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                     id = UUID.randomUUID(),
-                    tiltakstypeId = avtaleFixture.tiltakstypeId
+                    tiltakstypeId = avtaleFixture.tiltakstypeId,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
                 )
                 val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     id = UUID.randomUUID(),
-                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche
+                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
                 )
                 val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                     id = UUID.randomUUID(),
-                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche
+                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
                 )
 
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
@@ -300,19 +308,33 @@ class AvtaleRepositoryTest : FunSpec({
                 val gjennomforinger = tiltaksgjennomforingRepository.getAll()
                 gjennomforinger.first shouldBe 4
 
-                val antallGjennomforingerForAvtale = avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)
-                antallGjennomforingerForAvtale shouldBe 2
+                val antallGjennomforingerForAvtale =
+                    avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)
+                antallGjennomforingerForAvtale shouldBe 1
             }
+
             test("Skal telle korrekt antall avtaler for en tiltakstype") {
                 val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
 
                 val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
                 val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
 
-                val avtale1 = avtaleFixture.createAvtaleForTiltakstype()
-                val avtale2 = avtaleFixture.createAvtaleForTiltakstype()
-                val avtale3 = avtaleFixture.createAvtaleForTiltakstype()
-                val avtale4 = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2022, 10, 15)
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
                 tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
@@ -322,8 +344,9 @@ class AvtaleRepositoryTest : FunSpec({
                 val alleAvtaler = avtaleRepository.getAll(filter = defaultFilter)
                 alleAvtaler.first shouldBe 5
 
-                val countAvtaler = avtaleRepository.countAvtalerForTiltakstypeWithId(tiltakstype.id)
-                countAvtaler shouldBe 4
+                val countAvtaler =
+                    avtaleRepository.countAktiveAvtalerForTiltakstypeWithId(tiltakstype.id, LocalDate.of(2023, 3, 14))
+                countAvtaler shouldBe 3
             }
         }
     }

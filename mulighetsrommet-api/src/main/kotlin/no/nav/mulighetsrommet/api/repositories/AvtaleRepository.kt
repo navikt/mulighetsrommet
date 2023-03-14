@@ -245,27 +245,33 @@ class AvtaleRepository(private val db: Database) {
         }
     }
 
-    fun countAvtalerForTiltakstypeWithId(id: UUID): Int {
+    fun countAktiveAvtalerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
         val query = """
-            SELECT count(id) AS antall FROM avtale WHERE tiltakstype_id = ?
+             SELECT count(id) AS antall
+             FROM avtale
+             WHERE tiltakstype_id = ?
+             and start_dato < ?::timestamp
+             and slutt_dato > ?::timestamp
         """.trimIndent()
 
-        return queryOf(query, id)
+        return queryOf(query, id, currentDate, currentDate)
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }
     }
 
-    fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID): Int {
+    fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
         val query = """
             select count(*) as antall
             from avtale
                      join tiltakstype tt on avtale.tiltakstype_id = tt.id
                      join tiltaksgjennomforing tg on tt.id = tg.tiltakstype_id
-            where avtale.id = ?;
+            where avtale.id = ?
+            and tg.start_dato < ?::timestamp
+            and tg.slutt_dato > ?::timestamp
         """.trimIndent()
 
-        return queryOf(query, id)
+        return queryOf(query, id, currentDate, currentDate)
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }

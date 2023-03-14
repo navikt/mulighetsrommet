@@ -345,12 +345,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
-    fun countGjennomforingerForTiltakstypeWithId(id: UUID): Int {
+    fun countGjennomforingerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
         val query = """
-            SELECT count(id) AS antall FROM tiltaksgjennomforing WHERE tiltakstype_id = ?
+            SELECT count(id) AS antall
+            FROM tiltaksgjennomforing
+            WHERE tiltakstype_id = ?
+            and start_dato < ?::timestamp
+            and slutt_dato > ?::timestamp
         """.trimIndent()
 
-        return queryOf(query, id)
+        return queryOf(query, id, currentDate, currentDate)
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }

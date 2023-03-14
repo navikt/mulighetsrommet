@@ -278,19 +278,27 @@ class TiltakstypeRepositoryTest : FunSpec({
 
             val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
-                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId
+                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2022, 10, 15)
             )
             val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 id = UUID.randomUUID(),
-                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId
+                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2050, 10, 15)
             )
             val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche
+                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2050, 10, 15)
             )
             val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche
+                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2050, 10, 15)
             )
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
@@ -308,7 +316,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             antallGjennomforinger.first shouldBe 4
 
             val antallGjennomforingerForTiltakstype = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstype.id)
-            antallGjennomforingerForTiltakstype shouldBe 2
+            antallGjennomforingerForTiltakstype shouldBe 1
         }
     }
 })
