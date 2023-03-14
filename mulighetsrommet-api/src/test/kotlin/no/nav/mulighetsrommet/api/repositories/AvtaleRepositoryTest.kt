@@ -303,6 +303,28 @@ class AvtaleRepositoryTest : FunSpec({
                 val antallGjennomforingerForAvtale = avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)
                 antallGjennomforingerForAvtale shouldBe 2
             }
+            test("Skal telle korrekt antall avtaler for en tiltakstype") {
+                val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
+
+                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+                val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale4 = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale5 = avtaleFixture.createAvtaleForTiltakstype(tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
+                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+                tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
+
+                avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
+
+                val alleAvtaler = avtaleRepository.getAll(filter = defaultFilter)
+                alleAvtaler.first shouldBe 5
+
+                val countAvtaler = avtaleRepository.countAvtalerForTiltakstypeWithId(tiltakstype.id)
+                countAvtaler shouldBe 4
+            }
         }
     }
 })
