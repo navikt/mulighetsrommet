@@ -2,12 +2,13 @@ import { Heading } from "@navikt/ds-react";
 import { Tiltakstypefilter } from "../../components/filter/Tiltakstypefilter";
 import { TiltakstyperOversikt } from "../../components/tiltakstyper/TiltakstyperOversikt";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { MainContainer } from "../../layouts/MainContainer";
 import { NavigeringHeader } from "../forside/NavigeringHeader";
 import styles from "../Page.module.scss";
 
 export function TiltakstyperPage() {
   return (
-    <main>
+    <MainContainer>
       <NavigeringHeader />
       <ContainerLayout>
         <div className={styles.header_wrapper}>
@@ -18,6 +19,6 @@ export function TiltakstyperPage() {
         <Tiltakstypefilter />
         <TiltakstyperOversikt />
       </ContainerLayout>
-    </main>
+    </MainContainer>
   );
 }

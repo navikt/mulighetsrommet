@@ -5,6 +5,7 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Header } from "../../components/detaljside/Header";
 import { Avtalestatus } from "../../components/statuselementer/Avtalestatus";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { MainContainer } from "../../layouts/MainContainer";
 import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 
@@ -18,7 +19,7 @@ export function DetaljerAvtalePage() {
   }
 
   return (
-    <main>
+    <MainContainer>
       <Header>
         <div
           style={{
@@ -48,6 +49,6 @@ export function DetaljerAvtalePage() {
           </ContainerLayout>
         </Tabs.Panel>
       </Tabs>
-    </main>
+    </MainContainer>
   );
 }
