@@ -63,7 +63,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-dev.yaml
-          VAR: image=${{ needs.build.outputs.image }}
+          VAR: image=${{ needs.build-and-test.outputs.image }}
 
   deploy-prod:
     name: Deploy (prod)
@@ -79,4 +79,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/nais-prod.yaml
-          VAR: image=${{ needs.build.outputs.image }}
+          VAR: image=${{ needs.build-and-test.outputs.image }}
