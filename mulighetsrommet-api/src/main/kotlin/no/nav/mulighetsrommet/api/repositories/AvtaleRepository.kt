@@ -256,7 +256,7 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun countTiltaksgjennomforingerForAvtale(id: UUID): Int {
+    fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID): Int {
         val query = """
             select count(*) as antall
             from avtale
