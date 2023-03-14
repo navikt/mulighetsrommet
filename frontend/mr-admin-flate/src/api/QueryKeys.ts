@@ -39,5 +39,6 @@ export const QueryKeys = {
     page: number
   ) => [sok, status, enhet, sortering, tiltakstypeId, page, "avtaler"],
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
+  nokkeltallAvtale: (avtaleId: string) => [avtaleId, "nokkeltallAvtale"],
   enheter: () => ["enheter"],
 };

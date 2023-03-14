@@ -1,9 +1,9 @@
 import { Nokkeltall } from "../../../components/nokkeltall/Nokkeltall";
-import styles from "./NokkeltallForTiltakstype.module.scss";
 import { useNokkeltallForTiltakstype } from "../../../api/tiltakstyper/useNokkeltallForTiltakstype";
 import { Laster } from "../../../components/Laster";
 import { formaterTall } from "../../../utils/Utils";
 import { Alert } from "@navikt/ds-react";
+import { NokkeltallContainer } from "../../../components/nokkeltall/NokkeltallContainer";
 
 export function NokkeltallForTiltakstype() {
   const { data, isLoading } = useNokkeltallForTiltakstype();
@@ -17,19 +17,17 @@ export function NokkeltallForTiltakstype() {
   }
 
   return (
-    <div>
-      <section className={styles.summary_container}>
-        <Nokkeltall
-          title="Avtaler"
-          subtitle="totalt"
-          value={formaterTall(data.antallAvtaler)}
-        />
-        <Nokkeltall
-          title="Gjennomføringer"
-          subtitle="totalt"
-          value={formaterTall(data.antallTiltaksgjennomforinger)}
-        />
-      </section>
-    </div>
+    <NokkeltallContainer>
+      <Nokkeltall
+        title="Avtaler"
+        subtitle="totalt"
+        value={formaterTall(data.antallAvtaler)}
+      />
+      <Nokkeltall
+        title="Gjennomføringer"
+        subtitle="totalt"
+        value={formaterTall(data.antallTiltaksgjennomforinger)}
+      />
+    </NokkeltallContainer>
   );
 }
