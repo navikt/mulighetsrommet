@@ -64,7 +64,7 @@ class AvtaleService(
     }
 
     fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {
-        val antallTiltaksgjennomforinger = avtaler.countTiltaksgjennomforingerForAvtale(id)
+        val antallTiltaksgjennomforinger = avtaler.countTiltaksgjennomforingerForAvtaleWithId(id)
         return AvtaleNokkeltallDto(
             antallTiltaksgjennomforinger = antallTiltaksgjennomforinger
         )

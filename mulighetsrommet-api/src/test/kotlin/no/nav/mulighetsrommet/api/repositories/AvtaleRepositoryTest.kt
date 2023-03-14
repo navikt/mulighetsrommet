@@ -300,7 +300,7 @@ class AvtaleRepositoryTest : FunSpec({
                 val gjennomforinger = tiltaksgjennomforingRepository.getAll()
                 gjennomforinger.first shouldBe 4
 
-                val antallGjennomforingerForAvtale = avtaleRepository.countTiltaksgjennomforingerForAvtale(avtale.id)
+                val antallGjennomforingerForAvtale = avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)
                 antallGjennomforingerForAvtale shouldBe 2
             }
         }
