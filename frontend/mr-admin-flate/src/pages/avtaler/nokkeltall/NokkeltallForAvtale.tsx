@@ -20,9 +20,9 @@ export function NokkeltallForAvtale() {
     <NokkeltallContainer>
       <Nokkeltall
         title="Tiltaksgjennomføringer"
-        subtitle="totalt"
+        subtitle="hittil i år"
         value={formaterTall(data.antallTiltaksgjennomforinger)}
-        helptext="Totalt antall tiltaksgjennomføringer"
+        helptext="Sum av alle tiltaksgjennomføringer for valgt avtale, som er aktive innenfor budsjettåret (1. januar -> 31. desember)"
         helptextTitle="Hvor kommer tallene fra?"
       />
     </NokkeltallContainer>

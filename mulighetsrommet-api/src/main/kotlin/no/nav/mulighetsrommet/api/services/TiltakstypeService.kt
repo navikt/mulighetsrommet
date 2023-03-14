@@ -53,7 +53,7 @@ class TiltakstypeService(
 
     fun getNokkeltallForTiltakstype(id: UUID): TiltakstypeNokkeltallDto {
         val antallGjennomforinger = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(id)
-        val antallAvtaler = avtaleRepository.countAvtalerForTiltakstypeWithId(id)
+        val antallAvtaler = avtaleRepository.countAktiveAvtalerForTiltakstypeWithId(id)
         return TiltakstypeNokkeltallDto(antallTiltaksgjennomforinger = antallGjennomforinger, antallAvtaler = antallAvtaler)
     }
 }
