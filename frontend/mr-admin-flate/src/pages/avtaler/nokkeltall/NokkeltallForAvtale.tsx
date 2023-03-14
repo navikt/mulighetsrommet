@@ -22,6 +22,8 @@ export function NokkeltallForAvtale() {
         title="Tiltaksgjennomføringer"
         subtitle="totalt"
         value={formaterTall(data.antallTiltaksgjennomforinger)}
+        helptext="Totalt antall tiltaksgjennomføringer"
+        helptextTitle="Hvor kommer tallene fra?"
       />
     </NokkeltallContainer>
   );
