@@ -6,8 +6,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -163,7 +166,7 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
                 tiltakstypeId = tiltakstypeIdForAvtale3
             )
-            avtaleFixture.upserTiltakstype(
+            avtaleFixture.upsertTiltakstype(
                 listOf(
                     TiltakstypeDbo(
                         tiltakstypeIdForAvtale3,
@@ -250,6 +253,55 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
                 result.second[3].navn shouldBe "Avtale hos Kjetil"
                 result.second[4].navn shouldBe "Avtale hos Anders"
+            }
+        }
+
+        context("Nøkkeltall") {
+            val tiltakstypeRepository = TiltakstypeRepository(database.db)
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            val avtaleRepository = AvtaleRepository(database.db)
+
+            test("Skal telle korrekt antall tiltaksgjennomføringer tilknyttet en avtale") {
+                val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
+
+                val avtale = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
+
+                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+                val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+
+                val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = avtaleFixture.tiltakstypeId
+                )
+                val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = avtaleFixture.tiltakstypeId
+                )
+                val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche
+                )
+                val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche
+                )
+
+                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+                tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
+
+                avtaleFixture.upsertAvtaler(listOf(avtale, avtale2))
+
+                tiltaksgjennomforingRepository.upsert(gjennomforing1).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
+
+                val gjennomforinger = tiltaksgjennomforingRepository.getAll()
+                gjennomforinger.first shouldBe 4
+
+                val antallGjennomforingerForAvtale = avtaleRepository.countTiltaksgjennomforingerForAvtale(avtale.id)
+                antallGjennomforingerForAvtale shouldBe 2
             }
         }
     }

@@ -34,7 +34,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         ).getOrThrow()
     }
 
-    fun upserTiltakstype(tiltakstyper: List<TiltakstypeDbo>) {
+    fun upsertTiltakstype(tiltakstyper: List<TiltakstypeDbo>) {
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         tiltakstyper.forEach {
             tiltakstypeRepository.upsert(it)
