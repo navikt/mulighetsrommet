@@ -45,8 +45,7 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           dockerfile: ./mulighetsrommet-api/Dockerfile
-          cache_from: ""
-          cache_to: ""
+          docker_context: mulighetsrommet-api
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
