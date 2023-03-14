@@ -28,6 +28,9 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,16 +38,16 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-arena-adapter:build
-      - name: Build and push Docker image
-        working-directory: mulighetsrommet-arena-adapter
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
-          docker build -t ${IMAGE} .
-          docker push ${IMAGE}
+      - uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: team-mulighetsrommet
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          dockerfile: ./mulighetsrommet-arena-adapter/Dockerfile
+          docker_context: mulighetsrommet-arena-adapter
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
 
   deploy-dev:
     name: Deploy (dev)
@@ -60,7 +63,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-dev.yaml
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ needs.build-and-test.outputs.image }}
 
   deploy-prod:
     name: Deploy (prod)
@@ -76,4 +79,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-prod.yaml
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ needs.build-and-test.outputs.image }}
