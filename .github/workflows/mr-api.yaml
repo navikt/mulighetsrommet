@@ -37,15 +37,15 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:build
-      - uses: nais/docker-build-push@v0
+      - name: Build and push Docker image
+        working-directory: mulighetsrommet-api
+        uses: nais/docker-build-push@v0
         id: docker-build-push
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         with:
           team: team-mulighetsrommet
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          dockerfile: ./mulighetsrommet-api/Dockerfile
-          docker_context: mulighetsrommet-api
           image_suffix: mulighetsrommet-api
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
