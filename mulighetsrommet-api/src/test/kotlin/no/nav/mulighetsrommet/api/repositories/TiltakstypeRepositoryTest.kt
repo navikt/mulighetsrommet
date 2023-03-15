@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -16,6 +17,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
+
+    testOrder = TestCaseOrder.Sequential
+
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     test("CRUD") {

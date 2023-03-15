@@ -18,7 +18,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityService.Config,
-    val swagger: SwaggerConfig = SwaggerConfig(enable = false),
+    val swagger: SwaggerConfig? = null,
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
     val veilarbpersonConfig: ServiceClientConfig,

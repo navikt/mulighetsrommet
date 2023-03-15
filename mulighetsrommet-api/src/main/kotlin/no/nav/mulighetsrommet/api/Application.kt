@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.routes.internal.frontendLoggerRoutes
+import no.nav.mulighetsrommet.api.routes.internal.swaggerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
@@ -36,10 +36,12 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureSwagger(config.swagger)
+    configureWebjars(config.swagger)
     configureStatusPagesForStatusException()
 
     routing {
+        swaggerRoutes()
+
         authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
             avtaleRoutes()

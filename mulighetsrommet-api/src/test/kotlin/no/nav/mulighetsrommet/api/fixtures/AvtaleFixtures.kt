@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
+class AvtaleFixtures constructor(private val database: FlywayDatabaseTestListener) {
     val tiltakstypeId: UUID = UUID.fromString("0c565576-6a74-4bc2-ad5a-765580014ef9")
 
     fun runBeforeTests() {

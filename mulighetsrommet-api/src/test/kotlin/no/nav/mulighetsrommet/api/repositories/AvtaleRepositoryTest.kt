@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -16,6 +17,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
+    testOrder = TestCaseOrder.Sequential
+
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val avtaleFixture = AvtaleFixtures(database)
 

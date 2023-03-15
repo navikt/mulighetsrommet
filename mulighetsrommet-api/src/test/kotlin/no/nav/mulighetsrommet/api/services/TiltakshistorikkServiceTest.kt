@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -17,9 +18,12 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakshistorikkServiceTest : FunSpec({
+    testOrder = TestCaseOrder.Sequential
+
     val arrangorService: ArrangorService = mockk()
 
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database =
+        extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltakstype = TiltakstypeDbo(
         id = UUID.randomUUID(),
@@ -120,6 +124,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
         )
 
-        historikkService.hentHistorikkForBruker("12345678910") shouldBe forventetHistorikk
+        historikkService.hentHistorikkForBruker(
+            "12345678910"
+        ) shouldBe forventetHistorikk
     }
 })

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestCaseOrder
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -14,6 +15,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingServiceTest : FunSpec({
+    testOrder = TestCaseOrder.Sequential
+
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val tiltaksgjennomforingId = UUID.fromString("046b57eb-1c7e-4165-ac5d-39ad21ebf4ee")
 
@@ -38,7 +41,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         tiltaksgjennomforingRepository.upsert(
             TiltaksgjennomforingDbo(
                 id = tiltaksgjennomforingId,
-                navn = "Gjennomføring",
+                navn = null,
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
