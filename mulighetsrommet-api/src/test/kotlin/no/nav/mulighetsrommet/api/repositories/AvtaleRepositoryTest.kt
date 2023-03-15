@@ -1,14 +1,16 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -17,8 +19,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val avtaleFixture = AvtaleFixtures(database)
 
@@ -166,7 +166,7 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
                 tiltakstypeId = tiltakstypeIdForAvtale3
             )
-            avtaleFixture.upserTiltakstype(
+            avtaleFixture.upsertTiltakstype(
                 listOf(
                     TiltakstypeDbo(
                         tiltakstypeIdForAvtale3,
@@ -253,6 +253,100 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
                 result.second[3].navn shouldBe "Avtale hos Kjetil"
                 result.second[4].navn shouldBe "Avtale hos Anders"
+            }
+        }
+
+        context("Nøkkeltall") {
+            val tiltakstypeRepository = TiltakstypeRepository(database.db)
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            val avtaleRepository = AvtaleRepository(database.db)
+
+            test("Skal telle korrekt antall tiltaksgjennomføringer tilknyttet en avtale") {
+                val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
+
+                val avtale = avtaleFixture.createAvtaleForTiltakstype()
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
+
+                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+                val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+
+                val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = avtaleFixture.tiltakstypeId,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2022, 10, 15)
+                )
+                val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = avtaleFixture.tiltakstypeId,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+
+                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+                tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
+
+                avtaleFixture.upsertAvtaler(listOf(avtale, avtale2))
+
+                tiltaksgjennomforingRepository.upsert(gjennomforing1).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
+                tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
+
+                val gjennomforinger = tiltaksgjennomforingRepository.getAll()
+                gjennomforinger.first shouldBe 4
+
+                val antallGjennomforingerForAvtale =
+                    avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)
+                antallGjennomforingerForAvtale shouldBe 1
+            }
+
+            test("Skal telle korrekt antall avtaler for en tiltakstype") {
+                val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
+
+                val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = avtaleFixture.tiltakstypeId)
+                val tiltakstypeUtenAvtaler = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2022, 10, 15)
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
+                    startDato = LocalDate.of(2021, 1, 1),
+                    sluttDato = LocalDate.of(2050, 10, 15)
+                )
+                val avtale5 = avtaleFixture.createAvtaleForTiltakstype(tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
+                tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+                tiltakstypeRepository.upsert(tiltakstypeUtenAvtaler).getOrThrow()
+
+                avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
+
+                val alleAvtaler = avtaleRepository.getAll(filter = defaultFilter)
+                alleAvtaler.first shouldBe 5
+
+                val countAvtaler =
+                    avtaleRepository.countAktiveAvtalerForTiltakstypeWithId(tiltakstype.id, LocalDate.of(2023, 3, 14))
+                countAvtaler shouldBe 3
             }
         }
     }

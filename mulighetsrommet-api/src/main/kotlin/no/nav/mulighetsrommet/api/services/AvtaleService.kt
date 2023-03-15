@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
@@ -60,5 +61,12 @@ class AvtaleService(
     private fun AvtaleAdminDto.hentEnhetsnavnForAvtale(): AvtaleAdminDto {
         val enhet = navEnhetService.hentEnhet(this.navEnhet.enhetsnummer)
         return this.copy(navEnhet = this.navEnhet.copy(navn = enhet?.navn))
+    }
+
+    fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {
+        val antallTiltaksgjennomforinger = avtaler.countTiltaksgjennomforingerForAvtaleWithId(id)
+        return AvtaleNokkeltallDto(
+            antallTiltaksgjennomforinger = antallTiltaksgjennomforinger
+        )
     }
 }

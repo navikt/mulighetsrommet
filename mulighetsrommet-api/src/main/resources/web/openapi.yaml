@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -45,6 +45,27 @@ paths:
                 $ref: "#/components/schemas/Avtale"
         404:
           description: "The specified avtale was not found."
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/internal/avtaler/{id}/nokkeltall:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Avtaler
+      operationId: getNokkeltallForAvtale
+      responses:
+        200:
+          description: Nøkkeltall for the specified avtale.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleNokkeltall"
+        404:
+          description: "Nøkkeltall for the specified avtale was not found."
           content:
             application/json:
               schema:
@@ -356,6 +377,27 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltakstyper/{id}/nokkeltall:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getNokkeltallForTiltakstypeWithId
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Nokkeltall for the specified tiltakstype
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeNokkeltall"
+        404:
+          description: "Nøkkeltall for the specified tiltakstype was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/sanity:
     get:
       tags:
@@ -378,7 +420,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: { }
+              schema: {}
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -424,6 +466,67 @@ paths:
                 type: array
                 items:
                   type: string
+
+  /api/v1/internal/sanity/tiltaksgjennomforinger:
+    get:
+      tags:
+        - Sanity
+      operationId: getTiltaksgjennomforingForBruker
+      parameters:
+        - in: query
+          name: innsatsgruppe
+          schema:
+            type: string
+          description: Innsatsgruppe du ønsker å filtrere på
+        - in: query
+          name: tiltakstypeIder
+          schema:
+            type: array
+            items:
+              type: string
+          description: Liste med id'er for tiltakstyper man er interessert i
+        - in: query
+          name: sokestreng
+          schema:
+            type: string
+          description: Søkestreng for fritekstsøk etter tiltaksgjennomføringer
+        - in: query
+          name: lokasjoner
+          schema:
+            type: array
+            items:
+              type: string
+          description: Liste med lokasjoner man vil filtrere på
+      responses:
+        200:
+          description: Hent tiltaksgjennomføringer som bruker har rett på
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
+
+  /api/v1/internal/sanity/tiltaksgjennomforing/{id}:
+    get:
+      tags:
+        - Sanity
+      operationId: getTiltaksgjennomforing
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          description: ID for tiltaksgjennomføring i Sanity
+      responses:
+        200:
+          description: Hent tiltaksgjennomføring for id
+          content:
+            application/json:
+              schema:
+                type: array # Sanity kan returnere prod- og draft-versjon av dokument. Derfor array og ikke enkelt objekt
+                items:
+                  $ref: "#/components/schemas/SanityTiltaksgjennomforing"
 
   /api/v1/internal/dialog:
     post:
@@ -1007,13 +1110,13 @@ components:
           type: string
         dialogId:
           type: string
-        created_at:
+        createdAt:
           type: string
-        updated_at:
+        updatedAt:
           type: string
-        created_by:
+        createdBy:
           type: string
-        updated_by:
+        updatedBy:
           type: string
 
     NavEnhet:
@@ -1105,6 +1208,50 @@ components:
         - tiltakstypeNavn
         - innsatsgruppe
 
+    SanityTiltaksgjennomforing:
+      type: object
+      properties:
+        _id:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/SanityTiltakstype"
+        tiltaksgjennomforingNavn:
+          type: string
+        beskrivelse:
+          type: string
+        tiltaksnummer:
+          type: number
+        kontaktinfoArrangor:
+          $ref: "#/components/schemas/SanityKontaktinfoArrangor"
+        lokasjon:
+          type: string
+        oppstart:
+          type: string
+          enum:
+            - dato
+            - lopende
+            - midlertidig_stengt
+        oppstartsdato:
+          type: string
+        estimert_ventetid:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/SanityFaneinnhold"
+        kontaktinfoTiltaksansvarlige:
+          type: array
+          items:
+            $ref: "#/components/schemas/SanityKontakinfoTiltaksansvarlige"
+        tilgjengelighetsstatus:
+          type: string
+          enum:
+            - Ledig
+            - Venteliste
+            - Stengt
+      required:
+        - _id
+        - tiltaksgjennomforingNavn
+        - tiltakstype
+        - oppstart
 
     SanityRegelverkFil:
       type: object
@@ -1134,7 +1281,6 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
-
     SanityNokkelinfoKomponenter:
       type: object
       properties:
@@ -1143,9 +1289,11 @@ components:
         tittel:
           type: string
         innhold:
-            type: object
+          type: object
         hjelpetekst:
           type: string
+      required:
+        - _id
 
     SanityFaneinnhold:
       type: object
@@ -1162,3 +1310,58 @@ components:
           type: string
         pameldingOgVarighet:
           type: object
+
+    SanityKontaktinfoArrangor:
+      type: object
+      properties:
+        _id:
+          type: string
+        selskapsnavn:
+          type: string
+        telefonnummer:
+          type: string
+        epost:
+          type: string
+        adresse:
+          type: string
+      required:
+        - _id
+        - selskapsnavn
+
+    SanityKontakinfoTiltaksansvarlige:
+      type: object
+      properties:
+        _id:
+          type: string
+        navn:
+          type: string
+        enhet:
+          type: string
+        telefonnummer:
+          type: string
+        epost:
+          type: string
+      required:
+        - _id
+        - navn
+        - enhet
+        - epost
+
+    TiltakstypeNokkeltall:
+      type: object
+      properties:
+        antallTiltaksgjennomforinger:
+          type: number
+        antallAvtaler:
+          type: number
+      required:
+        - antallTiltaksgjennomforinger
+        - antallAvtaler
+
+    AvtaleNokkeltall:
+      type: object
+      properties:
+        antallTiltaksgjennomforinger:
+          type: number
+      required:
+        - antallTiltaksgjennomforinger

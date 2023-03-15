@@ -35,5 +35,16 @@ fun Route.avtaleRoutes() {
 
             call.respond(avtale)
         }
+
+        get("{id}/nokkeltall") {
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                text = "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest,
+            )
+
+            val nokkeltall = avtaler.getNokkeltallForAvtaleMedId(id)
+
+            call.respond(nokkeltall)
+        }
     }
 }

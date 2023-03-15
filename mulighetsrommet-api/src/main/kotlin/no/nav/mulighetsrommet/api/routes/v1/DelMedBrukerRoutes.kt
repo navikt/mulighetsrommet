@@ -5,10 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.domain.models.DelMedBruker
 import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyPathParameter
 import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyQueryParameter
 import no.nav.mulighetsrommet.secure_log.SecureLog
@@ -20,7 +20,7 @@ fun Route.delMedBrukerRoutes() {
 
     route("/api/v1/internal/delMedBruker") {
         post {
-            val payload = call.receive<DelMedBruker>()
+            val payload = call.receive<DelMedBrukerDbo>()
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), payload.norskIdent)
 
