@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -46,6 +47,7 @@ class DeltakerRepositoryTest : FunSpec({
             tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
             norskIdent = "10101010100",
             status = Deltakerstatus.VENTER,
+            opphav = Deltakeropphav.AMT,
             startDato = null,
             sluttDato = null,
             registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),

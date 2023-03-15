@@ -5,6 +5,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -20,11 +21,12 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, norsk_ident, status, start_dato, slutt_dato, registrert_dato)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :start_dato, :slutt_dato, :registrert_dato)
+            insert into deltaker (id, tiltaksgjennomforing_id, norsk_ident, status, opphav, start_dato, slutt_dato, registrert_dato)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :opphav::deltakeropphav, :start_dato, :slutt_dato, :registrert_dato)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               status                  = excluded.status,
+                              opphav                  = excluded.opphav,
                               norsk_ident             = excluded.norsk_ident,
                               start_dato              = excluded.start_dato,
                               slutt_dato              = excluded.slutt_dato,
@@ -45,7 +47,7 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, tiltaksgjennomforing_id, norsk_ident, status, start_dato, slutt_dato, registrert_dato
+            select id, tiltaksgjennomforing_id, norsk_ident, status, opphav, start_dato, slutt_dato, registrert_dato
             from deltaker
             $where
         """.trimIndent()
@@ -97,6 +99,7 @@ class DeltakerRepository(private val db: Database) {
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
         "norsk_ident" to norskIdent,
         "status" to status.name,
+        "opphav" to opphav.name,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "registrert_dato" to registrertDato,
@@ -107,6 +110,7 @@ class DeltakerRepository(private val db: Database) {
         tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
         norskIdent = string("norsk_ident"),
         status = Deltakerstatus.valueOf(string("status")),
+        opphav = Deltakeropphav.valueOf(string("opphav")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         registrertDato = localDateTime("registrert_dato"),

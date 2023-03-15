@@ -22,4 +22,10 @@ data class DeltakerDbo(
     val sluttDato: LocalDate?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertDato: LocalDateTime,
+    val opphav: Deltakeropphav,
 )
+
+enum class Deltakeropphav {
+    ARENA,
+    AMT,
+}

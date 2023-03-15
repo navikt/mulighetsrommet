@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAmtTiltak
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import java.util.*
 
@@ -182,14 +183,15 @@ class TiltakdeltakerEventProcessor(
             )
         }
     }
-}
 
-private fun Deltaker.toDeltakerDbo(tiltaksgjennomforing: Tiltaksgjennomforing, norskIdent: String) = DeltakerDbo(
-    id = id,
-    tiltaksgjennomforingId = tiltaksgjennomforing.id,
-    norskIdent = norskIdent,
-    status = status,
-    startDato = fraDato?.toLocalDate(),
-    sluttDato = tilDato?.toLocalDate(),
-    registrertDato = registrertDato,
-)
+    private fun Deltaker.toDeltakerDbo(tiltaksgjennomforing: Tiltaksgjennomforing, norskIdent: String) = DeltakerDbo(
+        id = id,
+        tiltaksgjennomforingId = tiltaksgjennomforing.id,
+        norskIdent = norskIdent,
+        status = status,
+        opphav = Deltakeropphav.ARENA,
+        startDato = fraDato?.toLocalDate(),
+        sluttDato = tilDato?.toLocalDate(),
+        registrertDato = registrertDato,
+    )
+}

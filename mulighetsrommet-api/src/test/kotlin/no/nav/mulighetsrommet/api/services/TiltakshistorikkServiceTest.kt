@@ -6,7 +6,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
-import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -75,20 +74,16 @@ class TiltakshistorikkServiceTest : FunSpec({
     )
 
     beforeSpec {
-        val service = ArenaService(
-            tiltakstyper = TiltakstypeRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            tiltakshistorikk = TiltakshistorikkRepository(database.db),
-            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
-            tiltakstypeKafkaProducer = mockk(relaxed = true),
-        )
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(tiltakstype)
+        tiltakstyper.upsert(tiltakstypeIndividuell)
 
-        service.upsert(tiltakstype)
-        service.upsert(tiltaksgjennomforing)
-        service.upsert(tiltakshistorikkGruppe)
-        service.upsert(tiltakstypeIndividuell)
-        service.upsert(tiltakshistorikkIndividuell)
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+
+        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
+        tiltakshistorikk.upsert(tiltakshistorikkGruppe)
+        tiltakshistorikk.upsert(tiltakshistorikkIndividuell)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
