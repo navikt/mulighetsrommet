@@ -6,7 +6,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.beOfType
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -16,11 +15,12 @@ import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -105,7 +105,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Handled))
+            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled))
         }
 
         test("should ignore individuelle tiltaksgjennomføringer created before Aktivitetsplanen") {
@@ -119,7 +119,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 it.copy(REG_DATO = regDatoBeforeAktivitetsplanen)
             }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
             database.assertThat("tiltaksgjennomforing").isEmpty
             engine.requestHistory.shouldBeEmpty()
         }
@@ -135,7 +135,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 it.copy(DATO_FRA = null)
             }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
             database.assertThat("tiltaksgjennomforing").isEmpty
             engine.requestHistory.shouldBeEmpty()
         }
@@ -153,7 +153,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
             entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
 
-            consumer.handleEvent(event) shouldBeRight Processed
+            consumer.handleEvent(event) shouldBeRight ProcessingResult(Handled)
             database.assertThat("tiltaksgjennomforing").row()
                 .value("tiltakskode").isEqualTo("AMO")
             engine.requestHistory.shouldBeEmpty()
@@ -178,7 +178,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Handled))
+            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled))
         }
 
         test("should treat all operations on gruppetiltak as upserts") {
@@ -200,7 +200,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
             }
             entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
-            consumer.handleEvent(e1) shouldBeRight Processed
+            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
             database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 1")
 
             val e2 = createArenaTiltakgjennomforingEvent(Update) {
@@ -209,11 +209,11 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     LOKALTNAVN = "Navn 2"
                 )
             }
-            consumer.handleEvent(e2) shouldBeRight Processed
+            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
             database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 2")
 
             val e3 = createArenaTiltakgjennomforingEvent(Delete) { it.copy(LOKALTNAVN = "Navn 1") }
-            consumer.handleEvent(e3) shouldBeRight Processed
+            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
             database.assertThat("tiltaksgjennomforing").row().value("navn").isEqualTo("Navn 1")
         }
 

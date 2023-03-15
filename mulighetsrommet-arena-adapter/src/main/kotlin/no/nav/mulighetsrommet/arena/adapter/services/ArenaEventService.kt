@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
-import arrow.core.getOrElse
+import arrow.core.flatMap
+import arrow.core.right
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -82,21 +82,20 @@ class ArenaEventService(
                     logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
                     val mapping = entities.getOrCreateMapping(event)
 
-                    processor.handleEvent(event).mapLeft { processingError ->
-                        if (processingError is ProcessingError.Ignored && mapping.status == ArenaEntityMapping.Status.Handled) {
-                            processor.deleteEntity(event)
-                                .map { processingError }
-                                .getOrElse { it }
-                        } else {
-                            processingError
+                    processor.handleEvent(event)
+                        .flatMap { processingResult ->
+                            if (processingResult.status == ArenaEntityMapping.Status.Ignored && mapping.status == ArenaEntityMapping.Status.Handled) {
+                                logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}")
+                                processor.deleteEntity(event).map { processingResult }
+                            } else {
+                                processingResult.right()
+                            }
+                        }.onRight {
+                            entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
+                            events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Processed, message = null))
+                        }.onLeft {
+                            events.upsert(event.copy(status = it.status, message = it.message))
                         }
-                    }.onRight {
-                        entities.upsertMapping(mapping.copy(status = ArenaEntityMapping.Status.Handled))
-                        events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Processed, message = null))
-                    }.onLeft {
-                        if (it is ProcessingError.Ignored) entities.upsertMapping(mapping.copy(status = ArenaEntityMapping.Status.Ignored))
-                        events.upsert(event.copy(status = it.status, message = it.message))
-                    }
 
                     /*val (status, message, entityStatus) = processor.handleEvent(event).mapLeft { processingError ->
                         if (processingError is ProcessingError.Ignored && mapping.status == ArenaEntityMapping.Status.Handled) {

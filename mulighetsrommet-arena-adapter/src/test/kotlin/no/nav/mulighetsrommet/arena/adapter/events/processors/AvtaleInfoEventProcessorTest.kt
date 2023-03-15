@@ -5,7 +5,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.beOfType
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -14,14 +13,15 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
+import no.nav.mulighetsrommet.arena.adapter.models.db.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
@@ -66,7 +66,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, ArenaEntityMapping.Status.Handled))
+            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled))
         }
 
         test("ignore avtaler when required fields are missing") {
@@ -85,7 +85,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             )
 
             events.forEach { event ->
-                consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
+                consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
             }
             database.assertThat("avtale").isEmpty
         }
@@ -97,7 +97,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 it.copy(DATO_TIL = "2022-12-31 00:00:00")
             }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it should beOfType<ProcessingError.Ignored>() }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
             database.assertThat("avtale").isEmpty
         }
 
@@ -113,19 +113,19 @@ class AvtaleInfoEventProcessorTest : FunSpec({
 
             val e1 = createArenaAvtaleInfoEvent(Insert)
             entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
-            consumer.handleEvent(e1) shouldBeRight ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
             val e2 = createArenaAvtaleInfoEvent(Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
             }
-            consumer.handleEvent(e2) shouldBeRight ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
             val e3 = createArenaAvtaleInfoEvent(Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
             }
-            consumer.handleEvent(e3) shouldBeRight ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Avsluttet.name)
         }
 

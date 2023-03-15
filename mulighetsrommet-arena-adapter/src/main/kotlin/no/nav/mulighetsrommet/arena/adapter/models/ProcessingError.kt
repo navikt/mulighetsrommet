@@ -20,11 +20,6 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
         message = "Event payload is invalid: $details"
     )
 
-    data class Ignored(val reason: String) : ProcessingError(
-        status = ArenaEvent.ProcessingStatus.Processed,
-        message = "Event was ignored: $reason"
-    )
-
     companion object {
         fun fromDatabaseOperationError(error: DatabaseOperationError): ProcessingError = when (error) {
             is DatabaseOperationError.ForeignKeyViolation -> MissingDependency(error.error.localizedMessage)

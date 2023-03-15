@@ -12,9 +12,10 @@ import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
@@ -43,15 +44,15 @@ class TiltakEventProcessorTest : FunSpec({
 
         val e1 = createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
         entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
-        consumer.handleEvent(e1) shouldBeRight Processed
+        consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 1")
 
         val e2 = createArenaTiltakEvent(Update) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
-        consumer.handleEvent(e2) shouldBeRight Processed
+        consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
         database.assertThat("tiltakstype").row().value("navn").isEqualTo("Oppfølging 2")
 
         val e3 = createArenaTiltakEvent(Delete) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
-        consumer.handleEvent(e3) shouldBeRight Processed
+        consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
         database.assertThat("tiltakstype").row()
             .value("navn").isEqualTo("Oppfølging 1")
             .value("rett_paa_tiltakspenger").isTrue

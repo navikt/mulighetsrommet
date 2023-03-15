@@ -7,7 +7,8 @@ data class ArenaEntityMapping(
     val arenaTable: ArenaTable,
     val arenaId: String,
     val entityId: UUID,
-    val status: Status
+    val status: Status,
+    val message: String? = null
 ) {
     enum class Status {
         Handled,
@@ -15,3 +16,8 @@ data class ArenaEntityMapping(
         Unhandled;
     }
 }
+
+data class ProcessingResult(
+    val status: ArenaEntityMapping.Status,
+    val message: String? = null
+)
