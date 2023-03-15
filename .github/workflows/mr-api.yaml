@@ -46,6 +46,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           dockerfile: ./mulighetsrommet-api/Dockerfile
           docker_context: mulighetsrommet-api
+          image_suffix: mulighetsrommet-api
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 

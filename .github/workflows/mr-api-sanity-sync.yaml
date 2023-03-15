@@ -46,6 +46,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           dockerfile: ./mulighetsrommet-api-sanity-sync/Dockerfile
           docker_context: mulighetsrommet-sanity-sync
+          image_suffix: mulighetsrommet-sanity-sync
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 

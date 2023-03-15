@@ -45,6 +45,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           dockerfile: ./mulighetsrommet-arena-adapter/Dockerfile
           docker_context: mulighetsrommet-arena-adapter
+          image_suffix: mulighetsrommet-arena-adapter
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
