@@ -1354,9 +1354,12 @@ components:
           type: number
         antallAvtaler:
           type: number
+        antallDeltakere:
+          type: number
       required:
         - antallTiltaksgjennomforinger
         - antallAvtaler
+        - antallDeltakere
 
     AvtaleNokkeltall:
       type: object
