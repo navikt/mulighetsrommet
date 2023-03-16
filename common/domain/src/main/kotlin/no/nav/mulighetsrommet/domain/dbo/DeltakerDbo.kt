@@ -14,7 +14,6 @@ data class DeltakerDbo(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tiltaksgjennomforingId: UUID,
-    val norskIdent: String,
     val status: Deltakerstatus,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,

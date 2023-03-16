@@ -74,11 +74,11 @@ class TiltakdeltakerEventProcessor(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
-        upsertTiltakshistorikk(deltaker, tiltakstype, tiltaksgjennomforing, norskIdent, event)
+        upsertTiltakshistorikk(deltaker, event, tiltakstype, tiltaksgjennomforing, norskIdent)
             .bind()
 
         if (isGruppetiltak(tiltakstype.tiltakskode) && !isAmtTiltak(tiltakstype.tiltakskode)) {
-            upsertDeltaker(deltaker, tiltaksgjennomforing, norskIdent, event)
+            upsertDeltaker(deltaker, event, tiltaksgjennomforing)
                 .bind()
         }
 
@@ -87,10 +87,10 @@ class TiltakdeltakerEventProcessor(
 
     private suspend fun upsertTiltakshistorikk(
         deltaker: Deltaker,
+        event: ArenaEvent,
         tiltakstype: Tiltakstype,
         tiltaksgjennomforing: Tiltaksgjennomforing,
         norskIdent: String,
-        event: ArenaEvent
     ): Either<ProcessingError, HttpResponse> = deltaker
         .toTiltakshistorikkDbo(tiltakstype, tiltaksgjennomforing, norskIdent)
         .flatMap { tiltakshistorikk ->
@@ -105,11 +105,10 @@ class TiltakdeltakerEventProcessor(
 
     private suspend fun upsertDeltaker(
         deltaker: Deltaker,
+        event: ArenaEvent,
         tiltaksgjennomforing: Tiltaksgjennomforing,
-        norskIdent: String,
-        event: ArenaEvent
     ): Either<ProcessingError, HttpResponse> {
-        val dbo = deltaker.toDeltakerDbo(tiltaksgjennomforing, norskIdent)
+        val dbo = deltaker.toDeltakerDbo(tiltaksgjennomforing)
 
         return if (event.operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${dbo.id}")
@@ -122,10 +121,16 @@ class TiltakdeltakerEventProcessor(
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { entities.deleteDeltaker(mapping.entityId) }
             .bind()
+
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${mapping.entityId}")
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .bind()
+
+        entities.deleteDeltaker(mapping.entityId).bind()
     }
 
     private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
@@ -184,10 +189,9 @@ class TiltakdeltakerEventProcessor(
         }
     }
 
-    private fun Deltaker.toDeltakerDbo(tiltaksgjennomforing: Tiltaksgjennomforing, norskIdent: String) = DeltakerDbo(
+    private fun Deltaker.toDeltakerDbo(tiltaksgjennomforing: Tiltaksgjennomforing) = DeltakerDbo(
         id = id,
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
-        norskIdent = norskIdent,
         status = status,
         opphav = Deltakeropphav.ARENA,
         startDato = fraDato?.toLocalDate(),

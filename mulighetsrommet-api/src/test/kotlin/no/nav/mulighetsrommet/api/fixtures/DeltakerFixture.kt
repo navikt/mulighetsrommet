@@ -11,7 +11,6 @@ object DeltakerFixture {
     val Deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-        norskIdent = "12118323058",
         status = Deltakerstatus.DELTAR,
         opphav = Deltakeropphav.AMT,
         startDato = LocalDate.of(2023, 1, 1),

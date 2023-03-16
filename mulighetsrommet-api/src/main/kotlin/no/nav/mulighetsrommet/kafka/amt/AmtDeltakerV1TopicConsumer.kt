@@ -47,7 +47,6 @@ class AmtDeltakerV1TopicConsumer(
     private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
         id = id,
         tiltaksgjennomforingId = gjennomforingId,
-        norskIdent = personIdent,
         status = when (status) {
             Status.VENTER_PA_OPPSTART -> Deltakerstatus.VENTER
             Status.DELTAR -> Deltakerstatus.DELTAR

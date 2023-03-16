@@ -21,13 +21,12 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, norsk_ident, status, opphav, start_dato, slutt_dato, registrert_dato)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :opphav::deltakeropphav, :start_dato, :slutt_dato, :registrert_dato)
+            insert into deltaker (id, tiltaksgjennomforing_id, status, opphav, start_dato, slutt_dato, registrert_dato)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :status::deltakerstatus, :opphav::deltakeropphav, :start_dato, :slutt_dato, :registrert_dato)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               status                  = excluded.status,
                               opphav                  = excluded.opphav,
-                              norsk_ident             = excluded.norsk_ident,
                               start_dato              = excluded.start_dato,
                               slutt_dato              = excluded.slutt_dato,
                               registrert_dato         = excluded.registrert_dato
@@ -47,7 +46,7 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, tiltaksgjennomforing_id, norsk_ident, status, opphav, start_dato, slutt_dato, registrert_dato
+            select id, tiltaksgjennomforing_id, status, opphav, start_dato, slutt_dato, registrert_dato
             from deltaker
             $where
         """.trimIndent()
@@ -97,7 +96,6 @@ class DeltakerRepository(private val db: Database) {
     private fun DeltakerDbo.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "norsk_ident" to norskIdent,
         "status" to status.name,
         "opphav" to opphav.name,
         "start_dato" to startDato,
@@ -108,7 +106,6 @@ class DeltakerRepository(private val db: Database) {
     private fun Row.toDeltakerDbo() = DeltakerDbo(
         id = uuid("id"),
         tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
-        norskIdent = string("norsk_ident"),
         status = Deltakerstatus.valueOf(string("status")),
         opphav = Deltakeropphav.valueOf(string("opphav")),
         startDato = localDateOrNull("start_dato"),

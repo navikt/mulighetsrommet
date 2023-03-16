@@ -67,7 +67,6 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         val deltaker1Dbo = DeltakerDbo(
             id = amtDeltaker1.id,
             tiltaksgjennomforingId = amtDeltaker1.gjennomforingId,
-            norskIdent = amtDeltaker1.personIdent,
             status = Deltakerstatus.VENTER,
             opphav = Deltakeropphav.AMT,
             startDato = null,
@@ -76,7 +75,6 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         )
         val deltaker2Dbo = deltaker1Dbo.copy(
             id = amtDeltaker2.id,
-            norskIdent = amtDeltaker2.personIdent,
         )
 
         test("upsert deltakere from topic") {
