@@ -1,10 +1,8 @@
-.form_container {
-  //   display: flex;
-  //   align-items: center;
-  //   justify-content: center;
-  //   flex-direction: column;
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-
 .form_group {
   margin: 2rem 0;
 }
@@ -19,4 +17,9 @@
   &_2 {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.content_right {
+  display: flex;
+  justify-content: flex-end;
 }

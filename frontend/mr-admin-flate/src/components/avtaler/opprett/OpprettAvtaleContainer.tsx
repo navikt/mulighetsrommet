@@ -4,7 +4,6 @@ import { Form, Formik, FormikHelpers } from "formik";
 import { ReactNode } from "react";
 import z from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { Grid } from "../../detaljside/Metadata";
 import {
   Datovelger,
   SelectFelt,
@@ -15,8 +14,8 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 
 const Schema = z.object({
   avtalenavn: z.string({ required_error: "En avtale må ha et navn" }),
-  fraDato: z.date({ required_error: "En avtale må ha en startdato" }),
-  tilDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
+  fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
+  tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
   tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
   enhet: z.string({ required_error: "Du må velge en enhet" }),
   antallPlasser: z.number({ required_error: "Du må sette antall plasser" }),
@@ -47,8 +46,8 @@ export function OpprettAvtaleContainer() {
       <Formik
         initialValues={{
           avtalenavn: "",
-          fraDato: new Date(),
-          tilDato: new Date(),
+          fraDato: "",
+          tilDato: "",
           tiltakstype: "",
           enhet: "",
           antallPlasser: 0,
@@ -73,20 +72,24 @@ export function OpprettAvtaleContainer() {
             <Tekstfelt<inferredSchema> name="avtalenavn" label="Avtalenavn" />
           </FormGroup>
           <FormGroup cols={1}>
-            <Datovelger
+            <Datovelger<inferredSchema>
               fra={{ name: "fraDato", label: "Start" }}
               til={{ name: "tilDato", label: "Slutt" }}
             />
           </FormGroup>
-          <FormGroup cols={2}>
-            <Button
-              variant="secondary"
-              onClick={() => alert("Forleng avtalen er ikke implementert enda")}
-            >
-              Forleng avtalen
-            </Button>
-            <ReadMore header="Når og hvor mye kan jeg forlenge?">...</ReadMore>
-          </FormGroup>
+          <Button
+            variant="secondary"
+            onClick={() => alert("Forleng avtalen er ikke implementert enda")}
+            style={{ marginBottom: "1rem" }}
+          >
+            Forleng avtalen
+          </Button>
+          <ReadMore header="Når og hvor mye kan jeg forlenge?">
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+            Laudantium, voluptas nostrum provident veritatis corporis laboriosam
+            iure ipsum! Harum dolor aperiam provident alias quo sit repellat.
+            Consequuntur quas commodi iste. Odit.
+          </ReadMore>
           <FormGroup cols={2}>
             <SelectFelt<inferredSchema> name="tiltakstype" label="Tiltakstype">
               <option value="oppfolging">Oppfølging</option>
@@ -112,9 +115,10 @@ export function OpprettAvtaleContainer() {
             <TekstareaFelt<inferredSchema>
               name="prisOgBetalingsbetingelser"
               label="Pris og betalingsbetingelser"
+              size="medium"
             />
           </FormGroup>
-          <FormGroup cols={1}>
+          <FormGroup cols={2}>
             <SelectFelt<inferredSchema>
               name="avtaleansvarlig"
               label="Avtaleansvarlig"
@@ -122,7 +126,9 @@ export function OpprettAvtaleContainer() {
               <option value="m165757">M165757</option>
             </SelectFelt>
           </FormGroup>
-          <Button type="submit">Registrer avtale</Button>
+          <div className={styles.content_right}>
+            <Button type="submit">Registrer avtale</Button>
+          </div>
         </Form>
       </Formik>
     </div>

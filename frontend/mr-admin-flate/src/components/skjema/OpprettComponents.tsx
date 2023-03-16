@@ -35,17 +35,19 @@ export function TekstareaFelt<T>({
   label,
   name,
   hjelpetekst,
+  size = "small",
   ...props
 }: {
   name: keyof T;
   label: string;
   hjelpetekst?: string;
+  size?: "small" | "medium";
 } & FieldHookConfig<any>) {
   const [field, meta] = useField({ name, ...props });
   return (
     <Textarea
       description={hjelpetekst}
-      size="small"
+      size={size}
       label={label}
       {...field}
       error={meta.touched && meta.error}
@@ -91,11 +93,18 @@ interface DatoProps {
   name: string;
   label: string;
 }
-export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
+export function Datovelger<T>({
+  fra,
+  til,
+}: {
+  fra: DatoProps;
+  til: DatoProps;
+}) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fraDatoField, fraDatoMeta, fraDatoHelper] = useField("fraDato");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tilDatoField, tilDatoMeta, tilDatoHelper] = useField("tilDato");
+
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
@@ -103,11 +112,12 @@ export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
         tilDatoHelper.setValue(formaterDato(val?.to));
       },
     });
+
   return (
     <UNSAFE_DatePicker {...datepickerProps}>
       <div style={{ display: "flex", gap: "5rem" }}>
-        <DatoFelt {...fra} {...fromInputProps} ref={null} />
-        <DatoFelt {...til} {...toInputProps} ref={null} />
+        <DatoFelt<T> {...fra} {...fromInputProps} ref={null} />
+        <DatoFelt<T> {...til} {...toInputProps} ref={null} />
       </div>
     </UNSAFE_DatePicker>
   );
