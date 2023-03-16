@@ -1,8 +1,5 @@
 <h1 align="center">Mulighetsrommet 🎯</h1>
 
-![Deploy (api)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-api.yaml/badge.svg)
-![Deploy (frontend)](https://github.com/navikt/mulighetsrommet/actions/workflows/mulighetsrommet-veileder-flate.yaml/badge.svg)
-
 ## Introduksjon
 
 Mulighetsrommet er en applikasjonsportfølje som skal hjelpe både brukere og veiledere til å få en helhetlig oversikt
@@ -19,6 +16,19 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 
 - [Gradle](https://gradle.org/) med subprojects
 - [Turborepo](https://turborepo.org/) i kombinasjon med [NPM workspaces](https://turborepo.org/)
+
+### Tooling via asdf
+
+Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere vertkøyene som trengs for å kjøre dette prosjektet lokalt.
+Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
+
+For å benytte `asdf` så holder det å [installere asdf](https://asdf-vm.com/guide/getting-started.html) og deretter kjøre kommandoen `asdf install` i rot av prosjektet.
+Foreløpig liste over verktøy som blir håndtert via `asdf` for dette prosjektet er som følger:
+
+- java
+- gradle
+- nodejs
+- kubectl
 
 ### Git hooks
 
