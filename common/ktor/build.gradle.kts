@@ -33,6 +33,15 @@ dependencies {
 
     // Audit-logging
     implementation("com.github.navikt.common-java-modules:audit-log:2023.02.08_14.02-e5f1a7a4b9e4")
+    constraints {
+        val logbackVerison = "1.4.6"
+        implementation("ch.qos.logback:logback-core:$logbackVerison") {
+            because("logback-syslog4j drar med seg en eldre versjon med sikkerhetshull")
+        }
+        implementation("ch.qos.logback:logback-classic:$logbackVerison") {
+            because("logback-syslog4j drar med seg en eldre versjon med sikkerhetshull")
+        }
+    }
 
     // Cache
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
