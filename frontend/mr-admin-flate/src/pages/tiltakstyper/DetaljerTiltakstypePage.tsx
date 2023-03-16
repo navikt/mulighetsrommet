@@ -8,6 +8,7 @@ import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/Laster";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { MainContainer } from "../../layouts/MainContainer";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import "./DetaljerTiltakstypePage.module.scss";
 import { NokkeltallForTiltakstype } from "./nokkeltall/NokkeltallForTiltakstype";
@@ -35,7 +36,7 @@ export function DetaljerTiltakstypePage() {
 
   const tiltakstype = optionalTiltakstype.data;
   return (
-    <main>
+    <MainContainer>
       <Header>
         <div
           style={{
@@ -83,6 +84,6 @@ export function DetaljerTiltakstypePage() {
           </ContainerLayout>
         </Tabs.Panel>
       </Tabs>
-    </main>
+    </MainContainer>
   );
 }

@@ -38,5 +38,15 @@ fun Route.tiltakstypeRoutes() {
 
             call.respond(tiltakstype)
         }
+
+        get("{id}/nokkeltall") {
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            val nokkeltall = tiltakstypeService.getNokkeltallForTiltakstype(id)
+
+            call.respond(nokkeltall)
+        }
     }
 }
