@@ -11,11 +11,7 @@ import {
   Tiltakstype,
   TiltakstypeNokkeltall,
 } from "mulighetsrommet-api-client";
-import {
-  mockBetabruker,
-  mockFagansvarlig,
-  mockTiltaksansvarlig,
-} from "./fixtures/mock_ansatt";
+import { mockBetabruker } from "./fixtures/mock_ansatt";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockEnheter } from "./fixtures/mock_enheter";
