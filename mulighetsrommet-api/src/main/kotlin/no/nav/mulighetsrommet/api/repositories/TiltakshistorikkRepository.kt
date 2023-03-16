@@ -113,7 +113,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato"),
-                beskrivelse = string("beskrivelse"),
+                beskrivelse = stringOrNull("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
                 virksomhetsnummer = stringOrNull("virksomhetsnummer")
             )
