@@ -44,7 +44,11 @@ export function App() {
     );
   }
 
-  if (optionalAnsatt?.data?.tilganger.length === 0) {
+  if (
+    !optionalAnsatt?.data?.tilganger.some(
+      (tilgang) => tilgang === "BETABRUKER" || tilgang === "UTVIKLER_VALP"
+    )
+  ) {
     return <IkkeAutentisertApp />;
   }
 
