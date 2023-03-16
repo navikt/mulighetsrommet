@@ -1,4 +1,4 @@
-import { Search, Select } from "@navikt/ds-react";
+import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { ChangeEvent, useEffect, useRef } from "react";
@@ -40,7 +40,6 @@ export function Avtalefilter() {
             value={filter.sok}
             aria-label="Søk etter avtale"
             data-testid="filter_avtale_sokefelt"
-            size="small"
           />
           <Select
             label="Filtrer på statuser"
@@ -81,7 +80,7 @@ export function Avtalefilter() {
             ))}
           </Select>
         </div>
-        <div>
+        <div className={styles.filter_right}>
           <Select
             label="Sorter"
             hideLabel
@@ -100,6 +99,9 @@ export function Avtalefilter() {
             <option value="status-ascending">Status A-Å</option>
             <option value="status-descending">Status Å-A</option>
           </Select>
+          <Button onClick={() => alert("Not implemented")}>
+            Registrer avtale
+          </Button>
         </div>
       </div>
     </>

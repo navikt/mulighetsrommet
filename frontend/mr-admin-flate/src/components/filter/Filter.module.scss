@@ -1,7 +1,7 @@
 .filter_container {
   display: grid;
   gap: 20rem;
-  grid-template-columns: 1fr 20%;
+  grid-template-columns: 1fr 30%;
   margin-bottom: 2rem;
   background-color: white;
   padding: 1rem;
@@ -12,4 +12,10 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+}
+
+.filter_right {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
 }

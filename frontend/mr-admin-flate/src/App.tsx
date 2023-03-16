@@ -2,6 +2,7 @@ import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { Route, Routes } from "react-router-dom";
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "./api/features/feature-toggles";
+import { OpprettAvtaleContainer } from "./components/avtaler/opprett/OpprettAvtaleContainer";
 import { Laster } from "./components/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -63,6 +64,11 @@ export function App() {
       <Route
         path="avtaler/"
         element={<AvtalerPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/ny"
+        element={<OpprettAvtaleContainer />}
         errorElement={<ErrorPage />}
       />
       <Route

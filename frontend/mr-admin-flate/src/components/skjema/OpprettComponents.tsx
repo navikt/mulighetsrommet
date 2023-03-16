@@ -1,12 +1,13 @@
 import {
   Checkbox,
   Select,
+  Textarea,
   TextField,
   UNSAFE_DatePicker,
   UNSAFE_useRangeDatepicker,
 } from "@navikt/ds-react";
 import { FieldHookConfig, useField } from "formik";
-import { formaterDato } from "../utils/Utils";
+import { formaterDato } from "../../utils/Utils";
 
 export function Tekstfelt<T>({
   label,
@@ -21,6 +22,28 @@ export function Tekstfelt<T>({
   const [field, meta] = useField({ name, ...props });
   return (
     <TextField
+      description={hjelpetekst}
+      size="small"
+      label={label}
+      {...field}
+      error={meta.touched && meta.error}
+    />
+  );
+}
+
+export function TekstareaFelt<T>({
+  label,
+  name,
+  hjelpetekst,
+  ...props
+}: {
+  name: keyof T;
+  label: string;
+  hjelpetekst?: string;
+} & FieldHookConfig<any>) {
+  const [field, meta] = useField({ name, ...props });
+  return (
+    <Textarea
       description={hjelpetekst}
       size="small"
       label={label}
@@ -64,7 +87,11 @@ export function CheckboxFelt<T>(
   return <Checkbox {...field}>{props.children}</Checkbox>;
 }
 
-export function Datovelger() {
+interface DatoProps {
+  name: string;
+  label: string;
+}
+export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fraDatoField, fraDatoMeta, fraDatoHelper] = useField("fraDato");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -76,22 +103,11 @@ export function Datovelger() {
         tilDatoHelper.setValue(formaterDato(val?.to));
       },
     });
-
   return (
     <UNSAFE_DatePicker {...datepickerProps}>
       <div style={{ display: "flex", gap: "5rem" }}>
-        <DatoFelt
-          name="fraDato"
-          label="Fra dato"
-          {...fromInputProps}
-          ref={null}
-        />
-        <DatoFelt
-          name="tilDato"
-          label="Til dato"
-          {...toInputProps}
-          ref={null}
-        />
+        <DatoFelt {...fra} {...fromInputProps} ref={null} />
+        <DatoFelt {...til} {...toInputProps} ref={null} />
       </div>
     </UNSAFE_DatePicker>
   );
