@@ -39,6 +39,10 @@ class TiltakgjennomforingEventProcessor(
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
         }
 
+        if (data.LOKALTNAVN == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi LOKALTNAVN er null")
+        }
+
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val tiltaksgjennomforing = data
             .toTiltaksgjennomforing(mapping.entityId)
@@ -97,6 +101,7 @@ class TiltakgjennomforingEventProcessor(
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either
         .catch {
             requireNotNull(DATO_FRA)
+            requireNotNull(LOKALTNAVN)
 
             Tiltaksgjennomforing(
                 id = id,

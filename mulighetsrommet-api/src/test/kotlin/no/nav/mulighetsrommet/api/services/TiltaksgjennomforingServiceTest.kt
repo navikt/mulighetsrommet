@@ -38,7 +38,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         tiltaksgjennomforingRepository.upsert(
             TiltaksgjennomforingDbo(
                 id = tiltaksgjennomforingId,
-                navn = null,
+                navn = "",
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = "",
                 virksomhetsnummer = null,
