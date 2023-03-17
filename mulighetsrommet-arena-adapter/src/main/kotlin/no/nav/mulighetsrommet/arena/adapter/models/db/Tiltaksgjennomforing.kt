@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 import java.util.*
 
