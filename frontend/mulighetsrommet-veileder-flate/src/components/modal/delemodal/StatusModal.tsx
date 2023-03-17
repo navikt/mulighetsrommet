@@ -1,8 +1,10 @@
-import { ErrorColored, SuccessColored, WarningColored } from '@navikt/ds-icons';
 import { BodyShort, Button, Heading, Modal } from '@navikt/ds-react';
 import style from './Statusmodal.module.scss';
 import modalStyles from '../Modal.module.scss';
+import svgStyle from '../../../App.module.scss';
+
 import React from 'react';
+import { CheckmarkCircleFillIcon, ExclamationmarkTriangleFillIcon, XMarkOctagonFillIcon } from '@navikt/aksel-icons';
 
 interface StatusModalProps {
   modalOpen: boolean;
@@ -28,9 +30,9 @@ export function StatusModal({
   secondaryButtonOnClick,
 }: StatusModalProps) {
   const ikon = () => {
-    if (ikonVariant === 'success') return <SuccessColored className={style.svg} />;
-    else if (ikonVariant === 'warning') return <WarningColored className={style.svg} />;
-    else if (ikonVariant === 'error') return <ErrorColored className={style.svg} />;
+    if (ikonVariant === 'success') return <CheckmarkCircleFillIcon className={svgStyle.svg_success} />;
+    else if (ikonVariant === 'warning') return <ExclamationmarkTriangleFillIcon className={svgStyle.svg_warning} />;
+    else if (ikonVariant === 'error') return <XMarkOctagonFillIcon className={svgStyle.svg_error} />;
   };
 
   return (

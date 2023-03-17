@@ -7,6 +7,7 @@ import { PagineringContainer } from "../../../components/paginering/PagineringCo
 import { PagineringsOversikt } from "../../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../../constants";
 import { AvtaleTabell } from "./AvtaleTabell";
+import pageStyles from "../../Page.module.scss";
 
 export function AvtalerForTiltakstype() {
   const [page, setPage] = useAtom(avtalePaginationAtom);
@@ -37,7 +38,7 @@ export function AvtalerForTiltakstype() {
             type="avtaler"
           />
           <Pagination
-            style={{ paddingBottom: "24px" }}
+            className={pageStyles.pagination}
             size="small"
             data-testid="paginering"
             page={page}

@@ -8,6 +8,7 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
+import styles from "./DetaljerAvtalePage.module.scss";
 
 export function DetaljerAvtalePage() {
   const { data: avtale } = useAvtale();
@@ -21,18 +22,13 @@ export function DetaljerAvtalePage() {
   return (
     <MainContainer>
       <Header>
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-          }}
-        >
+        <div className={styles.header}>
           <span>{avtale?.navn ?? "..."}</span>
           <Avtalestatus avtale={avtale} />
         </div>{" "}
       </Header>
       <Tabs value={tabValgt} onChange={setTabValgt}>
-        <Tabs.List style={{ paddingLeft: "4rem" }}>
+        <Tabs.List className={styles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
           {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
             <Tabs.Tab value="nokkelinfo" label="Nøkkelinfo" />

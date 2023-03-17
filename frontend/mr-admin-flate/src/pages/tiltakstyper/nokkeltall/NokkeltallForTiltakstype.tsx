@@ -1,6 +1,6 @@
 import { Nokkeltall } from "../../../components/nokkeltall/Nokkeltall";
 import { useNokkeltallForTiltakstype } from "../../../api/tiltakstyper/useNokkeltallForTiltakstype";
-import { Laster } from "../../../components/Laster";
+import { Laster } from "../../../components/laster/Laster";
 import { formaterTall } from "../../../utils/Utils";
 import { Alert } from "@navikt/ds-react";
 import { NokkeltallContainer } from "../../../components/nokkeltall/NokkeltallContainer";
