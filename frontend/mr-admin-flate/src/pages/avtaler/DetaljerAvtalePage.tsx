@@ -35,7 +35,7 @@ export function DetaljerAvtalePage() {
         <Tabs.List style={{ paddingLeft: "4rem" }}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
           {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
-            <Tabs.Tab value="nokkelinfo" label="Nøkkelinfo" />
+            <Tabs.Tab value="nokkeltall" label="Nøkkeltall" />
           ) : null}
         </Tabs.List>
         <Tabs.Panel value="avtaleinfo" className="h-24 w-full bg-gray-50 p-4">
@@ -43,7 +43,7 @@ export function DetaljerAvtalePage() {
             <Avtaleinfo />
           </ContainerLayout>
         </Tabs.Panel>
-        <Tabs.Panel value="nokkelinfo" className="h-24 w-full bg-gray-50 p-4">
+        <Tabs.Panel value="nokkeltall" className="h-24 w-full bg-gray-50 p-4">
           <ContainerLayout>
             <NokkeltallForAvtale />
           </ContainerLayout>
