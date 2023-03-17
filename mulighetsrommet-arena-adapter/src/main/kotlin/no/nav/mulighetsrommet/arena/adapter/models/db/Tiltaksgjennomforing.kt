@@ -12,7 +12,6 @@ data class Tiltaksgjennomforing(
     val tiltakskode: String,
     val arrangorId: Int?,
     val navn: String?,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime,
     val tilDato: LocalDateTime? = null,
     val apentForInnsok: Boolean = true,

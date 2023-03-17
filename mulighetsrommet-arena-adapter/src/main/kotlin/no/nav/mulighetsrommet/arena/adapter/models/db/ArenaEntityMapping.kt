@@ -16,8 +16,3 @@ data class ArenaEntityMapping(
         Unhandled;
     }
 }
-
-data class ProcessingResult(
-    val status: ArenaEntityMapping.Status,
-    val message: String? = null
-)

@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.ProcessingResult
 
 interface ArenaEventProcessor {
     val arenaTable: ArenaTable

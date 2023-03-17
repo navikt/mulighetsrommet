@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models
 
 import io.ktor.client.plugins.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 
@@ -31,3 +32,8 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
         }
     }
 }
+
+data class ProcessingResult(
+    val status: ArenaEntityMapping.Status,
+    val message: String? = null
+)

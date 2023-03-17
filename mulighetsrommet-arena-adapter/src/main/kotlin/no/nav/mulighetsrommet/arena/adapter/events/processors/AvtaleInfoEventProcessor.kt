@@ -6,6 +6,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
-import no.nav.mulighetsrommet.arena.adapter.models.db.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder

@@ -11,11 +11,11 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database

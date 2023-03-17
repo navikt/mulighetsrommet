@@ -6,6 +6,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.*
@@ -28,7 +29,7 @@ class TiltakdeltakerEventProcessor(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()
 
-        if (!isRegisteredAfterAktivitetsplanen(data)) {
+        if (isRegisteredBeforeAktivitetsplanen(data)) {
             return@either ProcessingResult(Ignored, "Deltaker ignorert fordi den registrert før Aktivitetsplanen")
         }
 
@@ -84,8 +85,8 @@ class TiltakdeltakerEventProcessor(
             .bind()
     }
 
-    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
-        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
+        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either
