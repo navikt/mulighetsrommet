@@ -6,12 +6,12 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
-import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.models.db.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
@@ -26,21 +26,21 @@ class TiltakdeltakerEventProcessor(
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Deltaker
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
+    override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()
 
-        ensure(isRegisteredAfterAktivitetsplanen(data)) {
-            ProcessingError.Ignored("Deltaker ignorert fordi den registrert før Aktivitetsplanen")
+        if (isRegisteredBeforeAktivitetsplanen(data)) {
+            return@either ProcessingResult(Ignored, "Deltaker ignorert fordi den registrert før Aktivitetsplanen")
         }
 
         val tiltaksgjennomforingIsIgnored = entities
             .isIgnored(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
-        ensure(!tiltaksgjennomforingIsIgnored) {
-            ProcessingError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
+        if (tiltaksgjennomforingIsIgnored) {
+            return@either ProcessingResult(Ignored, "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val deltaker = data
             .toDeltaker(mapping.entityId)
             .flatMap { entities.upsertDeltaker(it) }
@@ -73,7 +73,7 @@ class TiltakdeltakerEventProcessor(
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
         }
         response.mapLeft { ProcessingError.fromResponseException(it) }
-            .map { ArenaEvent.ProcessingStatus.Processed }
+            .map { ProcessingResult(Handled) }
             .bind()
     }
 
@@ -85,8 +85,8 @@ class TiltakdeltakerEventProcessor(
             .bind()
     }
 
-    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
-        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
+        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either

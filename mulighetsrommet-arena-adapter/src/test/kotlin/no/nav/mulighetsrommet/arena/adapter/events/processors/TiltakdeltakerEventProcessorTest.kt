@@ -15,8 +15,10 @@ import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
@@ -80,7 +82,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             sakId = 1,
             tiltakskode = "INDOPPFAG",
             arrangorId = null,
-            navn = null,
+            navn = "Gjennomføring gruppe",
             status = "GJENNOMFOR",
             fraDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         )
@@ -96,7 +98,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             sakId = 2,
             tiltakskode = "AMO",
             arrangorId = 123,
-            navn = null,
+            navn = "Gjennomføring individuell",
             status = "GJENNOMFOR",
             fraDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         )
@@ -115,32 +117,36 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             tiltaksgjennomforinger.upsert(tiltaksgjennomforingIndividuell).getOrThrow()
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
-                    tiltaksgjennomforing.id
+                    tiltaksgjennomforing.id,
+                    Handled
                 )
             )
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltaksgjennomforing,
                     tiltaksgjennomforingIndividuell.tiltaksgjennomforingId.toString(),
-                    tiltaksgjennomforingIndividuell.id
+                    tiltaksgjennomforingIndividuell.id,
+                    Handled
                 )
             )
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltakstype,
                     tiltakstypeGruppe.tiltakskode,
-                    tiltakstypeGruppe.id
+                    tiltakstypeGruppe.id,
+                    Handled
                 )
             )
-            mappings.insert(
+            mappings.upsert(
                 ArenaEntityMapping(
                     ArenaTable.Tiltakstype,
                     tiltakstypeIndividuell.tiltakskode,
-                    tiltakstypeIndividuell.id
+                    tiltakstypeIndividuell.id,
+                    Handled
                 )
             )
 
@@ -163,21 +169,20 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
             val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(REG_DATO = regDatoBeforeAktivitetsplanen) }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
         }
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
             val events = ArenaEventRepository(database.db)
-            events.upsert(
-                createArenaTiltakgjennomforingEvent(Insert, status = Ignored) {
-                    it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
-                }
-            )
+            val entities = ArenaEntityMappingRepository(database.db)
+            val gjennomforingEvent = createArenaTiltakgjennomforingEvent(Insert, status = Processed) {
+                it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
+            }
+            entities.upsert(ArenaEntityMapping(gjennomforingEvent.arenaTable, gjennomforingEvent.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Ignored))
             val consumer = createConsumer(database.db, MockEngine { respondOk() })
-
             val event = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
         }
 
         test("should treat all operations as upserts") {
@@ -186,18 +191,20 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
+            val entities = ArenaEntityMappingRepository(database.db)
 
             val e1 = createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") }
-            consumer.handleEvent(e1) shouldBeRight Processed
+            entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
             database.assertThat("deltaker").row().value("status").isEqualTo("DELTAR")
 
             val e2 = createArenaTiltakdeltakerEvent(Update) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
-            consumer.handleEvent(e2) shouldBeRight Processed
+            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
             database.assertThat("deltaker")
                 .row().value("status").isEqualTo("AVSLUTTET")
 
             val e3 = createArenaTiltakdeltakerEvent(Delete) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
-            consumer.handleEvent(e3) shouldBeRight Processed
+            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
             database.assertThat("deltaker").row().value("status").isEqualTo("AVSLUTTET")
         }
 
@@ -222,8 +229,9 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val entities = ArenaEntityMappingRepository(database.db)
                 val event = createArenaTiltakdeltakerEvent(Insert)
-
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
                 consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Invalid }
             }
 
@@ -258,8 +266,13 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val entities = ArenaEntityMappingRepository(database.db)
 
-                consumer.handleEvent(createArenaTiltakdeltakerEvent(Insert)).shouldBeRight()
+                val e1 = createArenaTiltakdeltakerEvent(Insert)
+
+                entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+
+                consumer.handleEvent(e1).shouldBeRight()
 
                 val generatedId = engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Put
@@ -287,6 +300,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                         TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId
                     )
                 }
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
 
                 consumer.handleEvent(event).shouldBeRight()
 
@@ -295,7 +309,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                     val deltaker = decodeRequestBody<TiltakshistorikkDbo>().apply {
                         shouldBeInstanceOf<TiltakshistorikkDbo.IndividueltTiltak>()
-                        beskrivelse shouldBe tiltaksgjennomforing.navn
+                        beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
                         virksomhetsnummer shouldBe "123456"
                         tiltakstypeId shouldBe tiltakstypeIndividuell.id
                         norskIdent shouldBe "12345678910"

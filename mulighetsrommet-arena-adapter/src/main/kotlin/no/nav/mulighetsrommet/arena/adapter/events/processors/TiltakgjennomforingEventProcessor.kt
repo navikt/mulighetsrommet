@@ -2,17 +2,17 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.*
 import arrow.core.continuations.either
-import arrow.core.continuations.ensureNotNull
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
-import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.models.db.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
@@ -32,15 +32,15 @@ class TiltakgjennomforingEventProcessor(
         val data = event.decodePayload<ArenaTiltaksgjennomforing>()
 
         val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
-        ensure(isGruppetiltak || isRegisteredAfterAktivitetsplanen(data)) {
-            ProcessingError.Ignored("Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
+        if (!isGruppetiltak && isRegisteredBeforeAktivitetsplanen(data)) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
 
-        ensureNotNull(data.DATO_FRA) {
-            ProcessingError.Ignored("Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
+        if (data.DATO_FRA == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val tiltaksgjennomforing = data
             .toTiltaksgjennomforing(mapping.entityId)
             .flatMap { entities.upsertTiltaksgjennomforing(it) }
@@ -49,7 +49,7 @@ class TiltakgjennomforingEventProcessor(
         if (isGruppetiltak) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
-            ArenaEvent.ProcessingStatus.Processed
+            ProcessingResult(Handled)
         }
     }
 
@@ -64,7 +64,7 @@ class TiltakgjennomforingEventProcessor(
     private suspend fun upsertTiltaksgjennomforing(
         operation: ArenaEvent.Operation,
         tiltaksgjennomforing: Tiltaksgjennomforing
-    ): Either<ProcessingError, ArenaEvent.ProcessingStatus> = either {
+    ): Either<ProcessingError, ProcessingResult> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
             .bind()
@@ -87,12 +87,12 @@ class TiltakgjennomforingEventProcessor(
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
         }
         response.mapLeft { ProcessingError.fromResponseException(it) }
-            .map { ArenaEvent.ProcessingStatus.Processed }
+            .map { ProcessingResult(Handled) }
             .bind()
     }
 
-    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
-        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
+        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either

@@ -6,8 +6,10 @@ import arrow.core.flatMap
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
@@ -21,8 +23,8 @@ class TiltakEventProcessor(
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Tiltakstype
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
-        val mapping = entities.getOrCreateMapping(event)
+    override suspend fun handleEvent(event: ArenaEvent) = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val tiltakstype = event.decodePayload<ArenaTiltak>()
             .toTiltakstype(mapping.entityId)
             .flatMap { entities.upsertTiltakstype(it) }
@@ -35,7 +37,7 @@ class TiltakEventProcessor(
             client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakstype", dbo)
         }
         response.mapLeft { ProcessingError.fromResponseException(it) }
-            .map { ArenaEvent.ProcessingStatus.Processed }
+            .map { ProcessingResult(Handled) }
             .bind()
     }
 
