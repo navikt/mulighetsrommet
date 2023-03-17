@@ -16,6 +16,7 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
+    "@hookform/resolvers": "^2.9.11",
     "@navikt/ds-css": "^2.3.0",
     "@navikt/ds-css-internal": "^2.3.0",
     "@navikt/ds-icons": "^2.3.0",
@@ -33,6 +34,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
+    "react-hook-form": "^7.43.5",
     "react-router-dom": "^6.8.1",
     "vite-plugin-require": "^1.1.10",
     "zod": "^3.20.6",

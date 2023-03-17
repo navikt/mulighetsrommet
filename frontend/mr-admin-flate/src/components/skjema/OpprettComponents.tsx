@@ -136,6 +136,7 @@ export function DatoFelt<T>({
       label={label}
       name={name}
       error={meta.touched && meta.error}
+      size="small"
     />
   );
 }
