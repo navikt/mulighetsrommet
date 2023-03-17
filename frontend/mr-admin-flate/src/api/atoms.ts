@@ -1,6 +1,5 @@
 import { ExtractAtomValue } from "jotai";
 import { atomWithHash } from "jotai-location";
-import { atomWithStorage } from "jotai/utils";
 import {
   Avtalestatus,
   SorteringAvtaler,
@@ -8,7 +7,6 @@ import {
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
-import { Rolle } from "../tilgang/tilgang";
 
 export const paginationAtom = atomWithHash("page", 1, {
   setHash: "replaceState",
@@ -21,11 +19,6 @@ export const paginationAtomTiltaksgjennomforingMedTiltakstype = atomWithHash(
 export const avtalePaginationAtom = atomWithHash("avtalePage", 1, {
   setHash: "replaceState",
 });
-
-export const rolleAtom = atomWithStorage<Rolle | undefined>(
-  "mr-admin-rolle",
-  undefined
-);
 
 export const tiltakstypefilter = atomWithHash<{
   sok: string;
