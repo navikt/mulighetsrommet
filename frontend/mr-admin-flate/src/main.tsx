@@ -8,7 +8,7 @@ import ReactDOM from "react-dom/client";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { BrowserRouter as Router, Link } from "react-router-dom";
 import { App } from "./App";
-import { AdministratorHeader } from "./components/AdministratorHeader";
+import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
 import "./index.css";
 
@@ -34,7 +34,7 @@ if (
 
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
-    <div style={{ padding: "1rem" }}>
+    <div className="error">
       <Alert variant="error">
         <Heading size="medium" level="2">
           En feil oppsto: {error.message}

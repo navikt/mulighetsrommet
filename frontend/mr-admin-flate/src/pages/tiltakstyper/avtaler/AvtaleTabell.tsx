@@ -1,7 +1,7 @@
 import { Alert } from "@navikt/ds-react";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { Avtalerad } from "../../../components/avtaler/Avtalerad";
-import { Laster } from "../../../components/Laster";
+import { Laster } from "../../../components/laster/Laster";
 import styles from "../../../components/listeelementer/Listeelementer.module.scss";
 import { ListeheaderAvtaler } from "../../../components/listeelementer/Listeheader";
 
