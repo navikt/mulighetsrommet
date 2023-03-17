@@ -9,7 +9,7 @@ app:
     name: ${DB_DATABASE}
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    maximumPoolSize: 50
+    maximumPoolSize: 20
     migrationConfig:
       strategy: MigrateAsync
 
