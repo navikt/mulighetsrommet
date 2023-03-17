@@ -972,6 +972,9 @@ components:
           type: array
           items:
             type: string
+            enum:
+              - BETABRUKER
+              - UTVIKLER_VALP
         hovedenhet:
           type: string
         hovedenhetNavn:
