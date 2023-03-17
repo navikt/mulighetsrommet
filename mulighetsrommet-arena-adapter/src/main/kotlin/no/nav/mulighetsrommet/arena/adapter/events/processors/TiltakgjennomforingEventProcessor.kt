@@ -74,7 +74,7 @@ class TiltakgjennomforingEventProcessor(
         val sak = entities
             .getSak(tiltaksgjennomforing.sakId)
             .bind()
-        val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+        val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
             ords.getArbeidsgiver(id)
                 .mapLeft { ProcessingError.fromResponseException(it) }
                 .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
@@ -102,6 +102,7 @@ class TiltakgjennomforingEventProcessor(
         .catch {
             requireNotNull(DATO_FRA)
             requireNotNull(LOKALTNAVN)
+            requireNotNull(ARBGIV_ID_ARRANGOR)
 
             Tiltaksgjennomforing(
                 id = id,
@@ -119,7 +120,7 @@ class TiltakgjennomforingEventProcessor(
         }
         .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String) =
         TiltaksgjennomforingDbo(
             id = id,
             navn = navn,

@@ -10,7 +10,7 @@ data class Tiltaksgjennomforing(
     val tiltaksgjennomforingId: Int,
     val sakId: Int,
     val tiltakskode: String,
-    val arrangorId: Int?,
+    val arrangorId: Int,
     val navn: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fraDato: LocalDateTime,

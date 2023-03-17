@@ -89,7 +89,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navn = string("navn"),
         sakId = int("sak_id"),
         tiltakskode = string("tiltakskode"),
-        arrangorId = intOrNull("arrangor_id"),
+        arrangorId = int("arrangor_id"),
         fraDato = localDateTime("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         apentForInnsok = boolean("apent_for_innsok"),

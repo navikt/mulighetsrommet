@@ -115,7 +115,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                 tilDato = localDateTimeOrNull("til_dato"),
                 beskrivelse = string("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
-                virksomhetsnummer = stringOrNull("virksomhetsnummer")
+                virksomhetsnummer = string("virksomhetsnummer")
             )
     }
 
