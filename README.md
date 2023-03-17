@@ -30,6 +30,15 @@ Foreløpig liste over verktøy som blir håndtert via `asdf` for dette prosjekte
 - nodejs
 - kubectl
 
+Om du får beskjed om at du mangler plugins fra noen av verktøyene over kan du kjøre
+
+```bash
+asdf plugin-add java
+asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
+asdf plugin-add nodejs
+asdf plugin-add kubectl https://github.com/asdf-community/asdf-kubectl.git
+```
+
 ### Git hooks
 
 For å gjøre noen rutineoppgaver enklere er det mulig å installere følgende git hooks på eget initiativ (ikke en komplett
