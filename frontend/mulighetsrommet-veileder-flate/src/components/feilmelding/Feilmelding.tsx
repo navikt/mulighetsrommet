@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import styles from './Feilmelding.module.scss';
-import { ErrorColored, InformationColored, WarningColored } from '@navikt/ds-icons';
+import svgStyle from '../../App.module.scss';
 import { BodyShort, Heading } from '@navikt/ds-react';
 import classNames from 'classnames';
+import { ExclamationmarkTriangleFillIcon, InformationSquareFillIcon, XMarkOctagonFillIcon } from '@navikt/aksel-icons';
 
 interface FeilmeldingProps {
   header: ReactNode;
@@ -19,11 +20,11 @@ export const forsokPaNyttLink = () => {
 export const Feilmelding = ({ header, beskrivelse, children, ikonvariant, utenMargin }: FeilmeldingProps) => {
   const ikon = () => {
     if (ikonvariant === 'info') {
-      return <InformationColored />;
+      return <InformationSquareFillIcon className={svgStyle.svg_info} />;
     } else if (ikonvariant === 'warning') {
-      return <WarningColored />;
+      return <ExclamationmarkTriangleFillIcon className={svgStyle.svg_warning} />;
     } else if (ikonvariant === 'error') {
-      return <ErrorColored />;
+      return <XMarkOctagonFillIcon className={svgStyle.svg_error} />;
     }
   };
 
