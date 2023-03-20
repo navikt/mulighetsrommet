@@ -33,14 +33,14 @@ const whiteListOpprettAvtaleKnapp = [
   'Arbeidstrening',
   // TODO Sjekk med Tom Stian og Marthe om disse skal tilgjengeliggjøres
   // 'Varig lønnstilskudd',
-  // 'Mentor',
-  // 'Inkluderingstilskudd',
-  // 'Sommerjobb',
+  'Mentor',
+  'Inkluderingstilskudd',
+  'Sommerjobb',
 ] as const;
 
 type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
 
-function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): IndividuellTiltaksType | '' {
+function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): IndividuellTiltaksType {
   switch (tiltakstype) {
     case 'Midlertidig lønnstilskudd':
       return 'MIDLERTIDIG_LONNSTILSKUDD';
@@ -48,14 +48,12 @@ function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): Individuel
       return 'ARBEIDSTRENING';
     // case 'Varig lønnstilskudd':
     //   return 'VARIG_LONNSTILSKUDD';
-    // case 'Mentor':
-    //   return 'MENTOR';
-    // case 'Inkluderingstilskudd':
-    //   return 'INKLUDERINGSTILSKUDD';
-    // case 'Sommerjobb':
-    //   return 'SOMMERJOBB';
-    default:
-      return '';
+    case 'Mentor':
+      return 'MENTOR';
+    case 'Inkluderingstilskudd':
+      return 'INKLUDERINGSTILSKUDD';
+    case 'Sommerjobb':
+      return 'SOMMERJOBB';
   }
 }
 
