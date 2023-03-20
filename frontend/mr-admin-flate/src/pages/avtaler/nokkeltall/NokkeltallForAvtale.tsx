@@ -18,10 +18,10 @@ export function NokkeltallForAvtale() {
 
   return (
     <>
-      <Alert style={{ marginBottom: "1rem" }} variant="info">
+      <Alert style={{ marginBottom: "1rem" }} variant="warning">
         <BodyShort>
-          Nøkkeltall for avtaler er ikke 100% korrekt under pilotering pga. en
-          svakhet i tallgrunnlaget. Teamet jobber med å fikse tallgrunnlaget.
+          Tjenesten er under utvikling og tallene som vises her under nøkkeltall
+          kan være feil eller misvisende pga. feil eller for dårlig datagrunnlag
         </BodyShort>
       </Alert>
       <NokkeltallContainer>
