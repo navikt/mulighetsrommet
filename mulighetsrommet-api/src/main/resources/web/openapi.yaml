@@ -1223,7 +1223,7 @@ components:
         beskrivelse:
           type: string
         tiltaksnummer:
-          type: number
+          type: string
         kontaktinfoArrangor:
           $ref: "#/components/schemas/SanityKontaktinfoArrangor"
         lokasjon:
