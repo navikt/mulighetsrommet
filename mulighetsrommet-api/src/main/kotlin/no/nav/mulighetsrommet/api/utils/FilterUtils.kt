@@ -35,7 +35,7 @@ data class EnhetFilter(
     val tiltakstypeId: String? = null
 )
 
-data class Tiltaksgjennomforingsfilter(
+data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
@@ -77,12 +77,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter 
     return EnhetFilter(tiltakstypeId = tiltakstypeId)
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): Tiltaksgjennomforingsfilter {
+fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): TiltaksgjennomforingFilter {
     val innsatsgruppe = call.parameters["innsatsgruppe"]
     val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder") ?: emptyList()
     val sokestreng = call.parameters["sokestreng"] ?: ""
     val lokasjoner = call.parameters.getAll("lokasjoner") ?: emptyList()
-    return Tiltaksgjennomforingsfilter(
+    return TiltaksgjennomforingFilter(
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,

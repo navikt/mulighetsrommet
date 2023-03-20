@@ -133,7 +133,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
         fnr: String,
         accessToken: String,
-        filter: Tiltaksgjennomforingsfilter
+        filter: TiltaksgjennomforingFilter
     ): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""

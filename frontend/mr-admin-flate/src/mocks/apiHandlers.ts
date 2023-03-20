@@ -8,6 +8,7 @@ import {
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
   Tiltaksgjennomforing,
+  TiltaksgjennomforingNokkeltall,
   Tiltakstype,
   TiltakstypeNokkeltall,
 } from "mulighetsrommet-api-client";
@@ -19,6 +20,7 @@ import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforing
 import { mockTiltaksgjennomforingerKobletTilAnsatt } from "./fixtures/mock_tiltaksgjennomforinger_koblet_til_ansatt";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
+import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -123,6 +125,16 @@ export const apiHandlers = [
       );
 
       return res(ctx.status(200), ctx.json(gjennomforing));
+    }
+  ),
+  rest.get<any, { id: string }, TiltaksgjennomforingNokkeltall | undefined>(
+    "*/api/v1/internal/tiltaksgjennomforinger/:id/nokkeltall",
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+
+        ctx.json(mockTiltaksgjennomforingerNokkeltall)
+      );
     }
   ),
 

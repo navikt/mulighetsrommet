@@ -164,6 +164,28 @@ paths:
               schema:
                 type: string
 
+
+  /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
+    get:
+      tags:
+        - Tiltaksgjennomforing
+      operationId: getNokkeltallForTiltaksgjennomforingWithId
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Nokkeltall for the specified tiltaksgjennomforing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingNokkeltall"
+        404:
+          description: "Nøkkeltall for the specified tiltaksgjennomforing was not found."
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/internal/tiltaksgjennomforinger/tiltakstype/{id}:
     parameters:
       - in: path
@@ -1373,3 +1395,11 @@ components:
           type: number
       required:
         - antallTiltaksgjennomforinger
+
+    TiltaksgjennomforingNokkeltall:
+      type: object
+      properties:
+        antallDeltakere:
+          type: number
+      required:
+        - antallDeltakere

@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
-import java.util.UUID
+import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
@@ -144,5 +144,16 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             call.respond(gjennomforinger)
         }
+
+        get("{id}/nokkeltall") {
+            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+            val nokkeltall = tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id)
+
+            call.respond(nokkeltall)
+        }
     }
 }
+

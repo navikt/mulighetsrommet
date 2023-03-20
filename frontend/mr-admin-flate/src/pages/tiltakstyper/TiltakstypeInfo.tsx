@@ -2,9 +2,9 @@ import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Metadata } from "../../components/detaljside/Metadata";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { formaterDato } from "../../utils/Utils";
-import styles from "./Tiltakstypedetaljer.module.scss";
+import styles from "./TiltakstypeInfo.module.scss";
 
-export function TiltakstypeDetaljer() {
+export function TiltakstypeInfo() {
   const { data } = useTiltakstypeById();
 
   if (!data) {

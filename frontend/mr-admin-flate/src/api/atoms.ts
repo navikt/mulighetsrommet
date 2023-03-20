@@ -67,3 +67,14 @@ export const avtaleTabAtom = atomWithHash<AvtaleTabs>(
 export type avtaleFilterType = ExtractAtomValue<typeof avtaleFilter>;
 
 export { avtaleFilter };
+
+export type TiltaksgjennomforingerTabs = "detaljer" | "nokkeltall";
+
+export const tiltaksgjennomforingTabAtom =
+  atomWithHash<TiltaksgjennomforingerTabs>(
+    "tiltaksgjennomforingTab",
+    "detaljer",
+    {
+      setHash: "replaceState",
+    }
+  );

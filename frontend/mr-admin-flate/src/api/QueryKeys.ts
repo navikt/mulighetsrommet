@@ -18,6 +18,8 @@ export const QueryKeys = {
   ) => [sokestreng, status, kategori, sortering, page, "tiltakstyper"] as const,
   tiltaksgjennomforinger: (page?: number) =>
     [page, "tiltaksgjennomforinger"] as const,
+  nokkeltallTiltaksgjennomforing: (id?: string) =>
+    [id, "nokkeltallTiltaksgjennomforing"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: ["ansatt"] as const,
   tiltaksgjennomforingerByTiltakstypeId: (id: string, page?: number) =>

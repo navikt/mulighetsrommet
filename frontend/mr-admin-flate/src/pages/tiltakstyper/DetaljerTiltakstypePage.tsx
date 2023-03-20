@@ -11,7 +11,7 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
 import { NokkeltallForTiltakstype } from "./nokkeltall/NokkeltallForTiltakstype";
-import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
+import { TiltakstypeInfo } from "./TiltakstypeInfo";
 import styles from "./DetaljerTiltakstypePage.module.scss";
 
 export function DetaljerTiltakstypePage() {
@@ -65,7 +65,7 @@ export function DetaljerTiltakstypePage() {
         </Tabs.List>
         <Tabs.Panel value="arenaInfo" className="h-24 w-full bg-gray-50 p-4">
           <ContainerLayout>
-            <TiltakstypeDetaljer />
+            <TiltakstypeInfo />
           </ContainerLayout>
         </Tabs.Panel>
         <Tabs.Panel value="avtaler" className="h-24 w-full bg-gray-50 p-4">
