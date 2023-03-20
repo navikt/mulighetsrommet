@@ -68,6 +68,16 @@
   }
 }
 
+.dialogknapp {
+  text-align: center;
+  margin-top: 1rem;
+
+  svg {
+    width: 20px;
+    height: auto;
+  }
+}
+
 @media (width <= 1200px) {
   .tiltakstype_detaljer {
     grid-template-columns: auto;

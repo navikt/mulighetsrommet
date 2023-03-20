@@ -1,4 +1,3 @@
-import { Dialog, SuccessStroke } from '@navikt/ds-icons';
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { Ansatt } from 'mulighetsrommet-api-client';
@@ -27,6 +26,7 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
+import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 
 const whiteListOpprettAvtaleKnapp = ['Midlertidig lønnstilskudd'];
 
@@ -167,7 +167,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 className={styles.deleknapp}
                 aria-label="Dele"
                 data-testid="deleknapp"
-                icon={harDeltMedBruker && <SuccessStroke title="Suksess" />}
+                icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
                 iconPosition="left"
               >
                 {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
@@ -186,10 +186,10 @@ const ViewTiltaksgjennomforingDetaljer = () => {
               </Alert>
             )}
             {harDeltMedBruker && !erPreview && (
-              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <div className={styles.dialogknapp}>
                 <Link href={getUrlTilDialogen(harDeltMedBruker.norskIdent!!, harDeltMedBruker.dialogId!!)}>
                   Åpne i dialogen
-                  <Dialog />
+                  <Chat2Icon />
                 </Link>
               </div>
             )}

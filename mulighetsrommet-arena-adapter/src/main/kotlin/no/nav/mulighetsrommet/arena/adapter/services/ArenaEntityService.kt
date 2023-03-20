@@ -18,13 +18,6 @@ class ArenaEntityService(
     private val deltakere: DeltakerRepository,
     private val avtaler: AvtaleRepository,
 ) {
-
-    fun getEvent(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEvent> {
-        return events.get(arenaTable, arenaId)?.right() ?: ProcessingError
-            .MissingDependency("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
-            .left()
-    }
-
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
         return mappings.get(event.arenaTable, event.arenaId)
             ?: mappings.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
@@ -96,8 +89,6 @@ class ArenaEntityService(
     }
 
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
-        // TODO: burde status Ignored settes på ArenaEntityMapping i stedet?
-        //       Da har vi mulighet til å slette data fra events-tabellen, samtidig som vi har oversikt over hvilke entitier som ikke er relevante
         return getMapping(arenaTable, arenaId)
             .map { it.status == ArenaEntityMapping.Status.Ignored }
     }

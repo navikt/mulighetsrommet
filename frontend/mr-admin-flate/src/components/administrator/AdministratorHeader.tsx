@@ -1,7 +1,8 @@
 import { Header } from "@navikt/ds-react-internal";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "../api/administrator/useHentAdministrator";
-import { capitalize } from "../utils/Utils";
+import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
+import { capitalize } from "../../utils/Utils";
+import styles from "./AdministratorHeader.module.scss";
 
 export function AdministratorHeader() {
   const response = useHentAnsatt();
@@ -14,7 +15,7 @@ export function AdministratorHeader() {
   return (
     <Header>
       <Header.Title as="h1">
-        <Link style={{ textDecoration: "none", color: "white" }} to="/">
+        <Link className={styles.link} to="/">
           NAV arbeidsmarkedstiltak
         </Link>
       </Header.Title>
@@ -23,7 +24,7 @@ export function AdministratorHeader() {
         data-testid="header-navident"
         name={ansattNavn}
         description={response?.data?.ident ?? "..."}
-        style={{ marginLeft: "auto" }}
+        className={styles.user}
       />
     </Header>
   );

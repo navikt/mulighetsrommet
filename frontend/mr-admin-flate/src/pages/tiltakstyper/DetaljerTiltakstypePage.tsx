@@ -5,14 +5,14 @@ import { avtaleTabAtom, AvtaleTabs } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
-import { Laster } from "../../components/Laster";
+import { Laster } from "../../components/laster/Laster";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import { AvtalerForTiltakstype } from "./avtaler/AvtalerForTiltakstype";
-import "./DetaljerTiltakstypePage.module.scss";
 import { NokkeltallForTiltakstype } from "./nokkeltall/NokkeltallForTiltakstype";
 import { TiltakstypeDetaljer } from "./Tiltakstypedetaljer";
+import styles from "./DetaljerTiltakstypePage.module.scss";
 
 export function DetaljerTiltakstypePage() {
   const optionalTiltakstype = useTiltakstypeById();
@@ -38,12 +38,7 @@ export function DetaljerTiltakstypePage() {
   return (
     <MainContainer>
       <Header>
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-          }}
-        >
+        <div className={styles.header}>
           <span>{tiltakstype?.navn ?? "..."}</span>
           <Tiltakstypestatus tiltakstype={tiltakstype} />
         </div>{" "}
@@ -53,7 +48,7 @@ export function DetaljerTiltakstypePage() {
         value={tabValgt}
         onChange={(value) => setTabValgt(value as AvtaleTabs)}
       >
-        <Tabs.List style={{ paddingLeft: "4rem" }}>
+        <Tabs.List className={styles.list}>
           <Tabs.Tab
             value="arenaInfo"
             label="Arenainfo"

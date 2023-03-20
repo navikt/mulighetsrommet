@@ -1,3 +1,7 @@
 html {
-    background-color: var(--a-bg-subtle);
+  background-color: var(--a-bg-subtle);
+}
+
+.error {
+  padding: 1rem;
 }

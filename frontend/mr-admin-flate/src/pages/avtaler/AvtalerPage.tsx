@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { Avtalefilter } from "../../components/filter/Avtalefilter";
-import { Laster } from "../../components/Laster";
+import { Laster } from "../../components/laster/Laster";
 import { PagineringContainer } from "../../components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../constants";
@@ -60,7 +60,7 @@ export function AvtalerPage() {
               type="avtaler"
             />
             <Pagination
-              style={{ paddingBottom: "24px" }}
+              className={styles.pagination}
               size="small"
               data-testid="paginering"
               page={page}

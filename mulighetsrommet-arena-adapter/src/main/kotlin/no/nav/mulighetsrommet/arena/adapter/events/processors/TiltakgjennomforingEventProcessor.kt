@@ -6,6 +6,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.arena.JaNeiStatus
@@ -31,7 +32,7 @@ class TiltakgjennomforingEventProcessor(
         val data = event.decodePayload<ArenaTiltaksgjennomforing>()
 
         val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
-        if (! (isGruppetiltak || isRegisteredAfterAktivitetsplanen(data))) {
+        if (!isGruppetiltak && isRegisteredBeforeAktivitetsplanen(data)) {
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
         }
 
@@ -94,8 +95,8 @@ class TiltakgjennomforingEventProcessor(
             .bind()
     }
 
-    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
-        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltaksgjennomforing): Boolean {
+        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either

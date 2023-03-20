@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@eslint/js": "^8.35.0",
+    "@navikt/aksel-icons": "^2.7.8",
     "@navikt/ds-css": "^2.6.0",
-    "@navikt/ds-icons": "^2.6.0",
     "@navikt/ds-react": "^2.6.0",
     "@navikt/navspa": "^6.0.1",
     "@portabletext/react": "^2.0.2",

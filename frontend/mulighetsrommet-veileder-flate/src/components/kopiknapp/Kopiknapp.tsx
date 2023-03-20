@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { logEvent } from '../../core/api/logger';
-import { Copy, CopyFilled } from '@navikt/ds-icons';
 import { Button, Tooltip } from '@navikt/ds-react';
 import styles from './Kopiknapp.module.scss';
+import { FilesFillIcon, FilesIcon } from '@navikt/aksel-icons';
 
 interface KopiknappProps {
   kopitekst: string;
@@ -41,7 +41,7 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
         }}
         data-testid={dataTestId}
       >
-        {hover ? <CopyFilled aria-label="Kopier" /> : <Copy aria-label="Kopier" />}
+        {hover ? <FilesFillIcon aria-label="Kopier" /> : <FilesIcon aria-label="Kopier" />}
       </Button>
     </Tooltip>
   );

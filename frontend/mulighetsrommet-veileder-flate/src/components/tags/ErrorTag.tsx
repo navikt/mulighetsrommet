@@ -1,6 +1,8 @@
 import { BodyShort, Tag } from '@navikt/ds-react';
 import { kebabCase } from '../../utils/Utils';
-import { ErrorColored } from '@navikt/ds-icons';
+import styles from './ErrorTag.module.scss';
+import { XMarkOctagonFillIcon } from '@navikt/aksel-icons';
+import React from 'react';
 
 interface Props {
   innhold: string;
@@ -11,8 +13,8 @@ interface Props {
 export const ErrorTag = ({ innhold, title, dataTestId }: Props) => {
   return (
     <Tag variant="error" size="small" data-testid={`${kebabCase(dataTestId)}`} title={title}>
-      <ErrorColored />
-      <BodyShort size="small" style={{ marginLeft: '10px' }}>
+      <XMarkOctagonFillIcon className={styles.svg_error} />
+      <BodyShort size="small" className={styles.innhold}>
         {innhold}
       </BodyShort>
     </Tag>

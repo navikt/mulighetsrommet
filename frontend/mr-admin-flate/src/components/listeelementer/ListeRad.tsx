@@ -1,4 +1,4 @@
-import { Next } from "@navikt/ds-icons";
+import { ChevronRightIcon } from "@navikt/aksel-icons";
 import styles from "./Listeelementer.module.scss";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
@@ -20,7 +20,7 @@ export function ListeRad({
     <li className={styles.list_element} data-testid={testId}>
       <Link to={linkTo} className={classNames(styles.listerad, classname)}>
         {children}
-        <Next className={styles.pil} />
+        <ChevronRightIcon className={styles.pil} />
       </Link>
     </li>
   );

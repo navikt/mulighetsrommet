@@ -5,7 +5,7 @@ import {
   Metadata,
   Separator,
 } from "../../components/detaljside/Metadata";
-import { Laster } from "../../components/Laster";
+import { Laster } from "../../components/laster/Laster";
 import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import styles from "./Avtaleinfo.module.scss";
 
