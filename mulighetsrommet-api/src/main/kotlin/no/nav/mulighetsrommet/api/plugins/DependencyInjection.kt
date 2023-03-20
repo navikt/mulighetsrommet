@@ -86,7 +86,7 @@ fun slack(slack: SlackConfig): Module {
 private fun db(config: FlywayDatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> {
-            FlywayDatabaseAdapter(config)
+            FlywayDatabaseAdapter(config, get())
         }
     }
 }

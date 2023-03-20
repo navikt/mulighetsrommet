@@ -6,16 +6,16 @@ import kotlinx.coroutines.launch
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
-import kotlin.system.measureTimeMillis
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 class FlywayDatabaseAdapter(
     config: FlywayDatabaseConfig,
-    slackNotifier: SlackNotifier? = null
+    private val slackNotifier: SlackNotifier? = null
 ) : DatabaseAdapter(config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private val flyway: Flyway
-    private var slackNotifier: SlackNotifier? = null
 
     init {
         flyway = Flyway
@@ -33,10 +33,6 @@ class FlywayDatabaseAdapter(
                 config.schema?.let { schemas(it) }
             }
             .load()
-
-        if (slackNotifier != null) {
-            this.slackNotifier = slackNotifier
-        }
 
         when (config.migrationConfig.strategy) {
             InitializationStrategy.Migrate -> {
@@ -77,11 +73,12 @@ class FlywayDatabaseAdapter(
         flyway.clean()
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun runAsync(run: suspend CoroutineScope.() -> Unit): Job {
         return CoroutineScope(Job()).launch {
             logger.info("Running async flyway task...")
             try {
-                val time = measureTimeMillis {
+                val time = measureTime {
                     run()
                 }
                 logger.info("Flyway task finished in ${time}ms")
