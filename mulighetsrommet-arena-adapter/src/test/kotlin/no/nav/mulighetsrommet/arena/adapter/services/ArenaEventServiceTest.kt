@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import java.util.UUID
+import java.util.*
 
 class ArenaEventServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -68,7 +68,6 @@ class ArenaEventServiceTest : FunSpec({
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(db = database.db),
             deltakere = DeltakerRepository(db = database.db),
             avtaler = AvtaleRepository(db = database.db),
-            events = events
         )
     }
 

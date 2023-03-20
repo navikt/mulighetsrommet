@@ -384,7 +384,6 @@ private fun createProcessor(db: Database, engine: HttpClientEngine): Tiltakdelta
     }
 
     val entities = ArenaEntityService(
-        events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),
