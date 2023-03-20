@@ -33,7 +33,10 @@ class TiltakgjennomforingEventProcessor(
 
         val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
         if (!isGruppetiltak && isRegisteredBeforeAktivitetsplanen(data)) {
-            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
+            return@either ProcessingResult(
+                Ignored,
+                "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen"
+            )
         }
 
         if (data.DATO_FRA == null) {
@@ -42,6 +45,10 @@ class TiltakgjennomforingEventProcessor(
 
         if (data.LOKALTNAVN == null) {
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi LOKALTNAVN er null")
+        }
+
+        if (data.ARBGIV_ID_ARRANGOR == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
