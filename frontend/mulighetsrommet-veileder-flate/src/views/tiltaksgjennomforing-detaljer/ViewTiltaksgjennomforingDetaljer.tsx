@@ -28,12 +28,14 @@ import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 
-const whiteListOpprettAvtaleKnapp = ['Midlertidig lønnstilskudd'];
+const whiteListOpprettAvtaleKnapp = ['Midlertidig lønnstilskudd', 'Arbeidstrening'];
 
 function tiltakstypeNavnTilUrlVerdi(tiltakstype: string): IndividuellTiltaksType | '' {
   switch (tiltakstype) {
     case 'Midlertidig lønnstilskudd':
       return 'MIDLERTIDIG_LONNSTILSKUDD';
+    case 'Arbeidstrening':
+      return 'ARBEIDSTRENING';
     default:
       return '';
   }
