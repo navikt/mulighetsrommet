@@ -77,7 +77,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             tiltaksgjennomforingId = 3,
             sakId = 1,
             tiltakskode = "INDOPPFAG",
-            arrangorId = null,
+            arrangorId = 123,
             navn = "Gjennomføring gruppe",
             status = "GJENNOMFOR",
             fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),

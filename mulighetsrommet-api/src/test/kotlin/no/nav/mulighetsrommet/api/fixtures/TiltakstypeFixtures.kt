@@ -16,4 +16,15 @@ object TiltakstypeFixtures {
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
+
+    val Arbeidstrening = TiltakstypeDbo(
+        id = UUID.fromString("87cbc5c0-962e-4f34-93df-d78a887872a6"),
+        navn = "Arbeidstrening",
+        tiltakskode = "ARBTREN",
+        rettPaaTiltakspenger = true,
+        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+        fraDato = LocalDate.of(2023, 1, 11),
+        tilDato = LocalDate.of(2023, 1, 12),
+    )
 }

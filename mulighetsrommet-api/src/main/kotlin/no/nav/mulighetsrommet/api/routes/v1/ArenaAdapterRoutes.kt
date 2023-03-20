@@ -7,23 +7,23 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
-import no.nav.mulighetsrommet.api.services.ArenaService
+import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 
-fun Route.arenaRoutes() {
+fun Route.arenaAdapterRoutes() {
     val logger = application.environment.log
 
-    val arenaService: ArenaService by inject()
+    val arenaAdapterService: ArenaAdapterService by inject()
 
     route("/api/v1/internal/arena/") {
         put("tiltakstype") {
             val tiltakstype = call.receive<TiltakstypeDbo>()
 
-            arenaService.upsert(tiltakstype)
+            arenaAdapterService.upsertTiltakstype(tiltakstype)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -37,7 +37,7 @@ fun Route.arenaRoutes() {
                 status = HttpStatusCode.BadRequest
             )
 
-            arenaService.removeTiltakstype(id)
+            arenaAdapterService.removeTiltakstype(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -48,7 +48,7 @@ fun Route.arenaRoutes() {
         put("avtale") {
             val dbo = call.receive<AvtaleDbo>()
 
-            arenaService.upsert(dbo)
+            arenaAdapterService.upsertAvtale(dbo)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -62,7 +62,7 @@ fun Route.arenaRoutes() {
                 status = HttpStatusCode.BadRequest
             )
 
-            arenaService.removeAvtale(id)
+            arenaAdapterService.removeAvtale(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -73,7 +73,7 @@ fun Route.arenaRoutes() {
         put("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<TiltaksgjennomforingDbo>()
 
-            arenaService.upsert(tiltaksgjennomforing)
+            arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -87,7 +87,7 @@ fun Route.arenaRoutes() {
                 status = HttpStatusCode.BadRequest
             )
 
-            arenaService.removeTiltaksgjennomforing(id)
+            arenaAdapterService.removeTiltaksgjennomforing(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -98,7 +98,7 @@ fun Route.arenaRoutes() {
         put("tiltakshistorikk") {
             val tiltakshistorikk = call.receive<TiltakshistorikkDbo>()
 
-            arenaService.upsert(tiltakshistorikk)
+            arenaAdapterService.upsertTiltakshistorikk(tiltakshistorikk)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
                     when (it) {
@@ -119,7 +119,7 @@ fun Route.arenaRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
-            arenaService.removeTiltakshistorikk(id)
+            arenaAdapterService.removeTiltakshistorikk(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
                     logError(logger, it.error)
@@ -130,7 +130,7 @@ fun Route.arenaRoutes() {
         put("deltaker") {
             val deltaker = call.receive<DeltakerDbo>()
 
-            arenaService.upsertDeltaker(deltaker)
+            arenaAdapterService.upsertDeltaker(deltaker)
                 .onRight { call.respond(it) }
                 .onLeft {
                     logError(logger, it.error)
@@ -144,7 +144,7 @@ fun Route.arenaRoutes() {
                 status = HttpStatusCode.BadRequest
             )
 
-            arenaService.removeDeltaker(id)
+            arenaAdapterService.removeDeltaker(id)
                 .onRight { call.response.status(HttpStatusCode.OK) }
                 .onLeft {
                     logError(logger, it.error)

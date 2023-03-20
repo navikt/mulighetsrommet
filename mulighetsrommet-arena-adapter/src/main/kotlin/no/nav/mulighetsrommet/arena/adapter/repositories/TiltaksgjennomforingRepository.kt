@@ -88,10 +88,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         id = uuid("id"),
         tiltaksgjennomforingId = int("tiltaksgjennomforing_id"),
-        navn = stringOrNull("navn"),
+        navn = string("navn"),
         sakId = int("sak_id"),
         tiltakskode = string("tiltakskode"),
-        arrangorId = intOrNull("arrangor_id"),
+        arrangorId = int("arrangor_id"),
         fraDato = localDateTime("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         apentForInnsok = boolean("apent_for_innsok"),

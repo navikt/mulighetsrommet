@@ -39,6 +39,10 @@ sealed class DatabaseOperationError(val error: PSQLException) {
     class ForeignKeyViolation(error: PSQLException) : DatabaseOperationError(error)
     class DatabaseError(error: PSQLException) : DatabaseOperationError(error)
 
+    override fun toString(): String {
+        return "$javaClass: $error"
+    }
+
     companion object {
         /**
          * Resolves a [DatabaseOperationError] instance from the provided [PSQLException].

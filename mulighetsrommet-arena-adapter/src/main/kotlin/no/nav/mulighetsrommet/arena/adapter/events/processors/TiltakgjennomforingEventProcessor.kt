@@ -25,6 +25,8 @@ import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
@@ -47,6 +49,14 @@ class TiltakgjennomforingEventProcessor(
 
         if (data.DATO_FRA == null) {
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
+        }
+
+        if (data.LOKALTNAVN == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi LOKALTNAVN er null")
+        }
+
+        if (data.ARBGIV_ID_ARRANGOR == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
         val avtaleId = if (data.AVTALE_ID != null) {
@@ -85,10 +95,15 @@ class TiltakgjennomforingEventProcessor(
         operation: ArenaEvent.Operation,
         tiltaksgjennomforing: Tiltaksgjennomforing
     ): Either<ProcessingError, ProcessingResult> = either {
-        val tiltakstypeMapping = entities.getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode).bind()
-        val sak = entities.getSak(tiltaksgjennomforing.sakId).bind()
-        val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
-            ords.getArbeidsgiver(id).mapLeft { ProcessingError.fromResponseException(it) }
+        val tiltakstypeMapping = entities
+            .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+            .bind()
+        val sak = entities
+            .getSak(tiltaksgjennomforing.sakId)
+            .bind()
+        val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
+            ords.getArbeidsgiver(id)
+                .mapLeft { ProcessingError.fromResponseException(it) }
                 .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
                 .map { it.virksomhetsnummer }.bind()
         }
@@ -106,26 +121,29 @@ class TiltakgjennomforingEventProcessor(
         return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
-    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either.catch {
-        requireNotNull(DATO_FRA)
+    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either
+        .catch {
+            requireNotNull(DATO_FRA)
+            requireNotNull(LOKALTNAVN)
+            requireNotNull(ARBGIV_ID_ARRANGOR)
 
-        Tiltaksgjennomforing(
-            id = id,
-            tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
-            sakId = SAK_ID,
-            tiltakskode = TILTAKSKODE,
-            arrangorId = ARBGIV_ID_ARRANGOR,
-            navn = LOKALTNAVN,
-            fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
-            tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
-            apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
-            antallPlasser = ANTALL_DELTAKERE,
-            status = TILTAKSTATUSKODE,
-            avtaleId = avtaleId
-        )
-    }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
+            Tiltaksgjennomforing(
+                id = id,
+                tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
+                sakId = SAK_ID,
+                tiltakskode = TILTAKSKODE,
+                arrangorId = ARBGIV_ID_ARRANGOR,
+                navn = LOKALTNAVN,
+                fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
+                tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+                apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
+                antallPlasser = ANTALL_DELTAKERE,
+                status = TILTAKSTATUSKODE,
+                avtaleId = avtaleId
+            )
+        }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String) =
         TiltaksgjennomforingDbo(
             id = id,
             navn = navn,
@@ -136,6 +154,8 @@ class TiltakgjennomforingEventProcessor(
             sluttDato = tilDato?.toLocalDate(),
             enhet = sak.enhet,
             avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
+            tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
+            antallPlasser = antallPlasser,
             avtaleId = avtaleId
         )
 }

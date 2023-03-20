@@ -10,16 +10,24 @@ import java.util.*
 data class TiltaksgjennomforingDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val navn: String?,
+    val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val tiltaksnummer: String,
-    val virksomhetsnummer: String?,
+    val virksomhetsnummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val enhet: String,
     val avslutningsstatus: Avslutningsstatus,
+    val tilgjengelighet: Tilgjengelighetsstatus,
+    val antallPlasser: Int?,
     val avtaleId: Int? = null
-)
+) {
+    enum class Tilgjengelighetsstatus {
+        Ledig,
+        Venteliste,
+        Stengt,
+    }
+}

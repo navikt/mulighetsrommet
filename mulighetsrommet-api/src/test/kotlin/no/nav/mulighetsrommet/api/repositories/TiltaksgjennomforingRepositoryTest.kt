@@ -1,15 +1,17 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
@@ -19,51 +21,13 @@ import java.util.*
 class TiltaksgjennomforingRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val tiltakstype1 = TiltakstypeDbo(
-        id = UUID.randomUUID(),
-        navn = "Arbeidstrening",
-        tiltakskode = "ARBTREN",
-        rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12),
-    )
+    val tiltakstype1 = TiltakstypeFixtures.Arbeidstrening
 
-    val tiltakstype2 = TiltakstypeDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging",
-        tiltakskode = "INDOPPFOLG",
-        rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
-    )
+    val tiltakstype2 = TiltakstypeFixtures.Oppfolging
 
-    val tiltak1 = TiltaksgjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging",
-        tiltakstypeId = tiltakstype1.id,
-        tiltaksnummer = "12345",
-        virksomhetsnummer = "123456789",
-        startDato = LocalDate.of(2022, 1, 1),
-        sluttDato = LocalDate.of(2022, 1, 1),
-        enhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-        avtaleId = 1000
-    )
+    val gjennomforing1 = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(avtaleId = 1000)
 
-    val tiltak2 = TiltaksgjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Trening",
-        tiltakstypeId = tiltakstype2.id,
-        tiltaksnummer = "54321",
-        virksomhetsnummer = "123456789",
-        enhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-        startDato = LocalDate.of(2022, 1, 1),
-    )
+    val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1
 
     context("CRUD") {
         beforeAny {
@@ -75,131 +39,148 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            tiltaksgjennomforinger.upsert(tiltak1)
-            tiltaksgjennomforinger.upsert(tiltak2)
+            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 2
-            tiltaksgjennomforinger.get(tiltak1.id) shouldBe TiltaksgjennomforingAdminDto(
-                id = tiltak1.id,
+            tiltaksgjennomforinger.get(gjennomforing1.id) shouldBe TiltaksgjennomforingAdminDto(
+                id = gjennomforing1.id,
                 tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = tiltakstype1.id,
                     navn = tiltakstype1.navn,
                     arenaKode = tiltakstype1.tiltakskode,
                 ),
-                navn = tiltak1.navn,
-                tiltaksnummer = tiltak1.tiltaksnummer,
-                virksomhetsnummer = tiltak1.virksomhetsnummer,
-                startDato = tiltak1.startDato,
-                sluttDato = tiltak1.sluttDato,
-                enhet = tiltak1.enhet,
+                navn = gjennomforing1.navn,
+                tiltaksnummer = gjennomforing1.tiltaksnummer,
+                virksomhetsnummer = gjennomforing1.virksomhetsnummer,
+                startDato = gjennomforing1.startDato,
+                sluttDato = gjennomforing1.sluttDato,
+                enhet = gjennomforing1.enhet,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
-                avtaleId = tiltak1.avtaleId
+                tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                antallPlasser = null,
+                avtaleId = gjennomforing1.avtaleId
             )
 
-            tiltaksgjennomforinger.delete(tiltak1.id)
+            tiltaksgjennomforinger.delete(gjennomforing1.id)
 
             tiltaksgjennomforinger.getAll().second shouldHaveSize 1
         }
     }
 
-//        TODO: implementer på nytt
-//        context("tilgjengelighetsstatus") {
-//            context("when tiltak is closed for applications") {
-//                beforeAny {
-//                    arenaService.createOrUpdate(
-//                        tiltak1.copy(
-//                            apentForInnsok = false
-//                        )
-//                    )
-//                }
-//
-//                afterAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            apentForInnsok = true
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to STENGT") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
-//                }
-//            }
-//
-//            context("when there are no limits to available seats") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = null
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
-//                }
-//            }
-//
-//            context("when there are no available seats") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = 0
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to VENTELISTE") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
-//                }
-//            }
-//
-//            context("when all available seats are occupied by deltakelser with status DELTAR") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = 1
-//                        )
-//                    )
-//
-//                    arenaService.upsertDeltaker(
-//                        AdapterTiltakdeltaker(
-//                            tiltaksdeltakerId = 1,
-//                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
-//                            personId = 1,
-//                            status = Deltakerstatus.DELTAR
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to VENTELISTE") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
-//                }
-//            }
-//
-//            context("when deltakelser are no longer DELTAR") {
-//                beforeAny {
-//                    arenaService.upsertTiltaksgjennomforing(
-//                        tiltak1.copy(
-//                            antallPlasser = 1
-//                        )
-//                    )
-//
-//                    arenaService.upsertDeltaker(
-//                        AdapterTiltakdeltaker(
-//                            tiltaksdeltakerId = 1,
-//                            tiltaksgjennomforingId = tiltak1.tiltaksgjennomforingId,
-//                            personId = 1,
-//                            status = Deltakerstatus.AVSLUTTET
-//                        )
-//                    )
-//                }
-//
-//                test("should have tilgjengelighet set to APENT_FOR_INNSOK") {
-//                    tiltaksgjennomforingService.getTiltaksgjennomforingById(1)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
-//                }
-//            }
-//        }
+    context("tilgjengelighetsstatus") {
+        database.db.clean()
+        database.db.migrate()
+
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(tiltakstype1)
+
+        val deltakere = DeltakerRepository(database.db)
+        val deltaker = DeltakerDbo(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = gjennomforing1.id,
+            status = Deltakerstatus.DELTAR,
+            opphav = Deltakeropphav.AMT,
+            startDato = null,
+            sluttDato = null,
+            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+        )
+
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        context("when tilgjengelighet is set to Stengt") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    gjennomforing1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Stengt
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Stengt") {
+                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+            }
+        }
+
+        context("when avslutningsstatus is set") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    gjennomforing1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Stengt") {
+                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+            }
+        }
+
+        context("when there are no limits to available seats") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    gjennomforing1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = null
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Ledig") {
+                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+            }
+        }
+
+        context("when there are no available seats") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    gjennomforing1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = 0
+                    )
+                ).shouldBeRight()
+            }
+
+            test("should have tilgjengelighet set to Venteliste") {
+                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+            }
+        }
+
+        context("when all available seats are occupied by deltakelser with status DELTAR") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    gjennomforing1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = 1
+                    )
+                ).shouldBeRight()
+
+                deltakere.upsert(deltaker.copy(status = Deltakerstatus.DELTAR))
+            }
+
+            test("should have tilgjengelighet set to Venteliste") {
+                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+            }
+        }
+
+        context("when deltakelser are no longer DELTAR") {
+            beforeAny {
+                tiltaksgjennomforinger.upsert(
+                    gjennomforing1.copy(
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = 1
+                    )
+                ).shouldBeRight()
+
+                deltakere.upsert(deltaker.copy(status = Deltakerstatus.AVSLUTTET))
+            }
+
+            test("should have tilgjengelighet set to Ledig") {
+                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+            }
+        }
+    }
 
     context("pagination") {
         database.db.clean()
@@ -219,7 +200,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     virksomhetsnummer = "123456789",
                     enhet = "2990",
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    startDato = LocalDate.of(2022, 1, 1)
+                    startDato = LocalDate.of(2022, 1, 1),
+                    tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                    antallPlasser = null
                 )
             )
         }

@@ -28,18 +28,39 @@ import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 
-const whiteListOpprettAvtaleKnapp = ['Midlertidig lønnstilskudd'];
+const whiteListOpprettAvtaleKnapp = [
+  'Midlertidig lønnstilskudd',
+  'Arbeidstrening',
+  'Varig lønnstilskudd',
+  'Mentor',
+  'Inkluderingstilskudd',
+  'Sommerjobb',
+] as const;
 
-function tiltakstypeNavnTilUrlVerdi(tiltakstype: string): IndividuellTiltaksType | '' {
+type IndividuelleTiltak = (typeof whiteListOpprettAvtaleKnapp)[number];
+
+function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): IndividuellTiltaksType {
   switch (tiltakstype) {
     case 'Midlertidig lønnstilskudd':
       return 'MIDLERTIDIG_LONNSTILSKUDD';
-    default:
-      return '';
+    case 'Arbeidstrening':
+      return 'ARBEIDSTRENING';
+    case 'Varig lønnstilskudd':
+      return 'VARIG_LONNSTILSKUDD';
+    case 'Mentor':
+      return 'MENTOR';
+    case 'Inkluderingstilskudd':
+      return 'INKLUDERINGSTILSKUDD';
+    case 'Sommerjobb':
+      return 'SOMMERJOBB';
   }
 }
 
-function lenkeTilOpprettAvtaleForEnv(tiltakstype: string): string {
+function tiltakstypeAsStringIsIndividuellTiltakstype(tiltakstype: string): tiltakstype is IndividuelleTiltak {
+  return whiteListOpprettAvtaleKnapp.includes(tiltakstype as any);
+}
+
+function lenkeTilOpprettAvtaleForEnv(tiltakstype: IndividuelleTiltak): string {
   const env: environments = import.meta.env.VITE_ENVIRONMENT;
   const baseUrl =
     env === 'production'
@@ -93,9 +114,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   }
 
   const kanBrukerFaaAvtale = () => {
-    const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
-    window.open(url, '_blank');
-    logEvent('mulighetsrommet.opprett-avtale');
+    if (tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)) {
+      const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
+      window.open(url, '_blank');
+      logEvent('mulighetsrommet.opprett-avtale');
+    }
   };
 
   const tilgjengelighetsstatusSomNokkelinfo: NokkelinfoProps = {
@@ -149,18 +172,20 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           <div className={styles.sidemeny}>
             <SidemenyDetaljer />
             <div className={styles.deleknapp_container}>
-              {whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) && !erPreview && (
-                <Button
-                  onClick={kanBrukerFaaAvtale}
-                  variant="primary"
-                  className={styles.deleknapp}
-                  aria-label="Opprett avtale"
-                  data-testid="opprettavtaleknapp"
-                  disabled={!brukerHarRettPaaTiltak}
-                >
-                  Opprett avtale
-                </Button>
-              )}
+              {tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+                whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+                !erPreview && (
+                  <Button
+                    onClick={kanBrukerFaaAvtale}
+                    variant="primary"
+                    className={styles.deleknapp}
+                    aria-label="Opprett avtale"
+                    data-testid="opprettavtaleknapp"
+                    disabled={!brukerHarRettPaaTiltak}
+                  >
+                    Opprett avtale
+                  </Button>
+                )}
               <Button
                 onClick={handleClickApneModal}
                 variant="secondary"

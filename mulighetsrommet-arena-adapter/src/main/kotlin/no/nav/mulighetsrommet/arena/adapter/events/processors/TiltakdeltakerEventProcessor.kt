@@ -167,7 +167,7 @@ class TiltakdeltakerEventProcessor(
                 tiltaksgjennomforingId = tiltaksgjennomforing.id
             )
         } else {
-            val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+            val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
                 ords.getArbeidsgiver(id)
                     .mapLeft { ProcessingError.fromResponseException(it) }
                     .flatMap {

@@ -19,7 +19,7 @@ class ArenaAdapterClientImpl(
     private val baseUrl: String,
     private val machineToMachineTokenClient: () -> String,
     clientEngine: HttpClientEngine = CIO.create()
-) : ArenaAdaperClient {
+) : ArenaAdapterClient {
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
