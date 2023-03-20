@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -19,7 +20,9 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val enhet: String,
-    val status: Tiltaksgjennomforingsstatus
+    val status: Tiltaksgjennomforingsstatus,
+    val tilgjengelighet: TiltaksgjennomforingDbo.Tilgjengelighetsstatus,
+    val antallPlasser: Int?,
 ) {
     @Serializable
     data class Tiltakstype(
