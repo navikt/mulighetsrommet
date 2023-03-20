@@ -9,10 +9,7 @@ import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
@@ -127,6 +124,31 @@ fun Route.arenaRoutes() {
                 .mapLeft {
                     logError(logger, it.error)
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakshistorikk")
+                }
+        }
+
+        put("deltaker") {
+            val deltaker = call.receive<DeltakerDbo>()
+
+            arenaService.upsertDeltaker(deltaker)
+                .onRight { call.respond(it) }
+                .onLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette deltaker")
+                }
+        }
+
+        delete("deltaker/{id}") {
+            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
+                "Mangler eller ugyldig id",
+                status = HttpStatusCode.BadRequest
+            )
+
+            arenaService.removeDeltaker(id)
+                .onRight { call.response.status(HttpStatusCode.OK) }
+                .onLeft {
+                    logError(logger, it.error)
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette deltaker")
                 }
         }
     }
