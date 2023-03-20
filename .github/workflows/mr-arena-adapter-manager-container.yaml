@@ -19,7 +19,7 @@ on:
           - dev_and_prod
 
 concurrency:
-  group: mr_arena_adapter_manager_container
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:

@@ -18,6 +18,10 @@ on:
         options:
           - dev
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-mock:${{ github.sha }}
   CI: true

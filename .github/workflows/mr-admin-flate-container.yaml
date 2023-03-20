@@ -19,7 +19,7 @@ on:
           - dev_and_prod
 
 concurrency:
-  group: mr-admin-frontend-container
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:

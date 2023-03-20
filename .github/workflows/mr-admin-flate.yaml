@@ -25,6 +25,10 @@ on:
           - dev
           - dev_and_prod
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CI: true
   TZ: Europe/Amsterdam
