@@ -41,12 +41,29 @@ export function Tiltaksgjennomforingfilter() {
             });
           }}
         >
-          <option value="">Status</option>
           <option value="Aktiv">Aktiv</option>
           <option value="Planlagt">Planlagt</option>
           <option value="Avsluttet">Avsluttet</option>
           <option value="Alle">Alle</option>
         </Select>
+        {/*  <Select*/}
+        {/*    label="Filtrer på enhet"*/}
+        {/*    hideLabel*/}
+        {/*    size="small"*/}
+        {/*    value={filter.enhet}*/}
+        {/*    data-testid="filter_avtale_enhet"*/}
+        {/*    onChange={(e: ChangeEvent<HTMLSelectElement>) => {*/}
+        {/*      resetPaginering();*/}
+        {/*      setFilter({ ...filter, enhet: e.currentTarget.value });*/}
+        {/*    }}*/}
+        {/*  >*/}
+        {/*    <option value="">Alle enheter</option>*/}
+        {/*    {enheter?.map((enhet) => (*/}
+        {/*      <option key={enhet.enhetId} value={enhet.enhetNr}>*/}
+        {/*        {enhet.navn} - {enhet.enhetNr}*/}
+        {/*      </option>*/}
+        {/*    ))}*/}
+        {/*  </Select>*/}
       </div>
       <div>
         <Select

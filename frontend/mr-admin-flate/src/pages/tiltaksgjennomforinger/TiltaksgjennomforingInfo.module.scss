@@ -2,20 +2,22 @@
   background: white;
   padding: 1rem;
   width: 40rem;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
 
-  dt,
-  dd {
-    padding: 0;
-    margin: 0;
+  .bolk {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--a-gray-300);
+    padding-right: 20%;
+
+    @media (width <= 1200px) {
+      padding-right: 40%;
+    }
   }
 
-  dt {
-    font-weight: bold;
-  }
-
-  dd {
-    margin-bottom: 1rem;
+  @media (width <= 1200px) {
+    width: 100%;
   }
 }

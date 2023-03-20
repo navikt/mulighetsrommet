@@ -14,24 +14,35 @@ export function TiltaksgjennomforingInfo() {
   return (
     <div>
       <dl className={styles.detaljer}>
-        <Metadata
-          header="Tiltaksgjennomforing"
-          verdi={tiltaksgjennomforing.navn}
-        />
-        {/*<Metadata header="Tiltakskode" verdi={tiltaksgjennomforing.arenaKode} />*/}
-        {/*<Metadata*/}
-        {/*  header="Status"*/}
-        {/*  verdi={<Tiltakstypestatus tiltakstype={tiltaksgjennomforing} />}*/}
-        {/*/>*/}
-        <div>&nbsp;</div>
-        <Metadata
-          header="Startdato"
-          verdi={formaterDato(tiltaksgjennomforing.startDato)}
-        />
-        <Metadata
-          header="Sluttdato"
-          verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
-        />
+        <div className={styles.bolk}>
+          <Metadata
+            header="Tiltakstype"
+            verdi={tiltaksgjennomforing.tiltakstype.navn}
+          />
+        </div>
+        <div className={styles.bolk}>
+          <Metadata
+            header="Startdato"
+            verdi={formaterDato(tiltaksgjennomforing.startDato)}
+          />
+          <Metadata
+            header="Sluttdato"
+            verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
+          />
+        </div>
+
+        <div className={styles.bolk}>
+          <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
+        </div>
+
+        {tiltaksgjennomforing.virksomhetsnavn ? (
+          <div className={styles.bolk}>
+            <Metadata
+              header="Arrangør"
+              verdi={tiltaksgjennomforing.virksomhetsnavn}
+            />
+          </div>
+        ) : null}
       </dl>
     </div>
   );

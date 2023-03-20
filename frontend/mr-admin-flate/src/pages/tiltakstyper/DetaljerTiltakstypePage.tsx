@@ -27,9 +27,7 @@ export function DetaljerTiltakstypePage() {
     return (
       <Alert variant="warning">
         Klarte ikke finne tiltakstype
-        <div>
-          <Link to="/">Til forside</Link>
-        </div>
+        <Link to="/">Til forside</Link>
       </Alert>
     );
   }
