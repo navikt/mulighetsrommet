@@ -31,8 +31,7 @@ import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 const whiteListOpprettAvtaleKnapp = [
   'Midlertidig lønnstilskudd',
   'Arbeidstrening',
-  // TODO Sjekk med Tom Stian og Marthe om disse skal tilgjengeliggjøres
-  // 'Varig lønnstilskudd',
+  'Varig lønnstilskudd',
   'Mentor',
   'Inkluderingstilskudd',
   'Sommerjobb',
@@ -46,8 +45,8 @@ function tiltakstypeNavnTilUrlVerdi(tiltakstype: IndividuelleTiltak): Individuel
       return 'MIDLERTIDIG_LONNSTILSKUDD';
     case 'Arbeidstrening':
       return 'ARBEIDSTRENING';
-    // case 'Varig lønnstilskudd':
-    //   return 'VARIG_LONNSTILSKUDD';
+    case 'Varig lønnstilskudd':
+      return 'VARIG_LONNSTILSKUDD';
     case 'Mentor':
       return 'MENTOR';
     case 'Inkluderingstilskudd':
