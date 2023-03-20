@@ -310,10 +310,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
         id = uuid("id"),
-        navn = stringOrNull("navn"),
+        navn = string("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
         tiltaksnummer = string("tiltaksnummer"),
-        virksomhetsnummer = stringOrNull("virksomhetsnummer"),
+        virksomhetsnummer = string("virksomhetsnummer"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         enhet = string("enhet"),
@@ -330,9 +330,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakskode")
             ),
-            navn = stringOrNull("navn"),
+            navn = string("navn"),
             tiltaksnummer = string("tiltaksnummer"),
-            virksomhetsnummer = stringOrNull("virksomhetsnummer"),
+            virksomhetsnummer = string("virksomhetsnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
             enhet = string("enhet"),

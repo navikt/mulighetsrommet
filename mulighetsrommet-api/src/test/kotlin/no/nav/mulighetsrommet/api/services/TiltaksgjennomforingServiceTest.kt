@@ -38,10 +38,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         tiltaksgjennomforingRepository.upsert(
             TiltaksgjennomforingDbo(
                 id = tiltaksgjennomforingId,
-                navn = null,
+                navn = "",
                 tiltakstypeId = tiltakstypeId,
                 tiltaksnummer = "",
-                virksomhetsnummer = null,
+                virksomhetsnummer = "976663934",
                 enhet = "",
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 startDato = LocalDate.of(2022, 1, 1)

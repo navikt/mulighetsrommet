@@ -33,11 +33,22 @@ class TiltakgjennomforingEventProcessor(
 
         val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
         if (!isGruppetiltak && isRegisteredBeforeAktivitetsplanen(data)) {
-            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen")
+            return@either ProcessingResult(
+                Ignored,
+                "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen"
+            )
         }
 
         if (data.DATO_FRA == null) {
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi DATO_FRA er null")
+        }
+
+        if (data.LOKALTNAVN == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi LOKALTNAVN er null")
+        }
+
+        if (data.ARBGIV_ID_ARRANGOR == null) {
+            return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
@@ -71,7 +82,7 @@ class TiltakgjennomforingEventProcessor(
         val sak = entities
             .getSak(tiltaksgjennomforing.sakId)
             .bind()
-        val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+        val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
             ords.getArbeidsgiver(id)
                 .mapLeft { ProcessingError.fromResponseException(it) }
                 .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
@@ -98,6 +109,8 @@ class TiltakgjennomforingEventProcessor(
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID) = Either
         .catch {
             requireNotNull(DATO_FRA)
+            requireNotNull(LOKALTNAVN)
+            requireNotNull(ARBGIV_ID_ARRANGOR)
 
             Tiltaksgjennomforing(
                 id = id,
@@ -115,7 +128,7 @@ class TiltakgjennomforingEventProcessor(
         }
         .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String?) =
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String) =
         TiltaksgjennomforingDbo(
             id = id,
             navn = navn,
