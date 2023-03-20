@@ -25,7 +25,7 @@ export const tiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
     beskrivelse: faker.lorem.paragraph(3),
-    tiltaksnummer: 111111,
+    tiltaksnummer: '111111',
     kontaktinfoArrangor: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       selskapsnavn: 'SoloPolo AS',
@@ -69,7 +69,7 @@ export const tiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
     beskrivelse: faker.lorem.paragraph(3),
-    tiltaksnummer: 123456,
+    tiltaksnummer: '123456',
     kontaktinfoArrangor: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       selskapsnavn: 'SoloPolo AS',
@@ -113,7 +113,7 @@ export const tiltaksgjennomforinger: SanityTiltaksgjennomforing[] = [
     },
     tiltaksgjennomforingNavn: 'Varig tilrettelagt arbeid - VTA',
     beskrivelse: faker.lorem.paragraph(3),
-    tiltaksnummer: 112233,
+    tiltaksnummer: '112233',
     kontaktinfoArrangor: {
       _id: faker.datatype.number({ min: 100000, max: 999999 }).toString(),
       selskapsnavn: 'SoloPolo AS',
