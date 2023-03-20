@@ -10,6 +10,7 @@ import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
@@ -74,6 +75,17 @@ export function App() {
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
       />
+      <Route
+        path="tiltaksgjennomforinger/"
+        element={<TiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      />
+      {/*<Route*/}
+      {/*  path="avtaler/:avtaleId"*/}
+      {/*  element={<DetaljerAvtalePage />}*/}
+      {/*  errorElement={<ErrorPage />}*/}
+      {/*/>*/}
+
       <Route index element={<Forside />} />
     </Routes>
   );

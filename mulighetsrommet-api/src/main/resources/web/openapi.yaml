@@ -234,63 +234,63 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/mine:
-    parameters:
-      - in: query
-        name: page
-        schema:
-          type: number
-        description: Page number, default 1
-      - in: query
-        name: size
-        schema:
-          type: number
-        description: Page size, default 50
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: getAnsattsGjennomforinger
-      responses:
-        200:
-          description: En liste med tiltaksgjennomføringer tilknyttet en ansatt
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
-        404:
-          description: "Fant ingen tiltaksgjennomføringer for den ansatte"
-          content:
-            application/json:
-              schema:
-                type: string
-    post:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: lagreTilMinListe
-      requestBody:
-        description: En id for en tiltaksgjennomføring som skal i listen
-        required: true
-        content:
-          text/plain:
-            schema:
-              type: string
-      responses:
-        200:
-          description: Lagrer en tiltaksgjennomføring til ansatts liste over gjennomføringer
-    delete:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: fjernFraMinListe
-      requestBody:
-        description: En id for en tiltaksgjennomføring som skal fjernes fra listen
-        required: true
-        content:
-          text/plain:
-            schema:
-              type: string
-      responses:
-        200:
-          description: Fjernet en gjennomføring gitt en id for en tiltaksgjennomføring
+  #  /api/v1/internal/tiltaksgjennomforinger/mine:
+  #    parameters:
+  #      - in: query
+  #        name: page
+  #        schema:
+  #          type: number
+  #        description: Page number, default 1
+  #      - in: query
+  #        name: size
+  #        schema:
+  #          type: number
+  #        description: Page size, default 50
+  #    get:
+  #      tags:
+  #        - Tiltaksgjennomforinger
+  #      operationId: getAnsattsGjennomforinger
+  #      responses:
+  #        200:
+  #          description: En liste med tiltaksgjennomføringer tilknyttet en ansatt
+  #          content:
+  #            application/json:
+  #              schema:
+  #                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+  #        404:
+  #          description: "Fant ingen tiltaksgjennomføringer for den ansatte"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: string
+  #    post:
+  #      tags:
+  #        - Tiltaksgjennomforinger
+  #      operationId: lagreTilMinListe
+  #      requestBody:
+  #        description: En id for en tiltaksgjennomføring som skal i listen
+  #        required: true
+  #        content:
+  #          text/plain:
+  #            schema:
+  #              type: string
+  #      responses:
+  #        200:
+  #          description: Lagrer en tiltaksgjennomføring til ansatts liste over gjennomføringer
+  #    delete:
+  #      tags:
+  #        - Tiltaksgjennomforinger
+  #      operationId: fjernFraMinListe
+  #      requestBody:
+  #        description: En id for en tiltaksgjennomføring som skal fjernes fra listen
+  #        required: true
+  #        content:
+  #          text/plain:
+  #            schema:
+  #              type: string
+  #      responses:
+  #        200:
+  #          description: Fjernet en gjennomføring gitt en id for en tiltaksgjennomføring
 
   /api/v1/internal/tiltaksgjennomforinger/sok:
     get:
@@ -918,6 +918,8 @@ components:
         tiltaksnummer:
           type: string
         virksomhetsnummer:
+          type: string
+        virksomhetsnavn:
           type: string
         startDato:
           type: string

@@ -16,39 +16,33 @@ export function Avtalerad({ avtale }: Props) {
       classname={styles.listerad_avtale}
       testId="avtalerad"
     >
-      <BodyShort aria-label={`Avtalenavn: ${avtale.navn}`} size="medium">
+      <BodyShort aria-label={`Avtalenavn: ${avtale.navn}`}>
         {avtale.navn}
       </BodyShort>
-      <BodyShort
-        aria-label={`Leverandør: ${avtale.leverandor?.navn}`}
-        size="medium"
-      >
+      <BodyShort aria-label={`Leverandør: ${avtale.leverandor?.navn}`}>
         {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
       </BodyShort>
       <BodyShort
         aria-label={`NAV-enhet: ${
           avtale.navEnhet?.navn || avtale.navEnhet?.enhetsnummer
         }`}
-        size="medium"
       >
         {avtale.navEnhet?.navn || avtale?.navEnhet?.enhetsnummer}
       </BodyShort>
 
       <BodyShort
-        size="small"
         title={`Startdato ${formaterDato(avtale.startDato)}`}
         aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}
       >
         {formaterDato(avtale.startDato)}
       </BodyShort>
       <BodyShort
-        size="small"
         title={`Sluttdato ${formaterDato(avtale.sluttDato)}`}
         aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}
       >
         {formaterDato(avtale.sluttDato)}
       </BodyShort>
-      <BodyShort size="small">
+      <BodyShort>
         <Avtalestatus avtale={avtale} />
       </BodyShort>
     </ListeRad>

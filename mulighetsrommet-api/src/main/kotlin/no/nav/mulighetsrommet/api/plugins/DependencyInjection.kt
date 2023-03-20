@@ -233,7 +233,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { Norg2Service(get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
