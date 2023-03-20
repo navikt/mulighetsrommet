@@ -57,7 +57,6 @@ class SakEventProcessorTest : FunSpec({
 
 private fun createConsumer(db: Database): SakEventProcessor {
     val entities = ArenaEntityService(
-        events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),

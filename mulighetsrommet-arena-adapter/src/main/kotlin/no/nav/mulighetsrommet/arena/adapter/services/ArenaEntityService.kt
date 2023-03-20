@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import java.util.*
 
 class ArenaEntityService(
-    private val events: ArenaEventRepository,
     private val mappings: ArenaEntityMappingRepository,
     private val tiltakstyper: TiltakstypeRepository,
     private val saker: SakRepository,
@@ -20,7 +19,14 @@ class ArenaEntityService(
 ) {
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
         return mappings.get(event.arenaTable, event.arenaId)
-            ?: mappings.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+            ?: mappings.upsert(
+                ArenaEntityMapping(
+                    event.arenaTable,
+                    event.arenaId,
+                    UUID.randomUUID(),
+                    ArenaEntityMapping.Status.Unhandled
+                )
+            )
     }
 
     fun upsertMapping(arenaEntityMapping: ArenaEntityMapping): ArenaEntityMapping {
@@ -33,9 +39,9 @@ class ArenaEntityService(
             .left()
     }
 
-    fun getMappingIfProcessed(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
+    fun getMappingIfHandled(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
         return mappings.get(arenaTable, arenaId)
-            .takeIf { events.get(arenaTable, arenaId)?.status == ArenaEvent.ProcessingStatus.Processed }
+            .takeIf { it?.status == ArenaEntityMapping.Status.Handled }
     }
 
     fun upsertTiltakstype(tiltakstype: Tiltakstype): Either<ProcessingError, Tiltakstype> {

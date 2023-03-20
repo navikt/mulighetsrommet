@@ -145,7 +145,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
         )
         ArenaEventService(config = services.arenaEventService, events = get(), processors = processors, entities = get())
     }
-    single { ArenaEntityService(get(), get(), get(), get(), get(), get(), get()) }
+    single { ArenaEntityService(get(), get(), get(), get(), get(), get()) }
 }
 
 private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
