@@ -80,7 +80,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             arrangorId = 123,
             navn = "Gjennomføring gruppe",
             status = "GJENNOMFOR",
-            fraDato = LocalDateTime.of(2023, 1, 1, 0, 0)
+            fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
+            avtaleId = 1000
         )
 
         val tiltakstypeIndividuell = TiltakstypeFixtures.Individuell
@@ -93,7 +94,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             arrangorId = 123,
             navn = "Gjennomføring individuell",
             status = "GJENNOMFOR",
-            fraDato = LocalDateTime.of(2023, 1, 1, 0, 0)
+            fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
+            avtaleId = 1000
         )
 
         /**
