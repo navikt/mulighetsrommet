@@ -173,7 +173,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
         }
 
         test("should be ignored when dependent tiltaksgjennomforing is ignored") {
-            val events = ArenaEventRepository(database.db)
             val entities = ArenaEntityMappingRepository(database.db)
             val gjennomforingEvent = createArenaTiltakgjennomforingEvent(Insert, status = Processed) {
                 it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforing.tiltaksgjennomforingId)
