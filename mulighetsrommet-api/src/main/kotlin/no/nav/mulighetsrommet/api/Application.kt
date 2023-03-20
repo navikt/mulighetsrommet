@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -53,7 +52,7 @@ fun Application.configure(config: AppConfig) {
             enhetRoutes()
         }
         authenticate(AuthProvider.AzureAdDefaultApp.name) {
-            arenaRoutes()
+            arenaAdapterRoutes()
         }
         authenticate(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
             externalRoutes()

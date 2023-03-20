@@ -113,9 +113,9 @@ class TiltakshistorikkRepository(private val db: Database) {
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato"),
-                beskrivelse = stringOrNull("beskrivelse"),
+                beskrivelse = string("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
-                virksomhetsnummer = stringOrNull("virksomhetsnummer")
+                virksomhetsnummer = string("virksomhetsnummer")
             )
     }
 

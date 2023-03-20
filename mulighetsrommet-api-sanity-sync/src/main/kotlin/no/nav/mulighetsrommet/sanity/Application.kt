@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseAdapter
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 
 @Serializable
@@ -24,11 +25,11 @@ fun main() {
     val sanity = SanityClient(config.sanity)
 
     runBlocking {
-        synchronizeTilgjenglighetsstatus(db, sanity)
+        synchronizeTilgjengelighetsstatus(db, sanity)
     }
 }
 
-private suspend fun synchronizeTilgjenglighetsstatus(db: Database, sanity: SanityClient) =
+private suspend fun synchronizeTilgjengelighetsstatus(db: Database, sanity: SanityClient) =
     coroutineScope {
         val channelCapacity = 20
 
@@ -37,7 +38,7 @@ private suspend fun synchronizeTilgjenglighetsstatus(db: Database, sanity: Sanit
         (0..channelCapacity / 2)
             .map {
                 async {
-                    writeTilgjenglighetsstatus(tiltak, db, sanity)
+                    writeTilgjengelighetsstatus(tiltak, db, sanity)
                 }
             }
             .awaitAll()
@@ -61,7 +62,7 @@ private fun CoroutineScope.produceTiltak(capacity: Int, sanity: SanityClient): R
     }
 }
 
-private suspend fun writeTilgjenglighetsstatus(
+private suspend fun writeTilgjengelighetsstatus(
     channel: ReceiveChannel<Tiltak>,
     db: Database,
     sanity: SanityClient
@@ -77,8 +78,7 @@ private suspend fun writeTilgjenglighetsstatus(
         )
             .map {
                 val value = it.string("tilgjengelighet")
-                // TODO: map denne til tilgjenglighetsstatus
-                value
+                TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)
             }
             .asSingle
             .let { db.run(it) }

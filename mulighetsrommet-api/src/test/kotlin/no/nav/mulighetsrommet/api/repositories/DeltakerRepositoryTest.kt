@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,8 +45,8 @@ class DeltakerRepositoryTest : FunSpec({
         val deltaker1 = DeltakerDbo(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-            norskIdent = "10101010100",
             status = Deltakerstatus.VENTER,
+            opphav = Deltakeropphav.AMT,
             startDato = null,
             sluttDato = null,
             registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
@@ -53,7 +54,6 @@ class DeltakerRepositoryTest : FunSpec({
         val deltaker2 = deltaker1.copy(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
-            norskIdent = "10101010101"
         )
 
         test("CRUD") {
@@ -96,19 +96,17 @@ class DeltakerRepositoryTest : FunSpec({
             val tiltakstype2 = TiltakstypeFixtures.Oppfolging.copy(id = UUID.randomUUID())
 
             val deltaker1 = DeltakerFixture.Deltaker
-            val deltaker2 = DeltakerFixture.Deltaker.copy(id = UUID.randomUUID(), norskIdent = "13118323058")
-            val deltaker3 = DeltakerFixture.Deltaker.copy(id = UUID.randomUUID(), norskIdent = "14118323058")
+            val deltaker2 = DeltakerFixture.Deltaker.copy(id = UUID.randomUUID())
+            val deltaker3 = DeltakerFixture.Deltaker.copy(id = UUID.randomUUID())
             val deltaker4 = DeltakerFixture.Deltaker.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2022, 1, 1),
                 sluttDato = LocalDate.of(2022, 12, 12),
-                norskIdent = "13108323058"
             )
 
             val deltakerPaAnnenTiltaksgjennomforing = DeltakerFixture.Deltaker.copy(
                 id = UUID.randomUUID(),
                 tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
-                norskIdent = "13098323058"
             )
 
             tiltakstypeRepository.upsert(tiltakstype)
