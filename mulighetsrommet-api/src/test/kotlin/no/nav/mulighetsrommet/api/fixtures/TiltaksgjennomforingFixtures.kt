@@ -16,6 +16,7 @@ object TiltaksgjennomforingFixtures {
         sluttDato = LocalDate.of(2023, 2, 1),
         enhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        avtaleId = 1000
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -28,5 +29,6 @@ object TiltaksgjennomforingFixtures {
         sluttDato = LocalDate.of(2023, 2, 1),
         enhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+        avtaleId = 1000
     )
 }

@@ -50,7 +50,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         startDato = LocalDate.of(2022, 1, 1),
         sluttDato = LocalDate.of(2022, 1, 1),
         enhet = "2990",
-        avslutningsstatus = Avslutningsstatus.AVSLUTTET
+        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+        avtaleId = 1000
     )
 
     val tiltak2 = TiltaksgjennomforingDbo(
@@ -61,7 +62,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         virksomhetsnummer = "123456789",
         enhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-        startDato = LocalDate.of(2022, 1, 1)
+        startDato = LocalDate.of(2022, 1, 1),
     )
 
     context("CRUD") {
@@ -91,7 +92,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 startDato = tiltak1.startDato,
                 sluttDato = tiltak1.sluttDato,
                 enhet = tiltak1.enhet,
-                status = Tiltaksgjennomforingsstatus.AVSLUTTET
+                status = Tiltaksgjennomforingsstatus.AVSLUTTET,
+                avtaleId = tiltak1.avtaleId
             )
 
             tiltaksgjennomforinger.delete(tiltak1.id)

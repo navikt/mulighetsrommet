@@ -14,5 +14,6 @@ data class Tiltaksgjennomforing(
     val tilDato: LocalDateTime? = null,
     val apentForInnsok: Boolean = true,
     val antallPlasser: Int? = null,
-    val status: String
+    val status: String,
+    val avtaleId: Int?
 )

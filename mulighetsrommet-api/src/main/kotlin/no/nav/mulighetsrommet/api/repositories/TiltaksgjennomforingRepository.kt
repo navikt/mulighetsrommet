@@ -26,8 +26,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet, avslutningsstatus)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet, :avslutningsstatus::avslutningsstatus)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet, avslutningsstatus, avtale_id)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet, :avslutningsstatus::avslutningsstatus, :avtale_id)
             on conflict (id)
                 do update set navn              = excluded.navn,
                               tiltakstype_id    = excluded.tiltakstype_id,
@@ -36,7 +36,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               start_dato        = excluded.start_dato,
                               slutt_dato        = excluded.slutt_dato,
                               enhet             = excluded.enhet,
-                              avslutningsstatus = excluded.avslutningsstatus
+                              avslutningsstatus = excluded.avslutningsstatus,
+                              avtale_id         = excluded.avtale_id
             returning *
         """.trimIndent()
 
@@ -59,7 +60,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltakskode,
                    t.navn as tiltakstype_navn,
                    enhet,
-                   avslutningsstatus
+                   avslutningsstatus,
+                   avtale_id
             from tiltaksgjennomforing tg
                      join tiltakstype t on t.id = tg.tiltakstype_id
             where tg.id = ?::uuid
@@ -84,6 +86,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    t.navn           as tiltakstype_navn,
                    enhet,
                    avslutningsstatus,
+                   tg.avtale_id,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -119,6 +122,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    t.navn           as tiltakstype_navn,
                    enhet,
                    avslutningsstatus,
+                   tg.avtale_id,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -152,9 +156,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tiltakskode,
                    start_dato,
                    slutt_dato,
-                   t.navn           as tiltakstype_navn,
+                   t.navn as tiltakstype_navn,
                    enhet,
                    avslutningsstatus,
+                   tg.avtale_id,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -193,6 +198,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    t.navn           as tiltakstype_navn,
                    enhet,
                    avslutningsstatus,
+                   tg.avtale_id,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
@@ -231,7 +237,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    start_dato,
                    slutt_dato,
                    enhet,
-                   avslutningsstatus::avslutningsstatus
+                   avslutningsstatus::avslutningsstatus,
+                   avtale_id
             from tiltaksgjennomforing
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
@@ -268,7 +275,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    slutt_dato,
                    t.navn as tiltakstype_navn,
                    enhet,
-                   avslutningsstatus
+                   avslutningsstatus,
+                   tg.avtale_id
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
             where tiltaksnummer like concat('%', ?, '%')
@@ -305,7 +313,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "enhet" to enhet,
-        "avslutningsstatus" to avslutningsstatus.name
+        "avslutningsstatus" to avslutningsstatus.name,
+        "avtale_id" to avtaleId
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -317,7 +326,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         enhet = string("enhet"),
-        avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus"))
+        avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
+        avtaleId = intOrNull("avtale_id")
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
@@ -341,7 +351,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 startDato,
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus"))
-            )
+            ),
+            avtaleId = intOrNull("avtale_id")
         )
     }
 

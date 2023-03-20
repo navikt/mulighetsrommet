@@ -20,5 +20,6 @@ data class TiltaksgjennomforingDbo(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val enhet: String,
-    val avslutningsstatus: Avslutningsstatus
+    val avslutningsstatus: Avslutningsstatus,
+    val avtaleId: Int? = null
 )
