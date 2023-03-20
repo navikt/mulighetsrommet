@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.domain
 
 object Tiltakskoder {
-    val gruppeTiltak = listOf(
+    /**
+     * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall).
+     */
+    val Gruppetiltak = listOf(
         "ARBFORB",
         "ARBRRHDAG",
         "AVKLARAG",
@@ -17,10 +20,26 @@ object Tiltakskoder {
         "JOBBK",
         "UTVAOONAV",
         "UTVOPPFOPL",
-        "VASV"
+        "VASV",
     )
 
-    fun isGruppetiltak(tiltakstypeArenaKode: String): Boolean {
-        return tiltakstypeArenaKode in gruppeTiltak
+    /**
+     * Tiltakskoder der Komet har tatt eierskap til deltakelsene.
+     */
+    val AmtTiltak = listOf(
+        "ARBFORB",
+        "ARBRRHDAG",
+        "AVKLARAG",
+        "DIGIOPPARB",
+        "INDOPPFAG",
+        "VASV",
+    )
+
+    fun isGruppetiltak(tiltakskode: String): Boolean {
+        return tiltakskode in Gruppetiltak
+    }
+
+    fun isAmtTiltak(tiltakskode: String): Boolean {
+        return tiltakskode in AmtTiltak
     }
 }
