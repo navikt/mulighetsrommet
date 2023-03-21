@@ -97,6 +97,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         apentForInnsok = boolean("apent_for_innsok"),
         antallPlasser = intOrNull("antall_plasser"),
         status = string("status"),
-        avtaleId = int("avtale_id")
+        avtaleId = intOrNull("avtale_id")
     )
 }
