@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter
 
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -42,6 +43,10 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     tasks = TaskConfig(
         retryFailedEvents = RetryFailedEvents.Config(
             delayOfMinutes = 1
+        ),
+        notifyFailedEvents = NotifyFailedEvents.Config(
+            maxRetries = 5,
+            cron = ""
         )
     ),
     services = ServiceConfig(
