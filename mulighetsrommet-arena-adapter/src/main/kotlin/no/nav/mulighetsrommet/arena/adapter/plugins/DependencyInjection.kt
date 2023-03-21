@@ -79,7 +79,7 @@ private fun tasks(tasks: TaskConfig) = module {
 
 private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
     single<Database> {
-        FlywayDatabaseAdapter(config)
+        FlywayDatabaseAdapter(config, get())
     }
 }
 
