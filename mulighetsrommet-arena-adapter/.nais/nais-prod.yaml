@@ -30,8 +30,8 @@ spec:
       cpu: 250m
       memory: 512Mi
     limits:
-      cpu: 2000m
-      memory: 4096Mi
+      cpu: 4000m
+      memory: 8192Mi
   gcp:
     sqlInstances:
       - type: POSTGRES_14
