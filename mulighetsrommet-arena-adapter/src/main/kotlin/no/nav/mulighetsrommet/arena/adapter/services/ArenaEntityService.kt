@@ -24,7 +24,10 @@ class ArenaEntityService(
                     event.arenaTable,
                     event.arenaId,
                     UUID.randomUUID(),
-                    ArenaEntityMapping.Status.Unhandled
+                    when (event.status) {
+                        ArenaEvent.ProcessingStatus.Processed -> ArenaEntityMapping.Status.Handled
+                        else -> ArenaEntityMapping.Status.Unhandled
+                    }
                 )
             )
     }
