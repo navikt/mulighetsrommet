@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Invalid
@@ -26,7 +28,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
@@ -35,7 +36,6 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
-import java.util.*
 
 class AvtaleInfoEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -48,196 +48,225 @@ class AvtaleInfoEventProcessorTest : FunSpec({
         database.db.clean()
     }
 
-    context("when dependent events has not been processed") {
-        test("should save the event with status Failed when dependent tiltakstype is missing") {
-            val consumer = createConsumer(database.db)
+    context("handleEvent") {
+        val entities = ArenaEntityService(
+            mappings = ArenaEntityMappingRepository(database.db),
+            tiltakstyper = TiltakstypeRepository(database.db),
+            saker = SakRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = DeltakerRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+        )
 
-            val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
-
-            result.shouldBeLeft().should { it.status shouldBe Failed }
-            database.assertThat("avtale").isEmpty
-        }
-    }
-
-    context("when dependent tiltakstype has been processed") {
-        val tiltakstype = TiltakstypeFixtures.Gruppe
-
-        beforeEach {
-            val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(tiltakstype)
-
-            val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled))
-        }
-
-        test("ignore avtaler when required fields are missing") {
-            val consumer = createConsumer(database.db)
-
-            val events = listOf(
-                createArenaAvtaleInfoEvent(Insert) {
-                    it.copy(DATO_FRA = null)
-                },
-                createArenaAvtaleInfoEvent(Insert) {
-                    it.copy(DATO_TIL = null)
-                },
-                createArenaAvtaleInfoEvent(Insert) {
-                    it.copy(ARBGIV_ID_LEVERANDOR = null)
-                },
-            )
-
-            events.forEach { event ->
-                consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
-            }
-            database.assertThat("avtale").isEmpty
-        }
-
-        test("ignore avtaler ended before 2023") {
-            val consumer = createConsumer(database.db)
-
-            val event = createArenaAvtaleInfoEvent(Insert) {
-                it.copy(DATO_TIL = "2022-12-31 00:00:00")
+        fun createProcessor(engine: HttpClientEngine = MockEngine { respondOk() }): AvtaleInfoEventProcessor {
+            val client = MulighetsrommetApiClient(engine, baseUri = "api") {
+                "Bearer token"
             }
 
-            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
-            database.assertThat("avtale").isEmpty
+            val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
+                "Bearer token"
+            }
+
+            return AvtaleInfoEventProcessor(entities, client, ords)
         }
 
-        test("should treat all operations as upserts") {
-            val engine = createMockEngine(
-                "/ords/arbeidsgiver" to {
-                    respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                },
-                "/api/v1/internal/arena/avtale.*" to { respondOk() }
-            )
-            val consumer = createConsumer(database.db, engine)
-            val entities = ArenaEntityMappingRepository(database.db)
-
-            val e1 = createArenaAvtaleInfoEvent(Insert)
-            entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
-            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
-            database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
-
-            val e2 = createArenaAvtaleInfoEvent(Update) {
-                it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
-            }
-            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
-            database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Planlagt.name)
-
-            val e3 = createArenaAvtaleInfoEvent(Update) {
-                it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
-            }
-            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
-            database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Avsluttet.name)
+        fun prepareEvent(event: ArenaEvent): Pair<ArenaEvent, ArenaEntityMapping> {
+            val mapping = entities.getOrCreateMapping(event)
+            return Pair(event, mapping)
         }
 
-        context("api responses") {
-            test("should mark the event as Failed when arena ords proxy responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondError(HttpStatusCode.InternalServerError)
-                    }
+        context("when dependent events has not been processed") {
+            test("should save the event with status Failed when dependent tiltakstype is missing") {
+                val processor = createProcessor()
+
+                val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                val result = processor.handleEvent(event)
+
+                result.shouldBeLeft().should {
+                    it.status shouldBe Failed
+                    it.message shouldContain "Key (tiltakskode)=(INDOPPFAG) is not present in table \"tiltakstype\""
+                }
+                database.assertThat("avtale").isEmpty
+            }
+        }
+
+        context("when dependent tiltakstype has been processed") {
+            val tiltakstype = TiltakstypeFixtures.Gruppe
+
+            beforeEach {
+                val tiltakstyper = TiltakstypeRepository(database.db)
+                tiltakstyper.upsert(tiltakstype)
+
+                val mappings = ArenaEntityMappingRepository(database.db)
+                mappings.upsert(
+                    ArenaEntityMapping(
+                        ArenaTable.Tiltakstype,
+                        tiltakstype.tiltakskode,
+                        tiltakstype.id,
+                        Handled
+                    )
                 )
-
-                val consumer = createConsumer(database.db, engine)
-                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
-
-                result.shouldBeLeft().should { it.status shouldBe Failed }
             }
 
-            // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
-            test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondError(HttpStatusCode.NotFound)
-                    }
-                )
-                val entities = ArenaEntityMappingRepository(database.db)
-                val event = createArenaAvtaleInfoEvent(Insert)
-                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
-                val consumer = createConsumer(database.db, engine)
-                val result = consumer.handleEvent(event)
+            test("ignore avtaler when required fields are missing") {
+                val processor = createProcessor()
 
-                result.shouldBeLeft().should { it.status shouldBe Invalid }
-            }
-
-            test("should mark the event as Failed when api responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "100000")
-                        )
+                val events = listOf(
+                    createArenaAvtaleInfoEvent(Insert) {
+                        it.copy(AVTALENAVN = null)
                     },
-                    "/api/v1/internal/arena/avtale" to {
-                        respondError(HttpStatusCode.InternalServerError)
-                    }
+                    createArenaAvtaleInfoEvent(Insert) {
+                        it.copy(DATO_FRA = null)
+                    },
+                    createArenaAvtaleInfoEvent(Insert) {
+                        it.copy(DATO_TIL = null)
+                    },
+                    createArenaAvtaleInfoEvent(Insert) {
+                        it.copy(ARBGIV_ID_LEVERANDOR = null)
+                    },
                 )
 
-                val consumer = createConsumer(database.db, engine)
-                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
-
-                result.shouldBeLeft().should { it.status shouldBe Failed }
+                events.forEach { event ->
+                    processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
+                }
+                database.assertThat("avtale").isEmpty
             }
 
-            test("should call api with mapped event payload when all services responds with success") {
+            test("ignore avtaler ended before 2023") {
+                val processor = createProcessor()
+
+                val event = createArenaAvtaleInfoEvent(Insert) {
+                    it.copy(DATO_TIL = "2022-12-31 00:00:00")
+                }
+
+                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
+                database.assertThat("avtale").isEmpty
+            }
+
+            test("should treat all operations as upserts") {
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
                     "/api/v1/internal/arena/avtale.*" to { respondOk() }
                 )
+                val processor = createProcessor(engine)
 
-                val consumer = createConsumer(database.db, engine)
-                val entities = ArenaEntityMappingRepository(database.db)
+                val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                database.assertThat("avtale").row()
+                    .value("id").isEqualTo(mapping.entityId)
+                    .value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
-                val event = createArenaAvtaleInfoEvent(Insert)
-                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
-                consumer.handleEvent(event).shouldBeRight()
+                val e2 = createArenaAvtaleInfoEvent(Update) {
+                    it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
+                }
+                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                database.assertThat("avtale").row()
+                    .value("id").isEqualTo(mapping.entityId)
+                    .value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
-                val generatedId = engine.requestHistory.last().run {
-                    method shouldBe HttpMethod.Put
+                val e3 = createArenaAvtaleInfoEvent(Update) {
+                    it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
+                }
+                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                database.assertThat("avtale").row()
+                    .value("id").isEqualTo(mapping.entityId)
+                    .value("status").isEqualTo(Avtale.Status.Avsluttet.name)
+            }
 
-                    val avtale = decodeRequestBody<AvtaleDbo>().apply {
-                        tiltakstypeId shouldBe tiltakstype.id
-                        avtalenummer shouldBe "2022#2000"
-                        leverandorOrganisasjonsnummer shouldBe "1000000"
-                        avtaletype shouldBe Avtaletype.Rammeavtale
-                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+            context("api responses") {
+                test("should mark the event as Failed when arena ords proxy responds with an error") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondError(HttpStatusCode.InternalServerError)
+                        }
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                    val result = processor.handleEvent(event)
+
+                    result.shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Unexpected response from arena-ords-proxy"
                     }
-
-                    avtale.id
                 }
 
-                consumer.handleEvent(createArenaAvtaleInfoEvent(Delete)).shouldBeRight()
+                // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
+                test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondError(HttpStatusCode.NotFound)
+                        }
+                    )
+                    val processor = createProcessor(engine)
 
-                engine.requestHistory.last().run {
-                    method shouldBe HttpMethod.Delete
+                    val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                    val result = processor.handleEvent(event)
 
-                    url.getLastPathParameterAsUUID() shouldBe generatedId
+                    result.shouldBeLeft().should {
+                        it.status shouldBe Invalid
+                        it.message shouldContain "Fant ikke leverandør i Arena ORDS"
+                    }
+                }
+
+                test("should mark the event as Failed when api responds with an error") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(
+                                ArenaOrdsArrangor("123456", "100000")
+                            )
+                        },
+                        "/api/v1/internal/arena/avtale" to {
+                            respondError(HttpStatusCode.InternalServerError)
+                        }
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                    val result = processor.handleEvent(event)
+
+                    result.shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Internal Server Error"
+                    }
+                }
+
+                test("should call api with mapped event payload when all services responds with success") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(ArenaOrdsArrangor("123456", "1000000"))
+                        },
+                        "/api/v1/internal/arena/avtale.*" to { respondOk() }
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                    processor.handleEvent(event).shouldBeRight()
+
+                    engine.requestHistory.last().apply {
+                        method shouldBe HttpMethod.Put
+
+                        decodeRequestBody<AvtaleDbo>().apply {
+                            id shouldBe mapping.entityId
+                            tiltakstypeId shouldBe tiltakstype.id
+                            avtalenummer shouldBe "2022#2000"
+                            leverandorOrganisasjonsnummer shouldBe "1000000"
+                            avtaletype shouldBe Avtaletype.Rammeavtale
+                            avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+                        }
+                    }
+
+                    processor.handleEvent(createArenaAvtaleInfoEvent(Delete)).shouldBeRight()
+
+                    engine.requestHistory.last().run {
+                        method shouldBe HttpMethod.Delete
+
+                        url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+                    }
                 }
             }
         }
     }
 })
-
-private fun createConsumer(
-    db: Database,
-    engine: HttpClientEngine = MockEngine { respondOk() }
-): AvtaleInfoEventProcessor {
-    val client = MulighetsrommetApiClient(engine, baseUri = "api") {
-        "Bearer token"
-    }
-
-    val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
-        "Bearer token"
-    }
-    val entities = ArenaEntityService(
-        mappings = ArenaEntityMappingRepository(db),
-        tiltakstyper = TiltakstypeRepository(db),
-        saker = SakRepository(db),
-        tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-        deltakere = DeltakerRepository(db),
-        avtaler = AvtaleRepository(db),
-    )
-
-    return AvtaleInfoEventProcessor(entities, client, ords)
-}
