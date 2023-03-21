@@ -118,7 +118,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     if (tiltakstypeAsStringIsIndividuellTiltakstype(tiltakstypeNavn)) {
       const url = lenkeTilOpprettAvtaleForEnv(tiltakstypeNavn);
       window.open(url, '_blank');
-      console.log();
       logEvent('mulighetsrommet.opprett-avtale', { tiltakstype: tiltakstypeNavn });
     }
   };
