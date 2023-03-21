@@ -6,6 +6,7 @@ import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import styles from "./Filter.module.scss";
+import { resetPaginering } from "../../utils/Utils";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
@@ -20,10 +21,6 @@ export function Avtalefilter() {
       searchRef?.current?.focus();
     }
   }, [data]);
-
-  const resetPaginering = () => {
-    setPage(1);
-  };
 
   return (
     <>
@@ -49,7 +46,7 @@ export function Avtalefilter() {
             value={filter.status}
             data-testid="filter_avtale_status"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering();
+              resetPaginering(setPage);
               setFilter({
                 ...filter,
                 status: e.currentTarget.value as Avtalestatus,
@@ -69,7 +66,7 @@ export function Avtalefilter() {
             value={filter.enhet}
             data-testid="filter_avtale_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering();
+              resetPaginering(setPage);
               setFilter({ ...filter, enhet: e.currentTarget.value });
             }}
           >

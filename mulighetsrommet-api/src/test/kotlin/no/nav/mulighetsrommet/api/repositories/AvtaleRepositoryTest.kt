@@ -305,7 +305,7 @@ class AvtaleRepositoryTest : FunSpec({
                 tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
                 tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
 
-                val gjennomforinger = tiltaksgjennomforingRepository.getAll()
+                val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
                 gjennomforinger.first shouldBe 4
 
                 val antallGjennomforingerForAvtale =

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.Sokefilter
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
@@ -23,7 +24,8 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("/api/v1/internal/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforingService.getAll(paginationParams)
+            val filter = getAdminTiltaksgjennomforingsFilter()
+            val (totalCount, items) = tiltaksgjennomforingService.getAll(paginationParams, filter)
             call.respond(
                 PaginatedResponse(
                     pagination = Pagination(

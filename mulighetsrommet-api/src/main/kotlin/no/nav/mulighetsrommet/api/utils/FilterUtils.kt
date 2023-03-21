@@ -26,6 +26,12 @@ data class AvtaleFilter(
     val dagensDato: LocalDate = LocalDate.now(),
 )
 
+data class AdminTiltaksgjennomforingFilter(
+    val search: String? = "",
+    val enhet: String? = null,
+    val sortering: String? = null,
+)
+
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus> = listOf(
         NavEnhetStatus.AKTIV,
@@ -67,6 +73,17 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         tiltakstypeId = tiltakstypeId,
         search = search,
         avtalestatus = avtalestatus,
+        enhet = enhet,
+        sortering = sortering
+    )
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
+    val search = call.request.queryParameters["search"]
+    val enhet = call.request.queryParameters["enhet"]
+    val sortering = call.request.queryParameters["sort"]
+    return AdminTiltaksgjennomforingFilter(
+        search = search,
         enhet = enhet,
         sortering = sortering
     )

@@ -7,11 +7,11 @@ import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeheaderTiltaksgjennomforinger } from "../listeelementer/Listeheader";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import pageStyles from "../../pages/Page.module.scss";
-import { useTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforinger";
+import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { TiltaksgjennomforingsRad } from "./TiltaksgjennomforingsRad";
 
 export function TiltaksgjennomforingOversikt() {
-  const { data, isLoading, isError } = useTiltaksgjennomforinger();
+  const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
 
   if (isLoading) {
@@ -19,7 +19,7 @@ export function TiltaksgjennomforingOversikt() {
   }
 
   if (!data) {
-    return <Alert variant="info">Fant ingen avtaler</Alert>;
+    return <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>;
   }
 
   if (isError) {

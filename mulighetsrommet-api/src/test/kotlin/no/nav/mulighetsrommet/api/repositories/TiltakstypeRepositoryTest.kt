@@ -312,7 +312,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
             tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
 
-            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll()
+            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
             antallGjennomforinger.first shouldBe 4
 
             val antallGjennomforingerForTiltakstype = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstype.id)

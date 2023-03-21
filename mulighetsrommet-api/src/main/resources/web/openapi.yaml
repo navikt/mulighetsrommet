@@ -131,10 +131,24 @@ paths:
             type: number
           description: Page number, default 1
         - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for avtaler by the name
+        - in: query
+          name: enhet
+          schema:
+            type: string
+          description: 4 digit enhetskode
+        - in: query
           name: size
           schema:
             type: number
           description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
       responses:
         200:
           description: Object of paginated tiltaksgjennomføringer.
@@ -927,6 +941,12 @@ components:
         - navn-ascending
         - navn-descending
 
+    SorteringTiltaksgjennomforinger:
+      type: string
+      enum:
+        - navn-ascending
+        - navn-descending
+
     Tiltaksgjennomforing:
       type: object
       properties:
@@ -942,6 +962,8 @@ components:
         virksomhetsnummer:
           type: string
         virksomhetsnavn:
+          type: string
+        status:
           type: string
         startDato:
           type: string

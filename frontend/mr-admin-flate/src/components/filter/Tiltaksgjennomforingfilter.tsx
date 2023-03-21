@@ -1,17 +1,16 @@
 import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
+import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
-import { paginationAtom, tiltakstypefilter } from "../../api/atoms";
+import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import styles from "./Filter.module.scss";
+import { resetPaginering } from "../../utils/Utils";
+import { useEnheter } from "../../api/enhet/useEnheter";
 
 export function Tiltaksgjennomforingfilter() {
-  const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
+  const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
-
-  const resetPagination = () => {
-    setPage(1);
-  };
+  const { data: enheter } = useEnheter();
 
   return (
     <div className={styles.filter_container}>
@@ -20,50 +19,32 @@ export function Tiltaksgjennomforingfilter() {
           label="Søk etter tiltaksgjennomføring"
           hideLabel
           variant="simple"
-          onChange={(sok: string) => setSokefilter({ ...sokefilter, sok })}
-          value={sokefilter.sok}
+          onChange={(search: string) =>
+            setSokefilter({ ...sokefilter, search })
+          }
+          value={sokefilter.search}
           aria-label="Søk etter tiltaksgjennomføring"
           data-testid="filter_sokefelt"
           size="small"
         />
         <Select
-          label="Filtrer på statuser"
-          size="small"
+          label="Filtrer på enhet"
           hideLabel
-          value={sokefilter.status}
-          data-testid="filter_status"
+          size="small"
+          value={sokefilter.enhet}
+          data-testid="filter_avtale_enhet"
           onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            resetPagination();
-            const status = e.currentTarget.value as any;
-            setSokefilter({
-              ...sokefilter,
-              status: status === "Alle" ? undefined : status,
-            });
+            resetPaginering(setPage);
+            setSokefilter({ ...sokefilter, enhet: e.currentTarget.value });
           }}
         >
-          <option value="Aktiv">Aktiv</option>
-          <option value="Planlagt">Planlagt</option>
-          <option value="Avsluttet">Avsluttet</option>
-          <option value="Alle">Alle</option>
+          <option value="">Alle enheter</option>
+          {enheter?.map((enhet) => (
+            <option key={enhet.enhetId} value={enhet.enhetNr}>
+              {enhet.navn} - {enhet.enhetNr}
+            </option>
+          ))}
         </Select>
-        {/*  <Select*/}
-        {/*    label="Filtrer på enhet"*/}
-        {/*    hideLabel*/}
-        {/*    size="small"*/}
-        {/*    value={filter.enhet}*/}
-        {/*    data-testid="filter_avtale_enhet"*/}
-        {/*    onChange={(e: ChangeEvent<HTMLSelectElement>) => {*/}
-        {/*      resetPaginering();*/}
-        {/*      setFilter({ ...filter, enhet: e.currentTarget.value });*/}
-        {/*    }}*/}
-        {/*  >*/}
-        {/*    <option value="">Alle enheter</option>*/}
-        {/*    {enheter?.map((enhet) => (*/}
-        {/*      <option key={enhet.enhetId} value={enhet.enhetNr}>*/}
-        {/*        {enhet.navn} - {enhet.enhetNr}*/}
-        {/*      </option>*/}
-        {/*    ))}*/}
-        {/*  </Select>*/}
       </div>
       <div>
         <Select
@@ -75,7 +56,8 @@ export function Tiltaksgjennomforingfilter() {
           onChange={(e: ChangeEvent<HTMLSelectElement>) => {
             setSokefilter({
               ...sokefilter,
-              sortering: e.currentTarget.value as SorteringTiltakstyper,
+              sortering: e.currentTarget
+                .value as SorteringTiltaksgjennomforinger,
             });
           }}
         >

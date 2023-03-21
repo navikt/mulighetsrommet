@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AnsattTiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import java.util.*
@@ -15,10 +16,11 @@ class TiltaksgjennomforingService(
     private val deltakerRepository: DeltakerRepository
 ) {
 
-    suspend fun getAll(paginationParams: PaginationParams): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
-        val (totalCount, items) = tiltaksgjennomforingRepository.getAll(paginationParams)
+    suspend fun getAll(paginationParams: PaginationParams, filter: AdminTiltaksgjennomforingFilter): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+        val (totalCount, items) = tiltaksgjennomforingRepository.getAll(paginationParams, filter)
 
         val avtalerMedLeverandorNavn = items.hentVirksomhetsnavnForTiltaksgjennomforinger()
+
 
         return totalCount to avtalerMedLeverandorNavn
     }

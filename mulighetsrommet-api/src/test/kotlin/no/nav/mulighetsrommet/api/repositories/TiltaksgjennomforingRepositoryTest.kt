@@ -42,7 +42,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
 
-            tiltaksgjennomforinger.getAll().second shouldHaveSize 2
+            tiltaksgjennomforinger.getAll(filter = filter).second shouldHaveSize 2
             tiltaksgjennomforinger.get(gjennomforing1.id) shouldBe TiltaksgjennomforingAdminDto(
                 id = gjennomforing1.id,
                 tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
@@ -63,7 +63,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
-            tiltaksgjennomforinger.getAll().second shouldHaveSize 1
+            tiltaksgjennomforinger.getAll(filter = filter).second shouldHaveSize 1
         }
     }
 
@@ -207,7 +207,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltaksgjennomforinger.getAll()
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = filter)
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "Tiltak - 1"
@@ -221,7 +221,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 PaginationParams(
                     4,
                     20
-                )
+                ),
+                filter
             )
 
             items.size shouldBe 20
@@ -235,7 +236,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     3
-                )
+                ),
+                filter
             )
 
             items.size shouldBe 5
@@ -249,7 +251,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     nullableLimit = 200
-                )
+                ),
+                filter
             )
 
             items.size shouldBe 105

@@ -60,3 +60,7 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
     return " - ";
   }
 }
+
+export const resetPaginering = (setPage: (number: number) => void) => {
+  setPage(1);
+};
