@@ -25,7 +25,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val tiltakstype2 = TiltakstypeFixtures.Oppfolging
 
-    val gjennomforing1 = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(avtaleId = 1000)
+    val gjennomforing1 = TiltaksgjennomforingFixtures.Arbeidstrening1
 
     val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1
 
