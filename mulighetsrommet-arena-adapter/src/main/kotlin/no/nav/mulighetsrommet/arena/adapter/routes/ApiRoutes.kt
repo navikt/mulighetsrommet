@@ -22,7 +22,7 @@ fun Route.apiRoutes() {
 
         val mapping = arenaEntityService.getMappingIfHandled(ArenaTable.Tiltaksgjennomforing, arenaId)
             ?: return@get call.respondText(
-                "Det finnes ikke noe prossesert tiltaksgjennomføring med arena-id $arenaId",
+                "Det finnes ikke noe prosessert tiltaksgjennomføring med arena-id $arenaId",
                 status = HttpStatusCode.NotFound
             )
 

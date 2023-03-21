@@ -68,10 +68,10 @@ class ArenaEventService(
         }
     }
 
-    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEvent.ProcessingStatus? = null) {
+    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEntityMapping.Status) {
         logger.info("Setting replay status to events from table=$table, status=$status")
 
-        events.updateStatus(table, status, ArenaEvent.ProcessingStatus.Replay)
+        events.updateProcessingStatusFromEntityStatus(table, status, ArenaEvent.ProcessingStatus.Replay)
     }
 
     private suspend fun handleEvent(event: ArenaEvent) {
