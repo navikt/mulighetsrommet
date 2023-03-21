@@ -114,10 +114,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   }
 
   const kanBrukerFaaAvtale = () => {
-    if (tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn)) {
-      const url = lenkeTilOpprettAvtaleForEnv(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn);
+    const tiltakstypeNavn = tiltaksgjennomforing.tiltakstype.tiltakstypeNavn;
+    if (tiltakstypeAsStringIsIndividuellTiltakstype(tiltakstypeNavn)) {
+      const url = lenkeTilOpprettAvtaleForEnv(tiltakstypeNavn);
       window.open(url, '_blank');
-      logEvent('mulighetsrommet.opprett-avtale');
+      logEvent('mulighetsrommet.opprett-avtale', { tiltakstype: tiltakstypeNavn });
     }
   };
 
