@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyTeamStaleRetries
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
@@ -65,13 +66,14 @@ private fun tasks(tasks: TaskConfig) = module {
     }
     single {
         val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get(), get())
+        val notifyTeamStaleRetries = NotifyTeamStaleRetries(get(), get(), get())
         val replayEvents: ReplayEvents = get()
 
         val db: Database by inject()
 
         Scheduler
             .create(db.getDatasource(), replayEvents.task)
-            .startTasks(retryFailedEvents.task)
+            .startTasks(retryFailedEvents.task, notifyTeamStaleRetries.task)
             .registerShutdownHook()
             .build()
     }

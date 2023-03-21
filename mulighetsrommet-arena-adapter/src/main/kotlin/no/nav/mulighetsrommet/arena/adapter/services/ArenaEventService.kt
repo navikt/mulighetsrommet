@@ -164,4 +164,8 @@ class ArenaEventService(
 
         logger.info("Consumed $count events in $time")
     }
+
+    fun getStaleEvents(retriesGreaterThan: Int): List<ArenaEvent> {
+        return events.getAll(retriesGreaterThan = retriesGreaterThan)
+    }
 }
