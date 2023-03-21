@@ -46,7 +46,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         ),
         notifyFailedEvents = NotifyFailedEvents.Config(
             maxRetries = 5,
-            cron = ""
+            cron = "0 0 0 1 1 0"
         )
     ),
     services = ServiceConfig(
