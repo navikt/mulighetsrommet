@@ -3,8 +3,12 @@
   background-color: #ebfcff;
   padding: 1rem;
   border-radius: 4px;
-
-  svg {
-    margin-right: .5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .svg_info {
+    margin-right: 0.5rem;
+    width: 1.5rem;
+    height: auto;
   }
 }

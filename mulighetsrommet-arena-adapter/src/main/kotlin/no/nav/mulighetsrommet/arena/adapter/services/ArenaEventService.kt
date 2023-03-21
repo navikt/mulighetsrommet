@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
-import arrow.core.getOrElse
+import arrow.core.flatMap
+import arrow.core.right
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
@@ -8,6 +9,7 @@ import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcesso
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
@@ -18,6 +20,7 @@ class ArenaEventService(
     private val config: Config = Config(),
     private val events: ArenaEventRepository,
     private val processors: List<ArenaEventProcessor>,
+    private val entities: ArenaEntityService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -65,10 +68,10 @@ class ArenaEventService(
         }
     }
 
-    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEvent.ProcessingStatus? = null) {
+    fun setReplayStatusForEvents(table: ArenaTable, status: ArenaEntityMapping.Status) {
         logger.info("Setting replay status to events from table=$table, status=$status")
 
-        events.updateStatus(table, status, ArenaEvent.ProcessingStatus.Replay)
+        events.updateProcessingStatusFromEntityStatus(table, status, ArenaEvent.ProcessingStatus.Replay)
     }
 
     private suspend fun handleEvent(event: ArenaEvent) {
@@ -77,15 +80,22 @@ class ArenaEventService(
             .forEach { processor ->
                 try {
                     logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
+                    val mapping = entities.getOrCreateMapping(event)
 
-                    val (status, message) = processor.handleEvent(event)
-                        .map { Pair(it, null) }
-                        .getOrElse {
-                            logger.info("Event processing ended with an error: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
-                            Pair(it.status, it.message)
+                    processor.handleEvent(event)
+                        .flatMap { processingResult ->
+                            if (processingResult.status == ArenaEntityMapping.Status.Ignored && mapping.status == ArenaEntityMapping.Status.Handled) {
+                                logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}")
+                                processor.deleteEntity(event).map { processingResult }
+                            } else {
+                                processingResult.right()
+                            }
+                        }.onRight {
+                            entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
+                            events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Processed, message = null))
+                        }.onLeft {
+                            events.upsert(event.copy(status = it.status, message = it.message))
                         }
-
-                    events.upsert(event.copy(status = status, message = message))
                 } catch (e: Throwable) {
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
 

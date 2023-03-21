@@ -1,21 +1,28 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.*
+import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.Deltaker
-import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
-import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.models.db.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isAmtTiltak
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.TiltakshistorikkDbo
 import java.util.*
 
@@ -26,21 +33,24 @@ class TiltakdeltakerEventProcessor(
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Deltaker
 
-    override suspend fun handleEvent(event: ArenaEvent) = either<ProcessingError, ArenaEvent.ProcessingStatus> {
+    override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()
 
-        ensure(isRegisteredAfterAktivitetsplanen(data)) {
-            ProcessingError.Ignored("Deltaker ignorert fordi den registrert før Aktivitetsplanen")
+        if (isRegisteredBeforeAktivitetsplanen(data)) {
+            return@either ProcessingResult(Ignored, "Deltaker ignorert fordi den registrert før Aktivitetsplanen")
         }
 
         val tiltaksgjennomforingIsIgnored = entities
             .isIgnored(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
             .bind()
-        ensure(!tiltaksgjennomforingIsIgnored) {
-            ProcessingError.Ignored("Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert")
+        if (tiltaksgjennomforingIsIgnored) {
+            return@either ProcessingResult(
+                Ignored,
+                "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert"
+            )
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val deltaker = data
             .toDeltaker(mapping.entityId)
             .flatMap { entities.upsertDeltaker(it) }
@@ -63,30 +73,68 @@ class TiltakdeltakerEventProcessor(
         val tiltakstype = entities
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
-        val tiltakshistorikk = deltaker
-            .toTiltakshistorikkDbo(tiltakstype, tiltaksgjennomforing, norskIdent)
+
+        upsertTiltakshistorikk(deltaker, event, tiltakstype, tiltaksgjennomforing, norskIdent)
             .bind()
 
-        val response = if (event.operation == ArenaEvent.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${tiltakshistorikk.id}")
-        } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
+        if (isGruppetiltak(tiltakstype.tiltakskode) && !isAmtTiltak(tiltakstype.tiltakskode)) {
+            upsertDeltaker(deltaker, event, tiltaksgjennomforing)
+                .bind()
         }
-        response.mapLeft { ProcessingError.fromResponseException(it) }
-            .map { ArenaEvent.ProcessingStatus.Processed }
-            .bind()
+
+        ProcessingResult(Handled)
+    }
+
+    private suspend fun upsertTiltakshistorikk(
+        deltaker: Deltaker,
+        event: ArenaEvent,
+        tiltakstype: Tiltakstype,
+        tiltaksgjennomforing: Tiltaksgjennomforing,
+        norskIdent: String,
+    ): Either<ProcessingError, HttpResponse> = deltaker
+        .toTiltakshistorikkDbo(tiltakstype, tiltaksgjennomforing, norskIdent)
+        .flatMap { tiltakshistorikk ->
+            if (event.operation == ArenaEvent.Operation.Delete) {
+                client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${tiltakshistorikk.id}")
+            } else {
+                client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
+            }.mapLeft {
+                ProcessingError.fromResponseException(it)
+            }
+        }
+
+    private suspend fun upsertDeltaker(
+        deltaker: Deltaker,
+        event: ArenaEvent,
+        tiltaksgjennomforing: Tiltaksgjennomforing,
+    ): Either<ProcessingError, HttpResponse> {
+        val dbo = deltaker.toDeltakerDbo(tiltaksgjennomforing)
+
+        return if (event.operation == ArenaEvent.Operation.Delete) {
+            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${dbo.id}")
+        } else {
+            client.request(HttpMethod.Put, "/api/v1/internal/arena/deltaker", dbo)
+        }.mapLeft {
+            ProcessingError.fromResponseException(it)
+        }
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { entities.deleteDeltaker(mapping.entityId) }
             .bind()
+
+        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${mapping.entityId}")
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .bind()
+
+        entities.deleteDeltaker(mapping.entityId).bind()
     }
 
-    private fun isRegisteredAfterAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
-        return !ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
+    private fun isRegisteredBeforeAktivitetsplanen(data: ArenaTiltakdeltaker): Boolean {
+        return ArenaUtils.parseTimestamp(data.REG_DATO).isBefore(AktivitetsplanenLaunchDate)
     }
 
     private fun ArenaTiltakdeltaker.toDeltaker(id: UUID) = Either
@@ -119,10 +167,12 @@ class TiltakdeltakerEventProcessor(
                 tiltaksgjennomforingId = tiltaksgjennomforing.id
             )
         } else {
-            val virksomhetsnummer = tiltaksgjennomforing.arrangorId?.let { id ->
+            val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
                 ords.getArbeidsgiver(id)
                     .mapLeft { ProcessingError.fromResponseException(it) }
-                    .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
+                    .flatMap {
+                        it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left()
+                    }
                     .map { it.virksomhetsnummer }
                     .bind()
             }
@@ -138,4 +188,14 @@ class TiltakdeltakerEventProcessor(
             )
         }
     }
+
+    private fun Deltaker.toDeltakerDbo(tiltaksgjennomforing: Tiltaksgjennomforing) = DeltakerDbo(
+        id = id,
+        tiltaksgjennomforingId = tiltaksgjennomforing.id,
+        status = status,
+        opphav = Deltakeropphav.ARENA,
+        startDato = fraDato?.toLocalDate(),
+        sluttDato = tilDato?.toLocalDate(),
+        registrertDato = registrertDato,
+    )
 }

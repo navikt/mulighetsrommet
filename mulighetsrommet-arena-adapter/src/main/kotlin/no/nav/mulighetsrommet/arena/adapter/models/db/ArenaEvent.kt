@@ -48,9 +48,6 @@ data class ArenaEvent(
         /** Processing has failed, event processing can be retried */
         Failed,
 
-        /** Event has been ignored, but is kept in case of future relevance */
-        Ignored,
-
         /** Event payload is invalid and needs manual intervention */
         Invalid,
 

@@ -79,7 +79,7 @@ private fun tasks(tasks: TaskConfig) = module {
 
 private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
     single<Database> {
-        FlywayDatabaseAdapter(config)
+        FlywayDatabaseAdapter(config, get())
     }
 }
 
@@ -143,9 +143,9 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             SakEventProcessor(get()),
             AvtaleInfoEventProcessor(get(), get(), get()),
         )
-        ArenaEventService(config = services.arenaEventService, events = get(), processors = processors)
+        ArenaEventService(config = services.arenaEventService, events = get(), processors = processors, entities = get())
     }
-    single { ArenaEntityService(get(), get(), get(), get(), get(), get(), get()) }
+    single { ArenaEntityService(get(), get(), get(), get(), get(), get()) }
 }
 
 private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {

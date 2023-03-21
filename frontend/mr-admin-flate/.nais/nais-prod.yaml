@@ -37,8 +37,8 @@ spec:
           - NAVident
         groups:
           - id: 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
-          - id: 2cf8d881-c2da-47b5-b409-fa088440a629 # 0000-GA-TILTAK-ANSVARLIG
-          - id: b714d314-24c3-4bee-95cf-8f7374734785 # 0000-GA-FAGANSVARLIG
+          - id: dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
+
     sidecar:
       enabled: true
       autoLogin: true

@@ -1,21 +1,11 @@
 import { Ansatt } from "mulighetsrommet-api-client";
 
-export const mockTiltaksansvarlig: Ansatt = {
-  etternavn: "Tiltaksansvarlig",
-  fornavn: "Tilda",
-  ident: "T99876",
-  navn: "Tiltakansvarlig, Tilda",
-  tilganger: ["FLATE"],
-  hovedenhet: "2990",
-  hovedenhetNavn: "IT Drift",
-};
-
-export const mockFagansvarlig: Ansatt = {
-  etternavn: "Fagansvarlig",
-  fornavn: "Frode",
-  ident: "F18765",
-  navn: "Fagansvarlig, Frode",
-  tilganger: ["FAGANSVARLIG"],
+export const mockBetabruker: Ansatt = {
+  etternavn: "Betabruker",
+  fornavn: "Bertil",
+  ident: "B99876",
+  navn: "Betabruker, Bertil",
+  tilganger: ["BETABRUKER"],
   hovedenhet: "2990",
   hovedenhetNavn: "IT Drift",
 };

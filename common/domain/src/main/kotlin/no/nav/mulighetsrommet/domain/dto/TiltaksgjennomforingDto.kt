@@ -11,13 +11,13 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,
-    val navn: String?,
+    val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val status: Tiltaksgjennomforingsstatus,
-    val virksomhetsnummer: String?
+    val virksomhetsnummer: String
 ) {
 
     @Serializable

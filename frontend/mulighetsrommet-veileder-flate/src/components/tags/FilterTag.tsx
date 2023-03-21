@@ -1,8 +1,8 @@
-import { Close } from '@navikt/ds-icons';
 import { Tag } from '@navikt/ds-react';
 import { kebabCase } from '../../utils/Utils';
 import Ikonknapp from '../knapper/Ikonknapp';
 import styles from './Filtertag.module.scss';
+import { XMarkIcon } from '@navikt/aksel-icons';
 
 interface FilterTagsProps {
   options: { id: string; tittel: string }[];
@@ -29,7 +29,7 @@ const FilterTag = ({ options, handleClick, skjulIkon = false }: FilterTagsProps)
                 ariaLabel="Lukke"
                 data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
                 icon={
-                  <Close
+                  <XMarkIcon
                     data-testid={`filtertag_lukkeknapp_${kebabCase(filtertype.tittel)}`}
                     className={styles.ikon}
                     aria-label="Lukke"

@@ -2,14 +2,16 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.*
 import arrow.core.continuations.either
-import arrow.core.continuations.ensureNotNull
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalekode
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
@@ -34,31 +36,31 @@ class AvtaleInfoEventProcessor(
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaAvtaleInfo>()
 
-        ensureNotNull(data.AVTALENAVN) {
-            ProcessingError.Ignored("Avtale mangler navn")
+        if (data.AVTALENAVN == null) {
+            return@either ProcessingResult(Ignored, "Avtale mangler navn")
         }
 
-        ensureNotNull(data.DATO_FRA) {
-            ProcessingError.Ignored("Avtale mangler fra-dato")
+        if (data.DATO_FRA == null) {
+            return@either ProcessingResult(Ignored, "Avtale mangler fra-dato")
         }
 
-        ensureNotNull(data.DATO_TIL) {
-            ProcessingError.Ignored("Avtale mangler til-dato")
+        if (data.DATO_TIL == null) {
+            return@either ProcessingResult(Ignored, "Avtale mangler til-dato")
         }
 
-        ensureNotNull(data.ARBGIV_ID_LEVERANDOR) {
-            ProcessingError.Ignored("Avtale mangler leverandør")
+        if (data.ARBGIV_ID_LEVERANDOR == null) {
+            return@either ProcessingResult(Ignored, "Avtale mangler leverandør")
         }
 
-        ensure(Tiltakskoder.isGruppetiltak(data.TILTAKSKODE)) {
-            ProcessingError.Ignored("Avtale er ikke knyttet til et gruppetiltak")
+        if (!Tiltakskoder.isGruppetiltak(data.TILTAKSKODE)) {
+            return@either ProcessingResult(Ignored, "Avtale er ikke knyttet til et gruppetiltak")
         }
 
-        ensure(isRecentAvtale(data)) {
-            ProcessingError.Ignored("Avtale har en til-dato som er før 2023")
+        if (!isRecentAvtale(data)) {
+            return@either ProcessingResult(Ignored, "Avtale har en til-dato som er før 2023")
         }
 
-        val mapping = entities.getOrCreateMapping(event)
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
         data
             .toAvtale(mapping.entityId)
@@ -72,7 +74,7 @@ class AvtaleInfoEventProcessor(
                 }
                 response.mapLeft { ProcessingError.fromResponseException(it) }
             }
-            .map { ArenaEvent.ProcessingStatus.Processed }
+            .map { ProcessingResult(Handled) }
             .bind()
     }
 

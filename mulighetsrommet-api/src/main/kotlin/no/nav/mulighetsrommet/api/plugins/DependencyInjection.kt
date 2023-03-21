@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.KafkaConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
-import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
+import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
@@ -86,7 +86,7 @@ fun slack(slack: SlackConfig): Module {
 private fun db(config: FlywayDatabaseConfig): Module {
     return module(createdAtStart = true) {
         single<Database> {
-            FlywayDatabaseAdapter(config)
+            FlywayDatabaseAdapter(config, get())
         }
     }
 }
@@ -210,7 +210,7 @@ private fun services(appConfig: AppConfig) = module {
             }
         )
     }
-    single<ArenaAdaperClient> {
+    single<ArenaAdapterClient> {
         ArenaAdapterClientImpl(
             baseUrl = appConfig.arenaAdapter.url,
             machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) }
@@ -221,8 +221,7 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.norg2.baseUrl
         )
     }
-    single { ArenaAdapterService(get()) }
-    single { ArenaService(get(), get(), get(), get(), get(), get()) }
+    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
@@ -234,7 +233,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get()) }
-    single { TiltakstypeService(get(), get(), get()) }
+    single { TiltakstypeService(get(), get(), get(), get()) }
     single { Norg2Service(get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }

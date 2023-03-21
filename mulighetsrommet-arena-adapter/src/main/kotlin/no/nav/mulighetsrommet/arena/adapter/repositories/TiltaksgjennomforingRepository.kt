@@ -19,8 +19,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status)
-            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status)
+            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id)
+            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status, :avtale_id)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               sak_id                  = excluded.sak_id,
@@ -31,7 +31,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               til_dato                = excluded.til_dato,
                               apent_for_innsok        = excluded.apent_for_innsok,
                               antall_plasser          = excluded.antall_plasser,
-                              status                  = excluded.status
+                              status                  = excluded.status,
+                              avtale_id               = excluded.avtale_id
             returning *
         """.trimIndent()
 
@@ -58,7 +59,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status
+            select id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id
             from tiltaksgjennomforing
             where id = ?::uuid
         """.trimIndent()
@@ -80,20 +81,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "til_dato" to tilDato,
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
-        "status" to status
+        "status" to status,
+        "avtale_id" to avtaleId
     )
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         id = uuid("id"),
         tiltaksgjennomforingId = int("tiltaksgjennomforing_id"),
-        navn = stringOrNull("navn"),
+        navn = string("navn"),
         sakId = int("sak_id"),
         tiltakskode = string("tiltakskode"),
-        arrangorId = intOrNull("arrangor_id"),
+        arrangorId = int("arrangor_id"),
         fraDato = localDateTime("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
         apentForInnsok = boolean("apent_for_innsok"),
         antallPlasser = intOrNull("antall_plasser"),
-        status = string("status")
+        status = string("status"),
+        avtaleId = intOrNull("avtale_id")
     )
 }

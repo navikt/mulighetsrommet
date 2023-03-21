@@ -13,12 +13,15 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Invalid
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -32,6 +35,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
+import java.util.*
 
 class AvtaleInfoEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -63,7 +67,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             tiltakstyper.upsert(tiltakstype)
 
             val mappings = ArenaEntityMappingRepository(database.db)
-            mappings.insert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id))
+            mappings.upsert(ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled))
         }
 
         test("ignore avtaler when required fields are missing") {
@@ -82,7 +86,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             )
 
             events.forEach { event ->
-                consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+                consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
             }
             database.assertThat("avtale").isEmpty
         }
@@ -94,7 +98,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 it.copy(DATO_TIL = "2022-12-31 00:00:00")
             }
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
             database.assertThat("avtale").isEmpty
         }
 
@@ -106,21 +110,23 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 "/api/v1/internal/arena/avtale.*" to { respondOk() }
             )
             val consumer = createConsumer(database.db, engine)
+            val entities = ArenaEntityMappingRepository(database.db)
 
             val e1 = createArenaAvtaleInfoEvent(Insert)
-            consumer.handleEvent(e1) shouldBeRight ArenaEvent.ProcessingStatus.Processed
+            entities.upsert(ArenaEntityMapping(e1.arenaTable, e1.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
+            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
             val e2 = createArenaAvtaleInfoEvent(Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
             }
-            consumer.handleEvent(e2) shouldBeRight ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
             val e3 = createArenaAvtaleInfoEvent(Update) {
                 it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
             }
-            consumer.handleEvent(e3) shouldBeRight ArenaEvent.ProcessingStatus.Processed
+            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
             database.assertThat("avtale").row().value("status").isEqualTo(Avtale.Status.Avsluttet.name)
         }
 
@@ -145,9 +151,11 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         respondError(HttpStatusCode.NotFound)
                     }
                 )
-
+                val entities = ArenaEntityMappingRepository(database.db)
+                val event = createArenaAvtaleInfoEvent(Insert)
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
                 val consumer = createConsumer(database.db, engine)
-                val result = consumer.handleEvent(createArenaAvtaleInfoEvent(Insert))
+                val result = consumer.handleEvent(event)
 
                 result.shouldBeLeft().should { it.status shouldBe Invalid }
             }
@@ -179,8 +187,10 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 )
 
                 val consumer = createConsumer(database.db, engine)
+                val entities = ArenaEntityMappingRepository(database.db)
 
                 val event = createArenaAvtaleInfoEvent(Insert)
+                entities.upsert(ArenaEntityMapping(event.arenaTable, event.arenaId, UUID.randomUUID(), ArenaEntityMapping.Status.Unhandled))
                 consumer.handleEvent(event).shouldBeRight()
 
                 val generatedId = engine.requestHistory.last().run {
@@ -221,7 +231,6 @@ private fun createConsumer(
         "Bearer token"
     }
     val entities = ArenaEntityService(
-        events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),

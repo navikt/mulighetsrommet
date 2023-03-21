@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
@@ -8,9 +7,10 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.SakFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Ignored
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.Database
@@ -32,7 +32,7 @@ class SakEventProcessorTest : FunSpec({
             val consumer = createConsumer(database.db)
             val event = createArenaSakEvent(Insert, SakFixtures.ArenaIkkeTiltakSak)
 
-            consumer.handleEvent(event).shouldBeLeft().should { it.status shouldBe Ignored }
+            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
         }
     }
 
@@ -41,15 +41,15 @@ class SakEventProcessorTest : FunSpec({
             val consumer = createConsumer(database.db)
 
             val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
-            consumer.handleEvent(e1) shouldBeRight Processed
+            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
             database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
 
             val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
-            consumer.handleEvent(e2) shouldBeRight Processed
+            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
             database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
 
             val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
-            consumer.handleEvent(e3) shouldBeRight Processed
+            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
             database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
         }
     }
@@ -57,7 +57,6 @@ class SakEventProcessorTest : FunSpec({
 
 private fun createConsumer(db: Database): SakEventProcessor {
     val entities = ArenaEntityService(
-        events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),

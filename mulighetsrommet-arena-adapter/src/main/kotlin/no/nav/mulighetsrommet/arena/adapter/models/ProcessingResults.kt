@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models
 
 import io.ktor.client.plugins.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 
@@ -20,11 +21,6 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
         message = "Event payload is invalid: $details"
     )
 
-    data class Ignored(val reason: String) : ProcessingError(
-        status = ArenaEvent.ProcessingStatus.Ignored,
-        message = "Event was ignored: $reason"
-    )
-
     companion object {
         fun fromDatabaseOperationError(error: DatabaseOperationError): ProcessingError = when (error) {
             is DatabaseOperationError.ForeignKeyViolation -> MissingDependency(error.error.localizedMessage)
@@ -36,3 +32,8 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
         }
     }
 }
+
+data class ProcessingResult(
+    val status: ArenaEntityMapping.Status,
+    val message: String? = null
+)

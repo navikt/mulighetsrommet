@@ -972,6 +972,9 @@ components:
           type: array
           items:
             type: string
+            enum:
+              - BETABRUKER
+              - UTVIKLER_VALP
         hovedenhet:
           type: string
         hovedenhetNavn:
@@ -1354,9 +1357,12 @@ components:
           type: number
         antallAvtaler:
           type: number
+        antallDeltakere:
+          type: number
       required:
         - antallTiltaksgjennomforinger
         - antallAvtaler
+        - antallDeltakere
 
     AvtaleNokkeltall:
       type: object

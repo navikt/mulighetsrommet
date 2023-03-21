@@ -1,41 +1,28 @@
 package no.nav.mulighetsrommet.arena.adapter.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
 
 class ArenaEntityServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val tiltaksnummer = "123456"
-    val uuid = UUID.randomUUID()
-
-    val event = ArenaEvent(
-        status = ArenaEvent.ProcessingStatus.Processed,
-        arenaTable = ArenaTable.Tiltaksgjennomforing,
-        operation = ArenaEvent.Operation.Insert,
-        arenaId = tiltaksnummer,
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
-    )
+    val arenaId = "123456"
+    val entityId = UUID.randomUUID()
 
     context("only processed events should be included by getMappingIfProcessed method") {
-        val arenaEntityMappingRepository =
-            ArenaEntityMappingRepository(database.db)
-        val arenaEventRepository = ArenaEventRepository(database.db)
+        val arenaEntityMappingRepository = ArenaEntityMappingRepository(database.db)
 
         val arenaEntityService = ArenaEntityService(
             mappings = arenaEntityMappingRepository,
-            events = arenaEventRepository,
             tiltakstyper = mockk(),
             saker = mockk(),
             tiltaksgjennomforinger = mockk(),
@@ -43,30 +30,40 @@ class ArenaEntityServiceTest : FunSpec({
             avtaler = mockk(),
         )
 
-        arenaEntityMappingRepository.insert(
-            ArenaEntityMapping(
-                ArenaTable.Tiltaksgjennomforing,
-                tiltaksnummer,
-                uuid
+        test("should return mapping if status is Handled") {
+            arenaEntityMappingRepository.upsert(
+                ArenaEntityMapping(
+                    ArenaTable.Tiltaksgjennomforing,
+                    arenaId,
+                    entityId,
+                    ArenaEntityMapping.Status.Handled
+                )
             )
-        )
 
-        test("event should be fetched if status is processed") {
-            arenaEventRepository.upsert(event)
-
-            arenaEntityService.getMappingIfProcessed(
+            val mapping = arenaEntityService.getMappingIfHandled(
                 ArenaTable.Tiltaksgjennomforing,
-                tiltaksnummer
-            )?.entityId shouldBe uuid
+                arenaId
+            )
+
+            mapping?.entityId shouldBe entityId
         }
 
-        test("event should not be fetched if status is pending") {
-            arenaEventRepository.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Pending))
+        test("should not return mapping if status is not Handled") {
+            forAll(
+                row(ArenaEntityMapping.Status.Unhandled),
+                row(ArenaEntityMapping.Status.Ignored),
+            ) { status ->
+                arenaEntityMappingRepository.upsert(
+                    ArenaEntityMapping(ArenaTable.Tiltaksgjennomforing, arenaId, entityId, status)
+                )
 
-            arenaEntityService.getMappingIfProcessed(
-                ArenaTable.Tiltaksgjennomforing,
-                tiltaksnummer
-            )?.entityId shouldBe null
+                val mapping = arenaEntityService.getMappingIfHandled(
+                    ArenaTable.Tiltaksgjennomforing,
+                    arenaId
+                )
+
+                mapping shouldBe null
+            }
         }
     }
 })

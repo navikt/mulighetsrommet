@@ -1,18 +1,78 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdaperClient
-import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
-import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
-import java.util.UUID
+import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import java.util.*
 
 class ArenaAdapterService(
-    private val arenaAdaperClient: ArenaAdaperClient
+    private val tiltakstyper: TiltakstypeRepository,
+    private val avtaler: AvtaleRepository,
+    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val tiltakshistorikk: TiltakshistorikkRepository,
+    private val deltakere: DeltakerRepository,
+    private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
+    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
 ) {
-    suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
-        return arenaAdaperClient.exchangeTiltaksgjennomforingsArenaIdForId(arenaId)
+    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
+        return tiltakstyper.upsert(tiltakstype).onRight {
+            tiltakstyper.get(tiltakstype.id)?.let {
+                tiltakstypeKafkaProducer.publish(it)
+            }
+        }
     }
 
-    suspend fun hentTiltaksgjennomforingsstatus(id: UUID): ArenaTiltaksgjennomforingsstatusDto? {
-        return arenaAdaperClient.hentTiltaksgjennomforingsstatus(id)
+    fun removeTiltakstype(id: UUID): QueryResult<Int> {
+        return tiltakstyper.delete(id).onRight { deletedRows ->
+            if (deletedRows != 0) {
+                tiltakstypeKafkaProducer.retract(id)
+            }
+        }
+    }
+
+    fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleDbo> {
+        return avtaler.upsert(avtale)
+    }
+
+    fun removeAvtale(id: UUID): QueryResult<Int> {
+        return avtaler.delete(id)
+    }
+
+    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingDbo> {
+        return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+            .onRight {
+                tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.let {
+                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
+                }
+            }
+    }
+
+    fun removeTiltaksgjennomforing(id: UUID): QueryResult<Int> {
+        return tiltaksgjennomforinger.delete(id)
+            .onRight { deletedRows ->
+                if (deletedRows != 0) {
+                    tiltaksgjennomforingKafkaProducer.retract(id)
+                }
+            }
+    }
+
+    fun upsertTiltakshistorikk(tiltakshistorikk: TiltakshistorikkDbo): QueryResult<TiltakshistorikkDbo> {
+        return this.tiltakshistorikk.upsert(tiltakshistorikk)
+    }
+
+    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
+        return tiltakshistorikk.delete(id)
+    }
+
+    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
+        return query { deltakere.upsert(deltaker) }
+    }
+
+    fun removeDeltaker(id: UUID): QueryResult<Unit> {
+        return query { deltakere.delete(id) }
     }
 }

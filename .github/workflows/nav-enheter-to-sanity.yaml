@@ -19,6 +19,10 @@ on:
           - dev
           - dev_and_prod
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE: ghcr.io/navikt/mulighetsrommet/nav-enheter-to-sanity:${{ github.sha }}
   CI: true

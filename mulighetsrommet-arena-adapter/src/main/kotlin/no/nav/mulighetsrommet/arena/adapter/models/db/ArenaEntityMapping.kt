@@ -6,5 +6,13 @@ import java.util.*
 data class ArenaEntityMapping(
     val arenaTable: ArenaTable,
     val arenaId: String,
-    val entityId: UUID
-)
+    val entityId: UUID,
+    val status: Status,
+    val message: String? = null
+) {
+    enum class Status {
+        Handled,
+        Ignored,
+        Unhandled;
+    }
+}

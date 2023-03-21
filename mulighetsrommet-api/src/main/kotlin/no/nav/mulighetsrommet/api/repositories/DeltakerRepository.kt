@@ -5,9 +5,11 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class DeltakerRepository(private val db: Database) {
@@ -19,12 +21,12 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, norsk_ident, status, start_dato, slutt_dato, registrert_dato)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :norsk_ident, :status::deltakerstatus, :start_dato, :slutt_dato, :registrert_dato)
+            insert into deltaker (id, tiltaksgjennomforing_id, status, opphav, start_dato, slutt_dato, registrert_dato)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :status::deltakerstatus, :opphav::deltakeropphav, :start_dato, :slutt_dato, :registrert_dato)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               status                  = excluded.status,
-                              norsk_ident             = excluded.norsk_ident,
+                              opphav                  = excluded.opphav,
                               start_dato              = excluded.start_dato,
                               slutt_dato              = excluded.slutt_dato,
                               registrert_dato         = excluded.registrert_dato
@@ -44,7 +46,7 @@ class DeltakerRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, tiltaksgjennomforing_id, norsk_ident, status, start_dato, slutt_dato, registrert_dato
+            select id, tiltaksgjennomforing_id, status, opphav, start_dato, slutt_dato, registrert_dato
             from deltaker
             $where
         """.trimIndent()
@@ -69,11 +71,33 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun countAntallDeltakereForTiltakstypeWithId(tiltakstypeId: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        val parameters = mapOf(
+            "tiltakstypeId" to tiltakstypeId,
+            "currentDate" to currentDate
+        )
+
+        val query = """
+            select count(*) as antall
+            from deltaker
+                     join tiltaksgjennomforing tg on deltaker.tiltaksgjennomforing_id = tg.id
+                     join tiltakstype tt on tg.tiltakstype_id = tt.id
+            where tt.id = :tiltakstypeId::uuid
+            and deltaker.start_dato < :currentDate::timestamp
+            and deltaker.slutt_dato > :currentDate::timestamp
+        """.trimIndent()
+
+        return queryOf(query, parameters)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
+    }
+
     private fun DeltakerDbo.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "norsk_ident" to norskIdent,
         "status" to status.name,
+        "opphav" to opphav.name,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "registrert_dato" to registrertDato,
@@ -82,8 +106,8 @@ class DeltakerRepository(private val db: Database) {
     private fun Row.toDeltakerDbo() = DeltakerDbo(
         id = uuid("id"),
         tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
-        norskIdent = string("norsk_ident"),
         status = Deltakerstatus.valueOf(string("status")),
+        opphav = Deltakeropphav.valueOf(string("opphav")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         registrertDato = localDateTime("registrert_dato"),

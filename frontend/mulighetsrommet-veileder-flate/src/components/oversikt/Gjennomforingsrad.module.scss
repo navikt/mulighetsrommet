@@ -19,7 +19,7 @@
 
 .gjennomforing_container {
   display: grid;
-  grid-template-columns: 20% 1fr 1%;
+  grid-template-columns: 20% 1fr 2%;
   grid-template-areas: 'navn metadata ikon';
   align-items: center;
   min-height: 4rem;
@@ -38,6 +38,9 @@
 
 .ikon {
   grid-area: ikon;
+    width: 1.5rem;
+    height: auto;
+    color: black;
 }
 
 .metadata {

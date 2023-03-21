@@ -71,3 +71,8 @@ $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
     @include avtaleGridProperties();
   }
 }
+
+.pil {
+  width: 1.5rem;
+  height: auto;
+}

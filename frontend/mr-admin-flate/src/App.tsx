@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "./api/features/feature-toggles";
 import { OpprettAvtaleContainer } from "./components/avtaler/opprett/OpprettAvtaleContainer";
-import { Laster } from "./components/Laster";
+import { Laster } from "./components/laster/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
@@ -45,7 +45,11 @@ export function App() {
     );
   }
 
-  if (optionalAnsatt?.data?.tilganger.length === 0) {
+  if (
+    !optionalAnsatt?.data?.tilganger.some(
+      (tilgang) => tilgang === "BETABRUKER" || tilgang === "UTVIKLER_VALP"
+    )
+  ) {
     return <IkkeAutentisertApp />;
   }
 

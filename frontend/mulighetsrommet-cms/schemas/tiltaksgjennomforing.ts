@@ -82,6 +82,21 @@ export const tiltaksgjennomforing = defineType({
     }),
 
     defineField({
+      name: "tilgjengelighetsstatus",
+      title: "Tilgjengelighetsstatus",
+      description:
+        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives i Sanity.",
+      readOnly: true,
+      type: "string",
+      options: {
+        list: [
+          { title: "Åpent", value: "Ledig" },
+          { title: "Venteliste", value: "Venteliste" },
+          { title: "Stengt", value: "Stengt" },
+        ],
+      },
+    }),
+    defineField({
       name: "estimert_ventetid",
       title: "Merknad til tilgjengelighetsstatus",
       description: "F.eks estimert ventetid eller stengt til dato.",
@@ -205,21 +220,6 @@ export const tiltaksgjennomforing = defineType({
         },
       ],
       hidden: true, // Skjules per 25.10.22 etter ønske fra Marthe pga. forvirring for redaktørene.
-    }),
-    defineField({
-      name: "tilgjengelighetsstatus",
-      title: "Tilgjengelighetsstatus",
-      description:
-        "Tilgjengelighetsstatus utledes fra data i Arena og kan ikke overskrives i Sanity.",
-      readOnly: true,
-      type: "string",
-      options: {
-        list: [
-          { title: "Åpent", value: "Ledig" },
-          { title: "Venteliste", value: "Venteliste" },
-          { title: "Stengt", value: "Stengt" },
-        ],
-      },
     }),
   ],
   orderings: [

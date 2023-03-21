@@ -8,6 +8,11 @@ ktlint {
     disabledRules.addAll("no-wildcard-imports")
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    // Needed to use the `@OptIn` annotation for experimental features
+    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+}
+
 dependencies {
     implementation(project(":common:slack"))
     testFixturesImplementation(project(":common:slack"))

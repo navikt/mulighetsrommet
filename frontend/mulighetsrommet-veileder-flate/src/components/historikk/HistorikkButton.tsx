@@ -4,8 +4,8 @@ import StandardModal from '../modal/StandardModal';
 import { HistorikkForBrukerModal } from './HistorikkForBrukerModal';
 import styles from './HistorikkForBrukerModal.module.scss';
 import btnStyles from './HistorikkButton.module.scss';
-import { Historic } from '@navikt/ds-icons';
 import { logEvent } from '../../core/api/logger';
+import { ClockDashedIcon } from '@navikt/aksel-icons';
 
 export function HistorikkButton() {
   const [apneModal, setApneModal] = useState(false);
@@ -19,7 +19,7 @@ export function HistorikkButton() {
   return (
     <>
       <Button onClick={handleClick} variant="tertiary" className={btnStyles.historikk_knapp}>
-        <Historic aria-label="Historikk" />
+        <ClockDashedIcon aria-label="Historikk" />
       </Button>
       <StandardModal
         className={styles.historikk_modal}

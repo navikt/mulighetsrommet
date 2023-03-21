@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import { Next } from '@navikt/ds-icons';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
@@ -9,6 +8,7 @@ import Lenke from '../lenke/Lenke';
 import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
 import { BodyShort } from '@navikt/ds-react';
+import { ChevronRightIcon } from '@navikt/aksel-icons';
 
 interface Props {
   tiltaksgjennomforing: SanityTiltaksgjennomforing;
@@ -74,9 +74,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
               estimert_ventetid={estimert_ventetid}
             />
           </div>
-          <div className={classNames(styles.as_link, styles.ikon)}>
-            <Next />
-          </div>
+          <ChevronRightIcon className={styles.ikon} />
         </div>
       </Lenke>
     </li>

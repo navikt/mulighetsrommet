@@ -263,12 +263,10 @@ class AvtaleRepository(private val db: Database) {
     fun countTiltaksgjennomforingerForAvtaleWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
         val query = """
             select count(*) as antall
-            from avtale
-                     join tiltakstype tt on avtale.tiltakstype_id = tt.id
-                     join tiltaksgjennomforing tg on tt.id = tg.tiltakstype_id
-            where avtale.id = ?
-            and tg.start_dato < ?::timestamp
-            and tg.slutt_dato > ?::timestamp
+            from tiltaksgjennomforing
+            where avtale_id::uuid = ?
+            and start_dato < ?::timestamp
+            and slutt_dato > ?::timestamp
         """.trimIndent()
 
         return queryOf(query, id, currentDate, currentDate)

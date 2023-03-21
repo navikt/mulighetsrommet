@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1Dto.Status
@@ -46,7 +47,6 @@ class AmtDeltakerV1TopicConsumer(
     private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
         id = id,
         tiltaksgjennomforingId = gjennomforingId,
-        norskIdent = personIdent,
         status = when (status) {
             Status.VENTER_PA_OPPSTART -> Deltakerstatus.VENTER
             Status.DELTAR -> Deltakerstatus.DELTAR
@@ -56,6 +56,7 @@ class AmtDeltakerV1TopicConsumer(
             Status.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
             Status.PABEGYNT -> Deltakerstatus.PABEGYNT_REGISTRERING
         },
+        opphav = Deltakeropphav.AMT,
         startDato = startDato,
         sluttDato = sluttDato,
         registrertDato = registrertDato,

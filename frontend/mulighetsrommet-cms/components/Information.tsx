@@ -1,11 +1,12 @@
 import React from "react";
-import { InformationColored } from "@navikt/ds-icons";
 import "./Information.scss";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 
 export const Information = () => {
   return (
     <div className="information">
-      <InformationColored /> Ikke del personopplysninger i fritekstfeltene.
+      <InformationSquareIcon className="svg_info" />
+      Ikke del personopplysninger i fritekstfeltene.
     </div>
   );
 };

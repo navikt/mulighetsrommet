@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import java.time.LocalDateTime
@@ -66,15 +67,14 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         val deltaker1Dbo = DeltakerDbo(
             id = amtDeltaker1.id,
             tiltaksgjennomforingId = amtDeltaker1.gjennomforingId,
-            norskIdent = amtDeltaker1.personIdent,
             status = Deltakerstatus.VENTER,
+            opphav = Deltakeropphav.AMT,
             startDato = null,
             sluttDato = null,
             registrertDato = amtDeltaker1.registrertDato,
         )
         val deltaker2Dbo = deltaker1Dbo.copy(
             id = amtDeltaker2.id,
-            norskIdent = amtDeltaker2.personIdent,
         )
 
         test("upsert deltakere from topic") {

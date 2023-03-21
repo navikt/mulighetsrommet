@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.arena.adapter.routes
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -10,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -20,11 +19,6 @@ import org.koin.ktor.ext.inject
 fun Route.managerRoutes() {
     val kafka: KafkaConsumerOrchestrator by inject()
     val arenaEventService: ArenaEventService by inject()
-
-    singlePageApplication {
-        useResources = true
-        react("web")
-    }
 
     get("/topics") {
         val topics = kafka.getTopics()
@@ -97,5 +91,5 @@ data class DeleteEventsRequest(
 @Serializable
 data class ReplayEventsTaskData(
     val table: ArenaTable,
-    val status: ArenaEvent.ProcessingStatus?
+    val status: ArenaEntityMapping.Status,
 )
