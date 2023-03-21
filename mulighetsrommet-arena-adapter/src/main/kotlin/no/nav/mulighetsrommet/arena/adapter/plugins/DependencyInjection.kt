@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
-import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyTeamStaleRetries
+import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
@@ -46,7 +46,7 @@ fun Application.configureDependencyInjection(
             kafka(appConfig.kafka),
             repositories(),
             services(appConfig.services, tokenClient),
-            tasks(appConfig.tasks),
+            tasks(appConfig.tasks, appConfig.services.arenaEventService),
             slack(appConfig.slack)
         )
     }
@@ -60,20 +60,20 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun tasks(tasks: TaskConfig) = module {
+private fun tasks(tasks: TaskConfig, arenaEventServiceConfig: ArenaEventService.Config) = module {
     single {
         ReplayEvents(get(), get(), get())
     }
     single {
         val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get(), get())
-        val notifyTeamStaleRetries = NotifyTeamStaleRetries(get(), get(), get())
+        val notifyFailedEvents = NotifyFailedEvents(get(), get(), get(), tasks.notifyFailedEvents)
         val replayEvents: ReplayEvents = get()
 
         val db: Database by inject()
 
         Scheduler
             .create(db.getDatasource(), replayEvents.task)
-            .startTasks(retryFailedEvents.task, notifyTeamStaleRetries.task)
+            .startTasks(retryFailedEvents.task, notifyFailedEvents.task)
             .registerShutdownHook()
             .build()
     }

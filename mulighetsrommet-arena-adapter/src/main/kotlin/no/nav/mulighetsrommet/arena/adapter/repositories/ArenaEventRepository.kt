@@ -79,18 +79,18 @@ class ArenaEventRepository(private val db: Database) {
         table: ArenaTable? = null,
         idGreaterThan: String? = null,
         status: ArenaEvent.ProcessingStatus? = null,
-        maxRetries: Int? = null,
-        retriesGreaterThan: Int? = null,
+        retriesLessThan: Int? = null,
+        retriesGreaterThanOrEqual: Int? = null,
         limit: Int = 1000,
     ): List<ArenaEvent> {
-        logger.info("Getting events table=$table, idGreaterThan=$idGreaterThan, status=$status, maxRetries=$maxRetries, retriesGreaterThan=$retriesGreaterThan, limit=$limit")
+        logger.info("Getting events table=$table, idGreaterThan=$idGreaterThan, status=$status, maxRetries=$retriesLessThan, retriesGreaterThanOrEqual=$retriesGreaterThanOrEqual, limit=$limit")
 
         val where = andWhereParameterNotNull(
             table to "arena_table = :arena_table",
             idGreaterThan to "arena_id > :arena_id",
             status to "processing_status= :status::processing_status",
-            maxRetries to "retries < :max_retries",
-            retriesGreaterThan to "retries > :retriesGreaterThan"
+            retriesLessThan to "retries < :max_retries",
+            retriesGreaterThanOrEqual to "retries >= :retriesGreaterThanOrEqual"
         )
 
         @Language("PostgreSQL")
@@ -108,8 +108,8 @@ class ArenaEventRepository(private val db: Database) {
                 "arena_table" to table?.table,
                 "arena_id" to idGreaterThan,
                 "status" to status?.name,
-                "max_retries" to maxRetries,
-                "retriesGreaterThan" to retriesGreaterThan,
+                "max_retries" to retriesLessThan,
+                "retriesGreaterThanOrEqual" to retriesGreaterThanOrEqual,
                 "limit" to limit,
             )
         )
