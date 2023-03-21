@@ -19,6 +19,7 @@ object TiltaksgjennomforingFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        avtaleId = 1000
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -47,5 +48,6 @@ object TiltaksgjennomforingFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        avtaleId = 1000
     )
 }

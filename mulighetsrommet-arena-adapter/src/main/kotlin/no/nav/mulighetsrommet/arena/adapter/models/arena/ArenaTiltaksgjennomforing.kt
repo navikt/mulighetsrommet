@@ -16,5 +16,6 @@ data class ArenaTiltaksgjennomforing(
     val STATUS_TREVERDIKODE_INNSOKNING: JaNeiStatus?,
     @Serializable(with = FloatToIntSerializer::class)
     val ANTALL_DELTAKERE: Int?,
-    val TILTAKSTATUSKODE: String
+    val TILTAKSTATUSKODE: String,
+    val AVTALE_ID: Int?
 )

@@ -23,6 +23,7 @@ data class TiltaksgjennomforingDbo(
     val avslutningsstatus: Avslutningsstatus,
     val tilgjengelighet: Tilgjengelighetsstatus,
     val antallPlasser: Int?,
+    val avtaleId: Int? = null
 ) {
     enum class Tilgjengelighetsstatus {
         Ledig,
