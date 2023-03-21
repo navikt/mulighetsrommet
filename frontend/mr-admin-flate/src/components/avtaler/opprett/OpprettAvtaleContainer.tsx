@@ -1,4 +1,4 @@
-import { Button, ReadMore, TextField } from "@navikt/ds-react";
+import { Button, ReadMore, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Form, Formik, FormikHelpers } from "formik";
 import { ReactNode, useState } from "react";
@@ -18,10 +18,22 @@ const Schema = z.object({
   avtalenavn: z
     .string({ required_error: "En avtale må ha et navn" })
     .min(5, "Et avtalenavn må minst være 5 tegn langt"),
+  tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
+  avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
+  leverandor: z.string({
+    required_error: "Du må velge en leverandør for avtalen",
+  }),
+  enhet: z.string({ required_error: "Du må velge en enhet" }),
+  antallPlasser: z.number({ required_error: "Du må sette antall plasser" }),
+});
+
+/*const Schema = z.object({
+  avtalenavn: z
+    .string({ required_error: "En avtale må ha et navn" })
+    .min(5, "Et avtalenavn må minst være 5 tegn langt"),
   fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
   tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
   tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
-  enhet: z.string({ required_error: "Du må velge en enhet" }),
   antallPlasser: z.number({ required_error: "Du må sette antall plasser" }),
   leverandor: z.string({
     required_error: "Du må velge en leverandør for avtalen",
@@ -33,7 +45,7 @@ const Schema = z.object({
   avtaleansvarlig: z.string({
     required_error: "Du må velge en avtaleansvarlig",
   }),
-});
+});*/
 
 type inferredSchema = z.infer<typeof Schema>;
 
@@ -83,7 +95,28 @@ function ReactHookFormContainer() {
           {...register("avtalenavn")}
         />
       </FormGroup>
-
+      <FormGroup cols={2}>
+        <Select label={"Tiltakstype"} {...register("tiltakstype")}>
+          <option value="oppfolging">Oppfølging</option>
+          <option value="arr">Arbeidsrettet rehabilitering</option>
+        </Select>
+        <TextField
+          error={errors.enhet?.message}
+          label="Enhet"
+          {...register("enhet")}
+        />
+        <TextField
+          error={errors.antallPlasser?.message}
+          label="Antall plasser"
+          {...register("antallPlasser", { valueAsNumber: true })}
+        />
+        <Select label={"Leverandør"} {...register("leverandor")}>
+          <option value="fretty">Fretex jobb og utvikling</option>
+        </Select>
+        <Select label={"Avtaletype"} {...register("avtaletype")}>
+          <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
+        </Select>
+      </FormGroup>
       <div className={styles.content_right}>
         <Button type="submit">Registrer avtale</Button>
       </div>
