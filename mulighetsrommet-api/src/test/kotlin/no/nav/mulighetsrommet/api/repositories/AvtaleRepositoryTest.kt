@@ -280,7 +280,8 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     tiltakstypeId = avtaleFixture.tiltakstypeId,
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2050, 10, 15)
+                    sluttDato = LocalDate.of(2050, 10, 15),
+                    avtaleId = avtale.id
                 )
                 val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     id = UUID.randomUUID(),

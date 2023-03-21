@@ -347,7 +347,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
         tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
         antallPlasser = intOrNull("antall_plasser"),
-        avtaleId = intOrNull("avtale_id")
+        avtaleId = uuidOrNull("avtale_id")
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
@@ -374,7 +374,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
             antallPlasser = intOrNull("antall_plasser"),
-            avtaleId = intOrNull("avtale_id")
+            avtaleId = uuidOrNull("avtale_id")
         )
     }
 

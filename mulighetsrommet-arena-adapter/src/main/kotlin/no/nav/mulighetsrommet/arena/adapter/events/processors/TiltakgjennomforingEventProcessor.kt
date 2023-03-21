@@ -98,6 +98,13 @@ class TiltakgjennomforingEventProcessor(
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
             .bind()
+
+        val avtaleMapping = tiltaksgjennomforing.avtaleId?.let {
+            entities
+                .getMapping(ArenaTable.AvtaleInfo, it.toString())
+                .bind()
+        }
+
         val sak = entities
             .getSak(tiltaksgjennomforing.sakId)
             .bind()
@@ -107,7 +114,8 @@ class TiltakgjennomforingEventProcessor(
                 .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
                 .map { it.virksomhetsnummer }.bind()
         }
-        val dbo = tiltaksgjennomforing.toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer)
+        val dbo =
+            tiltaksgjennomforing.toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer, avtaleMapping?.entityId)
 
         val response = if (operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
@@ -143,7 +151,7 @@ class TiltakgjennomforingEventProcessor(
             )
         }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String) =
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) =
         TiltaksgjennomforingDbo(
             id = id,
             navn = navn,
