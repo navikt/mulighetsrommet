@@ -132,7 +132,6 @@ private fun createConsumer(db: Database, engine: HttpClientEngine): TiltakEventP
     }
 
     val entities = ArenaEntityService(
-        events = ArenaEventRepository(db),
         mappings = ArenaEntityMappingRepository(db),
         tiltakstyper = TiltakstypeRepository(db),
         saker = SakRepository(db),

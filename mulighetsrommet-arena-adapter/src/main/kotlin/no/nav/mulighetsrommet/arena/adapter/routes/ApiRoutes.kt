@@ -20,7 +20,7 @@ fun Route.apiRoutes() {
             status = HttpStatusCode.BadRequest
         )
 
-        val mapping = arenaEntityService.getMappingIfProcessed(ArenaTable.Tiltaksgjennomforing, arenaId)
+        val mapping = arenaEntityService.getMappingIfHandled(ArenaTable.Tiltaksgjennomforing, arenaId)
             ?: return@get call.respondText(
                 "Det finnes ikke noe prossesert tiltaksgjennomføring med arena-id $arenaId",
                 status = HttpStatusCode.NotFound
