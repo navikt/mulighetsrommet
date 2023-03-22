@@ -123,8 +123,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-
-
         val results = queryOf(query, parameters)
             .map {
                 it.int("full_count") to it.toTiltaksgjennomforingAdminDto()

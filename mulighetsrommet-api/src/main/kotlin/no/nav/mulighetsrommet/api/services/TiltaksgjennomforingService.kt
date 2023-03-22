@@ -21,7 +21,6 @@ class TiltaksgjennomforingService(
 
         val avtalerMedLeverandorNavn = items.hentVirksomhetsnavnForTiltaksgjennomforinger()
 
-
         return totalCount to avtalerMedLeverandorNavn
     }
 
