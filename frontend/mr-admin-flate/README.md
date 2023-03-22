@@ -33,7 +33,7 @@ Ved merge til main-branch deployes appen til dev og prod.
 
 ## Demo
 
-Se demo av løsningen her https://mulighetsrommet-admin-flate.labs.nais.io/
+Se demo av løsningen her https://mulighetsrommet-admin-flate.ekstern.dev.nav.no
 
 # Henvendelser
 
