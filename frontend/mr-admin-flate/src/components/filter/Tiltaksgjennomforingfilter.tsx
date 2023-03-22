@@ -13,7 +13,7 @@ export function Tiltaksgjennomforingfilter() {
   const { data: enheter } = useEnheter();
 
   return (
-    <div className={styles.filter_container}>
+    <form className={styles.filter_container}>
       <div className={styles.filter_left}>
         <Search
           label="Søk etter tiltaksgjennomføring"
@@ -65,6 +65,6 @@ export function Tiltaksgjennomforingfilter() {
           <option value="navn-descending">Navn Å-A</option>
         </Select>
       </div>
-    </div>
+    </form>
   );
 }
