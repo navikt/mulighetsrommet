@@ -6,7 +6,6 @@ import {
   tiltaksgjennomforingTabAtom,
 } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
@@ -14,6 +13,7 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
 import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
 import styles from "./DetaljerTiltaksgjennomforingerPage.module.scss";
+import { Header } from "../../components/detaljside/Header";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -30,8 +30,7 @@ export function DetaljerTiltaksgjennomforingerPage() {
   if (!optionalTiltaksgjennomforing.data) {
     return (
       <Alert variant="warning">
-        Klarte ikke finne tiltaksgjennomforing
-        <Link to="/">Til forside</Link>
+        Klarte ikke finne tiltaksgjennomforing <Link to="/">Til forside</Link>
       </Alert>
     );
   }
@@ -42,7 +41,6 @@ export function DetaljerTiltaksgjennomforingerPage() {
       <Header>
         <div className={styles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
-          {/*<Tiltakstypestatus tiltaksgjennomforing={tiltaksgjennomforing} />*/}
         </div>
       </Header>
 

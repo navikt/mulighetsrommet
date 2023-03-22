@@ -12,7 +12,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Yrkesnorsk med praksis",
       tiltaksnummer: "123456",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Valp AS",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -27,7 +27,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Spillbasert kvalifisering",
       tiltaksnummer: "123456",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "SoloPolo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -42,7 +42,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Midlertidig lønnstilskudd",
       tiltaksnummer: "654434",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Solo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -57,7 +57,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "AFT - Unikom",
       tiltaksnummer: "768672",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Valp AS",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -72,7 +72,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Varig lønnstilskudd",
       tiltaksnummer: "65645",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Valp AS",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -87,7 +87,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "32557",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Utvikler AS",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -102,7 +102,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "98643",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Lady Grey",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -117,7 +117,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "575685",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Lady Grey",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -132,7 +132,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "54353",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Lady Grey",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -147,7 +147,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "23213",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Lady Grey",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -162,7 +162,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "76575",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Lady Grey",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -177,7 +177,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "23123",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Lady Grey",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -192,7 +192,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "686585",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "SoloPolo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -207,7 +207,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "43242",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "SoloPolo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -222,7 +222,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "4367",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "SoloPolo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -237,7 +237,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "7685",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "SoloPolo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -252,7 +252,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "5435356",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "SoloPolo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",
@@ -267,7 +267,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       navn: "Arbeidsrettet rehabilitering - Trondheim",
       tiltaksnummer: "987643",
       virksomhetsnummer: "1000",
-      virksomhetsnavn: "TEST",
+      virksomhetsnavn: "Solo",
       tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "TILTAKSTYPENAVN",

@@ -23,6 +23,7 @@ $tiltaksgjennomforingsGrid: 2fr repeat(5, 1fr) 1%;
   display: grid;
   margin-bottom: 0.5rem;
   padding: 0 1rem;
+  gap: 1rem;
 
   :global(.navds-body-short) {
     font-weight: bold;
