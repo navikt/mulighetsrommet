@@ -134,8 +134,6 @@ export function DatoFelt<T>({
   label,
   ...rest
 }: { name: keyof T; label: string } & FieldHookConfig<any> & any) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  /*const [_, meta] = useField({ name, ...rest });*/
   return (
     <UNSAFE_DatePicker.Input {...rest} label={label} name={name} size="small" />
   );

@@ -26,7 +26,6 @@
     "@tanstack/react-query-devtools": "^4.27.0",
     "classnames": "^2.3.2",
     "eslint": "8.36.0",
-    "formik": "^2.2.9",
     "jotai": "^2.0.3",
     "jotai-location": "^0.5.1",
     "mulighetsrommet-api-client": "*",
@@ -37,8 +36,7 @@
     "react-hook-form": "^7.43.5",
     "react-router-dom": "^6.8.1",
     "vite-plugin-require": "^1.1.10",
-    "zod": "^3.21.4",
-    "zod-formik-adapter": "1.2.0"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
