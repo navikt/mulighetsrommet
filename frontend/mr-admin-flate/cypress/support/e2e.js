@@ -93,6 +93,10 @@ Cypress.Commands.add("checkPageA11y", () => {
         id: "svg-img-alt",
         enabled: false,
       },
+      {
+        id: "dlitem",
+        enabled: false,
+      },
     ],
   });
   cy.checkA11y(

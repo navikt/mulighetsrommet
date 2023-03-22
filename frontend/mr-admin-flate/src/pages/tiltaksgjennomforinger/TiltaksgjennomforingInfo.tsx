@@ -12,13 +12,15 @@ export function TiltaksgjennomforingInfo() {
 
   const tiltaksgjennomforing = data;
   return (
-    <dl className={styles.detaljer}>
-      <Metadata
-        header="Tiltakstype"
-        verdi={tiltaksgjennomforing.tiltakstype.navn}
-      />
+    <div className={styles.detaljer}>
+      <dl>
+        <Metadata
+          header="Tiltakstype"
+          verdi={tiltaksgjennomforing.tiltakstype.navn}
+        />
+      </dl>
       <Separator />
-      <div className={styles.bolk}>
+      <dl className={styles.bolk}>
         <Metadata
           header="Startdato"
           verdi={formaterDato(tiltaksgjennomforing.startDato)}
@@ -27,9 +29,9 @@ export function TiltaksgjennomforingInfo() {
           header="Sluttdato"
           verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
         />
-      </div>
+      </dl>
       <Separator />
-      <div className={styles.bolk}>
+      <dl className={styles.bolk}>
         <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
         {tiltaksgjennomforing.virksomhetsnavn ? (
           <Metadata
@@ -37,7 +39,7 @@ export function TiltaksgjennomforingInfo() {
             verdi={tiltaksgjennomforing.virksomhetsnavn}
           />
         ) : null}
-      </div>
-    </dl>
+      </dl>
+    </div>
   );
 }
