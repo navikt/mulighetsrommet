@@ -4,7 +4,7 @@ import { Form, Formik, FormikHelpers } from "formik";
 import { ReactNode, useState } from "react";
 import z from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Datovelger,
@@ -25,14 +25,14 @@ const Schema = z.object({
   }),
   enhet: z.string({ required_error: "Du må velge en enhet" }),
   antallPlasser: z.number({ required_error: "Du må sette antall plasser" }),
+  fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
+  tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
 });
 
 /*const Schema = z.object({
   avtalenavn: z
     .string({ required_error: "En avtale må ha et navn" })
     .min(5, "Et avtalenavn må minst være 5 tegn langt"),
-  fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
-  tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
   tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
   antallPlasser: z.number({ required_error: "Du må sette antall plasser" }),
   leverandor: z.string({
@@ -47,7 +47,7 @@ const Schema = z.object({
   }),
 });*/
 
-type inferredSchema = z.infer<typeof Schema>;
+export type inferredSchema = z.infer<typeof Schema>;
 
 export function OpprettAvtaleContainer() {
   const [type, setType] = useState<"formik" | "react-hook-form">(
@@ -77,56 +77,82 @@ export function OpprettAvtaleContainer() {
 }
 
 function ReactHookFormContainer() {
-  const {
+  /*const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
+  });*/
+  const form = useForm<inferredSchema>({
+    resolver: zodResolver(Schema),
   });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = form;
   const onSubmit: SubmitHandler<inferredSchema> = (data) => console.log(data);
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <FormGroup>
-        <TextField
-          error={errors.avtalenavn?.message}
-          label="Avtalenavn"
-          {...register("avtalenavn")}
-        />
-      </FormGroup>
-      <FormGroup cols={2}>
-        <Select label={"Tiltakstype"} {...register("tiltakstype")}>
-          <option value="oppfolging">Oppfølging</option>
-          <option value="arr">Arbeidsrettet rehabilitering</option>
-        </Select>
-        <TextField
-          error={errors.enhet?.message}
-          label="Enhet"
-          {...register("enhet")}
-        />
-        <TextField
-          error={errors.antallPlasser?.message}
-          label="Antall plasser"
-          {...register("antallPlasser", { valueAsNumber: true })}
-        />
-        <Select label={"Leverandør"} {...register("leverandor")}>
-          <option value="fretty">Fretex jobb og utvikling</option>
-        </Select>
-        <Select label={"Avtaletype"} {...register("avtaletype")}>
-          <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
-        </Select>
-      </FormGroup>
-      <div className={styles.content_right}>
-        <Button type="submit">Registrer avtale</Button>
-      </div>
-    </form>
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormGroup>
+          <TextField
+            error={errors.avtalenavn?.message}
+            label="Avtalenavn"
+            {...register("avtalenavn")}
+          />
+        </FormGroup>
+        <FormGroup cols={1}>
+          <Datovelger
+            fra={{
+              label: "Start",
+              error: errors.fraDato?.message,
+              ...register("fraDato"),
+            }}
+            til={{
+              label: "Slutt",
+              error: errors.tilDato?.message,
+              ...register("tilDato"),
+            }}
+          />
+        </FormGroup>
+        <FormGroup cols={2}>
+          <Select label={"Tiltakstype"} {...register("tiltakstype")}>
+            <option value="oppfolging">Oppfølging</option>
+            <option value="arr">Arbeidsrettet rehabilitering</option>
+          </Select>
+          <TextField
+            error={errors.enhet?.message}
+            label="Enhet"
+            {...register("enhet")}
+          />
+          <TextField
+            error={errors.antallPlasser?.message}
+            label="Antall plasser"
+            {...register("antallPlasser", { valueAsNumber: true })}
+          />
+          <Select label={"Leverandør"} {...register("leverandor")}>
+            <option value="fretty">Fretex jobb og utvikling</option>
+          </Select>
+          <Select label={"Avtaletype"} {...register("avtaletype")}>
+            <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
+          </Select>
+        </FormGroup>
+        <div className={styles.content_right}>
+          <Button type="submit">Registrer avtale</Button>
+        </div>
+      </form>
+    </FormProvider>
   );
 }
 
 function FormikContainer() {
   return (
-    <Formik
+    <>Hei</>
+    /*<Formik
       initialValues={{
         avtalenavn: "",
         fraDato: "",
@@ -213,7 +239,7 @@ function FormikContainer() {
           <Button type="submit">Registrer avtale</Button>
         </div>
       </Form>
-    </Formik>
+    </Formik>*/
   );
 }
 

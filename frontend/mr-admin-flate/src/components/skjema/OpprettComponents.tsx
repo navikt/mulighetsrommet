@@ -7,6 +7,8 @@ import {
   UNSAFE_useRangeDatepicker,
 } from "@navikt/ds-react";
 import { FieldHookConfig, useField } from "formik";
+import { useController } from "react-hook-form";
+import { inferredSchema } from "../avtaler/opprett/OpprettAvtaleContainer";
 import { formaterDato } from "../../utils/Utils";
 
 export function Tekstfelt<T>({
@@ -92,7 +94,9 @@ export function CheckboxFelt<T>(
 interface DatoProps {
   name: string;
   label: string;
+  error?: string;
 }
+
 export function Datovelger<T>({
   fra,
   til,
@@ -100,16 +104,18 @@ export function Datovelger<T>({
   fra: DatoProps;
   til: DatoProps;
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [fraDatoField, fraDatoMeta, fraDatoHelper] = useField("fraDato");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [tilDatoField, tilDatoMeta, tilDatoHelper] = useField("tilDato");
+  const { field: fraDato } = useController<inferredSchema, "fraDato">({
+    name: "fraDato",
+  });
+  const { field: tilDato } = useController<inferredSchema, "tilDato">({
+    name: "tilDato",
+  });
 
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
-        fraDatoHelper.setValue(formaterDato(val?.from));
-        tilDatoHelper.setValue(formaterDato(val?.to));
+        fraDato.onChange(val?.from ? formaterDato(val?.from) : undefined);
+        tilDato.onChange(val?.to ? formaterDato(val?.to) : undefined);
       },
     });
 
@@ -129,14 +135,8 @@ export function DatoFelt<T>({
   ...rest
 }: { name: keyof T; label: string } & FieldHookConfig<any> & any) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, meta] = useField({ name, ...rest });
+  /*const [_, meta] = useField({ name, ...rest });*/
   return (
-    <UNSAFE_DatePicker.Input
-      {...rest}
-      label={label}
-      name={name}
-      error={meta.touched && meta.error}
-      size="small"
-    />
+    <UNSAFE_DatePicker.Input {...rest} label={label} name={name} size="small" />
   );
 }
