@@ -32,6 +32,13 @@ export function NokkeltallForAvtale() {
           helptext="Sum av alle tiltaksgjennomføringer for valgt avtale, som er aktive innenfor budsjettåret (1. januar -> 31. desember)"
           helptextTitle="Hvor kommer tallene fra?"
         />
+        <Nokkeltall
+          title="Deltakere"
+          subtitle="hittil i år"
+          value={formaterTall(data.antallDeltakere)}
+          helptext="Sum av alle deltakere for valgt avtale, som er aktive innenfor budsjettåret (1. januar -> 31. desember)"
+          helptextTitle="Hvor kommer tallene fra?"
+        />
       </NokkeltallContainer>
     </>
   );
