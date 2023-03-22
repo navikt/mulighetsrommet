@@ -6,6 +6,9 @@ import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { Laster } from "../../laster/Laster";
+import { capitalize } from "../../../utils/Utils";
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
@@ -55,6 +58,19 @@ function ReactHookFormContainer() {
     formState: { errors },
   } = form;
   const onSubmit: SubmitHandler<inferredSchema> = (data) => console.log(data);
+  const { data: ansatt, isLoading } = useHentAnsatt();
+  if (isLoading) {
+    return <Laster size="xlarge" />;
+  }
+  if (!ansatt) {
+    return null;
+  }
+  const navn = ansatt.fornavn
+    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
+        .map((it) => capitalize(it))
+        .join(" ")
+    : "";
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -87,7 +103,7 @@ function ReactHookFormContainer() {
             <option value="ARBFORB">Arbeidsforberedende trening (AFT)</option>
           </Select>
           <Select label={"Enhet"} {...register("enhet")}>
-            <option value="forhandsgodkjent">TODO</option>
+            <option value={ansatt.hovedenhet}>{ansatt.hovedenhetNavn}</option>
           </Select>
           <TextField
             error={errors.antallPlasser?.message}
@@ -118,7 +134,9 @@ function ReactHookFormContainer() {
         </FormGroup>
         <FormGroup cols={2}>
           <Select label={"Avtaleansvarlig"} {...register("avtaleansvarlig")}>
-            <option value="m165757">TODO</option>
+            <option
+              value={ansatt.ident ?? "ukjent"}
+            >{`${navn} - ${ansatt.ident}`}</option>
           </Select>
         </FormGroup>
         <div className={styles.content_right}>
