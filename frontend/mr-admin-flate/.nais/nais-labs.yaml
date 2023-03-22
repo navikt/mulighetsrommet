@@ -11,7 +11,7 @@ spec:
   image: {{image}}
   port: 8080
   ingresses:
-    - https://mulighetsrommet-admin-flate.labs.nais.io
+    - https://mulighetsrommet-admin-flate.ekstern.dev.nav.no
   liveness:
     path: /internal/isalive
     initialDelay: 10
