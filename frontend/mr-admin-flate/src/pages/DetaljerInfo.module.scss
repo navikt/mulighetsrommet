@@ -1,0 +1,16 @@
+.detaljer {
+  background: white;
+  padding: 1rem;
+  width: 40rem;
+  display: flex;
+  flex-direction: column;
+
+  @media (width <= 1200px) {
+    width: 100%;
+  }
+
+  .bolk {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 50%);
+  }
+}

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./Metadata.module.scss";
+import { BodyShort, Heading } from "@navikt/ds-react";
 
 export function Grid({
   children,
@@ -21,8 +22,10 @@ export function Metadata({
 }) {
   return (
     <div className={styles.header_og_verdi}>
-      <dt className={styles.bold}>{header}</dt>
-      <dd className={styles.definition}>{verdi}</dd>
+      <Heading level="3" size="xsmall">
+        {header}
+      </Heading>
+      <BodyShort>{verdi}</BodyShort>
     </div>
   );
 }

@@ -1,13 +1,9 @@
 import { Alert } from "@navikt/ds-react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import {
-  Grid,
-  Metadata,
-  Separator,
-} from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
 import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
-import styles from "./Avtaleinfo.module.scss";
+import styles from "../DetaljerInfo.module.scss";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error } = useAvtale();
@@ -25,16 +21,17 @@ export function Avtaleinfo() {
   }
 
   return (
-    <div className={styles.container}>
-      <Grid as="dl">
+    <div className={styles.detaljer}>
+      <div className={styles.bolk}>
         <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
         <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
-      </Grid>
+      </div>
       <Separator />
-      <Grid as="dl">
+      <div className={styles.bolk}>
         <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
         <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
-        <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
+      </div>
+      <div className={styles.bolk}>
         <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
         <Metadata
           header="Leverandør"
@@ -43,14 +40,13 @@ export function Avtaleinfo() {
             avtale.leverandor?.organisasjonsnummer
           }
         />
-      </Grid>
+      </div>
+      <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
       <Separator />
-      <Grid as="dl">
-        <Metadata
-          header="Pris og betalingsbetingelser"
-          verdi={avtale.prisbetingelser}
-        />
-      </Grid>
+      <Metadata
+        header="Pris og betalingsbetingelser"
+        verdi={avtale.prisbetingelser}
+      />
     </div>
   );
 }

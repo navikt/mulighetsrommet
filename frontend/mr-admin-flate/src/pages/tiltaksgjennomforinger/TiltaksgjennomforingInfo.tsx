@@ -1,6 +1,6 @@
-import { Metadata } from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { formaterDato } from "../../utils/Utils";
-import styles from "./TiltaksgjennomforingInfo.module.scss";
+import styles from "../DetaljerInfo.module.scss";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 
 export function TiltaksgjennomforingInfo() {
@@ -12,38 +12,32 @@ export function TiltaksgjennomforingInfo() {
 
   const tiltaksgjennomforing = data;
   return (
-    <div>
-      <dl className={styles.detaljer}>
+    <div className={styles.detaljer}>
+      <Metadata
+        header="Tiltakstype"
+        verdi={tiltaksgjennomforing.tiltakstype.navn}
+      />
+      <Separator />
+      <div className={styles.bolk}>
+        <Metadata
+          header="Startdato"
+          verdi={formaterDato(tiltaksgjennomforing.startDato)}
+        />
+        <Metadata
+          header="Sluttdato"
+          verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
+        />
+      </div>
+      <Separator />
+      <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
+      {tiltaksgjennomforing.virksomhetsnavn ? (
         <div className={styles.bolk}>
           <Metadata
-            header="Tiltakstype"
-            verdi={tiltaksgjennomforing.tiltakstype.navn}
+            header="Arrangør"
+            verdi={tiltaksgjennomforing.virksomhetsnavn}
           />
         </div>
-        <div className={styles.bolk}>
-          <Metadata
-            header="Startdato"
-            verdi={formaterDato(tiltaksgjennomforing.startDato)}
-          />
-          <Metadata
-            header="Sluttdato"
-            verdi={formaterDato(tiltaksgjennomforing.sluttDato)}
-          />
-        </div>
-
-        <div className={styles.bolk}>
-          <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
-        </div>
-
-        {tiltaksgjennomforing.virksomhetsnavn ? (
-          <div className={styles.bolk}>
-            <Metadata
-              header="Arrangør"
-              verdi={tiltaksgjennomforing.virksomhetsnavn}
-            />
-          </div>
-        ) : null}
-      </dl>
+      ) : null}
     </div>
   );
 }

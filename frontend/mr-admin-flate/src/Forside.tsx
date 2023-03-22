@@ -4,7 +4,7 @@ import styles from "./Forside.module.scss";
 
 export function Forside() {
   return (
-    <div className={styles.container}>
+    <div role="main" className={styles.container}>
       <div className={styles.hero}>
         <h2 className={styles.title}>
           Enkel og effektiv administrasjon
