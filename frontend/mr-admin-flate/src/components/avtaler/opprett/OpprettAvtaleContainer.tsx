@@ -8,24 +8,23 @@ import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
 
 const Schema = z.object({
-  avtalenavn: z
-    .string({ required_error: "En avtale må ha et navn" })
-    .min(5, "Et avtalenavn må minst være 5 tegn langt"),
+  avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
   tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
   avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
-  leverandor: z.string({
-    required_error: "Du må velge en leverandør for avtalen",
-  }),
+  leverandor: z.string().min(1, "Du må skrive inn en leverandør for avtalen"),
   enhet: z.string({ required_error: "Du må velge en enhet" }),
-  antallPlasser: z.number({ required_error: "Du må sette antall plasser" }),
+  antallPlasser: z
+    .number({ invalid_type_error: "Du må skrive inn et tall" })
+    .int(),
   fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
   tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
-  prisOgBetalingsbetingelser: z.string({
-    required_error: "Du må skrive inn pris og betalingsbetingelser",
-  }),
+  prisOgBetalingsbetingelser: z
+    .string()
+    .min(1, "Du må skrive inn pris og betalingsbetingelser"),
   avtaleansvarlig: z.string({
     required_error: "Du må velge en avtaleansvarlig",
   }),
+  url: z.string().min(1, "Du må skrive inn url til avtalen i websak"),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -82,25 +81,32 @@ function ReactHookFormContainer() {
         </FormGroup>
         <FormGroup cols={2}>
           <Select label={"Tiltakstype"} {...register("tiltakstype")}>
-            <option value="oppfolging">Oppfølging</option>
-            <option value="arr">Arbeidsrettet rehabilitering</option>
+            <option value="VASV ">
+              Varig tilrettelagt arbeid i skjermet virksomhet (VTA)
+            </option>
+            <option value="ARBFORB">Arbeidsforberedende trening (AFT)</option>
           </Select>
-          <TextField
-            error={errors.enhet?.message}
-            label="Enhet"
-            {...register("enhet")}
-          />
+          <Select label={"Enhet"} {...register("enhet")}>
+            <option value="forhandsgodkjent">TODO</option>
+          </Select>
           <TextField
             error={errors.antallPlasser?.message}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
-          <Select label={"Leverandør"} {...register("leverandor")}>
-            <option value="fretty">Fretex jobb og utvikling</option>
-          </Select>
+          <TextField
+            error={errors.leverandor?.message}
+            label="Leverandør"
+            {...register("leverandor")}
+          />
           <Select label={"Avtaletype"} {...register("avtaletype")}>
             <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
           </Select>
+          <TextField
+            error={errors.url?.message}
+            label="URL til avtale"
+            {...register("url")}
+          />
         </FormGroup>
         <FormGroup cols={1}>
           <Textarea
@@ -112,7 +118,7 @@ function ReactHookFormContainer() {
         </FormGroup>
         <FormGroup cols={2}>
           <Select label={"Avtaleansvarlig"} {...register("avtaleansvarlig")}>
-            <option value="m165757">M165757</option>
+            <option value="m165757">TODO</option>
           </Select>
         </FormGroup>
         <div className={styles.content_right}>
