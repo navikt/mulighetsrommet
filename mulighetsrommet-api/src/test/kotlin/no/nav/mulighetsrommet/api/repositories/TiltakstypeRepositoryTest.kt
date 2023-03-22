@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
@@ -272,6 +274,8 @@ class TiltakstypeRepositoryTest : FunSpec({
     context("Nøkkeltall") {
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val deltakerRepository = DeltakerRepository(database.db)
+        val avtaleRepository = AvtaleRepository(database.db)
 
         test("Skal telle korrekt antall tiltaksgjennomføringer tilknyttet en tiltakstype") {
             val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
@@ -302,7 +306,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             )
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
-            val tiltakstypeUtenGjennomforinger = TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+            val tiltakstypeUtenGjennomforinger =
+                TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
 
             tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
             tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
@@ -315,8 +320,73 @@ class TiltakstypeRepositoryTest : FunSpec({
             val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
             antallGjennomforinger.first shouldBe 4
 
-            val antallGjennomforingerForTiltakstype = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstype.id)
+            val antallGjennomforingerForTiltakstype =
+                tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstype.id)
             antallGjennomforingerForTiltakstype shouldBe 1
+        }
+
+        test("Skal telle korrekt antall deltakere tilknyttet en avtale") {
+            val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
+
+            val avtale = AvtaleFixtures(database).createAvtaleForTiltakstype(tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId)
+
+            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2022, 10, 15),
+                avtaleId = avtale.id
+            )
+            val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                id = UUID.randomUUID(),
+                tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2050, 10, 15),
+                avtaleId = avtale.id
+            )
+            val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2050, 10, 15)
+            )
+            val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+                id = UUID.randomUUID(),
+                tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2050, 10, 15)
+            )
+
+            val deltaker1 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID())
+            val deltaker2 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID(), startDato = LocalDate.of(2021, 1, 1), sluttDato = LocalDate.of(2023, 1, 1))
+            val deltaker3 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
+            val deltaker4 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
+
+            val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
+            val tiltakstypeUtenGjennomforinger =
+                TiltakstypeFixtures.Oppfolging.copy(id = tiltakstypeIdSomIkkeSkalMatche)
+
+            tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
+            tiltakstypeRepository.upsert(tiltakstypeUtenGjennomforinger).getOrThrow()
+
+            avtaleRepository.upsert(avtale).getOrThrow()
+
+            tiltaksgjennomforingRepository.upsert(gjennomforing1).getOrThrow()
+            tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
+            tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
+            tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
+
+            deltakerRepository.upsert(deltaker1)
+            deltakerRepository.upsert(deltaker2)
+            deltakerRepository.upsert(deltaker3)
+            deltakerRepository.upsert(deltaker4)
+
+            val antallDeltakereTotalt = deltakerRepository.getAll()
+            antallDeltakereTotalt.size shouldBe 4
+
+            val antallDeltakereForAvtale =
+                tiltaksgjennomforingRepository.countDeltakereForAvtaleWithId(avtale.id)
+            antallDeltakereForAvtale shouldBe 1
         }
     }
 })

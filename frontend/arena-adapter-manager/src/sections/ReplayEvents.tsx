@@ -35,11 +35,9 @@ function ReplayEvents() {
           setStatus(currentTarget.value);
         }}
       >
-        <option value="Pending">Pending</option>
-        <option value="Processed">Processed</option>
-        <option value="Failed">Failed</option>
+        <option value="Handled">Handled</option>
         <option value="Ignored">Ignored</option>
-        <option value="Invalid">Invalid</option>
+        <option value="Unhandled">Unhandled</option>
       </Select>
       <Button onClick={() => replayEvents(table, status != "" ? status : null)}>
         Replay Events

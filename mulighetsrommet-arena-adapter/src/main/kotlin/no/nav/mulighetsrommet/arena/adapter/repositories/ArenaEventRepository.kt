@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
@@ -34,26 +35,32 @@ class ArenaEventRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun updateStatus(
+    fun updateProcessingStatusFromEntityStatus(
         table: ArenaTable,
-        oldStatus: ArenaEvent.ProcessingStatus?,
-        newStatus: ArenaEvent.ProcessingStatus,
+        entityStatus: ArenaEntityMapping.Status,
+        processingStatus: ArenaEvent.ProcessingStatus,
     ) {
-        val where = andWhereParameterNotNull(
-            table to "arena_table = :table",
-            oldStatus to "processing_status = :old_status::processing_status"
-        )
-
         @Language("PostgreSQL")
         val query = """
-            update arena_events
-            set processing_status= :new_status::processing_status, retries = 0
-            $where
+            with mappings as (select arena_table, arena_id
+                              from arena_entity_mapping
+                              where arena_table = :table
+                                and status = :entity_status::entity_status)
+            update arena_events e
+            set processing_status = :processing_status::processing_status,
+                retries           = 0
+            from mappings m
+            where e.arena_table = m.arena_table
+              and e.arena_id = m.arena_id;
         """.trimIndent()
 
         return queryOf(
             query,
-            mapOf("table" to table.table, "old_status" to oldStatus?.name, "new_status" to newStatus.name)
+            mapOf(
+                "table" to table.table,
+                "entity_status" to entityStatus.name,
+                "processing_status" to processingStatus.name
+            )
         )
             .asUpdate
             .let { db.run(it) }
@@ -79,16 +86,18 @@ class ArenaEventRepository(private val db: Database) {
         table: ArenaTable? = null,
         idGreaterThan: String? = null,
         status: ArenaEvent.ProcessingStatus? = null,
-        maxRetries: Int? = null,
+        retriesLessThan: Int? = null,
+        retriesGreaterThanOrEqual: Int? = null,
         limit: Int = 1000,
     ): List<ArenaEvent> {
-        logger.info("Getting events table=$table, idGreaterThan=$idGreaterThan, status=$status, maxRetries=$maxRetries, limit=$limit")
+        logger.info("Getting events table=$table, idGreaterThan=$idGreaterThan, status=$status, maxRetries=$retriesLessThan, retriesGreaterThanOrEqual=$retriesGreaterThanOrEqual, limit=$limit")
 
         val where = andWhereParameterNotNull(
             table to "arena_table = :arena_table",
             idGreaterThan to "arena_id > :arena_id",
             status to "processing_status= :status::processing_status",
-            maxRetries to "retries < :max_retries",
+            retriesLessThan to "retries < :max_retries",
+            retriesGreaterThanOrEqual to "retries >= :retriesGreaterThanOrEqual"
         )
 
         @Language("PostgreSQL")
@@ -106,7 +115,8 @@ class ArenaEventRepository(private val db: Database) {
                 "arena_table" to table?.table,
                 "arena_id" to idGreaterThan,
                 "status" to status?.name,
-                "max_retries" to maxRetries,
+                "max_retries" to retriesLessThan,
+                "retriesGreaterThanOrEqual" to retriesGreaterThanOrEqual,
                 "limit" to limit,
             )
         )

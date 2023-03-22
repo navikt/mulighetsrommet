@@ -413,7 +413,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         startDato shouldBe LocalDate.of(2022, 11, 11)
                         sluttDato shouldBe LocalDate.of(2023, 11, 11)
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
-                        avtaleId shouldBe 1000
+                        avtaleId shouldBe generatedAvtaleId
                     }
                 }
 

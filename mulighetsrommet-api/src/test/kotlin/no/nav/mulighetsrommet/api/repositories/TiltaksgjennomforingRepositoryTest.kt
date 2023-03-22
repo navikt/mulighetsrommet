@@ -59,6 +59,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                 antallPlasser = null,
+                avtaleId = gjennomforing1.avtaleId
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)

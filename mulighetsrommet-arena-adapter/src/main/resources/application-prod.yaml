@@ -29,6 +29,10 @@ app:
     retryFailedEvents:
       delayOfMinutes: 15
 
+    notifyFailedEvents:
+      maxRetries: 5
+      cron: '0 0 7 * * MON-FRI'
+
   enableFailedRecordProcessor: true
 
   auth:
