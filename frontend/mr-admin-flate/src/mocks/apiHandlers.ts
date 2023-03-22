@@ -17,7 +17,6 @@ import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockEnheter } from "./fixtures/mock_enheter";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
-import { mockTiltaksgjennomforingerKobletTilAnsatt } from "./fixtures/mock_tiltaksgjennomforinger_koblet_til_ansatt";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
@@ -134,31 +133,6 @@ export const apiHandlers = [
         ctx.status(200),
 
         ctx.json(mockTiltaksgjennomforingerNokkeltall)
-      );
-    }
-  ),
-
-  rest.get<any, any, PaginertTiltaksgjennomforing>(
-    "*/api/v1/internal/tiltaksgjennomforinger/mine",
-    (req, res, ctx) => {
-      const { tiltaksgjennomforinger } =
-        mockTiltaksgjennomforingerKobletTilAnsatt[0] ?? {
-          tiltaksgjennomforinger: [],
-        };
-      const gjennomforinger = mockTiltaksgjennomforinger.data.filter((gj) =>
-        tiltaksgjennomforinger.includes(gj.id)
-      );
-      return res(
-        ctx.status(200),
-
-        ctx.json({
-          pagination: {
-            totalCount: gjennomforinger.length,
-            currentPage: 1,
-            pageSize: 50,
-          },
-          data: gjennomforinger,
-        })
       );
     }
   ),
