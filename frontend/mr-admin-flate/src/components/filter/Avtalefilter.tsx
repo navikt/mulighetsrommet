@@ -1,11 +1,12 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { ChangeEvent, useEffect, useRef } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import styles from "./Filter.module.scss";
+import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
 
 export function Avtalefilter() {
   const [filter, setFilter] = useAtom(avtaleFilter);
@@ -13,6 +14,7 @@ export function Avtalefilter() {
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -99,9 +101,11 @@ export function Avtalefilter() {
             <option value="status-ascending">Status A-Å</option>
             <option value="status-descending">Status Å-A</option>
           </Select>
-          <Button onClick={() => alert("Not implemented")}>
-            Registrer avtale
-          </Button>
+          <Button onClick={() => setModalOpen(true)}>Registrer avtale</Button>
+          <OpprettAvtaleModal
+            modalOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+          />
         </div>
       </div>
     </>

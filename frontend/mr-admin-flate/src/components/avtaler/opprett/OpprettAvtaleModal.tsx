@@ -6,7 +6,7 @@ import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
 
 interface OpprettAvtaleModalProps {
   modalOpen: boolean;
-  setModalOpen: () => void;
+  onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
   className?: string;
@@ -15,18 +15,17 @@ interface OpprettAvtaleModalProps {
 
 const OpprettAvtaleModal = ({
   modalOpen,
-  setModalOpen,
+  onClose,
   handleForm,
   handleCancel,
   className,
 }: OpprettAvtaleModalProps) => {
   const clickSend = () => {
-    setModalOpen();
     handleForm?.();
   };
 
   const clickCancel = () => {
-    setModalOpen();
+    onClose();
     handleCancel!();
   };
 
@@ -35,7 +34,7 @@ const OpprettAvtaleModal = ({
       shouldCloseOnOverlayClick={false}
       closeButton
       open={modalOpen}
-      onClose={setModalOpen}
+      onClose={onClose}
       className={classNames(styles.overstyrte_styles_fra_ds_modal, className)}
       aria-label="modal"
     >

@@ -36,7 +36,6 @@ export function OpprettAvtaleContainer() {
   return (
     <div
       style={{
-        width: "800px",
         margin: "0 auto",
         background: "white",
         padding: "1rem",

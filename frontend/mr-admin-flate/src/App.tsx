@@ -11,6 +11,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import OpprettAvtaleModal from "./components/avtaler/opprett/OpprettAvtaleModal";
+import { OpprettAvtaleContainer } from "./components/avtaler/opprett/OpprettAvtaleContainer";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
@@ -72,9 +73,7 @@ export function App() {
       />
       <Route
         path="avtaler/ny"
-        element={
-          <OpprettAvtaleModal modalOpen={true} setModalOpen={() => {}} />
-        }
+        element={<OpprettAvtaleContainer />}
         errorElement={<ErrorPage />}
       />
       <Route
