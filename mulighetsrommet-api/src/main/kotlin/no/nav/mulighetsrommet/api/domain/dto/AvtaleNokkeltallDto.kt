@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AvtaleNokkeltallDto(
-    val antallTiltaksgjennomforinger: Int
+    val antallTiltaksgjennomforinger: Int,
+    val antallDeltakere: Int
 )

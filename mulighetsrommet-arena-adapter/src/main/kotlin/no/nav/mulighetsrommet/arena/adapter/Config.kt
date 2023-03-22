@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
+import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -22,7 +23,8 @@ data class AppConfig(
 )
 
 data class TaskConfig(
-    val retryFailedEvents: RetryFailedEvents.Config
+    val retryFailedEvents: RetryFailedEvents.Config,
+    val notifyFailedEvents: NotifyFailedEvents.Config
 )
 
 data class ServiceConfig(

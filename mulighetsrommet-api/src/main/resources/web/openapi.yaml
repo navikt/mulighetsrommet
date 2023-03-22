@@ -1369,5 +1369,8 @@ components:
       properties:
         antallTiltaksgjennomforinger:
           type: number
+        antallDeltakere:
+          type: number
       required:
         - antallTiltaksgjennomforinger
+        - antallDeltakere

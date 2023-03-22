@@ -392,4 +392,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asSingle
             .let { db.run(it)!! }
     }
+
+    fun countDeltakereForAvtaleWithId(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        val query = """
+            SELECT count(*) AS antall
+            FROM tiltaksgjennomforing tg
+            join deltaker d on d.tiltaksgjennomforing_id = tg.id
+            where tg.avtale_id = ?::uuid
+            and d.start_dato < ?::timestamp
+            and d.slutt_dato > ?::timestamp
+        """.trimIndent()
+
+        return queryOf(query, avtaleId, currentDate, currentDate)
+            .map { it.int("antall") }
+            .asSingle
+            .let { db.run(it)!! }
+    }
 }

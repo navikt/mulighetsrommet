@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
@@ -12,7 +13,8 @@ import java.util.*
 class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val arrangorService: ArrangorService,
-    private val navEnhetService: NavEnhetService
+    private val navEnhetService: NavEnhetService,
+    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository
 ) {
 
     suspend fun get(id: UUID): AvtaleAdminDto? {
@@ -65,8 +67,10 @@ class AvtaleService(
 
     fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {
         val antallTiltaksgjennomforinger = avtaler.countTiltaksgjennomforingerForAvtaleWithId(id)
+        val antallDeltakereForAvtale = tiltaksgjennomforinger.countDeltakereForAvtaleWithId(id)
         return AvtaleNokkeltallDto(
-            antallTiltaksgjennomforinger = antallTiltaksgjennomforinger
+            antallTiltaksgjennomforinger = antallTiltaksgjennomforinger,
+            antallDeltakere = antallDeltakereForAvtale
         )
     }
 }

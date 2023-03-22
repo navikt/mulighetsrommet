@@ -135,7 +135,7 @@ class ArenaEventService(
                     table = table,
                     idGreaterThan = prevId,
                     status = status,
-                    maxRetries = maxRetries,
+                    retriesLessThan = maxRetries,
                     limit = config.channelCapacity
                 )
 
@@ -163,5 +163,9 @@ class ArenaEventService(
         }
 
         logger.info("Consumed $count events in $time")
+    }
+
+    fun getStaleEvents(retriesGreaterThanOrEqual: Int): List<ArenaEvent> {
+        return events.getAll(retriesGreaterThanOrEqual = retriesGreaterThanOrEqual)
     }
 }
