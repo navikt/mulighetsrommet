@@ -24,8 +24,7 @@ export function DetaljerAvtalePage() {
   if (!avtale) {
     return (
       <Alert variant="warning">
-        Klarte ikke finne avtale
-        <Link to="/">Til forside</Link>
+        Klarte ikke finne avtale <Link to="/">Til forside</Link>
       </Alert>
     );
   }

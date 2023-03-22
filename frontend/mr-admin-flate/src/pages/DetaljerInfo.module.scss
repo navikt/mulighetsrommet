@@ -12,5 +12,6 @@
   .bolk {
     display: grid;
     grid-template-columns: repeat(auto-fit, 50%);
+    grid-row-gap: 2rem;
   }
 }

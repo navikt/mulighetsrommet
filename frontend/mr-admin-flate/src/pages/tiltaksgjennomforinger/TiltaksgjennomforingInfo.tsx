@@ -12,7 +12,7 @@ export function TiltaksgjennomforingInfo() {
 
   const tiltaksgjennomforing = data;
   return (
-    <div className={styles.detaljer}>
+    <dl className={styles.detaljer}>
       <Metadata
         header="Tiltakstype"
         verdi={tiltaksgjennomforing.tiltakstype.navn}
@@ -29,15 +29,15 @@ export function TiltaksgjennomforingInfo() {
         />
       </div>
       <Separator />
-      <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
-      {tiltaksgjennomforing.virksomhetsnavn ? (
-        <div className={styles.bolk}>
+      <div className={styles.bolk}>
+        <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
+        {tiltaksgjennomforing.virksomhetsnavn ? (
           <Metadata
             header="Arrangør"
             verdi={tiltaksgjennomforing.virksomhetsnavn}
           />
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </dl>
   );
 }

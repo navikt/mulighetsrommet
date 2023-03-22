@@ -21,17 +21,16 @@ export function Avtaleinfo() {
   }
 
   return (
-    <div className={styles.detaljer}>
+    <dl className={styles.detaljer}>
       <div className={styles.bolk}>
         <Metadata header="Startdato" verdi={formaterDato(avtale.startDato)} />
         <Metadata header="Sluttdato" verdi={formaterDato(avtale.sluttDato)} />
       </div>
       <Separator />
-      <div className={styles.bolk}>
+      <dl className={styles.bolk}>
         <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
         <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
-      </div>
-      <div className={styles.bolk}>
+        <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
         <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
         <Metadata
           header="Leverandør"
@@ -40,13 +39,14 @@ export function Avtaleinfo() {
             avtale.leverandor?.organisasjonsnummer
           }
         />
-      </div>
-      <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
+      </dl>
       <Separator />
-      <Metadata
-        header="Pris og betalingsbetingelser"
-        verdi={avtale.prisbetingelser}
-      />
-    </div>
+      <dl>
+        <Metadata
+          header="Pris og betalingsbetingelser"
+          verdi={avtale.prisbetingelser}
+        />
+      </dl>
+    </dl>
   );
 }

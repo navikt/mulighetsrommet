@@ -26,8 +26,7 @@ export function DetaljerTiltakstypePage() {
   if (!optionalTiltakstype.data) {
     return (
       <Alert variant="warning">
-        Klarte ikke finne tiltakstype
-        <Link to="/">Til forside</Link>
+        Klarte ikke finne tiltakstype <Link to="/">Til forside</Link>
       </Alert>
     );
   }
@@ -39,7 +38,7 @@ export function DetaljerTiltakstypePage() {
         <div className={styles.header}>
           <span>{tiltakstype?.navn ?? "..."}</span>
           <Tiltakstypestatus tiltakstype={tiltakstype} />
-        </div>{" "}
+        </div>
       </Header>
 
       <Tabs
