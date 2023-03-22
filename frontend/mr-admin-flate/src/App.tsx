@@ -2,7 +2,6 @@ import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { Route, Routes } from "react-router-dom";
 import { useHentAnsatt } from "./api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "./api/features/feature-toggles";
-import { OpprettAvtaleContainer } from "./components/avtaler/opprett/OpprettAvtaleContainer";
 import { Laster } from "./components/laster/Laster";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -11,6 +10,7 @@ import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import OpprettAvtaleModal from "./components/avtaler/opprett/OpprettAvtaleModal";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
@@ -72,7 +72,9 @@ export function App() {
       />
       <Route
         path="avtaler/ny"
-        element={<OpprettAvtaleContainer />}
+        element={
+          <OpprettAvtaleModal modalOpen={true} setModalOpen={() => {}} />
+        }
         errorElement={<ErrorPage />}
       />
       <Route
