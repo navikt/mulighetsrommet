@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
@@ -305,7 +306,7 @@ class AvtaleRepositoryTest : FunSpec({
                 tiltaksgjennomforingRepository.upsert(gjennomforing2).getOrThrow()
                 tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
                 tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
-
+                val filter = AdminTiltaksgjennomforingFilter()
                 val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
                 gjennomforinger.first shouldBe 4
 
