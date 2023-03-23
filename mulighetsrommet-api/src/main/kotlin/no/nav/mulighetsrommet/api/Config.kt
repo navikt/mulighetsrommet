@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -14,7 +14,7 @@ data class Config(
 )
 
 data class AppConfig(
-    val database: FlywayDatabaseConfig,
+    val database: FlywayDatabaseAdapter.Config,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityService.Config,
