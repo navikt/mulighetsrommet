@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 @Serializable
 data class Tiltak(
     val _id: String,
-    val tiltaksnummer: Int,
+    val tiltaksnummer: String?,
 )
 
 fun main() {
@@ -51,12 +51,14 @@ private fun CoroutineScope.produceTiltak(capacity: Int, sanity: SanityClient): R
             """
             *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))]{
               _id,
-              tiltaksnummer
+              "tiltaksnummer": tiltaksnummer.current
             }
             """.trimIndent()
         )
         tiltak.result.forEach {
-            send(it)
+            if (it.tiltaksnummer != null) {
+                send(it)
+            }
         }
         close()
     }
@@ -72,7 +74,7 @@ private suspend fun writeTilgjengelighetsstatus(
             """
             select tilgjengelighet
             from tiltaksgjennomforing_valid
-            where tiltaksnummer = ?
+            where split_part(tiltaksnummer, '#', 2) = ?
             """.trimIndent(),
             tiltak.tiltaksnummer
         )
