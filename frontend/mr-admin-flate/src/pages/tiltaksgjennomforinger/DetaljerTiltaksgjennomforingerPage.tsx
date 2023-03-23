@@ -24,7 +24,7 @@ export function DetaljerTiltaksgjennomforingerPage() {
     !optionalTiltaksgjennomforing.data &&
     optionalTiltaksgjennomforing.isLoading
   ) {
-    return <Laster tekst="Laster tiltaksgjennømforing" />;
+    return <Laster tekst="Laster tiltaksgjennomføring" />;
   }
 
   if (!optionalTiltaksgjennomforing.data) {
