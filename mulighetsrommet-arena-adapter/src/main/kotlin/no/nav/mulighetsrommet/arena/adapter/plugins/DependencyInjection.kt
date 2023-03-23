@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
@@ -79,7 +78,7 @@ private fun tasks(tasks: TaskConfig, arenaEventServiceConfig: ArenaEventService.
     }
 }
 
-private fun db(config: FlywayDatabaseConfig) = module(createdAtStart = true) {
+private fun db(config: FlywayDatabaseAdapter.Config) = module(createdAtStart = true) {
     single<Database> {
         FlywayDatabaseAdapter(config, get())
     }

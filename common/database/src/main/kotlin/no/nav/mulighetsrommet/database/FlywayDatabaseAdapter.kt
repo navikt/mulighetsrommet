@@ -10,9 +10,33 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
 class FlywayDatabaseAdapter(
-    config: FlywayDatabaseConfig,
+    config: Config,
     private val slackNotifier: SlackNotifier? = null
 ) : DatabaseAdapter(config) {
+
+    data class Config(
+        override val host: String,
+        override val port: Int,
+        override val name: String,
+        override val schema: String?,
+        override val user: String,
+        override val password: Password,
+        override val maximumPoolSize: Int,
+        override val googleCloudSqlInstance: String? = null,
+        val migrationConfig: MigrationConfig = MigrationConfig()
+    ) : DatabaseConfig
+
+    data class MigrationConfig(
+        val cleanDisabled: Boolean = true,
+        val strategy: InitializationStrategy = InitializationStrategy.Migrate
+    )
+
+    enum class InitializationStrategy {
+        Migrate,
+        MigrateAsync,
+        RepairAndMigrate,
+    }
+
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private val flyway: Flyway
@@ -48,17 +72,6 @@ class FlywayDatabaseAdapter(
                 migrate()
             }
         }
-    }
-
-    data class MigrationConfig(
-        val cleanDisabled: Boolean = true,
-        val strategy: InitializationStrategy = InitializationStrategy.Migrate
-    )
-
-    enum class InitializationStrategy {
-        Migrate,
-        MigrateAsync,
-        RepairAndMigrate,
     }
 
     fun repair() {
