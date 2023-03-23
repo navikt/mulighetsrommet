@@ -1,62 +1,66 @@
 import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom } from "../../api/atoms";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../laster/Laster";
 import styles from "../listeelementer/Listeelementer.module.scss";
-import { ListeheaderTiltakstyper } from "../listeelementer/Listeheader";
+import { ListeheaderTiltaksgjennomforinger } from "../listeelementer/Listeheader";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { TiltakstypeRad } from "./TiltakstypeRad";
 import pageStyles from "../../pages/Page.module.scss";
+import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { TiltaksgjennomforingsRad } from "./TiltaksgjennomforingsRad";
 
-export function TiltakstyperOversikt() {
-  const { data, isLoading, isError } = useTiltakstyper();
+export function TiltaksgjennomforingOversikt() {
+  const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
 
   if (!data && isLoading) {
-    return <Laster size="xlarge" tekst="Laster tiltakstyper..." />;
+    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
   if (!data) {
-    return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
+    return <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>;
   }
 
   if (isError) {
     return (
       <Alert variant="error">
-        Vi hadde problemer med henting av tiltakstyper
+        Vi hadde problemer med henting av tiltaksgjennomføringer
       </Alert>
     );
   }
-  const { data: tiltakstyper, pagination: paginering } = data;
+
+  const { data: tiltaksgjennomforinger, pagination: paginering } = data;
 
   return (
     <>
       <PagineringsOversikt
         page={page}
-        antall={tiltakstyper.length}
+        antall={tiltaksgjennomforinger.length}
         maksAntall={paginering.totalCount}
-        type="tiltakstyper"
+        type="tiltaksgjennomføringer"
       />
-      {tiltakstyper.length === 0 ? (
-        <Alert variant="info">Vi fant ingen tiltakstyper</Alert>
+      {tiltaksgjennomforinger.length === 0 ? (
+        <Alert variant="info">Vi fant ingen tiltaksgjennomføringer</Alert>
       ) : (
         <>
           <ul className={styles.oversikt}>
-            <ListeheaderTiltakstyper />
-            {tiltakstyper.map((tiltakstype) => (
-              <TiltakstypeRad key={tiltakstype.id} tiltakstype={tiltakstype} />
+            <ListeheaderTiltaksgjennomforinger />
+            {tiltaksgjennomforinger.map((tiltaksgjennomforing) => (
+              <TiltaksgjennomforingsRad
+                key={tiltaksgjennomforing.id}
+                tiltaksgjennomforing={tiltaksgjennomforing}
+              />
             ))}
           </ul>
           <div className={styles.under_oversikt}>
-            {tiltakstyper.length > 0 && (
+            {tiltaksgjennomforinger.length > 0 && (
               <>
                 <PagineringsOversikt
                   page={page}
-                  antall={tiltakstyper.length}
+                  antall={tiltaksgjennomforinger.length}
                   maksAntall={paginering.totalCount}
-                  type="tiltakstyper"
+                  type="tiltaksgjennomføringer"
                 />
                 <Pagination
                   className={pageStyles.pagination}

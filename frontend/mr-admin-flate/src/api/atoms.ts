@@ -3,6 +3,7 @@ import { atomWithHash } from "jotai-location";
 import {
   Avtalestatus,
   SorteringAvtaler,
+  SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
   Tiltakstypekategori,
   Tiltakstypestatus,
@@ -38,6 +39,25 @@ export const tiltakstypefilter = atomWithHash<{
   }
 );
 
+export interface Tiltaksgjennomforingfilter {
+  search: string;
+  enhet: string;
+  sortering: SorteringTiltaksgjennomforinger;
+}
+
+export const tiltaksgjennomforingfilter =
+  atomWithHash<Tiltaksgjennomforingfilter>(
+    "tiltakstypefilter",
+    {
+      search: "",
+      enhet: "",
+      sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+    },
+    {
+      setHash: "replaceState",
+    }
+  );
+
 const avtaleFilter = atomWithHash<{
   sok: string;
   status: Avtalestatus;
@@ -67,3 +87,14 @@ export const avtaleTabAtom = atomWithHash<AvtaleTabs>(
 export type avtaleFilterType = ExtractAtomValue<typeof avtaleFilter>;
 
 export { avtaleFilter };
+
+export type TiltaksgjennomforingerTabs = "detaljer" | "nokkeltall";
+
+export const tiltaksgjennomforingTabAtom =
+  atomWithHash<TiltaksgjennomforingerTabs>(
+    "tiltaksgjennomforingTab",
+    "detaljer",
+    {
+      setHash: "replaceState",
+    }
+  );

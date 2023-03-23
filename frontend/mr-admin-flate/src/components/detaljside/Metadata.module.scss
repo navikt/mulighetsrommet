@@ -1,23 +1,14 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
 .header_og_verdi {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin: 1rem 0;
-}
 
-.bold {
-  font-weight: bold;
-}
-
-.definition {
-  padding: 0;
-  margin: 0;
+  .bold {
+    font-weight: bold;
+  }
+  .definition {
+    margin: 0;
+  }
 }
 
 .separator {
@@ -25,5 +16,5 @@
   height: 2px;
   border: none;
   width: 100%;
-  margin: 2.5rem 0;
+  margin: 1.5rem 0;
 }

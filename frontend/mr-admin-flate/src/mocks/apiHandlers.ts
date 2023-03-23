@@ -8,6 +8,7 @@ import {
   PaginertTiltaksgjennomforing,
   PaginertTiltakstype,
   Tiltaksgjennomforing,
+  TiltaksgjennomforingNokkeltall,
   Tiltakstype,
   TiltakstypeNokkeltall,
 } from "mulighetsrommet-api-client";
@@ -16,9 +17,9 @@ import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockEnheter } from "./fixtures/mock_enheter";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
-import { mockTiltaksgjennomforingerKobletTilAnsatt } from "./fixtures/mock_tiltaksgjennomforinger_koblet_til_ansatt";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
+import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -125,28 +126,13 @@ export const apiHandlers = [
       return res(ctx.status(200), ctx.json(gjennomforing));
     }
   ),
-
-  rest.get<any, any, PaginertTiltaksgjennomforing>(
-    "*/api/v1/internal/tiltaksgjennomforinger/mine",
+  rest.get<any, { id: string }, TiltaksgjennomforingNokkeltall | undefined>(
+    "*/api/v1/internal/tiltaksgjennomforinger/:id/nokkeltall",
     (req, res, ctx) => {
-      const { tiltaksgjennomforinger } =
-        mockTiltaksgjennomforingerKobletTilAnsatt[0] ?? {
-          tiltaksgjennomforinger: [],
-        };
-      const gjennomforinger = mockTiltaksgjennomforinger.data.filter((gj) =>
-        tiltaksgjennomforinger.includes(gj.id)
-      );
       return res(
         ctx.status(200),
 
-        ctx.json({
-          pagination: {
-            totalCount: gjennomforinger.length,
-            currentPage: 1,
-            pageSize: 50,
-          },
-          data: gjennomforinger,
-        })
+        ctx.json(mockTiltaksgjennomforingerNokkeltall)
       );
     }
   ),
