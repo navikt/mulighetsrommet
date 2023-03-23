@@ -121,7 +121,7 @@ Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltaksty
 | |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mr-admin-flate/README.md> |
-| Demo-miljø       | <https://mulighetsrommet-admin-flate.labs.nais.io>                                      |
+| Demo-miljø       | <https://mulighetsrommet-admin-flate.ekstern.dev.nav.no>                                      |
 | Url (dev-miljø)  | <https://mulighetsrommet-admin-flate.intern.dev.nav.no>                                 |
 | Url (prod-miljø) | <https://mulighetsrommet-admin-flate.intern.nav.no>                                     |
 
