@@ -93,6 +93,7 @@ Cypress.Commands.add("checkPageA11y", () => {
         id: "svg-img-alt",
         enabled: false,
       },
+      //Skrur av fordi checkA11y ikke vet at div er en gyldig children av <dl>-elementer
       {
         id: "dlitem",
         enabled: false,

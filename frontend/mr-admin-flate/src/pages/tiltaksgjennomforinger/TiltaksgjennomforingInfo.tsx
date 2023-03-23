@@ -2,12 +2,26 @@ import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Laster } from "../../components/laster/Laster";
+import { Alert } from "@navikt/ds-react";
 
 export function TiltaksgjennomforingInfo() {
-  const { data } = useTiltaksgjennomforingById();
+  const { data, isError, isLoading } = useTiltaksgjennomforingById();
+
+  if (!data && isLoading) {
+    return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
+  }
+
+  if (isError) {
+    return (
+      <Alert variant="error">
+        Klarte ikke hente informasjon om tiltaksgjennomføring
+      </Alert>
+    );
+  }
 
   if (!data) {
-    return null;
+    return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
   }
 
   const tiltaksgjennomforing = data;

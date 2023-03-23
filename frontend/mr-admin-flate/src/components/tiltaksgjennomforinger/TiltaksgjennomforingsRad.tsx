@@ -26,8 +26,16 @@ export function TiltaksgjennomforingsRad({ tiltaksgjennomforing }: Props) {
         {tiltaksgjennomforing.tiltaksnummer}
       </BodyShort>
 
-      <BodyShort>{tiltaksgjennomforing.virksomhetsnavn}</BodyShort>
-      <BodyShort>{tiltaksgjennomforing.tiltakstype.navn}</BodyShort>
+      <BodyShort
+        aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
+      >
+        {tiltaksgjennomforing.virksomhetsnavn}
+      </BodyShort>
+      <BodyShort
+        aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
+      >
+        {tiltaksgjennomforing.tiltakstype.navn}
+      </BodyShort>
 
       <BodyShort
         title={`Startdato ${formaterDato(tiltaksgjennomforing.startDato)}`}

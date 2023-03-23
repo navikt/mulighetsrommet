@@ -24,13 +24,13 @@ export function DetaljerTiltaksgjennomforingerPage() {
     !optionalTiltaksgjennomforing.data &&
     optionalTiltaksgjennomforing.isLoading
   ) {
-    return <Laster tekst="Laster tiltaksgjennomforing" />;
+    return <Laster tekst="Laster tiltaksgjennømforing" />;
   }
 
   if (!optionalTiltaksgjennomforing.data) {
     return (
       <Alert variant="warning">
-        Klarte ikke finne tiltaksgjennomforing <Link to="/">Til forside</Link>
+        Klarte ikke finne tiltaksgjennømforing <Link to="/">Til forside</Link>
       </Alert>
     );
   }

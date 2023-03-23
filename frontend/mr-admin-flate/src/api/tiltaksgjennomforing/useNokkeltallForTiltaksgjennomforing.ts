@@ -17,7 +17,7 @@ export function useNokkeltallForTiltaksgjennomforing() {
     () =>
       mulighetsrommetClient.tiltaksgjennomforing.getNokkeltallForTiltaksgjennomforingWithId(
         {
-          id: tiltaksgjennomforingId!!,
+          id: tiltaksgjennomforingId,
         }
       ),
     { staleTime: 1000 }

@@ -14,7 +14,7 @@ export function TiltaksgjennomforingOversikt() {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
 
-  if (isLoading) {
+  if (!data && isLoading) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
