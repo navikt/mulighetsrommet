@@ -62,12 +62,12 @@ export function DetaljerTiltaksgjennomforingerPage() {
             />
           ) : null}
         </Tabs.List>
-        <Tabs.Panel value="detaljer" className="h-24 w-full bg-gray-50 p-4">
+        <Tabs.Panel value="detaljer">
           <ContainerLayout>
             <TiltaksgjennomforingInfo />
           </ContainerLayout>
         </Tabs.Panel>
-        <Tabs.Panel value="nokkeltall" className="h-24 w-full bg-gray-50 p-4">
+        <Tabs.Panel value="nokkeltall">
           <ContainerLayout>
             <NokkeltallForTiltaksgjennomforing />
           </ContainerLayout>
