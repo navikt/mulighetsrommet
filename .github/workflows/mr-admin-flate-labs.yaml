@@ -64,4 +64,3 @@ jobs:
           CLUSTER: labs-gcp
           RESOURCE: frontend/mr-admin-flate/.nais/nais-labs.yaml
           VAR: image=${{ env.IMAGE }}
-          DEPLOY_SERVER: deploy.nais.io:443
