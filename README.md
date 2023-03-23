@@ -71,7 +71,7 @@ løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/featu
 | Kildekode        | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
 | Url (dev-miljø)  | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
-| Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.labs.nais.no/>                                                  |
+| Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.ekstern.dev.nav.no/12345678910>                                                  |
 
 ### `mulighetsrommet-api-client`
 
