@@ -73,7 +73,7 @@ private suspend fun writeTilgjengelighetsstatus(
         val tilgjengelighet = queryOf(
             """
             select tilgjengelighet
-            from tiltaksgjennomforing_valid
+            from tiltaksgjennomforing
             where split_part(tiltaksnummer, '#', 2) = ?
             """.trimIndent(),
             tiltak.tiltaksnummer
