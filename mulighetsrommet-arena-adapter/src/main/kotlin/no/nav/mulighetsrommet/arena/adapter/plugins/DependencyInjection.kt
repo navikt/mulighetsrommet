@@ -45,7 +45,7 @@ fun Application.configureDependencyInjection(
             kafka(appConfig.kafka),
             repositories(),
             services(appConfig.services, tokenClient),
-            tasks(appConfig.tasks, appConfig.services.arenaEventService),
+            tasks(appConfig.tasks),
             slack(appConfig.slack)
         )
     }
@@ -59,7 +59,7 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun tasks(tasks: TaskConfig, arenaEventServiceConfig: ArenaEventService.Config) = module {
+private fun tasks(tasks: TaskConfig) = module {
     single {
         ReplayEvents(get(), get(), get())
     }
