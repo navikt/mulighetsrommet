@@ -11,7 +11,7 @@ spec:
   image: {{ image }}
   # At every 30th minute past every hour from 7 through 18.
   # https://crontab.guru/#*/30_7-18_*_*_*
-  schedule: "*/2 7-18 * * *"
+  schedule: "*/30 7-18 * * *"
 
   gcp:
     permissions:
