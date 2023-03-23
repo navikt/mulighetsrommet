@@ -4,6 +4,7 @@ import { formaterTall } from "../../../utils/Utils";
 import { Alert } from "@navikt/ds-react";
 import { NokkeltallContainer } from "../../../components/nokkeltall/NokkeltallContainer";
 import { useNokkeltallForTiltaksgjennomforing } from "../../../api/tiltaksgjennomforing/useNokkeltallForTiltaksgjennomforing";
+import { NokkeltallAlert } from "../../../components/nokkeltall/NokkeltallAlert";
 
 export function NokkeltallForTiltaksgjennomforing() {
   const { data, isLoading } = useNokkeltallForTiltaksgjennomforing();
@@ -17,14 +18,17 @@ export function NokkeltallForTiltaksgjennomforing() {
   }
 
   return (
-    <NokkeltallContainer>
-      <Nokkeltall
-        title="Deltakere"
-        subtitle="hittil i år"
-        value={formaterTall(data.antallDeltakere)}
-        helptext="Sum av alle deltakere for valgt tiltaksgjennomføring, som er aktive innenfor budsjettåret (1. januar -> 31. desember)"
-        helptextTitle="Hvor kommer tallene fra?"
-      />
-    </NokkeltallContainer>
+    <>
+      <NokkeltallAlert />
+      <NokkeltallContainer>
+        <Nokkeltall
+          title="Deltakere"
+          subtitle="hittil i år"
+          value={formaterTall(data.antallDeltakere)}
+          helptext="Sum av alle deltakere for valgt tiltaksgjennomføring, som er aktive innenfor budsjettåret (1. januar -> 31. desember)"
+          helptextTitle="Hvor kommer tallene fra?"
+        />
+      </NokkeltallContainer>
+    </>
   );
 }

@@ -1,9 +1,10 @@
-import { Alert, BodyShort } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
 import { useNokkeltallForAvtale } from "../../../api/avtaler/useNokkeltallForAvtale";
 import { Laster } from "../../../components/laster/Laster";
 import { Nokkeltall } from "../../../components/nokkeltall/Nokkeltall";
 import { NokkeltallContainer } from "../../../components/nokkeltall/NokkeltallContainer";
 import { formaterTall } from "../../../utils/Utils";
+import { NokkeltallAlert } from "../../../components/nokkeltall/NokkeltallAlert";
 
 export function NokkeltallForAvtale() {
   const { data, isLoading } = useNokkeltallForAvtale();
@@ -13,17 +14,12 @@ export function NokkeltallForAvtale() {
   }
 
   if (!data) {
-    return <Alert variant={"error"}>Fant ingen nøkkeltall</Alert>;
+    return <Alert variant="error">Fant ingen nøkkeltall</Alert>;
   }
 
   return (
     <>
-      <Alert style={{ marginBottom: "1rem" }} variant="warning">
-        <BodyShort>
-          Tjenesten er under utvikling og tallene som vises her under nøkkeltall
-          kan være feil eller misvisende pga. feil eller for dårlig datagrunnlag
-        </BodyShort>
-      </Alert>
+      <NokkeltallAlert />
       <NokkeltallContainer>
         <Nokkeltall
           title="Tiltaksgjennomføringer"
