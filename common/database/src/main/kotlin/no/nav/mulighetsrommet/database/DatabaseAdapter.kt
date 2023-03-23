@@ -16,7 +16,7 @@ open class DatabaseAdapter(config: DatabaseConfig) : Database {
     private val dataSource: HikariDataSource
 
     private val session: Session
-        get() = sessionOf(dataSource)
+        get() = sessionOf(dataSource, strict = true)
 
     init {
         val hikariConfig = HikariConfig().apply {
