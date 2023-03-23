@@ -30,7 +30,10 @@ export function DetaljerTiltaksgjennomforingerPage() {
   if (!optionalTiltaksgjennomforing.data) {
     return (
       <Alert variant="warning">
-        Klarte ikke finne tiltaksgjennømforing <Link to="/">Til forside</Link>
+        Klarte ikke finne tiltaksgjennømforing
+        <div>
+          <Link to="/">Til forside</Link>
+        </div>
       </Alert>
     );
   }
