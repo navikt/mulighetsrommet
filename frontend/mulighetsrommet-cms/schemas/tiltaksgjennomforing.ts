@@ -79,10 +79,13 @@ export const tiltaksgjennomforing = defineType({
         "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn noe her. Tiltaksnummer utledes fra feltene år og løpenummer over",
       type: "slug",
       options: {
+        slugify: (input) => {
+          return input;
+        },
         source: (doc, _) => {
           const aar = doc.aar as unknown as string;
           const lopenummer = doc.lopenummer as unknown as string;
-          return `${aar ? aar : new Date().getFullYear()}-${
+          return `${aar ? aar : new Date().getFullYear()}#${
             lopenummer ? lopenummer : 0
           }`;
         },

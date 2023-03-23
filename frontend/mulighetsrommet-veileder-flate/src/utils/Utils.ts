@@ -35,7 +35,7 @@ export function formaterDato(dato: string | Date, fallback = ''): string {
 }
 
 export function utledLopenummerFraTiltaksnummer(tiltaksnummer: string): string {
-  const parts = tiltaksnummer.split('-');
+  const parts = tiltaksnummer.split('#');
   if (parts.length >= 2) {
     return parts[1];
   }
