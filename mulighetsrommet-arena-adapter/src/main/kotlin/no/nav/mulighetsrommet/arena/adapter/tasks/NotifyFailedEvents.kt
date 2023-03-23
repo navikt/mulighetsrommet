@@ -40,7 +40,7 @@ class NotifyFailedEvents(
                 if (staleEvents.isNotEmpty()) {
                     val message = """
                         Det finnes ${staleEvents.size} rader i tabellen 'arena_events' som har retries >= $retries.
-                        Det gjelder følgende rader: \n
+                        Det gjelder følgende rader:
                         ${staleEvents.formaterSlackMeldingForEvents()}
                     """.trimIndent()
                     slackNotifier.sendMessage(message)
