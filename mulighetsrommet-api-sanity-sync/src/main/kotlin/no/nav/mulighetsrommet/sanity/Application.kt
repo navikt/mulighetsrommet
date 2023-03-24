@@ -76,7 +76,7 @@ private suspend fun writeTilgjengelighetsstatus(
             select tilgjengelighet
             from tiltaksgjennomforing
             where (:aar is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
-               or (:aar is not null and split_part(tiltaksnummer, '#', 1) = ? and split_part(tiltaksnummer, '#', 2) = :lopenr)
+               or (:aar is not null and split_part(tiltaksnummer, '#', 1) = :aar and split_part(tiltaksnummer, '#', 2) = :lopenr)
         """.trimIndent()
 
         val parameters = tiltak.tiltaksnummer?.split("#")?.let {
