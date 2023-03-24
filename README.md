@@ -2,7 +2,7 @@
 
 ## Introduksjon
 
-Mulighetsrommet er en applikasjonsportfølje som skal hjelpe både brukere og veiledere til å få en helhetlig oversikt
+Mulighetsrommet er en applikasjonsportfølje som skal hjelpe brukere og veiledere til å få en helhetlig oversikt
 over alle arbeidsmarkedstiltak NAV kan tilby.
 Brukere vil på sikt få en oversikt gjennom en egen åpen flate med sine muligheter og kan selv melde sin interesse på
 diverse tiltak, oppfølging eller kurs.
@@ -19,7 +19,7 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 
 ### Tooling via asdf
 
-Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere vertkøyene som trengs for å kjøre dette prosjektet lokalt.
+Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette prosjektet lokalt.
 Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
 
 For å benytte `asdf` så holder det å [installere asdf](https://asdf-vm.com/guide/getting-started.html) og deretter kjøre kommandoen `asdf install` i rot av prosjektet.
@@ -51,7 +51,7 @@ liste, blir oppdatert etter hvert som behovet oppstår):
 
 ## Overvåking av løsninger
 
-Det finnes noen tilgjenglige dashboards, men nytten med disse kan variere:
+Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 
 - [Innsikt i logger](<https://logs.adeo.no/app/dashboards#/view/6927d260-00ed-11ed-9b1a-4723a5e7a9db?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
 - [Metrikker fra frontend](<https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
