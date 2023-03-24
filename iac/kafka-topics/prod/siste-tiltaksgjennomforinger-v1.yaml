@@ -25,4 +25,3 @@ spec:
     - team: teamoppfolging
       application: teamoppfolging-kafka
       access: read
-    # HUSK Å OPPDATERE consumers.md MED INFO OM NY KONSUMENT
