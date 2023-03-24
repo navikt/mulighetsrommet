@@ -13,6 +13,7 @@ import RoutesConfig from './RoutesConfig';
 import { ErrorFallback } from './utils/ErrorFallback';
 import styles from './App.module.scss';
 import { SanityPreview } from './views/Preview/SanityPreview';
+import { VeilederJoyride } from './components/joyride/VeilederJoyride';
 
 // Trengs for at tab og fokus ikke skal gå utenfor modal når den er åpen.
 Modal.setAppElement?.(`#${MODAL_ACCESSIBILITY_WRAPPER}`);

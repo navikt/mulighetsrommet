@@ -42,6 +42,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
+    "react-joyride": "^2.5.3",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.8.2",
     "use-resize-observer": "^9.1.0",
