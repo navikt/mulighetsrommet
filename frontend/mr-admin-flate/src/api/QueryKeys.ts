@@ -10,6 +10,7 @@ export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
   nokkeltallTiltakstype: (id?: string) =>
     [id, "nokkeltallTiltakstype"] as const,
+  alleTiltakstyper: () => ["tiltakstyper"],
   tiltakstyper: (
     sokestreng: string,
     status?: Tiltakstypestatus,

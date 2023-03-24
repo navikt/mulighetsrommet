@@ -3,16 +3,16 @@ import { useAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
-import styles from "./Filter.module.scss";
-import { resetPaginering } from "../../utils/Utils";
 import { useEnheter } from "../../api/enhet/useEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
+import { resetPaginering } from "../../utils/Utils";
+import styles from "./Filter.module.scss";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useTiltakstyper({ size: 200 });
+  const { data: tiltakstyper } = useAlleTiltakstyper();
 
   return (
     <form className={styles.filter_container}>
