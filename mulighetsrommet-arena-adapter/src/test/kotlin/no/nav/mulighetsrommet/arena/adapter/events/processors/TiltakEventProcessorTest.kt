@@ -111,45 +111,43 @@ class TiltakEventProcessorTest : FunSpec({
                 .value("kopibrev_og_hovedbrev_til_arbeidsgiver").isFalse
         }
 
-        context("api responses") {
-            test("should call api with mapped event payload") {
-                val engine = MockEngine { respondOk() }
-                val processor = createProcessor(engine)
+        test("should call api with mapped event payload") {
+            val engine = MockEngine { respondOk() }
+            val processor = createProcessor(engine)
 
-                val (event, mapping) = prepareEvent(createArenaTiltakEvent(Insert))
+            val (event, mapping) = prepareEvent(createArenaTiltakEvent(Insert))
 
-                processor.handleEvent(event).shouldBeRight()
+            processor.handleEvent(event).shouldBeRight()
 
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Put
+            engine.requestHistory.last().apply {
+                method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<TiltakstypeDbo>().apply {
-                        id shouldBe mapping.entityId
-                        navn shouldBe "Oppfølging"
-                        rettPaaTiltakspenger shouldBe true
-                    }
-                }
-
-                processor.handleEvent(createArenaTiltakEvent(Delete)).shouldBeRight()
-
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Delete
-
-                    url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+                decodeRequestBody<TiltakstypeDbo>().apply {
+                    id shouldBe mapping.entityId
+                    navn shouldBe "Oppfølging"
+                    rettPaaTiltakspenger shouldBe true
                 }
             }
 
-            test("should treat a 500 response as error") {
-                val engine = MockEngine {
-                    respondError(HttpStatusCode.InternalServerError)
-                }
-                val processor = createProcessor(engine)
+            processor.handleEvent(createArenaTiltakEvent(Delete)).shouldBeRight()
 
-                val (event) = prepareEvent(createArenaTiltakEvent(Insert))
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Internal Server Error"
-                }
+            engine.requestHistory.last().apply {
+                method shouldBe HttpMethod.Delete
+
+                url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+            }
+        }
+
+        test("should treat a 500 response as error") {
+            val engine = MockEngine {
+                respondError(HttpStatusCode.InternalServerError)
+            }
+            val processor = createProcessor(engine)
+
+            val (event) = prepareEvent(createArenaTiltakEvent(Insert))
+            processor.handleEvent(event).shouldBeLeft().should {
+                it.status shouldBe Failed
+                it.message shouldContain "Internal Server Error"
             }
         }
     }

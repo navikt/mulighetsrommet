@@ -58,7 +58,14 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(engine: HttpClientEngine = MockEngine { respondOk() }): AvtaleInfoEventProcessor {
+        fun createProcessor(
+            engine: HttpClientEngine = createMockEngine(
+                "/ords/arbeidsgiver" to {
+                    respondJson(ArenaOrdsArrangor("123456", "1000000"))
+                },
+                "/api/v1/internal/arena/avtale.*" to { respondOk() }
+            )
+        ): AvtaleInfoEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
             }
@@ -144,13 +151,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             }
 
             test("should treat all operations as upserts") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                    },
-                    "/api/v1/internal/arena/avtale.*" to { respondOk() }
-                )
-                val processor = createProcessor(engine)
+                val processor = createProcessor()
 
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
                 processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
@@ -175,96 +176,94 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     .value("status").isEqualTo(Avtale.Status.Avsluttet.name)
             }
 
-            context("api responses") {
-                test("should mark the event as Failed when arena ords proxy responds with an error") {
-                    val engine = createMockEngine(
-                        "/ords/arbeidsgiver" to {
-                            respondError(HttpStatusCode.InternalServerError)
-                        }
-                    )
-                    val processor = createProcessor(engine)
+            test("should mark the event as Failed when arena ords proxy responds with an error") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondError(HttpStatusCode.InternalServerError)
+                    }
+                )
+                val processor = createProcessor(engine)
 
-                    val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
-                    val result = processor.handleEvent(event)
+                val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                val result = processor.handleEvent(event)
 
-                    result.shouldBeLeft().should {
-                        it.status shouldBe Failed
-                        it.message shouldContain "Unexpected response from arena-ords-proxy"
+                result.shouldBeLeft().should {
+                    it.status shouldBe Failed
+                    it.message shouldContain "Unexpected response from arena-ords-proxy"
+                }
+            }
+
+            // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
+            test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondError(HttpStatusCode.NotFound)
+                    }
+                )
+                val processor = createProcessor(engine)
+
+                val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                val result = processor.handleEvent(event)
+
+                result.shouldBeLeft().should {
+                    it.status shouldBe Invalid
+                    it.message shouldContain "Fant ikke leverandør i Arena ORDS"
+                }
+            }
+
+            test("should mark the event as Failed when api responds with an error") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(
+                            ArenaOrdsArrangor("123456", "100000")
+                        )
+                    },
+                    "/api/v1/internal/arena/avtale" to {
+                        respondError(HttpStatusCode.InternalServerError)
+                    }
+                )
+                val processor = createProcessor(engine)
+
+                val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                val result = processor.handleEvent(event)
+
+                result.shouldBeLeft().should {
+                    it.status shouldBe Failed
+                    it.message shouldContain "Internal Server Error"
+                }
+            }
+
+            test("should call api with mapped event payload when all services responds with success") {
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(ArenaOrdsArrangor("123456", "1000000"))
+                    },
+                    "/api/v1/internal/arena/avtale.*" to { respondOk() }
+                )
+                val processor = createProcessor(engine)
+
+                val (event, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+                processor.handleEvent(event).shouldBeRight()
+
+                engine.requestHistory.last().apply {
+                    method shouldBe HttpMethod.Put
+
+                    decodeRequestBody<AvtaleDbo>().apply {
+                        id shouldBe mapping.entityId
+                        tiltakstypeId shouldBe tiltakstype.id
+                        avtalenummer shouldBe "2022#2000"
+                        leverandorOrganisasjonsnummer shouldBe "1000000"
+                        avtaletype shouldBe Avtaletype.Rammeavtale
+                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                     }
                 }
 
-                // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
-                test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
-                    val engine = createMockEngine(
-                        "/ords/arbeidsgiver" to {
-                            respondError(HttpStatusCode.NotFound)
-                        }
-                    )
-                    val processor = createProcessor(engine)
+                processor.handleEvent(createArenaAvtaleInfoEvent(Delete)).shouldBeRight()
 
-                    val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
-                    val result = processor.handleEvent(event)
+                engine.requestHistory.last().run {
+                    method shouldBe HttpMethod.Delete
 
-                    result.shouldBeLeft().should {
-                        it.status shouldBe Invalid
-                        it.message shouldContain "Fant ikke leverandør i Arena ORDS"
-                    }
-                }
-
-                test("should mark the event as Failed when api responds with an error") {
-                    val engine = createMockEngine(
-                        "/ords/arbeidsgiver" to {
-                            respondJson(
-                                ArenaOrdsArrangor("123456", "100000")
-                            )
-                        },
-                        "/api/v1/internal/arena/avtale" to {
-                            respondError(HttpStatusCode.InternalServerError)
-                        }
-                    )
-                    val processor = createProcessor(engine)
-
-                    val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
-                    val result = processor.handleEvent(event)
-
-                    result.shouldBeLeft().should {
-                        it.status shouldBe Failed
-                        it.message shouldContain "Internal Server Error"
-                    }
-                }
-
-                test("should call api with mapped event payload when all services responds with success") {
-                    val engine = createMockEngine(
-                        "/ords/arbeidsgiver" to {
-                            respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                        },
-                        "/api/v1/internal/arena/avtale.*" to { respondOk() }
-                    )
-                    val processor = createProcessor(engine)
-
-                    val (event, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
-                    processor.handleEvent(event).shouldBeRight()
-
-                    engine.requestHistory.last().apply {
-                        method shouldBe HttpMethod.Put
-
-                        decodeRequestBody<AvtaleDbo>().apply {
-                            id shouldBe mapping.entityId
-                            tiltakstypeId shouldBe tiltakstype.id
-                            avtalenummer shouldBe "2022#2000"
-                            leverandorOrganisasjonsnummer shouldBe "1000000"
-                            avtaletype shouldBe Avtaletype.Rammeavtale
-                            avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
-                        }
-                    }
-
-                    processor.handleEvent(createArenaAvtaleInfoEvent(Delete)).shouldBeRight()
-
-                    engine.requestHistory.last().run {
-                        method shouldBe HttpMethod.Delete
-
-                        url.getLastPathParameterAsUUID() shouldBe mapping.entityId
-                    }
+                    url.getLastPathParameterAsUUID() shouldBe mapping.entityId
                 }
             }
         }
