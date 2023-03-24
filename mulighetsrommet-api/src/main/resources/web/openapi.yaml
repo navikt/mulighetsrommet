@@ -141,6 +141,11 @@ paths:
             type: string
           description: 4 digit enhetskode
         - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          descrition: Id for tiltakstype knyttet til tiltaksgjennomføringer
+        - in: query
           name: size
           schema:
             type: number
