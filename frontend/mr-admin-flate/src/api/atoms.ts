@@ -64,6 +64,7 @@ const avtaleFilter = atomWithHash<{
   sok: string;
   status: Avtalestatus;
   enhet: string;
+  tiltakstype: string;
   sortering: SorteringAvtaler;
 }>(
   "avtalefilter",
@@ -71,6 +72,7 @@ const avtaleFilter = atomWithHash<{
     sok: "",
     status: Avtalestatus.AKTIV,
     enhet: "",
+    tiltakstype: "",
     sortering: SorteringAvtaler.NAVN_ASCENDING,
   },
   { setHash: "replaceState" }

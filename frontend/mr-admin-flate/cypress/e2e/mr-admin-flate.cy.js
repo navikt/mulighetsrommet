@@ -88,6 +88,13 @@ describe("Avtaler", () => {
       cy.checkPageA11y();
     });
   });
+
+  context("Oversikt over avtaler", () => {
+    it("Skal finnes et filter for tiltakstype for avtaler", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("filter_avtale_tiltakstype").should("exist");
+    });
+  });
 });
 
 describe("Tiltaksgjennomføringer", () => {

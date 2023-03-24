@@ -18,7 +18,11 @@ export function DetaljerAvtalePage() {
   const { data } = useFeatureToggles();
 
   if (!avtale && isLoading) {
-    return <Laster tekst="Laster avtale" />;
+    return (
+      <main>
+        <Laster tekst="Laster avtale" />
+      </main>
+    );
   }
 
   if (!avtale) {
