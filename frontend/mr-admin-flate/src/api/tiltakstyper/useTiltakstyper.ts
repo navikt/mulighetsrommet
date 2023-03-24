@@ -6,7 +6,11 @@ import { PAGE_SIZE } from "../../constants";
 import { paginationAtom, tiltakstypefilter } from "../atoms";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 
-export function useTiltakstyper() {
+interface Options {
+  size: number;
+}
+
+export function useTiltakstyper({ size }: Options = { size: PAGE_SIZE }) {
   const [page] = useAtom(paginationAtom);
   const [sokefilter] = useAtom(tiltakstypefilter);
   const debouncedSok = useDebounce(sokefilter.sok, 300);
@@ -26,7 +30,7 @@ export function useTiltakstyper() {
         tiltakstypekategori: sokefilter.kategori ?? undefined,
         sort: sokefilter.sortering ?? undefined,
         page,
-        size: PAGE_SIZE,
+        size,
       })
   );
 }

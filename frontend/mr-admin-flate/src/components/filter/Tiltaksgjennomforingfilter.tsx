@@ -6,11 +6,13 @@ import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import styles from "./Filter.module.scss";
 import { resetPaginering } from "../../utils/Utils";
 import { useEnheter } from "../../api/enhet/useEnheter";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useEnheter();
+  const { data: tiltakstyper } = useTiltakstyper({ size: 200 });
 
   return (
     <form className={styles.filter_container}>
@@ -32,7 +34,7 @@ export function Tiltaksgjennomforingfilter() {
           hideLabel
           size="small"
           value={sokefilter.enhet}
-          data-testid="filter_avtale_enhet"
+          data-testid="filter_tiltaksgjennomforing_enhet"
           onChange={(e: ChangeEvent<HTMLSelectElement>) => {
             resetPaginering(setPage);
             setSokefilter({ ...sokefilter, enhet: e.currentTarget.value });
@@ -42,6 +44,27 @@ export function Tiltaksgjennomforingfilter() {
           {enheter?.map((enhet) => (
             <option key={enhet.enhetId} value={enhet.enhetNr}>
               {enhet.navn} - {enhet.enhetNr}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label="Filtrer på tiltakstype"
+          hideLabel
+          size="small"
+          value={sokefilter.tiltakstype}
+          data-testid="filter_tiltaksgjennomforing_tiltakstype"
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            resetPaginering(setPage);
+            setSokefilter({
+              ...sokefilter,
+              tiltakstype: e.currentTarget.value,
+            });
+          }}
+        >
+          <option value="">Alle tiltakstyper</option>
+          {tiltakstyper?.data?.map((tiltakstype) => (
+            <option key={tiltakstype.id} value={tiltakstype.id}>
+              {tiltakstype.navn}
             </option>
           ))}
         </Select>

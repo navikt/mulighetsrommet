@@ -42,6 +42,7 @@ export const tiltakstypefilter = atomWithHash<{
 export interface Tiltaksgjennomforingfilter {
   search: string;
   enhet: string;
+  tiltakstype: string;
   sortering: SorteringTiltaksgjennomforinger;
 }
 
@@ -51,6 +52,7 @@ export const tiltaksgjennomforingfilter =
     {
       search: "",
       enhet: "",
+      tiltakstype: "",
       sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
     },
     {
