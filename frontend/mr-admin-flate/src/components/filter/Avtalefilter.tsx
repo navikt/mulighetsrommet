@@ -18,7 +18,7 @@ interface Props {
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: tiltakstyper } = useTiltakstyper({ size: 200 });
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
