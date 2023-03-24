@@ -1,7 +1,7 @@
 import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom } from "../../api/atoms";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import useTiltakstyperWithFilter from "../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../laster/Laster";
 import styles from "../listeelementer/Listeelementer.module.scss";
@@ -11,7 +11,7 @@ import { TiltakstypeRad } from "./TiltakstypeRad";
 import pageStyles from "../../pages/Page.module.scss";
 
 export function TiltakstyperOversikt() {
-  const { data, isLoading, isError } = useTiltakstyper();
+  const { data, isLoading, isError } = useTiltakstyperWithFilter();
   const [page, setPage] = useAtom(paginationAtom);
 
   if (!data && isLoading) {

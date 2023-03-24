@@ -5,9 +5,9 @@ import { ChangeEvent, useEffect, useRef } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
-import styles from "./Filter.module.scss";
+import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import styles from "./Filter.module.scss";
 
 type Filters = "tiltakstype";
 
@@ -18,7 +18,7 @@ interface Props {
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useTiltakstyper({ size: 200 });
+  const { data: tiltakstyper } = useAlleTiltakstyper();
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
