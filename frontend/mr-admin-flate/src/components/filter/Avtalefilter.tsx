@@ -7,10 +7,18 @@ import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import styles from "./Filter.module.scss";
 import { resetPaginering } from "../../utils/Utils";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
-export function Avtalefilter() {
+type Filters = "tiltakstype";
+
+interface Props {
+  skjulFilter?: Record<Filters, boolean>;
+}
+
+export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
+  const { data: tiltakstyper } = useTiltakstyper();
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
@@ -77,6 +85,26 @@ export function Avtalefilter() {
               </option>
             ))}
           </Select>
+          {props.skjulFilter?.tiltakstype ? null : (
+            <Select
+              label="Filtrer på tiltakstype"
+              hideLabel
+              size="small"
+              value={filter.tiltakstype}
+              data-testid="filter_avtale_tiltakstype"
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                resetPaginering(setPage);
+                setFilter({ ...filter, tiltakstype: e.currentTarget.value });
+              }}
+            >
+              <option value="">Alle tiltakstyper</option>
+              {tiltakstyper?.data?.map((tiltakstype) => (
+                <option key={tiltakstype.id} value={tiltakstype.id}>
+                  {tiltakstype.navn}
+                </option>
+              ))}
+            </Select>
+          )}
         </div>
         <div>
           <Select

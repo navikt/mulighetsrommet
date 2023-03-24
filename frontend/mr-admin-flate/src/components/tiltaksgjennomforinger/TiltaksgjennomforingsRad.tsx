@@ -46,10 +46,12 @@ export function TiltaksgjennomforingsRad({ tiltaksgjennomforing }: Props) {
         {formaterDato(tiltaksgjennomforing.startDato)}
       </BodyShort>
       <BodyShort
-        title={`Sluttdato ${formaterDato(tiltaksgjennomforing.sluttDato)}`}
-        aria-label={`Sluttdato: ${formaterDato(
+        title={`Sluttdato ${formaterDato(tiltaksgjennomforing.sluttDato)}, "-"`}
+        aria-label={
           tiltaksgjennomforing.sluttDato
-        )}`}
+            ? `Sluttdato: ${formaterDato(tiltaksgjennomforing.sluttDato, "-")}`
+            : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
+        }
       >
         {formaterDato(tiltaksgjennomforing.sluttDato)}
       </BodyShort>

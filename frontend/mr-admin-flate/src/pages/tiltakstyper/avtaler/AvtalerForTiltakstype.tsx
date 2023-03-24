@@ -1,17 +1,28 @@
 import { Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { avtalePaginationAtom } from "../../../api/atoms";
+import { useEffect } from "react";
+import { avtaleFilter, avtalePaginationAtom } from "../../../api/atoms";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { Avtalefilter } from "../../../components/filter/Avtalefilter";
 import { PagineringContainer } from "../../../components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "../../../components/paginering/PagineringOversikt";
 import { AVTALE_PAGE_SIZE } from "../../../constants";
-import { AvtaleTabell } from "./AvtaleTabell";
+import { useGetTiltakstypeIdFromUrl } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import pageStyles from "../../Page.module.scss";
+import { AvtaleTabell } from "./AvtaleTabell";
 
 export function AvtalerForTiltakstype() {
+  const tiltakstypeId = useGetTiltakstypeIdFromUrl();
   const [page, setPage] = useAtom(avtalePaginationAtom);
   const { data } = useAvtaler();
+  const [filter, setFilter] = useAtom(avtaleFilter);
+
+  useEffect(() => {
+    if (tiltakstypeId) {
+      // For å filtrere på avtaler for den spesifikke tiltakstypen
+      setFilter({ ...filter, tiltakstype: tiltakstypeId });
+    }
+  }, [tiltakstypeId]);
 
   if (!data) {
     return null;
@@ -21,7 +32,7 @@ export function AvtalerForTiltakstype() {
 
   return (
     <div>
-      <Avtalefilter />
+      <Avtalefilter skjulFilter={{ tiltakstype: true }} />
       <PagineringsOversikt
         page={page}
         antall={avtaler.length}
