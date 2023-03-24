@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import org.intellij.lang.annotations.Language
 
 @Serializable
 data class Tiltak(
@@ -70,14 +71,23 @@ private suspend fun writeTilgjengelighetsstatus(
     sanity: SanityClient
 ) {
     channel.consumeEach { tiltak ->
-        val tilgjengelighet = queryOf(
-            """
+        @Language("PostgreSQL")
+        val query = """
             select tilgjengelighet
             from tiltaksgjennomforing
-            where split_part(tiltaksnummer, '#', 2) = ?
-            """.trimIndent(),
-            tiltak.tiltaksnummer
-        )
+            where (:aar is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
+               or (:aar is not null and split_part(tiltaksnummer, '#', 1) = ? and split_part(tiltaksnummer, '#', 2) = :lopenr)
+        """.trimIndent()
+
+        val parameters = tiltak.tiltaksnummer?.split("#")?.let {
+            if (it.size == 2) {
+                mapOf("aar" to it.first(), "lopenr" to it[1])
+            } else {
+                mapOf("aar" to null, "lopenr" to it.first())
+            }
+        }
+
+        val tilgjengelighet = queryOf(query, parameters)
             .map {
                 val value = it.string("tilgjengelighet")
                 TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)
