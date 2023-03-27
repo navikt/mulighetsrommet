@@ -110,7 +110,9 @@ function ReactHookFormContainer() {
                   ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
                 )
                 .map((tiltakstype) => (
-                  <option value={tiltakstype.id}>{tiltakstype.navn}</option>
+                  <option key={tiltakstype.id} value={tiltakstype.id}>
+                    {tiltakstype.navn}
+                  </option>
                 ))
             )}
           </Select>
