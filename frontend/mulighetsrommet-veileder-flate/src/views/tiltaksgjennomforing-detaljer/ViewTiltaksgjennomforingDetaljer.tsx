@@ -1,3 +1,4 @@
+import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { Ansatt } from 'mulighetsrommet-api-client';
@@ -10,7 +11,6 @@ import { TilgjengelighetsstatusComponent } from '../../components/oversikt/Tilgj
 import SidemenyDetaljer from '../../components/sidemeny/SidemenyDetaljer';
 import TiltaksdetaljerFane from '../../components/tabs/TiltaksdetaljerFane';
 import Tilbakeknapp from '../../components/tilbakeknapp/Tilbakeknapp';
-import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
 import { logEvent } from '../../core/api/logger';
 import { IndividuellTiltaksType } from '../../core/api/models';
 import { useGetTiltaksgjennomforingIdFraUrl } from '../../core/api/queries/useGetTiltaksgjennomforingIdFraUrl';
@@ -26,7 +26,6 @@ import { useNavigerTilDialogen } from '../../hooks/useNavigerTilDialogen';
 import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHeader';
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
-import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 
 const whiteListOpprettAvtaleKnapp = [
   'Midlertidig lønnstilskudd',
@@ -77,7 +76,6 @@ function resolveName(ansatt?: Ansatt) {
 }
 
 const ViewTiltaksgjennomforingDetaljer = () => {
-  const { data } = useFeatureToggles();
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
@@ -161,13 +159,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                   />
                 </div>
               )}
-              {data?.[VIS_TILGJENGELIGHETSSTATUS] ? (
-                <Nokkelinfo
-                  data-testid="tilgjengelighetsstatus_detaljside"
-                  uuTitle="Se hvor data om tilgjengelighetsstatusen er hentet fra"
-                  nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
-                />
-              ) : null}
+              <Nokkelinfo
+                data-testid="tilgjengelighetsstatus_detaljside"
+                uuTitle="Se hvor data om tilgjengelighetsstatusen er hentet fra"
+                nokkelinfoKomponenter={tilgjengelighetsstatusSomNokkelinfo.nokkelinfoKomponenter}
+              />
             </div>
           </div>
           <div className={styles.sidemeny}>

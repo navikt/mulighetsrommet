@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
-import { useFeatureToggles, VIS_TILGJENGELIGHETSSTATUS } from '../../core/api/feature-toggles';
 import StatusGronn from '../../ikoner/Sirkel-gronn.png';
 import StatusGul from '../../ikoner/Sirkel-gul.png';
 import StatusRod from '../../ikoner/Sirkel-rod.png';
@@ -13,12 +12,6 @@ interface Props {
 }
 
 export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ventetid }: Props) {
-  const { data } = useFeatureToggles();
-
-  if (!data?.[VIS_TILGJENGELIGHETSSTATUS]) {
-    return null;
-  }
-
   if (oppstart === 'midlertidig_stengt') {
     return (
       <div>
