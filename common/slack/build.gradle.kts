@@ -10,5 +10,5 @@ ktlint {
 
 dependencies {
     // Slack-SDK
-    implementation("com.slack.api:slack-api-client:1.27.3")
+    implementation(libs.slack.client)
 }

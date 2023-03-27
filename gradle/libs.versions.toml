@@ -1,0 +1,95 @@
+[versions]
+common-java-modules = "3.2023.03.22_12.48-00fcbdc8f455"
+hoplite = "2.7.2"
+koin = "3.3.1"
+kotest = "5.5.5"
+ktor = "2.2.4"
+logback = "1.4.6"
+metrics = "4.2.17"
+
+[libraries]
+arrow-core = "io.arrow-kt:arrow-core:1.1.5"
+
+assertj-db = "org.assertj:assertj-db:2.0.2"
+
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.5"
+
+dbScheduler = "com.github.kagkarlsson:db-scheduler:11.6"
+
+flyway-core = "org.flywaydb:flyway-core:9.15.1"
+
+google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.11.0"
+
+hikaricp = "com.zaxxer:HikariCP:5.0.1"
+
+hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
+hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "hoplite" }
+
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
+
+kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:1.3.0"
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-extensions-testcontainers = "io.kotest.extensions:kotest-extensions-testcontainers:1.3.4"
+kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
+
+kotliquery = "com.github.seratch:kotliquery:1.9.0"
+
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
+
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-server-authJwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-server-autoHeadResponse = { module = "io.ktor:ktor-server-auto-head-response", version.ref = "ktor" }
+ktor-server-cachingHeaders = { module = "io.ktor:ktor-server-caching-headers", version.ref = "ktor" }
+ktor-server-callId = { module = "io.ktor:ktor-server-call-id-jvm", version.ref = "ktor" }
+ktor-server-callLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
+ktor-server-conditionalHeaders = { module = "io.ktor:ktor-server-conditional-headers", version.ref = "ktor" }
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors-jvm", version.ref = "ktor" }
+ktor-server-defaultHeaders = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
+ktor-server-metricsMicrometer = { module = "io.ktor:ktor-server-metrics-micrometer", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktor" }
+ktor-server-statusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
+ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
+ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
+
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:7.3"
+
+metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
+metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
+
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.10.4"
+
+mockk = "io.mockk:mockk:1.13.4"
+
+nav-common-auditLog = { module = "com.github.navikt.common-java-modules:audit-log", version.ref = "common-java-modules" }
+nav-common-kafka = { module = "com.github.navikt.common-java-modules:kafka", version.ref = "common-java-modules" }
+nav-common-tokenClient = { module = "com.github.navikt.common-java-modules:token-client", version.ref = "common-java-modules" }
+nav-poaoTilgang-client = "com.github.navikt.poao-tilgang:client:2023.03.06_12.28-f645c4624641"
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:0.5.8"
+
+postgresql = "org.postgresql:postgresql:42.5.4"
+
+prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
+
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0"
+
+slack-client = "com.slack.api:slack-api-client:1.27.3"
+
+slf4j = "org.slf4j:slf4j-api:2.0.6"
+
+testcontainers-kafka = "org.testcontainers:kafka:1.17.6"
