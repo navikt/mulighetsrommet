@@ -1,7 +1,11 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import {
+  Avtalestatus,
+  SorteringAvtaler,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
+import {ChangeEvent, useEffect, useRef, useState} from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
@@ -23,7 +27,9 @@ interface Props {
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper();
+  const { data: tiltakstyper } = useAlleTiltakstyper({
+    tiltakstypestatus: Tiltakstypestatus.AKTIV,
+  });
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
