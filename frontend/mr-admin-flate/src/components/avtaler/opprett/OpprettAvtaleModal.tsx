@@ -9,7 +9,6 @@ interface OpprettAvtaleModalProps {
   onClose: () => void;
   handleForm?: () => void;
   handleCancel?: () => void;
-  className?: string;
   shouldCloseOnOverlayClick?: boolean;
 }
 
@@ -18,7 +17,6 @@ const OpprettAvtaleModal = ({
   onClose,
   handleForm,
   handleCancel,
-  className,
 }: OpprettAvtaleModalProps) => {
   const clickSend = () => {
     handleForm?.();
@@ -35,10 +33,18 @@ const OpprettAvtaleModal = ({
       closeButton
       open={modalOpen}
       onClose={onClose}
-      className={classNames(styles.overstyrte_styles_fra_ds_modal, className)}
+      className={styles.overstyrte_styles_fra_ds_modal}
       aria-label="modal"
     >
       <Modal.Content>
+        <Heading
+          size="small"
+          level="2"
+          className={classNames(styles.heading)}
+          data-testid="modal_header"
+        >
+          Registrer ny avtale
+        </Heading>
         <OpprettAvtaleContainer />
       </Modal.Content>
     </Modal>

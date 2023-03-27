@@ -1,6 +1,6 @@
 import { Button, Select, Textarea, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import z from "zod";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,17 +33,7 @@ const Schema = z.object({
 export type inferredSchema = z.infer<typeof Schema>;
 
 export function OpprettAvtaleContainer() {
-  return (
-    <div
-      style={{
-        margin: "0 auto",
-        background: "white",
-        padding: "1rem",
-      }}
-    >
-      <ReactHookFormContainer />
-    </div>
-  );
+  return <ReactHookFormContainer />;
 }
 
 function ReactHookFormContainer() {
@@ -56,7 +46,25 @@ function ReactHookFormContainer() {
     watch,
     formState: { errors },
   } = form;
-  const onSubmit: SubmitHandler<inferredSchema> = (data) => console.log(data);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(null);
+
+  const postData: SubmitHandler<inferredSchema> = async (
+    data
+  ): Promise<void> => {
+    setError(null);
+    setResult(null);
+    const response = await fetch("url", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      setResult((await response.json()).message);
+    } else {
+      setError((await response.json()).message);
+    }
+  };
   const { data: ansatt, isLoading } = useHentAnsatt();
   if (isLoading) {
     return <Laster size="xlarge" />;
@@ -72,7 +80,7 @@ function ReactHookFormContainer() {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
           <TextField
             error={errors.avtalenavn?.message}
