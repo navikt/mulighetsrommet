@@ -176,8 +176,8 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.checkPageA11y();
   });
 
-  // TODO Skru på når vi fjerner toggle for tilgjengelighesstatus
-  xit('Sjekk at tilgjengelighetsstatus er tilgjengelig på detaljsiden', () => {
+  it('Sjekk at tilgjengelighetsstatus er tilgjengelig på detaljsiden', () => {
+    cy.navigerTilGjennomforing();
     cy.getByTestId('tilgjengelighetsstatus_detaljside').should('exist');
   });
 

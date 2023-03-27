@@ -166,6 +166,6 @@ class ArenaEventService(
     }
 
     fun getStaleEvents(retriesGreaterThanOrEqual: Int): List<ArenaEvent> {
-        return events.getAll(retriesGreaterThanOrEqual = retriesGreaterThanOrEqual)
+        return events.getAll(retriesGreaterThanOrEqual = retriesGreaterThanOrEqual, status = ArenaEvent.ProcessingStatus.Failed)
     }
 }
