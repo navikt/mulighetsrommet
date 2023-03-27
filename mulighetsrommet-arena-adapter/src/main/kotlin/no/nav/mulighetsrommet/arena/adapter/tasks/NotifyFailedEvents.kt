@@ -51,7 +51,7 @@ class NotifyFailedEvents(
     private fun List<ArenaEvent>.formaterSlackMeldingForEvents(): String {
         return this.joinToString("\n") {
             """
-                arena-table: ${it.arenaTable}, arena_id: ${it.arenaId}
+            arena-table: ${it.arenaTable}, arena_id: ${it.arenaId}
             """.trimIndent()
         }
     }
