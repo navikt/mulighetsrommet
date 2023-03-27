@@ -20,9 +20,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":common:domain"))
-    implementation(project(":common:database"))
-    implementation(project(":common:ktor"))
+    implementation(projects.common.domain)
+    implementation(projects.common.database)
+    implementation(projects.common.ktor)
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")

@@ -9,8 +9,8 @@ ktlint {
 }
 
 dependencies {
-    implementation(project(":common:database"))
-    testImplementation(testFixtures(project(":common:database")))
+    implementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")

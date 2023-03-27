@@ -28,13 +28,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":common:domain"))
-    implementation(project(":common:database"))
-    testImplementation(testFixtures(project(":common:database")))
-    implementation(project(":common:kafka"))
-    implementation(project(":common:ktor"))
-    testImplementation(testFixtures(project(":common:ktor")))
-    implementation(project(":common:slack"))
+    implementation(projects.common.domain)
+    implementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
+    implementation(projects.common.kafka)
+    implementation(projects.common.ktor)
+    testImplementation(testFixtures(projects.common.ktor))
+    implementation(projects.common.slack)
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")

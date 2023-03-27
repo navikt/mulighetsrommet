@@ -22,12 +22,12 @@ flyway {
 }
 
 dependencies {
-    implementation(project(":common:domain"))
-    implementation(project(":common:ktor"))
-    implementation(project(":common:database"))
-    implementation(project(":common:slack"))
-    implementation(project(":common:kafka"))
-    testImplementation(testFixtures(project(":common:database")))
+    implementation(projects.common.domain)
+    implementation(projects.common.ktor)
+    implementation(projects.common.database)
+    implementation(projects.common.slack)
+    implementation(projects.common.kafka)
+    testImplementation(testFixtures(projects.common.database))
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")

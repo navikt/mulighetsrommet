@@ -1,5 +1,7 @@
 rootProject.name = "mulighetsrommet"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 include("common:ktor")
 include("common:database")
 include("common:domain")
