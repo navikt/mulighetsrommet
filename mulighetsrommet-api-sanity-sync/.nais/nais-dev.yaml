@@ -10,8 +10,8 @@ metadata:
 spec:
   image: {{ image }}
   # At every 30th minute past every hour from 7 through 18.
-  # https://crontab.guru/#*/30_7-18_*_*_*
-  schedule: "*/30 7-18 * * *"
+  # https://crontab.guru/#*/30_6-18_*_*_*
+  schedule: "*/30 6-18 * * *"
 
   gcp:
     permissions:
