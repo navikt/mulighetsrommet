@@ -1,13 +1,22 @@
-import { Search, Select } from "@navikt/ds-react";
+import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { ChangeEvent, useEffect, useRef } from "react";
+import {
+  Avtalestatus,
+  SorteringAvtaler,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
+import {ChangeEvent, useEffect, useRef, useState} from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
+import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
+import {
+  OPPRETT_AVTALE_ADMIN_FLATE,
+  useFeatureToggles,
+} from "../../api/features/feature-toggles";
 
 type Filters = "tiltakstype";
 
@@ -18,10 +27,17 @@ interface Props {
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper();
+  const { data: tiltakstyper } = useAlleTiltakstyper({
+    tiltakstypestatus: Tiltakstypestatus.AKTIV,
+  });
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  const features = useFeatureToggles();
+  const visOpprettAvtaleknapp =
+    features.isSuccess && features.data[OPPRETT_AVTALE_ADMIN_FLATE];
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -45,7 +61,6 @@ export function Avtalefilter(props: Props) {
             value={filter.sok}
             aria-label="Søk etter avtale"
             data-testid="filter_avtale_sokefelt"
-            size="small"
           />
           <Select
             label="Filtrer på statuser"
@@ -106,7 +121,7 @@ export function Avtalefilter(props: Props) {
             </Select>
           )}
         </div>
-        <div>
+        <div className={styles.filter_right}>
           <Select
             label="Sorter"
             hideLabel
@@ -125,6 +140,17 @@ export function Avtalefilter(props: Props) {
             <option value="status-ascending">Status A-Å</option>
             <option value="status-descending">Status Å-A</option>
           </Select>
+          {visOpprettAvtaleknapp && (
+            <>
+              <Button onClick={() => setModalOpen(true)}>
+                Registrer avtale
+              </Button>
+              <OpprettAvtaleModal
+                modalOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+              />
+            </>
+          )}
         </div>
       </div>
     </>

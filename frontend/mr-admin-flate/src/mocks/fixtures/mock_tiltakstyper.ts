@@ -410,5 +410,13 @@ export const mockTiltakstyper: PaginertTiltakstype = {
       tilDato: "2023-01-15",
       status: Tiltakstypestatus.AVSLUTTET,
     },
+    {
+      id: "186df85f-c773-4f34-8904-1983787a3c51",
+      navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
+      arenaKode: "VASV",
+      fraDato: "2023-01-11",
+      tilDato: "2050-01-15",
+      status: Tiltakstypestatus.AKTIV,
+    },
   ],
 };

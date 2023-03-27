@@ -1,6 +1,9 @@
 import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
+import {
+  SorteringTiltaksgjennomforinger,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useEnheter } from "../../api/enhet/useEnheter";
@@ -12,7 +15,9 @@ export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper();
+  const { data: tiltakstyper } = useAlleTiltakstyper({
+    tiltakstypestatus: Tiltakstypestatus.AKTIV,
+  });
 
   return (
     <form className={styles.filter_container}>
