@@ -4,14 +4,11 @@ import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { paginationAtom, tiltakstypefilter } from "../../api/atoms";
 import styles from "./Filter.module.scss";
+import { resetPaginering } from "../../utils/Utils";
 
 export function Tiltakstypefilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
   const [, setPage] = useAtom(paginationAtom);
-
-  const resetPagination = () => {
-    setPage(1);
-  };
 
   return (
     <div className={styles.filter_container}>
@@ -33,7 +30,7 @@ export function Tiltakstypefilter() {
           value={sokefilter.status}
           data-testid="filter_status"
           onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            resetPagination();
+            resetPaginering(setPage);
             const status = e.currentTarget.value as any;
             setSokefilter({
               ...sokefilter,
@@ -53,7 +50,7 @@ export function Tiltakstypefilter() {
           value={sokefilter.kategori}
           data-testid="filter_kategori"
           onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            resetPagination();
+            resetPaginering(setPage);
             const kategori = e.currentTarget.value as any;
             setSokefilter({
               ...sokefilter,

@@ -26,6 +26,13 @@ data class AvtaleFilter(
     val dagensDato: LocalDate = LocalDate.now(),
 )
 
+data class AdminTiltaksgjennomforingFilter(
+    val search: String? = "",
+    val enhet: String? = null,
+    val tiltakstypeId: UUID? = null,
+    val sortering: String? = null,
+)
+
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus> = listOf(
         NavEnhetStatus.AKTIV,
@@ -35,7 +42,7 @@ data class EnhetFilter(
     val tiltakstypeId: String? = null
 )
 
-data class Tiltaksgjennomforingsfilter(
+data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
@@ -72,17 +79,30 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     )
 }
 
+fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
+    val search = call.request.queryParameters["search"]
+    val enhet = call.request.queryParameters["enhet"]
+    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
+    val sortering = call.request.queryParameters["sort"]
+    return AdminTiltaksgjennomforingFilter(
+        search = search,
+        enhet = enhet,
+        tiltakstypeId = tiltakstypeId,
+        sortering = sortering
+    )
+}
+
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]
     return EnhetFilter(tiltakstypeId = tiltakstypeId)
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): Tiltaksgjennomforingsfilter {
+fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): TiltaksgjennomforingFilter {
     val innsatsgruppe = call.parameters["innsatsgruppe"]
     val tiltakstypeIder = call.parameters.getAll("tiltakstypeIder") ?: emptyList()
     val sokestreng = call.parameters["sokestreng"] ?: ""
     val lokasjoner = call.parameters.getAll("lokasjoner") ?: emptyList()
-    return Tiltaksgjennomforingsfilter(
+    return TiltaksgjennomforingFilter(
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,

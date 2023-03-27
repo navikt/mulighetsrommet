@@ -61,7 +61,6 @@ jobs:
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: labs-gcp
+          CLUSTER: dev-gcp
           RESOURCE: frontend/mr-admin-flate/.nais/nais-labs.yaml
           VAR: image=${{ env.IMAGE }}
-          DEPLOY_SERVER: deploy.nais.io:443

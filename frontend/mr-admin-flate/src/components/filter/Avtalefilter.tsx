@@ -5,12 +5,21 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
+import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
+import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
 
-export function Avtalefilter() {
+type Filters = "tiltakstype";
+
+interface Props {
+  skjulFilter?: Record<Filters, boolean>;
+}
+
+export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
+  const { data: tiltakstyper } = useAlleTiltakstyper();
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
@@ -22,10 +31,6 @@ export function Avtalefilter() {
       searchRef?.current?.focus();
     }
   }, [data]);
-
-  const resetPaginering = () => {
-    setPage(1);
-  };
 
   return (
     <>
@@ -50,7 +55,7 @@ export function Avtalefilter() {
             value={filter.status}
             data-testid="filter_avtale_status"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering();
+              resetPaginering(setPage);
               setFilter({
                 ...filter,
                 status: e.currentTarget.value as Avtalestatus,
@@ -70,7 +75,7 @@ export function Avtalefilter() {
             value={filter.enhet}
             data-testid="filter_avtale_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering();
+              resetPaginering(setPage);
               setFilter({ ...filter, enhet: e.currentTarget.value });
             }}
           >
@@ -81,6 +86,26 @@ export function Avtalefilter() {
               </option>
             ))}
           </Select>
+          {props.skjulFilter?.tiltakstype ? null : (
+            <Select
+              label="Filtrer på tiltakstype"
+              hideLabel
+              size="small"
+              value={filter.tiltakstype}
+              data-testid="filter_avtale_tiltakstype"
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                resetPaginering(setPage);
+                setFilter({ ...filter, tiltakstype: e.currentTarget.value });
+              }}
+            >
+              <option value="">Alle tiltakstyper</option>
+              {tiltakstyper?.data?.map((tiltakstype) => (
+                <option key={tiltakstype.id} value={tiltakstype.id}>
+                  {tiltakstype.navn}
+                </option>
+              ))}
+            </Select>
+          )}
         </div>
         <div className={styles.filter_right}>
           <Select

@@ -4,11 +4,13 @@ import {
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforingfilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => [id, "tiltakstype"] as const,
   nokkeltallTiltakstype: (id?: string) =>
     [id, "nokkeltallTiltakstype"] as const,
+  alleTiltakstyper: () => ["tiltakstyper"],
   tiltakstyper: (
     sokestreng: string,
     status?: Tiltakstypestatus,
@@ -16,8 +18,17 @@ export const QueryKeys = {
     sortering?: SorteringTiltakstyper,
     page?: number
   ) => [sokestreng, status, kategori, sortering, page, "tiltakstyper"] as const,
-  tiltaksgjennomforinger: (page?: number) =>
-    [page, "tiltaksgjennomforinger"] as const,
+  tiltaksgjennomforinger: (
+    tiltaksgjennomforingfilter: Tiltaksgjennomforingfilter,
+    page?: number
+  ) =>
+    [
+      { ...tiltaksgjennomforingfilter },
+      page,
+      "tiltaksgjennomforinger",
+    ] as const,
+  nokkeltallTiltaksgjennomforing: (id?: string) =>
+    [id, "nokkeltallTiltaksgjennomforing"] as const,
   tiltaksgjennomforing: (id?: string) => [id, "tiltaksgjennomforing"] as const,
   ansatt: ["ansatt"] as const,
   tiltaksgjennomforingerByTiltakstypeId: (id: string, page?: number) =>

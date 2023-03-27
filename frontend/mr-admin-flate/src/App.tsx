@@ -10,8 +10,8 @@ import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import OpprettAvtaleModal from "./components/avtaler/opprett/OpprettAvtaleModal";
-import { OpprettAvtaleContainer } from "./components/avtaler/opprett/OpprettAvtaleContainer";
+import {TiltaksgjennomforingerPage} from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
+import {DetaljerTiltaksgjennomforingerPage} from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
@@ -72,15 +72,21 @@ export function App() {
         errorElement={<ErrorPage />}
       />
       <Route
-        path="avtaler/ny"
-        element={<OpprettAvtaleContainer />}
-        errorElement={<ErrorPage />}
-      />
-      <Route
         path="avtaler/:avtaleId"
         element={<DetaljerAvtalePage />}
         errorElement={<ErrorPage />}
       />
+      <Route
+        path="tiltaksgjennomforinger/"
+        element={<TiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
+        element={<DetaljerTiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      />
+
       <Route index element={<Forside />} />
     </Routes>
   );

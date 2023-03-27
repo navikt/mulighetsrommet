@@ -1,4 +1,4 @@
-import { Tabs } from "@navikt/ds-react";
+import { Alert, Tabs } from "@navikt/ds-react";
 import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
@@ -9,14 +9,31 @@ import { MainContainer } from "../../layouts/MainContainer";
 import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import styles from "./DetaljerAvtalePage.module.scss";
+import { Laster } from "../../components/laster/Laster";
+import { Link } from "react-router-dom";
 
 export function DetaljerAvtalePage() {
-  const { data: avtale } = useAvtale();
+  const { data: avtale, isLoading } = useAvtale();
   const [tabValgt, setTabValgt] = useState("avtaleinfo");
   const { data } = useFeatureToggles();
 
+  if (!avtale && isLoading) {
+    return (
+      <main>
+        <Laster tekst="Laster avtale" />
+      </main>
+    );
+  }
+
   if (!avtale) {
-    return null;
+    return (
+      <Alert variant="warning">
+        Klarte ikke finne avtale
+        <div>
+          <Link to="/">Til forside</Link>
+        </div>
+      </Alert>
+    );
   }
 
   return (

@@ -8,15 +8,15 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 
 - [`mulighetsrommet-api`](#mulighetsrommet-api)
 - [Innhold](#innhold)
-- [<a name="teknologier"></a>Teknologier](#teknologier)
-- [<a name="overvaking"></a>Overvåking og alarmer](#overvåking-og-alarmer)
-- [<a name="kom-i-gang"></a>Kom i gang](#kom-i-gang)
-    - [<a name="forutsetninger"></a>Forutsetninger](#forutsetninger)
-        - [JDK 11](#jdk-11)
-        - [Docker](#docker)
-        - [Miljøvariabler](#miljøvariabler)
-    - [<a name="steg-for-steg"></a>Steg for steg](#steg-for-steg)
-        - [Autentisering](#autentisering)
+- [Teknologier](#teknologier)
+- [Overvåking og alarmer](#overvåking-og-alarmer)
+- [Kom i gang](#kom-i-gang)
+  - [Forutsetninger](#forutsetninger)
+    - [JDK 11](#jdk-11)
+    - [Docker](#docker)
+    - [Miljøvariabler](#miljøvariabler)
+  - [Steg for steg](#steg-for-steg)
+    - [Autentisering](#autentisering)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -112,7 +112,8 @@ Følgende steg kan benyttes til å generere opp et token:
        "access_as_application"
        ],
        "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
-       "azp_name": "test name"
+       "azp_name": "test name",
+       "groups": ["0000-GA-mr-admin-flate_betabruker"]
        }`
     4. Trykk `Sign in`
 4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i .env-filen du har opprettet

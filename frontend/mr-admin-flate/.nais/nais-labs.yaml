@@ -1,7 +1,7 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: mr-admin-flate
+  name: demo-mr-admin-flate
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -11,7 +11,7 @@ spec:
   image: {{image}}
   port: 8080
   ingresses:
-    - https://mulighetsrommet-admin-flate.labs.nais.io
+    - https://mulighetsrommet-admin-flate.ekstern.dev.nav.no
   liveness:
     path: /internal/isalive
     initialDelay: 10

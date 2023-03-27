@@ -5,12 +5,11 @@ import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.Table
 
-class FlywayDatabaseTestListener(private val config: FlywayDatabaseConfig) : BeforeSpecListener, AfterSpecListener {
+class FlywayDatabaseTestListener(private val config: FlywayDatabaseAdapter.Config) : BeforeSpecListener, AfterSpecListener {
     private var delegate: FlywayDatabaseAdapter? = null
 
     val db: FlywayDatabaseAdapter

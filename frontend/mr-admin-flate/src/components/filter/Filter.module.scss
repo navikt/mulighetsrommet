@@ -1,17 +1,22 @@
 .filter_container {
-  display: grid;
-  gap: 20rem;
-  grid-template-columns: 1fr 30%;
+  display: flex;
   margin-bottom: 2rem;
   background-color: white;
   padding: 1rem;
   border-radius: 0.25rem;
-}
-
-.filter_left {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
+
+  .filter_left {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  :global(.navds-form-field) {
+    width: 15rem;
+  }
 }
 
 .filter_right {

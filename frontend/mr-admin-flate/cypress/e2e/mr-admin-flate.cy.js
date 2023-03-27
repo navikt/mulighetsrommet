@@ -11,10 +11,20 @@ describe("Forside", () => {
   beforeEach(() => {
     cy.visit("/");
   });
+  context("Header", () => {
+    it("Sjekk at navident til admin er i header", () => {
+      cy.getByTestId("header-navident").should("exist");
+      cy.checkPageA11y();
+    });
+  });
   context("Landingssiden ved innlogging", () => {
     it("Skal vise kort for tiltaktyper og avtaler på forsiden", () => {
       cy.getByTestId("tiltakstyper").contains("Tiltakstyper");
       cy.getByTestId("avtaler").contains("Avtaler");
+      cy.getByTestId("tiltaksgjennomføringer").contains(
+        "Tiltaksgjennomføringer"
+      );
+      cy.checkPageA11y();
     });
 
     it("Skal navigere til tiltakstyper og sjekke UU", () => {
@@ -30,19 +40,19 @@ describe("Forside", () => {
       cy.contains("Oversikt over avtaler");
       cy.checkPageA11y();
     });
+
+    it("Skal navigere til tiltaksgjennomføringer og sjekke UU", () => {
+      cy.getByTestId("tiltaksgjennomføringer").click();
+      cy.url().should("include", "/tiltaksgjennomforinger");
+      cy.contains("Oversikt over tiltaksgjennomføringer");
+      cy.checkPageA11y();
+    });
   });
 });
 
 describe("Tiltakstyper", () => {
   beforeEach(() => {
     cy.visit("/tiltakstyper");
-  });
-
-  context("Header", () => {
-    it("Sjekk at navident til admin er i header", () => {
-      cy.getByTestId("header-navident").should("exist");
-      cy.checkPageA11y();
-    });
   });
 
   context("Filtrering for tiltakstyper", () => {
@@ -65,7 +75,29 @@ describe("Tiltakstyper", () => {
   });
 });
 
-describe("Detaljside for tiltakstyper", () => {
+describe("Avtaler", () => {
+  context("Navigering til avtaledetaljer", () => {
+    it("Skal kunne klikke på en avtale og navigere til avtaledetaljer", () => {
+      cy.visit("/tiltakstyper");
+      cy.getByTestId("filter_sokefelt").type("Arbeidsrettet");
+      cy.getByTestId("tiltakstyperad").eq(0).click();
+      cy.contains("Avtaler");
+      cy.getByTestId("tab_avtaler").click();
+      cy.visit("/avtaler");
+      cy.getByTestId("avtalerad").eq(0).click();
+      cy.checkPageA11y();
+    });
+  });
+
+  context("Oversikt over avtaler", () => {
+    it("Skal finnes et filter for tiltakstype for avtaler", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("filter_avtale_tiltakstype").should("exist");
+    });
+  });
+});
+
+describe("Tiltaksgjennomføringer", () => {
   context("Navigering til tiltakstypedetaljer", () => {
     it("Skal kunne klikke på rad for tiltakstype og navigere til detaljer", () => {
       cy.visit("/tiltakstyper");
@@ -76,17 +108,13 @@ describe("Detaljside for tiltakstyper", () => {
       cy.checkPageA11y();
     });
   });
-});
 
-describe("Detaljside for avtale", () => {
-  context("Navigering til avtaledetaljer", () => {
-    it("Skal kunne klikke på en avtale og navigere til avtaledetaljer", () => {
-      cy.visit("/tiltakstyper");
-      cy.getByTestId("tiltakstyperad").eq(0).click();
-      cy.contains("Avtaler");
-      cy.getByTestId("tab_avtaler").click();
-      cy.getByTestId("avtalerad").eq(0).click();
+  context("Navigering til tiltaksgjennomføringsdetaljer", () => {
+    it("Skal kunne se nøkkeltall", () => {
+      cy.visit("/tiltaksgjennomforinger");
+      cy.getByTestId("tiltaksgjennomforingrad").eq(0).click();
       cy.checkPageA11y();
+      cy.getByTestId("tab_nokkeltall").click();
     });
   });
 });

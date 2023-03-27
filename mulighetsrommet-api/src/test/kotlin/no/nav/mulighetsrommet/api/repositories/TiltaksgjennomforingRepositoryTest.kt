@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -42,7 +43,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
 
-            tiltaksgjennomforinger.getAll().second shouldHaveSize 2
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).second shouldHaveSize 2
             tiltaksgjennomforinger.get(gjennomforing1.id) shouldBe TiltaksgjennomforingAdminDto(
                 id = gjennomforing1.id,
                 tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
@@ -64,7 +65,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
-            tiltaksgjennomforinger.getAll().second shouldHaveSize 1
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).second shouldHaveSize 1
         }
     }
 
@@ -208,7 +209,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltaksgjennomforinger.getAll()
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "Tiltak - 1"
@@ -222,7 +223,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 PaginationParams(
                     4,
                     20
-                )
+                ),
+                AdminTiltaksgjennomforingFilter()
             )
 
             items.size shouldBe 20
@@ -236,7 +238,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     3
-                )
+                ),
+                AdminTiltaksgjennomforingFilter()
             )
 
             items.size shouldBe 5
@@ -250,7 +253,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     nullableLimit = 200
-                )
+                ),
+                AdminTiltaksgjennomforingFilter()
             )
 
             items.size shouldBe 105

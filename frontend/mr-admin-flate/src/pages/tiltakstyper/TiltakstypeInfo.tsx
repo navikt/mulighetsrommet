@@ -1,10 +1,10 @@
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
-import { Metadata } from "../../components/detaljside/Metadata";
+import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
 import { formaterDato } from "../../utils/Utils";
-import styles from "./Tiltakstypedetaljer.module.scss";
+import styles from "../DetaljerInfo.module.scss";
 
-export function TiltakstypeDetaljer() {
+export function TiltakstypeInfo() {
   const { data } = useTiltakstypeById();
 
   if (!data) {
@@ -13,15 +13,18 @@ export function TiltakstypeDetaljer() {
 
   const tiltakstype = data;
   return (
-    <div>
-      <dl className={styles.detaljer}>
+    <div className={styles.detaljer}>
+      <div className={styles.bolk}>
         <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
         <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
-        <Metadata
-          header="Status"
-          verdi={<Tiltakstypestatus tiltakstype={tiltakstype} />}
-        />
-        <div>&nbsp;</div>
+      </div>
+      <Separator />
+      <Metadata
+        header="Status"
+        verdi={<Tiltakstypestatus tiltakstype={tiltakstype} />}
+      />
+      <Separator />
+      <div className={styles.bolk}>
         <Metadata
           header="Startdato"
           verdi={formaterDato(tiltakstype.fraDato)}
@@ -30,7 +33,7 @@ export function TiltakstypeDetaljer() {
           header="Sluttdato"
           verdi={formaterDato(tiltakstype.tilDato)}
         />
-      </dl>
+      </div>
     </div>
   );
 }

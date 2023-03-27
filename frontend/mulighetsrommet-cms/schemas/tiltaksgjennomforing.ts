@@ -58,11 +58,38 @@ export const tiltaksgjennomforing = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "aar",
+      title: "År",
+      description:
+        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn år.",
+      type: "number",
+      initialValue: () => new Date().getFullYear(),
+    }),
+    defineField({
+      name: "lopenummer",
+      title: "Løpenummer",
+      description:
+        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn løpenummer.",
+      type: "number",
+    }),
+    defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
       description:
-        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn tiltaksnummer.",
+        "Hvis tiltakstypen gjelder individuelle tiltak skal du ikke fylle inn noe her. Tiltaksnummer utledes fra feltene år og løpenummer over",
       type: "slug",
+      options: {
+        slugify: (input) => {
+          return input;
+        },
+        source: (doc, _) => {
+          const aar = doc.aar as unknown as string;
+          const lopenummer = doc.lopenummer as unknown as string;
+          return `${aar ? aar : new Date().getFullYear()}#${
+            lopenummer ? lopenummer : 0
+          }`;
+        },
+      },
     }),
     defineField({
       name: "kontaktinfoArrangor",
@@ -102,7 +129,26 @@ export const tiltaksgjennomforing = defineType({
       description: "F.eks estimert ventetid eller stengt til dato.",
       type: "string",
     }),
-
+    defineField({
+      name: "oppstart",
+      title: "Oppstart eller midlertidig stengt",
+      type: "string",
+      options: {
+        list: [
+          { title: "Dato", value: "dato" },
+          { title: "Løpende oppstart", value: "lopende" },
+          { title: "Midlertidig stengt", value: "midlertidig_stengt" },
+        ],
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "oppstartsdato",
+      title: "Dato for oppstart",
+      type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
+      hidden: ({ parent }) => parent?.oppstart !== "dato",
+    }),
     defineField({
       name: "lokasjon",
       title: "Lokasjon",
@@ -132,7 +178,6 @@ export const tiltaksgjennomforing = defineType({
       description:
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
-
       hidden: ({ document }) => {
         return !document.fylke;
       },
@@ -174,26 +219,7 @@ export const tiltaksgjennomforing = defineType({
             : { message: "Alle enheter må tilhøre valgt fylke.", paths };
         }),
     }),
-    defineField({
-      name: "oppstart",
-      title: "Oppstart eller midlertidig stengt",
-      type: "string",
-      options: {
-        list: [
-          { title: "Dato", value: "dato" },
-          { title: "Løpende oppstart", value: "lopende" },
-          { title: "Midlertidig stengt", value: "midlertidig_stengt" },
-        ],
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: "oppstartsdato",
-      title: "Dato for oppstart",
-      type: "date",
-      options: { dateFormat: "DD/MM/YYYY" },
-      hidden: ({ parent }) => parent?.oppstart !== "dato",
-    }),
+
     //Faneinnhold
     defineField({
       name: "faneinnhold",

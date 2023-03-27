@@ -1,5 +1,6 @@
 $tiltakstypeGrid: 2fr 1fr repeat(2, 0.5fr) 1%;
 $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
+$tiltaksgjennomforingsGrid: 2fr repeat(5, 1fr) 1%;
 
 @mixin avtaleGridProperties {
   grid-template-columns: $avtaleGrid;
@@ -7,8 +8,7 @@ $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
 }
 
 .oversikt {
-  margin: 0;
-  margin-top: 1rem;
+  margin: 1rem 0 0;
   padding: 0;
 }
 
@@ -23,6 +23,7 @@ $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
   display: grid;
   margin-bottom: 0.5rem;
   padding: 0 1rem;
+  gap: 1rem;
 
   :global(.navds-body-short) {
     font-weight: bold;
@@ -34,6 +35,10 @@ $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
 
   &_avtaler {
     @include avtaleGridProperties();
+  }
+
+  &_tiltaksgjennomforinger {
+    grid-template-columns: $tiltaksgjennomforingsGrid;
   }
 }
 
@@ -52,6 +57,7 @@ $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
   cursor: pointer;
   color: black;
   text-decoration: none;
+  gap: 1rem;
 
   &:hover {
     background-color: var(--a-gray-50);
@@ -69,6 +75,10 @@ $avtaleGrid: repeat(2, 1.2fr) 0.5fr repeat(2, 0.5fr) 10% 1%;
 
   &_avtale {
     @include avtaleGridProperties();
+  }
+
+  &_tiltaksgjennomforing {
+    grid-template-columns: $tiltaksgjennomforingsGrid;
   }
 }
 

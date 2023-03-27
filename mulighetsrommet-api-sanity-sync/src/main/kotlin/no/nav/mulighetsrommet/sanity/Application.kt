@@ -10,11 +10,12 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import org.intellij.lang.annotations.Language
 
 @Serializable
 data class Tiltak(
     val _id: String,
-    val tiltaksnummer: Int,
+    val tiltaksnummer: String?,
 )
 
 fun main() {
@@ -51,12 +52,14 @@ private fun CoroutineScope.produceTiltak(capacity: Int, sanity: SanityClient): R
             """
             *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))]{
               _id,
-              tiltaksnummer
+              "tiltaksnummer": tiltaksnummer.current
             }
             """.trimIndent()
         )
         tiltak.result.forEach {
-            send(it)
+            if (it.tiltaksnummer != null) {
+                send(it)
+            }
         }
         close()
     }
@@ -68,14 +71,23 @@ private suspend fun writeTilgjengelighetsstatus(
     sanity: SanityClient
 ) {
     channel.consumeEach { tiltak ->
-        val tilgjengelighet = queryOf(
-            """
+        @Language("PostgreSQL")
+        val query = """
             select tilgjengelighet
-            from tiltaksgjennomforing_valid
-            where tiltaksnummer = ?
-            """.trimIndent(),
-            tiltak.tiltaksnummer
-        )
+            from tiltaksgjennomforing
+            where (:aar::text is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
+               or (:aar::text is not null and split_part(tiltaksnummer, '#', 1) = :aar and split_part(tiltaksnummer, '#', 2) = :lopenr)
+        """.trimIndent()
+
+        val parameters = tiltak.tiltaksnummer?.split("#")?.let {
+            if (it.size == 2) {
+                mapOf("aar" to it.first(), "lopenr" to it[1])
+            } else {
+                mapOf("aar" to null, "lopenr" to it.first())
+            }
+        }
+
+        val tilgjengelighet = queryOf(query, parameters)
             .map {
                 val value = it.string("tilgjengelighet")
                 TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)

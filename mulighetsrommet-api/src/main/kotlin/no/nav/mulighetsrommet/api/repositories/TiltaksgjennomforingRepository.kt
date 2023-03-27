@@ -4,6 +4,8 @@ import io.ktor.utils.io.core.*
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.services.Sokefilter
+import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -76,7 +78,30 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAll(pagination: PaginationParams = PaginationParams()): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+    fun getAll(
+        pagination: PaginationParams = PaginationParams(),
+        filter: AdminTiltaksgjennomforingFilter
+    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+        val parameters = mapOf(
+            "search" to "%${filter.search}%",
+            "enhet" to filter.enhet,
+            "tiltakstypeId" to filter.tiltakstypeId,
+            "limit" to pagination.limit,
+            "offset" to pagination.offset,
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            filter.search to "(lower(tg.navn) like lower(:search))",
+            filter.enhet to "lower(tg.enhet) = lower(:enhet)",
+            filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId"
+        )
+
+        val order = when (filter.sortering) {
+            "navn-ascending" -> "tg.navn asc"
+            "navn-descending" -> "tg.navn desc"
+            else -> "tg.navn asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid,
@@ -96,10 +121,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                      join tiltakstype t on tg.tiltakstype_id = t.id
-            order by tg.navn asc
-            limit ? offset ?
+            $where
+            order by $order
+            limit :limit
+            offset :offset
         """.trimIndent()
-        val results = queryOf(query, pagination.limit, pagination.offset)
+
+        val results = queryOf(query, parameters)
             .map {
                 it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }

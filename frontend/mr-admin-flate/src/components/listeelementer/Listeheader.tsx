@@ -16,10 +16,10 @@ function Listeheader({ children, classname }: ListeheaderProps) {
 export function ListeheaderTiltakstyper() {
   return (
     <Listeheader classname={styles.listeheader_tiltakstyper}>
-      <BodyShort size="medium">Tittel</BodyShort>
-      <BodyShort size="medium">Status</BodyShort>
-      <BodyShort size="small">Startdato</BodyShort>
-      <BodyShort size="small">Sluttdato</BodyShort>
+      <BodyShort>Tittel</BodyShort>
+      <BodyShort>Status</BodyShort>
+      <BodyShort>Startdato</BodyShort>
+      <BodyShort>Sluttdato</BodyShort>
     </Listeheader>
   );
 }
@@ -27,12 +27,25 @@ export function ListeheaderTiltakstyper() {
 export function ListeheaderAvtaler() {
   return (
     <Listeheader classname={styles.listeheader_avtaler}>
-      <BodyShort size="medium">Tittel</BodyShort>
-      <BodyShort size="medium">Leverandør</BodyShort>
-      <BodyShort size="medium">Enhet</BodyShort>
-      <BodyShort size="medium">Startdato</BodyShort>
-      <BodyShort size="medium">Sluttdato</BodyShort>
-      <BodyShort size="medium">Status</BodyShort>
+      <BodyShort>Tittel</BodyShort>
+      <BodyShort>Leverandør</BodyShort>
+      <BodyShort>Enhet</BodyShort>
+      <BodyShort>Startdato</BodyShort>
+      <BodyShort>Sluttdato</BodyShort>
+      <BodyShort>Status</BodyShort>
+    </Listeheader>
+  );
+}
+
+export function ListeheaderTiltaksgjennomforinger() {
+  return (
+    <Listeheader classname={styles.listeheader_tiltaksgjennomforinger}>
+      <BodyShort>Tittel</BodyShort>
+      <BodyShort>Tiltaksnr.</BodyShort>
+      <BodyShort>Arrangør</BodyShort>
+      <BodyShort>Tiltakstype</BodyShort>
+      <BodyShort>Startdato</BodyShort>
+      <BodyShort>Sluttdato</BodyShort>
     </Listeheader>
   );
 }

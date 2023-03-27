@@ -11,11 +11,9 @@ export function TiltakstyperPage() {
     <MainContainer>
       <NavigeringHeader />
       <ContainerLayout>
-        <div className={styles.header_wrapper}>
-          <Heading level="2" size="large">
-            Oversikt over tiltakstyper
-          </Heading>
-        </div>
+        <Heading level="2" size="large" className={styles.header_wrapper}>
+          Oversikt over tiltakstyper
+        </Heading>
         <Tiltakstypefilter />
         <TiltakstyperOversikt />
       </ContainerLayout>

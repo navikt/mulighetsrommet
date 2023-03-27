@@ -1,7 +1,7 @@
 import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom } from "../../api/atoms";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import useTiltakstyperWithFilter from "../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../laster/Laster";
 import styles from "../listeelementer/Listeelementer.module.scss";
@@ -11,14 +11,23 @@ import { TiltakstypeRad } from "./TiltakstypeRad";
 import pageStyles from "../../pages/Page.module.scss";
 
 export function TiltakstyperOversikt() {
-  const { data, isLoading } = useTiltakstyper();
+  const { data, isLoading, isError } = useTiltakstyperWithFilter();
   const [page, setPage] = useAtom(paginationAtom);
 
-  if (isLoading) {
-    return <Laster size="xlarge" />;
+  if (!data && isLoading) {
+    return <Laster size="xlarge" tekst="Laster tiltakstyper..." />;
   }
+
   if (!data) {
-    return null;
+    return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
+  }
+
+  if (isError) {
+    return (
+      <Alert variant="error">
+        Vi hadde problemer med henting av tiltakstyper
+      </Alert>
+    );
   }
   const { data: tiltakstyper, pagination: paginering } = data;
 

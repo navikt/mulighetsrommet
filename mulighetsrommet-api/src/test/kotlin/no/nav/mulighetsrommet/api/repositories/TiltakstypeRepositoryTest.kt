@@ -8,10 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
-import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
+import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
@@ -317,7 +314,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
             tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
 
-            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll()
+            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(filter = AdminTiltaksgjennomforingFilter())
             antallGjennomforinger.first shouldBe 4
 
             val antallGjennomforingerForTiltakstype =

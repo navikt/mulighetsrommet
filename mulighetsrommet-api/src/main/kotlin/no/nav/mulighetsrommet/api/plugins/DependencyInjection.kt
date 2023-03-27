@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuser
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserToKafka
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
-import no.nav.mulighetsrommet.database.FlywayDatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
@@ -83,7 +82,7 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun db(config: FlywayDatabaseConfig): Module {
+private fun db(config: FlywayDatabaseAdapter.Config): Module {
     return module(createdAtStart = true) {
         single<Database> {
             FlywayDatabaseAdapter(config, get())
@@ -232,7 +231,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { Norg2Service(get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
