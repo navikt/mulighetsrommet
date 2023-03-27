@@ -61,6 +61,11 @@ dependencies {
     val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
     implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
     implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
+    constraints {
+        implementation("net.minidev:json-smart:2.4.9") {
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
+        }
+    }
 
     val kotestVersion = "5.5.5"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")

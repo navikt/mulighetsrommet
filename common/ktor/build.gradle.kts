@@ -36,10 +36,10 @@ dependencies {
     constraints {
         val logbackVerison = "1.4.6"
         implementation("ch.qos.logback:logback-core:$logbackVerison") {
-            because("logback-syslog4j drar med seg en eldre versjon med sikkerhetshull")
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
         implementation("ch.qos.logback:logback-classic:$logbackVerison") {
-            because("logback-syslog4j drar med seg en eldre versjon med sikkerhetshull")
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
 

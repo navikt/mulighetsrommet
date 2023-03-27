@@ -70,23 +70,28 @@ dependencies {
     constraints {
         val logbackVerison = "1.4.6"
         implementation("ch.qos.logback:logback-core:$logbackVerison") {
-            because("logback-syslog4j drar med seg en eldre versjon med sikkerhetshull")
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
         implementation("ch.qos.logback:logback-classic:$logbackVerison") {
-            because("logback-syslog4j drar med seg en eldre versjon med sikkerhetshull")
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
     implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
     implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
+    constraints {
+        implementation("net.minidev:json-smart:2.4.9") {
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
+        }
+    }
 
     // Tilgangskontroll
     implementation("com.github.navikt.poao-tilgang:client:2023.03.06_12.28-f645c4624641")
     constraints {
         implementation("org.yaml:snakeyaml:2.0") {
-            because("spring boot drar med seg en eldre versjon med sikkerhetshull")
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
         implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.73") {
-            because("spring boot drar med seg en eldre versjon med sikkerhetshull")
+            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
 
