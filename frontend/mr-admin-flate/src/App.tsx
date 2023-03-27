@@ -10,8 +10,8 @@ import { DetaljerAvtalePage } from "./pages/avtaler/DetaljerAvtalePage";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import {TiltaksgjennomforingerPage} from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import {DetaljerTiltaksgjennomforingerPage} from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
+import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
+import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
