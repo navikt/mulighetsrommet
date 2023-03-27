@@ -1,5 +1,4 @@
 import { UNSAFE_DatePicker, UNSAFE_useRangeDatepicker } from "@navikt/ds-react";
-import { FieldHookConfig } from "formik";
 import { useController } from "react-hook-form";
 import { inferredSchema } from "../avtaler/opprett/OpprettAvtaleContainer";
 import { formaterDato } from "../../utils/Utils";
@@ -46,7 +45,7 @@ export function DatoFelt<T>({
   name,
   label,
   ...rest
-}: { name: keyof T; label: string } & FieldHookConfig<any> & any) {
+}: { name: keyof T; label: string } & any) {
   return (
     <UNSAFE_DatePicker.Input {...rest} label={label} name={name} size="small" />
   );

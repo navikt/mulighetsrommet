@@ -52,6 +52,7 @@ function ReactHookFormContainer() {
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
+    console.log(data);
     setError(null);
     setResult(null);
     const response = await fetch("url", {
