@@ -14,7 +14,7 @@ data class AvtaleDbo(
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val avtalenummer: String,
+    val avtalenummer: String?,
     val leverandorOrganisasjonsnummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -24,4 +24,6 @@ data class AvtaleDbo(
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
     val prisbetingelser: String?,
+    val antallPlasser: Int? = null,
+    val url: String? = null
 )

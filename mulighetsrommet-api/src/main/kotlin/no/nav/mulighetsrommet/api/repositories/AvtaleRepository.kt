@@ -35,7 +35,9 @@ class AvtaleRepository(private val db: Database) {
                                enhet,
                                avtaletype,
                                avslutningsstatus,
-                               prisbetingelser)
+                               prisbetingelser,
+                               antall_plasser,
+                               url)
             values (:id::uuid,
                     :navn,
                     :tiltakstype_id::uuid,
@@ -46,7 +48,9 @@ class AvtaleRepository(private val db: Database) {
                     :enhet,
                     :avtaletype::avtaletype,
                     :avslutningsstatus::avslutningsstatus,
-                    :prisbetingelser)
+                    :prisbetingelser,
+                    :antall_plasser,
+                    :url)
             on conflict (id) do update set navn                           = excluded.navn,
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,
@@ -56,7 +60,9 @@ class AvtaleRepository(private val db: Database) {
                                            enhet                          = excluded.enhet,
                                            avtaletype                     = excluded.avtaletype,
                                            avslutningsstatus              = excluded.avslutningsstatus,
-                                           prisbetingelser                = excluded.prisbetingelser
+                                           prisbetingelser                = excluded.prisbetingelser,
+                                           antall_plasser                 = excluded.antall_plasser,
+                                           url                            = excluded.url
             returning *
         """.trimIndent()
 
@@ -186,7 +192,9 @@ class AvtaleRepository(private val db: Database) {
         "enhet" to enhet,
         "avtaletype" to avtaletype.name,
         "avslutningsstatus" to avslutningsstatus.name,
-        "prisbetingelser" to prisbetingelser
+        "prisbetingelser" to prisbetingelser,
+        "antall_plasser" to antallPlasser,
+        "url" to url
     )
 
     private fun Row.toAvtaleDbo(): AvtaleDbo {
@@ -201,7 +209,9 @@ class AvtaleRepository(private val db: Database) {
             enhet = string("enhet"),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
-            prisbetingelser = stringOrNull("prisbetingelser")
+            prisbetingelser = stringOrNull("prisbetingelser"),
+            antallPlasser = intOrNull("antall_plasser"),
+            url = stringOrNull("url")
         )
     }
 
