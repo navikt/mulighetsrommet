@@ -58,7 +58,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
-    val navCommonModules = "2023.02.08_14.02-e5f1a7a4b9e4"
+    val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
     implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
     implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
 

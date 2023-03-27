@@ -65,7 +65,7 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
 
-    val navCommonModules = "2023.02.08_14.02-e5f1a7a4b9e4"
+    val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
     implementation("com.github.navikt.common-java-modules:audit-log:$navCommonModules")
     constraints {
         val logbackVerison = "1.4.6"

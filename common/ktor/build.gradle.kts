@@ -32,7 +32,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
 
     // Audit-logging
-    implementation("com.github.navikt.common-java-modules:audit-log:2023.02.08_14.02-e5f1a7a4b9e4")
+    implementation("com.github.navikt.common-java-modules:audit-log:3.2023.03.22_12.48-00fcbdc8f455")
     constraints {
         val logbackVerison = "1.4.6"
         implementation("ch.qos.logback:logback-core:$logbackVerison") {
