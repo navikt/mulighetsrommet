@@ -1,4 +1,4 @@
-import { Button, Select, Textarea, TextField } from "@navikt/ds-react";
+import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ReactNode, useState } from "react";
 import z from "zod";
@@ -7,27 +7,28 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { Laster } from "../../laster/Laster";
 import { capitalize } from "../../../utils/Utils";
+import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
   tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
   avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
   leverandor: z.string().min(1, "Du må skrive inn en leverandør for avtalen"),
-  enhet: z.string({ required_error: "Du må velge en enhet" }),
+  enhet: z.string().min(1, "Du må velge en enhet"),
   antallPlasser: z
-    .number({ invalid_type_error: "Du må skrive inn et tall" })
+    .number({
+      invalid_type_error:
+        "Du må skrive inn antall plasser for avtalen som et tall",
+    })
     .int(),
   fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
   tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
-  prisOgBetalingsbetingelser: z
+  avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
+  url: z
     .string()
-    .min(1, "Du må skrive inn pris og betalingsbetingelser"),
-  avtaleansvarlig: z.string({
-    required_error: "Du må velge en avtaleansvarlig",
-  }),
-  url: z.string().min(1, "Du må skrive inn url til avtalen i websak"),
+    .min(1, "Du må skrive inn url til avtalen i websak")
+    .url("Ugyldig format på url"),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -52,7 +53,6 @@ function ReactHookFormContainer() {
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
-    console.log(data);
     setError(null);
     setResult(null);
     const response = await fetch("url", {
@@ -67,13 +67,10 @@ function ReactHookFormContainer() {
     }
   };
   const { data: ansatt, isLoading } = useHentAnsatt();
-  if (isLoading) {
-    return <Laster size="xlarge" />;
-  }
-  if (!ansatt) {
-    return null;
-  }
-  const navn = ansatt.fornavn
+  const { data: tiltakstyper, isLoading: tiltakstyperLoading } =
+    useAlleTiltakstyper();
+
+  const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
         .map((it) => capitalize(it))
         .join(" ")
@@ -105,13 +102,26 @@ function ReactHookFormContainer() {
         </FormGroup>
         <FormGroup cols={2}>
           <Select label={"Tiltakstype"} {...register("tiltakstype")}>
-            <option value="VASV ">
-              Varig tilrettelagt arbeid i skjermet virksomhet (VTA)
-            </option>
-            <option value="ARBFORB">Arbeidsforberedende trening (AFT)</option>
+            {tiltakstyperLoading && !tiltakstyper ? (
+              <option value={""}>Laster...</option>
+            ) : (
+              tiltakstyper?.data
+                ?.filter((tiltakstype) =>
+                  ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
+                )
+                .map((tiltakstype) => (
+                  <option value={tiltakstype.id}>{tiltakstype.navn}</option>
+                ))
+            )}
           </Select>
           <Select label={"Enhet"} {...register("enhet")}>
-            <option value={ansatt.hovedenhet}>{ansatt.hovedenhetNavn}</option>
+            {isLoading && !ansatt ? (
+              <option value={""}>Laster...</option>
+            ) : (
+              <option value={ansatt?.hovedenhet}>
+                {ansatt?.hovedenhetNavn}
+              </option>
+            )}
           </Select>
           <TextField
             error={errors.antallPlasser?.message}
@@ -132,19 +142,15 @@ function ReactHookFormContainer() {
             {...register("url")}
           />
         </FormGroup>
-        <FormGroup cols={1}>
-          <Textarea
-            error={errors.prisOgBetalingsbetingelser?.message}
-            label="Pris og betalingsbetingelser"
-            size="medium"
-            {...register("prisOgBetalingsbetingelser")}
-          />
-        </FormGroup>
         <FormGroup cols={2}>
           <Select label={"Avtaleansvarlig"} {...register("avtaleansvarlig")}>
-            <option
-              value={ansatt.ident ?? "ukjent"}
-            >{`${navn} - ${ansatt.ident}`}</option>
+            {isLoading && !ansatt ? (
+              <option value={""}>Laster...</option>
+            ) : (
+              <option
+                value={ansatt?.ident ?? "ukjent"}
+              >{`${navn} - ${ansatt?.ident}`}</option>
+            )}
           </Select>
         </FormGroup>
         <div className={styles.content_right}>

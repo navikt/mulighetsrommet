@@ -1,6 +1,5 @@
-import { Button, Heading, Modal } from "@navikt/ds-react";
+import { Heading, Modal } from "@navikt/ds-react";
 import React from "react";
-import classNames from "classnames";
 import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
 
@@ -37,12 +36,7 @@ const OpprettAvtaleModal = ({
       aria-label="modal"
     >
       <Modal.Content>
-        <Heading
-          size="small"
-          level="2"
-          className={classNames(styles.heading)}
-          data-testid="modal_header"
-        >
+        <Heading size="small" level="2" data-testid="modal_header">
           Registrer ny avtale
         </Heading>
         <OpprettAvtaleContainer />
