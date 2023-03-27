@@ -9,6 +9,10 @@ import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper"
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
+import {
+  OPPRETT_AVTALE_ADMIN_FLATE,
+  useFeatureToggles,
+} from "../../api/features/feature-toggles";
 
 type Filters = "tiltakstype";
 
@@ -24,6 +28,10 @@ export function Avtalefilter(props: Props) {
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  const features = useFeatureToggles();
+  const visOpprettAvtaleknapp =
+    features.isSuccess && features.data[OPPRETT_AVTALE_ADMIN_FLATE];
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -126,11 +134,17 @@ export function Avtalefilter(props: Props) {
             <option value="status-ascending">Status A-Å</option>
             <option value="status-descending">Status Å-A</option>
           </Select>
-          <Button onClick={() => setModalOpen(true)}>Registrer avtale</Button>
-          <OpprettAvtaleModal
-            modalOpen={modalOpen}
-            onClose={() => setModalOpen(false)}
-          />
+          {visOpprettAvtaleknapp && (
+            <>
+              <Button onClick={() => setModalOpen(true)}>
+                Registrer avtale
+              </Button>
+              <OpprettAvtaleModal
+                modalOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+              />
+            </>
+          )}
         </div>
       </div>
     </>
