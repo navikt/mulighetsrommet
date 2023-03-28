@@ -916,6 +916,8 @@ components:
         - navn-descending
         - status-ascending
         - status-descending
+        - sluttdato-ascending
+        - sluttdato-descending
 
     SorteringTiltakstyper:
       type: string
