@@ -1,6 +1,6 @@
 import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import {Dispatch, ReactNode, SetStateAction, useState} from "react";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import z from "zod";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +41,10 @@ const Schema = z.object({
 
 export type inferredSchema = z.infer<typeof Schema>;
 
-export function OpprettAvtaleContainer({setError, setResult}: OpprettAvtaleContainerProps) {
+export function OpprettAvtaleContainer({
+  setError,
+  setResult,
+}: OpprettAvtaleContainerProps) {
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
   });
@@ -72,7 +75,7 @@ export function OpprettAvtaleContainer({setError, setResult}: OpprettAvtaleConta
       const response = await mulighetsrommetClient.avtaler.opprettAvtale({
         requestBody: postData,
       });
-      setResult("hei");
+      setResult(response.id);
     } catch {
       setError("Klarte ikke opprette avtale");
     }
