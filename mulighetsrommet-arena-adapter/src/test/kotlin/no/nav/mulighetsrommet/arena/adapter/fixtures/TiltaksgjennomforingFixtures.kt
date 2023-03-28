@@ -16,7 +16,7 @@ object TiltaksgjennomforingFixtures {
         STATUS_TREVERDIKODE_INNSOKNING = JaNeiStatus.Ja,
         ANTALL_DELTAKERE = 5,
         TILTAKSTATUSKODE = "GJENNOMFOR",
-        AVTALE_ID = 1000
+        AVTALE_ID = null,
     )
 
     val ArenaTiltaksgjennomforingIndividuell = ArenaTiltaksgjennomforing(
@@ -31,6 +31,6 @@ object TiltaksgjennomforingFixtures {
         STATUS_TREVERDIKODE_INNSOKNING = JaNeiStatus.Ja,
         ANTALL_DELTAKERE = 5,
         TILTAKSTATUSKODE = "GJENNOMFOR",
-        AVTALE_ID = 1000
+        AVTALE_ID = null,
     )
 }

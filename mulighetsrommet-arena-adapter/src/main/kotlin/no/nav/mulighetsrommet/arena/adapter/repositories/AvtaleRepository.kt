@@ -13,10 +13,11 @@ class AvtaleRepository(private val db: Database) {
     fun upsert(avtale: Avtale) = query {
         @Language("PostgreSQL")
         val query = """
-            insert into avtale(id, aar, lopenr, tiltakskode, leverandor_id, navn, fra_dato, til_dato, ansvarlig_enhet, rammeavtale, status, prisbetingelser)
-            values (:id::uuid, :aar, :lopenr, :tiltakskode, :leverandor_id, :navn, :fra_dato, :til_dato, :ansvarlig_enhet, :rammeavtale, :status, :prisbetingelser)
+            insert into avtale(id, avtale_id, aar, lopenr, tiltakskode, leverandor_id, navn, fra_dato, til_dato, ansvarlig_enhet, rammeavtale, status, prisbetingelser)
+            values (:id::uuid, :avtale_id, :aar, :lopenr, :tiltakskode, :leverandor_id, :navn, :fra_dato, :til_dato, :ansvarlig_enhet, :rammeavtale, :status, :prisbetingelser)
             on conflict (id)
-                do update set aar             = excluded.aar,
+                do update set avtale_id       = excluded.avtale_id,
+                              aar             = excluded.aar,
                               lopenr          = excluded.lopenr,
                               tiltakskode     = excluded.tiltakskode,
                               leverandor_id   = excluded.leverandor_id,
@@ -39,7 +40,7 @@ class AvtaleRepository(private val db: Database) {
     fun get(id: UUID): Avtale? {
         @Language("PostgreSQL")
         val query = """
-            select id, aar, lopenr, tiltakskode, leverandor_id, navn, fra_dato, til_dato, ansvarlig_enhet, rammeavtale, status, prisbetingelser
+            select id, avtale_id, aar, lopenr, tiltakskode, leverandor_id, navn, fra_dato, til_dato, ansvarlig_enhet, rammeavtale, status, prisbetingelser
             from avtale
             where id = ?::uuid
         """.trimIndent()
@@ -64,6 +65,7 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Avtale.toSqlParameters() = mapOf(
         "id" to id,
+        "avtale_id" to avtaleId,
         "aar" to aar,
         "lopenr" to lopenr,
         "tiltakskode" to tiltakskode,
@@ -79,6 +81,7 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Row.toAvtale() = Avtale(
         id = uuid("id"),
+        avtaleId = int("avtale_id"),
         aar = int("aar"),
         lopenr = int("lopenr"),
         tiltakskode = string("tiltakskode"),
