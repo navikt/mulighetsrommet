@@ -6,11 +6,14 @@ export const VIS_NOKKELTALL_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-vis-nokkeltall";
 export const OPPRETT_AVTALE_ADMIN_FLATE =
   "mulighetsrommet.admin-flate-opprett-avtale";
+export const REDIGER_AVTALE_ADMIN_FLATE =
+  "mulighetsrommet.admin-flate-rediger-avtale";
 
 export const ALL_TOGGLES = [
   ENABLE_ADMIN_FLATE,
   VIS_NOKKELTALL_ADMIN_FLATE,
   OPPRETT_AVTALE_ADMIN_FLATE,
+  REDIGER_AVTALE_ADMIN_FLATE,
 ] as const;
 
 export type Features = Record<(typeof ALL_TOGGLES)[number], boolean>;
@@ -19,6 +22,7 @@ export const initialFeatures: Features = {
   "mulighetsrommet.enable-admin-flate": false,
   "mulighetsrommet.admin-flate-vis-nokkeltall": false,
   "mulighetsrommet.admin-flate-opprett-avtale": false,
+  "mulighetsrommet.admin-flate-rediger-avtale": false,
 };
 
 const toggles = ALL_TOGGLES.map((element) => "feature=" + element).join("&");
