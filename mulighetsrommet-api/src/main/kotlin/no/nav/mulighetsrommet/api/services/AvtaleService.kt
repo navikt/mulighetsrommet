@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
+import no.nav.mulighetsrommet.api.repositories.AnsattAvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
@@ -17,7 +18,8 @@ class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
-    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository
+    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val ansattAvtaleRepository: AnsattAvtaleRepository
 ) {
 
     suspend fun get(id: UUID): AvtaleAdminDto? {
@@ -27,7 +29,10 @@ class AvtaleService(
     }
 
     fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleDbo> {
-        return avtaler.upsert(avtale.toDbo())
+        val avtaleDbo = avtale.toDbo()
+        val result = avtaler.upsert(avtaleDbo)
+        ansattAvtaleRepository.lagreAnsvarlig(avtaleDbo.id, avtale.ansvarlig)
+        return result
     }
 
     fun delete(id: UUID): QueryResult<Int> {

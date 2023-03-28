@@ -918,6 +918,7 @@ components:
         - avtalestatus
         - antallPlasser
         - url
+        - ansvarlig
 
     EmbeddedTiltakstype:
       type: object

@@ -61,7 +61,6 @@ function ReactHookFormContainer() {
     setResult(null);
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
-      avtaletype: Avtaletype.FORHAANDSGODKJENT,
       enhet: data.enhet,
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
@@ -69,7 +68,7 @@ function ReactHookFormContainer() {
       startDato: data.fraDato,
       tiltakstypeId: data.tiltakstype,
       url: data.url,
-      avslutningsstatus: Avslutningsstatus.IKKE_AVSLUTTET,
+      ansvarlig: data.avtaleansvarlig
     };
     try {
       const response = await mulighetsrommetClient.avtaler.opprettAvtale({
