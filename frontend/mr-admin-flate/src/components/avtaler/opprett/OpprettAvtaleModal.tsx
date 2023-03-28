@@ -4,7 +4,7 @@ import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-veileder-flate/src/constants";
-import {useNavigerTilAvtale} from "../../../hooks/useNavigerTilAvtale";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleModalProps {
   modalOpen: boolean;
@@ -26,6 +26,8 @@ const OpprettAvtaleModal = ({
   };
 
   const clickCancel = () => {
+    setError(null);
+    setResult(null);
     onClose();
     handleCancel!();
   };
@@ -81,7 +83,7 @@ const OpprettAvtaleModal = ({
           primaryButtonText="Gå til avtalen"
           primaryButtonOnClick={() => navigerTilAvtale(result)}
           secondaryButtonText="Lukk"
-          secondaryButtonOnClick={() => clickCancel()}
+          secondaryButtonOnClick={clickCancel}
         />
       )}
     </>
