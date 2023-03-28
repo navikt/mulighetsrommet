@@ -15,7 +15,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-    val navCommonModules = "2023.02.08_14.02-e5f1a7a4b9e4"
+    val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
     implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
 
