@@ -226,7 +226,7 @@ class AvtaleRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakskode")
             ),
-            avtalenummer = string("avtalenummer"),
+            avtalenummer = stringOrNull("avtalenummer"),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer")
             ),
