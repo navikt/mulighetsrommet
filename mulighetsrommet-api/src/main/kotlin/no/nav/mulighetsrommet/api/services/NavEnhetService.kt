@@ -25,7 +25,7 @@ class NavEnhetService(private val enhetRepository: EnhetRepository) {
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter)
+        return enhetRepository.getAll(filter.copy(enhetMaaHaTiltaksgjennomforing = true))
     }
 
     fun hentEnheterForAvtale(

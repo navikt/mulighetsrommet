@@ -39,7 +39,8 @@ data class EnhetFilter(
         NavEnhetStatus.UNDER_AVVIKLING,
         NavEnhetStatus.UNDER_ETABLERING
     ),
-    val tiltakstypeId: String? = null
+    val tiltakstypeId: String? = null,
+    val enhetMaaHaTiltaksgjennomforing: Boolean? = true
 )
 
 data class TiltaksgjennomforingFilter(

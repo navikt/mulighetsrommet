@@ -46,10 +46,19 @@ class EnhetRepository(private val db: Database) {
             filter.statuser to "e.status = any(:statuser)",
         )
 
+        val join = if (filter.enhetMaaHaTiltaksgjennomforing == true) {
+            """
+                join tiltaksgjennomforing tg on e.enhetsnummer = tg.enhet
+            """.trimIndent()
+        } else {
+            ""
+        }
+
         @Language("PostgreSQL")
         val query = """
             select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status
             from enhet e
+            $join
             $where
             order by e.navn asc
         """.trimIndent()
