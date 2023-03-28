@@ -1,6 +1,6 @@
 import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import { ReactNode, useState } from "react";
+import {Dispatch, ReactNode, SetStateAction, useState} from "react";
 import z from "zod";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,11 @@ import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyp
 import { mulighetsrommetClient } from "../../../api/clients";
 import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
 import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
-import { Avslutningsstatus } from "mulighetsrommet-api-client/build/models/Avslutningsstatus";
+
+interface OpprettAvtaleContainerProps {
+  setError: Dispatch<SetStateAction<string | null>>;
+  setResult: Dispatch<SetStateAction<string | null>>;
+}
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
@@ -37,11 +41,7 @@ const Schema = z.object({
 
 export type inferredSchema = z.infer<typeof Schema>;
 
-export function OpprettAvtaleContainer() {
-  return <ReactHookFormContainer />;
-}
-
-function ReactHookFormContainer() {
+export function OpprettAvtaleContainer({setError, setResult}: OpprettAvtaleContainerProps) {
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
   });
@@ -51,8 +51,6 @@ function ReactHookFormContainer() {
     watch,
     formState: { errors },
   } = form;
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
@@ -68,7 +66,7 @@ function ReactHookFormContainer() {
       startDato: data.fraDato,
       tiltakstypeId: data.tiltakstype,
       url: data.url,
-      ansvarlig: data.avtaleansvarlig
+      ansvarlig: data.avtaleansvarlig,
     };
     try {
       const response = await mulighetsrommetClient.avtaler.opprettAvtale({
