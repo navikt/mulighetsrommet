@@ -1,11 +1,11 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     application
-    jacoco
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.flywaydb.flyway")
-    id("org.jlleitschuh.gradle.ktlint")
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.shadow)
 }
 
 application {
