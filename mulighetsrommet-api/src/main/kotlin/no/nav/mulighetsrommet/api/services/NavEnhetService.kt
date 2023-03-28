@@ -24,10 +24,14 @@ class NavEnhetService(private val enhetRepository: EnhetRepository) {
         cacheMetrics.addCache("enhetCache", cache)
     }
 
-    fun hentEnheter(
+    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
+        return enhetRepository.getAll(filter)
+    }
+
+    fun hentEnheterForAvtale(
         filter: EnhetFilter
     ): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter)
+        return enhetRepository.getAllEnheterWithAvtale(filter)
     }
 
     fun hentEnhet(enhet: String): NavEnhetDbo? {

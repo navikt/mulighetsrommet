@@ -34,7 +34,7 @@ data class AdminTiltaksgjennomforingFilter(
 )
 
 data class EnhetFilter(
-    val statuser: List<NavEnhetStatus> = listOf(
+    val statuser: List<NavEnhetStatus>? = listOf(
         NavEnhetStatus.AKTIV,
         NavEnhetStatus.UNDER_AVVIKLING,
         NavEnhetStatus.UNDER_ETABLERING
@@ -94,7 +94,8 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]
-    return EnhetFilter(tiltakstypeId = tiltakstypeId)
+    val statuser = call.parameters.getAll("statuser")?.map { NavEnhetStatus.valueOf(it) } ?: null
+    return EnhetFilter(tiltakstypeId = tiltakstypeId, statuser = statuser)
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): TiltaksgjennomforingFilter {
