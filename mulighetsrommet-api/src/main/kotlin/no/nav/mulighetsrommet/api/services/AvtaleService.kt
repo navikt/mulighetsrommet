@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
@@ -25,8 +26,8 @@ class AvtaleService(
             ?.hentVirksomhetsnavnForAvtale()
     }
 
-    fun upsert(avtale: AvtaleDbo): QueryResult<AvtaleDbo> {
-        return avtaler.upsert(avtale)
+    fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleDbo> {
+        return avtaler.upsert(avtale.toDbo())
     }
 
     fun delete(id: UUID): QueryResult<Int> {

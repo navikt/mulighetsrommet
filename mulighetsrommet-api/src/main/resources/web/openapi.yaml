@@ -901,13 +901,11 @@ components:
           format: date
         enhet:
           type: string
-        avtaletype:
-          $ref: "#/components/schemas/Avtaletype"
-        avslutningsstatus:
-          $ref: "#/components/schemas/Avslutningsstatus"
         antallPlasser:
           type: number
         url:
+          type: string
+        ansvarlig:
           type: string
       required:
         - id
@@ -917,11 +915,9 @@ components:
         - startDato
         - sluttDato
         - enhet
-        - avtaletype
         - avtalestatus
         - antallPlasser
         - url
-        - avslutningsstatus
 
     EmbeddedTiltakstype:
       type: object

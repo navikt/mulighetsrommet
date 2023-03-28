@@ -6,12 +6,19 @@ import io.ktor.server.engine.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
+import java.util.*
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
@@ -52,8 +59,8 @@ fun Route.avtaleRoutes() {
             call.respond(nokkeltall)
         }
 
-        put() {
-            val dbo = call.receive<AvtaleDbo>()
+        put {
+            val dbo = call.receive<AvtaleRequest>()
 
             avtaler.upsert(dbo)
                 .map { call.respond(it) }
@@ -76,5 +83,37 @@ fun Route.avtaleRoutes() {
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette avtale")
                 }
         }
+    }
+}
+
+@Serializable
+data class AvtaleRequest(
+    val navn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
+    val leverandorOrganisasjonsnummer: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate,
+    val enhet: String,
+    val antallPlasser: Int,
+    val url: String,
+    val ansvarlig: String
+) {
+    fun toDbo(): AvtaleDbo {
+        return AvtaleDbo(
+            id = UUID.randomUUID(),
+            navn = navn,
+            tiltakstypeId = tiltakstypeId,
+            leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            enhet = enhet,
+            avtaletype = Avtaletype.Forhaandsgodkjent,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            antallPlasser = antallPlasser,
+            url = url
+        )
     }
 }
