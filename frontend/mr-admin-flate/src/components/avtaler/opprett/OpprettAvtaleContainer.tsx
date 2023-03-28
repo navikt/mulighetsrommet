@@ -2,13 +2,17 @@ import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ReactNode, useState } from "react";
 import z from "zod";
-import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { capitalize } from "../../../utils/Utils";
 import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
+import { mulighetsrommetClient } from "../../../api/clients";
+import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
+import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
+import { Avslutningsstatus } from "mulighetsrommet-api-client/build/models/Avslutningsstatus";
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
@@ -55,15 +59,25 @@ function ReactHookFormContainer() {
   ): Promise<void> => {
     setError(null);
     setResult(null);
-    const response = await fetch("url", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-
-    if (response.ok) {
-      setResult((await response.json()).message);
-    } else {
-      setError((await response.json()).message);
+    const postData: AvtaleRequest = {
+      antallPlasser: data.antallPlasser,
+      avtaletype: Avtaletype.FORHAANDSGODKJENT,
+      enhet: data.enhet,
+      leverandorOrganisasjonsnummer: data.leverandor,
+      navn: data.avtalenavn,
+      sluttDato: data.tilDato,
+      startDato: data.fraDato,
+      tiltakstypeId: data.tiltakstype,
+      url: data.url,
+      avslutningsstatus: Avslutningsstatus.IKKE_AVSLUTTET,
+    };
+    try {
+      const response = await mulighetsrommetClient.avtaler.opprettAvtale({
+        requestBody: postData,
+      });
+      setResult("hei");
+    } catch {
+      setError("Klarte ikke opprette avtale");
     }
   };
   const { data: ansatt, isLoading } = useHentAnsatt();

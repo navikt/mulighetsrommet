@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -45,6 +45,23 @@ paths:
                 $ref: "#/components/schemas/Avtale"
         404:
           description: "The specified avtale was not found."
+          content:
+            application/json:
+              schema:
+                type: string
+    delete:
+      tags:
+        - Avtaler
+      operationId: deleteAvtale
+      responses:
+        200:
+          description: "The specified avtale was deleted."
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: "Mangler eller ugyldig id."
           content:
             application/json:
               schema:
@@ -118,6 +135,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertAvtale"
+    put:
+      tags:
+        - Avtaler
+      operationId: opprettAvtale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtaleRequest"
+      responses:
+        200:
+          description: Avtale response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Avtale"
+        500:
+          description: "Kunne ikke opprette avtale"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger:
     get:
@@ -403,7 +442,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -844,6 +883,46 @@ components:
         - avtalestatus
         - prisbetingelser
 
+    AvtaleRequest:
+      type: object
+      properties:
+        tiltakstypeId:
+          type: string
+          format: UUID
+        navn:
+          type: string
+        leverandorOrganisasjonsnummer:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+        avslutningsstatus:
+          $ref: "#/components/schemas/Avslutningsstatus"
+        antallPlasser:
+          type: number
+        url:
+          type: string
+      required:
+        - id
+        - tiltakstypeId
+        - navn
+        - leverandorOrganisasjonsnummer
+        - startDato
+        - sluttDato
+        - enhet
+        - avtaletype
+        - avtalestatus
+        - antallPlasser
+        - url
+        - avslutningsstatus
+
     EmbeddedTiltakstype:
       type: object
       properties:
@@ -864,7 +943,7 @@ components:
       enum:
         - Avtale
         - Rammeavtale
-        - Foraandsgodkjent
+        - Forhaandsgodkjent
 
     Avtalestatus:
       type: string
@@ -873,6 +952,14 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
+
+    Avslutningsstatus:
+      type: string
+      enum:
+        - IKKE_AVSLUTTET
+        - AKTIV
+        - AVSLUTTET
+        - AVBRUTT
 
     SorteringAvtaler:
       type: string

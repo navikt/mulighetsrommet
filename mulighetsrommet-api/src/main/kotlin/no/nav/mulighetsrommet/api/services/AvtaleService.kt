@@ -7,6 +7,8 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import java.util.*
 
@@ -21,6 +23,14 @@ class AvtaleService(
         return avtaler.get(id)
             ?.hentEnhetsnavnForAvtale()
             ?.hentVirksomhetsnavnForAvtale()
+    }
+
+    fun upsert(avtale: AvtaleDbo): QueryResult<AvtaleDbo> {
+        return avtaler.upsert(avtale)
+    }
+
+    fun delete(id: UUID): QueryResult<Int> {
+        return avtaler.delete(id)
     }
 
     suspend fun getAll(

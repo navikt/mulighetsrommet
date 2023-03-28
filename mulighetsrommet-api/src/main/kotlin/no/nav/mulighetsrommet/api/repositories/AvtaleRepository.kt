@@ -202,7 +202,7 @@ class AvtaleRepository(private val db: Database) {
             id = uuid("id"),
             navn = string("navn"),
             tiltakstypeId = uuid("tiltakstype_id"),
-            avtalenummer = string("avtalenummer"),
+            avtalenummer = stringOrNull("avtalenummer"),
             leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
             startDato = localDate("start_dato"),
             sluttDato = localDate("slutt_dato"),

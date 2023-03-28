@@ -10,11 +10,11 @@ import java.util.*
 @Serializable
 data class AvtaleDbo(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val avtalenummer: String?,
+    val avtalenummer: String? = null,
     val leverandorOrganisasjonsnummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -23,7 +23,7 @@ data class AvtaleDbo(
     val enhet: String,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
-    val prisbetingelser: String?,
+    val prisbetingelser: String? = null,
     val antallPlasser: Int? = null,
     val url: String? = null
 )

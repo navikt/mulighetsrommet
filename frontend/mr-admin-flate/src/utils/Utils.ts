@@ -22,7 +22,7 @@ export function capitalizeEveryWord(
 export function formaterDato(dato?: string | Date, fallback = ""): string {
   if (!dato) return fallback;
 
-  const result = new Date(dato).toLocaleString("no-NO", {
+  const result = new Date(dato).toLocaleString("sv-SE", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

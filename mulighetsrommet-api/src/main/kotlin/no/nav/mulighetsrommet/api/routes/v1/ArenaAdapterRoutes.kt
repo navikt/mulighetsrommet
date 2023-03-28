@@ -154,7 +154,7 @@ fun Route.arenaAdapterRoutes() {
     }
 }
 
-private fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: PSQLException) {
+fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: PSQLException) {
     logger.debug(
         "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()}",
         error
