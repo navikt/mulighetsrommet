@@ -1,7 +1,10 @@
+.container {
+  width: 40rem;
+}
+
 .detaljer {
   background: white;
   padding: 1rem;
-  width: 40rem;
   display: flex;
   flex-direction: column;
 
@@ -14,4 +17,10 @@
     grid-template-columns: repeat(auto-fit, 50%);
     grid-row-gap: 2rem;
   }
+}
+
+.knapperad {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
 }
