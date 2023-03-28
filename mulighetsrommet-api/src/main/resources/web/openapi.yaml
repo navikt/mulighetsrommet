@@ -985,14 +985,6 @@ components:
         - Avsluttet
         - Avbrutt
 
-    Avslutningsstatus:
-      type: string
-      enum:
-        - IKKE_AVSLUTTET
-        - AKTIV
-        - AVSLUTTET
-        - AVBRUTT
-
     SorteringAvtaler:
       type: string
       enum:
