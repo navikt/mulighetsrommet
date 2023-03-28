@@ -1,4 +1,4 @@
-import { Heading, Loader, Modal } from "@navikt/ds-react";
+import { Heading, Modal } from "@navikt/ds-react";
 import React, { useState } from "react";
 import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
@@ -7,6 +7,7 @@ import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { Laster } from "../../laster/Laster";
 
 interface OpprettAvtaleModalProps {
   modalOpen: boolean;
@@ -41,13 +42,6 @@ const OpprettAvtaleModal = ({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
 
-  if (isLoadingAnsatt || isLoadingTiltakstyper) {
-    return <Loader />;
-  }
-  if (!tiltakstyper?.data || !ansatt) {
-    return null;
-  }
-
   return (
     <>
       {!error && !result && (
@@ -63,14 +57,17 @@ const OpprettAvtaleModal = ({
             <Heading size="small" level="2" data-testid="modal_header">
               Registrer ny avtale
             </Heading>
-            <OpprettAvtaleContainer
-              tiltakstyper={tiltakstyper?.data?.filter((tiltakstype) =>
-                ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
-              )}
-              ansatt={ansatt}
-              setError={setError}
-              setResult={setResult}
-            />
+            {isLoadingAnsatt || isLoadingTiltakstyper ? <Laster /> : null}
+            {!tiltakstyper?.data || !ansatt ? null : (
+              <OpprettAvtaleContainer
+                tiltakstyper={tiltakstyper?.data?.filter((tiltakstype) =>
+                  ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
+                )}
+                ansatt={ansatt}
+                setError={setError}
+                setResult={setResult}
+              />
+            )}
           </Modal.Content>
         </Modal>
       )}

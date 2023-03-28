@@ -6,7 +6,7 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { capitalize } from "../../../utils/Utils";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { mulighetsrommetClient } from "../../../api/clients";
 import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
 import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
@@ -26,7 +26,8 @@ const Schema = z.object({
   avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
   leverandor: z
     .string()
-    .min(1, "Du må skrive inn en leverandør for avtalen")
+    .min(9, "Organisasjonsnummer må være 9 siffer")
+    .max(9, "Organisasjonsnummer må være 9 siffer")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
   enhet: z.string().min(1, "Du må velge en enhet"),
   antallPlasser: z
@@ -35,8 +36,8 @@ const Schema = z.object({
         "Du må skrive inn antall plasser for avtalen som et tall",
     })
     .int(),
-  fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
-  tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
+  fraDato: z.date({ required_error: "En avtale må ha en startdato" }),
+  tilDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
   avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
   url: z
     .string()
@@ -63,7 +64,6 @@ export function OpprettAvtaleContainer({
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = form;
 
@@ -73,13 +73,15 @@ export function OpprettAvtaleContainer({
     setError(null);
     setResult(null);
 
+    console.log(formaterDatoSomYYYYMMDD(data.fraDato));
+    console.log();
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
       enhet: data.enhet,
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
-      sluttDato: data.tilDato,
-      startDato: data.fraDato,
+      sluttDato: formaterDatoSomYYYYMMDD(data.tilDato),
+      startDato: formaterDatoSomYYYYMMDD(data.fraDato),
       tiltakstypeId: data.tiltakstype,
       url: data.url,
       ansvarlig: data.avtaleansvarlig,
@@ -134,7 +136,11 @@ export function OpprettAvtaleContainer({
             ))}
           </Select>
 
-          <Select label={"Enhet"} {...register("enhet")}>
+          <Select
+            error={errors.enhet?.message}
+            label={"Enhet"}
+            {...register("enhet")}
+          >
             <option value={ansatt?.hovedenhet}>{ansatt?.hovedenhetNavn}</option>
           </Select>
           <TextField
@@ -147,7 +153,11 @@ export function OpprettAvtaleContainer({
             label="Leverandør"
             {...register("leverandor")}
           />
-          <Select label={"Avtaletype"} {...register("avtaletype")}>
+          <Select
+            error={errors.avtaletype?.message}
+            label={"Avtaletype"}
+            {...register("avtaletype")}
+          >
             <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
           </Select>
           <TextField
@@ -157,9 +167,13 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup cols={2}>
-          <Select label={"Avtaleansvarlig"} {...register("avtaleansvarlig")}>
+          <Select
+            error={errors.avtaleansvarlig?.message}
+            label={"Avtaleansvarlig"}
+            {...register("avtaleansvarlig")}
+          >
             <option
-              value={ansatt?.ident ?? "ukjent"}
+              value={ansatt.ident ?? ""}
             >{`${navn} - ${ansatt?.ident}`}</option>
           </Select>
         </FormGroup>

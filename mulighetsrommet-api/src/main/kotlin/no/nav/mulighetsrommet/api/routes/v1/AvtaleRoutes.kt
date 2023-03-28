@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -60,9 +59,9 @@ fun Route.avtaleRoutes() {
         }
 
         put {
-            val dbo = call.receive<AvtaleRequest>()
+            val avtaleRequest = call.receive<AvtaleRequest>()
 
-            avtaler.upsert(dbo)
+            avtaler.upsert(avtaleRequest)
                 .map { call.respond(it) }
                 .mapLeft {
                     logError(logger, it.error)

@@ -22,7 +22,7 @@ export function capitalizeEveryWord(
 export function formaterDato(dato?: string | Date, fallback = ""): string {
   if (!dato) return fallback;
 
-  const result = new Date(dato).toLocaleString("sv-SE", {
+  const result = new Date(dato).toLocaleString("no-NO", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -33,6 +33,21 @@ export function formaterDato(dato?: string | Date, fallback = ""): string {
   }
 
   return result;
+}
+
+export function formaterDatoSomYYYYMMDD(dato?: Date, fallback = ""): string {
+  if (!dato) return fallback;
+  const year = dato.getFullYear();
+  const month = (dato.getMonth() + 1).toString();
+  const day = dato.getDate().toString();
+  return (
+    year +
+    "-" +
+    (month[1] ? month : "0" + month[0]) +
+    "-" +
+    (day[1] ? day : "0" + day[0])
+  );
+  // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
 }
 
 export function formaterTall(tall: number) {
