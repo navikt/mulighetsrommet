@@ -24,7 +24,10 @@ const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
   tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
   avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
-  leverandor: z.string().min(1, "Du må skrive inn en leverandør for avtalen"),
+  leverandor: z
+    .string()
+    .min(1, "Du må skrive inn en leverandør for avtalen")
+    .regex(/^\d+$/, "Leverandør må være et nummer"),
   enhet: z.string().min(1, "Du må velge en enhet"),
   antallPlasser: z
     .number({
