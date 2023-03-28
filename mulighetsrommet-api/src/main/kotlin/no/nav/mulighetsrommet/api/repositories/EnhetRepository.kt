@@ -36,9 +36,44 @@ class EnhetRepository(private val db: Database) {
     }
 
     fun getAll(filter: EnhetFilter): List<NavEnhetDbo> {
-        logger.info("Henter enheter med status: ${filter.statuser.joinToString(", ")}")
+        val statuser = filter.statuser ?: emptyList()
+        logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
         val parameters = mapOf(
-            "statuser" to db.createTextArray(filter.statuser.map { it.name }),
+            "statuser" to db.createTextArray(statuser.map { it.name }),
+        )
+
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            filter.statuser to "e.status = any(:statuser)",
+        )
+
+        val join = if (filter.enhetMaaHaTiltaksgjennomforing == true) {
+            """
+                join tiltaksgjennomforing tg on e.enhetsnummer = tg.enhet
+            """.trimIndent()
+        } else {
+            ""
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status
+            from enhet e
+            $join
+            $where
+            order by e.navn asc
+        """.trimIndent()
+
+        return queryOf(query, parameters)
+            .map { it.toEnhetDbo() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getAllEnheterWithAvtale(filter: EnhetFilter): List<NavEnhetDbo> {
+        val statuser = filter.statuser ?: emptyList()
+        logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
+        val parameters = mapOf(
+            "statuser" to db.createTextArray(statuser.map { it.name }),
             "tiltakstypeId" to filter.tiltakstypeId
         )
 

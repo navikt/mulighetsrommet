@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 
 class SakEventProcessorTest : FunSpec({
@@ -27,43 +26,42 @@ class SakEventProcessorTest : FunSpec({
         database.db.clean()
     }
 
-    context("when sakskode is not TILT") {
-        test("should ignore events") {
-            val consumer = createConsumer(database.db)
-            val event = createArenaSakEvent(Insert, SakFixtures.ArenaIkkeTiltakSak)
+    context("handleEvent") {
+        val entities = ArenaEntityService(
+            mappings = ArenaEntityMappingRepository(database.db),
+            tiltakstyper = TiltakstypeRepository(database.db),
+            saker = SakRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            deltakere = DeltakerRepository(database.db),
+            avtaler = AvtaleRepository(database.db),
+        )
 
-            consumer.handleEvent(event).shouldBeRight().should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
+        context("when sakskode is not TILT") {
+            test("should ignore events") {
+                val processor = SakEventProcessor(entities)
+                val event = createArenaSakEvent(Insert, SakFixtures.ArenaIkkeTiltakSak)
+
+                processor.handleEvent(event).shouldBeRight()
+                    .should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
+            }
         }
-    }
 
-    context("when sakskode is TILT") {
-        test("should treat all operations as upserts") {
-            val consumer = createConsumer(database.db)
+        context("when sakskode is TILT") {
+            test("should treat all operations as upserts") {
+                val processor = SakEventProcessor(entities)
 
-            val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
-            consumer.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
-            database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
+                val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
+                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
 
-            val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
-            consumer.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
-            database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
+                val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
+                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
 
-            val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
-            consumer.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
-            database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
+                val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
+                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
+            }
         }
     }
 })
-
-private fun createConsumer(db: Database): SakEventProcessor {
-    val entities = ArenaEntityService(
-        mappings = ArenaEntityMappingRepository(db),
-        tiltakstyper = TiltakstypeRepository(db),
-        saker = SakRepository(db),
-        tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-        deltakere = DeltakerRepository(db),
-        avtaler = AvtaleRepository(db),
-    )
-
-    return SakEventProcessor(entities)
-}

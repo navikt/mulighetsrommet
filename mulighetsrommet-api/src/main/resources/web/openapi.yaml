@@ -704,13 +704,48 @@ paths:
     get:
       tags:
         - Hent enheter
-      operationId: hentEnheter
+      operationId: hentAlleEnheter
       parameters:
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhetStatus"
+          description: Hvilke status skal enheten ha
         - in: query
           name: tiltakstypeId
           schema:
             type: string
-          description: ID for tiltakstypen knyttet til avtaler med enheter
+          description: ID for tiltakstype knyttet til avtaler
+      responses:
+        200:
+          description: Alle enheter filterert på filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavEnhet"
+
+  /api/v1/internal/enheter/avtaler:
+    get:
+      tags:
+        - Hent enheter
+      operationId: hentEnheterMedAvtale
+      parameters:
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhetStatus"
+          description: Hvilke status skal enheten ha
+        - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: ID for tiltakstype knyttet til avtaler
       responses:
         200:
           description: "Enheter knyttet til avtaler"
@@ -1209,12 +1244,7 @@ components:
         navn:
           type: string
         status:
-          type: string
-          enum:
-            - UNDER_ETABLERING
-            - AKTIV
-            - UNDER_AVVIKLING
-            - NEDLAGT
+          $ref: "#/components/schemas/NavEnhetStatus"
 
     Leverandor:
       type: object
@@ -1459,3 +1489,11 @@ components:
           type: number
       required:
         - antallDeltakere
+
+    NavEnhetStatus:
+      type: string
+      enum:
+        - UNDER_ETABLERING
+        - AKTIV
+        - UNDER_AVVIKLING
+        - NEDLAGT

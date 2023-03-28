@@ -59,23 +59,11 @@ class TiltakgjennomforingEventProcessor(
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
-        val avtaleId = if (data.AVTALE_ID != null) {
-            val mappingForAvtale = entities.getMapping(ArenaTable.AvtaleInfo, data.AVTALE_ID.toString()).bind()
-
-            if (mappingForAvtale.status == ArenaEntityMapping.Status.Handled) {
-                data.AVTALE_ID
-            } else {
-                null
-            }
-        } else {
-            null
-        }
-
+        val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        val tiltaksgjennomforing =
-            data.toTiltaksgjennomforing(mapping.entityId, avtaleId)
-                .flatMap { entities.upsertTiltaksgjennomforing(it) }
-                .bind()
+        val tiltaksgjennomforing = data.toTiltaksgjennomforing(mapping.entityId, avtaleId)
+            .flatMap { entities.upsertTiltaksgjennomforing(it) }
+            .bind()
 
         if (isGruppetiltak) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
@@ -89,6 +77,17 @@ class TiltakgjennomforingEventProcessor(
         client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }.bind()
+    }
+
+    private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
+        return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
+            .flatMap { mapping ->
+                when (mapping.status) {
+                    ArenaEntityMapping.Status.Handled -> avtaleId.right()
+                    ArenaEntityMapping.Status.Ignored -> null.right()
+                    else -> ProcessingError.MissingDependency("Avtale har enda ikke blitt prosessert").left()
+                }
+            }
     }
 
     private suspend fun upsertTiltaksgjennomforing(
