@@ -67,7 +67,6 @@ export function OpprettAvtaleContainer({
     formState: { errors },
   } = form;
 
-  console.log(watch("tiltakstype"));
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
