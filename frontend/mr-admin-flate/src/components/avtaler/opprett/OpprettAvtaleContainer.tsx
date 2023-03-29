@@ -73,8 +73,6 @@ export function OpprettAvtaleContainer({
     setError(null);
     setResult(null);
 
-    console.log(formaterDatoSomYYYYMMDD(data.fraDato));
-    console.log();
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
       enhet: data.enhet,
@@ -158,7 +156,7 @@ export function OpprettAvtaleContainer({
             label={"Avtaletype"}
             {...register("avtaletype")}
           >
-            <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
+            <option value="forhaandsgodkjent">Forhåndsgodkjent avtale</option>
           </Select>
           <TextField
             error={errors.url?.message}

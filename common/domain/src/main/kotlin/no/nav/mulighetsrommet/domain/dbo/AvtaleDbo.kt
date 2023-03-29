@@ -23,7 +23,13 @@ data class AvtaleDbo(
     val enhet: String,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
+    val opphav: Opphav,
     val prisbetingelser: String? = null,
     val antallPlasser: Int? = null,
     val url: String? = null
-)
+) {
+    enum class Opphav {
+        ARENA,
+        MULIGHETSROMMET,
+    }
+}

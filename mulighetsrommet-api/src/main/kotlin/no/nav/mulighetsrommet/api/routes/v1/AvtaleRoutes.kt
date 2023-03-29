@@ -112,7 +112,8 @@ data class AvtaleRequest(
             avtaletype = Avtaletype.Forhaandsgodkjent,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             antallPlasser = antallPlasser,
-            url = url
+            url = url,
+            opphav = AvtaleDbo.Opphav.MULIGHETSROMMET
         )
     }
 }

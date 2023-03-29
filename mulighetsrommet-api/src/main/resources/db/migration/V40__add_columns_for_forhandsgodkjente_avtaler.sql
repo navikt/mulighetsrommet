@@ -1,7 +1,10 @@
+create type avtaleopphav as enum ('ARENA', 'MULIGHETSROMMET');
+
 alter table avtale
     alter column avtalenummer drop not null,
+    add column opphav         avtaleopphav not null default 'ARENA',
     add column antall_plasser int,
-    add column url text;
+    add column url            text;
 
 create table ansatt_avtale
 (

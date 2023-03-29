@@ -128,6 +128,7 @@ class AvtaleInfoEventProcessor(
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
+            opphav = AvtaleDbo.Opphav.ARENA
         )
     }
 }

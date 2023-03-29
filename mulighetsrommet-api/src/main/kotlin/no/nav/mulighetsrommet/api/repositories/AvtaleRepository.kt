@@ -37,7 +37,8 @@ class AvtaleRepository(private val db: Database) {
                                avslutningsstatus,
                                prisbetingelser,
                                antall_plasser,
-                               url)
+                               url,
+                               opphav)
             values (:id::uuid,
                     :navn,
                     :tiltakstype_id::uuid,
@@ -50,7 +51,8 @@ class AvtaleRepository(private val db: Database) {
                     :avslutningsstatus::avslutningsstatus,
                     :prisbetingelser,
                     :antall_plasser,
-                    :url)
+                    :url,
+                    :opphav::avtaleopphav)
             on conflict (id) do update set navn                           = excluded.navn,
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,
@@ -62,7 +64,8 @@ class AvtaleRepository(private val db: Database) {
                                            avslutningsstatus              = excluded.avslutningsstatus,
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
-                                           url                            = excluded.url
+                                           url                            = excluded.url,
+                                           opphav                         = excluded.opphav
             returning *
         """.trimIndent()
 
@@ -194,7 +197,8 @@ class AvtaleRepository(private val db: Database) {
         "avslutningsstatus" to avslutningsstatus.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
-        "url" to url
+        "url" to url,
+        "opphav" to opphav.name
     )
 
     private fun Row.toAvtaleDbo(): AvtaleDbo {
@@ -211,7 +215,8 @@ class AvtaleRepository(private val db: Database) {
             avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
-            url = stringOrNull("url")
+            url = stringOrNull("url"),
+            opphav = AvtaleDbo.Opphav.valueOf(string("opphav"))
         )
     }
 
