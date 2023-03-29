@@ -79,6 +79,8 @@ export const oversettStatusForTiltaksgjennomforing = (
       return "Avlyst";
     case TiltaksgjennomforingStatus.AVSLUTTET:
       return "Avsluttet";
+    case TiltaksgjennomforingStatus.APENT_FOR_INNSOK:
+      return "Åpent for innsøk";
     default:
       return "";
   }
