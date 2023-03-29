@@ -185,6 +185,11 @@ paths:
             type: string
           descrition: Id for tiltakstype knyttet til tiltaksgjennomføringer
         - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          descrition: Status for tiltaksgjennomføring
+        - in: query
           name: size
           schema:
             type: number
@@ -1022,7 +1027,7 @@ components:
         virksomhetsnavn:
           type: string
         status:
-          type: string
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:
           type: string
           format: date
@@ -1037,6 +1042,14 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
+
+    TiltaksgjennomforingStatus:
+      type: string
+      enum:
+        - AVLYST
+        - AVBRUTT
+        - AVSLUTTET
+        - IKKE_AVSLUTTET
 
     Bruker:
       type: object
@@ -1106,6 +1119,7 @@ components:
         - Aktiv
         - Planlagt
         - Avsluttet
+
 
     Tiltakstypekategori:
       type: string

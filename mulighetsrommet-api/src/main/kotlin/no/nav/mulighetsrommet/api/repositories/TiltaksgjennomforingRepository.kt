@@ -86,6 +86,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "search" to "%${filter.search}%",
             "enhet" to filter.enhet,
             "tiltakstypeId" to filter.tiltakstypeId,
+            "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
         )
@@ -93,7 +94,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "(lower(tg.navn) like lower(:search))",
             filter.enhet to "lower(tg.enhet) = lower(:enhet)",
-            filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId"
+            filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
+            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])"
         )
 
         val order = when (filter.sortering) {
