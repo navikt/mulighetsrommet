@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.utils.toUUID
@@ -30,6 +31,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = "",
     val enhet: String? = null,
     val tiltakstypeId: UUID? = null,
+    val statuser: List<Avslutningsstatus>? = null,
     val sortering: String? = null,
 )
 
@@ -84,11 +86,13 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val search = call.request.queryParameters["search"]
     val enhet = call.request.queryParameters["enhet"]
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
+    val statuser = call.parameters.getAll("status")?.map { Avslutningsstatus.valueOf(it) } ?: null
     val sortering = call.request.queryParameters["sort"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
         enhet = enhet,
         tiltakstypeId = tiltakstypeId,
+        statuser = statuser,
         sortering = sortering
     )
 }

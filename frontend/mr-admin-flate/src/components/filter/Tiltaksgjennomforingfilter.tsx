@@ -2,6 +2,7 @@ import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   SorteringTiltaksgjennomforinger,
+  TiltaksgjennomforingStatus,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
@@ -72,6 +73,30 @@ export function Tiltaksgjennomforingfilter() {
               {tiltakstype.navn}
             </option>
           ))}
+        </Select>
+        <Select
+          label="Filtrer på status"
+          hideLabel
+          size="small"
+          value={sokefilter.status}
+          data-testid="filter_tiltaksgjennomforing_status"
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            resetPaginering(setPage);
+            setSokefilter({
+              ...sokefilter,
+              status: e.currentTarget.value as TiltaksgjennomforingStatus,
+            });
+          }}
+        >
+          <option value={TiltaksgjennomforingStatus.IKKE_AVSLUTTET}>
+            Aktiv
+          </option>
+          <option value={TiltaksgjennomforingStatus.AVSLUTTET}>
+            Avsluttet
+          </option>
+          <option value={TiltaksgjennomforingStatus.AVBRUTT}>Avbrutt</option>
+          <option value={TiltaksgjennomforingStatus.AVLYST}>Avlyst</option>
+          <option value="">Alle statuser</option>
         </Select>
       </div>
       <div>
