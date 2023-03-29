@@ -296,6 +296,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       enhet: "1190",
+      status: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
     },
   ],
 };
