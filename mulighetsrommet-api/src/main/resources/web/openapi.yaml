@@ -148,8 +148,8 @@ paths:
         - in: query
           name: status
           schema:
-            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
-          descrition: Status for tiltaksgjennomføring
+            $ref: "#/components/schemas/TiltaksgjennomforingAvslutningsstatus"
+          descrition: Avslutningsstatus for tiltaksgjennomføring
         - in: query
           name: size
           schema:
@@ -967,13 +967,22 @@ components:
         - tiltaksnummer
         - virksomhetsnummer
 
-    TiltaksgjennomforingStatus:
+    TiltaksgjennomforingAvslutningsstatus:
       type: string
       enum:
         - AVLYST
         - AVBRUTT
         - AVSLUTTET
         - IKKE_AVSLUTTET
+
+    TiltaksgjennomforingStatus:
+      type: string
+      enum:
+        - GJENNOMFORES
+        - AVBRUTT
+        - AVLYST
+        - AVSLUTTET
+        - APENT_FOR_INNSOK
 
     Bruker:
       type: object

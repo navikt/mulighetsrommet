@@ -27,10 +27,14 @@ export function TiltaksgjennomforingInfo() {
   const tiltaksgjennomforing = data;
   return (
     <div className={styles.detaljer}>
-      <dl>
+      <dl className={styles.bolk}>
         <Metadata
           header="Tiltakstype"
           verdi={tiltaksgjennomforing.tiltakstype.navn}
+        />
+        <Metadata
+          header="Tiltaksnummer"
+          verdi={tiltaksgjennomforing.tiltaksnummer}
         />
       </dl>
       <Separator />

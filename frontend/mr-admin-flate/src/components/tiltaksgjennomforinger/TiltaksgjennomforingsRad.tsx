@@ -3,6 +3,7 @@ import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../utils/Utils";
 import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeRad } from "../listeelementer/ListeRad";
+import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -54,6 +55,11 @@ export function TiltaksgjennomforingsRad({ tiltaksgjennomforing }: Props) {
         }
       >
         {formaterDato(tiltaksgjennomforing.sluttDato)}
+      </BodyShort>
+      <BodyShort>
+        <Tiltaksgjennomforingstatus
+          tiltaksgjennomforing={tiltaksgjennomforing}
+        />
       </BodyShort>
     </ListeRad>
   );
