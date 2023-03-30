@@ -72,7 +72,7 @@ export const oversettStatusForTiltaksgjennomforing = (
 ) => {
   switch (status) {
     case TiltaksgjennomforingStatus.GJENNOMFORES:
-      return "Aktiv";
+      return "Gjennomføres";
     case TiltaksgjennomforingStatus.AVBRUTT:
       return "Avbrutt";
     case TiltaksgjennomforingStatus.AVLYST:
