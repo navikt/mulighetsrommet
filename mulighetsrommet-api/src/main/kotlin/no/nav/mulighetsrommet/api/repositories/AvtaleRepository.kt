@@ -35,7 +35,10 @@ class AvtaleRepository(private val db: Database) {
                                enhet,
                                avtaletype,
                                avslutningsstatus,
-                               prisbetingelser)
+                               prisbetingelser,
+                               antall_plasser,
+                               url,
+                               opphav)
             values (:id::uuid,
                     :navn,
                     :tiltakstype_id::uuid,
@@ -46,7 +49,10 @@ class AvtaleRepository(private val db: Database) {
                     :enhet,
                     :avtaletype::avtaletype,
                     :avslutningsstatus::avslutningsstatus,
-                    :prisbetingelser)
+                    :prisbetingelser,
+                    :antall_plasser,
+                    :url,
+                    :opphav::avtaleopphav)
             on conflict (id) do update set navn                           = excluded.navn,
                                            tiltakstype_id                 = excluded.tiltakstype_id,
                                            avtalenummer                   = excluded.avtalenummer,
@@ -56,14 +62,48 @@ class AvtaleRepository(private val db: Database) {
                                            enhet                          = excluded.enhet,
                                            avtaletype                     = excluded.avtaletype,
                                            avslutningsstatus              = excluded.avslutningsstatus,
-                                           prisbetingelser                = excluded.prisbetingelser
+                                           prisbetingelser                = excluded.prisbetingelser,
+                                           antall_plasser                 = excluded.antall_plasser,
+                                           url                            = excluded.url,
+                                           opphav                         = excluded.opphav
             returning *
         """.trimIndent()
 
-        queryOf(query, avtale.toSqlParameters())
-            .map { it.toAvtaleDbo() }
-            .asSingle
-            .let { db.run(it)!! }
+        @Language("PostgreSQL")
+        val upsertAnsvarlig = """
+             insert into avtale_ansvarlig (avtale_id, navident)
+             values (?::uuid, ?)
+             on conflict (avtale_id, navident) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteAnsvarlige = """
+             delete from avtale_ansvarlig
+             where avtale_id = ?::uuid and not (navident = any (?))
+        """.trimIndent()
+
+        db.transaction { tx ->
+            val result = queryOf(query, avtale.toSqlParameters())
+                .map { it.toAvtaleDbo() }
+                .asSingle
+                .let { tx.run(it)!! }
+
+            avtale.ansvarlige.forEach { ansvarlig ->
+                queryOf(
+                    upsertAnsvarlig,
+                    avtale.id,
+                    ansvarlig
+                ).asExecute.let { tx.run(it) }
+            }
+
+            queryOf(
+                deleteAnsvarlige,
+                avtale.id,
+                db.createTextArray(avtale.ansvarlige)
+            ).asExecute.let { tx.run(it) }
+
+            result
+        }
     }
 
     fun get(id: UUID): AvtaleAdminDto? {
@@ -188,7 +228,10 @@ class AvtaleRepository(private val db: Database) {
         "enhet" to enhet,
         "avtaletype" to avtaletype.name,
         "avslutningsstatus" to avslutningsstatus.name,
-        "prisbetingelser" to prisbetingelser
+        "prisbetingelser" to prisbetingelser,
+        "antall_plasser" to antallPlasser,
+        "url" to url,
+        "opphav" to opphav.name
     )
 
     private fun Row.toAvtaleDbo(): AvtaleDbo {
@@ -196,14 +239,17 @@ class AvtaleRepository(private val db: Database) {
             id = uuid("id"),
             navn = string("navn"),
             tiltakstypeId = uuid("tiltakstype_id"),
-            avtalenummer = string("avtalenummer"),
+            avtalenummer = stringOrNull("avtalenummer"),
             leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
             startDato = localDate("start_dato"),
             sluttDato = localDate("slutt_dato"),
             enhet = string("enhet"),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
-            prisbetingelser = stringOrNull("prisbetingelser")
+            prisbetingelser = stringOrNull("prisbetingelser"),
+            antallPlasser = intOrNull("antall_plasser"),
+            url = stringOrNull("url"),
+            opphav = AvtaleDbo.Opphav.valueOf(string("opphav"))
         )
     }
 
@@ -218,7 +264,7 @@ class AvtaleRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakskode")
             ),
-            avtalenummer = string("avtalenummer"),
+            avtalenummer = stringOrNull("avtalenummer"),
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer")
             ),

@@ -51,6 +51,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
+        opphav = AvtaleDbo.Opphav.ARENA
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(

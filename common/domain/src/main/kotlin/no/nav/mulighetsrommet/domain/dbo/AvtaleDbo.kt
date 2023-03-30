@@ -14,7 +14,7 @@ data class AvtaleDbo(
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val avtalenummer: String,
+    val avtalenummer: String? = null,
     val leverandorOrganisasjonsnummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -23,5 +23,14 @@ data class AvtaleDbo(
     val enhet: String,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
-    val prisbetingelser: String?,
-)
+    val opphav: Opphav,
+    val prisbetingelser: String? = null,
+    val antallPlasser: Int? = null,
+    val url: String? = null,
+    val ansvarlige: List<String> = emptyList(),
+) {
+    enum class Opphav {
+        ARENA,
+        MR_ADMIN_FLATE,
+    }
+}

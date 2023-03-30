@@ -1,20 +1,34 @@
 import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import { ReactNode, useState } from "react";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import z from "zod";
-import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { capitalize } from "../../../utils/Utils";
-import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import { mulighetsrommetClient } from "../../../api/clients";
+import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
+import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
+import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
+import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
+
+interface OpprettAvtaleContainerProps {
+  setError: Dispatch<SetStateAction<string | null>>;
+  setResult: Dispatch<SetStateAction<string | null>>;
+  tiltakstyper: Tiltakstype[];
+  ansatt: Ansatt;
+}
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
-  tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
+  tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
   avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
-  leverandor: z.string().min(1, "Du må skrive inn en leverandør for avtalen"),
+  leverandor: z
+    .string()
+    .min(9, "Organisasjonsnummer må være 9 siffer")
+    .max(9, "Organisasjonsnummer må være 9 siffer")
+    .regex(/^\d+$/, "Leverandør må være et nummer"),
   enhet: z.string().min(1, "Du må velge en enhet"),
   antallPlasser: z
     .number({
@@ -22,8 +36,8 @@ const Schema = z.object({
         "Du må skrive inn antall plasser for avtalen som et tall",
     })
     .int(),
-  fraDato: z.string({ required_error: "En avtale må ha en startdato" }),
-  tilDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
+  fraDato: z.date({ required_error: "En avtale må ha en startdato" }),
+  tilDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
   avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
   url: z
     .string()
@@ -33,42 +47,53 @@ const Schema = z.object({
 
 export type inferredSchema = z.infer<typeof Schema>;
 
-export function OpprettAvtaleContainer() {
-  return <ReactHookFormContainer />;
-}
-
-function ReactHookFormContainer() {
+export function OpprettAvtaleContainer({
+  setError,
+  setResult,
+  tiltakstyper,
+  ansatt,
+}: OpprettAvtaleContainerProps) {
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
+    defaultValues: {
+      tiltakstype: tiltakstyper[0].id,
+      enhet: ansatt.hovedenhet,
+      avtaleansvarlig: ansatt.ident ?? "",
+    },
   });
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = form;
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
     setError(null);
     setResult(null);
-    const response = await fetch("url", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
 
-    if (response.ok) {
-      setResult((await response.json()).message);
-    } else {
-      setError((await response.json()).message);
+    const postData: AvtaleRequest = {
+      antallPlasser: data.antallPlasser,
+      enhet: data.enhet,
+      leverandorOrganisasjonsnummer: data.leverandor,
+      navn: data.avtalenavn,
+      sluttDato: formaterDatoSomYYYYMMDD(data.tilDato),
+      startDato: formaterDatoSomYYYYMMDD(data.fraDato),
+      tiltakstypeId: data.tiltakstype,
+      url: data.url,
+      ansvarlig: data.avtaleansvarlig,
+    };
+
+    try {
+      const response = await mulighetsrommetClient.avtaler.opprettAvtale({
+        requestBody: postData,
+      });
+      setResult(response.id);
+    } catch {
+      setError("Klarte ikke opprette avtale");
     }
   };
-  const { data: ansatt, isLoading } = useHentAnsatt();
-  const { data: tiltakstyper, isLoading: tiltakstyperLoading } =
-    useAlleTiltakstyper();
 
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
@@ -102,28 +127,19 @@ function ReactHookFormContainer() {
         </FormGroup>
         <FormGroup cols={2}>
           <Select label={"Tiltakstype"} {...register("tiltakstype")}>
-            {tiltakstyperLoading && !tiltakstyper ? (
-              <option value={""}>Laster...</option>
-            ) : (
-              tiltakstyper?.data
-                ?.filter((tiltakstype) =>
-                  ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
-                )
-                .map((tiltakstype) => (
-                  <option key={tiltakstype.id} value={tiltakstype.id}>
-                    {tiltakstype.navn}
-                  </option>
-                ))
-            )}
-          </Select>
-          <Select label={"Enhet"} {...register("enhet")}>
-            {isLoading && !ansatt ? (
-              <option value={""}>Laster...</option>
-            ) : (
-              <option value={ansatt?.hovedenhet}>
-                {ansatt?.hovedenhetNavn}
+            {tiltakstyper.map((tiltakstype) => (
+              <option key={tiltakstype.id} value={tiltakstype.id}>
+                {tiltakstype.navn}
               </option>
-            )}
+            ))}
+          </Select>
+
+          <Select
+            error={errors.enhet?.message}
+            label={"Enhet"}
+            {...register("enhet")}
+          >
+            <option value={ansatt?.hovedenhet}>{ansatt?.hovedenhetNavn}</option>
           </Select>
           <TextField
             error={errors.antallPlasser?.message}
@@ -135,8 +151,12 @@ function ReactHookFormContainer() {
             label="Leverandør"
             {...register("leverandor")}
           />
-          <Select label={"Avtaletype"} {...register("avtaletype")}>
-            <option value="forhandsgodkjent">Forhåndsgodkjent avtale</option>
+          <Select
+            error={errors.avtaletype?.message}
+            label={"Avtaletype"}
+            {...register("avtaletype")}
+          >
+            <option value="forhaandsgodkjent">Forhåndsgodkjent avtale</option>
           </Select>
           <TextField
             error={errors.url?.message}
@@ -145,14 +165,14 @@ function ReactHookFormContainer() {
           />
         </FormGroup>
         <FormGroup cols={2}>
-          <Select label={"Avtaleansvarlig"} {...register("avtaleansvarlig")}>
-            {isLoading && !ansatt ? (
-              <option value={""}>Laster...</option>
-            ) : (
-              <option
-                value={ansatt?.ident ?? "ukjent"}
-              >{`${navn} - ${ansatt?.ident}`}</option>
-            )}
+          <Select
+            error={errors.avtaleansvarlig?.message}
+            label={"Avtaleansvarlig"}
+            {...register("avtaleansvarlig")}
+          >
+            <option
+              value={ansatt.ident ?? ""}
+            >{`${navn} - ${ansatt?.ident}`}</option>
           </Select>
         </FormGroup>
         <div className={styles.content_right}>

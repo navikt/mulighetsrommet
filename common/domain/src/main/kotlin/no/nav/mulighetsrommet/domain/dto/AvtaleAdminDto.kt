@@ -12,7 +12,7 @@ data class AvtaleAdminDto(
     val id: UUID,
     val tiltakstype: Tiltakstype,
     val navn: String,
-    val avtalenummer: String,
+    val avtalenummer: String?,
     val leverandor: Leverandor,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,

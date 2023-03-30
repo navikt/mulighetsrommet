@@ -255,6 +255,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         leverandorOrganisasjonsnummer shouldBe "1000000"
                         avtaletype shouldBe Avtaletype.Rammeavtale
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+                        opphav shouldBe AvtaleDbo.Opphav.ARENA
                     }
                 }
 

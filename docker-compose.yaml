@@ -52,6 +52,7 @@ services:
     profiles:
       - dev
       - ci
+    command: postgres -c 'max_connections=200'
     environment:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
@@ -68,6 +69,7 @@ services:
     profiles:
       - dev
       - ci
+    command: postgres -c 'max_connections=200'
     environment:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
