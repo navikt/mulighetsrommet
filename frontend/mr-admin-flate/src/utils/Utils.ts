@@ -1,4 +1,4 @@
-import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
 
 export function capitalize(text?: string): string {
   return text
