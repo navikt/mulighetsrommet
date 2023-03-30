@@ -114,7 +114,7 @@ data class AvtaleRequest(
             antallPlasser = antallPlasser,
             url = url,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
-            ansvarlig = ansvarlig
+            ansvarlige = listOf(ansvarlig)
         )
     }
 }

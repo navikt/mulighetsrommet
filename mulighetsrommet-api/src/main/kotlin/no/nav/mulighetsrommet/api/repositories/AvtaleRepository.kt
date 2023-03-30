@@ -69,10 +69,17 @@ class AvtaleRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        // TODO: Endre her hvis man skal kunne oppdatere den ansvarlige
-        val queryForAnsvarlig = """
+        @Language("PostgreSQL")
+        val upsertAnsvarlig = """
              insert into avtale_ansvarlig (avtale_id, navident)
              values (?::uuid, ?)
+             on conflict (avtale_id, navident) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteAnsvarlige = """
+             delete from avtale_ansvarlig
+             where avtale_id = ?::uuid and not (navident = any (?))
         """.trimIndent()
 
         db.transaction { tx ->
@@ -81,13 +88,19 @@ class AvtaleRepository(private val db: Database) {
                 .asSingle
                 .let { tx.run(it)!! }
 
-            avtale.ansvarlig?.let {
+            avtale.ansvarlige.forEach { ansvarlig ->
                 queryOf(
-                    queryForAnsvarlig,
+                    upsertAnsvarlig,
                     avtale.id,
-                    avtale.ansvarlig
+                    ansvarlig
                 ).asExecute.let { tx.run(it) }
             }
+
+            queryOf(
+                deleteAnsvarlige,
+                avtale.id,
+                db.createTextArray(avtale.ansvarlige)
+            ).asExecute.let { tx.run(it) }
 
             result
         }

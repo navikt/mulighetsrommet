@@ -31,12 +31,32 @@ class AvtaleRepositoryTest : FunSpec({
         test("Ansvarlig blir satt i egen tabell") {
             val ident = "N12343"
             val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                ansvarlig = ident,
+                ansvarlige = listOf(ident),
             )
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
             avtaleFixture.upsertAvtaler(listOf(avtale1))
             database.assertThat("avtale_ansvarlig").row()
                 .value("avtale_id").isEqualTo(avtale1.id)
                 .value("navident").isEqualTo(ident)
+        }
+
+        test("Ansvarlig tabell blir oppdatert til å reflektere listen i dbo") {
+            val ident = "N12343"
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                ansvarlige = listOf(ident),
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+
+            avtaleFixture.upsertAvtaler(listOf(avtale1.copy(ansvarlige = listOf("M12343", "L12343"))))
+
+            database.assertThat("avtale_ansvarlig").row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo("L12343")
+                .row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo("M12343")
+
+            database.assertThat("avtale_ansvarlig").hasNumberOfRows(2)
         }
     }
 
