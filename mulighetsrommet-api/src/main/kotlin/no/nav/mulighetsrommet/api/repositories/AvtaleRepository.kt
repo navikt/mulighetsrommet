@@ -73,7 +73,7 @@ class AvtaleRepository(private val db: Database) {
         val queryForAnsvarlig = """
              insert into avtale_ansvarlig (avtale_id, navident)
              values (?::uuid, ?)
-         """.trimIndent()
+        """.trimIndent()
 
         db.transaction { transactionalSession ->
             val result = queryOf(query, avtale.toSqlParameters())
