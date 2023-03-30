@@ -306,26 +306,32 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2023, 1, 1),
-                    navn = "Avtale hos Ærfuglen Ærle"
+                    navn = "Avtale hos Benny"
                 )
-                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
+                val avtale6 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                    navn = "Avtale hos Christina"
+                )
+                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5, avtale6))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
                         sortering = "sluttdato-descending"
                     )
                 )
 
-                result.second shouldHaveSize 5
+                result.second shouldHaveSize 6
                 result.second[0].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-                result.second[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
-                result.second[1].sluttDato shouldBe LocalDate.of(2011, 1, 1)
-                result.second[1].navn shouldBe "Avtale hos Kjetil"
-                result.second[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
-                result.second[2].navn shouldBe "Avtale hos Anders"
-                result.second[3].sluttDato shouldBe LocalDate.of(2010, 1, 1)
-                result.second[3].navn shouldBe "Avtale hos Øyvind"
-                result.second[4].sluttDato shouldBe LocalDate.of(2009, 1, 1)
-                result.second[4].navn shouldBe "Avtale hos Åse"
+                result.second[0].navn shouldBe "Avtale hos Benny"
+                result.second[1].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+                result.second[1].navn shouldBe "Avtale hos Christina"
+                result.second[2].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+                result.second[2].navn shouldBe "Avtale hos Kjetil"
+                result.second[3].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+                result.second[3].navn shouldBe "Avtale hos Anders"
+                result.second[4].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+                result.second[4].navn shouldBe "Avtale hos Øyvind"
+                result.second[5].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+                result.second[5].navn shouldBe "Avtale hos Åse"
             }
 
             test("Sortering på sluttdato fra å-a sorterer korrekt") {
@@ -347,16 +353,20 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2023, 1, 1),
-                    navn = "Avtale hos Ærfuglen Ærle"
+                    navn = "Avtale hos Benny"
                 )
-                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
+                val avtale6 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                    navn = "Avtale hos Christina"
+                )
+                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5, avtale6))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
                         sortering = "sluttdato-ascending"
                     )
                 )
 
-                result.second shouldHaveSize 5
+                result.second shouldHaveSize 6
                 result.second[0].sluttDato shouldBe LocalDate.of(2009, 1, 1)
                 result.second[0].navn shouldBe "Avtale hos Åse"
                 result.second[1].sluttDato shouldBe LocalDate.of(2010, 1, 1)
@@ -366,7 +376,9 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
                 result.second[3].navn shouldBe "Avtale hos Kjetil"
                 result.second[4].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-                result.second[4].navn shouldBe "Avtale hos Ærfuglen Ærle"
+                result.second[4].navn shouldBe "Avtale hos Benny"
+                result.second[5].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+                result.second[5].navn shouldBe "Avtale hos Christina"
             }
         }
 
