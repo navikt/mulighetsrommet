@@ -4,6 +4,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
 import { Alert } from "@navikt/ds-react";
+import classNames from "classnames";
 
 export function TiltaksgjennomforingInfo() {
   const { data, isError, isLoading } = useTiltaksgjennomforingById();
@@ -26,11 +27,15 @@ export function TiltaksgjennomforingInfo() {
 
   const tiltaksgjennomforing = data;
   return (
-    <div className={styles.detaljer}>
-      <dl>
+    <div className={classNames(styles.detaljer, styles.container)}>
+      <dl className={styles.bolk}>
         <Metadata
           header="Tiltakstype"
           verdi={tiltaksgjennomforing.tiltakstype.navn}
+        />
+        <Metadata
+          header="Tiltaksnummer"
+          verdi={tiltaksgjennomforing.tiltaksnummer}
         />
       </dl>
       <Separator />

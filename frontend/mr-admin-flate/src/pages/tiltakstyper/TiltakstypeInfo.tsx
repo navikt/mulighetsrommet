@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Tiltakstypestatus } from "../../components/statuselementer/Tiltakstypestatus";
@@ -13,7 +14,7 @@ export function TiltakstypeInfo() {
 
   const tiltakstype = data;
   return (
-    <div className={styles.detaljer}>
+    <div className={classNames(styles.detaljer, styles.container)}>
       <div className={styles.bolk}>
         <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
         <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />

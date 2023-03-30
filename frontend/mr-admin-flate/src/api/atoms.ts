@@ -5,7 +5,7 @@ import {
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
-  TiltaksgjennomforingStatus,
+  TiltaksgjennomforingAvslutningsstatus,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -44,7 +44,7 @@ export interface Tiltaksgjennomforingfilter {
   search: string;
   enhet: string;
   tiltakstype: string;
-  status: TiltaksgjennomforingStatus;
+  status: TiltaksgjennomforingAvslutningsstatus;
   sortering: SorteringTiltaksgjennomforinger;
 }
 
@@ -55,7 +55,7 @@ export const tiltaksgjennomforingfilter =
       search: "",
       enhet: "",
       tiltakstype: "",
-      status: TiltaksgjennomforingStatus.IKKE_AVSLUTTET,
+      status: TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET,
       sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
     },
     {

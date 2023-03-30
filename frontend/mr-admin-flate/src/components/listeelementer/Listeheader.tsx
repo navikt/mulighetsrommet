@@ -46,6 +46,7 @@ export function ListeheaderTiltaksgjennomforinger() {
       <BodyShort>Tiltakstype</BodyShort>
       <BodyShort>Startdato</BodyShort>
       <BodyShort>Sluttdato</BodyShort>
+      <BodyShort>Status</BodyShort>
     </Listeheader>
   );
 }
