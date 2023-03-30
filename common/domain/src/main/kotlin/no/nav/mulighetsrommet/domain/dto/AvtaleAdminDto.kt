@@ -22,6 +22,9 @@ data class AvtaleAdminDto(
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
+    val ansvarlig: String?,
+    val url: String?,
+    val antallPlasser: Int?,
 ) {
     @Serializable
     data class Tiltakstype(
