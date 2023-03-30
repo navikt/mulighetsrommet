@@ -18,7 +18,8 @@ data class Norg2EnhetDto(
             enhetId = enhetId,
             navn = navn,
             enhetNr = enhetNr,
-            status = NavEnhetStatus.valueOf(status.name)
+            status = NavEnhetStatus.valueOf(status.name),
+            type = Norg2Type.valueOf(type.name)
         )
     }
 }

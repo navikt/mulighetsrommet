@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
@@ -20,12 +21,13 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into enhet(enhet_id, navn, enhetsnummer, status)
-            values (:enhet_id, :navn, :enhetsnummer, :status)
+            insert into enhet(enhet_id, navn, enhetsnummer, status, type)
+            values (:enhet_id, :navn, :enhetsnummer, :status, :type)
             on conflict (enhet_id)
                 do update set   navn            = excluded.navn,
                                 enhetsnummer    = excluded.enhetsnummer,
-                                status          = excluded.status
+                                status          = excluded.status,
+                                type            = excluded.type
             returning *
         """.trimIndent()
 
@@ -125,12 +127,14 @@ private fun NavEnhetDbo.toSqlParameters() = mapOf(
     "enhet_id" to enhetId,
     "navn" to navn,
     "enhetsnummer" to enhetNr,
-    "status" to status.name
+    "status" to status.name,
+    "type" to type.name
 )
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
     enhetId = int("enhet_id"),
     navn = string("navn"),
     enhetNr = string("enhetsnummer"),
-    status = NavEnhetStatus.valueOf(string("status"))
+    status = NavEnhetStatus.valueOf(string("status")),
+    type = Norg2Type.valueOf(string("type"))
 )
