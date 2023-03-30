@@ -49,7 +49,7 @@ const OpprettAvtaleModal = ({
           shouldCloseOnOverlayClick={false}
           closeButton
           open={modalOpen}
-          onClose={onClose}
+          onClose={clickCancel}
           className={styles.overstyrte_styles_fra_ds_modal}
           aria-label="modal"
         >
