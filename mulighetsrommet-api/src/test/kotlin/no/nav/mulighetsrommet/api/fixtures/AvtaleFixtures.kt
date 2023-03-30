@@ -18,6 +18,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
     fun runBeforeTests() {
         database.db.clean()
         database.db.migrate()
+
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
 
         tiltakstypeRepository.upsert(

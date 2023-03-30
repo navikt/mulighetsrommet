@@ -75,13 +75,19 @@ class AvtaleRepository(private val db: Database) {
              values (?::uuid, ?)
         """.trimIndent()
 
-        db.transaction { transactionalSession ->
+        db.transaction { tx ->
             val result = queryOf(query, avtale.toSqlParameters())
                 .map { it.toAvtaleDbo() }
                 .asSingle
-                .let { transactionalSession.run(it)!! }
+                .let { tx.run(it)!! }
 
-            queryOf(queryForAnsvarlig, avtale.id, avtale.ansvarlig).asExecute.let { transactionalSession.run(it) }
+            avtale.ansvarlig?.let {
+                queryOf(
+                    queryForAnsvarlig,
+                    avtale.id,
+                    avtale.ansvarlig
+                ).asExecute.let { tx.run(it) }
+            }
 
             result
         }
