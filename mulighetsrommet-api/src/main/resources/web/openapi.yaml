@@ -910,6 +910,15 @@ components:
         prisbetingelser:
           type: string
           nullable: true
+        ansvarlig:
+          type: string
+          nullable: true
+        url:
+          type: string
+          nullable: true
+        antallPlasser:
+          type: number
+          nullable: true
       required:
         - id
         - tiltakstype

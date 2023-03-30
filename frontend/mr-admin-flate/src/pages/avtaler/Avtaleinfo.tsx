@@ -5,6 +5,7 @@ import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
 import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
+import { NavLink } from "react-router-dom";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error } = useAvtale();
@@ -35,6 +36,7 @@ export function Avtaleinfo() {
           <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
           <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
           <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
+          <Metadata header="Antall plasser" verdi={avtale.antallPlasser} />
           <Metadata
             header="Leverandør"
             verdi={
@@ -50,6 +52,21 @@ export function Avtaleinfo() {
             verdi={avtale.prisbetingelser}
           />
         </div>
+        <Separator />
+        <div>
+          <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />
+        </div>
+        {avtale.url && (
+          <NavLink
+            key={avtale.url}
+            to={avtale.url}
+            className={({ isActive }) =>
+              isActive ? styles.navlink_active : styles.navlink
+            }
+          >
+            Gå til avtalen i websak
+          </NavLink>
+        )}
       </div>
       <div className={styles.knapperad}>
         {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
@@ -61,6 +78,7 @@ export function Avtaleinfo() {
           </Button>
         ) : null}
       </div>
+
       {/**
        * TODO Vis modal med preutfylte felter basert på avtale man skal redigere.
        */}

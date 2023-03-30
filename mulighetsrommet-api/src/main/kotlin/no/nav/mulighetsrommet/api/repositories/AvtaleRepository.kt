@@ -120,10 +120,14 @@ class AvtaleRepository(private val db: Database) {
                    a.avtaletype,
                    a.avslutningsstatus,
                    a.prisbetingelser,
+                   a.url,
+                   a.antall_plasser,
                    t.navn as tiltakstype_navn,
-                   t.tiltakskode
+                   t.tiltakskode,
+                   aa.navident
             from avtale a
                      join tiltakstype t on t.id = a.tiltakstype_id
+                     left join avtale_ansvarlig aa on a.id = aa.avtale_id
             where a.id = ?::uuid
         """.trimIndent()
         return queryOf(query, id)
@@ -194,11 +198,15 @@ class AvtaleRepository(private val db: Database) {
                    a.avtaletype,
                    a.avslutningsstatus,
                    a.prisbetingelser,
+                   a.antall_plasser,
+                   a.url,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
+                   aa.navident as navident,
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
+                     left join avtale_ansvarlig aa on a.id = aa.avtale_id
             $where
             order by $order
             limit :limit
@@ -280,7 +288,10 @@ class AvtaleRepository(private val db: Database) {
                 sluttDato,
                 Avslutningsstatus.valueOf(string("avslutningsstatus"))
             ),
-            prisbetingelser = stringOrNull("prisbetingelser")
+            prisbetingelser = stringOrNull("prisbetingelser"),
+            ansvarlig = stringOrNull("navident"),
+            url = stringOrNull("url"),
+            antallPlasser = intOrNull("antall_plasser")
         )
     }
 
