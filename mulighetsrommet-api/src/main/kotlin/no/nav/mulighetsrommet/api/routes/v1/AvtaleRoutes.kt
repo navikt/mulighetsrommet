@@ -113,7 +113,8 @@ data class AvtaleRequest(
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             antallPlasser = antallPlasser,
             url = url,
-            opphav = AvtaleDbo.Opphav.MULIGHETSROMMET
+            opphav = AvtaleDbo.Opphav.MULIGHETSROMMET,
+            ansvarlig = ansvarlig
         )
     }
 }

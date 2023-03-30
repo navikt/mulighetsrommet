@@ -26,7 +26,8 @@ data class AvtaleDbo(
     val opphav: Opphav,
     val prisbetingelser: String? = null,
     val antallPlasser: Int? = null,
-    val url: String? = null
+    val url: String? = null,
+    val ansvarlig: String? = null,
 ) {
     enum class Opphav {
         ARENA,

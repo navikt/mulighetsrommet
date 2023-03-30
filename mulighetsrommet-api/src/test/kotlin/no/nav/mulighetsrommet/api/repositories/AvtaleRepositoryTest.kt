@@ -23,6 +23,23 @@ class AvtaleRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val avtaleFixture = AvtaleFixtures(database)
 
+    context("Avtaleansvarlig") {
+        beforeEach {
+            avtaleFixture.runBeforeTests()
+        }
+
+        test("Ansvarlig blir satt i egen tabell") {
+            val ident = "N12343"
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                ansvarlig = ident,
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+            database.assertThat("avtale_ansvarlig").row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo(ident)
+        }
+    }
+
     context("Filter for avtaler") {
 
         val defaultFilter = AvtaleFilter(

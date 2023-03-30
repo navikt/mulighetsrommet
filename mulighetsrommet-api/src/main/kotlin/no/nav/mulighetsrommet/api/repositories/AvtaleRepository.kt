@@ -69,10 +69,22 @@ class AvtaleRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, avtale.toSqlParameters())
-            .map { it.toAvtaleDbo() }
-            .asSingle
-            .let { db.run(it)!! }
+        // TODO: Endre her hvis man skal kunne oppdatere den ansvarlige
+        val queryForAnsvarlig = """
+             insert into avtale_ansvarlig (avtale_id, navident)
+             values (?::uuid, ?)
+         """.trimIndent()
+
+        db.transaction { transactionalSession ->
+            val result = queryOf(query, avtale.toSqlParameters())
+                .map { it.toAvtaleDbo() }
+                .asSingle
+                .let { transactionalSession.run(it)!! }
+
+            queryOf(queryForAnsvarlig, avtale.id, avtale.ansvarlig).asExecute.let { transactionalSession.run(it) }
+
+            result
+        }
     }
 
     fun get(id: UUID): AvtaleAdminDto? {

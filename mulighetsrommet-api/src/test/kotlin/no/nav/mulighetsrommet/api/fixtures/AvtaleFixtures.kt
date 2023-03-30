@@ -61,6 +61,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         startDato: LocalDate = LocalDate.of(2023, 1, 11),
         sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
+        ansvarlig: String? = null
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -74,7 +75,8 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = null,
-            opphav = AvtaleDbo.Opphav.MULIGHETSROMMET
+            opphav = AvtaleDbo.Opphav.MULIGHETSROMMET,
+            ansvarlig = ansvarlig
         )
     }
 }
