@@ -1,4 +1,4 @@
-create type avtaleopphav as enum ('ARENA', 'MULIGHETSROMMET');
+create type avtaleopphav as enum ('ARENA', 'MR_ADMIN_FLATE');
 
 alter table avtale
     alter column avtalenummer drop not null,

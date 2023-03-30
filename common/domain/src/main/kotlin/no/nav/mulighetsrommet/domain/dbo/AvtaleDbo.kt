@@ -31,6 +31,6 @@ data class AvtaleDbo(
 ) {
     enum class Opphav {
         ARENA,
-        MULIGHETSROMMET,
+        MR_ADMIN_FLATE,
     }
 }
