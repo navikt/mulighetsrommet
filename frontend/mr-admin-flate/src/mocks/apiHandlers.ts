@@ -3,6 +3,7 @@ import {
   Ansatt,
   Avtale,
   AvtaleNokkeltall,
+  AvtaleRequest,
   NavEnhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
@@ -226,5 +227,12 @@ export const apiHandlers = [
 
   rest.get<any, any, Ansatt>("*/api/v1/internal/ansatt/me", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(mockBetabruker));
+  }),
+
+  rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" })
+    );
   }),
 ];

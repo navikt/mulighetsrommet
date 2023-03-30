@@ -18,6 +18,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
     fun runBeforeTests() {
         database.db.clean()
         database.db.migrate()
+
         val tiltakstypeRepository = TiltakstypeRepository(database.db)
 
         tiltakstypeRepository.upsert(
@@ -61,6 +62,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         startDato: LocalDate = LocalDate.of(2023, 1, 11),
         sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
+        ansvarlige: List<String> = emptyList()
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -73,7 +75,9 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             enhet = enhet,
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
-            prisbetingelser = null
+            prisbetingelser = null,
+            opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
+            ansvarlige = ansvarlige
         )
     }
 }

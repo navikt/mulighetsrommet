@@ -26,8 +26,8 @@ export function Datovelger<T>({
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
-        fraDato.onChange(val?.from ? formaterDato(val?.from) : undefined);
-        tilDato.onChange(val?.to ? formaterDato(val?.to) : undefined);
+        fraDato.onChange(val?.from);
+        tilDato.onChange(val?.to);
       },
     });
 

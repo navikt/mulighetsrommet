@@ -11,12 +11,12 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 - [Teknologier](#teknologier)
 - [Overvåking og alarmer](#overvåking-og-alarmer)
 - [Kom i gang](#kom-i-gang)
-  - [Forutsetninger](#forutsetninger)
-    - [JDK 11](#jdk-11)
-    - [Docker](#docker)
-    - [Miljøvariabler](#miljøvariabler)
-  - [Steg for steg](#steg-for-steg)
-    - [Autentisering](#autentisering)
+    - [Forutsetninger](#forutsetninger)
+        - [JDK 11](#jdk-11)
+        - [Docker](#docker)
+        - [Miljøvariabler](#miljøvariabler)
+    - [Steg for steg](#steg-for-steg)
+        - [Autentisering](#autentisering)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -83,8 +83,7 @@ som [direnv](https://direnv.net/). PS: Lukk terminalen for å oppdatere miljøva
 
 For å komme fort i gang fra en terminal gjør følgende:
 
-1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d`
-   eller `docker compose --profile dev --profile dev up` i terminalen. For å
+1. Fyr opp avhengigheter (database etc.) med å kjøre `docker compose --profile dev up -d` i terminalen. For å
    få med mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i
    stedet for å også kjøre opp en wiremock instans.
 2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew build`.
