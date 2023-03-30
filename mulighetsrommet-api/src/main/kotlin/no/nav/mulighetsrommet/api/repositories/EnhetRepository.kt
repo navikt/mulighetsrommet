@@ -35,30 +35,21 @@ class EnhetRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getAll(filter: EnhetFilter): List<NavEnhetDbo> {
-        val statuser = filter.statuser ?: emptyList()
+    fun getAll(filter: EnhetFilter? = null): List<NavEnhetDbo> {
+        val statuser = filter?.statuser ?: emptyList()
         logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
         val parameters = mapOf(
             "statuser" to db.createTextArray(statuser.map { it.name }),
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.statuser to "e.status = any(:statuser)",
+            filter?.statuser to "e.status = any(:statuser)",
         )
-
-        val join = if (filter.enhetMaaHaTiltaksgjennomforing == true) {
-            """
-                join tiltaksgjennomforing tg on e.enhetsnummer = tg.enhet
-            """.trimIndent()
-        } else {
-            ""
-        }
 
         @Language("PostgreSQL")
         val query = """
             select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status
             from enhet e
-            $join
             $where
             order by e.navn asc
         """.trimIndent()
@@ -109,6 +100,23 @@ class EnhetRepository(private val db: Database) {
         return queryOf(query, enhet)
             .map { it.toEnhetDbo() }
             .asSingle
+            .let { db.run(it) }
+    }
+
+    fun deleteWhereIds(idErForSletting: List<Int>) {
+        logger.info("Sletter enheter med id: $idErForSletting")
+
+        val parameters = mapOf(
+            "ider" to db.createIntArray(idErForSletting)
+        )
+
+        @Language("PostgreSQL")
+        val delete = """
+            delete from enhet where enhet_id = any(:ider::integer[])
+        """.trimIndent()
+
+        queryOf(delete, parameters)
+            .asExecute
             .let { db.run(it) }
     }
 }
