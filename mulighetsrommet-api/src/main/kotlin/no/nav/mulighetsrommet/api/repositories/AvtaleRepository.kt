@@ -137,7 +137,7 @@ class AvtaleRepository(private val db: Database) {
             "status-ascending" -> "a.avslutningsstatus asc, a.start_dato asc, a.slutt_dato desc"
             "status-descending" -> "a.avslutningsstatus desc, a.slutt_dato asc, a.start_dato desc"
             "sluttdato-ascending" -> "a.slutt_dato asc, a.navn asc"
-            "sluttdato-descending" -> "a.slutt_dato desc, a.navn desc"
+            "sluttdato-descending" -> "a.slutt_dato desc, a.navn asc"
             else -> "a.navn asc"
         }
 
