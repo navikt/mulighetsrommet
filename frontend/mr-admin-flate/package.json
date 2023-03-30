@@ -47,7 +47,8 @@
     "cypress-axe": "^1.4.0",
     "msw": "^1.1.0",
     "typescript": "^4.9.5",
-    "vite": "^4.2.0"
+    "vite": "^4.2.0",
+    "vitest": "^0.29.8"
   },
   "msw": {
     "workerDirectory": "public"

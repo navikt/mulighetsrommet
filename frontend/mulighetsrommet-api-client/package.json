@@ -9,7 +9,6 @@
     "build": "openapi --useOptions --name MulighetsrommetClient --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
   },
   "devDependencies": {
-    "openapi-typescript-codegen": "^0.23.0",
-    "vitest": "^0.25.3"
+    "openapi-typescript-codegen": "^0.23.0"
   }
 }

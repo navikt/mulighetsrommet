@@ -6,14 +6,15 @@ import {
   tiltaksgjennomforingTabAtom,
 } from "../../api/atoms";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
+import { Tiltaksgjennomforingstatus } from "../../components/statuselementer/Tiltaksgjennomforingstatus";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
-import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
 import styles from "./DetaljerTiltaksgjennomforingerPage.module.scss";
-import { Header } from "../../components/detaljside/Header";
+import { NokkeltallForTiltaksgjennomforing } from "./nokkeltall/NokkeltallForTiltaksgjennomforing";
+import { TiltaksgjennomforingInfo } from "./TiltaksgjennomforingInfo";
 
 export function DetaljerTiltaksgjennomforingerPage() {
   const optionalTiltaksgjennomforing = useTiltaksgjennomforingById();
@@ -44,6 +45,9 @@ export function DetaljerTiltaksgjennomforingerPage() {
       <Header>
         <div className={styles.header}>
           <span>{tiltaksgjennomforing?.navn ?? "..."}</span>
+          <Tiltaksgjennomforingstatus
+            tiltaksgjennomforing={tiltaksgjennomforing}
+          />
         </div>
       </Header>
 

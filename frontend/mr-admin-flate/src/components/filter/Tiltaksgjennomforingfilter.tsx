@@ -2,7 +2,7 @@ import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   SorteringTiltaksgjennomforinger,
-  TiltaksgjennomforingStatus,
+  TiltaksgjennomforingAvslutningsstatus,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
@@ -84,18 +84,23 @@ export function Tiltaksgjennomforingfilter() {
             resetPaginering(setPage);
             setSokefilter({
               ...sokefilter,
-              status: e.currentTarget.value as TiltaksgjennomforingStatus,
+              status: e.currentTarget
+                .value as TiltaksgjennomforingAvslutningsstatus,
             });
           }}
         >
-          <option value={TiltaksgjennomforingStatus.IKKE_AVSLUTTET}>
+          <option value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}>
             Aktiv
           </option>
-          <option value={TiltaksgjennomforingStatus.AVSLUTTET}>
+          <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
             Avsluttet
           </option>
-          <option value={TiltaksgjennomforingStatus.AVBRUTT}>Avbrutt</option>
-          <option value={TiltaksgjennomforingStatus.AVLYST}>Avlyst</option>
+          <option value={TiltaksgjennomforingAvslutningsstatus.AVBRUTT}>
+            Avbrutt
+          </option>
+          <option value={TiltaksgjennomforingAvslutningsstatus.AVLYST}>
+            Avlyst
+          </option>
           <option value="">Alle statuser</option>
         </Select>
       </div>
