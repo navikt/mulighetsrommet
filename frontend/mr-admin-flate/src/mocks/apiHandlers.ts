@@ -232,7 +232,7 @@ export const apiHandlers = [
   rest.put<AvtaleRequest>("*/api/v1/internal/avtaler", (req, res, ctx) => {
     return res(
       ctx.status(200),
-      ctx.json({ id: "a7d63fb0-4366-412c-84b7-7c15518ee361" })
+      ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" })
     );
   }),
 ];

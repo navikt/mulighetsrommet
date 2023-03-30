@@ -75,7 +75,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = null,
-            opphav = AvtaleDbo.Opphav.MULIGHETSROMMET,
+            opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
             ansvarlig = ansvarlig
         )
     }
