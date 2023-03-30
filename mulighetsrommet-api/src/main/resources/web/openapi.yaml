@@ -144,12 +144,12 @@ paths:
           name: tiltakstypeId
           schema:
             type: string
-          descrition: Id for tiltakstype knyttet til tiltaksgjennomføringer
+          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
         - in: query
           name: status
           schema:
             $ref: "#/components/schemas/TiltaksgjennomforingAvslutningsstatus"
-          descrition: Avslutningsstatus for tiltaksgjennomføring
+          description: Avslutningsstatus for tiltaksgjennomføring
         - in: query
           name: size
           schema:
