@@ -12,12 +12,14 @@ import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleReq
 import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
+import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 
 interface OpprettAvtaleContainerProps {
   setError: Dispatch<SetStateAction<string | null>>;
   setResult: Dispatch<SetStateAction<string | null>>;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
+  enheter: NavEnhet[];
 }
 
 const Schema = z.object({
@@ -52,6 +54,7 @@ export function OpprettAvtaleContainer({
   setResult,
   tiltakstyper,
   ansatt,
+  enheter,
 }: OpprettAvtaleContainerProps) {
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
@@ -138,8 +141,11 @@ export function OpprettAvtaleContainer({
             error={errors.enhet?.message}
             label={"Enhet"}
             {...register("enhet")}
+            defaultValue={ansatt.hovedenhet}
           >
-            <option value={ansatt?.hovedenhet}>{ansatt?.hovedenhetNavn}</option>
+            {enheter.map((enhet) => (
+              <option value={enhet.enhetNr}>{enhet.navn}</option>
+            ))}
           </Select>
           <TextField
             error={errors.antallPlasser?.message}
