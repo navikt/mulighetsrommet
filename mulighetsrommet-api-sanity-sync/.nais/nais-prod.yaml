@@ -22,3 +22,8 @@ spec:
   envFrom:
     - secret: google-sql-mulighetsrommet-api-mulighetsrommet-api-db--b01b2d72
     - secret: mulighetsrommet-api-sanity-sync
+
+  accessPolicy:
+    outbound:
+      external:
+        - host: xegcworx.apicdn.sanity.io
