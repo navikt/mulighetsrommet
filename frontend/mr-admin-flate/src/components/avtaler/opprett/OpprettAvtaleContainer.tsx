@@ -144,7 +144,9 @@ export function OpprettAvtaleContainer({
             defaultValue={ansatt.hovedenhet}
           >
             {enheter.map((enhet) => (
-              <option value={enhet.enhetNr}>{enhet.navn}</option>
+              <option key={enhet.enhetId} value={enhet.enhetNr}>
+                {enhet.navn}
+              </option>
             ))}
           </Select>
           <TextField
