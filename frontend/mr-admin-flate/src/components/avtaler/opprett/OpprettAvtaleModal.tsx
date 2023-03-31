@@ -31,7 +31,6 @@ const OpprettAvtaleModal = ({
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
-  console.log({ avtale });
   const redigeringsModus = !!avtale;
 
   useEffect(() => {

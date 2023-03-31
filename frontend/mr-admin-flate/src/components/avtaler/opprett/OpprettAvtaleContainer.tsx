@@ -73,12 +73,12 @@ export function OpprettAvtaleContainer({
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
-      tiltakstype: tiltakstyper[0].id,
-      enhet: ansatt.hovedenhet,
-      avtaleansvarlig: ansatt?.ident ?? "",
-      avtalenavn: avtale?.navn,
+      tiltakstype: avtale?.tiltakstype?.id ?? tiltakstyper[0].id,
+      enhet: avtale?.navEnhet?.enhetsnummer ?? ansatt.hovedenhet,
+      avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
+      avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || "",
-      leverandor: avtale?.leverandor?.organisasjonsnummer,
+      leverandor: avtale?.leverandor?.organisasjonsnummer || "",
       antallPlasser: avtale?.antallPlasser || 0,
       fraDato: avtale?.startDato ? new Date(avtale.startDato) : null,
       tilDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
