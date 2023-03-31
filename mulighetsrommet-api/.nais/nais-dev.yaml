@@ -79,6 +79,8 @@ spec:
         - application: amt-enhetsregister
           namespace: amt
       external:
-        - norg2.dev-fss-pub.nais.io
+        - host: norg2.dev-fss-pub.nais.io
+        - host: slack.com
+        - host: xegcworx.apicdn.sanity.io
   envFrom:
     - secret: mulighetsrommet-api
