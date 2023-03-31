@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -18,8 +17,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class DeltakerRepositoryTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 

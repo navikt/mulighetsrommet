@@ -1271,6 +1271,8 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/NavEnhetStatus"
+        type:
+          $ref: "#/components/schemas/Norg2Type"
 
     Leverandor:
       type: object
@@ -1523,3 +1525,10 @@ components:
         - AKTIV
         - UNDER_AVVIKLING
         - NEDLAGT
+
+    Norg2Type:
+      type: string
+      enum:
+        - LOKAL
+        - FYLKE
+        - TILTAK
