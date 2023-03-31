@@ -15,7 +15,7 @@ const SidemenyDetaljer = () => {
 
   return (
     <>
-      <Panel className={styles.panel}>
+      <Panel className={styles.panel} id="sidemeny">
         {tiltaksnummer && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>

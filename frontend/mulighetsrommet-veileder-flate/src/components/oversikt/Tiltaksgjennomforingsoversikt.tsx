@@ -6,7 +6,6 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 import { paginationAtom, tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
-
 import { ApiError, SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 import { logEvent } from '../../core/api/logger';
 import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
@@ -192,7 +191,7 @@ const Tiltaksgjennomforingsoversikt = () => {
         ) : null}
         <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
-      <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
+      <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger" id="gjennomforinger-liste">
         {gjennomforingerForSide.map(gjennomforing => {
           return <Gjennomforingsrad key={gjennomforing._id} tiltaksgjennomforing={gjennomforing} />;
         })}

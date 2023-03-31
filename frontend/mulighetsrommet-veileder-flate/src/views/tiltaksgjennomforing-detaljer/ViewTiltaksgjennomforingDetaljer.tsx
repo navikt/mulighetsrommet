@@ -27,6 +27,8 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
+import { DetaljerJoyride } from '../../components/joyride/DetaljerJoyride';
+import { DetaljerJoyrideOpprettAvtale } from '../../components/joyride/DetaljerJoyrideOpprettAvtale';
 
 const whiteListOpprettAvtaleKnapp = [
   'Midlertidig lønnstilskudd',
@@ -149,7 +151,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
         )}
         <BrukerKvalifisererIkkeVarsel />
         <BrukerHarIkke14aVedtakVarsel />
-        <div className={styles.tiltakstype_detaljer}>
+        <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
           <div className={styles.tiltakstype_header_maksbredde}>
             <TiltaksgjennomforingsHeader />
             <div className={styles.flex}>
@@ -183,6 +185,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                     aria-label="Opprett avtale"
                     data-testid="opprettavtaleknapp"
                     disabled={!brukerHarRettPaaTiltak}
+                    id="opprett-avtale-knapp"
                   >
                     Opprett avtale
                   </Button>
@@ -195,6 +198,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 data-testid="deleknapp"
                 icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
                 iconPosition="left"
+                id="deleknapp"
               >
                 {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
               </Button>
@@ -231,6 +235,13 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           />
         </div>
       </div>
+      {tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+      whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+      !erPreview ? (
+        <DetaljerJoyrideOpprettAvtale setDelMedBrukerModal={setDelemodalApen} delMedBrukerModalOpen={delemodalApen} />
+      ) : (
+        <DetaljerJoyride setDelMedBrukerModal={setDelemodalApen} delMedBrukerModalOpen={delemodalApen} />
+      )}
     </>
   );
 };

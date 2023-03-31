@@ -36,7 +36,7 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
     filter.lokasjoner.length > 0;
 
   return (
-    <div className={styles.filtertags} data-testid="filtertags">
+    <div className={styles.filtertags} data-testid="filtertags" id="filtertags">
       <BrukersOppfolgingsenhet />
       {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && !brukerdata.data?.servicegruppe && (
         <ErrorTag

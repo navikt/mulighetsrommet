@@ -1,18 +1,19 @@
 import { ClockDashedIcon } from '@navikt/aksel-icons';
 import { Button } from '@navikt/ds-react';
-import { useState } from 'react';
-import { logEvent } from '../../core/api/logger';
 import StandardModal from '../modal/StandardModal';
 import btnStyles from './HistorikkButton.module.scss';
 import { HistorikkForBrukerModal } from './HistorikkForBrukerModal';
 import styles from './HistorikkForBrukerModal.module.scss';
+import { logEvent } from '../../core/api/logger';
 
-export function HistorikkButton() {
-  const [apneModal, setApneModal] = useState(false);
-  const toggleModal = () => setApneModal(!apneModal);
+interface Props {
+  toggleHistorikkModal: (state: boolean) => void;
+  isOpen: boolean;
+}
 
+export function HistorikkButton({ toggleHistorikkModal, isOpen }: Props) {
   const handleClick = () => {
-    toggleModal();
+    toggleHistorikkModal(true);
     logEvent('mulighetsrommet.historikk');
   };
 
@@ -24,9 +25,10 @@ export function HistorikkButton() {
       <StandardModal
         className={styles.historikk_modal}
         hideButtons
-        modalOpen={apneModal}
-        setModalOpen={toggleModal}
+        modalOpen={isOpen}
+        setModalOpen={() => toggleHistorikkModal(false)}
         heading="Historikk"
+        id="historikk_modal"
       >
         <HistorikkForBrukerModal />
       </StandardModal>

@@ -5,10 +5,15 @@
   grid-gap: 1rem;
   min-height: 86vh;
 
-  .filtertags_og_historikk {
+  .filtertags_og_knapperad {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     grid-row: 1;
   }
+
+  .knapperad {
+    display: flex;
+  }
 }
+

@@ -9,6 +9,7 @@ import styles from './Gjennomforingsrad.module.scss';
 import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
 import { BodyShort } from '@navikt/ds-react';
 import { ChevronRightIcon } from '@navikt/aksel-icons';
+import { useJoyrideStepIndex } from '../../hooks/useJoyrideStepIndex';
 
 interface Props {
   tiltaksgjennomforing: SanityTiltaksgjennomforing;
@@ -39,11 +40,15 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
     oppstartsdato,
     estimert_ventetid,
   } = tiltaksgjennomforing;
+
+  const { setStepIndexState } = useJoyrideStepIndex();
+
   return (
-    <li className={styles.list_element}>
+    <li className={styles.list_element} id="list_element">
       <Lenke
         to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"
+        onClick={() => setStepIndexState((prev: number) => prev + 1)}
       >
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>

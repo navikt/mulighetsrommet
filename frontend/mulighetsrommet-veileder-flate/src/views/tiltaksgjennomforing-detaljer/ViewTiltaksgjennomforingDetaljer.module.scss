@@ -14,7 +14,7 @@
   flex-wrap: wrap;
 }
 
-.tiltakstype_detaljer {
+.tiltaksgjennomforing_detaljer {
   display: grid;
   grid-template-rows: auto 1fr;
   grid-template-columns: auto 23rem;
@@ -79,7 +79,7 @@
 }
 
 @media (width <= 1200px) {
-  .tiltakstype_detaljer {
+  .tiltaksgjennomforing_detaljer {
     grid-template-columns: auto;
     grid-gap: 2rem;
 

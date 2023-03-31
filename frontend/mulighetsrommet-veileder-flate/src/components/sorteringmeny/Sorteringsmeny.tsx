@@ -16,6 +16,7 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
       label="Hvilket felt ønsker du å sortere listen på?"
       hideLabel
       data-testid="sortering-select"
+      id="sortering-select"
     >
       <option value="tiltakstypeNavn-ascending">Sorter etter:</option>
       <option value="lokasjon-ascending">Lokasjon a-å</option>
