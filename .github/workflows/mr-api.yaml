@@ -31,7 +31,7 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on:
-      labels: ubuntu-latest-4-cores
+      labels: ubuntu-latest-8-cores
     permissions:
       contents: "read"
       id-token: "write"
