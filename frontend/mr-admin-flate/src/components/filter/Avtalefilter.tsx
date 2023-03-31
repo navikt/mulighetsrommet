@@ -144,7 +144,10 @@ export function Avtalefilter(props: Props) {
           </Select>
           {visOpprettAvtaleknapp && (
             <>
-              <Button onClick={() => setModalOpen(true)}>
+              <Button
+                onClick={() => setModalOpen(true)}
+                data-testid="registrer-ny-avtale"
+              >
                 Registrer avtale
               </Button>
               <OpprettAvtaleModal
