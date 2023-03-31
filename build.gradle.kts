@@ -1,6 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 group = "no.nav.mulighetsrommet"
 version = "0.0.1"
@@ -14,6 +15,13 @@ plugins {
 }
 
 allprojects {
+    // Apply ktlint for all projects
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<KtlintExtension> {
+        version.set("0.48.2")
+    }
+
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
     }
