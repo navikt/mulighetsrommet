@@ -13,11 +13,10 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
     suspend fun synkroniserEnheter(): List<Norg2EnhetDto> {
         val whitelistTyper = listOf(Norg2Type.FYLKE, Norg2Type.TILTAK, Norg2Type.LOKAL)
         val alleEnheter = norg2Client.hentEnheter()
-        val tilSletting = alleEnheter.filterNot { it.type in whitelistTyper }.map { it.enhetId }
-        val tilLagring = alleEnheter.filter { it.type in whitelistTyper }
+        val (tilLagring, tilSletting) = alleEnheter.partition { it.type in whitelistTyper }
         log.info("Hentet ${alleEnheter.size} enheter fra NORG2. Sletter potensielt ${tilSletting.size} enheter som ikke har en whitelistet type ($whitelistTyper). Lagrer ${tilLagring.size} enheter fra NORG2 med type = $whitelistTyper")
 
-        slettEnheterSomIkkeHarWhitelistetType(tilSletting)
+        slettEnheterSomIkkeHarWhitelistetType(tilSletting.map { it.enhetId })
         lagreEnheter(tilLagring)
 
         return tilLagring
