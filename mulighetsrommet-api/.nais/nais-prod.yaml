@@ -82,6 +82,6 @@ spec:
         - application: amt-enhetsregister
           namespace: amt
       external:
-        - https://norg2.prod-fss-pub.nais.io
+        - norg2.prod-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api
