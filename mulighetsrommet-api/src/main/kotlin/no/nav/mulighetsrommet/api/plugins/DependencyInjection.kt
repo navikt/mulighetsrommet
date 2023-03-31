@@ -138,7 +138,6 @@ private fun repositories() = module {
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { TiltakshistorikkRepository(get()) }
-    single { AnsattTiltaksgjennomforingRepository(get()) }
     single { EnhetRepository(get()) }
     single { DeltakerRepository(get()) }
 }
