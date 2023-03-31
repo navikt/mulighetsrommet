@@ -3,6 +3,7 @@ import { Avtale } from "mulighetsrommet-api-client";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useEffect, useState } from "react";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
 import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
 import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 import { Laster } from "../../laster/Laster";
@@ -28,7 +29,9 @@ const OpprettAvtaleModal = ({
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useAlleTiltakstyper();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
+  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
+  console.log({ avtale });
   const redigeringsModus = !!avtale;
 
   useEffect(() => {
@@ -60,14 +63,17 @@ const OpprettAvtaleModal = ({
             <Heading size="small" level="2" data-testid="avtale_modal_header">
               {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
             </Heading>
-            {isLoadingAnsatt || isLoadingTiltakstyper ? <Laster /> : null}
-            {!tiltakstyper?.data || !ansatt ? null : (
+            {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+              <Laster />
+            ) : null}
+            {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <OpprettAvtaleContainer
                 tiltakstyper={tiltakstyper?.data?.filter((tiltakstype) =>
                   ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
                 )}
                 ansatt={ansatt}
                 setResult={setResult}
+                enheter={enheter}
                 avtale={avtale}
               />
             )}

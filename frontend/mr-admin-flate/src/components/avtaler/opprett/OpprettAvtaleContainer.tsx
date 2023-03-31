@@ -3,15 +3,16 @@ import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
+import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
+import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
 import { mulighetsrommetClient } from "../../../api/clients";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
-import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import styles from "./OpprettAvtaleContainer.module.scss";
 
 interface OpprettAvtaleContainerProps {
@@ -19,6 +20,7 @@ interface OpprettAvtaleContainerProps {
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
   avtale?: Avtale;
+  enheter: NavEnhet[];
 }
 
 const GyldigUrlHvisVerdi = z.union([
@@ -59,6 +61,7 @@ export function OpprettAvtaleContainer({
   setResult,
   tiltakstyper,
   ansatt,
+  enheter,
   avtale,
 }: OpprettAvtaleContainerProps) {
   const redigeringsModus = !!avtale;
@@ -185,8 +188,13 @@ export function OpprettAvtaleContainer({
             error={errors.enhet?.message}
             label={"Enhet"}
             {...register("enhet")}
+            defaultValue={ansatt.hovedenhet}
           >
-            <option value={ansatt?.hovedenhet}>{ansatt?.hovedenhetNavn}</option>
+            {enheter.map((enhet) => (
+              <option key={enhet.enhetId} value={enhet.enhetNr}>
+                {enhet.navn}
+              </option>
+            ))}
           </Select>
           <TextField
             error={errors.antallPlasser?.message}
