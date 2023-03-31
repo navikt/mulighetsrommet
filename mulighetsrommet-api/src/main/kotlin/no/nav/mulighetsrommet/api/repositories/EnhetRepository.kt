@@ -50,7 +50,7 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status
+            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type
             from enhet e
             $where
             order by e.navn asc
@@ -77,7 +77,7 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status
+            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type
             from enhet e
             join avtale a
             on a.enhet = e.enhetsnummer
@@ -94,7 +94,7 @@ class EnhetRepository(private val db: Database) {
     fun get(enhet: String): NavEnhetDbo? {
         @Language("PostgreSQL")
         val query = """
-            select navn, enhet_id, enhetsnummer, status
+            select navn, enhet_id, enhetsnummer, status, type
             from enhet
             where enhetsnummer = ?
         """.trimIndent()
