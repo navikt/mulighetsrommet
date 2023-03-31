@@ -81,5 +81,7 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
+      external:
+        - norg2.prod-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api
