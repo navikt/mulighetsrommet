@@ -1,5 +1,5 @@
 import { Heading, Modal } from "@navikt/ds-react";
-import { Avtale } from "mulighetsrommet-api-client";
+import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useEffect, useState } from "react";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
@@ -27,7 +27,9 @@ const OpprettAvtaleModal = ({
 }: OpprettAvtaleModalProps) => {
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
-    useAlleTiltakstyper();
+    useAlleTiltakstyper({
+      tiltakstypestatus: Tiltakstypestatus.AKTIV,
+    });
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
@@ -41,7 +43,7 @@ const OpprettAvtaleModal = ({
     setError(null);
     setResult(null);
     onClose();
-    handleCancel!();
+    handleCancel?.();
   };
 
   const [error, setError] = useState<string | null>(null);
@@ -67,9 +69,7 @@ const OpprettAvtaleModal = ({
             ) : null}
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <OpprettAvtaleContainer
-                tiltakstyper={tiltakstyper?.data?.filter((tiltakstype) =>
-                  ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
-                )}
+                tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 setResult={setResult}
                 enheter={enheter}
