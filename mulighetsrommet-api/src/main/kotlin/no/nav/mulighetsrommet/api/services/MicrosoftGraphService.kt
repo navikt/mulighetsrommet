@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
 
-    private val hovedenhetCache: Cache<UUID, AnsattDataDTO> = Caffeine.newBuilder()
+    private val ansattDataCache: Cache<UUID, AnsattDataDTO> = Caffeine.newBuilder()
         .expireAfterWrite(4, TimeUnit.HOURS)
         .maximumSize(500)
         .recordStats()
@@ -21,11 +21,11 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
     init {
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("hovedenhetCache", hovedenhetCache)
+        cacheMetrics.addCache("ansattDataCache", ansattDataCache)
     }
 
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattDataDTO {
-        return CacheUtils.tryCacheFirstNotNull(hovedenhetCache, navAnsattAzureId) {
+        return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
             client.hentAnsattdata(accessToken, navAnsattAzureId)
         }
     }
