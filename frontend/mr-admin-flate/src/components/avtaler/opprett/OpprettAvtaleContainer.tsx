@@ -82,7 +82,7 @@ export function OpprettAvtaleContainer({
       enhet: avtale?.navEnhet?.enhetsnummer ?? ansatt.hovedenhet,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
-      avtaletype: avtale?.avtaletype || "",
+      avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer || "",
       antallPlasser: avtale?.antallPlasser || 0,
       fraDato: avtale?.startDato ? new Date(avtale.startDato) : null,
@@ -258,12 +258,12 @@ export const FormGroup = ({
   children: ReactNode;
   cols?: number;
 }) => (
-    <div
-      className={classNames(styles.form_group, styles.grid, {
-        [styles.grid_1]: cols === 1,
-        [styles.grid_2]: cols === 2,
-      })}
-    >
-      {children}
-    </div>
-  );
+  <div
+    className={classNames(styles.form_group, styles.grid, {
+      [styles.grid_1]: cols === 1,
+      [styles.grid_2]: cols === 2,
+    })}
+  >
+    {children}
+  </div>
+);
