@@ -5,4 +5,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet.admin-flate-vis-nokkeltall": true,
   "mulighetsrommet.admin-flate-opprett-avtale": true,
   "mulighetsrommet.admin-flate-rediger-avtale": true,
+  "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing": true,
 };
