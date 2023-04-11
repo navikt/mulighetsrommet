@@ -30,8 +30,6 @@ import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
-import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClient
-import no.nav.mulighetsrommet.api.clients.veileder.VeilarbveilederClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
@@ -138,7 +136,6 @@ private fun repositories() = module {
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { TiltakshistorikkRepository(get()) }
-    single { AnsattTiltaksgjennomforingRepository(get()) }
     single { EnhetRepository(get()) }
     single { DeltakerRepository(get()) }
 }
@@ -187,14 +184,7 @@ private fun services(appConfig: AppConfig) = module {
             }
         )
     }
-    single<VeilarbveilederClient> {
-        VeilarbveilederClientImpl(
-            baseUrl = appConfig.veilarbveilederConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbveilederConfig.scope, token)
-            }
-        )
-    }
+
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
@@ -227,7 +217,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
-    single { AnsattService(get(), get(), get()) }
+    single { AnsattService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
