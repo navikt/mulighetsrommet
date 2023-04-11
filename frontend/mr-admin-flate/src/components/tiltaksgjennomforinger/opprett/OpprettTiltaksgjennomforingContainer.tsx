@@ -43,6 +43,7 @@ const Schema = z.object({
 export type inferredSchema = z.infer<typeof Schema>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
+  onAvbryt: () => void;
   setError: Dispatch<SetStateAction<boolean>>;
   setResult: Dispatch<SetStateAction<string | null>>;
 }
@@ -62,7 +63,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   const [aFilter, setAvtaleFilter] = useAtom(avtaleFilter);
   const [tFilter, setTiltakstypeFilter] = useAtom(tiltakstypefilter);
   useEffect(() => {
-    setTiltakstypeFilter({...tFilter, status: Tiltakstypestatus.AKTIV})
+    setTiltakstypeFilter({ ...tFilter, status: Tiltakstypestatus.AKTIV })
   }, []);
 
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper, isError: isErrorTiltakstyper } = useTiltakstyperWithFilter();
@@ -117,11 +118,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
     return <>
       <option value={""}>Velg en</option>
-        { avtaler.data.map((avtale: Avtale) =>
-          <option key={avtale.id} value={avtale.id}>
-            {avtale.navn}
-          </option>
-        )}
+      {avtaler.data.map((avtale: Avtale) =>
+        <option key={avtale.id} value={avtale.id}>
+          {avtale.navn}
+        </option>
+      )}
     </>;
   }
 
@@ -136,7 +137,8 @@ export const OpprettTiltaksgjennomforingContainer = (
               onChange: (e) => {
                 setAvtaleFilter({ ...aFilter, tiltakstype: e.target.value })
                 setAvtale(undefined);
-              }})
+              }
+            })
             }
           >
             {isLoadingTiltakstyper || !tiltakstyper
@@ -200,7 +202,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <TextField
             error={errors.antallPlasser?.message}
-            style={{ width: "163px"}}
+            style={{ width: "163px" }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
@@ -210,8 +212,8 @@ export const OpprettTiltaksgjennomforingContainer = (
             label={"Enhet"}
             {...register("enhet")}
             error={errors.enhet?.message}
-          > { isLoadingEnheter || !enheter
-            ?  <option value={""}>Laster...</option>
+          > {isLoadingEnheter || !enheter
+            ? <option value={""}>Laster...</option>
             : <>
               <option value={""}>Velg en</option>
               {enheter?.map((enhet: NavEnhet) => <option key={enhet.enhetId} value={enhet.enhetId}>{enhet.navn}</option>)}
@@ -236,7 +238,8 @@ export const OpprettTiltaksgjennomforingContainer = (
             value={avtale?.avtaletype || ""}
           />
         </FormGroup>
-        <div className={styles.content_right}>
+        <div className={styles.button_row}>
+          <Button onClick={props.onAvbryt} variant="danger">Avbryt</Button>
           <Button type="submit">Opprett</Button>
         </div>
       </form>

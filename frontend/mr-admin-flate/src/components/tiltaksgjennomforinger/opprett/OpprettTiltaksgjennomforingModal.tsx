@@ -51,6 +51,7 @@ export const OpprettTiltaksgjennomforingModal = ({
               Opprett ny gjennomføring
             </Heading>
               <OpprettTiltaksgjennomforingContainer
+                onAvbryt={clickCancel}
                 setError={setError}
                 setResult={setResult}
               />
