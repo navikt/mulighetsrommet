@@ -25,7 +25,6 @@ const OpprettAvtaleModal = ({
   handleCancel,
   avtale,
 }: OpprettAvtaleModalProps) => {
-  const { navigerTilAvtale } = useNavigerTilAvtale();
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useAlleTiltakstyper({
       tiltakstypestatus: Tiltakstypestatus.AKTIV,
@@ -78,19 +77,6 @@ const OpprettAvtaleModal = ({
             )}
           </Modal.Content>
         </Modal>
-      )}
-      {result && (
-        <StatusModal
-          modalOpen={modalOpen}
-          onClose={clickCancel}
-          ikonVariant="success"
-          heading="Avtalen er opprettet."
-          text="Avtalen ble opprettet."
-          primaryButtonText="Gå til avtalen"
-          primaryButtonOnClick={() => navigerTilAvtale(result)}
-          secondaryButtonText="Lukk"
-          secondaryButtonOnClick={clickCancel}
-        />
       )}
     </>
   );

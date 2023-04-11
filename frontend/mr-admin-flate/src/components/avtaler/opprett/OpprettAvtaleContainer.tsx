@@ -14,6 +14,7 @@ import { mulighetsrommetClient } from "../../../api/clients";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
   setResult: Dispatch<SetStateAction<string | null>>;
@@ -64,6 +65,7 @@ export function OpprettAvtaleContainer({
   enheter,
   avtale,
 }: OpprettAvtaleContainerProps) {
+  const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [feil, setFeil] = useState<string | null>("");
   const clickCancel = () => {
@@ -117,7 +119,8 @@ export function OpprettAvtaleContainer({
       const response = await mulighetsrommetClient.avtaler.opprettAvtale({
         requestBody: postData,
       });
-      setResult(response.id);
+      navigerTilAvtale(response.id);
+      return;
     } catch {
       setFeil("Klarte ikke opprette eller redigere avtale");
     }
