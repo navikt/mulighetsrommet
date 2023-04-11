@@ -37,7 +37,10 @@ export function formaterDato(dato?: string | Date, fallback = ""): string {
   return result;
 }
 
-export function formaterDatoSomYYYYMMDD(dato?: Date, fallback = ""): string {
+export function formaterDatoSomYYYYMMDD(
+  dato?: Date | null,
+  fallback = ""
+): string {
   if (!dato) return fallback;
   const year = dato.getFullYear();
   const month = (dato.getMonth() + 1).toString();

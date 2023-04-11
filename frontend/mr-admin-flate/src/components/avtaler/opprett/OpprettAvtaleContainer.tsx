@@ -1,25 +1,33 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
+import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
-import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
+import { porten } from "mulighetsrommet-veileder-flate/src/constants";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
 import { mulighetsrommetClient } from "../../../api/clients";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
-  setError: Dispatch<SetStateAction<string | null>>;
   setResult: Dispatch<SetStateAction<string | null>>;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
+  avtale?: Avtale;
   enheter: NavEnhet[];
 }
+
+const GyldigUrlHvisVerdi = z.union([
+  z.literal(""),
+  z.string().trim().url("Du må skrive inn en gyldig nettadresse"),
+]);
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
@@ -36,31 +44,48 @@ const Schema = z.object({
       invalid_type_error:
         "Du må skrive inn antall plasser for avtalen som et tall",
     })
+    .gt(0, "Antall plasser må være større enn 0")
     .int(),
-  fraDato: z.date({ required_error: "En avtale må ha en startdato" }),
-  tilDato: z.date({ required_error: "En avtale må ha en sluttdato" }),
+  fraDato: z
+    .date({ required_error: "En avtale må ha en startdato" })
+    .nullable(),
+  tilDato: z
+    .date({ required_error: "En avtale må ha en sluttdato" })
+    .nullable(),
   avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
-  url: z
-    .string()
-    .min(1, "Du må skrive inn url til avtalen i websak")
-    .url("Ugyldig format på url"),
+  url: GyldigUrlHvisVerdi,
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
 
 export function OpprettAvtaleContainer({
-  setError,
   setResult,
   tiltakstyper,
   ansatt,
   enheter,
+  avtale,
 }: OpprettAvtaleContainerProps) {
+  const { navigerTilAvtale } = useNavigerTilAvtale();
+  const redigeringsModus = !!avtale;
+  const [feil, setFeil] = useState<string | null>("");
+  const clickCancel = () => {
+    setFeil(null);
+  };
+
+  console.log(avtale);
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
-      tiltakstype: tiltakstyper[0].id,
-      enhet: ansatt.hovedenhet,
-      avtaleansvarlig: ansatt.ident ?? "",
+      tiltakstype: avtale?.tiltakstype?.id,
+      enhet: avtale?.navEnhet?.enhetsnummer ?? ansatt.hovedenhet,
+      avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
+      avtalenavn: avtale?.navn || "",
+      avtaletype: avtale?.avtaletype || "",
+      leverandor: avtale?.leverandor?.organisasjonsnummer || "",
+      antallPlasser: avtale?.antallPlasser || 0,
+      fraDato: avtale?.startDato ? new Date(avtale.startDato) : null,
+      tilDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
+      url: avtale?.url || "",
     },
   });
   const {
@@ -72,7 +97,7 @@ export function OpprettAvtaleContainer({
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
-    setError(null);
+    setFeil(null);
     setResult(null);
 
     const postData: AvtaleRequest = {
@@ -87,13 +112,18 @@ export function OpprettAvtaleContainer({
       ansvarlig: data.avtaleansvarlig,
     };
 
+    if (avtale?.id) {
+      postData.id = avtale.id; // Ved oppdatering av eksisterende avtale
+    }
+
     try {
       const response = await mulighetsrommetClient.avtaler.opprettAvtale({
         requestBody: postData,
       });
-      setResult(response.id);
+      navigerTilAvtale(response.id);
+      return;
     } catch {
-      setError("Klarte ikke opprette avtale");
+      setFeil("Klarte ikke opprette eller redigere avtale");
     }
   };
 
@@ -102,6 +132,28 @@ export function OpprettAvtaleContainer({
         .map((it) => capitalize(it))
         .join(" ")
     : "";
+
+  if (feil) {
+    return (
+      <StatusModal
+        modalOpen={!!feil}
+        ikonVariant="error"
+        heading="Kunne ikke opprette avtale"
+        text={
+          <>
+            Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss.
+            Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom
+            du trenger mer hjelp.
+          </>
+        }
+        onClose={clickCancel}
+        primaryButtonOnClick={() => setFeil("")}
+        primaryButtonText="Prøv igjen"
+        secondaryButtonOnClick={clickCancel}
+        secondaryButtonText="Avbryt"
+      />
+    );
+  }
 
   return (
     <FormProvider {...form}>
@@ -163,7 +215,10 @@ export function OpprettAvtaleContainer({
             label={"Avtaletype"}
             {...register("avtaletype")}
           >
-            <option value="forhaandsgodkjent">Forhåndsgodkjent avtale</option>
+            <option value={Avtaletype.FORHAANDSGODKJENT}>
+              Forhåndsgodkjent avtale
+            </option>
+            <option value={Avtaletype.RAMMEAVTALE}>Rammeavtale</option>
           </Select>
           <TextField
             error={errors.url?.message}
@@ -183,7 +238,9 @@ export function OpprettAvtaleContainer({
           </Select>
         </FormGroup>
         <div className={styles.content_right}>
-          <Button type="submit">Registrer avtale</Button>
+          <Button type="submit">
+            {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
+          </Button>
         </div>
       </form>
     </FormProvider>

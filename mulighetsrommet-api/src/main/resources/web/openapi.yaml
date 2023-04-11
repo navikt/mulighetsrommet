@@ -935,6 +935,9 @@ components:
     AvtaleRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: UUID
         tiltakstypeId:
           type: string
           format: UUID
@@ -957,7 +960,6 @@ components:
         ansvarlig:
           type: string
       required:
-        - id
         - tiltakstypeId
         - navn
         - leverandorOrganisasjonsnummer
@@ -966,7 +968,6 @@ components:
         - enhet
         - avtalestatus
         - antallPlasser
-        - url
         - ansvarlig
 
     EmbeddedTiltakstype:
