@@ -72,10 +72,11 @@ export function OpprettAvtaleContainer({
     setFeil(null);
   };
 
+  console.log(avtale);
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
-      tiltakstype: avtale?.tiltakstype?.id ?? tiltakstyper[0].id,
+      tiltakstype: avtale?.tiltakstype?.id,
       enhet: avtale?.navEnhet?.enhetsnummer ?? ansatt.hovedenhet,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
