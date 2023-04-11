@@ -100,7 +100,8 @@ data class AvtaleRequest(
     val enhet: String,
     val antallPlasser: Int,
     val url: String,
-    val ansvarlig: String
+    val ansvarlig: String,
+    val avtaletype: Avtaletype
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
@@ -111,7 +112,7 @@ data class AvtaleRequest(
             startDato = startDato,
             sluttDato = sluttDato,
             enhet = enhet,
-            avtaletype = Avtaletype.Forhaandsgodkjent,
+            avtaletype = avtaletype,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             antallPlasser = antallPlasser,
             url = url,
