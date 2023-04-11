@@ -1,11 +1,9 @@
 import { Heading, Modal } from "@navikt/ds-react";
 import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
-import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useEffect, useState } from "react";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
 import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
-import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 import { Laster } from "../../laster/Laster";
 import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
