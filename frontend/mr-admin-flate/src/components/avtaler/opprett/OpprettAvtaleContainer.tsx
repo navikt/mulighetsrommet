@@ -185,6 +185,7 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <div className={styles.content_right}>
           <Button type="submit">Registrer avtale</Button>
+          apihan{" "}
         </div>
       </form>
     </FormProvider>
