@@ -30,8 +30,8 @@ class AmtEnhetsregisterClientImpl(
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {
-                log.warn("Virksomhet finnes ikke, sjekk securelogs")
-                SecureLog.logger.warn("Virksomhet finnes ikke: $virksomhetsnummer")
+                log.debug("Virksomhet finnes ikke, sjekk securelogs")
+                SecureLog.logger.debug("Virksomhet finnes ikke: $virksomhetsnummer")
                 null
             }
 
