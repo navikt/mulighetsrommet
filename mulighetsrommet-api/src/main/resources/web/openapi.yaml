@@ -205,6 +205,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: opprettTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltaksgjennomforingRequest"
+      responses:
+        200:
+          description: The specified tiltaksgjennomføring with data about tiltakstype.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        500:
+          description: "Kunne ikke opprette tiltaksgennomforing"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger/{id}:
     parameters:
@@ -1057,6 +1079,46 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
+
+    TiltaksgjennomforingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+        tiltakstypeId:
+          type: string
+          format: UUID
+        avtaleId:
+          type: string
+          format: UUID
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+        antallPlasser:
+          type: number
+        virksomhetsnummer:
+          type: string
+        tiltaksnummer:
+          type: string
+      required:
+        - id
+        - avtaleId
+        - tiltakstypeId
+        - navn
+        - startDato
+        - sluttDato
+        - enhet
+        - antallPlasser
+        - virksomhetsnummer
+        - tiltaksnummer
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

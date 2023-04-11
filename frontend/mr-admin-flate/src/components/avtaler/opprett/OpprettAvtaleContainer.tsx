@@ -8,8 +8,8 @@ import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { mulighetsrommetClient } from "../../../api/clients";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
@@ -251,14 +251,13 @@ export function OpprettAvtaleContainer({
   );
 }
 
-function FormGroup({
+export const FormGroup = ({
   children,
   cols = 1,
 }: {
   children: ReactNode;
   cols?: number;
-}) {
-  return (
+}) => (
     <div
       className={classNames(styles.form_group, styles.grid, {
         [styles.grid_1]: cols === 1,
@@ -268,4 +267,3 @@ function FormGroup({
       {children}
     </div>
   );
-}
