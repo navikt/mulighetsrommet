@@ -1,18 +1,17 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import z from "zod";
+import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
+import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
+import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
+import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
+import { mulighetsrommetClient } from "../../../api/clients";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
-import { mulighetsrommetClient } from "../../../api/clients";
-import { AvtaleRequest } from "mulighetsrommet-api-client/build/models/AvtaleRequest";
-import { Avtaletype } from "mulighetsrommet-api-client/build/models/Avtaletype";
-import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
-import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
-import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 
 interface OpprettAvtaleContainerProps {
   setError: Dispatch<SetStateAction<string | null>>;
@@ -185,7 +184,6 @@ export function OpprettAvtaleContainer({
         </FormGroup>
         <div className={styles.content_right}>
           <Button type="submit">Registrer avtale</Button>
-          apihan{" "}
         </div>
       </form>
     </FormProvider>
