@@ -1,29 +1,28 @@
 .navlink_container {
   display: flex;
-  justify-content: flex-start;
-  background-color: white;
+  justify-content: center;
   box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px;
+  margin: 0 0.2rem;
 }
 
 .navlink {
   border-bottom: 1px solid transparent;
-  color: var(--a-surface-neutral);
+  color: white;
   text-decoration: none;
-  margin: 1rem 0.5rem 0;
   padding: 1rem 1rem 0.5rem;
   border-bottom: 4px solid transparent;
+  display: block;
 
   &:hover {
-    border-bottom: 4px solid var(--a-surface-action-active);
-    color: var(--a-surface-neutral-hover);
+    color: white;
+    background-color: var(--a-surface-inverted-hover);
   }
 
   &_active {
     text-decoration: none;
-    color: black;
-    margin: 1rem 0.5rem 0;
+    color: white;
     padding: 1rem 1rem 0.5rem;
-    border-bottom: 4px solid var(--a-surface-action-active);
     cursor: default;
+    background-color: var(--a-surface-inverted-hover);
   }
 }

@@ -6,7 +6,6 @@ import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 import { OpprettTiltaksgjennomforingContainer } from "./OpprettTiltaksgjennomforingContainer";
 
-
 interface ModalProps {
   modalOpen: boolean;
   onClose: () => void;
@@ -20,10 +19,11 @@ export const OpprettTiltaksgjennomforingModal = ({
   onClose,
   handleCancel,
 }: ModalProps) => {
-  const { navigerTilTiltaksgjennomforing } = useNavigerTilTiltaksgjennomforing();
+  const { navigerTilTiltaksgjennomforing } =
+    useNavigerTilTiltaksgjennomforing();
   useEffect(() => {
     Modal.setAppElement("#root");
-  })
+  });
 
   const clickCancel = () => {
     setError(false);
@@ -58,42 +58,38 @@ export const OpprettTiltaksgjennomforingModal = ({
           </Modal.Content>
         </Modal>
       )}
-      {
-        error && (
-          <StatusModal
-            modalOpen={modalOpen}
-            ikonVariant="error"
-            heading="Kunne ikke opprette gjennomføring"
-            text={
-              <>
-                Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil hos oss.
-                Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten
-                dersom du trenger mer hjelp.
-              </>
-            }
-            onClose={clickCancel}
-            primaryButtonOnClick={() => setError(false)}
-            primaryButtonText="Prøv igjen"
-            secondaryButtonOnClick={clickCancel}
-            secondaryButtonText="Avbryt"
-          />
-        )
-      }
-      {
-        result && (
-          <StatusModal
-            modalOpen={modalOpen}
-            onClose={clickCancel}
-            ikonVariant="success"
-            heading="Gjennomføringen er opprettet."
-            text="Gjennomføringen ble opprettet."
-            primaryButtonText="Gå til gjennomføringen"
-            primaryButtonOnClick={() => navigerTilTiltaksgjennomforing(result)}
-            secondaryButtonText="Lukk"
-            secondaryButtonOnClick={clickCancel}
-          />
-        )
-      }
+      {error && (
+        <StatusModal
+          modalOpen={modalOpen}
+          ikonVariant="error"
+          heading="Kunne ikke opprette gjennomføring"
+          text={
+            <>
+              Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil
+              hos oss. Forsøk på nytt eller ta <a href={porten}>kontakt</a> i
+              Porten dersom du trenger mer hjelp.
+            </>
+          }
+          onClose={clickCancel}
+          primaryButtonOnClick={() => setError(false)}
+          primaryButtonText="Prøv igjen"
+          secondaryButtonOnClick={clickCancel}
+          secondaryButtonText="Avbryt"
+        />
+      )}
+      {result && (
+        <StatusModal
+          modalOpen={modalOpen}
+          onClose={clickCancel}
+          ikonVariant="success"
+          heading="Gjennomføringen er opprettet."
+          text="Gjennomføringen ble opprettet."
+          primaryButtonText="Gå til gjennomføringen"
+          primaryButtonOnClick={() => navigerTilTiltaksgjennomforing(result)}
+          secondaryButtonText="Lukk"
+          secondaryButtonOnClick={clickCancel}
+        />
+      )}
     </>
   );
 };
