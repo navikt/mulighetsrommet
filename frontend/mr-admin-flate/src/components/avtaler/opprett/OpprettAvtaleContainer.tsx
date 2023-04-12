@@ -17,6 +17,7 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
+  onAvbryt: () => void;
   setResult: Dispatch<SetStateAction<string | null>>;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
@@ -48,10 +49,10 @@ const Schema = z.object({
     })
     .gt(0, "Antall plasser må være større enn 0")
     .int(),
-  fraDato: z
+  startDato: z
     .date({ required_error: "En avtale må ha en startdato" })
     .nullable(),
-  tilDato: z
+  sluttDato: z
     .date({ required_error: "En avtale må ha en sluttdato" })
     .nullable(),
   avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
@@ -61,6 +62,7 @@ const Schema = z.object({
 export type inferredSchema = z.infer<typeof Schema>;
 
 export function OpprettAvtaleContainer({
+  onAvbryt,
   setResult,
   tiltakstyper,
   ansatt,
@@ -74,7 +76,6 @@ export function OpprettAvtaleContainer({
     setFeil(null);
   };
 
-  console.log(avtale);
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -85,8 +86,8 @@ export function OpprettAvtaleContainer({
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer || "",
       antallPlasser: avtale?.antallPlasser || 0,
-      fraDato: avtale?.startDato ? new Date(avtale.startDato) : null,
-      tilDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
+      startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
+      sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
       url: avtale?.url || "",
     },
   });
@@ -107,8 +108,8 @@ export function OpprettAvtaleContainer({
       enhet: data.enhet,
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.tilDato),
-      startDato: formaterDatoSomYYYYMMDD(data.fraDato),
+      sluttDato: formaterDatoSomYYYYMMDD(data.startDato),
+      startDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       tiltakstypeId: data.tiltakstype,
       url: data.url,
       ansvarlig: data.avtaleansvarlig,
@@ -171,14 +172,14 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
-              label: "Start",
-              error: errors.fraDato?.message,
-              ...register("fraDato"),
+              label: "Startdato",
+              error: errors.startDato?.message,
+              ...register("startDato"),
             }}
             til={{
-              label: "Slutt",
-              error: errors.tilDato?.message,
-              ...register("tilDato"),
+              label: "Sluttdato",
+              error: errors.sluttDato?.message,
+              ...register("sluttDato"),
             }}
           />
         </FormGroup>
@@ -241,7 +242,10 @@ export function OpprettAvtaleContainer({
             >{`${navn} - ${ansatt?.ident}`}</option>
           </Select>
         </FormGroup>
-        <div className={styles.content_right}>
+        <div className={styles.button_row}>
+          <Button onClick={onAvbryt} variant="danger">
+            Avbryt
+          </Button>
           <Button type="submit">
             {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
           </Button>
