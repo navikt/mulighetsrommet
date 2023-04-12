@@ -168,12 +168,12 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
-              label: "Start",
+              label: "Startdato",
               error: errors.fraDato?.message,
               ...register("fraDato"),
             }}
             til={{
-              label: "Slutt",
+              label: "Sluttdato",
               error: errors.tilDato?.message,
               ...register("tilDato"),
             }}
@@ -254,12 +254,12 @@ export const FormGroup = ({
   children: ReactNode;
   cols?: number;
 }) => (
-    <div
-      className={classNames(styles.form_group, styles.grid, {
-        [styles.grid_1]: cols === 1,
-        [styles.grid_2]: cols === 2,
-      })}
-    >
-      {children}
-    </div>
-  );
+  <div
+    className={classNames(styles.form_group, styles.grid, {
+      [styles.grid_1]: cols === 1,
+      [styles.grid_2]: cols === 2,
+    })}
+  >
+    {children}
+  </div>
+);
