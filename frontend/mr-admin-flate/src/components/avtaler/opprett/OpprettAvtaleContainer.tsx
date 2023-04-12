@@ -46,10 +46,10 @@ const Schema = z.object({
     })
     .gt(0, "Antall plasser må være større enn 0")
     .int(),
-  fraDato: z
+  startDato: z
     .date({ required_error: "En avtale må ha en startdato" })
     .nullable(),
-  tilDato: z
+  sluttDato: z
     .date({ required_error: "En avtale må ha en sluttdato" })
     .nullable(),
   avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
@@ -72,7 +72,6 @@ export function OpprettAvtaleContainer({
     setFeil(null);
   };
 
-  console.log(avtale);
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -83,8 +82,8 @@ export function OpprettAvtaleContainer({
       avtaletype: avtale?.avtaletype || "",
       leverandor: avtale?.leverandor?.organisasjonsnummer || "",
       antallPlasser: avtale?.antallPlasser || 0,
-      fraDato: avtale?.startDato ? new Date(avtale.startDato) : null,
-      tilDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
+      startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
+      sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
       url: avtale?.url || "",
     },
   });
@@ -105,8 +104,8 @@ export function OpprettAvtaleContainer({
       enhet: data.enhet,
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.tilDato),
-      startDato: formaterDatoSomYYYYMMDD(data.fraDato),
+      sluttDato: formaterDatoSomYYYYMMDD(data.startDato),
+      startDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       tiltakstypeId: data.tiltakstype,
       url: data.url,
       ansvarlig: data.avtaleansvarlig,
@@ -169,13 +168,13 @@ export function OpprettAvtaleContainer({
           <Datovelger
             fra={{
               label: "Startdato",
-              error: errors.fraDato?.message,
-              ...register("fraDato"),
+              error: errors.startDato?.message,
+              ...register("startDato"),
             }}
             til={{
               label: "Sluttdato",
-              error: errors.tilDato?.message,
-              ...register("tilDato"),
+              error: errors.sluttDato?.message,
+              ...register("sluttDato"),
             }}
           />
         </FormGroup>
