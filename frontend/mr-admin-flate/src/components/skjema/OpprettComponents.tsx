@@ -16,17 +16,17 @@ export function Datovelger<T>({
   fra: DatoProps;
   til: DatoProps;
 }) {
-  const { field: fraDato } = useController<inferredSchema, "fraDato">({
-    name: "fraDato",
+  const { field: startDato } = useController<inferredSchema, "startDato">({
+    name: "startDato",
   });
-  const { field: tilDato } = useController<inferredSchema, "tilDato">({
-    name: "tilDato",
+  const { field: sluttDato } = useController<inferredSchema, "sluttDato">({
+    name: "sluttDato",
   });
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
-        fraDato.onChange(val?.from);
-        tilDato.onChange(val?.to);
+        startDato.onChange(val?.from);
+        sluttDato.onChange(val?.to);
       },
     });
 
@@ -37,13 +37,13 @@ export function Datovelger<T>({
           {...fra}
           {...fromInputProps}
           ref={null}
-          value={formaterDato(fraDato.value!!)}
+          value={formaterDato(startDato.value!!)}
         />
         <DatoFelt<T>
           {...til}
           {...toInputProps}
           ref={null}
-          value={formaterDato(tilDato.value!!)}
+          value={formaterDato(sluttDato.value!!)}
         />
       </div>
     </UNSAFE_DatePicker>
