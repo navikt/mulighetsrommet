@@ -2,30 +2,24 @@ import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
 import { useEffect, useState } from 'react';
 import { Button } from '@navikt/ds-react';
 import { QuestionmarkIcon } from '@navikt/aksel-icons';
-import { useJoyrideStepIndex } from '../../hooks/useJoyrideStepIndex';
+import { localeStrings } from './utils';
 
 interface Props {
   toggleHistorikkModal: (state: boolean) => void;
-  isHistorikkModalOpen: boolean;
 }
 
-export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }: Props) {
-  const [, setState] = useState({});
-  const [lastStepState, setLastStepState] = useState(false);
-  const { setStepIndexState } = useJoyrideStepIndex();
-  const localeStrings = () => ({
-    next: 'Neste',
-    back: 'Forrige',
-    close: 'Lukk',
-    skip: 'Skip',
-    last: 'Ferdig',
+export function OversiktenJoyride({ toggleHistorikkModal }: Props) {
+  const [state, setState] = useState({
+    run: false,
+    loading: false,
+    stepIndex: 0,
   });
 
   useEffect(() => {
     //viser joyride ved første load
     return window.localStorage.getItem('joyrideOversikten') === null
-      ? window.localStorage.setItem('joyrideOversikten', `true`)
-      : window.localStorage.setItem('joyrideOversikten', `false`);
+      ? window.localStorage.setItem('joyrideOversikten', 'true')
+      : window.localStorage.setItem('joyrideOversikten', 'false');
   }, []);
 
   const steps: Step[] = [
@@ -65,23 +59,6 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
       placement: 'left',
       disableBeacon: true,
     },
-    //dette steget vil feile, men må være med for at den historikkStep skal kjøre
-    {
-      content: 'Her kan du se historikken til brukeren i kontekst.',
-      placement: 'top',
-      target: '#historikk_modal',
-      disableBeacon: true,
-    },
-    {
-      content: 'Her kan du lese mer om tiltaksgjennomføringene. Klikk på raden for å se!',
-      placement: 'top',
-
-      target: '#list_element',
-      disableBeacon: true,
-    },
-  ];
-
-  const historikkStep: Step[] = [
     {
       content: 'Her kan du se historikken til brukeren i kontekst.',
       placement: 'top',
@@ -91,6 +68,13 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
         },
       },
       target: '#historikk_modal',
+      disableBeacon: true,
+    },
+    {
+      content: 'Her kan du lese mer om tiltaksgjennomføringene. Klikk på raden for å se!',
+      placement: 'top',
+
+      target: '#list_element',
       disableBeacon: true,
     },
   ];
@@ -109,47 +93,37 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
 
     if ([EVENTS.STEP_AFTER].includes(type)) {
-      //for historikk-modalen
+      //for steps i historikk-modalen
       if (EVENTS.TARGET_NOT_FOUND && index === 5) {
-        setState({ run: false, loading: true });
+        setState(prevState => ({ ...prevState, run: false, loading: true }));
         setTimeout(() => {
-          setState({
-            loading: false,
-            run: true,
-          });
+          setState(prevState => ({ ...prevState, run: true, loading: false }));
         }, 200);
       }
-      setStepIndexState(nextStepIndex);
+      setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
     } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      if ([STATUS.SKIPPED].includes(status)) {
-        setLastStepState(true);
+      // if ([STATUS.SKIPPED].includes(status)) {
+      if (window.localStorage.getItem('joyrideOversiktenLastStep') === null) {
+        window.localStorage.setItem('joyrideOversiktenLastStep', 'true');
       }
-      //reset joyride
-      setStepIndexState(0);
-      setState({ run: false });
+      // }
+      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
       window.localStorage.setItem('joyrideOversikten', 'false');
-      console.log('local', window.localStorage.getItem('joyrideOversikten'));
     }
-
     // åpne historikk-modalen
     if ([ACTIONS.NEXT] && index === 6) {
       toggleHistorikkModal(true);
     }
-    console.log(type, index, action, status);
+
+    if ([ACTIONS.NEXT] && index === 7) {
+      toggleHistorikkModal(false);
+    }
   };
 
   const handleJoyrideCallbackLastStep = (data: any) => {
     const { status, type } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status) || [EVENTS.TOOLTIP_CLOSE].includes(type)) {
-      setLastStepState(false);
-    }
-  };
-
-  const handleJoyrideCallbackHistorikkmodal = (data: any) => {
-    const { action } = data;
-    // lukke historikk-modalen
-    if ([ACTIONS.CLOSE].includes(action)) {
-      toggleHistorikkModal(false);
+      window.localStorage.setItem('joyrideOversiktenLastStep', 'false');
     }
   };
 
@@ -159,6 +133,7 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
         variant="secondary"
         onClick={() => {
           window.localStorage.setItem('joyrideOversikten', 'true');
+          setState(prevState => ({ ...prevState, run: true }));
         }}
         id="joyride_knapp"
       >
@@ -172,13 +147,14 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
         hideCloseButton
         callback={handleJoyrideCallback}
         showSkipButton
+        stepIndex={state.stepIndex}
       />
-      <Joyride locale={localeStrings()} run={lastStepState} steps={lastStep} callback={handleJoyrideCallbackLastStep} />
+
       <Joyride
         locale={localeStrings()}
-        run={isHistorikkModalOpen}
-        steps={historikkStep}
-        callback={handleJoyrideCallbackHistorikkmodal}
+        run={window.localStorage.getItem('joyrideOversiktenLastStep') === 'true'}
+        steps={lastStep}
+        callback={handleJoyrideCallbackLastStep}
       />
     </>
   );

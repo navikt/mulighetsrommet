@@ -1,12 +1,32 @@
 import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { localeStrings } from './utils';
 
 interface Props {
   setDelMedBrukerModal: (state: boolean) => void;
-  delMedBrukerModalOpen: boolean;
+  opprettAvtale: boolean;
 }
-export function DetaljerJoyride({ setDelMedBrukerModal, delMedBrukerModalOpen }: Props) {
-  const [, setState] = useState({});
+export function DetaljerJoyride({ setDelMedBrukerModal, opprettAvtale }: Props) {
+  const [state, setState] = useState({
+    run: false,
+    loading: false,
+    stepIndex: 0,
+  });
+
+  useEffect(() => {
+    //viser joyride ved første load
+    return window.localStorage.getItem('joyrideDetaljer') === null
+      ? window.localStorage.setItem('joyrideDetaljer', 'true')
+      : window.localStorage.setItem('joyrideDetaljer', 'false');
+  }, []);
+
+  useEffect(() => {
+    if (window.localStorage.getItem('harVistJoyrideOpprettAvtale') === null && opprettAvtale) {
+      return window.localStorage.setItem('harVistJoyrideOpprettAvtale', 'true');
+    } else if (!opprettAvtale && window.localStorage.getItem('harVistJoyrideOpprettAvtale') === null) {
+      return window.localStorage.setItem('harVistJoyrideOpprettAvtale', 'false');
+    }
+  }, []);
 
   const steps: Step[] = [
     {
@@ -28,22 +48,18 @@ export function DetaljerJoyride({ setDelMedBrukerModal, delMedBrukerModalOpen }:
       target: '#sidemeny',
       disableBeacon: true,
     },
-
+    {
+      content: 'For tiltak med {MER TEKST HER} kan du opprette avtale.',
+      placement: 'auto',
+      target: '#opprett-avtale-knapp',
+      disableBeacon: true,
+    },
     {
       content: 'Du kan også dele tiltaket med bruker via dialogen! Klikk neste for å se.',
       placement: 'auto',
       target: '#deleknapp',
       disableBeacon: true,
     },
-    {
-      content: 'Dette er teksten brukeren vil se i dialogen etter at tiltaket er delt.',
-      placement: 'auto',
-      target: '#deletekst',
-      disableBeacon: true,
-    },
-  ];
-
-  const delemodalStep: Step[] = [
     {
       content: 'Dette er teksten brukeren vil se i dialogen etter at tiltaket er delt.',
       placement: 'auto',
@@ -72,69 +88,52 @@ export function DetaljerJoyride({ setDelMedBrukerModal, delMedBrukerModalOpen }:
     const { action, index, status, type } = data;
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
 
+    if (!opprettAvtale) {
+      //hvis det ikke er tiltak med opprett avtale, settes opprett avtale-steps til ikke vist i localStorage
+      window.localStorage.setItem('harVistJoyrideOpprettAvtale', 'false');
+      //hopper over steget med opprett avtale for at den skal kjøre videre
+      if (index === 3 && [ACTIONS.NEXT]) {
+        setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
+      }
+    }
+
     if ([EVENTS.STEP_AFTER].includes(type)) {
       //for dele-modalen
-      if (EVENTS.TARGET_NOT_FOUND && index === 5) {
-        setState({ run: false, loading: true });
+      if (EVENTS.TARGET_NOT_FOUND && index === 6) {
+        setState(prevState => ({ ...prevState, run: false, loading: true }));
         setTimeout(() => {
-          setState({
-            loading: false,
+          setState(prevState => ({
+            ...prevState,
             run: true,
-          });
+            loading: false,
+          }));
         }, 200);
       }
-      setState({ stepIndex: nextStepIndex });
+      setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
     } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       //reset joyride
-      setState({ run: false, stepIndex: 0 });
+      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
+      window.localStorage.setItem('joyrideDetaljer', 'false');
+      //lukker dele-modalen hvis det er på siste steget
+      setDelMedBrukerModal(false);
     }
 
     // åpne dele-modalen
-    if ([ACTIONS.NEXT] && index === 4) {
+    if ([ACTIONS.NEXT] && index === 5) {
       setDelMedBrukerModal(true);
     }
   };
 
-  const handleJoyrideCallbackDelemodal = (data: any) => {
-    const { action } = data;
-    // lukke historikk-modalen
-    if ([ACTIONS.CLOSE].includes(action)) {
-      setDelMedBrukerModal(false);
-    }
-  };
-
   return (
-    <>
-      <Joyride
-        locale={{
-          next: 'Neste',
-          back: 'Forrige',
-          close: 'Lukk',
-          skip: 'Skip',
-          last: 'Ferdig',
-        }}
-        continuous
-        run={true}
-        steps={steps}
-        hideCloseButton
-        callback={handleJoyrideCallback}
-        showSkipButton
-      />
-      <Joyride
-        locale={{
-          next: 'Neste',
-          back: 'Forrige',
-          close: 'Lukk',
-          skip: 'Skip',
-          last: 'Ferdig',
-        }}
-        continuous
-        run={delMedBrukerModalOpen}
-        steps={delemodalStep}
-        hideCloseButton
-        callback={handleJoyrideCallbackDelemodal}
-        showSkipButton
-      />
-    </>
+    <Joyride
+      locale={localeStrings()}
+      continuous
+      run={window.localStorage.getItem('joyrideDetaljer') === 'true'}
+      steps={steps}
+      hideCloseButton
+      callback={handleJoyrideCallback}
+      showSkipButton
+      stepIndex={state.stepIndex}
+    />
   );
 }

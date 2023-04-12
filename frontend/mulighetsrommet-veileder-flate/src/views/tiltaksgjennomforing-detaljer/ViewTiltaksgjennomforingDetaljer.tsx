@@ -235,13 +235,19 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           />
         </div>
       </div>
+
+      <DetaljerJoyride
+        setDelMedBrukerModal={setDelemodalApen}
+        opprettAvtale={
+          tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+          whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+          !erPreview
+        }
+      />
+
       {tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-      whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-      !erPreview ? (
-        <DetaljerJoyrideOpprettAvtale setDelMedBrukerModal={setDelemodalApen} delMedBrukerModalOpen={delemodalApen} />
-      ) : (
-        <DetaljerJoyride setDelMedBrukerModal={setDelemodalApen} delMedBrukerModalOpen={delemodalApen} />
-      )}
+        whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+        !erPreview && <DetaljerJoyrideOpprettAvtale />}
     </>
   );
 };

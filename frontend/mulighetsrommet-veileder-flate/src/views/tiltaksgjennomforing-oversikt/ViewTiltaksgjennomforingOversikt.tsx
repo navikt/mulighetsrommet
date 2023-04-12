@@ -7,8 +7,8 @@ import { FiltrertFeilInnsatsgruppeVarsel } from '../../components/ikkeKvalifiser
 import Tiltaksgjennomforingsoversikt from '../../components/oversikt/Tiltaksgjennomforingsoversikt';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import styles from './ViewTiltaksgjennomforingOversikt.module.scss';
-import { OversiktenJoyride } from '../../components/joyride/OversiktenJoyride';
 import { useModal } from '../../hooks/useModal';
+import { OversiktenJoyride } from '../../components/joyride/OversiktenJoyride';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -20,7 +20,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
       <div className={styles.filtertags_og_knapperad}>
         <Filtertags filter={filter} setFilter={setFilter} />
         <div className={styles.knapperad}>
-          <OversiktenJoyride toggleHistorikkModal={toggleHistorikkmodal} isHistorikkModalOpen={isHistorikkModalOpen} />
+          <OversiktenJoyride toggleHistorikkModal={toggleHistorikkmodal} />
           <HistorikkButton toggleHistorikkModal={toggleHistorikkmodal} isOpen={isHistorikkModalOpen} />
         </div>
       </div>
