@@ -50,10 +50,11 @@ export const OpprettTiltaksgjennomforingModal = ({
             <Heading size="small" level="2" data-testid="modal_header">
               Opprett ny gjennomføring
             </Heading>
-            <OpprettTiltaksgjennomforingContainer
-              setError={setError}
-              setResult={setResult}
-            />
+              <OpprettTiltaksgjennomforingContainer
+                onAvbryt={clickCancel}
+                setError={setError}
+                setResult={setResult}
+              />
           </Modal.Content>
         </Modal>
       )}

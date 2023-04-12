@@ -66,6 +66,7 @@ const OpprettAvtaleModal = ({
             ) : null}
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <OpprettAvtaleContainer
+                onAvbryt={clickCancel}
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 setResult={setResult}

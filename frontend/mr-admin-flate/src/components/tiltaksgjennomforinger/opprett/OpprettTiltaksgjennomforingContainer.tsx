@@ -47,6 +47,7 @@ const Schema = z.object({
 export type inferredSchema = z.infer<typeof Schema>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
+  onAvbryt: () => void;
   setError: Dispatch<SetStateAction<boolean>>;
   setResult: Dispatch<SetStateAction<string | null>>;
 }
@@ -264,7 +265,8 @@ export const OpprettTiltaksgjennomforingContainer = (
             value={avtale?.avtaletype || ""}
           />
         </FormGroup>
-        <div className={styles.content_right}>
+        <div className={styles.button_row}>
+          <Button onClick={props.onAvbryt} variant="danger">Avbryt</Button>
           <Button type="submit">Opprett</Button>
         </div>
       </form>

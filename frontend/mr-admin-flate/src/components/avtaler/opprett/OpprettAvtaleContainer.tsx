@@ -17,6 +17,7 @@ import styles from "./OpprettAvtaleContainer.module.scss";
 import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
+  onAvbryt: () => void;
   setResult: Dispatch<SetStateAction<string | null>>;
   tiltakstyper: Tiltakstype[];
   ansatt: Ansatt;
@@ -59,6 +60,7 @@ const Schema = z.object({
 export type inferredSchema = z.infer<typeof Schema>;
 
 export function OpprettAvtaleContainer({
+  onAvbryt,
   setResult,
   tiltakstyper,
   ansatt,
@@ -236,7 +238,10 @@ export function OpprettAvtaleContainer({
             >{`${navn} - ${ansatt?.ident}`}</option>
           </Select>
         </FormGroup>
-        <div className={styles.content_right}>
+        <div className={styles.button_row}>
+          <Button onClick={onAvbryt} variant="danger">
+            Avbryt
+          </Button>
           <Button type="submit">
             {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
           </Button>
