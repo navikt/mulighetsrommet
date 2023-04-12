@@ -61,7 +61,7 @@ export function DatoFelt<T>({
       {...rest}
       label={label}
       name={name}
-      size="small"
+      size="medium"
       value={value}
     />
   );
