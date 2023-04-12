@@ -1,28 +1,23 @@
 .navlink_container {
   display: flex;
-  justify-content: center;
-  box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px;
-  margin: 0 0.2rem;
+  margin-left: 2rem;
+  gap: 1rem;
 }
 
 .navlink {
-  border-bottom: 1px solid transparent;
   color: white;
   text-decoration: none;
-  padding: 1rem 1rem 0.5rem;
-  border-bottom: 4px solid transparent;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem;
 
   &:hover {
-    color: white;
     background-color: var(--a-surface-inverted-hover);
   }
 
   &_active {
-    text-decoration: none;
+    border-top: 2px solid var(--a-border-action);
     color: white;
-    padding: 1rem 1rem 0.5rem;
-    cursor: default;
     background-color: var(--a-surface-inverted-hover);
   }
 }

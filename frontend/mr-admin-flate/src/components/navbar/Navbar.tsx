@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import styles from "./Navbar.module.scss";
+import classnames from "classnames";
 
 export type Shortcut = { navn: string; url: string };
 
@@ -16,7 +17,9 @@ export function Navbar({ shortcuts }: NavbarProps) {
           to={url}
           data-testid={`tab-${url.replace("/", "")}`}
           className={({ isActive }) =>
-            isActive ? styles.navlink_active : styles.navlink
+            isActive
+              ? classnames(styles.navlink_active, styles.navlink)
+              : styles.navlink
           }
         >
           {navn}
