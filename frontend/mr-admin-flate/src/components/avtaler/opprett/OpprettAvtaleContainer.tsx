@@ -33,7 +33,9 @@ const GyldigUrlHvisVerdi = z.union([
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
   tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
-  avtaletype: z.string({ required_error: "Du må velge en avtaletype" }),
+  avtaletype: z.nativeEnum(Avtaletype, {
+    required_error: "Du må velge en avtaletype",
+  }),
   leverandor: z
     .string()
     .min(9, "Organisasjonsnummer må være 9 siffer")
@@ -81,7 +83,7 @@ export function OpprettAvtaleContainer({
       enhet: avtale?.navEnhet?.enhetsnummer ?? ansatt.hovedenhet,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
-      avtaletype: avtale?.avtaletype || "",
+      avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer || "",
       antallPlasser: avtale?.antallPlasser || 0,
       startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
@@ -111,6 +113,7 @@ export function OpprettAvtaleContainer({
       tiltakstypeId: data.tiltakstype,
       url: data.url,
       ansvarlig: data.avtaleansvarlig,
+      avtaletype: data.avtaletype,
     };
 
     if (avtale?.id) {
@@ -220,6 +223,7 @@ export function OpprettAvtaleContainer({
               Forhåndsgodkjent avtale
             </option>
             <option value={Avtaletype.RAMMEAVTALE}>Rammeavtale</option>
+            <option value={Avtaletype.AVTALE}>Avtale</option>
           </Select>
           <TextField
             error={errors.url?.message}

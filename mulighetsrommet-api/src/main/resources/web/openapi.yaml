@@ -981,6 +981,8 @@ components:
           type: string
         ansvarlig:
           type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
       required:
         - tiltakstypeId
         - navn
@@ -991,6 +993,7 @@ components:
         - avtalestatus
         - antallPlasser
         - ansvarlig
+        - avtaletype
 
     EmbeddedTiltakstype:
       type: object
