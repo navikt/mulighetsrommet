@@ -1,5 +1,9 @@
 import { Heading, Modal } from "@navikt/ds-react";
-import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  Tiltakstypekategori,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
@@ -26,6 +30,7 @@ const OpprettAvtaleModal = ({
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useAlleTiltakstyper({
       tiltakstypestatus: Tiltakstypestatus.AKTIV,
+      tiltakstypekategori: Tiltakstypekategori.GRUPPE,
     });
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
@@ -58,7 +63,7 @@ const OpprettAvtaleModal = ({
           aria-label="modal"
         >
           <Modal.Content>
-            <Heading size="small" level="2" data-testid="avtale_modal_header">
+            <Heading size="medium" level="2" data-testid="avtale_modal_header">
               {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
             </Heading>
             {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (

@@ -5,7 +5,10 @@ import {
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
-import { useFeatureToggles, OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE } from "../../api/features/feature-toggles";
+import {
+  useFeatureToggles,
+  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
+} from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
@@ -23,7 +26,8 @@ export function Tiltaksgjennomforingfilter() {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
-    features.isSuccess && features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE];
+    features.isSuccess &&
+    features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE];
 
   return (
     <>
@@ -32,6 +36,7 @@ export function Tiltaksgjennomforingfilter() {
           <Search
             label="Søk etter tiltaksgjennomføring"
             hideLabel
+            size="small"
             variant="simple"
             onChange={(search: string) =>
               setSokefilter({ ...sokefilter, search })
@@ -43,6 +48,7 @@ export function Tiltaksgjennomforingfilter() {
           <Select
             label="Filtrer på enhet"
             hideLabel
+            size="small"
             value={sokefilter.enhet}
             data-testid="filter_tiltaksgjennomforing_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -60,6 +66,7 @@ export function Tiltaksgjennomforingfilter() {
           <Select
             label="Filtrer på tiltakstype"
             hideLabel
+            size="small"
             value={sokefilter.tiltakstype}
             data-testid="filter_tiltaksgjennomforing_tiltakstype"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -82,6 +89,7 @@ export function Tiltaksgjennomforingfilter() {
           <Select
             label="Filtrer på status"
             hideLabel
+            size="small"
             value={sokefilter.status}
             data-testid="filter_tiltaksgjennomforing_status"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -93,7 +101,9 @@ export function Tiltaksgjennomforingfilter() {
               });
             }}
           >
-            <option value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}>
+            <option
+              value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}
+            >
               Aktiv
             </option>
             <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
@@ -109,7 +119,7 @@ export function Tiltaksgjennomforingfilter() {
           </Select>
           {visOpprettTiltaksgjennomforingKnapp && (
             <>
-              <Button onClick={() => setModalOpen(true)}>
+              <Button size="small" onClick={() => setModalOpen(true)}>
                 Opprett ny gjennomføring
               </Button>
 
@@ -124,5 +134,3 @@ export function Tiltaksgjennomforingfilter() {
     </>
   );
 }
-
-
