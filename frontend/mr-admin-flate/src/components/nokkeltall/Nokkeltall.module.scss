@@ -1,9 +1,10 @@
 .nokkeltall_container {
-  background-color: white;
   padding: 1rem;
   flex: 1;
   display: flex;
-  gap: 1rem
+  justify-content: space-between;
+  max-width: 33.3%;
+  border-right: 1px solid var(--a-gray-200);
 }
 
 .heading {
