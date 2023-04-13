@@ -2,7 +2,7 @@ import { Button, Select, TextField } from "@navikt/ds-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import z from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
@@ -266,7 +266,9 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <div className={styles.button_row}>
-          <Button onClick={props.onAvbryt} variant="danger">Avbryt</Button>
+          <Button onClick={props.onAvbryt} variant="danger">
+            Avbryt
+          </Button>
           <Button type="submit">Opprett</Button>
         </div>
       </form>

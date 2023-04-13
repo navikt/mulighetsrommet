@@ -30,7 +30,7 @@ const OpprettAvtaleModal = ({
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
     useAlleTiltakstyper({
       tiltakstypestatus: Tiltakstypestatus.AKTIV,
-      tiltakstypekategori: Tiltakstypekategori.GRUPPE
+      tiltakstypekategori: Tiltakstypekategori.GRUPPE,
     });
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
@@ -63,7 +63,7 @@ const OpprettAvtaleModal = ({
           aria-label="modal"
         >
           <Modal.Content>
-            <Heading size="small" level="2" data-testid="avtale_modal_header">
+            <Heading size="medium" level="2" data-testid="avtale_modal_header">
               {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
             </Heading>
             {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (

@@ -40,8 +40,6 @@ export function Avtaleinfo() {
         <div className={styles.bolk}>
           <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
           <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
-          <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
-          <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
           <Metadata header="Antall plasser" verdi={avtale.antallPlasser} />
           <Metadata
             header="Leverandør"
@@ -50,6 +48,8 @@ export function Avtaleinfo() {
               avtale.leverandor?.organisasjonsnummer
             }
           />
+          <Metadata header="Avtaletype" verdi={avtale.avtaletype} />
+          <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
         </div>
         <Separator />
         <div>
