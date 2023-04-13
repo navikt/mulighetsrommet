@@ -1,6 +1,7 @@
 import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
 import { useEffect, useState } from 'react';
 import { localeStrings } from './utils';
+import { JoyrideKnapp } from './JoyrideKnapp';
 
 interface Props {
   setDelMedBrukerModal: (state: boolean) => void;
@@ -125,15 +126,23 @@ export function DetaljerJoyride({ setDelMedBrukerModal, opprettAvtale }: Props) 
   };
 
   return (
-    <Joyride
-      locale={localeStrings()}
-      continuous
-      run={window.localStorage.getItem('joyrideDetaljer') === 'true'}
-      steps={steps}
-      hideCloseButton
-      callback={handleJoyrideCallback}
-      showSkipButton
-      stepIndex={state.stepIndex}
-    />
+    <>
+      <JoyrideKnapp
+        handleClick={() => {
+          window.localStorage.setItem('joyrideDetaljer', 'true');
+          setState(prevState => ({ ...prevState, run: true }));
+        }}
+      />
+      <Joyride
+        locale={localeStrings()}
+        continuous
+        run={window.localStorage.getItem('joyrideDetaljer') === 'true'}
+        steps={steps}
+        hideCloseButton
+        callback={handleJoyrideCallback}
+        showSkipButton
+        stepIndex={state.stepIndex}
+      />
+    </>
   );
 }

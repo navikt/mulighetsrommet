@@ -9,6 +9,13 @@
   margin: 0 auto;
 }
 
+.top_wrapper {
+  align-items: baseline;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  margin-right: 1rem;
+}
+
 .flex {
   display: flex;
   flex-wrap: wrap;
@@ -30,7 +37,6 @@
 .nokkelinfo_container {
   display: flex;
 }
-
 .alert {
   margin-top: 0.5rem;
   border-radius: 0;

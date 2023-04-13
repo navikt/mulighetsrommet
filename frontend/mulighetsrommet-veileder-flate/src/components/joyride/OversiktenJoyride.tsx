@@ -1,8 +1,7 @@
 import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
 import { useEffect, useState } from 'react';
-import { Button } from '@navikt/ds-react';
-import { QuestionmarkIcon } from '@navikt/aksel-icons';
 import { localeStrings } from './utils';
+import { JoyrideKnapp } from './JoyrideKnapp';
 
 interface Props {
   toggleHistorikkModal: (state: boolean) => void;
@@ -129,16 +128,12 @@ export function OversiktenJoyride({ toggleHistorikkModal }: Props) {
 
   return (
     <>
-      <Button
-        variant="secondary"
-        onClick={() => {
+      <JoyrideKnapp
+        handleClick={() => {
           window.localStorage.setItem('joyrideOversikten', 'true');
           setState(prevState => ({ ...prevState, run: true }));
         }}
-        id="joyride_knapp"
-      >
-        <QuestionmarkIcon title="Virtuell omvisning" fontSize="1.5rem" />
-      </Button>
+      />
       <Joyride
         locale={localeStrings()}
         continuous

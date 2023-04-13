@@ -143,12 +143,30 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   return (
     <>
       <div className={styles.container}>
-        {!erPreview && (
-          <Tilbakeknapp
-            tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
-            tekst="Tilbake til tiltaksoversikten"
+        <div className={styles.top_wrapper}>
+          {!erPreview && (
+            <Tilbakeknapp
+              tilbakelenke={`/${fnr}/#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
+              tekst="Tilbake til tiltaksoversikten"
+            />
+          )}
+          <DetaljerJoyride
+            setDelMedBrukerModal={setDelemodalApen}
+            opprettAvtale={
+              tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+              whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+              !erPreview
+            }
           />
-        )}
+        </div>
+
+        <DetaljerJoyrideOpprettAvtale
+          opprettAvtale={
+            tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+            whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+            !erPreview
+          }
+        />
         <BrukerKvalifisererIkkeVarsel />
         <BrukerHarIkke14aVedtakVarsel />
         <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
@@ -235,19 +253,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           />
         </div>
       </div>
-
-      <DetaljerJoyride
-        setDelMedBrukerModal={setDelemodalApen}
-        opprettAvtale={
-          tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-          whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-          !erPreview
-        }
-      />
-
-      {tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-        whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-        !erPreview && <DetaljerJoyrideOpprettAvtale />}
     </>
   );
 };
