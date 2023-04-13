@@ -2,6 +2,7 @@ import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
 import { useEffect, useState } from 'react';
 import { localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
+import { logEvent } from '../../core/api/logger';
 
 interface Props {
   setDelMedBrukerModal: (state: boolean) => void;
@@ -131,6 +132,7 @@ export function DetaljerJoyride({ setDelMedBrukerModal, opprettAvtale }: Props) 
         handleClick={() => {
           window.localStorage.setItem('joyrideDetaljer', 'true');
           setState(prevState => ({ ...prevState, run: true }));
+          logEvent('mulighetsrommet.joyride', { value: 'detaljer' });
         }}
       />
       <Joyride

@@ -42,14 +42,11 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
     estimert_ventetid,
   } = tiltaksgjennomforing;
 
-  // const { setStepIndexState } = useJoyrideStepIndex();
-
   return (
     <li className={styles.list_element} id="list_element">
       <Lenke
         to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"
-        // onClick={() => setStepIndexState((prev: number) => prev + 1)}
       >
         <div className={styles.gjennomforing_container}>
           <div className={classNames(styles.flex, styles.navn)}>

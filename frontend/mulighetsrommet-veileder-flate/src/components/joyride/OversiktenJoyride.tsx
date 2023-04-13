@@ -2,6 +2,7 @@ import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
 import { useEffect, useState } from 'react';
 import { localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
+import { logEvent } from '../../core/api/logger';
 
 interface Props {
   toggleHistorikkModal: (state: boolean) => void;
@@ -132,6 +133,7 @@ export function OversiktenJoyride({ toggleHistorikkModal }: Props) {
         handleClick={() => {
           window.localStorage.setItem('joyrideOversikten', 'true');
           setState(prevState => ({ ...prevState, run: true }));
+          logEvent('mulighetsrommet.joyride', { value: 'oversikten' });
         }}
       />
       <Joyride

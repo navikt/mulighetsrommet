@@ -8,10 +8,10 @@ import { logEvent } from '../../core/api/logger';
 
 interface Props {
   toggleHistorikkModal: (state: boolean) => void;
-  isOpen: boolean;
+  isHistorikkModalOpen: boolean;
 }
 
-export function HistorikkButton({ toggleHistorikkModal, isOpen }: Props) {
+export function HistorikkButton({ toggleHistorikkModal, isHistorikkModalOpen }: Props) {
   const handleClick = () => {
     toggleHistorikkModal(true);
     logEvent('mulighetsrommet.historikk');
@@ -25,7 +25,7 @@ export function HistorikkButton({ toggleHistorikkModal, isOpen }: Props) {
       <StandardModal
         className={styles.historikk_modal}
         hideButtons
-        modalOpen={isOpen}
+        modalOpen={isHistorikkModalOpen}
         setModalOpen={() => toggleHistorikkModal(false)}
         heading="Historikk"
         id="historikk_modal"
