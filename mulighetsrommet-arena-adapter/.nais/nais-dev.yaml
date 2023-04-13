@@ -60,6 +60,8 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
+      external:
+        - host: amt-arena-ords-proxy.dev-fss-pub.nais.io
 
   envFrom:
     - secret: mulighetsrommet-arena-adapter
