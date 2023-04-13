@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.setup.http
+package no.nav.mulighetsrommet.ktor.clients
 
 import io.ktor.client.*
 import io.ktor.client.engine.*
@@ -13,6 +13,7 @@ import org.slf4j.MDC
 
 internal fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine) {
     expectSuccess = false
+
     install(ContentNegotiation) {
         json(
             Json {
@@ -20,8 +21,12 @@ internal fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClien
             }
         )
     }
+
     defaultRequest {
         header("Nav-Consumer-Id", "mulighetsrommet-api")
-        MDC.get("call-id")?.let { header(HttpHeaders.XRequestId, it) }
+
+        MDC.get("call-id")?.let {
+            header(HttpHeaders.XRequestId, it)
+        }
     }
 }
