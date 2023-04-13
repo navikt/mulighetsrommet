@@ -10,8 +10,6 @@ import { TilgjengelighetsstatusComponent } from './Tilgjengelighetsstatus';
 import { BodyShort } from '@navikt/ds-react';
 import { ChevronRightIcon } from '@navikt/aksel-icons';
 
-// import { useJoyrideStepIndex } from '../../hooks/useJoyrideStepIndex';
-
 interface Props {
   tiltaksgjennomforing: SanityTiltaksgjennomforing;
 }
