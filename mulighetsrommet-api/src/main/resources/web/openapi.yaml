@@ -1108,6 +1108,8 @@ components:
           type: string
         tiltaksnummer:
           type: string
+        ansvarlig:
+          type: string
       required:
         - id
         - avtaleId
@@ -1119,6 +1121,7 @@ components:
         - antallPlasser
         - virksomhetsnummer
         - tiltaksnummer
+        - ansvarlig
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

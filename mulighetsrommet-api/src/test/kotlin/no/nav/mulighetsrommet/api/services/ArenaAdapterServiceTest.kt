@@ -66,6 +66,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -116,6 +117,7 @@ class ArenaAdapterServiceTest : FunSpec({
             status = Tiltaksgjennomforingsstatus.AVSLUTTET,
             tilgjengelighet = Tilgjengelighetsstatus.Ledig,
             antallPlasser = null,
+            ansvarlige = emptyList(),
         )
     }
 

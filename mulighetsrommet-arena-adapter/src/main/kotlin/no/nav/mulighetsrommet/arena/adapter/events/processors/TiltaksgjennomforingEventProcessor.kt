@@ -29,7 +29,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighet
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
 import java.util.*
 
-class TiltakgjennomforingEventProcessor(
+class TiltaksgjennomforingEventProcessor(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient
@@ -163,6 +163,7 @@ class TiltakgjennomforingEventProcessor(
             avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
             tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
             antallPlasser = antallPlasser,
-            avtaleId = avtaleId
+            avtaleId = avtaleId,
+            ansvarlige = emptyList(),
         )
 }

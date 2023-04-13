@@ -19,6 +19,7 @@ object TiltaksgjennomforingFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -33,6 +34,7 @@ object TiltaksgjennomforingFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -47,5 +49,6 @@ object TiltaksgjennomforingFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
     )
 }

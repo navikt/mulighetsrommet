@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -43,8 +44,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).second shouldHaveSize 2
-            tiltaksgjennomforinger.get(gjennomforing1.id) shouldBe TiltaksgjennomforingAdminDto(
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second shouldHaveSize 2
+            tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight() shouldBe TiltaksgjennomforingAdminDto(
                 id = gjennomforing1.id,
                 tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = tiltakstype1.id,
@@ -60,12 +61,41 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                 antallPlasser = null,
-                avtaleId = gjennomforing1.avtaleId
+                avtaleId = gjennomforing1.avtaleId,
+                ansvarlige = emptyList(),
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).second shouldHaveSize 1
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second shouldHaveSize 1
+        }
+    }
+
+    context("TiltaksgjennomforingAnsvarlig") {
+        test("Ansvarlige crud") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            val ident1 = "N12343"
+            val ident2 = "Y12343"
+            val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(ident1, ident2))
+
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            val gjennomforingFraDB = tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight()!!
+
+            gjennomforingFraDB.ansvarlige.size shouldBe 2
+            gjennomforingFraDB.ansvarlige shouldContain ident1
+            gjennomforingFraDB.ansvarlige shouldContain ident2
+
+            database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(2)
+
+            val ident3 = "X12343"
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(ansvarlige = listOf(ident3))).shouldBeRight()
+            val gjennomforingFraDB2 = tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight()!!
+
+            gjennomforingFraDB2.ansvarlige.size shouldBe 1
+            gjennomforingFraDB2.ansvarlige shouldContain ident3
+
+            database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
         }
     }
 
@@ -99,7 +129,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
             }
         }
 
@@ -114,7 +144,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
             }
         }
 
@@ -129,7 +159,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
             }
         }
 
@@ -144,7 +174,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
             }
         }
 
@@ -161,7 +191,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
             }
         }
 
@@ -178,7 +208,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(gjennomforing1.id)?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
             }
         }
     }
@@ -203,13 +233,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                     startDato = LocalDate.of(2022, 1, 1),
                     tilgjengelighet = Tilgjengelighetsstatus.Ledig,
-                    antallPlasser = null
+                    antallPlasser = null,
+                    ansvarlige = emptyList(),
                 )
             )
         }
 
         test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "Tiltak - 1"
@@ -225,7 +256,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     20
                 ),
                 AdminTiltaksgjennomforingFilter()
-            )
+            ).shouldBeRight()
 
             items.size shouldBe 20
             items.first().navn shouldBe "Tiltak - 59"
@@ -240,7 +271,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     3
                 ),
                 AdminTiltaksgjennomforingFilter()
-            )
+            ).shouldBeRight()
 
             items.size shouldBe 5
             items.first().navn shouldBe "Tiltak - 95"
@@ -255,7 +286,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     nullableLimit = 200
                 ),
                 AdminTiltaksgjennomforingFilter()
-            )
+            ).shouldBeRight()
 
             items.size shouldBe 105
             items.first().navn shouldBe "Tiltak - 1"

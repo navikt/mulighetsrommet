@@ -77,7 +77,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 },
                 "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
             )
-        ): TiltakgjennomforingEventProcessor {
+        ): TiltaksgjennomforingEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
             }
@@ -86,7 +86,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 "Bearer token"
             }
 
-            return TiltakgjennomforingEventProcessor(entities, client, ords)
+            return TiltaksgjennomforingEventProcessor(entities, client, ords)
         }
 
         fun prepareEvent(

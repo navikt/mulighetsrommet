@@ -4,7 +4,7 @@ import z from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { FormGroup } from "../../avtaler/opprett/OpprettAvtaleContainer";
@@ -20,6 +20,7 @@ import { avtaleFilter, tiltakstypefilter } from "../../../api/atoms";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
 import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
+import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 
 const Schema = z.object({
   tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
@@ -39,9 +40,7 @@ const Schema = z.object({
     .int()
     .positive(),
   enhet: z.string().min(1, "Du må velge en enhet"),
-  tiltakssted: z.string({
-    required_error: "Du må skrive inn tiltakssted for gjennomføringen",
-  }),
+  avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -86,7 +85,8 @@ export const OpprettTiltaksgjennomforingContainer = (
     isLoading: isLoadingAvtaler,
     isError: isErrorAvtaler,
   } = useAvtaler();
-  if (isErrorAvtaler || isErrorEnheter || isErrorTiltakstyper) {
+  const { data: ansatt, isLoading: isLoadingAnsatt, isError: isErrorAnsatt } = useHentAnsatt();
+  if (isErrorAvtaler || isErrorEnheter || isErrorTiltakstyper || isErrorAnsatt) {
     props.setError(true);
   }
 
@@ -108,9 +108,10 @@ export const OpprettTiltaksgjennomforingContainer = (
       tiltakstypeId: data.tiltakstype,
       enhet: data.enhet,
       navn: data.tittel,
-      sluttDato: formaterDatoSomYYYYMMDD(data.startDato),
-      startDato: formaterDatoSomYYYYMMDD(data.sluttDato),
+      sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(data.startDato),
       avtaleId: data.avtale,
+      ansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       virksomhetsnummer: avtale?.leverandor?.organisasjonsnummer,
       tiltaksnummer: `${data.tiltaksnummer}#${data.aar}`,
     };
@@ -127,6 +128,12 @@ export const OpprettTiltaksgjennomforingContainer = (
       props.setError(true);
     }
   };
+
+  const navn = ansatt?.fornavn
+    ? [ansatt.fornavn, ansatt.etternavn ?? ""]
+        .map((it) => capitalize(it))
+        .join(" ")
+    : "";
 
   const avtalerOptions = () => {
     if (isLoadingAvtaler || !avtaler) {
@@ -222,7 +229,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <TextField
             error={errors.antallPlasser?.message}
-            style={{ width: "163px" }}
+            style={{ width: "180px" }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
@@ -247,27 +254,39 @@ export const OpprettTiltaksgjennomforingContainer = (
               </>
             )}
           </Select>
-          <TextField
-            error={errors.tiltakssted?.message}
-            label="Tiltakssted"
-            {...register("tiltakssted")}
-          />
+          <Select
+            error={errors.avtaleansvarlig?.message}
+            label={"Gjennomføringsansvarlig"}
+            {...register("avtaleansvarlig")}
+          >
+            {isLoadingAnsatt ?
+              <option>Laster...</option>
+              :
+              <option
+                value={ansatt?.ident ?? ""}
+              >{`${navn} - ${ansatt?.ident}`}</option>
+            }
+          </Select>
         </FormGroup>
         <FormGroup>
           <TextField
             readOnly
+            style={{ backgroundColor: "whitesmoke" }}
             label={"Arrangør - fra avtalen"}
             value={avtale?.leverandor?.navn || ""}
           />
           <TextField
             readOnly
+            style={{ backgroundColor: "whitesmoke" }}
             label={"Avtaletype - fra avtalen"}
             value={avtale?.avtaletype || ""}
           />
         </FormGroup>
         <div className={styles.button_row}>
-          <Button onClick={props.onAvbryt} variant="danger">Avbryt</Button>
-          <Button type="submit">Opprett</Button>
+          <Button className={styles.button} onClick={props.onAvbryt} variant="tertiary">
+            Avbryt
+          </Button>
+          <Button className={styles.button} type="submit">Opprett</Button>
         </div>
       </form>
     </FormProvider>
