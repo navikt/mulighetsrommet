@@ -12,6 +12,7 @@ import { ChevronRightIcon } from '@navikt/aksel-icons';
 
 interface Props {
   tiltaksgjennomforing: SanityTiltaksgjennomforing;
+  index: number;
 }
 
 const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstartsdato?: string) => {
@@ -25,7 +26,7 @@ const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstar
   }
 };
 
-export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
+export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const [page] = useAtom(paginationAtom);
   const {
@@ -41,7 +42,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing }: Props) {
   } = tiltaksgjennomforing;
 
   return (
-    <li className={styles.list_element} id="list_element">
+    <li className={styles.list_element} id={`list_element_${index}`}>
       <Lenke
         to={`tiltak/${_id}#filter=${encodeURIComponent(JSON.stringify(filter))}&page=${page}`}
         data-testid="lenke_tiltaksgjennomforing"

@@ -74,7 +74,7 @@ export function OversiktenJoyride({ toggleHistorikkModal }: Props) {
       content: 'Her kan du lese mer om tiltaksgjennomføringene. Klikk på raden for å se!',
       placement: 'top',
 
-      target: '#list_element',
+      target: '#list_element_0',
       disableBeacon: true,
     },
   ];

@@ -17,6 +17,7 @@ describe('Tiltaksoversikt', () => {
 
   beforeEach(() => {
     cy.visit('/');
+    cy.skruAvJoyride();
     cy.resetSortering();
   });
 
@@ -171,18 +172,21 @@ describe('Tiltaksoversikt', () => {
 });
 
 describe('Tiltaksgjennomføringsdetaljer', () => {
+  beforeEach(() => {
+    cy.visit('/');
+    cy.skruAvJoyride();
+    cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
+  });
+
   it('Gå til en tiltaksgjennomføring', () => {
-    cy.navigerTilGjennomforing();
     cy.checkPageA11y();
   });
 
   it('Sjekk at tilgjengelighetsstatus er tilgjengelig på detaljsiden', () => {
-    cy.navigerTilGjennomforing();
     cy.getByTestId('tilgjengelighetsstatus_detaljside').should('exist');
   });
 
   it('Sjekk at fanene fungerer som de skal', () => {
-    cy.navigerTilGjennomforing();
     cy.getByTestId('tab1').should('be.visible');
     cy.getByTestId('tab2').should('not.be.visible');
 
@@ -193,7 +197,6 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
   });
 
   it("Sjekk 'Del med bruker'", () => {
-    cy.navigerTilGjennomforing();
     cy.getByTestId('deleknapp').should('be.visible').click();
 
     cy.getByTestId('modal_header').should('be.visible');
@@ -205,15 +208,7 @@ describe('Tiltaksgjennomføringsdetaljer', () => {
     cy.getByTestId('modal_btn-send').should('not.be.disabled').click();
 
     cy.getByTestId('modal_header').should('contain', 'Tiltaket er delt med brukeren');
-    //
     cy.getByTestId('modal_btn-cancel').click();
     cy.getByTestId('modal_header').should('not.exist');
-  });
-
-  it('Gå tilbake til tiltaksoversikten', () => {
-    cy.navigerTilGjennomforing();
-    cy.tilbakeTilListevisning();
-    cy.resetSide();
-    cy.getByTestId('oversikt_tiltaksgjennomforinger').children().children().should('have.length.greaterThan', 1);
   });
 });

@@ -120,9 +120,19 @@ Cypress.Commands.add('resetSortering', () => {
   cy.getByTestId('sortering-select').select('tiltakstypeNavn-ascending');
 });
 
-Cypress.Commands.add('navigerTilGjennomforing', () => {
-  cy.visit('/');
-  cy.getByTestId('lenke_tiltaksgjennomforing').first().click();
+Cypress.Commands.add('skruAvJoyride', () => {
+  cy.then(() => {
+    window.localStorage.setItem('joyrideOversiktenLastStep', 'false');
+  })
+    .then(() => {
+      window.localStorage.setItem('joyrideOversikten', 'false');
+    })
+    .then(() => {
+      window.localStorage.setItem('joyrideDetaljer', 'false');
+    })
+    .then(() => {
+      window.localStorage.setItem('harVistJoyrideOpprettAvtale', 'true');
+    });
 });
 
 function terminalLog(violations) {
