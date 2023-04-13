@@ -47,14 +47,14 @@ export const OpprettTiltaksgjennomforingModal = ({
           aria-label="modal"
         >
           <Modal.Content>
-            <Heading size="small" level="2" data-testid="modal_header">
+            <Heading size="medium" level="2" data-testid="modal_header">
               Opprett ny gjennomføring
             </Heading>
-              <OpprettTiltaksgjennomforingContainer
-                onAvbryt={clickCancel}
-                setError={setError}
-                setResult={setResult}
-              />
+            <OpprettTiltaksgjennomforingContainer
+              onAvbryt={clickCancel}
+              setError={setError}
+              setResult={setResult}
+            />
           </Modal.Content>
         </Modal>
       )}
