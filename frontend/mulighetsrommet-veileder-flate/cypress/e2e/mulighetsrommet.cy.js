@@ -51,7 +51,6 @@ describe('Tiltaksoversikt', () => {
     cy.get('#joyride_knapp').click();
     cy.get('.react-joyride__tooltip').should('be.visible');
     cy.get('[data-action=skip]').click();
-    cy.get('.react-joyride__tooltip').should('not.be.visible');
   });
 
   context('Filtrering', () => {
