@@ -28,6 +28,7 @@ import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { DetaljerJoyride } from '../../components/joyride/DetaljerJoyride';
 import { DetaljerJoyrideOpprettAvtale } from '../../components/joyride/DetaljerJoyrideOpprettAvtale';
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
+import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 
 const whiteListOpprettAvtaleKnapp = [
   'Midlertidig lønnstilskudd',
@@ -91,6 +92,8 @@ const ViewTiltaksgjennomforingDetaljer = () => {
   const { brukerHarRettPaaTiltak } = useBrukerHarRettPaaTiltak();
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
   const datoSidenSistDelt = harDeltMedBruker && formaterDato(new Date(harDeltMedBruker.createdAt!!));
+  const features = useFeatureToggles();
+  const visJoyride = features.isSuccess && features.data[VIS_JOYRIDE];
 
   const handleClickApneModal = () => {
     setDelemodalApen(true);
@@ -148,14 +151,16 @@ const ViewTiltaksgjennomforingDetaljer = () => {
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
-          <DetaljerJoyride
-            setDelMedBrukerModal={setDelemodalApen}
-            opprettAvtale={
-              tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-              whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-              !erPreview
-            }
-          />
+          {visJoyride && (
+            <DetaljerJoyride
+              setDelMedBrukerModal={setDelemodalApen}
+              opprettAvtale={
+                tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+                whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+                !erPreview
+              }
+            />
+          )}
         </div>
 
         <DetaljerJoyrideOpprettAvtale

@@ -9,10 +9,13 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import styles from './ViewTiltaksgjennomforingOversikt.module.scss';
 import { useModal } from '../../hooks/useModal';
 import { OversiktenJoyride } from '../../components/joyride/OversiktenJoyride';
+import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const { isOpen: isHistorikkModalOpen, toggle: toggleHistorikkmodal } = useModal();
+  const features = useFeatureToggles();
+  const visJoyride = features.isSuccess && features.data[VIS_JOYRIDE];
 
   return (
     <div className={styles.tiltakstype_oversikt} id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
@@ -20,7 +23,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
       <div className={styles.filtertags_og_knapperad}>
         <Filtertags filter={filter} setFilter={setFilter} />
         <div className={styles.knapperad}>
-          <OversiktenJoyride toggleHistorikkModal={toggleHistorikkmodal} />
+          {visJoyride && <OversiktenJoyride toggleHistorikkModal={toggleHistorikkmodal} />}
           <HistorikkButton toggleHistorikkModal={toggleHistorikkmodal} isOpen={isHistorikkModalOpen} />
         </div>
       </div>
