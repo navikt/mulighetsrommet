@@ -1,19 +1,43 @@
-import { Search, Select } from "@navikt/ds-react";
+import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtalestatus, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { ChangeEvent, useEffect, useRef } from "react";
+import {
+  Avtalestatus,
+  SorteringAvtaler,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
-import styles from "./Filter.module.scss";
+import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
+import styles from "./Filter.module.scss";
+import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
+import {
+  OPPRETT_AVTALE_ADMIN_FLATE,
+  useFeatureToggles,
+} from "../../api/features/feature-toggles";
 
-export function Avtalefilter() {
+type Filters = "tiltakstype";
+
+interface Props {
+  skjulFilter?: Record<Filters, boolean>;
+}
+
+export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
+  const { data: tiltakstyper } = useAlleTiltakstyper({
+    tiltakstypestatus: Tiltakstypestatus.AKTIV,
+  });
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  const features = useFeatureToggles();
+  const visOpprettAvtaleknapp =
+    features.isSuccess && features.data[OPPRETT_AVTALE_ADMIN_FLATE];
 
   useEffect(() => {
     // Hold fokus på søkefelt dersom bruker skriver i søkefelt
@@ -30,6 +54,7 @@ export function Avtalefilter() {
             ref={searchRef}
             label="Søk etter avtale"
             hideLabel
+            size="small"
             variant="simple"
             onChange={(sok: string) => {
               setFilter({ ...filter, sok });
@@ -37,7 +62,6 @@ export function Avtalefilter() {
             value={filter.sok}
             aria-label="Søk etter avtale"
             data-testid="filter_avtale_sokefelt"
-            size="small"
           />
           <Select
             label="Filtrer på statuser"
@@ -77,8 +101,28 @@ export function Avtalefilter() {
               </option>
             ))}
           </Select>
+          {props.skjulFilter?.tiltakstype ? null : (
+            <Select
+              label="Filtrer på tiltakstype"
+              hideLabel
+              size="small"
+              value={filter.tiltakstype}
+              data-testid="filter_avtale_tiltakstype"
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                resetPaginering(setPage);
+                setFilter({ ...filter, tiltakstype: e.currentTarget.value });
+              }}
+            >
+              <option value="">Alle tiltakstyper</option>
+              {tiltakstyper?.data?.map((tiltakstype) => (
+                <option key={tiltakstype.id} value={tiltakstype.id}>
+                  {tiltakstype.navn}
+                </option>
+              ))}
+            </Select>
+          )}
         </div>
-        <div>
+        <div className={styles.filter_right}>
           <Select
             label="Sorter"
             hideLabel
@@ -96,7 +140,24 @@ export function Avtalefilter() {
             <option value="navn-descending">Navn Å-A</option>
             <option value="status-ascending">Status A-Å</option>
             <option value="status-descending">Status Å-A</option>
+            <option value="sluttdato-ascending">Sluttdato A-Å</option>
+            <option value="sluttdato-descending">Sluttdato Å-A</option>
           </Select>
+          {visOpprettAvtaleknapp && (
+            <>
+              <Button
+                onClick={() => setModalOpen(true)}
+                data-testid="registrer-ny-avtale"
+                size="small"
+              >
+                Registrer avtale
+              </Button>
+              <OpprettAvtaleModal
+                modalOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+              />
+            </>
+          )}
         </div>
       </div>
     </>

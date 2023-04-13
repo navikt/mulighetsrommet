@@ -87,6 +87,27 @@ describe("Avtaler", () => {
       cy.getByTestId("avtalerad").eq(0).click();
       cy.checkPageA11y();
     });
+
+    it("Skal ha mulighet til å endre en avtale", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("avtalerad").eq(0).click();
+      cy.checkPageA11y();
+      cy.getByTestId("endre-avtale").should("exist").click();
+      cy.getByTestId("avtale_modal_header").contains("Rediger avtale");
+    });
+  });
+
+  context("Oversikt over avtaler", () => {
+    it("Skal finnes et filter for tiltakstype for avtaler", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("filter_avtale_tiltakstype").should("exist");
+    });
+
+    it("Skal kunne registrere en ny avtale", () => {
+      cy.visit("/avtaler");
+      cy.getByTestId("registrer-ny-avtale").should("exist").click();
+      cy.getByTestId("avtale_modal_header").contains("Registrer ny avtale");
+    });
   });
 });
 

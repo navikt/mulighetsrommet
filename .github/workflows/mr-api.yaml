@@ -30,7 +30,8 @@ env:
 jobs:
   build-and-test:
     name: Build and test
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: ubuntu-latest-8-cores
     permissions:
       contents: "read"
       id-token: "write"

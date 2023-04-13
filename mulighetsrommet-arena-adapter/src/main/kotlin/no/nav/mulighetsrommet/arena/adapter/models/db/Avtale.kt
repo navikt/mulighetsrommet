@@ -6,6 +6,7 @@ import java.util.*
 
 data class Avtale(
     val id: UUID,
+    val avtaleId: Int,
     val aar: Int,
     val lopenr: Int,
     val tiltakskode: String,

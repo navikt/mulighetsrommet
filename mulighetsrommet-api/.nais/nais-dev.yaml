@@ -78,5 +78,9 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
+      external:
+        - host: norg2.dev-fss-pub.nais.io
+        - host: slack.com
+        - host: xegcworx.apicdn.sanity.io
   envFrom:
     - secret: mulighetsrommet-api

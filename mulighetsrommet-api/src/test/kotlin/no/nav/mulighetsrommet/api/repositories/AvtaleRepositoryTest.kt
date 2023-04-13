@@ -23,15 +23,48 @@ class AvtaleRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val avtaleFixture = AvtaleFixtures(database)
 
+    beforeEach {
+        avtaleFixture.runBeforeTests()
+    }
+
+    context("Avtaleansvarlig") {
+        test("Ansvarlig blir satt i egen tabell") {
+            val ident = "N12343"
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                ansvarlige = listOf(ident),
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+            database.assertThat("avtale_ansvarlig").row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo(ident)
+        }
+
+        test("Ansvarlig tabell blir oppdatert til å reflektere listen i dbo") {
+            val ident = "N12343"
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                ansvarlige = listOf(ident),
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+
+            avtaleFixture.upsertAvtaler(listOf(avtale1.copy(ansvarlige = listOf("M12343", "L12343"))))
+
+            database.assertThat("avtale_ansvarlig").row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo("L12343")
+                .row()
+                .value("avtale_id").isEqualTo(avtale1.id)
+                .value("navident").isEqualTo("M12343")
+
+            database.assertThat("avtale_ansvarlig").hasNumberOfRows(2)
+        }
+    }
+
     context("Filter for avtaler") {
 
         val defaultFilter = AvtaleFilter(
             dagensDato = LocalDate.of(2023, 2, 1)
         )
-
-        beforeEach {
-            avtaleFixture.runBeforeTests()
-        }
 
         context("Avtalenavn") {
             test("Filtrere på avtalenavn skal returnere avtaler som matcher søket") {
@@ -254,6 +287,133 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
                 result.second[3].navn shouldBe "Avtale hos Kjetil"
                 result.second[4].navn shouldBe "Avtale hos Anders"
+            }
+
+            test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Anders"
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Åse"
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Øyvind"
+                )
+                val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Kjetil"
+                )
+                val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
+                    navn = "Avtale hos Ærfuglen Ærle"
+                )
+                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
+                val result = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "navn-ascending"
+                    )
+                )
+
+                result.second shouldHaveSize 5
+                result.second[0].navn shouldBe "Avtale hos Anders"
+                result.second[1].navn shouldBe "Avtale hos Kjetil"
+                result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
+                result.second[3].navn shouldBe "Avtale hos Øyvind"
+                result.second[4].navn shouldBe "Avtale hos Åse"
+            }
+
+            test("Sortering på sluttdato fra a-å sorterer korrekt") {
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2010, 1, 31),
+                    navn = "Avtale hos Anders"
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2009, 1, 1),
+                    navn = "Avtale hos Åse"
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2010, 1, 1),
+                    navn = "Avtale hos Øyvind"
+                )
+                val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2011, 1, 1),
+                    navn = "Avtale hos Kjetil"
+                )
+                val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                    navn = "Avtale hos Benny"
+                )
+                val avtale6 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                    navn = "Avtale hos Christina"
+                )
+                val avtaleRepository =
+                    avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5, avtale6))
+                val result = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "sluttdato-descending"
+                    )
+                )
+
+                result.second shouldHaveSize 6
+                result.second[0].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+                result.second[0].navn shouldBe "Avtale hos Benny"
+                result.second[1].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+                result.second[1].navn shouldBe "Avtale hos Christina"
+                result.second[2].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+                result.second[2].navn shouldBe "Avtale hos Kjetil"
+                result.second[3].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+                result.second[3].navn shouldBe "Avtale hos Anders"
+                result.second[4].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+                result.second[4].navn shouldBe "Avtale hos Øyvind"
+                result.second[5].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+                result.second[5].navn shouldBe "Avtale hos Åse"
+            }
+
+            test("Sortering på sluttdato fra å-a sorterer korrekt") {
+                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2010, 1, 31),
+                    navn = "Avtale hos Anders"
+                )
+                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2009, 1, 1),
+                    navn = "Avtale hos Åse"
+                )
+                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2010, 1, 1),
+                    navn = "Avtale hos Øyvind"
+                )
+                val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2011, 1, 1),
+                    navn = "Avtale hos Kjetil"
+                )
+                val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                    navn = "Avtale hos Benny"
+                )
+                val avtale6 = avtaleFixture.createAvtaleForTiltakstype(
+                    sluttDato = LocalDate.of(2023, 1, 1),
+                    navn = "Avtale hos Christina"
+                )
+                val avtaleRepository =
+                    avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5, avtale6))
+                val result = avtaleRepository.getAll(
+                    filter = defaultFilter.copy(
+                        sortering = "sluttdato-ascending"
+                    )
+                )
+
+                result.second shouldHaveSize 6
+                result.second[0].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+                result.second[0].navn shouldBe "Avtale hos Åse"
+                result.second[1].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+                result.second[1].navn shouldBe "Avtale hos Øyvind"
+                result.second[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+                result.second[2].navn shouldBe "Avtale hos Anders"
+                result.second[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+                result.second[3].navn shouldBe "Avtale hos Kjetil"
+                result.second[4].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+                result.second[4].navn shouldBe "Avtale hos Benny"
+                result.second[5].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+                result.second[5].navn shouldBe "Avtale hos Christina"
             }
         }
 

@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
 import { useAtom } from "jotai";
+import { useDebounce } from "mulighetsrommet-frontend-common";
 import { PAGE_SIZE } from "../../constants";
 import { paginationAtom, tiltakstypefilter } from "../atoms";
-import { useDebounce } from "mulighetsrommet-frontend-common";
+import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "../QueryKeys";
 
-export function useTiltakstyper() {
+export default function useTiltakstyperWithFilter() {
   const [page] = useAtom(paginationAtom);
   const [sokefilter] = useAtom(tiltakstypefilter);
   const debouncedSok = useDebounce(sokefilter.sok, 300);

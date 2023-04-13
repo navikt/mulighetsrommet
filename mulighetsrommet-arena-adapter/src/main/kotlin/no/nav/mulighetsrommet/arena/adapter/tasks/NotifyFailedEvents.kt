@@ -39,20 +39,10 @@ class NotifyFailedEvents(
                     arenaEventService.getStaleEvents(retriesGreaterThanOrEqual = retries)
                 if (staleEvents.isNotEmpty()) {
                     val message = """
-                    Det finnes ${staleEvents.size} rader i tabellen 'arena_events' som har retries >= $retries.
-                    Det gjelder følgende rader:
-                    ${staleEvents.formaterSlackMeldingForEvents()}
+                    Det finnes ${staleEvents.size} rader i tabellen 'arena_events' som har retries >= $retries og status Failed.
                     """.trimIndent()
                     slackNotifier.sendMessage(message)
                 }
             }
         }
-
-    private fun List<ArenaEvent>.formaterSlackMeldingForEvents(): String {
-        return this.joinToString("\n") {
-            """
-                arena-table: ${it.arenaTable}, arena_id: ${it.arenaId}
-            """.trimIndent()
-        }
-    }
 }

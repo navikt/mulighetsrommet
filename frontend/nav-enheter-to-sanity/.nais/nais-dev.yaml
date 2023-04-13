@@ -17,6 +17,7 @@ spec:
     outbound:
       external:
         - host: norg2.dev-fss-pub.nais.io
+        - host: xegcworx.apicdn.sanity.io
 
   env:
     - name: NORG2_API_ENDPOINT

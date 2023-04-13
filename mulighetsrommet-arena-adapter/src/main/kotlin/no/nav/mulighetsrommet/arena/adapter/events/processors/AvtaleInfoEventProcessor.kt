@@ -92,30 +92,6 @@ class AvtaleInfoEventProcessor(
         return ArenaAvtaleCutoffDate.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
     }
 
-    private fun ArenaAvtaleInfo.toAvtale(id: UUID) = Either
-        .catch {
-            requireNotNull(AVTALENAVN)
-            requireNotNull(DATO_FRA)
-            requireNotNull(DATO_TIL)
-            requireNotNull(ARBGIV_ID_LEVERANDOR)
-
-            Avtale(
-                id = id,
-                aar = AAR,
-                lopenr = LOPENRAVTALE,
-                tiltakskode = TILTAKSKODE,
-                navn = AVTALENAVN,
-                leverandorId = ARBGIV_ID_LEVERANDOR,
-                fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
-                tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
-                ansvarligEnhet = ORGENHET_ANSVARLIG,
-                rammeavtale = AVTALEKODE == Avtalekode.Rammeavtale,
-                status = Avtale.Status.fromArenaAvtalestatuskode(AVTALESTATUSKODE),
-                prisbetingelser = PRIS_BETBETINGELSER,
-            )
-        }
-        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
-
     private suspend fun toAvtaleDbo(avtale: Avtale): Either<ProcessingError, AvtaleDbo> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, avtale.tiltakskode)
@@ -152,6 +128,32 @@ class AvtaleInfoEventProcessor(
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
+            opphav = AvtaleDbo.Opphav.ARENA
         )
     }
 }
+
+fun ArenaAvtaleInfo.toAvtale(id: UUID) = Either
+    .catch {
+        requireNotNull(AVTALENAVN)
+        requireNotNull(DATO_FRA)
+        requireNotNull(DATO_TIL)
+        requireNotNull(ARBGIV_ID_LEVERANDOR)
+
+        Avtale(
+            id = id,
+            avtaleId = AVTALE_ID,
+            aar = AAR,
+            lopenr = LOPENRAVTALE,
+            tiltakskode = TILTAKSKODE,
+            navn = AVTALENAVN,
+            leverandorId = ARBGIV_ID_LEVERANDOR,
+            fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
+            tilDato = ArenaUtils.parseTimestamp(DATO_TIL),
+            ansvarligEnhet = ORGENHET_ANSVARLIG,
+            rammeavtale = AVTALEKODE == Avtalekode.Rammeavtale,
+            status = Avtale.Status.fromArenaAvtalestatuskode(AVTALESTATUSKODE),
+            prisbetingelser = PRIS_BETBETINGELSER,
+        )
+    }
+    .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }

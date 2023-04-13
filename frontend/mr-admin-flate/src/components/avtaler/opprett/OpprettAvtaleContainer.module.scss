@@ -1,0 +1,30 @@
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form_group {
+  margin: 2rem 0;
+  padding-bottom: 2rem;
+  border-bottom: solid 1px lightgray;
+}
+
+.button_row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+
+  &_1 {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  &_2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

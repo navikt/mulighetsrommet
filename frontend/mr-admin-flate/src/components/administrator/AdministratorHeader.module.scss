@@ -1,7 +1,16 @@
+@use "@navikt/ds-tokens/dist/tokens" as *;
+
+:global(.navdsi-header) {
+  flex-wrap: wrap;
+}
+
 .link {
   text-decoration: none;
   color: white;
 }
+
 .user {
-  margin-left: auto;
+  @media (min-width: $a-breakpoint-sm) {
+    margin-left: auto;
+  }
 }

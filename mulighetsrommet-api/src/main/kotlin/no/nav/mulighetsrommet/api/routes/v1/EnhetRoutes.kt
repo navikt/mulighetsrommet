@@ -13,7 +13,11 @@ fun Route.enhetRoutes() {
     route("api/v1/internal/enheter") {
         get {
             val filter = getEnhetFilter()
-            call.respond(navEnhetService.hentEnheter(filter))
+            call.respond(navEnhetService.hentAlleEnheter(filter))
+        }
+        get("/avtaler") {
+            val filter = getEnhetFilter()
+            call.respond(navEnhetService.hentEnheterForAvtale(filter))
         }
     }
 }

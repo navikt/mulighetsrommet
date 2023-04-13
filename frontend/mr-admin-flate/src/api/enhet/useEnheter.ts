@@ -7,6 +7,8 @@ export function useEnheter() {
   const { tiltakstypeId } = useParams<{ tiltakstypeId: string }>();
 
   return useQuery(QueryKeys.enheter(), () => {
-    return mulighetsrommetClient.hentEnheter.hentEnheter({ tiltakstypeId });
+    return mulighetsrommetClient.hentEnheter.hentEnheterMedAvtale({
+      tiltakstypeId,
+    });
   });
 }

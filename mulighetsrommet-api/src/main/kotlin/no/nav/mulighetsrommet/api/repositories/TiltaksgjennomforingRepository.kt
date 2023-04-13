@@ -78,18 +78,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAll(pagination: PaginationParams = PaginationParams(), filter: AdminTiltaksgjennomforingFilter): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
-
+    fun getAll(
+        pagination: PaginationParams = PaginationParams(),
+        filter: AdminTiltaksgjennomforingFilter
+    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
             "search" to "%${filter.search}%",
             "enhet" to filter.enhet,
+            "tiltakstypeId" to filter.tiltakstypeId,
+            "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "(lower(tg.navn) like lower(:search))",
-            filter.enhet to "lower(tg.enhet) = lower(:enhet)"
+            filter.enhet to "lower(tg.enhet) = lower(:enhet)",
+            filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
+            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])"
         )
 
         val order = when (filter.sortering) {
@@ -202,48 +208,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             limit ? offset ?
         """.trimIndent()
         val results = queryOf(query, enhet, pagination.limit, pagination.offset)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
-            }
-            .asList
-            .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        return Pair(totaltAntall, tiltaksgjennomforinger)
-    }
-
-    fun getAllByNavident(
-        navIdent: String,
-        pagination: PaginationParams
-    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
-        logger.info("Henter alle tiltaksgjennomføringer for ansatt")
-
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn           as tiltakstype_navn,
-                   tg.enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   count(*) over () as full_count
-            from tiltaksgjennomforing tg
-                     join tiltakstype t on tg.tiltakstype_id = t.id
-                     join ansatt_tiltaksgjennomforing a on tg.id = a.tiltaksgjennomforing_id
-            where a.navident = ?
-            order by tg.navn asc
-            limit ? offset ?
-        """.trimIndent()
-        val results = queryOf(query, navIdent, pagination.limit, pagination.offset)
             .map {
                 it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }

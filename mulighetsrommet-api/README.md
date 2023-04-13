@@ -8,14 +8,14 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
 
 - [`mulighetsrommet-api`](#mulighetsrommet-api)
 - [Innhold](#innhold)
-- [<a name="teknologier"></a>Teknologier](#teknologier)
-- [<a name="overvaking"></a>Overvåking og alarmer](#overvåking-og-alarmer)
-- [<a name="kom-i-gang"></a>Kom i gang](#kom-i-gang)
-    - [<a name="forutsetninger"></a>Forutsetninger](#forutsetninger)
+- [Teknologier](#teknologier)
+- [Overvåking og alarmer](#overvåking-og-alarmer)
+- [Kom i gang](#kom-i-gang)
+    - [Forutsetninger](#forutsetninger)
         - [JDK 11](#jdk-11)
         - [Docker](#docker)
         - [Miljøvariabler](#miljøvariabler)
-    - [<a name="steg-for-steg"></a>Steg for steg](#steg-for-steg)
+    - [Steg for steg](#steg-for-steg)
         - [Autentisering](#autentisering)
 
 # <a name="teknologier"></a>Teknologier
@@ -83,8 +83,7 @@ som [direnv](https://direnv.net/). PS: Lukk terminalen for å oppdatere miljøva
 
 For å komme fort i gang fra en terminal gjør følgende:
 
-1. Fyr opp avhengigheter (database etc.) med å kjøre `docker-compose up --profile dev -d`
-   eller `docker compose --profile dev --profile dev up` i terminalen. For å
+1. Fyr opp avhengigheter (database etc.) med å kjøre `docker compose --profile dev up -d` i terminalen. For å
    få med mock data for enhet og innsatsgruppe kan man kjøre `docker-compose --profile dev --profile wiremock up` i
    stedet for å også kjøre opp en wiremock instans.
 2. Hent avhengigheter og installer applikasjonen lokalt med `./gradlew build`.
@@ -112,7 +111,8 @@ Følgende steg kan benyttes til å generere opp et token:
        "access_as_application"
        ],
        "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
-       "azp_name": "test name"
+       "azp_name": "test name",
+       "groups": ["0000-GA-mr-admin-flate_betabruker"]
        }`
     4. Trykk `Sign in`
 4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i .env-filen du har opprettet

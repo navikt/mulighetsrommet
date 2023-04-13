@@ -13,6 +13,8 @@ export function useAdminTiltaksgjennomforinger() {
       page,
       search: filter.search ? filter.search : undefined,
       enhet: filter.enhet ? filter.enhet : undefined,
+      tiltakstypeId: filter.tiltakstype ? filter.tiltakstype : undefined,
+      status: filter.status ? filter.status : undefined,
       sort: filter.sortering ? filter.sortering : undefined,
       size: PAGE_SIZE,
     })

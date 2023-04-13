@@ -22,7 +22,7 @@ fun createDatabaseTestSchema(
         schema,
         user,
         password,
-        1,
+        2,
         migrationConfig = FlywayDatabaseAdapter.MigrationConfig(cleanDisabled = false),
     )
 }

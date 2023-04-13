@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { useGetTiltakstypeIdFromUrl } from "../../hooks/useGetTiltakstypeIdFromUrl";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
 export function useTiltakstypeById() {
-  const { tiltakstypeId } = useParams<{ tiltakstypeId: string }>();
+  const tiltakstypeId = useGetTiltakstypeIdFromUrl();
 
   if (!tiltakstypeId) {
     throw new Error("Fant ingen tiltakstype-id i URL");

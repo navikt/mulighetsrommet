@@ -3,6 +3,7 @@ import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../utils/Utils";
 import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeRad } from "../listeelementer/ListeRad";
+import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -46,12 +47,19 @@ export function TiltaksgjennomforingsRad({ tiltaksgjennomforing }: Props) {
         {formaterDato(tiltaksgjennomforing.startDato)}
       </BodyShort>
       <BodyShort
-        title={`Sluttdato ${formaterDato(tiltaksgjennomforing.sluttDato)}`}
-        aria-label={`Sluttdato: ${formaterDato(
+        title={`Sluttdato ${formaterDato(tiltaksgjennomforing.sluttDato)}, "-"`}
+        aria-label={
           tiltaksgjennomforing.sluttDato
-        )}`}
+            ? `Sluttdato: ${formaterDato(tiltaksgjennomforing.sluttDato, "-")}`
+            : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
+        }
       >
         {formaterDato(tiltaksgjennomforing.sluttDato)}
+      </BodyShort>
+      <BodyShort>
+        <Tiltaksgjennomforingstatus
+          tiltaksgjennomforing={tiltaksgjennomforing}
+        />
       </BodyShort>
     </ListeRad>
   );

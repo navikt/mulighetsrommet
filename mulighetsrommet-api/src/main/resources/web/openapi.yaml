@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -45,6 +45,23 @@ paths:
                 $ref: "#/components/schemas/Avtale"
         404:
           description: "The specified avtale was not found."
+          content:
+            application/json:
+              schema:
+                type: string
+    delete:
+      tags:
+        - Avtaler
+      operationId: deleteAvtale
+      responses:
+        200:
+          description: "The specified avtale was deleted."
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: "Mangler eller ugyldig id."
           content:
             application/json:
               schema:
@@ -118,6 +135,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertAvtale"
+    put:
+      tags:
+        - Avtaler
+      operationId: opprettAvtale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtaleRequest"
+      responses:
+        200:
+          description: Avtale response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Avtale"
+        500:
+          description: "Kunne ikke opprette avtale"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger:
     get:
@@ -141,6 +180,16 @@ paths:
             type: string
           description: 4 digit enhetskode
         - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/TiltaksgjennomforingAvslutningsstatus"
+          description: Avslutningsstatus for tiltaksgjennomføring
+        - in: query
           name: size
           schema:
             type: number
@@ -156,6 +205,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: opprettTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltaksgjennomforingRequest"
+      responses:
+        200:
+          description: The specified tiltaksgjennomføring with data about tiltakstype.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        500:
+          description: "Kunne ikke opprette tiltaksgennomforing"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger/{id}:
     parameters:
@@ -398,7 +469,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -660,13 +731,48 @@ paths:
     get:
       tags:
         - Hent enheter
-      operationId: hentEnheter
+      operationId: hentAlleEnheter
       parameters:
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhetStatus"
+          description: Hvilke status skal enheten ha
         - in: query
           name: tiltakstypeId
           schema:
             type: string
-          description: ID for tiltakstypen knyttet til avtaler med enheter
+          description: ID for tiltakstype knyttet til avtaler
+      responses:
+        200:
+          description: Alle enheter filterert på filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavEnhet"
+
+  /api/v1/internal/enheter/avtaler:
+    get:
+      tags:
+        - Hent enheter
+      operationId: hentEnheterMedAvtale
+      parameters:
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhetStatus"
+          description: Hvilke status skal enheten ha
+        - in: query
+          name: tiltakstypeId
+          schema:
+            type: string
+          description: ID for tiltakstype knyttet til avtaler
       responses:
         200:
           description: "Enheter knyttet til avtaler"
@@ -826,6 +932,15 @@ components:
         prisbetingelser:
           type: string
           nullable: true
+        ansvarlig:
+          type: string
+          nullable: true
+        url:
+          type: string
+          nullable: true
+        antallPlasser:
+          type: number
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -838,6 +953,47 @@ components:
         - avtaletype
         - avtalestatus
         - prisbetingelser
+
+    AvtaleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+        tiltakstypeId:
+          type: string
+          format: UUID
+        navn:
+          type: string
+        leverandorOrganisasjonsnummer:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+        antallPlasser:
+          type: number
+        url:
+          type: string
+        ansvarlig:
+          type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+      required:
+        - tiltakstypeId
+        - navn
+        - leverandorOrganisasjonsnummer
+        - startDato
+        - sluttDato
+        - enhet
+        - avtalestatus
+        - antallPlasser
+        - ansvarlig
+        - avtaletype
 
     EmbeddedTiltakstype:
       type: object
@@ -859,7 +1015,7 @@ components:
       enum:
         - Avtale
         - Rammeavtale
-        - Foraandsgodkjent
+        - Forhaandsgodkjent
 
     Avtalestatus:
       type: string
@@ -876,6 +1032,8 @@ components:
         - navn-descending
         - status-ascending
         - status-descending
+        - sluttdato-ascending
+        - sluttdato-descending
 
     SorteringTiltakstyper:
       type: string
@@ -906,7 +1064,7 @@ components:
         virksomhetsnavn:
           type: string
         status:
-          type: string
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:
           type: string
           format: date
@@ -921,6 +1079,63 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
+
+    TiltaksgjennomforingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+        tiltakstypeId:
+          type: string
+          format: UUID
+        avtaleId:
+          type: string
+          format: UUID
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+        antallPlasser:
+          type: number
+        virksomhetsnummer:
+          type: string
+        tiltaksnummer:
+          type: string
+      required:
+        - id
+        - avtaleId
+        - tiltakstypeId
+        - navn
+        - startDato
+        - sluttDato
+        - enhet
+        - antallPlasser
+        - virksomhetsnummer
+        - tiltaksnummer
+
+    TiltaksgjennomforingAvslutningsstatus:
+      type: string
+      enum:
+        - AVLYST
+        - AVBRUTT
+        - AVSLUTTET
+        - IKKE_AVSLUTTET
+
+    TiltaksgjennomforingStatus:
+      type: string
+      enum:
+        - GJENNOMFORES
+        - AVBRUTT
+        - AVLYST
+        - AVSLUTTET
+        - APENT_FOR_INNSOK
 
     Bruker:
       type: object
@@ -990,6 +1205,7 @@ components:
         - Aktiv
         - Planlagt
         - Avsluttet
+
 
     Tiltakstypekategori:
       type: string
@@ -1120,12 +1336,9 @@ components:
         navn:
           type: string
         status:
-          type: string
-          enum:
-            - UNDER_ETABLERING
-            - AKTIV
-            - UNDER_AVVIKLING
-            - NEDLAGT
+          $ref: "#/components/schemas/NavEnhetStatus"
+        type:
+          $ref: "#/components/schemas/Norg2Type"
 
     Leverandor:
       type: object
@@ -1211,7 +1424,7 @@ components:
         beskrivelse:
           type: string
         tiltaksnummer:
-          type: number
+          type: string
         kontaktinfoArrangor:
           $ref: "#/components/schemas/SanityKontaktinfoArrangor"
         lokasjon:
@@ -1370,3 +1583,18 @@ components:
           type: number
       required:
         - antallDeltakere
+
+    NavEnhetStatus:
+      type: string
+      enum:
+        - UNDER_ETABLERING
+        - AKTIV
+        - UNDER_AVVIKLING
+        - NEDLAGT
+
+    Norg2Type:
+      type: string
+      enum:
+        - LOKAL
+        - FYLKE
+        - TILTAK

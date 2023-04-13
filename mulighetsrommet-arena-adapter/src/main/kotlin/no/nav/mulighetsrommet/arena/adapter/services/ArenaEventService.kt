@@ -10,6 +10,8 @@ import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
@@ -83,12 +85,12 @@ class ArenaEventService(
                     val mapping = entities.getOrCreateMapping(event)
 
                     processor.handleEvent(event)
-                        .flatMap { processingResult ->
-                            if (processingResult.status == ArenaEntityMapping.Status.Ignored && mapping.status == ArenaEntityMapping.Status.Handled) {
+                        .flatMap { result ->
+                            if (mapping.status == Handled && result.status == Ignored) {
                                 logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}")
-                                processor.deleteEntity(event).map { processingResult }
+                                processor.deleteEntity(event).map { result }
                             } else {
-                                processingResult.right()
+                                result.right()
                             }
                         }.onRight {
                             entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
@@ -166,6 +168,6 @@ class ArenaEventService(
     }
 
     fun getStaleEvents(retriesGreaterThanOrEqual: Int): List<ArenaEvent> {
-        return events.getAll(retriesGreaterThanOrEqual = retriesGreaterThanOrEqual)
+        return events.getAll(retriesGreaterThanOrEqual = retriesGreaterThanOrEqual, status = ArenaEvent.ProcessingStatus.Failed)
     }
 }

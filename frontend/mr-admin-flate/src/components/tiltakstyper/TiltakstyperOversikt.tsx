@@ -1,7 +1,6 @@
 import { Alert, Pagination } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom } from "../../api/atoms";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { PAGE_SIZE } from "../../constants";
 import { Laster } from "../laster/Laster";
 import styles from "../listeelementer/Listeelementer.module.scss";
@@ -9,10 +8,11 @@ import { ListeheaderTiltakstyper } from "../listeelementer/Listeheader";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltakstypeRad } from "./TiltakstypeRad";
 import pageStyles from "../../pages/Page.module.scss";
+import useTiltakstyperWithFilter from "../../api/tiltakstyper/useTiltakstyperWithFilter";
 
 export function TiltakstyperOversikt() {
-  const { data, isLoading, isError } = useTiltakstyper();
   const [page, setPage] = useAtom(paginationAtom);
+  const { data, isLoading, isError } = useTiltakstyperWithFilter();
 
   if (!data && isLoading) {
     return <Laster size="xlarge" tekst="Laster tiltakstyper..." />;

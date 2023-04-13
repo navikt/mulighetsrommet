@@ -3,7 +3,7 @@ import useTiltaksgjennomforingById from '../../core/api/queries/useTiltaksgjenno
 import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
-import { formaterDato } from '../../utils/Utils';
+import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
 import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
 
 const SidemenyDetaljer = () => {
@@ -22,8 +22,8 @@ const SidemenyDetaljer = () => {
               Tiltaksnummer
             </BodyShort>
             <div className={styles.tiltaksnummer}>
-              <BodyShort size="small">{tiltaksnummer}</BodyShort>
-              <Kopiknapp kopitekst={String(tiltaksnummer)} dataTestId="knapp_kopier" />
+              <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
+              <Kopiknapp kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)} dataTestId="knapp_kopier" />
             </div>
           </div>
         )}

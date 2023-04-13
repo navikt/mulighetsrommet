@@ -1,3 +1,5 @@
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
+
 export function capitalize(text?: string): string {
   return text
     ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase()
@@ -35,6 +37,24 @@ export function formaterDato(dato?: string | Date, fallback = ""): string {
   return result;
 }
 
+export function formaterDatoSomYYYYMMDD(
+  dato?: Date | null,
+  fallback = ""
+): string {
+  if (!dato) return fallback;
+  const year = dato.getFullYear();
+  const month = (dato.getMonth() + 1).toString();
+  const day = dato.getDate().toString();
+  return (
+    year +
+    "-" +
+    (month[1] ? month : "0" + month[0]) +
+    "-" +
+    (day[1] ? day : "0" + day[0])
+  );
+  // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
+}
+
 export function formaterTall(tall: number) {
   return Intl.NumberFormat("no-nb").format(tall);
 }
@@ -63,4 +83,23 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
 
 export const resetPaginering = (setPage: (number: number) => void) => {
   setPage(1);
+};
+
+export const oversettStatusForTiltaksgjennomforing = (
+  status?: TiltaksgjennomforingStatus
+) => {
+  switch (status) {
+    case TiltaksgjennomforingStatus.GJENNOMFORES:
+      return "Gjennomføres";
+    case TiltaksgjennomforingStatus.AVBRUTT:
+      return "Avbrutt";
+    case TiltaksgjennomforingStatus.AVLYST:
+      return "Avlyst";
+    case TiltaksgjennomforingStatus.AVSLUTTET:
+      return "Avsluttet";
+    case TiltaksgjennomforingStatus.APENT_FOR_INNSOK:
+      return "Åpent for innsøk";
+    default:
+      return "";
+  }
 };

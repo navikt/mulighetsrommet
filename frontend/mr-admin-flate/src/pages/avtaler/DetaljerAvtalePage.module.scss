@@ -1,8 +1,9 @@
 .header {
   display: flex;
   gap: 1rem;
+  align-items: flex-start;
 }
 
 .list {
-  padding-left: 4rem
+  padding-left: 4rem;
 }
