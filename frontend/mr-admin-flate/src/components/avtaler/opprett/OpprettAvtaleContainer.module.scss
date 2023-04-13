@@ -19,6 +19,7 @@
 .grid {
   display: grid;
   gap: 1rem;
+  align-items: start;
 
   &_1 {
     grid-template-columns: repeat(1, 1fr);
