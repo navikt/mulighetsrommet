@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.02.20_10.11-47a91300306e
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.04.13_12.56-e509a7e7034a
   port: 8080
   ingresses:
     - https://mulighetsrommet-arena-adapter-manager.intern.nav.no
