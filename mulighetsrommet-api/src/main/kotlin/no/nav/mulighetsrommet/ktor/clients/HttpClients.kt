@@ -5,6 +5,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -13,6 +14,10 @@ import org.slf4j.MDC
 
 internal fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine) {
     expectSuccess = false
+
+    install(Logging) {
+        level = LogLevel.INFO
+    }
 
     install(ContentNegotiation) {
         json(
