@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -43,9 +44,10 @@ class TiltaksgjennomforingService(
         tiltaksgjennomforingRepository.sok(filter)
             .map { list -> list.map { it.hentVirksomhetsnavnForTiltaksgjennomforing() } }
 
-    suspend fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo) =
+    fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo) =
         tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
-            .map { it.hentVirksomhetsnavnForTiltaksgjennomforing() }
+            .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
+            .map { it!! } // If upsert is succesfull it should exist here
 
     fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =
         TiltaksgjennomforingNokkeltallDto(

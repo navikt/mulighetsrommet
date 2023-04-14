@@ -29,7 +29,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighet
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
 import java.util.*
 
-class TiltaksgjennomforingEventProcessor(
+class TiltakgjennomforingEventProcessor(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient

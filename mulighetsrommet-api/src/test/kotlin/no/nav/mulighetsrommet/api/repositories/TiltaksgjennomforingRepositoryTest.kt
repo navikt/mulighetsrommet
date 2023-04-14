@@ -2,8 +2,9 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -80,20 +81,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val gjennomforing = gjennomforing1.copy(ansvarlige = listOf(ident1, ident2))
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
-            val gjennomforingFraDB = tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight()!!
-
-            gjennomforingFraDB.ansvarlige.size shouldBe 2
-            gjennomforingFraDB.ansvarlige shouldContain ident1
-            gjennomforingFraDB.ansvarlige shouldContain ident2
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.ansvarlige.shouldContainExactlyInAnyOrder(ident1, ident2)
+            }
 
             database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(2)
 
             val ident3 = "X12343"
             tiltaksgjennomforinger.upsert(gjennomforing.copy(ansvarlige = listOf(ident3))).shouldBeRight()
-            val gjennomforingFraDB2 = tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight()!!
-
-            gjennomforingFraDB2.ansvarlige.size shouldBe 1
-            gjennomforingFraDB2.ansvarlige shouldContain ident3
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.ansvarlige.shouldContainExactlyInAnyOrder(ident3)
+            }
 
             database.assertThat("tiltaksgjennomforing_ansvarlig").hasNumberOfRows(1)
         }

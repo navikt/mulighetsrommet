@@ -23,62 +23,26 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> = query {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
         @Language("PostgreSQL")
         val query = """
-            with insert_stm as (
-                insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id)
-                values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id)
-                on conflict (id)
-                    do update set navn              = excluded.navn,
-                                  tiltakstype_id    = excluded.tiltakstype_id,
-                                  tiltaksnummer     = excluded.tiltaksnummer,
-                                  virksomhetsnummer = excluded.virksomhetsnummer,
-                                  start_dato        = excluded.start_dato,
-                                  slutt_dato        = excluded.slutt_dato,
-                                  enhet             = excluded.enhet,
-                                  avslutningsstatus = excluded.avslutningsstatus,
-                                  tilgjengelighet   = excluded.tilgjengelighet,
-                                  antall_plasser    = excluded.antall_plasser,
-                                  avtale_id         = excluded.avtale_id
-                returning *
-            )
-            select
-                   tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn as tiltakstype_navn,
-                   tg.enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   array_agg(a.navident) as ansvarlige
-            from insert_stm tg
-                     inner join tiltakstype t on t.id = tg.tiltakstype_id
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            group by
-               tg.id,
-               tg.navn,
-               tg.tiltakstype_id,
-               tg.tiltaksnummer,
-               tg.virksomhetsnummer,
-               tg.start_dato,
-               tg.slutt_dato,
-               t.tiltakskode,
-               tiltakstype_navn,
-               tg.enhet,
-               tg.avslutningsstatus,
-               tg.tilgjengelighet,
-               tg.antall_plasser,
-               tg.avtale_id
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id)
+            on conflict (id)
+                do update set navn              = excluded.navn,
+                              tiltakstype_id    = excluded.tiltakstype_id,
+                              tiltaksnummer     = excluded.tiltaksnummer,
+                              virksomhetsnummer = excluded.virksomhetsnummer,
+                              start_dato        = excluded.start_dato,
+                              slutt_dato        = excluded.slutt_dato,
+                              enhet             = excluded.enhet,
+                              avslutningsstatus = excluded.avslutningsstatus,
+                              tilgjengelighet   = excluded.tilgjengelighet,
+                              antall_plasser    = excluded.antall_plasser,
+                              avtale_id         = excluded.avtale_id
+            returning *
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -95,26 +59,25 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         db.transaction { tx ->
-            val result = queryOf(query, tiltaksgjennomforing.toSqlParameters())
-                .map { it.toTiltaksgjennomforingAdminDto() }
-                .asSingle
-                .let { tx.run(it)!! }
+            tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
 
             tiltaksgjennomforing.ansvarlige.forEach { ansvarlig ->
-                queryOf(
-                    upsertAnsvarlig,
-                    tiltaksgjennomforing.id,
-                    ansvarlig
-                ).asExecute.let { tx.run(it) }
+                tx.run(
+                    queryOf(
+                        upsertAnsvarlig,
+                        tiltaksgjennomforing.id,
+                        ansvarlig
+                    ).asExecute
+                )
             }
 
-            queryOf(
-                deleteAnsvarlige,
-                tiltaksgjennomforing.id,
-                db.createTextArray(tiltaksgjennomforing.ansvarlige)
-            ).asExecute.let { tx.run(it) }
-
-            result
+            tx.run(
+                queryOf(
+                    deleteAnsvarlige,
+                    tiltaksgjennomforing.id,
+                    db.createTextArray(tiltaksgjennomforing.ansvarlige)
+                ).asExecute
+            )
         }
     }
 
