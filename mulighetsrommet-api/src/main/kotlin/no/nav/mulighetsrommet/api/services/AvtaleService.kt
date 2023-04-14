@@ -19,7 +19,6 @@ class AvtaleService(
     private val navEnhetService: NavEnhetService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
 ) {
-
     suspend fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
             ?.hentEnhetsnavnForAvtale()

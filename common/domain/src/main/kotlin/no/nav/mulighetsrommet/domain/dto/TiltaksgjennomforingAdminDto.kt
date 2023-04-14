@@ -25,7 +25,8 @@ data class TiltaksgjennomforingAdminDto(
     val tilgjengelighet: TiltaksgjennomforingDbo.Tilgjengelighetsstatus,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID? = null
+    val avtaleId: UUID? = null,
+    val ansvarlige: List<String>,
 ) {
     @Serializable
     data class Tiltakstype(

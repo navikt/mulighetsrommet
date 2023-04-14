@@ -243,10 +243,10 @@ export function OpprettAvtaleContainer({
           </Select>
         </FormGroup>
         <div className={styles.button_row}>
-          <Button onClick={onAvbryt} variant="danger">
+          <Button className={styles.button} onClick={onAvbryt} variant="tertiary">
             Avbryt
           </Button>
-          <Button type="submit">
+          <Button className={styles.button}  type="submit">
             {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
           </Button>
         </div>

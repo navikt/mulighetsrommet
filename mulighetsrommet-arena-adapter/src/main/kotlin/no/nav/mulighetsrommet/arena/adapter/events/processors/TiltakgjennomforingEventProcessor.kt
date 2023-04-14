@@ -163,6 +163,7 @@ class TiltakgjennomforingEventProcessor(
             avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
             tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
             antallPlasser = antallPlasser,
-            avtaleId = avtaleId
+            avtaleId = avtaleId,
+            ansvarlige = emptyList(),
         )
 }
