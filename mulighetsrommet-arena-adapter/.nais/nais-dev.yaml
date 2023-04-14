@@ -62,6 +62,7 @@ spec:
         - application: mulighetsrommet-api
       external:
         - host: amt-arena-ords-proxy.dev-fss-pub.nais.io
+        - host: slack.com
 
   envFrom:
     - secret: mulighetsrommet-arena-adapter
