@@ -36,9 +36,6 @@ dependencies {
     implementation(libs.arrow.core)
 
     // Ktor
-    implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.client.contentNegotiation)
-    implementation(libs.ktor.client.logging)
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.server.defaultHeaders)

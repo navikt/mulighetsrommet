@@ -1,22 +1,17 @@
 package no.nav.mulighetsrommet.arena.adapter.clients
 
 import arrow.core.Either
-import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 
 class ArenaOrdsProxyClientImpl(
     engine: HttpClientEngine = CIO.create(),
@@ -26,22 +21,7 @@ class ArenaOrdsProxyClientImpl(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    val client = HttpClient(engine) {
-        expectSuccess = false
-
-        install(ContentNegotiation) {
-            json(JsonIgnoreUnknownKeys)
-        }
-
-        install(Logging) {
-            level = LogLevel.INFO
-        }
-
-        defaultRequest {
-            header("Nav-Consumer-Id", "mulighetsrommet-arena-adapter")
-            MDC.get("call-id")?.let { header(HttpHeaders.XRequestId, it) }
-        }
-
+    val client = httpJsonClient(engine).config {
         install(HttpCache)
     }
 
