@@ -25,6 +25,7 @@ flyway {
 dependencies {
     implementation(projects.common.domain)
     implementation(projects.common.ktor)
+    implementation(projects.common.ktorClients)
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)

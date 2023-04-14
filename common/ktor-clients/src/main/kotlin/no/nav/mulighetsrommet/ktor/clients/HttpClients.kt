@@ -12,7 +12,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.slf4j.MDC
 
-internal fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine) {
+fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine) {
     expectSuccess = false
 
     install(Logging) {
