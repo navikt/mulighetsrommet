@@ -28,7 +28,9 @@ internal fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClien
     }
 
     defaultRequest {
-        header("Nav-Consumer-Id", "mulighetsrommet-api")
+        System.getenv("NAIS_APP_NAME")?.let {
+            header("Nav-Consumer-Id", it)
+        }
 
         MDC.get("call-id")?.let {
             header(HttpHeaders.XRequestId, it)
