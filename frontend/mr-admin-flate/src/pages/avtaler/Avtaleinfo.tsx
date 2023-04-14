@@ -8,6 +8,7 @@ import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { NavLink } from "react-router-dom";
 import OpprettAvtaleModal from "../../components/avtaler/opprett/OpprettAvtaleModal";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function Avtaleinfo() {
   const { data: avtale, isLoading, error } = useAvtale();
@@ -28,6 +29,27 @@ export function Avtaleinfo() {
   if (!avtale) {
     return <Alert variant="warning">Fant ingen avtale</Alert>;
   }
+
+  const lenketekst = () => {
+    if (avtale.url!.includes("mercell")) {
+      return (
+        <>
+          Se originalavtale i Mercell <ExternalLinkIcon />
+        </>
+      );
+    } else if (avtale.url!.includes("websak")) {
+      return (
+        <>
+          Se originalavtale i WebSak <ExternalLinkIcon />
+        </>
+      );
+    } else
+      return (
+        <>
+          Se originalavtale <ExternalLinkIcon />
+        </>
+      );
+  };
 
   return (
     <div className={styles.container}>
@@ -62,9 +84,13 @@ export function Avtaleinfo() {
           />
         </div>
         <Separator />
-        <div>
-          <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />
-        </div>
+
+        {avtale.ansvarlig && (
+          <div>
+            <Metadata header="Avtaleansvarlig" verdi={avtale.ansvarlig} />
+          </div>
+        )}
+
         {avtale.url && (
           <NavLink
             key={avtale.url}
@@ -73,7 +99,7 @@ export function Avtaleinfo() {
               isActive ? styles.navlink_active : styles.navlink
             }
           >
-            Gå til avtalen i websak
+            {lenketekst}
           </NavLink>
         )}
       </div>
