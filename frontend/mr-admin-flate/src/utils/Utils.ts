@@ -1,4 +1,5 @@
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client/build/models/TiltaksgjennomforingStatus";
+import { ANSKAFFEDE_TILTAK } from "../constants";
 
 export function capitalize(text?: string): string {
   return text
@@ -109,13 +110,5 @@ export const tiltakstypekodeErAnskaffetTiltak = (
 ): boolean => {
   if (!tiltakstypekode) return false;
 
-  return [
-    "ARBRRHDAG",
-    "AVKLARAG",
-    "GRUPPEAMO",
-    "INDOPPFAG",
-    "DIGIOPPARB",
-    "JOBBK",
-    "GRUFAGYRKE",
-  ].includes(tiltakstypekode);
+  return ANSKAFFEDE_TILTAK.includes(tiltakstypekode);
 };
