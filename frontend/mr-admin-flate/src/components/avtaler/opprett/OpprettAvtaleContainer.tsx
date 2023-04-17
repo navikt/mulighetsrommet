@@ -170,6 +170,7 @@ export function OpprettAvtaleContainer({
 
         virksomhetDispatcher({ type: "Data hentet", payload: response });
       } catch (error) {
+        virksomhetDispatcher({ type: "Reset" });
         setError("leverandor", {
           message: `Fant ikke leverandør med nummer: ${orgnr}`,
         });
