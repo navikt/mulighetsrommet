@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -154,7 +153,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val processor = createProcessor()
 
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
-                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Aktiv.name)
@@ -162,7 +161,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val e2 = createArenaAvtaleInfoEvent(Update) {
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
                 }
-                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Planlagt.name)
@@ -170,7 +169,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val e3 = createArenaAvtaleInfoEvent(Update) {
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
                 }
-                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Avsluttet.name)
