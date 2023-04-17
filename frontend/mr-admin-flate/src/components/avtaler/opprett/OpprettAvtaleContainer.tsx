@@ -106,6 +106,7 @@ export function OpprettAvtaleContainer({
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
       enhet: data.enhet,
+      avtalenummer: avtale?.avtalenummer || "",
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
@@ -243,10 +244,14 @@ export function OpprettAvtaleContainer({
           </Select>
         </FormGroup>
         <div className={styles.button_row}>
-          <Button className={styles.button} onClick={onAvbryt} variant="tertiary">
+          <Button
+            className={styles.button}
+            onClick={onAvbryt}
+            variant="tertiary"
+          >
             Avbryt
           </Button>
-          <Button className={styles.button}  type="submit">
+          <Button className={styles.button} type="submit">
             {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
           </Button>
         </div>

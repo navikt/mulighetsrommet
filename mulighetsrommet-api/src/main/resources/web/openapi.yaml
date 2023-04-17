@@ -965,6 +965,8 @@ components:
           format: UUID
         navn:
           type: string
+        avtalenummer:
+          type: string
         leverandorOrganisasjonsnummer:
           type: string
         startDato:
@@ -986,6 +988,7 @@ components:
       required:
         - tiltakstypeId
         - navn
+        - avtalenummer
         - leverandorOrganisasjonsnummer
         - startDato
         - sluttDato

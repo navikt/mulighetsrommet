@@ -93,6 +93,7 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val leverandorOrganisasjonsnummer: String,
+    val avtalenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -107,6 +108,7 @@ data class AvtaleRequest(
         return AvtaleDbo(
             id = id ?: UUID.randomUUID(),
             navn = navn,
+            avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
             startDato = startDato,
