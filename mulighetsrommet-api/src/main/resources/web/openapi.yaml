@@ -1113,9 +1113,9 @@ components:
           type: number
         virksomhetsnummer:
           type: string
-        ansvarlig:
-          type: string
         tiltaksnummer:
+          type: string
+        ansvarlig:
           type: string
       required:
         - id
@@ -1126,6 +1126,7 @@ components:
         - sluttDato
         - enhet
         - antallPlasser
+        - virksomhetsnummer
         - ansvarlig
 
     TiltaksgjennomforingAvslutningsstatus:
