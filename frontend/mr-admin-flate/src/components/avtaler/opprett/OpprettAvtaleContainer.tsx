@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Button, Select, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
@@ -7,14 +8,27 @@ import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-veileder-flate/src/constants";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import z from "zod";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import z from "zod";
 import { mulighetsrommetClient } from "../../../api/clients";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
+import {
+  capitalize,
+  capitalizeEveryWord,
+  formaterDatoSomYYYYMMDD,
+} from "../../../utils/Utils";
+import { Laster } from "../../laster/Laster";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
+import { initialState, reducer } from "./virksomhetReducer";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -72,9 +86,20 @@ export function OpprettAvtaleContainer({
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [feil, setFeil] = useState<string | null>("");
+
+  const [virksomhetState, virksomhetDispatcher] = useReducer(
+    reducer,
+    initialState
+  );
   const clickCancel = () => {
     setFeil(null);
   };
+
+  useEffect(() => {
+    if (avtale?.leverandor?.organisasjonsnummer?.length === 9) {
+      sjekkOrgnr(avtale.leverandor.organisasjonsnummer);
+    }
+  }, [avtale?.leverandor]);
 
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
@@ -95,6 +120,7 @@ export function OpprettAvtaleContainer({
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = form;
 
   const postData: SubmitHandler<inferredSchema> = async (
@@ -129,6 +155,25 @@ export function OpprettAvtaleContainer({
       return;
     } catch {
       setFeil("Klarte ikke opprette eller redigere avtale");
+    }
+  };
+
+  const sjekkOrgnr = async (orgnr: string) => {
+    virksomhetDispatcher({ type: "Reset" });
+    if (orgnr.trim().length === 9) {
+      virksomhetDispatcher({ type: "Hent data" });
+      const response =
+        await mulighetsrommetClient.hentVirksomhet.hentVirksomhetMedOrgnr({
+          orgnr: orgnr.trim(),
+        });
+
+      if (response) {
+        virksomhetDispatcher({ type: "Data hentet", payload: response });
+      } else {
+        setError("leverandor", {
+          message: `Fant ikke leverandør med nummer: ${orgnr}`,
+        });
+      }
     }
   };
 
@@ -210,11 +255,30 @@ export function OpprettAvtaleContainer({
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
-          <TextField
-            error={errors.leverandor?.message}
-            label="Leverandør"
-            {...register("leverandor")}
-          />
+          <div>
+            <TextField
+              error={errors.leverandor?.message}
+              label={"Leverandør"}
+              {...register("leverandor", {
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  sjekkOrgnr(e.currentTarget.value),
+              })}
+            />
+            <div className={styles.virksomhet}>
+              {virksomhetState.status === "fetching" ? (
+                <Laster tekst="Henter virksomhet" sentrert={false} />
+              ) : null}
+              {virksomhetState.status === "fetched" ? (
+                <span
+                  className={styles.icon_text_align}
+                  aria-label={`Fant virksomhet for orgnr: ${virksomhetState.data?.organisasjonsnummer} med navn ${virksomhetState.data?.navn}`}
+                >
+                  <CheckmarkIcon color="green" title="Fant virksomhet" />{" "}
+                  {capitalizeEveryWord(virksomhetState.data?.navn)}
+                </span>
+              ) : null}
+            </div>
+          </div>
           <Select
             error={errors.avtaletype?.message}
             label={"Avtaletype"}
