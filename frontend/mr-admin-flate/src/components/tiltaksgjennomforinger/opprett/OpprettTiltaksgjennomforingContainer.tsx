@@ -275,13 +275,13 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly
             style={{ backgroundColor: "whitesmoke" }}
             label={"Arrangør - fra avtalen"}
-            value={avtale?.leverandor?.navn || avtale?.leverandor?.navn || ""}
+            value={avtale?.leverandor.navn || ""}
           />
           <TextField
             readOnly
             style={{ backgroundColor: "whitesmoke" }}
             label={"Avtaletype - fra avtalen"}
-            value={avtale?.avtaletype || avtale?.avtaletype || ""}
+            value={avtale?.avtaletype || ""}
           />
         </FormGroup>
         <div className={styles.button_row}>
@@ -289,7 +289,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             Avbryt
           </Button>
           <Button className={styles.button} type="submit">
-            { redigeringsModus ? "Lagre gjennomforing" : "Opprett"}
+            { redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
           </Button>
         </div>
       </form>
