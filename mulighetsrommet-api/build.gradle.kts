@@ -25,6 +25,7 @@ flyway {
 dependencies {
     implementation(projects.common.domain)
     implementation(projects.common.ktor)
+    implementation(projects.common.ktorClients)
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
@@ -35,9 +36,6 @@ dependencies {
     implementation(libs.arrow.core)
 
     // Ktor
-    implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.client.contentNegotiation)
-    implementation(libs.ktor.client.logging)
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.server.defaultHeaders)
