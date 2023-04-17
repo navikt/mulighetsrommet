@@ -13,7 +13,7 @@ data class TiltaksgjennomforingAdminDto(
     val id: UUID,
     val tiltakstype: Tiltakstype,
     val navn: String,
-    val tiltaksnummer: String,
+    val tiltaksnummer: String?,
     val virksomhetsnummer: String,
     val virksomhetsnavn: String? = null,
     @Serializable(with = LocalDateSerializer::class)

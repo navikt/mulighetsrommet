@@ -946,7 +946,7 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - leverandorOrganisasjonsnummer
+        - leverandor
         - startDato
         - sluttDato
         - enhet
@@ -1076,6 +1076,13 @@ components:
           format: date
         enhet:
           type: string
+        ansvarlig:
+          type: string
+        antallPlasser:
+          type: integer
+        avtaleId:
+          type: string
+          format: uuid
       required:
         - id
         - tiltakstype
@@ -1123,7 +1130,6 @@ components:
         - enhet
         - antallPlasser
         - virksomhetsnummer
-        - tiltaksnummer
         - ansvarlig
 
     TiltaksgjennomforingAvslutningsstatus:
@@ -1353,6 +1359,8 @@ components:
           type: string
         organisasjonsnummer:
           type: string
+      required:
+        - organisasjonsnummer
 
     AvtaleNavEnhet:
       type: object

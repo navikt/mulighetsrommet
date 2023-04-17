@@ -5,6 +5,7 @@ import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal
 import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 import { OpprettTiltaksgjennomforingContainer } from "./OpprettTiltaksgjennomforingContainer";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 interface ModalProps {
   modalOpen: boolean;
@@ -12,12 +13,14 @@ interface ModalProps {
   handleForm?: () => void;
   handleCancel?: () => void;
   shouldCloseOnOverlayClick?: boolean;
+  tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
 export const OpprettTiltaksgjennomforingModal = ({
   modalOpen,
   onClose,
   handleCancel,
+  tiltaksgjennomforing,
 }: ModalProps) => {
   const { navigerTilTiltaksgjennomforing } =
     useNavigerTilTiltaksgjennomforing();
@@ -35,6 +38,8 @@ export const OpprettTiltaksgjennomforingModal = ({
   const [error, setError] = useState<boolean>(false);
   const [result, setResult] = useState<string | null>(null);
 
+  const redigeringsModus = !!tiltaksgjennomforing;
+
   return (
     <>
       {!error && !result && (
@@ -48,12 +53,13 @@ export const OpprettTiltaksgjennomforingModal = ({
         >
           <Modal.Content>
             <Heading size="medium" level="2" data-testid="modal_header">
-              Opprett ny gjennomføring
+              { redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring" }
             </Heading>
             <OpprettTiltaksgjennomforingContainer
               onAvbryt={clickCancel}
               setError={setError}
               setResult={setResult}
+              tiltaksgjennomforing={tiltaksgjennomforing}
             />
           </Modal.Content>
         </Modal>

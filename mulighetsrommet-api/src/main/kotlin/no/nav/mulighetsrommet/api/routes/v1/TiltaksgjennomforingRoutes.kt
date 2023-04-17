@@ -25,7 +25,7 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val logger = application.environment.log
+    val log = application.environment.log
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         get {
