@@ -5,13 +5,14 @@ import { QueryKeys } from "../QueryKeys";
 export function useAvtale(avtaleId?: string) {
   const enabled = !!avtaleId;
 
-  const { data, isLoading, isError } = useQuery(QueryKeys.avtale(avtaleId!!), () =>
+  const { data, isLoading, isError, error } = useQuery(QueryKeys.avtale(avtaleId!!), () =>
     mulighetsrommetClient.avtaler.getAvtale({ id: avtaleId!! })
     , { enabled });
   
   return {
     data,
     isLoading: isLoading && enabled, // When disabled, isLoading is for some reason true...
-    isError
+    isError,
+    error
   }
 }
