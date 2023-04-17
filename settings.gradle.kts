@@ -1,11 +1,14 @@
 rootProject.name = "mulighetsrommet"
 
-include("common:ktor")
-include("common:database")
-include("common:domain")
-include("common:slack")
-include("common:kafka")
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include("mulighetsrommet-api")
-include("mulighetsrommet-api-sanity-sync")
-include("mulighetsrommet-arena-adapter")
+include(
+    "common:ktor",
+    "common:database",
+    "common:domain",
+    "common:slack",
+    "common:kafka",
+    "mulighetsrommet-api",
+    "mulighetsrommet-api-sanity-sync",
+    "mulighetsrommet-arena-adapter",
+)

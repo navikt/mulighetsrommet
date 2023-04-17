@@ -1,7 +1,8 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("jvm")
     `java-test-fixtures`
-    id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktlint)
 }
 
 ktlint {
@@ -14,26 +15,26 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":common:slack"))
-    testFixturesImplementation(project(":common:slack"))
+    implementation(projects.common.slack)
+    testFixturesImplementation(projects.common.slack)
 
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.arrow-kt:arrow-core:1.1.5")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.arrow.core)
 
     // Database
-    api("org.flywaydb:flyway-core:9.15.1")
-    api("com.zaxxer:HikariCP:5.0.1")
-    api("org.postgresql:postgresql:42.5.4")
-    api("com.github.seratch:kotliquery:1.9.0")
-    implementation("io.dropwizard.metrics:metrics-healthchecks:4.2.17")
-    implementation("io.dropwizard.metrics:metrics-core:4.2.17")
-    implementation("com.google.cloud.sql:postgres-socket-factory:1.11.0")
+    api(libs.flyway.core)
+    api(libs.hikaricp)
+    api(libs.postgresql)
+    api(libs.kotliquery)
+    implementation(libs.metrics.core)
+    implementation(libs.metrics.healthchecks)
+    implementation(libs.google.postgresSocketFactory)
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.6")
+    implementation(libs.slf4j)
 
     // Test
-    testFixturesImplementation("io.kotest:kotest-runner-junit5:5.5.5")
-    testFixturesImplementation("org.assertj:assertj-db:2.0.2")
+    testFixturesImplementation(libs.kotest.junit)
+    testFixturesImplementation(libs.assertj.db)
 }

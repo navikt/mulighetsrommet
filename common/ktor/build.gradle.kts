@@ -1,8 +1,9 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
     `java-test-fixtures`
-    id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktlint)
 }
 
 ktlint {
@@ -15,38 +16,36 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    val ktorVersion = "2.2.4"
-    testFixturesImplementation("io.ktor:ktor-client-core:$ktorVersion")
-    testFixturesImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testFixturesImplementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-id-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
+    testFixturesImplementation(libs.ktor.client.core)
+    testFixturesImplementation(libs.ktor.client.mock)
+    testFixturesImplementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.server.callId)
+    implementation(libs.ktor.server.callLogging)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.metricsMicrometer)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.statusPages)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.authJwt)
 
     // Metrikker
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
+    implementation(libs.micrometer.registry.prometheus)
 
     // Audit-logging
-    implementation("com.github.navikt.common-java-modules:audit-log:3.2023.03.22_12.48-00fcbdc8f455")
+    implementation(libs.nav.common.auditLog)
     constraints {
-        val logbackVerison = "1.4.6"
-        implementation("ch.qos.logback:logback-core:$logbackVerison") {
+        implementation(libs.logback.core) {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("ch.qos.logback:logback-classic:$logbackVerison") {
+        implementation(libs.logback.classic) {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
 
     // Cache
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
+    implementation(libs.caffeine)
 
-    val hopliteVersion = "2.7.2"
-    api("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-    api("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
+    // Config
+    api(libs.hoplite.core)
+    api(libs.hoplite.yaml)
 }

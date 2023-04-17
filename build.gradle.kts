@@ -5,13 +5,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.mulighetsrommet"
 version = "0.0.1"
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    val kotlinVersion = "1.8.10"
-    kotlin("jvm") version kotlinVersion apply false
-    kotlin("plugin.serialization") version kotlinVersion apply false
-    id("org.flywaydb.flyway") version "9.15.1" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2" apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.flyway) apply false
+    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.shadow) apply false
 }
 
 allprojects {
