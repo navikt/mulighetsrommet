@@ -104,7 +104,7 @@ export function Tiltaksgjennomforingfilter() {
             <option
               value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}
             >
-              Aktiv
+              Gjennomføres
             </option>
             <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
               Avsluttet
