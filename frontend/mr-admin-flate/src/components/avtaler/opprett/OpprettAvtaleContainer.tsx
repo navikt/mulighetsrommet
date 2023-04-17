@@ -162,14 +162,14 @@ export function OpprettAvtaleContainer({
     virksomhetDispatcher({ type: "Reset" });
     if (orgnr.trim().length === 9) {
       virksomhetDispatcher({ type: "Hent data" });
-      const response =
-        await mulighetsrommetClient.hentVirksomhet.hentVirksomhetMedOrgnr({
-          orgnr: orgnr.trim(),
-        });
+      try {
+        const response =
+          await mulighetsrommetClient.hentVirksomhet.hentVirksomhetMedOrgnr({
+            orgnr: orgnr.trim(),
+          });
 
-      if (response) {
         virksomhetDispatcher({ type: "Data hentet", payload: response });
-      } else {
+      } catch (error) {
         setError("leverandor", {
           message: `Fant ikke leverandør med nummer: ${orgnr}`,
         });
