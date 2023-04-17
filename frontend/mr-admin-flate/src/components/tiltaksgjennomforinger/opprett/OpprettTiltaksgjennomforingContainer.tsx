@@ -189,6 +189,7 @@ export const OpprettTiltaksgjennomforingContainer = (
               onChange: (e) => {
                 setAvtaleFilter({ ...aFilter, tiltakstype: e.target.value });
                 setAvtaleId(undefined);
+                form.resetField("avtale", { defaultValue: "" })
               },
             })}
           >
