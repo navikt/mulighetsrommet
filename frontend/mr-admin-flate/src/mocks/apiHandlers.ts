@@ -111,6 +111,13 @@ export const apiHandlers = [
     }
   ),
 
+  rest.put<any, any, Tiltaksgjennomforing>(
+    "*/api/v1/internal/tiltaksgjennomforinger",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockTiltaksgjennomforinger.data[0]));
+    }
+  ),
+
   rest.get<any, any, Tiltaksgjennomforing[]>(
     "*/api/v1/internal/tiltaksgjennomforinger/sok",
     (req, res, ctx) => {
