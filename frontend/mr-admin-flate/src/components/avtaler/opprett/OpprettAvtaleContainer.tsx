@@ -121,6 +121,7 @@ export function OpprettAvtaleContainer({
     handleSubmit,
     formState: { errors },
     setError,
+    clearErrors,
   } = form;
 
   const postData: SubmitHandler<inferredSchema> = async (
@@ -169,6 +170,7 @@ export function OpprettAvtaleContainer({
           });
 
         virksomhetDispatcher({ type: "Data hentet", payload: response });
+        clearErrors("leverandor");
       } catch (error) {
         virksomhetDispatcher({ type: "Reset" });
         setError("leverandor", {
