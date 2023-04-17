@@ -985,6 +985,8 @@ components:
           type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
+        prisOgBetalingsinformasjon:
+          type: string
       required:
         - tiltakstypeId
         - navn

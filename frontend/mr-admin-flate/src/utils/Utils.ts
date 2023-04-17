@@ -103,3 +103,19 @@ export const oversettStatusForTiltaksgjennomforing = (
       return "";
   }
 };
+
+export const tiltakstypekodeErAnskaffetTiltak = (
+  tiltakstypekode?: string
+): boolean => {
+  if (!tiltakstypekode) return false;
+
+  return [
+    "ARBRRHDAG",
+    "AVKLARAG",
+    "GRUPPEAMO",
+    "INDOPPFAG",
+    "DIGIOPPARB",
+    "JOBBK",
+    "GRUFAGYRKE",
+  ].includes(tiltakstypekode);
+};

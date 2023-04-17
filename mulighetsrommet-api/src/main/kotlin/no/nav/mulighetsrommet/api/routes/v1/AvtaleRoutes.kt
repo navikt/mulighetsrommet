@@ -102,7 +102,8 @@ data class AvtaleRequest(
     val antallPlasser: Int,
     val url: String,
     val ansvarlig: String,
-    val avtaletype: Avtaletype
+    val avtaletype: Avtaletype,
+    val prisOgBetalingsinformasjon: String? = null
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
@@ -119,7 +120,8 @@ data class AvtaleRequest(
             antallPlasser = antallPlasser,
             url = url,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
-            ansvarlige = listOf(ansvarlig)
+            ansvarlige = listOf(ansvarlig),
+            prisbetingelser = prisOgBetalingsinformasjon
         )
     }
 }
