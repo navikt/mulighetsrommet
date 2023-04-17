@@ -23,7 +23,7 @@ assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:v3.1.6"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:11.6"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:12.0.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
