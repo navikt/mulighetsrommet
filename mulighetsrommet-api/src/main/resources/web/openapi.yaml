@@ -1073,6 +1073,13 @@ components:
           format: date
         enhet:
           type: string
+        ansvarlig:
+          type: string
+        antallPlasser:
+          type: integer
+        avtaleId:
+          type: string
+          format: uuid
       required:
         - id
         - tiltakstype
@@ -1106,9 +1113,9 @@ components:
           type: number
         virksomhetsnummer:
           type: string
-        tiltaksnummer:
-          type: string
         ansvarlig:
+          type: string
+        tiltaksnummer:
           type: string
       required:
         - id
@@ -1119,8 +1126,6 @@ components:
         - sluttDato
         - enhet
         - antallPlasser
-        - virksomhetsnummer
-        - tiltaksnummer
         - ansvarlig
 
     TiltaksgjennomforingAvslutningsstatus:

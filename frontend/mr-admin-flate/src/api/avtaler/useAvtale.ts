@@ -1,15 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useAvtale() {
-  const { avtaleId } = useParams<{ avtaleId: string }>();
-  if (!avtaleId) {
-    throw new Error("Fant ingen avtaleId i url");
-  }
+export function useAvtale(avtaleId?: string) {
+  const enabled = !!avtaleId;
 
-  return useQuery(QueryKeys.avtale(avtaleId), () =>
-    mulighetsrommetClient.avtaler.getAvtale({ id: avtaleId })
-  );
+  const { data, isLoading, isError } = useQuery(QueryKeys.avtale(avtaleId!!), () =>
+    mulighetsrommetClient.avtaler.getAvtale({ id: avtaleId!! })
+    , { enabled });
+  
+  return {
+    data,
+    isLoading: isLoading && enabled, // When disabled, isLoading is for some reason true...
+    isError
+  }
 }

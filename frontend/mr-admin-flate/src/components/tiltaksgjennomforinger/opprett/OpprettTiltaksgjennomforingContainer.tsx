@@ -11,6 +11,7 @@ import { FormGroup } from "../../avtaler/opprett/OpprettAvtaleContainer";
 import {
   Avtale,
   NavEnhet,
+  Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -19,17 +20,15 @@ import { useAtom } from "jotai";
 import { avtaleFilter, tiltakstypefilter } from "../../../api/atoms";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
-import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { useAvtale } from "../../../api/avtaler/useAvtale";
+import { Laster } from "../../laster/Laster";
+import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
 
 const Schema = z.object({
   tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
   avtale: z.string().min(1, "Du må velge en avtale"),
   tittel: z.string().min(1, "Du må skrive inn tittel"),
-  tiltaksnummer: z
-    .number({ invalid_type_error: "Du må skrive inn et tall" })
-    .int(),
-  aar: z.number({ invalid_type_error: "Du må skrive inn et tall" }).int(),
   startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
   sluttDato: z.date({ required_error: "En gjennomføring må ha en sluttdato" }),
   antallPlasser: z
@@ -40,7 +39,7 @@ const Schema = z.object({
     .int()
     .positive(),
   enhet: z.string().min(1, "Du må velge en enhet"),
-  avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
+  ansvarlig: z.string().min(1, "Du må velge en ansvarlig"),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -49,6 +48,7 @@ interface OpprettTiltaksgjennomforingContainerProps {
   onAvbryt: () => void;
   setError: Dispatch<SetStateAction<boolean>>;
   setResult: Dispatch<SetStateAction<string | null>>;
+  tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
 export const OpprettTiltaksgjennomforingContainer = (
@@ -56,6 +56,16 @@ export const OpprettTiltaksgjennomforingContainer = (
 ) => {
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
+    defaultValues: {
+      tittel: props.tiltaksgjennomforing?.navn,
+      tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
+      enhet: props.tiltaksgjennomforing?.enhet,
+      ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
+      avtale: props.tiltaksgjennomforing?.avtaleId,
+      antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
+      startDato: props.tiltaksgjennomforing?.startDato ? new Date(props.tiltaksgjennomforing.startDato) : undefined,
+      sluttDato: props.tiltaksgjennomforing?.sluttDato ? new Date(props.tiltaksgjennomforing.sluttDato) : undefined,
+    },
   });
   const {
     register,
@@ -64,6 +74,12 @@ export const OpprettTiltaksgjennomforingContainer = (
   } = form;
 
   const [aFilter, setAvtaleFilter] = useAtom(avtaleFilter);
+  useEffect(() => {
+    if (props.tiltaksgjennomforing?.tiltakstype) {
+      setAvtaleFilter({ ...aFilter, tiltakstype: props.tiltaksgjennomforing.tiltakstype.id });
+    }
+  }, []);
+
   const [tFilter, setTiltakstypeFilter] = useAtom(tiltakstypefilter);
   useEffect(() => {
     setTiltakstypeFilter({ ...tFilter, status: Tiltakstypestatus.AKTIV });
@@ -80,30 +96,25 @@ export const OpprettTiltaksgjennomforingContainer = (
     isLoading: isLoadingEnheter,
     isError: isErrorEnheter,
   } = useAlleEnheter();
+
+  const [avtaleId, setAvtaleId] = useState<string | undefined>(props.tiltaksgjennomforing?.avtaleId);
+  const { data: avtale, isLoading: isLoadingAvtale, isError: isErrorAvtale } = useAvtale(avtaleId);
+
   const {
     data: avtaler,
     isLoading: isLoadingAvtaler,
     isError: isErrorAvtaler,
   } = useAvtaler();
-  const { data: ansatt, isLoading: isLoadingAnsatt, isError: isErrorAnsatt } = useHentAnsatt();
-  if (isErrorAvtaler || isErrorEnheter || isErrorTiltakstyper || isErrorAnsatt) {
-    props.setError(true);
-  }
 
-  const [avtale, setAvtale] = useState<Avtale | undefined>(undefined);
+  const { data: ansatt, isLoading: isLoadingAnsatt, isError: isErrorAnsatt } = useHentAnsatt();
+
+  const redigeringsModus = !!props.tiltaksgjennomforing;
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
-    props.setError(false);
-    props.setResult(null);
-    if (!avtale?.leverandor?.organisasjonsnummer) {
-      props.setError(true);
-      return;
-    }
-
     const body: TiltaksgjennomforingRequest = {
-      id: uuidv4(),
+      id: props.tiltaksgjennomforing ? props.tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: data.tiltakstype,
       enhet: data.enhet,
@@ -111,9 +122,9 @@ export const OpprettTiltaksgjennomforingContainer = (
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
       avtaleId: data.avtale,
-      ansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
+      ansvarlig: data.ansvarlig,
       virksomhetsnummer: avtale?.leverandor?.organisasjonsnummer,
-      tiltaksnummer: `${data.tiltaksnummer}#${data.aar}`,
+      tiltaksnummer: props.tiltaksgjennomforing?.tiltaksnummer,
     };
 
     try {
@@ -135,9 +146,20 @@ export const OpprettTiltaksgjennomforingContainer = (
         .join(" ")
     : "";
 
+  if (isLoadingAvtaler || isLoadingAvtale || isLoadingAnsatt || isLoadingEnheter
+    || isLoadingTiltakstyper || !avtaler || !tiltakstyper || !enheter
+  ) {
+    return <Laster />;
+  }
+  if (isErrorAvtaler || isErrorAnsatt || isErrorAvtale
+    || isErrorTiltakstyper || isErrorEnheter || isErrorAvtale
+  ) {
+    props.setError(true);
+  }
+  
   const avtalerOptions = () => {
-    if (isLoadingAvtaler || !avtaler) {
-      return <option value={""}>Laster...</option>;
+    if (avtale && !avtaler.data.find((a) => a.id === avtale.id)) {
+      avtaler.data.push(avtale);
     }
     if (avtaler.data.length === 0) {
       return <option value={""}>Ingen avtaler funnet</option>;
@@ -164,54 +186,36 @@ export const OpprettTiltaksgjennomforingContainer = (
             {...register("tiltakstype", {
               onChange: (e) => {
                 setAvtaleFilter({ ...aFilter, tiltakstype: e.target.value });
-                setAvtale(undefined);
+                setAvtaleId(undefined);
               },
             })}
           >
-            {isLoadingTiltakstyper || !tiltakstyper ? (
-              <option value={""}>Laster...</option>
-            ) : (
-              <>
-                <option value={""}>Velg en</option>
-                {tiltakstyper.data.map((tiltakstype) => (
-                  <option key={tiltakstype.id} value={tiltakstype.id}>
-                    {tiltakstype.navn}
-                  </option>
-                ))}
-              </>
-            )}
+            <>
+              <option value={""}>Velg en</option>
+              {tiltakstyper.data.map((tiltakstype) => (
+                <option key={tiltakstype.id} value={tiltakstype.id}>
+                  {tiltakstype.navn}
+                </option>
+              ))}
+            </>
           </Select>
           <Select
             label={"Avtale"}
             error={errors.avtale?.message}
             {...register("avtale", {
               onChange: (e) => {
-                const selectedAvtale = avtaler?.data.find(
-                  (avtale: Avtale) => avtale.id === e.target.value
-                );
-                setAvtale(selectedAvtale);
+                setAvtaleId(e.target.value);
               },
             })}
           >
             {avtalerOptions()}
           </Select>
         </FormGroup>
-        <FormGroup cols={2}>
+        <FormGroup>
           <TextField
             error={errors.tittel?.message}
             label="Tiltaksnavn"
             {...register("tittel")}
-          />
-          <div></div>
-          <TextField
-            error={errors.tiltaksnummer?.message}
-            label="Tiltaksnummer"
-            {...register("tiltaksnummer", { valueAsNumber: true })}
-          />
-          <TextField
-            error={errors.aar?.message}
-            label="År"
-            {...register("aar", { valueAsNumber: true })}
           />
         </FormGroup>
         <FormGroup>
@@ -240,24 +244,19 @@ export const OpprettTiltaksgjennomforingContainer = (
             {...register("enhet")}
             error={errors.enhet?.message}
           >
-            {" "}
-            {isLoadingEnheter || !enheter ? (
-              <option value={""}>Laster...</option>
-            ) : (
-              <>
-                <option value={""}>Velg en</option>
-                {enheter?.map((enhet: NavEnhet) => (
-                  <option key={enhet.enhetId} value={enhet.enhetId}>
-                    {enhet.navn}
-                  </option>
-                ))}
-              </>
-            )}
+            <>
+              <option value={""}>Velg en</option>
+              {enheter.map((enhet: NavEnhet) => (
+                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                  {enhet.navn}
+                </option>
+              ))}
+            </>
           </Select>
           <Select
-            error={errors.avtaleansvarlig?.message}
+            error={errors.ansvarlig?.message}
             label={"Gjennomføringsansvarlig"}
-            {...register("avtaleansvarlig")}
+            {...register("ansvarlig")}
           >
             {isLoadingAnsatt ?
               <option>Laster...</option>
@@ -273,20 +272,22 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly
             style={{ backgroundColor: "whitesmoke" }}
             label={"Arrangør - fra avtalen"}
-            value={avtale?.leverandor?.navn || ""}
+            value={avtale?.leverandor?.navn || avtale?.leverandor?.navn || ""}
           />
           <TextField
             readOnly
             style={{ backgroundColor: "whitesmoke" }}
             label={"Avtaletype - fra avtalen"}
-            value={avtale?.avtaletype || ""}
+            value={avtale?.avtaletype || avtale?.avtaletype || ""}
           />
         </FormGroup>
         <div className={styles.button_row}>
           <Button className={styles.button} onClick={props.onAvbryt} variant="tertiary">
             Avbryt
           </Button>
-          <Button className={styles.button} type="submit">Opprett</Button>
+          <Button className={styles.button} type="submit">
+            { redigeringsModus ? "Lagre gjennomforing" : "Opprett"}
+          </Button>
         </div>
       </form>
     </FormProvider>
