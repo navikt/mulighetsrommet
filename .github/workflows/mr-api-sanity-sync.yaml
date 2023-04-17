@@ -6,6 +6,8 @@ on:
       - .github/workflows/mr-api-sanity-sync.yaml
       - build.gradle.kts
       - settings.gradle.kts
+      - gradle.properties
+      - gradle/libs.versions.toml
       - common/**
       - mulighetsrommet-api-sanity-sync/**
   workflow_dispatch:
