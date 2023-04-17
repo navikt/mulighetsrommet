@@ -24,6 +24,7 @@ import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Laster } from "../../laster/Laster";
 import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
+import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 
 const Schema = z.object({
   tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
@@ -73,6 +74,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     formState: { errors },
   } = form;
 
+  const { navigerTilTiltaksgjennomforing } = useNavigerTilTiltaksgjennomforing();
   const [aFilter, setAvtaleFilter] = useAtom(avtaleFilter);
   useEffect(() => {
     if (props.tiltaksgjennomforing?.tiltakstype) {
@@ -134,7 +136,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             requestBody: body,
           }
         );
-      props.setResult(response.id);
+      navigerTilTiltaksgjennomforing(response.id);
     } catch {
       props.setError(true);
     }
