@@ -18,6 +18,6 @@ updates:
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker
-    directory: "/frontend/mr-admin-flate/.nais"
+    directory: "frontend/mr-admin-flate/.nais"
     schedule:
       interval: daily
