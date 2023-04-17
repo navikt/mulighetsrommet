@@ -10,6 +10,7 @@ export function Tiltakstypestatus({ tiltakstype }: Props) {
 
   return (
     <Tag
+      size="small"
       aria-label={`Status for tiltakstype: ${status}`}
       variant={
         status === "Aktiv"
