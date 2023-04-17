@@ -125,7 +125,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
       avtaleId: data.avtale,
       ansvarlig: data.ansvarlig,
-      virksomhetsnummer: avtale?.leverandor?.organisasjonsnummer,
+      virksomhetsnummer: avtale!!.leverandor.organisasjonsnummer,
       tiltaksnummer: props.tiltaksgjennomforing?.tiltaksnummer,
     };
 

@@ -946,7 +946,7 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - leverandorOrganisasjonsnummer
+        - leverandor
         - startDato
         - sluttDato
         - enhet
@@ -1356,6 +1356,8 @@ components:
           type: string
         organisasjonsnummer:
           type: string
+      required:
+        - organisasjonsnummer
 
     AvtaleNavEnhet:
       type: object
