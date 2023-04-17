@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
@@ -222,19 +221,19 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") },
                     Ignored
                 )
-                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo("DELTAR")
 
                 val e2 = createArenaTiltakdeltakerEvent(Update) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
-                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo("AVSLUTTET")
 
                 val e3 = createArenaTiltakdeltakerEvent(Delete) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
-                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo("AVSLUTTET")
