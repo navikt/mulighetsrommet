@@ -7,7 +7,7 @@ kotest = "5.5.5"
 kotlin = "1.8.10"
 ktor = "2.2.4"
 logback = "1.4.6"
-metrics = "4.2.17"
+metrics = "4.2.18"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
