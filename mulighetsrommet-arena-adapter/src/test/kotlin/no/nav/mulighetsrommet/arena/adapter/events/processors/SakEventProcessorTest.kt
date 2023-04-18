@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.SakFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
@@ -51,15 +50,15 @@ class SakEventProcessorTest : FunSpec({
                 val processor = SakEventProcessor(entities)
 
                 val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
-                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
 
                 val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
-                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
 
                 val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
-                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
             }
         }

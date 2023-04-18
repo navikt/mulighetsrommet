@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixture
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -211,7 +210,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         }
                     )
 
-                    processor.handleEvent(event) shouldBeRight ProcessingResult(Handled)
+                    processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
                     database.assertThat("tiltaksgjennomforing").row()
                         .value("tiltakskode").isEqualTo("AMO")
                 }
@@ -258,7 +257,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         )
                     }
                 )
-                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("navn").isEqualTo("Navn 1")
@@ -269,7 +268,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         LOKALTNAVN = "Navn 2"
                     )
                 }
-                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("navn").isEqualTo("Navn 2")
@@ -277,7 +276,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val e3 = createArenaTiltakgjennomforingEvent(Delete) {
                     it.copy(LOKALTNAVN = "Navn 1")
                 }
-                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("navn").isEqualTo("Navn 1")

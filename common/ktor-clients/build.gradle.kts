@@ -10,6 +10,9 @@ ktlint {
 }
 
 dependencies {
-    // Slack-SDK
-    implementation(libs.slack.client)
+    api(libs.ktor.client.cio)
+    api(libs.ktor.client.core)
+    api(libs.ktor.client.contentNegotiation)
+    api(libs.ktor.client.logging)
+    api(libs.ktor.serialization.json)
 }
