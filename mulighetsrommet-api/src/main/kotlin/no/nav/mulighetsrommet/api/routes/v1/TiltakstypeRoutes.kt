@@ -25,7 +25,6 @@ fun Route.tiltakstypeRoutes() {
                 )
             )
         }
-
         get("{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
