@@ -19,6 +19,7 @@ import {
 import { Datovelger } from "../../skjema/OpprettComponents";
 import { VirksomhetInput } from "../../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
