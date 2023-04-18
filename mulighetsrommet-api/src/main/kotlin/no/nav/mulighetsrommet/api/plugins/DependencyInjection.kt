@@ -211,7 +211,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
-    single { AvtaleService(get(), get(), get(), get()) }
+    single { AvtaleService(get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { SanityService(appConfig.sanity, get()) }
     single { ArrangorService(get()) }

@@ -4,7 +4,11 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
-import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
+import {
+  capitalizeEveryWord,
+  formaterDato,
+  tiltakstypekodeErAnskaffetTiltak,
+} from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { NavLink, useParams } from "react-router-dom";
 import OpprettAvtaleModal from "../../components/avtaler/opprett/OpprettAvtaleModal";
@@ -78,16 +82,21 @@ export function Avtaleinfo() {
           <Metadata header="Avtalenr" verdi={avtale.avtalenummer} />
         </div>
         <Separator />
-        <div>
-          <Metadata
-            header="Pris og betalingsbetingelser"
-            verdi={
-              avtale.prisbetingelser ??
-              "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
-            }
-          />
-        </div>
-        <Separator />
+
+        {tiltakstypekodeErAnskaffetTiltak(avtale.tiltakstype.arenaKode) ? (
+          <>
+            <div>
+              <Metadata
+                header="Pris og betalingsbetingelser"
+                verdi={
+                  avtale.prisbetingelser ??
+                  "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
+                }
+              />
+            </div>
+            <Separator />
+          </>
+        ) : null}
 
         {avtale.ansvarlig && (
           <div>
