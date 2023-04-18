@@ -17,14 +17,14 @@ import {
 } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "../../../api/clients";
 import { useAtom } from "jotai";
-import { avtaleFilter, tiltakstypefilter } from "../../../api/atoms";
+import { avtaleFilter } from "../../../api/atoms";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Laster } from "../../laster/Laster";
-import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
+import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 
 const Schema = z.object({
   tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
@@ -82,16 +82,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, []);
 
-  const [tFilter, setTiltakstypeFilter] = useAtom(tiltakstypefilter);
-  useEffect(() => {
-    setTiltakstypeFilter({ ...tFilter, status: Tiltakstypestatus.AKTIV });
-  }, []);
-
   const {
     data: tiltakstyper,
     isLoading: isLoadingTiltakstyper,
     isError: isErrorTiltakstyper,
-  } = useTiltakstyperWithFilter();
+  } = useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
 
   const {
     data: enheter,
@@ -144,8 +139,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-        .map((it) => capitalize(it))
-        .join(" ")
+      .map((it) => capitalize(it))
+      .join(" ")
     : "";
 
   if (isLoadingAvtaler || isLoadingAvtale || isLoadingAnsatt || isLoadingEnheter
@@ -158,7 +153,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   ) {
     props.setError(true);
   }
-  
+
   const avtalerOptions = () => {
     if (avtale && !avtaler.data.find((a) => a.id === avtale.id)) {
       avtaler.data.push(avtale);
@@ -289,7 +284,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             Avbryt
           </Button>
           <Button className={styles.button} type="submit">
-            { redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
+            {redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
           </Button>
         </div>
       </form>

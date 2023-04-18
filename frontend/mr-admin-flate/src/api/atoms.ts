@@ -22,12 +22,14 @@ export const avtalePaginationAtom = atomWithHash("avtalePage", 1, {
   setHash: "replaceState",
 });
 
-export const tiltakstypefilter = atomWithHash<{
-  sok: string;
+export interface TiltakstypeFilter {
+  sok?: string;
   status?: Tiltakstypestatus;
   kategori?: Tiltakstypekategori;
-  sortering: SorteringTiltakstyper;
-}>(
+  sortering?: SorteringTiltakstyper;
+};
+
+export const tiltakstypeFilter = atomWithHash<TiltakstypeFilter>(
   "tiltakstypefilter",
   {
     sok: "",

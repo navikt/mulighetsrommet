@@ -1,8 +1,7 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  TiltaksgjennomforingAvslutningsstatus,
-  Tiltakstypestatus,
+  TiltaksgjennomforingAvslutningsstatus, Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
 import {
@@ -11,18 +10,18 @@ import {
 } from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper({
-    tiltakstypestatus: Tiltakstypestatus.AKTIV,
-  });
+  const { data: tiltakstyper } = useTiltakstyper({
+    status: Tiltakstypestatus.AKTIV
+  }, 1);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =

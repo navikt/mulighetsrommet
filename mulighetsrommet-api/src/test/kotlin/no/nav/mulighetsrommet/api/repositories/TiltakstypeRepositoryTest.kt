@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixture
@@ -48,9 +49,10 @@ class TiltakstypeRepositoryTest : FunSpec({
                 tilDato = LocalDate.of(2023, 1, 12)
             )
         )
+        Query("update tiltakstype set skal_migreres = true").asUpdate.let { database.db.run(it) }
 
         tiltakstyper.getAll().second shouldHaveSize 2
-        tiltakstyper.getAll(
+        tiltakstyper.getAllSkalMigreres(
             TiltakstypeFilter(
                 search = "Førerhund",
                 status = Tiltakstypestatus.Aktiv,
@@ -59,7 +61,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         ).second shouldHaveSize 0
 
         val arbeidstrening =
-            tiltakstyper.getAll(
+            tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = "Arbeidstrening",
                     status = Tiltakstypestatus.Avsluttet,
@@ -112,13 +114,26 @@ class TiltakstypeRepositoryTest : FunSpec({
             fraDato = LocalDate.of(2023, 1, 9),
             tilDato = LocalDate.of(2023, 1, 11)
         )
+        val idSkalIkkeMigreres = UUID.randomUUID()
+        val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
+            id = idSkalIkkeMigreres,
+            navn = "Oppfølgning",
+            tiltakskode = "INDOPPFOLG",
+            rettPaaTiltakspenger = true,
+            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
+            fraDato = LocalDate.of(2023, 1, 9),
+            tilDato = LocalDate.of(2023, 1, 11)
+        )
 
         tiltakstyper.upsert(tiltakstypePlanlagt)
         tiltakstyper.upsert(tiltakstypeAktiv)
         tiltakstyper.upsert(tiltakstypeAvsluttet)
+        tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
+        Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let { database.db.run(it) }
 
         test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
-            tiltakstyper.getAll(
+            tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = Tiltakstypekategori.GRUPPE
@@ -127,7 +142,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("Filter for kun individuelle tiltak returnerer bare individuelle tiltak") {
-            tiltakstyper.getAll(
+            tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = Tiltakstypekategori.INDIVIDUELL
@@ -136,7 +151,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAll(
+            tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = null
@@ -145,7 +160,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAll(
+            tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = null
@@ -154,7 +169,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("Filter på planlagt returnerer planlagte tiltakstyper") {
-            val typer = tiltakstyper.getAll(
+            val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = null,
@@ -167,7 +182,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("Filter på aktiv returnerer aktive tiltakstyper") {
-            val typer = tiltakstyper.getAll(
+            val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = null,
@@ -180,7 +195,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
 
         test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
-            val typer = tiltakstyper.getAll(
+            val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
                     kategori = null,
