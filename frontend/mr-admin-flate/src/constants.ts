@@ -28,3 +28,13 @@ export const forsideKort: { navn: string; url: string; tekst?: string }[] = [
     tekst: "Her finner du informasjon om tiltaksgjennomføringer",
   },
 ];
+
+export const ANSKAFFEDE_TILTAK = [
+  "ARBRRHDAG",
+  "AVKLARAG",
+  "GRUPPEAMO",
+  "INDOPPFAG",
+  "DIGIOPPARB",
+  "JOBBK",
+  "GRUFAGYRKE",
+];

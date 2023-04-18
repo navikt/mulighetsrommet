@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Select, TextField } from "@navikt/ds-react";
+import { Button, Select, TextField, Textarea } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
@@ -11,11 +11,15 @@ import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
 import { mulighetsrommetClient } from "../../../api/clients";
-import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import {
+  capitalize,
+  formaterDatoSomYYYYMMDD,
+  tiltakstypekodeErAnskaffetTiltak,
+} from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import { VirksomhetInput } from "../../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -58,6 +62,7 @@ const Schema = z.object({
     .nullable(),
   avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
   url: GyldigUrlHvisVerdi,
+  prisOgBetalingsinfo: z.string().optional(),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -91,13 +96,20 @@ export function OpprettAvtaleContainer({
       startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
       sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
       url: avtale?.url || "",
+      prisOgBetalingsinfo: avtale?.prisbetingelser || undefined,
     },
   });
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = form;
+
+  const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
+    const tiltakstype = tiltakstyper.find((type) => type.id === tiltakstypeId);
+    return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
+  };
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
@@ -117,6 +129,9 @@ export function OpprettAvtaleContainer({
       url: data.url,
       ansvarlig: data.avtaleansvarlig,
       avtaletype: data.avtaletype,
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(data.tiltakstype)
+        ? data.prisOgBetalingsinfo
+        : undefined,
     };
 
     if (avtale?.id) {
@@ -231,6 +246,16 @@ export function OpprettAvtaleContainer({
             {...register("url")}
           />
         </FormGroup>
+        {erAnskaffetTiltak(watch("tiltakstype")) ? (
+          <FormGroup>
+            <Textarea
+              error={errors.prisOgBetalingsinfo?.message}
+              label="Pris og betalingsinformasjon"
+              {...register("prisOgBetalingsinfo")}
+            />
+          </FormGroup>
+        ) : null}
+
         <FormGroup cols={2}>
           <Select
             error={errors.avtaleansvarlig?.message}
