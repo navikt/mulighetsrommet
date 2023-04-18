@@ -19,6 +19,7 @@ flyway {
     url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
     password = System.getenv("DB_PASSWORD")
+    cleanDisabled = false
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
