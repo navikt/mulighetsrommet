@@ -26,7 +26,7 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { DetaljerJoyride } from '../../components/joyride/DetaljerJoyride';
-import { DetaljerJoyrideOpprettAvtale } from '../../components/joyride/DetaljerJoyrideOpprettAvtale';
+import { DetaljerOpprettAvtaleJoyride } from '../../components/joyride/DetaljerOpprettAvtaleJoyride';
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 
@@ -163,7 +163,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           )}
         </div>
 
-        <DetaljerJoyrideOpprettAvtale
+        <DetaljerOpprettAvtaleJoyride
           opprettAvtale={
             tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
             whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
@@ -204,7 +204,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                     aria-label="Opprett avtale"
                     data-testid="opprettavtaleknapp"
                     disabled={!brukerHarRettPaaTiltak}
-                    id="opprett-avtale-knapp"
                   >
                     Opprett avtale
                   </Button>
@@ -217,7 +216,6 @@ const ViewTiltaksgjennomforingDetaljer = () => {
                 data-testid="deleknapp"
                 icon={harDeltMedBruker && <CheckmarkIcon title="Suksess" />}
                 iconPosition="left"
-                id="deleknapp"
               >
                 {harDeltMedBruker && !erPreview ? `Delt med bruker ${datoSidenSistDelt}` : 'Del med bruker'}
               </Button>

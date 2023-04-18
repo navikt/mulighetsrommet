@@ -9,7 +9,7 @@ import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import styles from './ViewTiltaksgjennomforingOversikt.module.scss';
 import { OversiktenJoyride } from '../../components/joyride/OversiktenJoyride';
 import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -17,13 +17,22 @@ const ViewTiltaksgjennomforingOversikt = () => {
   const features = useFeatureToggles();
   const visJoyride = features.isSuccess && features.data[VIS_JOYRIDE];
 
+  useEffect(() => {
+    setIsHistorikkModalOpen(isHistorikkModalOpen);
+  }, [isHistorikkModalOpen]);
+
   return (
-    <div className={styles.tiltakstype_oversikt} id="tiltakstype-oversikt" data-testid="tiltakstype-oversikt">
+    <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
       <Filtermeny />
       <div className={styles.filtertags_og_knapperad}>
         <Filtertags filter={filter} setFilter={setFilter} />
         <div className={styles.knapperad}>
-          {visJoyride && <OversiktenJoyride toggleHistorikkModal={setIsHistorikkModalOpen} />}
+          {visJoyride && (
+            <OversiktenJoyride
+              toggleHistorikkModal={setIsHistorikkModalOpen}
+              isHistorikkModalOpen={isHistorikkModalOpen}
+            />
+          )}
           <HistorikkButton toggleHistorikkModal={setIsHistorikkModalOpen} isHistorikkModalOpen={isHistorikkModalOpen} />
         </div>
       </div>

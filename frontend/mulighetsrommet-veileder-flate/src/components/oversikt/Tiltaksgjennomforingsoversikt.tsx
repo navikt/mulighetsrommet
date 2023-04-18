@@ -191,7 +191,7 @@ const Tiltaksgjennomforingsoversikt = () => {
         ) : null}
         <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
-      <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger" id="gjennomforinger-liste">
+      <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
         {gjennomforingerForSide.map((gjennomforing, index) => {
           return <Gjennomforingsrad key={gjennomforing._id} index={index} tiltaksgjennomforing={gjennomforing} />;
         })}
