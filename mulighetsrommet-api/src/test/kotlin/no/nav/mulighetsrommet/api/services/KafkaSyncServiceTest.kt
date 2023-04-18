@@ -60,6 +60,7 @@ class KafkaSyncServiceTest : FunSpec({
             avslutningsstatus = avslutningsstatus,
             tilgjengelighet = Tilgjengelighetsstatus.Ledig,
             antallPlasser = null,
+            ansvarlige = emptyList(),
         )
     }
 

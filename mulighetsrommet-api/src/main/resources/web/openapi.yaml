@@ -205,6 +205,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: opprettTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltaksgjennomforingRequest"
+      responses:
+        200:
+          description: The specified tiltaksgjennomføring with data about tiltakstype.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        500:
+          description: "Kunne ikke opprette tiltaksgennomforing"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltaksgjennomforinger/{id}:
     parameters:
@@ -249,41 +271,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/tiltakstype/{id}:
-    parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      - in: query
-        name: page
-        schema:
-          type: number
-        description: Page number, default 1
-      - in: query
-        name: size
-        schema:
-          type: number
-        description: Page size, default 50
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: getAllByTiltakstype
-      responses:
-        200:
-          description: En liste med tiltaksgjennomføringer basert på id til tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
-        404:
-          description: "Fant ingen tiltaksgjennomføringer med gitt tiltakstype id."
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
       - in: path
@@ -318,27 +305,6 @@ paths:
             application/json:
               schema:
                 type: string
-
-  /api/v1/internal/tiltaksgjennomforinger/sok:
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: sokEtterTiltaksgjennomforinger
-      parameters:
-        - in: query
-          name: tiltaksnummer
-          schema:
-            type: string
-          description: Whole or part of tiltaksnummer
-      responses:
-        200:
-          description: List of tiltaksgjennomføringer with tiltakstypedata
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
 
   /api/v1/internal/tiltakstyper:
     get:
@@ -761,6 +727,25 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
+  /api/v1/internal/virksomhet/{orgnr}:
+    get:
+      tags:
+        - Hent virksomhet
+      operationId: hentVirksomhetMedOrgnr
+      parameters:
+        - in: path
+          name: orgnr
+          schema:
+            type: string
+          description: Hvilket organisasjonsnummer tilhører virksomheten
+      responses:
+        200:
+          description: Virksomhet som matcher organisasjonsnummeret
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/Virksomhet"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -924,7 +909,7 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - leverandorOrganisasjonsnummer
+        - leverandor
         - startDato
         - sluttDato
         - enhet
@@ -935,10 +920,15 @@ components:
     AvtaleRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: UUID
         tiltakstypeId:
           type: string
           format: UUID
         navn:
+          type: string
+        avtalenummer:
           type: string
         leverandorOrganisasjonsnummer:
           type: string
@@ -956,18 +946,22 @@ components:
           type: string
         ansvarlig:
           type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+        prisOgBetalingsinformasjon:
+          type: string
       required:
-        - id
         - tiltakstypeId
         - navn
+        - avtalenummer
         - leverandorOrganisasjonsnummer
         - startDato
         - sluttDato
         - enhet
         - avtalestatus
         - antallPlasser
-        - url
         - ansvarlig
+        - avtaletype
 
     EmbeddedTiltakstype:
       type: object
@@ -1047,12 +1041,61 @@ components:
           format: date
         enhet:
           type: string
+        ansvarlig:
+          type: string
+        antallPlasser:
+          type: integer
+        avtaleId:
+          type: string
+          format: uuid
       required:
         - id
         - tiltakstype
         - navn
         - tiltaksnummer
         - virksomhetsnummer
+
+    TiltaksgjennomforingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+        tiltakstypeId:
+          type: string
+          format: UUID
+        avtaleId:
+          type: string
+          format: UUID
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        enhet:
+          type: string
+        antallPlasser:
+          type: number
+        virksomhetsnummer:
+          type: string
+        tiltaksnummer:
+          type: string
+        ansvarlig:
+          type: string
+      required:
+        - id
+        - avtaleId
+        - tiltakstypeId
+        - navn
+        - startDato
+        - sluttDato
+        - enhet
+        - antallPlasser
+        - virksomhetsnummer
+        - ansvarlig
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
@@ -1281,6 +1324,8 @@ components:
           type: string
         organisasjonsnummer:
           type: string
+      required:
+        - organisasjonsnummer
 
     AvtaleNavEnhet:
       type: object
@@ -1532,3 +1577,18 @@ components:
         - LOKAL
         - FYLKE
         - TILTAK
+
+    Virksomhet:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        overordnetEnhetOrganisasjonsnummer:
+          type: string
+        overordnetEnhetNavn:
+          type: string
+      required:
+        - organisasjonsnummer
+        - navn

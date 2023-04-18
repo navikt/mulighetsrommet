@@ -62,6 +62,10 @@ class TiltakstypeService(
         val antallGjennomforinger = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstypeId)
         val antallAvtaler = avtaleRepository.countAktiveAvtalerForTiltakstypeWithId(tiltakstypeId)
         val antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltakstypeId)
-        return TiltakstypeNokkeltallDto(antallTiltaksgjennomforinger = antallGjennomforinger, antallAvtaler = antallAvtaler, antallDeltakere = antallDeltakere)
+        return TiltakstypeNokkeltallDto(
+            antallTiltaksgjennomforinger = antallGjennomforinger,
+            antallAvtaler = antallAvtaler,
+            antallDeltakere = antallDeltakere
+        )
     }
 }

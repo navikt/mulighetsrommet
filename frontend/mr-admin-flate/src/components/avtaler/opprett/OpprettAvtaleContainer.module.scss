@@ -10,9 +10,20 @@
   border-bottom: solid 1px lightgray;
 }
 
+.button_row {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+
+.button {
+  margin-left: 16px;
+}
+
 .grid {
   display: grid;
   gap: 1rem;
+  align-items: start;
 
   &_1 {
     grid-template-columns: repeat(1, 1fr);
@@ -21,9 +32,4 @@
   &_2 {
     grid-template-columns: repeat(2, 1fr);
   }
-}
-
-.content_right {
-  display: flex;
-  justify-content: flex-end;
 }

@@ -1,0 +1,15 @@
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.button_row {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+
+.button {
+  margin-left: 16px;
+}

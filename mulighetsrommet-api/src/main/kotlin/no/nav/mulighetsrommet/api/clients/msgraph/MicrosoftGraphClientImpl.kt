@@ -6,7 +6,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
+import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -22,8 +22,8 @@ class MicrosoftGraphClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentHovedenhetForBruker(accessToken: String, navAnsattAzureId: UUID): MSGraphBrukerHovedenhetDto {
-        val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId?\$select=streetAddress,city") {
+    override suspend fun hentAnsattdata(accessToken: String, navAnsattAzureId: UUID): AnsattDataDTO {
+        val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId?\$select=streetAddress,city,givenName,surname,onPremisesSamAccountName") {
             bearerAuth(tokenProvider(accessToken))
         }
 
@@ -34,9 +34,12 @@ class MicrosoftGraphClientImpl(
         }
 
         val user = response.body<MSGraphUser>()
-        return MSGraphBrukerHovedenhetDto(
+        return AnsattDataDTO(
             hovedenhetKode = user.streetAddress,
-            hovedenhetNavn = user.city
+            hovedenhetNavn = user.city,
+            fornavn = user.givenName,
+            etternavn = user.surname,
+            navident = user.onPremisesSamAccountName
         )
     }
 }
@@ -44,5 +47,8 @@ class MicrosoftGraphClientImpl(
 @kotlinx.serialization.Serializable
 data class MSGraphUser(
     val streetAddress: String,
-    val city: String
+    val city: String,
+    val givenName: String,
+    val surname: String,
+    val onPremisesSamAccountName: String
 )

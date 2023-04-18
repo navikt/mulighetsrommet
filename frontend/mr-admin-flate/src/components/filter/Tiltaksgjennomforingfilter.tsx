@@ -1,16 +1,20 @@
-import { Search, Select } from "@navikt/ds-react";
+import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  SorteringTiltaksgjennomforinger,
   TiltaksgjennomforingAvslutningsstatus,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import {
+  useFeatureToggles,
+  OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
+} from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
+import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
@@ -19,110 +23,114 @@ export function Tiltaksgjennomforingfilter() {
   const { data: tiltakstyper } = useAlleTiltakstyper({
     tiltakstypestatus: Tiltakstypestatus.AKTIV,
   });
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const features = useFeatureToggles();
+  const visOpprettTiltaksgjennomforingKnapp =
+    features.isSuccess &&
+    features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE];
 
   return (
-    <form className={styles.filter_container}>
-      <div className={styles.filter_left}>
-        <Search
-          label="Søk etter tiltaksgjennomføring"
-          hideLabel
-          variant="simple"
-          onChange={(search: string) =>
-            setSokefilter({ ...sokefilter, search })
-          }
-          value={sokefilter.search}
-          aria-label="Søk etter tiltaksgjennomføring"
-          data-testid="filter_sokefelt"
-          size="small"
-        />
-        <Select
-          label="Filtrer på enhet"
-          hideLabel
-          size="small"
-          value={sokefilter.enhet}
-          data-testid="filter_tiltaksgjennomforing_enhet"
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            resetPaginering(setPage);
-            setSokefilter({ ...sokefilter, enhet: e.currentTarget.value });
-          }}
-        >
-          <option value="">Alle enheter</option>
-          {enheter?.map((enhet) => (
-            <option key={enhet.enhetId} value={enhet.enhetNr}>
-              {enhet.navn} - {enhet.enhetNr}
+    <>
+      <div className={styles.filter_container}>
+        <div className={styles.filter_left}>
+          <Search
+            label="Søk etter tiltaksgjennomføring"
+            hideLabel
+            size="small"
+            variant="simple"
+            onChange={(search: string) =>
+              setSokefilter({ ...sokefilter, search })
+            }
+            value={sokefilter.search}
+            aria-label="Søk etter tiltaksgjennomføring"
+            data-testid="filter_sokefelt"
+          />
+          <Select
+            label="Filtrer på enhet"
+            hideLabel
+            size="small"
+            value={sokefilter.enhet}
+            data-testid="filter_tiltaksgjennomforing_enhet"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setSokefilter({ ...sokefilter, enhet: e.currentTarget.value });
+            }}
+          >
+            <option value="">Alle enheter</option>
+            {enheter?.map((enhet) => (
+              <option key={enhet.enhetId} value={enhet.enhetNr}>
+                {enhet.navn} - {enhet.enhetNr}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label="Filtrer på tiltakstype"
+            hideLabel
+            size="small"
+            value={sokefilter.tiltakstype}
+            data-testid="filter_tiltaksgjennomforing_tiltakstype"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setSokefilter({
+                ...sokefilter,
+                tiltakstype: e.currentTarget.value,
+              });
+            }}
+          >
+            <option value="">Alle tiltakstyper</option>
+            {tiltakstyper?.data?.map((tiltakstype) => (
+              <option key={tiltakstype.id} value={tiltakstype.id}>
+                {tiltakstype.navn}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div className={styles.filter_right}>
+          <Select
+            label="Filtrer på status"
+            hideLabel
+            size="small"
+            value={sokefilter.status}
+            data-testid="filter_tiltaksgjennomforing_status"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setSokefilter({
+                ...sokefilter,
+                status: e.currentTarget
+                  .value as TiltaksgjennomforingAvslutningsstatus,
+              });
+            }}
+          >
+            <option
+              value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}
+            >
+              Gjennomføres
             </option>
-          ))}
-        </Select>
-        <Select
-          label="Filtrer på tiltakstype"
-          hideLabel
-          size="small"
-          value={sokefilter.tiltakstype}
-          data-testid="filter_tiltaksgjennomforing_tiltakstype"
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            resetPaginering(setPage);
-            setSokefilter({
-              ...sokefilter,
-              tiltakstype: e.currentTarget.value,
-            });
-          }}
-        >
-          <option value="">Alle tiltakstyper</option>
-          {tiltakstyper?.data?.map((tiltakstype) => (
-            <option key={tiltakstype.id} value={tiltakstype.id}>
-              {tiltakstype.navn}
+            <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
+              Avsluttet
             </option>
-          ))}
-        </Select>
-        <Select
-          label="Filtrer på status"
-          hideLabel
-          size="small"
-          value={sokefilter.status}
-          data-testid="filter_tiltaksgjennomforing_status"
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            resetPaginering(setPage);
-            setSokefilter({
-              ...sokefilter,
-              status: e.currentTarget
-                .value as TiltaksgjennomforingAvslutningsstatus,
-            });
-          }}
-        >
-          <option value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}>
-            Aktiv
-          </option>
-          <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
-            Avsluttet
-          </option>
-          <option value={TiltaksgjennomforingAvslutningsstatus.AVBRUTT}>
-            Avbrutt
-          </option>
-          <option value={TiltaksgjennomforingAvslutningsstatus.AVLYST}>
-            Avlyst
-          </option>
-          <option value="">Alle statuser</option>
-        </Select>
+            <option value={TiltaksgjennomforingAvslutningsstatus.AVBRUTT}>
+              Avbrutt
+            </option>
+            <option value={TiltaksgjennomforingAvslutningsstatus.AVLYST}>
+              Avlyst
+            </option>
+            <option value="">Alle statuser</option>
+          </Select>
+          {visOpprettTiltaksgjennomforingKnapp && (
+            <>
+              <Button size="small" onClick={() => setModalOpen(true)}>
+                Opprett ny gjennomføring
+              </Button>
+
+              <OpprettTiltaksgjennomforingModal
+                modalOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+              />
+            </>
+          )}
+        </div>
       </div>
-      <div>
-        <Select
-          label="Sorter"
-          hideLabel
-          size="small"
-          value={sokefilter.sortering}
-          data-testid="filter_avtale_enhet"
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            setSokefilter({
-              ...sokefilter,
-              sortering: e.currentTarget
-                .value as SorteringTiltaksgjennomforinger,
-            });
-          }}
-        >
-          <option value="navn-ascending">Navn A-Å</option>
-          <option value="navn-descending">Navn Å-A</option>
-        </Select>
-      </div>
-    </form>
+    </>
   );
 }

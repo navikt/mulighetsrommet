@@ -42,6 +42,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         startDato = LocalDate.of(2022, 1, 1),
         tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

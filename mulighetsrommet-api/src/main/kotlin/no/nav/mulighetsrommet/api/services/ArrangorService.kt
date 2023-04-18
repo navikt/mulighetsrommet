@@ -27,7 +27,7 @@ class ArrangorService(
     suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDto? {
         return CacheUtils
             .tryCacheFirstNullable(cache, virksomhetsnummer) {
-                val virksomhet: VirksomhetDto? = virksomhetsnummer.let { amtEnhetsregisterClient.hentVirksomhet(it.toInt()) }
+                val virksomhet: VirksomhetDto? = virksomhetsnummer.let { amtEnhetsregisterClient.hentVirksomhet(it) }
                 virksomhet
             }
     }

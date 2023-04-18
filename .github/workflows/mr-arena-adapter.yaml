@@ -6,6 +6,8 @@ on:
       - .github/workflows/mr-arena-adapter.yaml
       - build.gradle.kts
       - settings.gradle.kts
+      - gradle.properties
+      - gradle/libs.versions.toml
       - common/**
       - mulighetsrommet-arena-adapter/**
   workflow_dispatch:

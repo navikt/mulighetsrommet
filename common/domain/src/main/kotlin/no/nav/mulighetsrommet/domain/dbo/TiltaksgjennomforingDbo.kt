@@ -24,7 +24,8 @@ data class TiltaksgjennomforingDbo(
     val tilgjengelighet: Tilgjengelighetsstatus,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID? = null
+    val avtaleId: UUID? = null,
+    val ansvarlige: List<String>,
 ) {
     enum class Tilgjengelighetsstatus {
         Ledig,

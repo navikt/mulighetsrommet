@@ -33,6 +33,7 @@ data class AdminTiltaksgjennomforingFilter(
     val tiltakstypeId: UUID? = null,
     val statuser: List<Avslutningsstatus>? = null,
     val sortering: String? = null,
+    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1)
 )
 
 data class EnhetFilter(
@@ -85,7 +86,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val search = call.request.queryParameters["search"]
     val enhet = call.request.queryParameters["enhet"]
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
-    val statuser = call.parameters.getAll("status")?.map { Avslutningsstatus.valueOf(it) } ?: null
+    val statuser = call.parameters.getAll("status")?.map { Avslutningsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
@@ -98,7 +99,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]
-    val statuser = call.parameters.getAll("statuser")?.map { NavEnhetStatus.valueOf(it) } ?: null
+    val statuser = call.parameters.getAll("statuser")?.map { NavEnhetStatus.valueOf(it) }
     return EnhetFilter(tiltakstypeId = tiltakstypeId, statuser = statuser)
 }
 

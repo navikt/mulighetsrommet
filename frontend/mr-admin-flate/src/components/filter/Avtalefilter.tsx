@@ -54,6 +54,7 @@ export function Avtalefilter(props: Props) {
             ref={searchRef}
             label="Søk etter avtale"
             hideLabel
+            size="small"
             variant="simple"
             onChange={(sok: string) => {
               setFilter({ ...filter, sok });
@@ -144,7 +145,11 @@ export function Avtalefilter(props: Props) {
           </Select>
           {visOpprettAvtaleknapp && (
             <>
-              <Button onClick={() => setModalOpen(true)}>
+              <Button
+                onClick={() => setModalOpen(true)}
+                data-testid="registrer-ny-avtale"
+                size="small"
+              >
                 Registrer avtale
               </Button>
               <OpprettAvtaleModal

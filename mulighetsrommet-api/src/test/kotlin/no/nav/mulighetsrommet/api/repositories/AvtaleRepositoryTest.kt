@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
@@ -467,8 +468,8 @@ class AvtaleRepositoryTest : FunSpec({
                 tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
                 tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
                 val filter = AdminTiltaksgjennomforingFilter()
-                val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter)
-                gjennomforinger.first shouldBe 4
+                val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter).shouldBeRight()
+                gjennomforinger.first shouldBe 3
 
                 val antallGjennomforingerForAvtale =
                     avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)

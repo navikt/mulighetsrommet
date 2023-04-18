@@ -1,13 +1,16 @@
 import { Heading, Modal } from "@navikt/ds-react";
-import React, { useState } from "react";
+import {
+  Avtale,
+  Tiltakstypekategori,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
+import { useEffect, useState } from "react";
+import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
+import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
+import { Laster } from "../../laster/Laster";
 import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
-import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { porten } from "mulighetsrommet-veileder-flate/src/constants";
-import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
-import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { Laster } from "../../laster/Laster";
 
 interface OpprettAvtaleModalProps {
   modalOpen: boolean;
@@ -15,28 +18,34 @@ interface OpprettAvtaleModalProps {
   handleForm?: () => void;
   handleCancel?: () => void;
   shouldCloseOnOverlayClick?: boolean;
+  avtale?: Avtale;
 }
 
 const OpprettAvtaleModal = ({
   modalOpen,
   onClose,
-  handleForm,
   handleCancel,
+  avtale,
 }: OpprettAvtaleModalProps) => {
-  const { navigerTilAvtale } = useNavigerTilAvtale();
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
-    useAlleTiltakstyper();
+    useAlleTiltakstyper({
+      tiltakstypestatus: Tiltakstypestatus.AKTIV,
+      tiltakstypekategori: Tiltakstypekategori.GRUPPE,
+    });
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
+  const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
-  const clickSend = () => {
-    handleForm?.();
-  };
+  const redigeringsModus = !!avtale;
+
+  useEffect(() => {
+    Modal.setAppElement("#root");
+  }, []);
 
   const clickCancel = () => {
     setError(null);
     setResult(null);
     onClose();
-    handleCancel!();
+    handleCancel?.();
   };
 
   const [error, setError] = useState<string | null>(null);
@@ -54,54 +63,24 @@ const OpprettAvtaleModal = ({
           aria-label="modal"
         >
           <Modal.Content>
-            <Heading size="small" level="2" data-testid="modal_header">
-              Registrer ny avtale
+            <Heading size="medium" level="2" data-testid="avtale_modal_header">
+              {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
             </Heading>
-            {isLoadingAnsatt || isLoadingTiltakstyper ? <Laster /> : null}
-            {!tiltakstyper?.data || !ansatt ? null : (
+            {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (
+              <Laster />
+            ) : null}
+            {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <OpprettAvtaleContainer
-                tiltakstyper={tiltakstyper?.data?.filter((tiltakstype) =>
-                  ["VASV", "ARBFORB"].includes(tiltakstype.arenaKode)
-                )}
+                onAvbryt={clickCancel}
+                tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
-                setError={setError}
                 setResult={setResult}
+                enheter={enheter}
+                avtale={avtale}
               />
             )}
           </Modal.Content>
         </Modal>
-      )}
-      {error && (
-        <StatusModal
-          modalOpen={modalOpen}
-          ikonVariant="error"
-          heading="Kunne ikke opprette avtale"
-          text={
-            <>
-              Avtalen kunne ikke opprettes på grunn av en teknisk feil hos oss.
-              Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten
-              dersom du trenger mer hjelp.
-            </>
-          }
-          onClose={clickCancel}
-          primaryButtonOnClick={() => setError(null)}
-          primaryButtonText="Prøv igjen"
-          secondaryButtonOnClick={clickCancel}
-          secondaryButtonText="Avbryt"
-        />
-      )}
-      {result && (
-        <StatusModal
-          modalOpen={modalOpen}
-          onClose={clickCancel}
-          ikonVariant="success"
-          heading="Avtalen er opprettet."
-          text="Avtalen ble opprettet."
-          primaryButtonText="Gå til avtalen"
-          primaryButtonOnClick={() => navigerTilAvtale(result)}
-          secondaryButtonText="Lukk"
-          secondaryButtonOnClick={clickCancel}
-        />
       )}
     </>
   );

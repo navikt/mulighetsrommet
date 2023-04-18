@@ -7,7 +7,10 @@
     "status": 200,
     "jsonBody": {
       "streetAddress": "2990",
-      "city": "IT-Avdelingen"
+      "city": "IT-Avdelingen",
+      "onPremisesSamAccountName": "B123456",
+      "givenName": "Bertil",
+      "surname": "Betabruker"
     },
     "headers": {
       "Content-Type": "application/json"

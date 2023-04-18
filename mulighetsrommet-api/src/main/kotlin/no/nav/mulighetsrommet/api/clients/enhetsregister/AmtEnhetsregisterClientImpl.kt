@@ -7,7 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
+import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.secure_log.SecureLog
 import org.slf4j.LoggerFactory
 
@@ -22,7 +22,7 @@ class AmtEnhetsregisterClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentVirksomhet(virksomhetsnummer: Int): VirksomhetDto? {
+    override suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDto? {
         val response = client.get("$baseUrl/api/enhet/$virksomhetsnummer") {
             bearerAuth(tokenProvider.invoke())
         }
@@ -30,8 +30,8 @@ class AmtEnhetsregisterClientImpl(
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.NotFound -> {
-                log.warn("Virksomhet finnes ikke, sjekk securelogs")
-                SecureLog.logger.warn("Virksomhet finnes ikke: $virksomhetsnummer")
+                log.debug("Virksomhet finnes ikke, sjekk securelogs")
+                SecureLog.logger.debug("Virksomhet finnes ikke: $virksomhetsnummer")
                 null
             }
 

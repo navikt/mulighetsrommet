@@ -22,6 +22,13 @@ export function Laster({ tekst, sentrert = true, ...rest }: Props) {
         <BodyShort>{tekst}</BodyShort>
       </div>
     );
+  } else if (!sentrert && tekst) {
+    return (
+      <div className={styles.laster_inline}>
+        <Loader {...rest} />
+        <span>{tekst}</span>
+      </div>
+    );
   }
 
   return (
