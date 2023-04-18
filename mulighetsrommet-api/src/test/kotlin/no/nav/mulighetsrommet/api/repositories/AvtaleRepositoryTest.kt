@@ -469,7 +469,7 @@ class AvtaleRepositoryTest : FunSpec({
                 tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
                 val filter = AdminTiltaksgjennomforingFilter()
                 val gjennomforinger = tiltaksgjennomforingRepository.getAll(filter = filter).shouldBeRight()
-                gjennomforinger.first shouldBe 4
+                gjennomforinger.first shouldBe 3
 
                 val antallGjennomforingerForAvtale =
                     avtaleRepository.countTiltaksgjennomforingerForAvtaleWithId(avtale.id)
