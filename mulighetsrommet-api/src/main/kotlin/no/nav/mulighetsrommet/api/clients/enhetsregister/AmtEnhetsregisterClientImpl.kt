@@ -22,7 +22,7 @@ class AmtEnhetsregisterClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentVirksomhet(virksomhetsnummer: Int): VirksomhetDto? {
+    override suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDto? {
         val response = client.get("$baseUrl/api/enhet/$virksomhetsnummer") {
             bearerAuth(tokenProvider.invoke())
         }

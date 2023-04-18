@@ -11,7 +11,7 @@ fun Route.virksomhetRoutes() {
     val amtEnhetsregisterClientImpl: AmtEnhetsregisterClient by inject()
     route("api/v1/internal/virksomhet") {
         get("{orgnr}") {
-            val orgnr = call.parameters["orgnr"]?.toInt() ?: return@get call.respondText(
+            val orgnr = call.parameters["orgnr"] ?: return@get call.respondText(
                 text = "Mangler eller ugyldig organisasjonsnummer",
                 status = HttpStatusCode.BadRequest,
             )

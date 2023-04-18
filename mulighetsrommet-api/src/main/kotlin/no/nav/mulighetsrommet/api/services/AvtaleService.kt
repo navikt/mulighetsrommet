@@ -30,11 +30,11 @@ class AvtaleService(
 
     suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleDbo> {
         val avtaleDbo = avtale.toDbo()
-        validerOrganisasjonsnummerForLeverandor(avtale.leverandorOrganisasjonsnummer.toInt())
+        validerOrganisasjonsnummerForLeverandor(avtale.leverandorOrganisasjonsnummer)
         return avtaler.upsert(avtaleDbo)
     }
 
-    private suspend fun validerOrganisasjonsnummerForLeverandor(leverandorOrganisasjonsnummer: Int) {
+    private suspend fun validerOrganisasjonsnummerForLeverandor(leverandorOrganisasjonsnummer: String) {
         amtEnhetsregisterClient.hentVirksomhet(leverandorOrganisasjonsnummer)
             ?: throw BadRequestException("Fant ikke virksomhet med organisasjonsnummer $leverandorOrganisasjonsnummer. Kan derfor ikke lagre avtalen.")
     }

@@ -12,6 +12,7 @@ import {
   TiltaksgjennomforingNokkeltall,
   Tiltakstype,
   TiltakstypeNokkeltall,
+  Virksomhet,
 } from "mulighetsrommet-api-client";
 import { mockBetabruker } from "./fixtures/mock_ansatt";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
@@ -21,6 +22,7 @@ import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforing
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
+import { mockVirksomhet } from "./fixtures/mock_virksomhet";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -235,4 +237,11 @@ export const apiHandlers = [
       ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" })
     );
   }),
+
+  rest.get<any, any, Virksomhet>(
+    "*/api/v1/internal/virksomhet/:orgnr",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockVirksomhet));
+    }
+  ),
 ];

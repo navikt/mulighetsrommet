@@ -800,7 +800,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/AmtVirksomhet"
+                  $ref: "#/components/schemas/Virksomhet"
 
 components:
   securitySchemes:
@@ -1624,7 +1624,7 @@ components:
         - FYLKE
         - TILTAK
 
-    AmtVirksomhet:
+    Virksomhet:
       type: object
       properties:
         organisasjonsnummer:

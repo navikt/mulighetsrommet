@@ -1,8 +1,8 @@
-import { AmtVirksomhet } from "mulighetsrommet-api-client";
+import { Virksomhet } from "mulighetsrommet-api-client";
 
 interface State {
   status: "idle" | "fetching" | "fetched";
-  data: AmtVirksomhet | null;
+  data: Virksomhet | null;
 }
 
 type resetAction = {
@@ -15,7 +15,7 @@ type hentDataAction = {
 
 type dataHentetAction = {
   type: "Data hentet";
-  payload: AmtVirksomhet;
+  payload: Virksomhet;
 };
 
 type Actions = hentDataAction | dataHentetAction | resetAction;
