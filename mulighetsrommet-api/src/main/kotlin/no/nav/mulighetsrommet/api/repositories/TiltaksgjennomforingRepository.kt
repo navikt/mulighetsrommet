@@ -123,13 +123,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
+            "cutoffdato" to filter.sluttDatoCutoff
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "(lower(tg.navn) like lower(:search))",
             filter.enhet to "lower(tg.enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
-            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])"
+            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])",
+            filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
         )
 
         val order = when (filter.sortering) {
@@ -257,7 +259,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
-                "offset" to pagination.offset,
+                "offset" to pagination.offset
             )
         )
             .map { it.toTiltaksgjennomforingDbo() }

@@ -33,6 +33,7 @@ data class AdminTiltaksgjennomforingFilter(
     val tiltakstypeId: UUID? = null,
     val statuser: List<Avslutningsstatus>? = null,
     val sortering: String? = null,
+    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1)
 )
 
 data class EnhetFilter(
