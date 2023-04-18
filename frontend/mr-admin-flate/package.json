@@ -16,7 +16,7 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
-    "@hookform/resolvers": "^2.9.11",
+    "@hookform/resolvers": "^3.1.0",
     "@navikt/aksel-icons": "^2.8.1",
     "@navikt/ds-css": "^2.8.1",
     "@navikt/ds-css-internal": "^2.8.1",
