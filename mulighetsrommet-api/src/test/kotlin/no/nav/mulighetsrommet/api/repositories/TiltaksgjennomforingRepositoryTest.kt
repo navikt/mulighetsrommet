@@ -32,12 +32,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1
 
+    beforeAny {
+        database.db.clean()
+        database.db.migrate()
+
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(tiltakstype1)
+        tiltakstyper.upsert(tiltakstype2)
+    }
+
     context("CRUD") {
-        beforeAny {
-            val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(tiltakstype1)
-            tiltakstyper.upsert(tiltakstype2)
-        }
+
 
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -45,7 +50,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing2).shouldBeRight()
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second shouldHaveSize 2
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+                .shouldBeRight().second shouldHaveSize 2
             tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight() shouldBe TiltaksgjennomforingAdminDto(
                 id = gjennomforing1.id,
                 tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
@@ -68,7 +74,38 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
-            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second shouldHaveSize 1
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+                .shouldBeRight().second shouldHaveSize 1
+        }
+    }
+
+    context("Cutoffdato") {
+        test("Gamle tiltaksgjennomøringer blir ikke tatt med") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(
+                gjennomforing1.copy(
+                    id = UUID.randomUUID(),
+                    sluttDato = LocalDate.of(2022, 12, 31)
+                )
+            ).shouldBeRight()
+
+            val result =
+                tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second
+            result shouldHaveSize 1
+            result.first().id shouldBe gjennomforing1.id
+
+        }
+
+        test("Tiltaksgjennomøringer med slutt dato null blir tatt med") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = null)).shouldBeRight()
+
+            tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+                .shouldBeRight().second shouldHaveSize 2
         }
     }
 
@@ -98,9 +135,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("tilgjengelighetsstatus") {
-        database.db.clean()
-        database.db.migrate()
-
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype1)
 
@@ -115,9 +149,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
         )
 
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         context("when tilgjengelighet is set to Stengt") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
@@ -127,11 +161,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+                tiltaksgjennomforinger.get(gjennomforing1.id)
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
             }
         }
 
         context("when avslutningsstatus is set") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
@@ -142,11 +178,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Stengt") {
-                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
+                tiltaksgjennomforinger.get(gjennomforing1.id)
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Stengt
             }
         }
 
         context("when there are no limits to available seats") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
@@ -157,11 +195,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+                tiltaksgjennomforinger.get(gjennomforing1.id)
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
             }
         }
 
         context("when there are no available seats") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
@@ -172,11 +212,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+                tiltaksgjennomforinger.get(gjennomforing1.id)
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
             }
         }
 
         context("when all available seats are occupied by deltakelser with status DELTAR") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
@@ -189,11 +231,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Venteliste") {
-                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
+                tiltaksgjennomforinger.get(gjennomforing1.id)
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Venteliste
             }
         }
 
         context("when deltakelser are no longer DELTAR") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
@@ -206,39 +250,38 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             test("should have tilgjengelighet set to Ledig") {
-                tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
+                tiltaksgjennomforinger.get(gjennomforing1.id)
+                    .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
             }
         }
     }
 
     context("pagination") {
-        database.db.clean()
-        database.db.migrate()
-
-        val tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(tiltakstype1)
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        (1..105).forEach {
-            tiltaksgjennomforinger.upsert(
-                TiltaksgjennomforingDbo(
-                    id = UUID.randomUUID(),
-                    navn = "Tiltak - $it",
-                    tiltakstypeId = tiltakstype1.id,
-                    tiltaksnummer = "$it",
-                    virksomhetsnummer = "123456789",
-                    enhet = "2990",
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    startDato = LocalDate.of(2022, 1, 1),
-                    tilgjengelighet = Tilgjengelighetsstatus.Ledig,
-                    antallPlasser = null,
-                    ansvarlige = emptyList(),
+        beforeAny {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            (1..105).forEach {
+                tiltaksgjennomforinger.upsert(
+                    TiltaksgjennomforingDbo(
+                        id = UUID.randomUUID(),
+                        navn = "Tiltak - $it",
+                        tiltakstypeId = tiltakstype1.id,
+                        tiltaksnummer = "$it",
+                        virksomhetsnummer = "123456789",
+                        enhet = "2990",
+                        avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                        startDato = LocalDate.of(2022, 1, 1),
+                        tilgjengelighet = Tilgjengelighetsstatus.Ledig,
+                        antallPlasser = null,
+                        ansvarlige = emptyList(),
+                    )
                 )
-            )
+            }
         }
 
         test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight()
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+                .shouldBeRight()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT
             items.first().navn shouldBe "Tiltak - 1"
@@ -248,6 +291,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("pagination with page 4 and size 20 should give tiltak with id 59-76") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     4,
@@ -264,6 +308,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("pagination with page 3 default size should give tiltak with id 95-99") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     3
@@ -279,6 +324,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("pagination with default page and size 200 should give tiltak with id 1-105") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     nullableLimit = 200

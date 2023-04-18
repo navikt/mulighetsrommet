@@ -23,6 +23,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    companion object {
+        val TiltaksgjennomforingCutoffDate = LocalDate.of(2023, 1, 1)
+    }
+
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
@@ -123,13 +127,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
+            "cutoffdato" to TiltaksgjennomforingCutoffDate
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "(lower(tg.navn) like lower(:search))",
             filter.enhet to "lower(tg.enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
-            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])"
+            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])",
+            TiltaksgjennomforingCutoffDate to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
         )
 
         val order = when (filter.sortering) {
@@ -203,12 +209,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            where tg.tiltakstype_id = ?
+            where tg.tiltakstype_id = ? and (tg.slutt_dato >= ? or tg.slutt_dato is null)
             group by tg.id, t.id
             order by tg.navn asc
             limit ? offset ?
         """.trimIndent()
-        val results = queryOf(query, id, pagination.limit, pagination.offset)
+        val results = queryOf(query, id, TiltaksgjennomforingCutoffDate, pagination.limit, pagination.offset)
             .map {
                 it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }
@@ -258,6 +264,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
                 "offset" to pagination.offset,
+                "cutoffdato" to TiltaksgjennomforingCutoffDate
             )
         )
             .map { it.toTiltaksgjennomforingDbo() }
@@ -286,7 +293,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            where tiltaksnummer like concat('%', ?, '%')
+            where tiltaksnummer like concat('%', ?, '%') and (tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)
             group by tg.id, t.id
             order by tg.navn asc
         """.trimIndent()
