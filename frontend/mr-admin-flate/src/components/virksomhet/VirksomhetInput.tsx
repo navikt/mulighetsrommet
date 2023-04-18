@@ -48,7 +48,7 @@ export function VirksomhetInput({ avtale }: Props) {
       } catch (error) {
         virksomhetDispatcher({ type: "Reset" });
         setError("leverandor", {
-          message: `Fant ikke leverandør med nummer: ${orgnr}`,
+          message: `Ingen leverandør med orgnummer ${orgnr}`,
         });
       }
     }
