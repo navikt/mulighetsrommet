@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     `java-test-fixtures`
     alias(libs.plugins.kotlin.jvm)

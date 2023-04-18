@@ -14,7 +14,7 @@ flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:10.3.0"
-shadow = "com.github.johnrengelman.shadow:7.1.2"
+shadow = "com.github.johnrengelman.shadow:8.1.1"
 
 [libraries]
 arrow-core = "io.arrow-kt:arrow-core:1.1.5"
