@@ -293,11 +293,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            where tiltaksnummer like concat('%', ?, '%') and (tg.slutt_dato >= ? or tg.slutt_dato is null)
+            where tiltaksnummer like concat('%', ?, '%')
             group by tg.id, t.id
             order by tg.navn asc
         """.trimIndent()
-        queryOf(query, filter.tiltaksnummer, TiltaksgjennomforingCutoffDate)
+        queryOf(query, filter.tiltaksnummer)
             .map {
                 it.toTiltaksgjennomforingAdminDto()
             }
