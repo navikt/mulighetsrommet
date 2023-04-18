@@ -223,6 +223,7 @@ export function OpprettAvtaleContainer({
             ))}
           </Select>
           <TextField
+            type={"number"}
             error={errors.antallPlasser?.message}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
