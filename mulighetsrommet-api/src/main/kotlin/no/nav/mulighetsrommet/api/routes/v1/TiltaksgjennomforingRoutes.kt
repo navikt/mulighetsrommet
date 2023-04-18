@@ -50,32 +50,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                 }
         }
 
-        get("tiltakstype/{id}") {
-            val tiltakstypeId = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig tiltakstypeId",
-                status = HttpStatusCode.BadRequest
-            )
-
-            val paginationParams = getPaginationParams()
-            tiltaksgjennomforingService.getAllByTiltakstypeId(tiltakstypeId, paginationParams)
-                .onRight { (totalCount, items) ->
-                    call.respond(
-                        PaginatedResponse(
-                            pagination = Pagination(
-                                totalCount = totalCount,
-                                currentPage = paginationParams.page,
-                                pageSize = paginationParams.limit
-                            ),
-                            data = items
-                        )
-                    )
-                }
-                .onLeft {
-                    log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføring")
-                }
-        }
-
         get("{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
@@ -110,25 +84,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                 .onLeft { error ->
                     log.error("$error")
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
-                }
-        }
-
-        get("sok") {
-            val tiltaksnummer = call.request.queryParameters["tiltaksnummer"] ?: return@get call.respondText(
-                "Mangler query-param 'tiltaksnummer'",
-                status = HttpStatusCode.BadRequest
-            )
-
-            tiltaksgjennomforingService.sok(Sokefilter(tiltaksnummer = tiltaksnummer))
-                .onRight { gjennomforinger ->
-                    if (gjennomforinger.isEmpty()) {
-                        return@get call.respond(status = HttpStatusCode.NoContent, "Fant ingen tiltaksgjennomføringer for søket")
-                    }
-                    call.respond(gjennomforinger)
-                }
-                .onLeft { error ->
-                    log.error("$error")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføringer")
                 }
         }
 

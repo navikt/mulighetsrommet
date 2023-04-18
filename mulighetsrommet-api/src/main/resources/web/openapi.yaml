@@ -271,41 +271,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/tiltakstype/{id}:
-    parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      - in: query
-        name: page
-        schema:
-          type: number
-        description: Page number, default 1
-      - in: query
-        name: size
-        schema:
-          type: number
-        description: Page size, default 50
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: getAllByTiltakstype
-      responses:
-        200:
-          description: En liste med tiltaksgjennomføringer basert på id til tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
-        404:
-          description: "Fant ingen tiltaksgjennomføringer med gitt tiltakstype id."
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
     parameters:
       - in: path
@@ -340,27 +305,6 @@ paths:
             application/json:
               schema:
                 type: string
-
-  /api/v1/internal/tiltaksgjennomforinger/sok:
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: sokEtterTiltaksgjennomforinger
-      parameters:
-        - in: query
-          name: tiltaksnummer
-          schema:
-            type: string
-          description: Whole or part of tiltaksnummer
-      responses:
-        200:
-          description: List of tiltaksgjennomføringer with tiltakstypedata
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltaksgjennomforing"
 
   /api/v1/internal/tiltakstyper:
     get:

@@ -180,48 +180,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    fun getAllByTiltakstypeId(
-        id: UUID,
-        pagination: PaginationParams = PaginationParams()
-    ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> = query {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn           as tiltakstype_navn,
-                   tg.enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   array_agg(a.navident) as ansvarlige,
-                   count(*) over () as full_count
-            from tiltaksgjennomforing tg
-                   inner join tiltakstype t on tg.tiltakstype_id = t.id
-                   left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            where tg.tiltakstype_id = ?
-            group by tg.id, t.id
-            order by tg.navn asc
-            limit ? offset ?
-        """.trimIndent()
-        val results = queryOf(query, id, pagination.limit, pagination.offset)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
-            }
-            .asList
-            .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        Pair(totaltAntall, tiltaksgjennomforinger)
-    }
-
     fun getAllByDateIntervalAndAvslutningsstatus(
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
@@ -263,39 +221,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             )
         )
             .map { it.toTiltaksgjennomforingDbo() }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun sok(filter: Sokefilter): QueryResult<List<TiltaksgjennomforingAdminDto>> = query {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn as tiltakstype_navn,
-                   tg.enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   array_agg(a.navident) as ansvarlige
-            from tiltaksgjennomforing tg
-                   inner join tiltakstype t on tg.tiltakstype_id = t.id
-                   left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            where tiltaksnummer like concat('%', ?, '%')
-            group by tg.id, t.id
-            order by tg.navn asc
-        """.trimIndent()
-        queryOf(query, filter.tiltaksnummer)
-            .map {
-                it.toTiltaksgjennomforingAdminDto()
-            }
             .asList
             .let { db.run(it) }
     }
