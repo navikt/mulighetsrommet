@@ -1,13 +1,6 @@
-import { Button, Select, TextField } from "@navikt/ds-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import z from "zod";
-import { v4 as uuidv4 } from "uuid";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
-import { Datovelger } from "../../skjema/OpprettComponents";
-import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { FormGroup } from "../../avtaler/opprett/OpprettAvtaleContainer";
+import { Button, TextField } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import {
   Avtale,
   NavEnhet,
@@ -15,21 +8,30 @@ import {
   TiltaksgjennomforingRequest,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "../../../api/clients";
-import { useAtom } from "jotai";
-import { avtaleFilter, tiltakstypefilter } from "../../../api/atoms";
-import { useAvtaler } from "../../../api/avtaler/useAvtaler";
-import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
+import z from "zod";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { avtaleFilter, tiltakstypefilter } from "../../../api/atoms";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
-import { Laster } from "../../laster/Laster";
+import { useAvtaler } from "../../../api/avtaler/useAvtaler";
+import { mulighetsrommetClient } from "../../../api/clients";
+import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
 import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import { FormGroup } from "../../avtaler/opprett/OpprettAvtaleContainer";
+import { Laster } from "../../laster/Laster";
+import { Datovelger } from "../../skjema/OpprettComponents";
 import { SokeSelect } from "../../skjema/SokeSelect";
+import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 
 const Schema = z.object({
-  tiltakstype: z.string({ required_error: "Du må velge en tiltakstype"} ),
-  avtale: z.string().min(1, "Du må velge en avtale"),
+  tiltakstype: z
+    .string({ required_error: "Du må velge en tiltakstype" })
+    .min(1),
+  avtale: z.string({ required_error: "Du må velge en avtale" }).min(1),
   tittel: z.string().min(1, "Du må skrive inn tittel"),
   startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
   sluttDato: z.date({ required_error: "En gjennomføring må ha en sluttdato" }),
@@ -40,8 +42,8 @@ const Schema = z.object({
     })
     .int()
     .positive(),
-  enhet: z.string().min(1, "Du må velge en enhet"),
-  ansvarlig: z.string().min(1, "Du må velge en ansvarlig"),
+  enhet: z.string({ required_error: "Du må velge en enhet" }),
+  ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -65,25 +67,35 @@ export const OpprettTiltaksgjennomforingContainer = (
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
-      startDato: props.tiltaksgjennomforing?.startDato ? new Date(props.tiltaksgjennomforing.startDato) : undefined,
-      sluttDato: props.tiltaksgjennomforing?.sluttDato ? new Date(props.tiltaksgjennomforing.sluttDato) : undefined,
+      startDato: props.tiltaksgjennomforing?.startDato
+        ? new Date(props.tiltaksgjennomforing.startDato)
+        : undefined,
+      sluttDato: props.tiltaksgjennomforing?.sluttDato
+        ? new Date(props.tiltaksgjennomforing.sluttDato)
+        : undefined,
     },
   });
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = form;
 
-  const { navigerTilTiltaksgjennomforing } = useNavigerTilTiltaksgjennomforing();
+  const { navigerTilTiltaksgjennomforing } =
+    useNavigerTilTiltaksgjennomforing();
   const [aFilter, setAvtaleFilter] = useAtom(avtaleFilter);
   useEffect(() => {
     if (props.tiltaksgjennomforing?.tiltakstype) {
-      setAvtaleFilter({ ...aFilter, tiltakstype: props.tiltaksgjennomforing.tiltakstype.id });
+      setAvtaleFilter({
+        ...aFilter,
+        tiltakstype: props.tiltaksgjennomforing.tiltakstype.id,
+      });
     }
   }, []);
 
   const [tFilter, setTiltakstypeFilter] = useAtom(tiltakstypefilter);
+
   useEffect(() => {
     setTiltakstypeFilter({ ...tFilter, status: Tiltakstypestatus.AKTIV });
   }, []);
@@ -100,8 +112,14 @@ export const OpprettTiltaksgjennomforingContainer = (
     isError: isErrorEnheter,
   } = useAlleEnheter();
 
-  const [avtaleId, setAvtaleId] = useState<string | undefined>(props.tiltaksgjennomforing?.avtaleId);
-  const { data: avtale, isLoading: isLoadingAvtale, isError: isErrorAvtale } = useAvtale(avtaleId);
+  const [avtaleId, setAvtaleId] = useState<string | undefined>(
+    props.tiltaksgjennomforing?.avtaleId
+  );
+  const {
+    data: avtale,
+    isLoading: isLoadingAvtale,
+    isError: isErrorAvtale,
+  } = useAvtale(avtaleId);
 
   const {
     data: avtaler,
@@ -109,7 +127,15 @@ export const OpprettTiltaksgjennomforingContainer = (
     isError: isErrorAvtaler,
   } = useAvtaler();
 
-  const { data: ansatt, isLoading: isLoadingAnsatt, isError: isErrorAnsatt } = useHentAnsatt();
+  const {
+    data: ansatt,
+    isLoading: isLoadingAnsatt,
+    isError: isErrorAnsatt,
+  } = useHentAnsatt();
+
+  if (ansatt && !isLoadingAnsatt) {
+    setValue("ansvarlig", ansatt.ident!!);
+  }
 
   const redigeringsModus = !!props.tiltaksgjennomforing;
 
@@ -149,34 +175,38 @@ export const OpprettTiltaksgjennomforingContainer = (
         .join(" ")
     : "";
 
-  if (isLoadingAvtaler || isLoadingAvtale || isLoadingAnsatt || isLoadingEnheter
-    || isLoadingTiltakstyper || !avtaler || !tiltakstyper || !enheter
+  if (
+    isLoadingAvtaler ||
+    isLoadingAvtale ||
+    isLoadingAnsatt ||
+    isLoadingEnheter ||
+    isLoadingTiltakstyper ||
+    !avtaler ||
+    !tiltakstyper ||
+    !enheter
   ) {
     return <Laster />;
   }
-  if (isErrorAvtaler || isErrorAnsatt || isErrorAvtale
-    || isErrorTiltakstyper || isErrorEnheter || isErrorAvtale
+  if (
+    isErrorAvtaler ||
+    isErrorAnsatt ||
+    isErrorAvtale ||
+    isErrorTiltakstyper ||
+    isErrorEnheter ||
+    isErrorAvtale
   ) {
     props.setError(true);
   }
-  
+
   const avtalerOptions = () => {
     if (avtale && !avtaler.data.find((a) => a.id === avtale.id)) {
       avtaler.data.push(avtale);
     }
-    if (avtaler.data.length === 0) {
-      return <option value={""}>Ingen avtaler funnet</option>;
-    }
-    return (
-      <>
-        <option value={""}>Velg en</option>
-        {avtaler.data.map((avtale: Avtale) => (
-          <option key={avtale.id} value={avtale.id}>
-            {avtale.navn}
-          </option>
-        ))}
-      </>
-    );
+
+    return avtaler.data.map((avtale: Avtale) => ({
+      value: avtale.id,
+      label: avtale.navn,
+    }));
   };
 
   return (
@@ -190,24 +220,24 @@ export const OpprettTiltaksgjennomforingContainer = (
               onChange: (e) => {
                 setAvtaleFilter({ ...aFilter, tiltakstype: e.target.value });
                 setAvtaleId(undefined);
-                form.resetField("avtale", { defaultValue: "" })
+                form.resetField("avtale", { defaultValue: "" });
               },
             })}
             options={tiltakstyper.data.map((tiltakstype) => ({
-              value: tiltakstype.id, label: tiltakstype.navn
+              value: tiltakstype.id,
+              label: tiltakstype.navn,
             }))}
           />
-          <Select
-            label={"Avtale"}
-            error={errors.avtale?.message}
+          <SokeSelect
+            placeholder="Velg en"
+            label="Avtale"
             {...register("avtale", {
               onChange: (e) => {
                 setAvtaleId(e.target.value);
               },
             })}
-          >
-            {avtalerOptions()}
-          </Select>
+            options={avtalerOptions()}
+          />
         </FormGroup>
         <FormGroup>
           <TextField
@@ -237,33 +267,30 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
-          <Select
+          <SokeSelect
+            placeholder="Velg en"
             label={"Enhet"}
             {...register("enhet")}
-            error={errors.enhet?.message}
-          >
-            <>
-              <option value={""}>Velg en</option>
-              {enheter.map((enhet: NavEnhet) => (
-                <option key={enhet.enhetNr} value={enhet.enhetNr}>
-                  {enhet.navn}
-                </option>
-              ))}
-            </>
-          </Select>
-          <Select
-            error={errors.ansvarlig?.message}
+            options={enheter.map((enhet: NavEnhet) => ({
+              label: enhet.navn,
+              value: enhet.enhetNr,
+            }))}
+          />
+          <SokeSelect
+            placeholder="Velg en"
             label={"Gjennomføringsansvarlig"}
             {...register("ansvarlig")}
-          >
-            {isLoadingAnsatt ?
-              <option>Laster...</option>
-              :
-              <option
-                value={ansatt?.ident ?? ""}
-              >{`${navn} - ${ansatt?.ident}`}</option>
+            options={
+              isLoadingAnsatt
+                ? [{ label: "Laster...", value: "" }]
+                : [
+                    {
+                      value: ansatt?.ident ?? "",
+                      label: `${navn} - ${ansatt?.ident}`,
+                    },
+                  ]
             }
-          </Select>
+          />
         </FormGroup>
         <FormGroup>
           <TextField
@@ -280,11 +307,15 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <div className={styles.button_row}>
-          <Button className={styles.button} onClick={props.onAvbryt} variant="tertiary">
+          <Button
+            className={styles.button}
+            onClick={props.onAvbryt}
+            variant="tertiary"
+          >
             Avbryt
           </Button>
           <Button className={styles.button} type="submit">
-            { redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
+            {redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
           </Button>
         </div>
       </form>
