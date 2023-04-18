@@ -32,8 +32,8 @@ jobs:
     name: Build and test for Labs
     runs-on: ubuntu-latest
     env:
-      VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
-      VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+      VITE_SANITY_PROJECT_ID: xegcworx
+      VITE_SANITY_DATASET: test
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend
