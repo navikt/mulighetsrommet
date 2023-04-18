@@ -79,7 +79,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Cutoffdato") {
-        test("Gamle tiltaksgjennomøringer blir ikke tatt med") {
+        test("Gamle tiltaksgjennomføringer blir ikke tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
@@ -96,7 +96,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             result.first().id shouldBe gjennomforing1.id
         }
 
-        test("Tiltaksgjennomøringer med slutt dato null blir tatt med") {
+        test("Tiltaksgjennomføringer med sluttdato som er null blir tatt med") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
