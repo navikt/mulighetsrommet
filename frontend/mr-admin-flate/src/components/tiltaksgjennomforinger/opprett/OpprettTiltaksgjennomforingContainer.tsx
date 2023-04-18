@@ -25,9 +25,10 @@ import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { Laster } from "../../laster/Laster";
 import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
+import { SokeSelect } from "../../skjema/SokeSelect";
 
 const Schema = z.object({
-  tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
+  tiltakstype: z.string({ required_error: "Du må velge en tiltakstype"} ),
   avtale: z.string().min(1, "Du må velge en avtale"),
   tittel: z.string().min(1, "Du må skrive inn tittel"),
   startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
@@ -182,9 +183,9 @@ export const OpprettTiltaksgjennomforingContainer = (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
-          <Select
+          <SokeSelect
+            placeholder="Velg en"
             label={"Tiltakstype"}
-            error={errors.tiltakstype?.message}
             {...register("tiltakstype", {
               onChange: (e) => {
                 setAvtaleFilter({ ...aFilter, tiltakstype: e.target.value });
@@ -192,16 +193,10 @@ export const OpprettTiltaksgjennomforingContainer = (
                 form.resetField("avtale", { defaultValue: "" })
               },
             })}
-          >
-            <>
-              <option value={""}>Velg en</option>
-              {tiltakstyper.data.map((tiltakstype) => (
-                <option key={tiltakstype.id} value={tiltakstype.id}>
-                  {tiltakstype.navn}
-                </option>
-              ))}
-            </>
-          </Select>
+            options={tiltakstyper.data.map((tiltakstype) => ({
+              value: tiltakstype.id, label: tiltakstype.navn
+            }))}
+          />
           <Select
             label={"Avtale"}
             error={errors.avtale?.message}
