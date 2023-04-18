@@ -297,10 +297,10 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
-            Avtalestatus.Aktiv -> "((:today >= start_dato and :today <= slutt_dato) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Avtalestatus.Avsluttet -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and (:today >= start_dato and :today <= slutt_dato))"
+            Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
             Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Avtalestatus.Planlagt -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Avtalestatus.Planlagt -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today < start_dato)"
         }
     }
 
