@@ -23,10 +23,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    companion object {
-        val TiltaksgjennomforingCutoffDate = LocalDate.of(2023, 1, 1)
-    }
-
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
 
@@ -127,7 +123,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "cutoffdato" to TiltaksgjennomforingCutoffDate
+            "cutoffdato" to filter.sluttDatoCutoff
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -135,7 +131,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.enhet to "lower(tg.enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
             filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])",
-            TiltaksgjennomforingCutoffDate to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
+            filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
         )
 
         val order = when (filter.sortering) {
@@ -263,8 +259,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
-                "offset" to pagination.offset,
-                "cutoffdato" to TiltaksgjennomforingCutoffDate
+                "offset" to pagination.offset
             )
         )
             .map { it.toTiltaksgjennomforingDbo() }
