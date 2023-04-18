@@ -34,20 +34,6 @@ class TiltaksgjennomforingService(
                 totalCount to items.map { it.hentVirksomhetsnavnForTiltaksgjennomforing() }
             }
 
-    suspend fun getAllByTiltakstypeId(
-        tiltakstypeId: UUID,
-        pagination: PaginationParams = PaginationParams()
-    ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> =
-        tiltaksgjennomforingRepository
-            .getAllByTiltakstypeId(tiltakstypeId, pagination)
-            .map { (totalCount, items) ->
-                totalCount to items.map { it.hentVirksomhetsnavnForTiltaksgjennomforing() }
-            }
-
-    suspend fun sok(filter: Sokefilter): QueryResult<List<TiltaksgjennomforingAdminDto>> =
-        tiltaksgjennomforingRepository.sok(filter)
-            .map { list -> list.map { it.hentVirksomhetsnavnForTiltaksgjennomforing() } }
-
     fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
             .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
