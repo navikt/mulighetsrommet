@@ -43,7 +43,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("CRUD") {
 
-
         test("CRUD") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
@@ -95,7 +94,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter()).shouldBeRight().second
             result shouldHaveSize 1
             result.first().id shouldBe gjennomforing1.id
-
         }
 
         test("Tiltaksgjennomøringer med slutt dato null blir tatt med") {
@@ -148,7 +146,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             sluttDato = null,
             registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
         )
-
 
         context("when tilgjengelighet is set to Stengt") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
