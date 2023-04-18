@@ -63,6 +63,7 @@ export function VirksomhetInput({ avtale }: Props) {
           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
             sjekkOrgnr(e.currentTarget.value),
         })}
+        data-testid="leverandor-input"
       />
       <div className={styles.virksomhet}>
         {virksomhetState.status === "fetching" ? (
@@ -70,6 +71,7 @@ export function VirksomhetInput({ avtale }: Props) {
         ) : null}
         {virksomhetState.status === "fetched" ? (
           <span
+            data-testid="leverandor-validert-navn"
             className={styles.icon_text_align}
             aria-label={`Fant virksomhet for orgnr: ${virksomhetState.data?.organisasjonsnummer} med navn ${virksomhetState.data?.navn}`}
           >
