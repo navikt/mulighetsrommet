@@ -209,12 +209,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-            where tg.tiltakstype_id = ? and (tg.slutt_dato >= ? or tg.slutt_dato is null)
+            where tg.tiltakstype_id = ?
             group by tg.id, t.id
             order by tg.navn asc
             limit ? offset ?
         """.trimIndent()
-        val results = queryOf(query, id, TiltaksgjennomforingCutoffDate, pagination.limit, pagination.offset)
+        val results = queryOf(query, id, pagination.limit, pagination.offset)
             .map {
                 it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }
