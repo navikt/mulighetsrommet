@@ -231,6 +231,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <TextField
             error={errors.antallPlasser?.message}
+            type="number"
             style={{ width: "180px" }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
