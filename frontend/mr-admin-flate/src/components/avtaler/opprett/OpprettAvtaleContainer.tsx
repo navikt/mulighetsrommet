@@ -8,13 +8,14 @@ import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import z from "zod";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import z from "zod";
 import { mulighetsrommetClient } from "../../../api/clients";
+import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
+import { VirksomhetInput } from "../../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -72,6 +73,7 @@ export function OpprettAvtaleContainer({
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [feil, setFeil] = useState<string | null>("");
+
   const clickCancel = () => {
     setFeil(null);
   };
@@ -210,11 +212,8 @@ export function OpprettAvtaleContainer({
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
-          <TextField
-            error={errors.leverandor?.message}
-            label="Leverandør"
-            {...register("leverandor")}
-          />
+
+          <VirksomhetInput avtale={avtale} />
           <Select
             error={errors.avtaletype?.message}
             label={"Avtaletype"}
