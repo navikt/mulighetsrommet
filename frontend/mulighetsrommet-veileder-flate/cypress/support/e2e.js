@@ -122,16 +122,16 @@ Cypress.Commands.add('resetSortering', () => {
 
 Cypress.Commands.add('skruAvJoyride', () => {
   cy.then(() => {
-    window.localStorage.setItem('joyrideOversiktenLastStep', 'false');
+    window.localStorage.setItem('joyride_oversikten-last-step', 'false');
   })
     .then(() => {
-      window.localStorage.setItem('joyrideOversikten', 'false');
+      window.localStorage.setItem('joyride_oversikten', 'false');
     })
     .then(() => {
-      window.localStorage.setItem('joyrideDetaljer', 'false');
+      window.localStorage.setItem('joyride_detaljer', 'false');
     })
     .then(() => {
-      window.localStorage.setItem('harVistJoyrideOpprettAvtale', 'true');
+      window.localStorage.setItem('joyride_har-vist-opprett-avtale', 'true');
     });
 });
 
