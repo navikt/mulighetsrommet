@@ -1,7 +1,7 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  TiltaksgjennomforingAvslutningsstatus,
+  TiltaksgjennomforingAvslutningsstatus, TiltaksgjennomforingStatus,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
@@ -97,23 +97,20 @@ export function Tiltaksgjennomforingfilter() {
               setSokefilter({
                 ...sokefilter,
                 status: e.currentTarget
-                  .value as TiltaksgjennomforingAvslutningsstatus,
+                  .value as TiltaksgjennomforingStatus,
               });
             }}
           >
-            <option
-              value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}
-            >
+            <option value={TiltaksgjennomforingStatus.GJENNOMFORES}>
               Gjennomføres
             </option>
-            <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
+            <option value={TiltaksgjennomforingStatus.AVSLUTTET}>
               Avsluttet
             </option>
-            <option value={TiltaksgjennomforingAvslutningsstatus.AVBRUTT}>
-              Avbrutt
-            </option>
-            <option value={TiltaksgjennomforingAvslutningsstatus.AVLYST}>
-              Avlyst
+            <option value={TiltaksgjennomforingStatus.AVBRUTT}>Avbrutt</option>
+            <option value={TiltaksgjennomforingStatus.AVLYST}>Avlyst</option>
+            <option value={TiltaksgjennomforingStatus.APENT_FOR_INNSOK}>
+              Åpent for innsøk
             </option>
             <option value="">Alle statuser</option>
           </Select>

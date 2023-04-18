@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
@@ -119,17 +120,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "search" to "%${filter.search}%",
             "enhet" to filter.enhet,
             "tiltakstypeId" to filter.tiltakstypeId,
-            "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
+            "status" to filter.status,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "cutoffdato" to filter.sluttDatoCutoff
+            "cutoffdato" to filter.sluttDatoCutoff,
+            "today" to filter.dagensDato
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "(lower(tg.navn) like lower(:search))",
             filter.enhet to "lower(tg.enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
-            filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])",
+            filter.status to filter.status?.toDbStatement(),
             filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
         )
 
@@ -236,6 +238,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, id)
             .asUpdate
             .let { db.run(it) }
+    }
+
+    private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
+        return when (this) {
+            Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Tiltaksgjennomforingsstatus.AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+            Tiltaksgjennomforingsstatus.AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
+        }
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(

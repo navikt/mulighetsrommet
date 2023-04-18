@@ -5,6 +5,7 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
@@ -31,9 +32,10 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = "",
     val enhet: String? = null,
     val tiltakstypeId: UUID? = null,
-    val statuser: List<Avslutningsstatus>? = null,
+    val status: Tiltaksgjennomforingsstatus? = null,
     val sortering: String? = null,
-    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1)
+    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1),
+    val dagensDato: LocalDate = LocalDate.now(),
 )
 
 data class EnhetFilter(
@@ -86,13 +88,13 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val search = call.request.queryParameters["search"]
     val enhet = call.request.queryParameters["enhet"]
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
-    val statuser = call.parameters.getAll("status")?.map { Avslutningsstatus.valueOf(it) }
+    val statuser = call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
         enhet = enhet,
         tiltakstypeId = tiltakstypeId,
-        statuser = statuser,
+        status = statuser,
         sortering = sortering
     )
 }
