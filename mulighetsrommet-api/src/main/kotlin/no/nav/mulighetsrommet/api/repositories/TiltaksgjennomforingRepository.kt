@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.repositories
 import io.ktor.utils.io.core.*
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.services.Sokefilter
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
