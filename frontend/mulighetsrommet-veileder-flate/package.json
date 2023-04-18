@@ -65,7 +65,7 @@
     "cypress": "^12.7.0",
     "cypress-axe": "^1.4.0",
     "eslint": "^8.35.0",
-    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.27.5",
