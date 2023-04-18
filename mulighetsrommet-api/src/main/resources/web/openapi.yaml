@@ -783,6 +783,25 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
+  /api/v1/internal/virksomhet/{orgnr}:
+    get:
+      tags:
+        - Hent virksomhet
+      operationId: hentVirksomhetMedOrgnr
+      parameters:
+        - in: path
+          name: orgnr
+          schema:
+            type: string
+          description: Hvilket organisasjonsnummer tilhører virksomheten
+      responses:
+        200:
+          description: Virksomhet som matcher organisasjonsnummeret
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/Virksomhet"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1614,3 +1633,18 @@ components:
         - LOKAL
         - FYLKE
         - TILTAK
+
+    Virksomhet:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        overordnetEnhetOrganisasjonsnummer:
+          type: string
+        overordnetEnhetNavn:
+          type: string
+      required:
+        - organisasjonsnummer
+        - navn

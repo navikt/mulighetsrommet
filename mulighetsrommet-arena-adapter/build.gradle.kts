@@ -34,6 +34,7 @@ dependencies {
     implementation(projects.common.kafka)
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))
+    implementation(projects.common.ktorClients)
     implementation(projects.common.slack)
 
     // Kotlin
@@ -41,10 +42,6 @@ dependencies {
     implementation(libs.arrow.core)
 
     // Ktor
-    implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.client.contentNegotiation)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.logging)
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.server.auth)
@@ -60,7 +57,7 @@ dependencies {
 
     implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.4.9") {
+        implementation("net.minidev:json-smart:2.4.10") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

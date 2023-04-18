@@ -1,13 +1,13 @@
 [versions]
-common-java-modules = "3.2023.03.22_12.48-00fcbdc8f455"
-flyway = "9.15.1"
-hoplite = "2.7.2"
-koin = "3.3.1"
-kotest = "5.5.5"
-kotlin = "1.8.10"
+common-java-modules = "3.2023.04.03_13.09-15bb53f1d80e"
+flyway = "9.16.3"
+hoplite = "2.7.4"
+koin = "3.4.0"
+kotest = "5.6.0"
+kotlin = "1.8.20"
 ktor = "2.2.4"
 logback = "1.4.6"
-metrics = "4.2.17"
+metrics = "4.2.18"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -21,13 +21,13 @@ arrow-core = "io.arrow-kt:arrow-core:1.1.5"
 
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.5"
+caffeine = "com.github.ben-manes.caffeine:caffeine:v3.1.6"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:11.6"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:12.0.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
-google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.11.0"
+google-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.11.1"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
@@ -37,7 +37,7 @@ hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "ho
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
 
-kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:1.3.0"
+kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:1.3.1"
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-extensions-testcontainers = "io.kotest.extensions:kotest-extensions-testcontainers:1.3.4"
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
@@ -81,23 +81,23 @@ logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.10.4"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.10.6"
 
-mockk = "io.mockk:mockk:1.13.4"
+mockk = "io.mockk:mockk:1.13.5"
 
 nav-common-auditLog = { module = "com.github.navikt.common-java-modules:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "com.github.navikt.common-java-modules:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "com.github.navikt.common-java-modules:token-client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "com.github.navikt.poao-tilgang:client:2023.03.06_12.28-f645c4624641"
+nav-poaoTilgang-client = "com.github.navikt.poao-tilgang:client:2023.04.14_13.44-5105f4f8119c"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:0.5.8"
 
 postgresql = "org.postgresql:postgresql:42.5.4"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.2.0"
 
-slack-client = "com.slack.api:slack-api-client:1.27.3"
+slack-client = "com.slack.api:slack-api-client:1.29.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.6"
 
