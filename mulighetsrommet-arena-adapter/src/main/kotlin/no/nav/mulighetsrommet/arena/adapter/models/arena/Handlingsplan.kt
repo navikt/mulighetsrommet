@@ -1,8 +1,9 @@
 package no.nav.mulighetsrommet.arena.adapter.models.arena
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@kotlinx.serialization.Serializable
+@Serializable
 enum class Handlingsplan {
 
     @SerialName("AKT")
