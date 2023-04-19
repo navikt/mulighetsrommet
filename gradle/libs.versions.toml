@@ -101,4 +101,4 @@ slack-client = "com.slack.api:slack-api-client:1.29.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.6"
 
-testcontainers-kafka = "org.testcontainers:kafka:1.17.6"
+testcontainers-kafka = "org.testcontainers:kafka:1.18.0"
