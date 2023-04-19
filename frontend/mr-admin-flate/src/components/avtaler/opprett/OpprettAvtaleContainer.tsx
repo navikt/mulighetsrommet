@@ -84,11 +84,21 @@ export function OpprettAvtaleContainer({
     setFeil(null);
   };
 
+  const defaultEnhet = () => {
+      if (avtale?.navEnhet?.enhetsnummer) {
+        return avtale?.navEnhet?.enhetsnummer;
+      }
+      if (enheter.find(e => e.enhetNr === ansatt.hovedenhet)) {
+        return ansatt.hovedenhet;
+      }
+      return undefined;
+  }
+
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
-      enhet: avtale?.navEnhet?.enhetsnummer,
+      enhet: defaultEnhet(),
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
