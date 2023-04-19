@@ -99,6 +99,6 @@ shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.2.0"
 
 slack-client = "com.slack.api:slack-api-client:1.29.2"
 
-slf4j = "org.slf4j:slf4j-api:2.0.6"
+slf4j = "org.slf4j:slf4j-api:2.0.7"
 
 testcontainers-kafka = "org.testcontainers:kafka:1.18.0"
