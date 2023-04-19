@@ -61,7 +61,9 @@ const Schema = z.object({
   sluttDato: z
     .date({ required_error: "En avtale må ha en sluttdato" })
     .nullable(),
-  avtaleansvarlig: z.string({ required_error: "Du må velge en avtaleansvarlig" }),
+  avtaleansvarlig: z.string({
+    required_error: "Du må velge en avtaleansvarlig",
+  }),
   url: GyldigUrlHvisVerdi,
   prisOgBetalingsinfo: z.string().optional(),
 });
@@ -85,14 +87,14 @@ export function OpprettAvtaleContainer({
   };
 
   const defaultEnhet = () => {
-      if (avtale?.navEnhet?.enhetsnummer) {
-        return avtale?.navEnhet?.enhetsnummer;
-      }
-      if (enheter.find(e => e.enhetNr === ansatt.hovedenhet)) {
-        return ansatt.hovedenhet;
-      }
-      return undefined;
-  }
+    if (avtale?.navEnhet?.enhetsnummer) {
+      return avtale?.navEnhet?.enhetsnummer;
+    }
+    if (enheter.find((e) => e.enhetNr === ansatt.hovedenhet)) {
+      return ansatt.hovedenhet;
+    }
+    return undefined;
+  };
 
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
@@ -217,23 +219,19 @@ export function OpprettAvtaleContainer({
             placeholder="Velg en"
             label={"Tiltakstype"}
             {...register("tiltakstype")}
-            options={tiltakstyper
-              .map((tiltakstype) => ({
-                value: tiltakstype.id,
-                label: tiltakstype.navn,
-              }))
-            }
+            options={tiltakstyper.map((tiltakstype) => ({
+              value: tiltakstype.id,
+              label: tiltakstype.navn,
+            }))}
           />
           <SokeSelect
             placeholder="Velg en"
             label={"Enhet"}
             {...register("enhet")}
-            options={enheter
-              .map((enhet) => ({
-                value: `${enhet.enhetNr}`,
-                label: enhet.navn,
-              }))
-            }
+            options={enheter.map((enhet) => ({
+              value: `${enhet.enhetNr}`,
+              label: enhet.navn,
+            }))}
           />
           <TextField
             type={"number"}
@@ -259,7 +257,7 @@ export function OpprettAvtaleContainer({
               {
                 value: Avtaletype.AVTALE,
                 label: "Avtale",
-              }
+              },
             ]}
           />
           <TextField
@@ -286,8 +284,8 @@ export function OpprettAvtaleContainer({
             options={[
               {
                 value: ansatt.ident ?? "",
-                label: `${navn} - ${ansatt?.ident}`
-              }
+                label: `${navn} - ${ansatt?.ident}`,
+              },
             ]}
           />
         </FormGroup>

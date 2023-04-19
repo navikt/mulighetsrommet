@@ -132,9 +132,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     isError: isErrorAnsatt,
   } = useHentAnsatt();
 
-  if (ansatt && !isLoadingAnsatt) {
-    setValue("ansvarlig", ansatt.ident!!);
-  }
+  useEffect(() => {
+    if (ansatt && !isLoadingAnsatt) {
+      setValue("ansvarlig", ansatt.ident!!);
+    }
+  }, [ansatt, isLoadingAnsatt, setValue]);
 
   const redigeringsModus = !!props.tiltaksgjennomforing;
 
@@ -170,8 +172,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-      .map((it) => capitalize(it))
-      .join(" ")
+        .map((it) => capitalize(it))
+        .join(" ")
     : "";
 
   if (

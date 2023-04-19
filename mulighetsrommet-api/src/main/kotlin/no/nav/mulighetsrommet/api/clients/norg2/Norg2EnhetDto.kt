@@ -2,8 +2,12 @@ package no.nav.mulighetsrommet.api.clients.norg2
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+
+@Serializable
+data class Norg2Response(
+    val enhet: Norg2EnhetDto,
+    val overordnetEnhet: String?
+)
 
 @Serializable
 data class Norg2EnhetDto(
@@ -12,17 +16,7 @@ data class Norg2EnhetDto(
     val enhetNr: String,
     val status: Norg2EnhetStatus,
     val type: Norg2Type
-) {
-    fun toNavEnhetDbo(): NavEnhetDbo {
-        return NavEnhetDbo(
-            enhetId = enhetId,
-            navn = navn,
-            enhetNr = enhetNr,
-            status = NavEnhetStatus.valueOf(status.name),
-            type = Norg2Type.valueOf(type.name)
-        )
-    }
-}
+)
 
 @Serializable
 enum class Norg2EnhetStatus {
