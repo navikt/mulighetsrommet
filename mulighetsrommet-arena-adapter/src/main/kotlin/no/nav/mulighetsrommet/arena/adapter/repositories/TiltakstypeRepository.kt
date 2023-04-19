@@ -183,7 +183,7 @@ returning *
         "tiltaksgjennomforing_genererer_tilsagnsbrev_automatisk" to tiltaksgjennomforingGenererTilsagnsbrevAutomatisk,
         "vis_begrunnelse_for_innsoking" to visBegrunnelseForInnsoking,
         "henvisningsbrev_og_hovedbrev_til_arbeidsgiver" to sendHenvisningsbrevOgHovedbrevTilArbeidsgiver,
-        "kopibrev_og_hovedbrev_til_arbeidsgiver" to sendKopibrevOgHovedbrevTilArbeidsgiver
+        "kopibrev_og_hovedbrev_til_arbeidsgiver" to sendKopibrevOgHovedbrevTilArbeidsgiver,
     )
 
     private fun Row.toTiltakstype() = Tiltakstype(
@@ -217,6 +217,6 @@ returning *
         tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = boolean("tiltaksgjennomforing_genererer_tilsagnsbrev_automatisk"),
         visBegrunnelseForInnsoking = boolean("vis_begrunnelse_for_innsoking"),
         sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = boolean("henvisningsbrev_og_hovedbrev_til_arbeidsgiver"),
-        sendKopibrevOgHovedbrevTilArbeidsgiver = boolean("kopibrev_og_hovedbrev_til_arbeidsgiver")
+        sendKopibrevOgHovedbrevTilArbeidsgiver = boolean("kopibrev_og_hovedbrev_til_arbeidsgiver"),
     )
 }

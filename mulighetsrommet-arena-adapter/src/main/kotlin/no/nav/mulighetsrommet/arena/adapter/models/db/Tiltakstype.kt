@@ -37,5 +37,5 @@ data class Tiltakstype(
     val tiltaksgjennomforingGenererTilsagnsbrevAutomatisk: Boolean,
     val visBegrunnelseForInnsoking: Boolean,
     val sendHenvisningsbrevOgHovedbrevTilArbeidsgiver: Boolean,
-    val sendKopibrevOgHovedbrevTilArbeidsgiver: Boolean
+    val sendKopibrevOgHovedbrevTilArbeidsgiver: Boolean,
 )

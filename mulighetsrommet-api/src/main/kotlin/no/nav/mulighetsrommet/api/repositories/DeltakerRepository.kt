@@ -41,7 +41,7 @@ class DeltakerRepository(private val db: Database) {
 
     fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDbo> {
         val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltaksgjennomforingId to "tiltaksgjennomforing_id = :tiltaksgjennomforing_id::uuid"
+            tiltaksgjennomforingId to "tiltaksgjennomforing_id = :tiltaksgjennomforing_id::uuid",
         )
 
         @Language("PostgreSQL")
@@ -73,11 +73,11 @@ class DeltakerRepository(private val db: Database) {
 
     fun countAntallDeltakereForTiltakstypeWithId(
         tiltakstypeId: UUID,
-        currentDate: LocalDate = LocalDate.now()
+        currentDate: LocalDate = LocalDate.now(),
     ): Int {
         val parameters = mapOf(
             "tiltakstypeId" to tiltakstypeId,
-            "currentDate" to currentDate
+            "currentDate" to currentDate,
         )
 
         val query = """

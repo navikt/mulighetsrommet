@@ -16,15 +16,15 @@ class TiltakstypeService(
     private val tiltakstypeRepository: TiltakstypeRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val avtaleRepository: AvtaleRepository,
-    private val deltakerRepository: DeltakerRepository
+    private val deltakerRepository: DeltakerRepository,
 ) {
     fun getWithFilter(
         tiltakstypeFilter: TiltakstypeFilter,
-        paginationParams: PaginationParams
+        paginationParams: PaginationParams,
     ): PaginatedResponse<TiltakstypeDto> {
         val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
             tiltakstypeFilter,
-            paginationParams
+            paginationParams,
         )
 
         return PaginatedResponse(
@@ -32,8 +32,8 @@ class TiltakstypeService(
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = paginationParams.page,
-                pageSize = paginationParams.limit
-            )
+                pageSize = paginationParams.limit,
+            ),
         )
     }
 
@@ -48,7 +48,7 @@ class TiltakstypeService(
         return TiltakstypeNokkeltallDto(
             antallTiltaksgjennomforinger = antallGjennomforinger,
             antallAvtaler = antallAvtaler,
-            antallDeltakere = antallDeltakere
+            antallDeltakere = antallDeltakere,
         )
     }
 }

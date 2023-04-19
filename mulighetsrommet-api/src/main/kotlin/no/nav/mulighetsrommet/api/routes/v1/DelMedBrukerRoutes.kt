@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyPathParameter
 import no.nav.mulighetsrommet.ktor.extensions.getNonEmptyQueryParameter
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
 
 fun Route.delMedBrukerRoutes() {
@@ -32,7 +32,7 @@ fun Route.delMedBrukerRoutes() {
                     SecureLog.logger.error("Klarte ikke lagre informasjon om deling med bruker", it.error)
                     call.respondText(
                         "Klarte ikke lagre informasjon om deling med bruker",
-                        status = HttpStatusCode.InternalServerError
+                        status = HttpStatusCode.InternalServerError,
                     )
                 }
         }
@@ -48,7 +48,7 @@ fun Route.delMedBrukerRoutes() {
                     if (it == null) {
                         call.respondText(
                             status = HttpStatusCode.NoContent,
-                            text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere"
+                            text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere",
                         )
                     } else {
                         call.respond(it)
@@ -57,7 +57,7 @@ fun Route.delMedBrukerRoutes() {
                 .onLeft {
                     call.respondText(
                         status = HttpStatusCode.InternalServerError,
-                        text = "Klarte ikke innslag om at veileder har delt tiltak med bruker tidligere"
+                        text = "Klarte ikke innslag om at veileder har delt tiltak med bruker tidligere",
                     )
                 }
         }

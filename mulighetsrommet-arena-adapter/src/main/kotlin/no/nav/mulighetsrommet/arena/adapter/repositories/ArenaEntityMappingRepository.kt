@@ -48,7 +48,7 @@ class ArenaEntityMappingRepository(private val db: Database) {
             arenaId = string("arena_id"),
             entityId = uuid("entity_id"),
             status = ArenaEntityMapping.Status.valueOf(string("status")),
-            message = stringOrNull("message")
+            message = stringOrNull("message"),
         )
     }
 }

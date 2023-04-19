@@ -8,7 +8,7 @@ data class TiltaksgjennomforingsArenadataDto(
     val lopenr: Int?,
     val virksomhetsnummer: String?,
     val ansvarligNavEnhetId: String?,
-    val status: String
+    val status: String,
 ) {
     companion object {
         fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, status: String) = tiltaksgjennomforing.run {
@@ -17,7 +17,7 @@ data class TiltaksgjennomforingsArenadataDto(
                 lopenr = tiltaksnummer?.split("#")?.get(1)?.toInt(),
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarligNavEnhetId = arenaAnsvarligEnhet,
-                status = status
+                status = status,
             )
         }
     }

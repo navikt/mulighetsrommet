@@ -28,7 +28,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
+        tilDato = LocalDate.of(2023, 1, 12),
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -52,7 +52,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0)
+        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
     )
 
     val tiltakstypeIndividuell = TiltakstypeDbo(
@@ -63,7 +63,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
+        tilDato = LocalDate.of(2023, 1, 12),
     )
 
     val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
@@ -106,7 +106,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Arbeidstrening",
                 tiltakstype = "Arbeidstrening",
-                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "123456789", navn = bedriftsnavn)
+                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "123456789", navn = bedriftsnavn),
             ),
             TiltakshistorikkDto(
                 id = tiltakshistorikkIndividuell.id,
@@ -115,8 +115,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = "Utdanning",
                 tiltakstype = "Høyere utdanning",
-                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "12343", navn = bedriftsnavn2)
-            )
+                arrangor = TiltakshistorikkDto.Arrangor(virksomhetsnummer = "12343", navn = bedriftsnavn2),
+            ),
         )
 
         historikkService.hentHistorikkForBruker("12345678910") shouldBe forventetHistorikk

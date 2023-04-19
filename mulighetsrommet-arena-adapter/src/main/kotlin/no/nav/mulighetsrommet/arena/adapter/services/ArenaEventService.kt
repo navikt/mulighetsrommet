@@ -29,7 +29,7 @@ class ArenaEventService(
     data class Config(
         val channelCapacity: Int = 1,
         val numChannelConsumers: Int = 1,
-        val maxRetries: Int = 0
+        val maxRetries: Int = 0,
     )
 
     suspend fun deleteEntities(table: ArenaTable, ids: List<String>) {
@@ -102,7 +102,7 @@ class ArenaEventService(
                     logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
 
                     events.upsert(
-                        event.copy(status = ArenaEvent.ProcessingStatus.Failed, message = e.localizedMessage)
+                        event.copy(status = ArenaEvent.ProcessingStatus.Failed, message = e.localizedMessage),
                     )
                 }
             }
@@ -125,7 +125,7 @@ class ArenaEventService(
         table: ArenaTable?,
         status: ArenaEvent.ProcessingStatus?,
         maxRetries: Int? = null,
-        consumer: suspend (ArenaEvent) -> Unit
+        consumer: suspend (ArenaEvent) -> Unit,
     ) = coroutineScope {
         var count = 0
         var prevId: String? = null
@@ -138,7 +138,7 @@ class ArenaEventService(
                     idGreaterThan = prevId,
                     status = status,
                     retriesLessThan = maxRetries,
-                    limit = config.channelCapacity
+                    limit = config.channelCapacity,
                 )
 
                 events.forEach { send(it) }

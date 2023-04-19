@@ -8,17 +8,17 @@ import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val message: String) {
     data class ProcessingFailed(val details: String) : ProcessingError(
         status = ArenaEvent.ProcessingStatus.Failed,
-        message = "Event processing failed: $details"
+        message = "Event processing failed: $details",
     )
 
     data class MissingDependency(val details: String) : ProcessingError(
         status = ArenaEvent.ProcessingStatus.Failed,
-        message = "Dependent event has not yet been processed: $details"
+        message = "Dependent event has not yet been processed: $details",
     )
 
     data class InvalidPayload(val details: String) : ProcessingError(
         status = ArenaEvent.ProcessingStatus.Invalid,
-        message = "Event payload is invalid: $details"
+        message = "Event payload is invalid: $details",
     )
 
     companion object {
@@ -35,5 +35,5 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
 
 data class ProcessingResult(
     val status: ArenaEntityMapping.Status,
-    val message: String? = null
+    val message: String? = null,
 )

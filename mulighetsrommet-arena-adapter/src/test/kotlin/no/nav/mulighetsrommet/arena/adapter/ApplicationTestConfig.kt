@@ -16,7 +16,7 @@ fun createDatabaseTestConfig() = createDatabaseTestSchema("mulighetsrommet-arena
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
-    test: suspend ApplicationTestBuilder.() -> R
+    test: suspend ApplicationTestBuilder.() -> R,
 ) {
     var flywayAdapter: FlywayDatabaseAdapter? = null
 
@@ -42,27 +42,27 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     enableFailedRecordProcessor = false,
     tasks = TaskConfig(
         retryFailedEvents = RetryFailedEvents.Config(
-            delayOfMinutes = 1
+            delayOfMinutes = 1,
         ),
         notifyFailedEvents = NotifyFailedEvents.Config(
             maxRetries = 5,
-            cron = "0 0 0 1 1 0"
-        )
+            cron = "0 0 0 1 1 0",
+        ),
     ),
     services = ServiceConfig(
         mulighetsrommetApi = ServiceClientConfig(url = "mulighetsrommet-api", scope = ""),
         arenaEventService = ArenaEventService.Config(
             channelCapacity = 0,
             numChannelConsumers = 0,
-            maxRetries = 0
+            maxRetries = 0,
         ),
-        arenaOrdsProxy = ServiceClientConfig(url = "arena-ords-proxy", scope = "")
+        arenaOrdsProxy = ServiceClientConfig(url = "arena-ords-proxy", scope = ""),
     ),
     slack = SlackConfig(
         token = "",
         channel = "",
-        enable = false
-    )
+        enable = false,
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig {
@@ -84,14 +84,14 @@ fun createKafkaConfig(): KafkaConfig {
 fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
-    audience: String = "default"
+    audience: String = "default",
 ): AuthConfig {
     return AuthConfig(
         azure = AuthProvider(
             issuer = oauth.issuerUrl(issuer).toString(),
             jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
             audience = audience,
-            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString()
-        )
+            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
+        ),
     )
 }

@@ -43,8 +43,8 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
+import no.nav.mulighetsrommet.slack.SlackNotifier
+import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -67,7 +67,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             repositories(),
             services(appConfig),
             tasks(appConfig.tasks),
-            slack(appConfig.slack)
+            slack(appConfig.slack),
         )
     }
 }
@@ -121,7 +121,7 @@ private fun kafka(config: KafkaConfig) = module {
 
     single {
         val consumers = listOf(
-            AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get())
+            AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -149,7 +149,7 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.amtEnhetsregister.url,
             tokenProvider = {
                 m2mTokenProvider.createMachineToMachineToken(appConfig.amtEnhetsregister.scope)
-            }
+            },
         )
     }
     single<VeilarboppfolgingClient> {
@@ -157,7 +157,7 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
-            }
+            },
         )
     }
     single<VeilarbvedtaksstotteClient> {
@@ -165,7 +165,7 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, token)
-            }
+            },
         )
     }
     single<VeilarbpersonClient> {
@@ -173,7 +173,7 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.veilarbpersonConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, token)
-            }
+            },
         )
     }
     single<VeilarbdialogClient> {
@@ -181,14 +181,14 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
-            }
+            },
         )
     }
 
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
-            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) }
+            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
         )
     }
     single<MicrosoftGraphClient> {
@@ -196,18 +196,18 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
-            }
+            },
         )
     }
     single<ArenaAdapterClient> {
         ArenaAdapterClientImpl(
             baseUrl = appConfig.arenaAdapter.url,
-            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) }
+            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
         )
     }
     single<Norg2Client> {
         Norg2ClientImpl(
-            baseUrl = appConfig.norg2.baseUrl
+            baseUrl = appConfig.norg2.baseUrl,
         )
     }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
@@ -242,7 +242,7 @@ private fun tasks(config: TaskConfig) = module {
             .startTasks(
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
-                synchronizeTiltakstypestatuserToKafka.task
+                synchronizeTiltakstypestatuserToKafka.task,
             )
             .registerShutdownHook()
             .build()

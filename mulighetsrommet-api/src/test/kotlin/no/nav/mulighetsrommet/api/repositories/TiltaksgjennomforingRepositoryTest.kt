@@ -91,7 +91,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
-                )
+                ),
             ).shouldBeRight()
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -100,7 +100,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
-                )
+                ),
             ).shouldBeRight()
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -109,7 +109,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
-                )
+                ),
             ).shouldBeRight()
 
             val gjennomforing = gjennomforing1.copy(enheter = listOf("1", "2"))
@@ -136,8 +136,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(
                 gjennomforing1.copy(
                     id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2022, 12, 31)
-                )
+                    sluttDato = LocalDate.of(2022, 12, 31),
+                ),
             ).shouldBeRight()
 
             val result =
@@ -194,7 +194,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             opphav = Deltakeropphav.AMT,
             startDato = null,
             sluttDato = null,
-            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
         )
 
         context("when tilgjengelighet is set to Stengt") {
@@ -202,8 +202,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             beforeAny {
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
-                        tilgjengelighet = Tilgjengelighetsstatus.Stengt
-                    )
+                        tilgjengelighet = Tilgjengelighetsstatus.Stengt,
+                    ),
                 ).shouldBeRight()
             }
 
@@ -220,7 +220,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     gjennomforing1.copy(
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    )
+                    ),
                 ).shouldBeRight()
             }
 
@@ -236,8 +236,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
-                        antallPlasser = null
-                    )
+                        antallPlasser = null,
+                    ),
                 ).shouldBeRight()
             }
 
@@ -253,8 +253,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
-                        antallPlasser = 0
-                    )
+                        antallPlasser = 0,
+                    ),
                 ).shouldBeRight()
             }
 
@@ -270,8 +270,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
-                        antallPlasser = 1
-                    )
+                        antallPlasser = 1,
+                    ),
                 ).shouldBeRight()
 
                 deltakere.upsert(deltaker.copy(status = Deltakerstatus.DELTAR))
@@ -289,8 +289,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltaksgjennomforinger.upsert(
                     gjennomforing1.copy(
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
-                        antallPlasser = 1
-                    )
+                        antallPlasser = 1,
+                    ),
                 ).shouldBeRight()
 
                 deltakere.upsert(deltaker.copy(status = Deltakerstatus.AVSLUTTET))
@@ -321,7 +321,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         antallPlasser = null,
                         ansvarlige = emptyList(),
                         enheter = emptyList(),
-                    )
+                    ),
                 )
             }
         }
@@ -343,9 +343,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
                     4,
-                    20
+                    20,
                 ),
-                AdminTiltaksgjennomforingFilter()
+                AdminTiltaksgjennomforingFilter(),
             ).shouldBeRight()
 
             items.size shouldBe 20
@@ -359,9 +359,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
-                    3
+                    3,
                 ),
-                AdminTiltaksgjennomforingFilter()
+                AdminTiltaksgjennomforingFilter(),
             ).shouldBeRight()
 
             items.size shouldBe 5
@@ -375,9 +375,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val (totalCount, items) = tiltaksgjennomforinger.getAll(
                 PaginationParams(
-                    nullableLimit = 200
+                    nullableLimit = 200,
                 ),
-                AdminTiltaksgjennomforingFilter()
+                AdminTiltaksgjennomforingFilter(),
             ).shouldBeRight()
 
             items.size shouldBe 105

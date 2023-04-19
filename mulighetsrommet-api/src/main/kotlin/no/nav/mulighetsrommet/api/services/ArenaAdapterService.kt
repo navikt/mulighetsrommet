@@ -18,7 +18,7 @@ class ArenaAdapterService(
     private val tiltakshistorikk: TiltakshistorikkRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
-    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
+    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {

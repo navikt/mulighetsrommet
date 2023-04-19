@@ -62,8 +62,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "1000000"))
                 },
-                "/api/v1/internal/arena/avtale.*" to { respondOk() }
-            )
+                "/api/v1/internal/arena/avtale.*" to { respondOk() },
+            ),
         ): AvtaleInfoEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
@@ -109,8 +109,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         ArenaTable.Tiltakstype,
                         tiltakstype.tiltakskode,
                         tiltakstype.id,
-                        Handled
-                    )
+                        Handled,
+                    ),
                 )
             }
 
@@ -179,7 +179,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondError(HttpStatusCode.InternalServerError)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -197,7 +197,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondError(HttpStatusCode.NotFound)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -214,12 +214,12 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            ArenaOrdsArrangor("123456", "100000")
+                            ArenaOrdsArrangor("123456", "100000"),
                         )
                     },
                     "/api/v1/internal/arena/avtale" to {
                         respondError(HttpStatusCode.InternalServerError)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -237,7 +237,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
-                    "/api/v1/internal/arena/avtale.*" to { respondOk() }
+                    "/api/v1/internal/arena/avtale.*" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 

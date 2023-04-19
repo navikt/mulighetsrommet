@@ -18,7 +18,7 @@ private val log = LoggerFactory.getLogger(ArenaAdapterClientImpl::class.java)
 class ArenaAdapterClientImpl(
     private val baseUrl: String,
     private val machineToMachineTokenClient: () -> String,
-    clientEngine: HttpClientEngine = CIO.create()
+    clientEngine: HttpClientEngine = CIO.create(),
 ) : ArenaAdapterClient {
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
@@ -27,7 +27,7 @@ class ArenaAdapterClientImpl(
     override suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
         val response = client.get("$baseUrl/api/exchange/$arenaId") {
             bearerAuth(
-                machineToMachineTokenClient.invoke()
+                machineToMachineTokenClient.invoke(),
             )
         }
 
@@ -44,7 +44,7 @@ class ArenaAdapterClientImpl(
     override suspend fun hentTiltaksgjennomforingsstatus(id: UUID): ArenaTiltaksgjennomforingsstatusDto? {
         val response = client.get("$baseUrl/api/status/$id") {
             bearerAuth(
-                machineToMachineTokenClient.invoke()
+                machineToMachineTokenClient.invoke(),
             )
         }
 

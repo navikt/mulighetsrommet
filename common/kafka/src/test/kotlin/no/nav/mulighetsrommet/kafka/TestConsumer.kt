@@ -8,7 +8,9 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeseri
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 
 class TestConsumer(name: String) : KafkaTopicConsumer<String?, String?>(
-    Config(name, name, true), stringDeserializer(), stringDeserializer()
+    Config(name, name, true),
+    stringDeserializer(),
+    stringDeserializer(),
 ) {
     override suspend fun consume(key: String?, message: String?) {
         if (message != "true") {
@@ -18,7 +20,9 @@ class TestConsumer(name: String) : KafkaTopicConsumer<String?, String?>(
 }
 
 class JsonTestConsumer(name: String) : KafkaTopicConsumer<String?, JsonElement>(
-    Config(name, name, true), stringDeserializer(), JsonElementDeserializer()
+    Config(name, name, true),
+    stringDeserializer(),
+    JsonElementDeserializer(),
 ) {
     override suspend fun consume(key: String?, message: JsonElement) {
         val success = message.jsonObject.getValue("success").jsonPrimitive.boolean

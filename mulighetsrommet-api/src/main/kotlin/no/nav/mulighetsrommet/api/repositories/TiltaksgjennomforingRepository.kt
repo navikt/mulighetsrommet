@@ -77,8 +77,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     queryOf(
                         upsertAnsvarlig,
                         tiltaksgjennomforing.id,
-                        ansvarlig
-                    ).asExecute
+                        ansvarlig,
+                    ).asExecute,
                 )
             }
 
@@ -86,8 +86,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     deleteAnsvarlige,
                     tiltaksgjennomforing.id,
-                    db.createTextArray(tiltaksgjennomforing.ansvarlige)
-                ).asExecute
+                    db.createTextArray(tiltaksgjennomforing.ansvarlige),
+                ).asExecute,
             )
 
             tiltaksgjennomforing.enheter.forEach { enhetId ->
@@ -95,8 +95,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     queryOf(
                         upsertEnhet,
                         tiltaksgjennomforing.id,
-                        enhetId
-                    ).asExecute
+                        enhetId,
+                    ).asExecute,
                 )
             }
 
@@ -104,8 +104,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     deleteEnheter,
                     tiltaksgjennomforing.id,
-                    db.createTextArray(tiltaksgjennomforing.enheter)
-                ).asExecute
+                    db.createTextArray(tiltaksgjennomforing.enheter),
+                ).asExecute,
             )
         }
     }
@@ -145,7 +145,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun getAll(
         pagination: PaginationParams = PaginationParams(),
-        filter: AdminTiltaksgjennomforingFilter
+        filter: AdminTiltaksgjennomforingFilter,
     ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> = query {
         val parameters = mapOf(
             "search" to "%${filter.search}%",
@@ -154,7 +154,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "statuser" to filter.statuser?.let { db.createTextArray(it.map { it.name }) },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "cutoffdato" to filter.sluttDatoCutoff
+            "cutoffdato" to filter.sluttDatoCutoff,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -217,7 +217,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
         avslutningsstatus: Avslutningsstatus,
-        pagination: PaginationParams
+        pagination: PaginationParams,
     ): QueryResult<List<TiltaksgjennomforingDbo>> = query {
         logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
 
@@ -250,8 +250,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
-                "offset" to pagination.offset
-            )
+                "offset" to pagination.offset,
+            ),
         )
             .map { it.toTiltaksgjennomforingDbo() }
             .asList
@@ -284,7 +284,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "avslutningsstatus" to avslutningsstatus.name,
         "tilgjengelighet" to tilgjengelighet.name,
         "antall_plasser" to antallPlasser,
-        "avtale_id" to avtaleId
+        "avtale_id" to avtaleId,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(

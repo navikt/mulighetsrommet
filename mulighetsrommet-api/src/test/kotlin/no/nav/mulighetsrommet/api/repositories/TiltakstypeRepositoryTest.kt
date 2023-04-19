@@ -34,8 +34,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12)
-            )
+                tilDato = LocalDate.of(2023, 1, 12),
+            ),
         )
         tiltakstyper.upsert(
             TiltakstypeDbo(
@@ -46,8 +46,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12)
-            )
+                tilDato = LocalDate.of(2023, 1, 12),
+            ),
         )
         Query("update tiltakstype set skal_migreres = true").asUpdate.let { database.db.run(it) }
 
@@ -56,8 +56,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             TiltakstypeFilter(
                 search = "Førerhund",
                 status = Tiltakstypestatus.Aktiv,
-                kategori = null
-            )
+                kategori = null,
+            ),
         ).second shouldHaveSize 0
 
         val arbeidstrening =
@@ -65,8 +65,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeFilter(
                     search = "Arbeidstrening",
                     status = Tiltakstypestatus.Avsluttet,
-                    kategori = null
-                )
+                    kategori = null,
+                ),
             )
         arbeidstrening.second shouldHaveSize 1
         arbeidstrening.second[0].navn shouldBe "Arbeidstrening"
@@ -92,7 +92,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             fraDato = LocalDate.of(2023, 1, 13),
-            tilDato = LocalDate.of(2023, 1, 15)
+            tilDato = LocalDate.of(2023, 1, 15),
         )
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -102,7 +102,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             fraDato = LocalDate.of(2023, 1, 11),
-            tilDato = LocalDate.of(2023, 1, 15)
+            tilDato = LocalDate.of(2023, 1, 15),
         )
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -112,7 +112,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             fraDato = LocalDate.of(2023, 1, 9),
-            tilDato = LocalDate.of(2023, 1, 11)
+            tilDato = LocalDate.of(2023, 1, 11),
         )
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
@@ -123,7 +123,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             fraDato = LocalDate.of(2023, 1, 9),
-            tilDato = LocalDate.of(2023, 1, 11)
+            tilDato = LocalDate.of(2023, 1, 11),
         )
 
         tiltakstyper.upsert(tiltakstypePlanlagt)
@@ -136,8 +136,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
-                    kategori = Tiltakstypekategori.GRUPPE
-                )
+                    kategori = Tiltakstypekategori.GRUPPE,
+                ),
             ).second shouldHaveSize 2
         }
 
@@ -145,8 +145,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
-                    kategori = Tiltakstypekategori.INDIVIDUELL
-                )
+                    kategori = Tiltakstypekategori.INDIVIDUELL,
+                ),
             ).second shouldHaveSize 1
         }
 
@@ -154,8 +154,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
-                    kategori = null
-                )
+                    kategori = null,
+                ),
             ).second shouldHaveSize 3
         }
 
@@ -163,8 +163,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(
                     search = null,
-                    kategori = null
-                )
+                    kategori = null,
+                ),
             ).second shouldHaveSize 3
         }
 
@@ -174,8 +174,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                     search = null,
                     kategori = null,
                     status = Tiltakstypestatus.Planlagt,
-                    dagensDato = dagensDato
-                )
+                    dagensDato = dagensDato,
+                ),
             )
             typer.second shouldHaveSize 1
             typer.second.first().id shouldBe tiltakstypePlanlagt.id
@@ -187,8 +187,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                     search = null,
                     kategori = null,
                     status = Tiltakstypestatus.Aktiv,
-                    dagensDato = dagensDato
-                )
+                    dagensDato = dagensDato,
+                ),
             )
             typer.second shouldHaveSize 1
             typer.second.first().id shouldBe tiltakstypeAktiv.id
@@ -200,8 +200,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                     search = null,
                     kategori = null,
                     status = Tiltakstypestatus.Avsluttet,
-                    dagensDato = dagensDato
-                )
+                    dagensDato = dagensDato,
+                ),
             )
             typer.second shouldHaveSize 1
             typer.second.first().id shouldBe tiltakstypeAvsluttet.id
@@ -224,8 +224,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12)
-                )
+                    tilDato = LocalDate.of(2023, 1, 12),
+                ),
             )
         }
 
@@ -243,8 +243,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             val (totalCount, items) = tiltakstyper.getAll(
                 paginationParams = PaginationParams(
                     4,
-                    20
-                )
+                    20,
+                ),
             )
 
             items.size shouldBe 20
@@ -257,8 +257,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("pagination with page 3 default size should give tiltak with id 95-99") {
             val (totalCount, items) = tiltakstyper.getAll(
                 paginationParams = PaginationParams(
-                    3
-                )
+                    3,
+                ),
             )
 
             items.size shouldBe 5
@@ -271,8 +271,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("pagination with default page and size 200 should give tiltak with id 1-99") {
             val (totalCount, items) = tiltakstyper.getAll(
                 paginationParams = PaginationParams(
-                    nullableLimit = 200
-                )
+                    nullableLimit = 200,
+                ),
             )
 
             items.size shouldBe 105
@@ -296,25 +296,25 @@ class TiltakstypeRepositoryTest : FunSpec({
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId,
                 startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2022, 10, 15)
+                sluttDato = LocalDate.of(2022, 10, 15),
             )
             val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId,
                 startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15)
+                sluttDato = LocalDate.of(2050, 10, 15),
             )
             val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
                 startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15)
+                sluttDato = LocalDate.of(2050, 10, 15),
             )
             val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
                 startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15)
+                sluttDato = LocalDate.of(2050, 10, 15),
             )
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
@@ -347,26 +347,26 @@ class TiltakstypeRepositoryTest : FunSpec({
                 tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId,
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = LocalDate.of(2022, 10, 15),
-                avtaleId = avtale.id
+                avtaleId = avtale.id,
             )
             val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging2.tiltakstypeId,
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = LocalDate.of(2050, 10, 15),
-                avtaleId = avtale.id
+                avtaleId = avtale.id,
             )
             val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
                 startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15)
+                sluttDato = LocalDate.of(2050, 10, 15),
             )
             val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 id = UUID.randomUUID(),
                 tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
                 startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2050, 10, 15)
+                sluttDato = LocalDate.of(2050, 10, 15),
             )
 
             val deltaker1 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID())

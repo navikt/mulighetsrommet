@@ -9,7 +9,8 @@ enum class ArenaTable(val table: String) {
 
     Deltaker("SIAMO.TILTAKDELTAKER"),
 
-    AvtaleInfo("SIAMO.AVTALE_INFO");
+    AvtaleInfo("SIAMO.AVTALE_INFO"),
+    ;
 
     companion object {
         fun fromTable(table: String): ArenaTable {

@@ -64,7 +64,7 @@ class AvtaleRepositoryTest : FunSpec({
     context("Filter for avtaler") {
 
         val defaultFilter = AvtaleFilter(
-            dagensDato = LocalDate.of(2023, 2, 1)
+            dagensDato = LocalDate.of(2023, 2, 1),
         )
 
         context("Avtalenavn") {
@@ -81,7 +81,7 @@ class AvtaleRepositoryTest : FunSpec({
                     filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
                         search = "Kroko",
-                    )
+                    ),
                 )
 
                 result.second shouldHaveSize 1
@@ -99,14 +99,14 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtaleAvsluttetDato = avtaleFixture.createAvtaleForTiltakstype(
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    sluttDato = LocalDate.of(2023, 1, 31)
+                    sluttDato = LocalDate.of(2023, 1, 31),
                 )
                 val avtaleAvbrutt = avtaleFixture.createAvtaleForTiltakstype(
                     avslutningsstatus = Avslutningsstatus.AVBRUTT,
                 )
                 val avtalePlanlagt = avtaleFixture.createAvtaleForTiltakstype(
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    startDato = LocalDate.of(2023, 2, 2)
+                    startDato = LocalDate.of(2023, 2, 2),
                 )
 
                 val avtaleRepository = avtaleFixture.upsertAvtaler(
@@ -115,14 +115,14 @@ class AvtaleRepositoryTest : FunSpec({
                         avtaleAvbrutt,
                         avtalePlanlagt,
                         avtaleAvsluttetDato,
-                        avtaleAvsluttetStatus
-                    )
+                        avtaleAvsluttetStatus,
+                    ),
                 )
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
                         avtalestatus = Avtalestatus.Avbrutt,
-                    )
+                    ),
                 )
 
                 result.second shouldHaveSize 1
@@ -138,14 +138,14 @@ class AvtaleRepositoryTest : FunSpec({
                 )
                 val avtaleAvsluttetDato = avtaleFixture.createAvtaleForTiltakstype(
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    sluttDato = LocalDate.of(2023, 1, 31)
+                    sluttDato = LocalDate.of(2023, 1, 31),
                 )
                 val avtaleAvbrutt = avtaleFixture.createAvtaleForTiltakstype(
                     avslutningsstatus = Avslutningsstatus.AVBRUTT,
                 )
                 val avtalePlanlagt = avtaleFixture.createAvtaleForTiltakstype(
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    startDato = LocalDate.of(2023, 2, 2)
+                    startDato = LocalDate.of(2023, 2, 2),
                 )
 
                 val avtaleRepository = avtaleFixture.upsertAvtaler(
@@ -154,14 +154,14 @@ class AvtaleRepositoryTest : FunSpec({
                         avtaleAvbrutt,
                         avtalePlanlagt,
                         avtaleAvsluttetDato,
-                        avtaleAvsluttetStatus
-                    )
+                        avtaleAvsluttetStatus,
+                    ),
                 )
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
                         avtalestatus = Avtalestatus.Avsluttet,
-                    )
+                    ),
                 )
 
                 result.second shouldHaveSize 2
@@ -171,18 +171,18 @@ class AvtaleRepositoryTest : FunSpec({
         context("Enhet") {
             test("Filtrere på enhet returnerer avtaler for gitt enhet") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    enhet = "1801"
+                    enhet = "1801",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                    enhet = "1900"
+                    enhet = "1900",
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
                 val result = avtaleRepository.getAll(
 
                     filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
-                        enhet = "1801"
-                    )
+                        enhet = "1801",
+                    ),
                 )
                 result.second shouldHaveSize 1
                 result.second[0].navEnhet.enhetsnummer shouldBe "1801"
@@ -193,13 +193,13 @@ class AvtaleRepositoryTest : FunSpec({
             val tiltakstypeId: UUID = avtaleFixture.tiltakstypeId
             val tiltakstypeIdForAvtale3: UUID = UUID.randomUUID()
             val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                tiltakstypeId = tiltakstypeId
+                tiltakstypeId = tiltakstypeId,
             )
             val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                tiltakstypeId = tiltakstypeId
+                tiltakstypeId = tiltakstypeId,
             )
             val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
-                tiltakstypeId = tiltakstypeIdForAvtale3
+                tiltakstypeId = tiltakstypeIdForAvtale3,
             )
             avtaleFixture.upsertTiltakstype(
                 listOf(
@@ -211,15 +211,15 @@ class AvtaleRepositoryTest : FunSpec({
                         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                         fraDato = LocalDate.of(2023, 1, 11),
-                        tilDato = LocalDate.of(2023, 1, 12)
-                    )
-                )
+                        tilDato = LocalDate.of(2023, 1, 12),
+                    ),
+                ),
             )
             val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3))
             val result = avtaleRepository.getAll(
                 filter = defaultFilter.copy(
-                    tiltakstypeId = tiltakstypeId
-                )
+                    tiltakstypeId = tiltakstypeId,
+                ),
             )
 
             result.second shouldHaveSize 2
@@ -230,25 +230,25 @@ class AvtaleRepositoryTest : FunSpec({
         context("Sortering") {
             test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Anders"
+                    navn = "Avtale hos Anders",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Åse"
+                    navn = "Avtale hos Åse",
                 )
                 val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Øyvind"
+                    navn = "Avtale hos Øyvind",
                 )
                 val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Kjetil"
+                    navn = "Avtale hos Kjetil",
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Ærfuglen Ærle"
+                    navn = "Avtale hos Ærfuglen Ærle",
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
-                        sortering = "navn-ascending"
-                    )
+                        sortering = "navn-ascending",
+                    ),
                 )
 
                 result.second shouldHaveSize 5
@@ -261,25 +261,25 @@ class AvtaleRepositoryTest : FunSpec({
 
             test("Sortering på navn fra å-a sorterer korrekt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Anders"
+                    navn = "Avtale hos Anders",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Åse"
+                    navn = "Avtale hos Åse",
                 )
                 val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Øyvind"
+                    navn = "Avtale hos Øyvind",
                 )
                 val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Kjetil"
+                    navn = "Avtale hos Kjetil",
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Ærfuglen Ærle"
+                    navn = "Avtale hos Ærfuglen Ærle",
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
-                        sortering = "navn-descending"
-                    )
+                        sortering = "navn-descending",
+                    ),
                 )
 
                 result.second shouldHaveSize 5
@@ -292,25 +292,25 @@ class AvtaleRepositoryTest : FunSpec({
 
             test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Anders"
+                    navn = "Avtale hos Anders",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Åse"
+                    navn = "Avtale hos Åse",
                 )
                 val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Øyvind"
+                    navn = "Avtale hos Øyvind",
                 )
                 val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Kjetil"
+                    navn = "Avtale hos Kjetil",
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Ærfuglen Ærle"
+                    navn = "Avtale hos Ærfuglen Ærle",
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
-                        sortering = "navn-ascending"
-                    )
+                        sortering = "navn-ascending",
+                    ),
                 )
 
                 result.second shouldHaveSize 5
@@ -324,34 +324,34 @@ class AvtaleRepositoryTest : FunSpec({
             test("Sortering på sluttdato fra a-å sorterer korrekt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2010, 1, 31),
-                    navn = "Avtale hos Anders"
+                    navn = "Avtale hos Anders",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2009, 1, 1),
-                    navn = "Avtale hos Åse"
+                    navn = "Avtale hos Åse",
                 )
                 val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2010, 1, 1),
-                    navn = "Avtale hos Øyvind"
+                    navn = "Avtale hos Øyvind",
                 )
                 val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2011, 1, 1),
-                    navn = "Avtale hos Kjetil"
+                    navn = "Avtale hos Kjetil",
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2023, 1, 1),
-                    navn = "Avtale hos Benny"
+                    navn = "Avtale hos Benny",
                 )
                 val avtale6 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2023, 1, 1),
-                    navn = "Avtale hos Christina"
+                    navn = "Avtale hos Christina",
                 )
                 val avtaleRepository =
                     avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5, avtale6))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
-                        sortering = "sluttdato-descending"
-                    )
+                        sortering = "sluttdato-descending",
+                    ),
                 )
 
                 result.second shouldHaveSize 6
@@ -372,34 +372,34 @@ class AvtaleRepositoryTest : FunSpec({
             test("Sortering på sluttdato fra å-a sorterer korrekt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2010, 1, 31),
-                    navn = "Avtale hos Anders"
+                    navn = "Avtale hos Anders",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2009, 1, 1),
-                    navn = "Avtale hos Åse"
+                    navn = "Avtale hos Åse",
                 )
                 val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2010, 1, 1),
-                    navn = "Avtale hos Øyvind"
+                    navn = "Avtale hos Øyvind",
                 )
                 val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2011, 1, 1),
-                    navn = "Avtale hos Kjetil"
+                    navn = "Avtale hos Kjetil",
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2023, 1, 1),
-                    navn = "Avtale hos Benny"
+                    navn = "Avtale hos Benny",
                 )
                 val avtale6 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2023, 1, 1),
-                    navn = "Avtale hos Christina"
+                    navn = "Avtale hos Christina",
                 )
                 val avtaleRepository =
                     avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5, avtale6))
                 val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
-                        sortering = "sluttdato-ascending"
-                    )
+                        sortering = "sluttdato-ascending",
+                    ),
                 )
 
                 result.second shouldHaveSize 6
@@ -436,26 +436,26 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     tiltakstypeId = avtaleFixture.tiltakstypeId,
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2022, 10, 15)
+                    sluttDato = LocalDate.of(2022, 10, 15),
                 )
                 val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                     id = UUID.randomUUID(),
                     tiltakstypeId = avtaleFixture.tiltakstypeId,
                     startDato = LocalDate.of(2021, 1, 1),
                     sluttDato = LocalDate.of(2050, 10, 15),
-                    avtaleId = avtale.id
+                    avtaleId = avtale.id,
                 )
                 val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     id = UUID.randomUUID(),
                     tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2050, 10, 15)
+                    sluttDato = LocalDate.of(2050, 10, 15),
                 )
                 val gjennomforing4 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                     id = UUID.randomUUID(),
                     tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche,
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2050, 10, 15)
+                    sluttDato = LocalDate.of(2050, 10, 15),
                 )
 
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()
@@ -484,19 +484,19 @@ class AvtaleRepositoryTest : FunSpec({
 
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2022, 10, 15)
+                    sluttDato = LocalDate.of(2022, 10, 15),
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2050, 10, 15)
+                    sluttDato = LocalDate.of(2050, 10, 15),
                 )
                 val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2050, 10, 15)
+                    sluttDato = LocalDate.of(2050, 10, 15),
                 )
                 val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
                     startDato = LocalDate.of(2021, 1, 1),
-                    sluttDato = LocalDate.of(2050, 10, 15)
+                    sluttDato = LocalDate.of(2050, 10, 15),
                 )
                 val avtale5 = avtaleFixture.createAvtaleForTiltakstype(tiltakstypeId = tiltakstypeIdSomIkkeSkalMatche)
                 tiltakstypeRepository.upsert(tiltakstype).getOrThrow()

@@ -19,7 +19,7 @@ fun startKtorApplication(config: ServerConfig, configure: Application.() -> Unit
                 port = config.port
                 host = config.host
             }
-        }
+        },
     )
 
     server.start(true)
