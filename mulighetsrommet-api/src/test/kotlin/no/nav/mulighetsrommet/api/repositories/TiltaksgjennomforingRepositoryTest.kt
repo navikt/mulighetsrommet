@@ -84,28 +84,33 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("enheter crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = EnhetRepository(database.db)
-            enhetRepository.upsert(NavEnhetDbo(
-                navn = "Navn1",
-                enhetNr = "1",
-                status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL,
-                overordnetEnhet = null,
-            )).shouldBeRight()
-            enhetRepository.upsert(NavEnhetDbo(
-                navn = "Navn2",
-                enhetNr = "2",
-                status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL,
-                overordnetEnhet = null,
-            )).shouldBeRight()
-            enhetRepository.upsert(NavEnhetDbo(
-                navn = "Navn3",
-                enhetNr = "3",
-                status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL,
-                overordnetEnhet = null,
-            )).shouldBeRight()
-
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetNr = "1",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetNr = "2",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn3",
+                    enhetNr = "3",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+            ).shouldBeRight()
 
             val gjennomforing = gjennomforing1.copy(enheter = listOf("1", "2"))
 
