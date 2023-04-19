@@ -66,7 +66,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 virksomhetsnummer = gjennomforing1.virksomhetsnummer,
                 startDato = gjennomforing1.startDato,
                 sluttDato = gjennomforing1.sluttDato,
-                enhet = gjennomforing1.enhet,
+                arenaAnsvarligEnhet = gjennomforing1.arenaAnsvarligEnhet,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                 antallPlasser = null,
@@ -85,25 +85,25 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = EnhetRepository(database.db)
             enhetRepository.upsert(NavEnhetDbo(
-                enhetId = 1,
                 navn = "Navn1",
                 enhetNr = "1",
                 status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
+                overordnetEnhet = null,
             )).shouldBeRight()
             enhetRepository.upsert(NavEnhetDbo(
-                enhetId = 2,
                 navn = "Navn2",
                 enhetNr = "2",
                 status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
+                overordnetEnhet = null,
             )).shouldBeRight()
             enhetRepository.upsert(NavEnhetDbo(
-                enhetId = 3,
                 navn = "Navn3",
                 enhetNr = "3",
                 status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.LOKAL
+                type = Norg2Type.LOKAL,
+                overordnetEnhet = null,
             )).shouldBeRight()
 
 
@@ -309,7 +309,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tiltakstypeId = tiltakstype1.id,
                         tiltaksnummer = "$it",
                         virksomhetsnummer = "123456789",
-                        enhet = "2990",
+                        arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,

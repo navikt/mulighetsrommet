@@ -27,7 +27,6 @@ import { Laster } from "../../laster/Laster";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "../../skjema/ControlledMultiSelect";
-import { optionCSS } from "react-select/dist/declarations/src/components/Option";
 
 const Schema = z.object({
   tiltakstype: z
@@ -68,7 +67,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     defaultValues: {
       tittel: props.tiltaksgjennomforing?.navn,
       tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
-      enheter: props.tiltaksgjennomforing?.enheter,
+      enheter: props.tiltaksgjennomforing?.enheter.length === 0 ? ["alle_enheter"] : [],
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
@@ -147,7 +146,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       id: props.tiltaksgjennomforing ? props.tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: data.tiltakstype,
-      enheter: data.enheter,
+      enheter: data.enheter.includes("alle_enheter") ? [] : data.enheter,
       navn: data.tittel,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
@@ -217,7 +216,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         value: enhet.enhetNr,
       }
     ))
-    options.push({ value: "asdf", label: "Alle enheter"})
+    options.unshift({ value: "alle_enheter", label: "Alle enheter"})
     return options;
   }
 

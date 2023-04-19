@@ -46,6 +46,11 @@ export const ControlledMultiSelect = (props: MultiSelectProps) => {
               }}
               options={options}
             />
+            {error && (
+              <div style={{ marginTop: "8px", color: "#C30000" }}>
+                <b>• {error.message}</b>
+              </div>
+            )}
           </>
         )}
       />

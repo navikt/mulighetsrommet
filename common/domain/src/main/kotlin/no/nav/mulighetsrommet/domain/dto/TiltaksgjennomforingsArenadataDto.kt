@@ -7,7 +7,7 @@ data class TiltaksgjennomforingsArenadataDto(
     val opprettetAar: Int?,
     val lopenr: Int?,
     val virksomhetsnummer: String?,
-    val ansvarligNavEnhetId: String,
+    val ansvarligNavEnhetId: String?,
     val status: String
 ) {
     companion object {
@@ -16,7 +16,7 @@ data class TiltaksgjennomforingsArenadataDto(
                 opprettetAar = tiltaksnummer?.split("#")?.first()?.toInt(),
                 lopenr = tiltaksnummer?.split("#")?.get(1)?.toInt(),
                 virksomhetsnummer = virksomhetsnummer,
-                ansvarligNavEnhetId = enhet,
+                ansvarligNavEnhetId = arenaAnsvarligEnhet,
                 status = status
             )
         }

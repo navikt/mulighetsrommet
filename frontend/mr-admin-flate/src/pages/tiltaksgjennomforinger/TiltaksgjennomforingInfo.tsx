@@ -59,7 +59,7 @@ export function TiltaksgjennomforingInfo() {
         </dl>
         <Separator />
         <dl className={styles.bolk}>
-          <Metadata header="Enhet" verdi={tiltaksgjennomforing.enhet} />
+          <Metadata header="Enhet" verdi={tiltaksgjennomforing.arenaAnsvarligEnhet} />
           {tiltaksgjennomforing.virksomhetsnavn ? (
             <Metadata
               header="Arrangør"

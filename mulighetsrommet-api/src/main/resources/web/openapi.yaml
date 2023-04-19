@@ -1031,6 +1031,8 @@ components:
           type: string
         virksomhetsnavn:
           type: string
+        arenaAnsvarligEnhet:
+          type: string
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         startDato:

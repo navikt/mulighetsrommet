@@ -217,7 +217,7 @@ export const apiHandlers = [
     (req, res, ctx) => {
       const { enhet } = req.params;
       const gjennomforinger = mockTiltaksgjennomforinger.data.filter(
-        (gj) => gj.enhet === enhet
+        (gj) => gj.arenaAnsvarligEnhet === enhet
       );
       return res(
         ctx.status(200),
