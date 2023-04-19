@@ -20,6 +20,7 @@ object TiltaksgjennomforingFixtures {
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -35,6 +36,7 @@ object TiltaksgjennomforingFixtures {
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -50,5 +52,6 @@ object TiltaksgjennomforingFixtures {
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 }

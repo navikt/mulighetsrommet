@@ -43,6 +43,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

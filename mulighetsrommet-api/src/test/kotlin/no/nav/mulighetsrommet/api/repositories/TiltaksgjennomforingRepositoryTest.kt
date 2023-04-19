@@ -6,7 +6,10 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -69,12 +72,54 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
                 ansvarlige = emptyList(),
+                enheter = emptyList(),
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
             tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
                 .shouldBeRight().second shouldHaveSize 1
+        }
+
+        test("enheter crud") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = EnhetRepository(database.db)
+            enhetRepository.upsert(NavEnhetDbo(
+                enhetId = 1,
+                navn = "Navn1",
+                enhetNr = "1",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL
+            )).shouldBeRight()
+            enhetRepository.upsert(NavEnhetDbo(
+                enhetId = 2,
+                navn = "Navn2",
+                enhetNr = "2",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL
+            )).shouldBeRight()
+            enhetRepository.upsert(NavEnhetDbo(
+                enhetId = 3,
+                navn = "Navn3",
+                enhetNr = "3",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL
+            )).shouldBeRight()
+
+
+            val gjennomforing = gjennomforing1.copy(enheter = listOf("1", "2"))
+
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
+            }
+            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(enheter = listOf("3", "1"))).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldContainExactlyInAnyOrder("1", "3")
+            }
+            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
         }
     }
 
@@ -270,6 +315,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                         antallPlasser = null,
                         ansvarlige = emptyList(),
+                        enheter = emptyList(),
                     )
                 )
             }

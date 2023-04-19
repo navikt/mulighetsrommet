@@ -27,6 +27,7 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
     val ansvarlige: List<String>,
+    val enheter: List<String>,
 ) {
     @Serializable
     data class Tiltakstype(

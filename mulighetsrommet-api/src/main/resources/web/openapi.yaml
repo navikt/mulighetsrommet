@@ -1039,8 +1039,10 @@ components:
         sluttDato:
           type: string
           format: date
-        enhet:
-          type: string
+        enheter:
+          type: array
+          items:
+            type: string
         ansvarlig:
           type: string
         antallPlasser:
@@ -1054,6 +1056,7 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
+        - enheter
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1075,8 +1078,6 @@ components:
         sluttDato:
           type: string
           format: date
-        enhet:
-          type: string
         antallPlasser:
           type: number
         virksomhetsnummer:
@@ -1085,6 +1086,10 @@ components:
           type: string
         ansvarlig:
           type: string
+        enheter:
+          type: array
+          items:
+            type: string
       required:
         - id
         - avtaleId
@@ -1092,10 +1097,10 @@ components:
         - navn
         - startDato
         - sluttDato
-        - enhet
         - antallPlasser
         - virksomhetsnummer
         - ansvarlig
+        - enheter
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

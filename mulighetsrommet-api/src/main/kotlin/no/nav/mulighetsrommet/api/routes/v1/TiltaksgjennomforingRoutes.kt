@@ -114,6 +114,7 @@ data class TiltaksgjennomforingRequest(
     val virksomhetsnummer: String,
     val tiltaksnummer: String,
     val ansvarlig: String,
+    val enheter: List<String> = emptyList(),  // TODO: Fjern default når frontend begynner å bruke
 ) {
     fun toDbo(): Either<Exception, TiltaksgjennomforingDbo> {
         if (sluttDato.isBefore(startDato)) {
@@ -137,6 +138,7 @@ data class TiltaksgjennomforingRequest(
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),
+                enheter = enheter,
             )
         )
     }
