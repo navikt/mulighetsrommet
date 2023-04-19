@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.Norg2EnhetFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetDboFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 
@@ -19,11 +19,11 @@ class EnhetRepositoryTest : FunSpec({
         val enheter = EnhetRepository(database.db)
 
         test("Skal slette enheter fra liste med id'er") {
-            val enhetSomSkalSlettes1 = Norg2EnhetFixture.enhet.copy(enhetId = 1).toNavEnhetDbo()
-            val enhetSomSkalSlettes2 = Norg2EnhetFixture.enhet.copy(enhetId = 2).toNavEnhetDbo()
-            val enhetSomSkalSlettes3 = Norg2EnhetFixture.enhet.copy(enhetId = 3).toNavEnhetDbo()
-            val enhetSomSkalBeholdes1 = Norg2EnhetFixture.enhet.copy(enhetId = 4).toNavEnhetDbo()
-            val enhetSomSkalBeholdes2 = Norg2EnhetFixture.enhet.copy(enhetId = 5).toNavEnhetDbo()
+            val enhetSomSkalSlettes1 = NavEnhetDboFixture.enhetDbo.copy(enhetId = 1)
+            val enhetSomSkalSlettes2 = NavEnhetDboFixture.enhetDbo.copy(enhetId = 2)
+            val enhetSomSkalSlettes3 = NavEnhetDboFixture.enhetDbo.copy(enhetId = 3)
+            val enhetSomSkalBeholdes1 = NavEnhetDboFixture.enhetDbo.copy(enhetId = 4)
+            val enhetSomSkalBeholdes2 = NavEnhetDboFixture.enhetDbo.copy(enhetId = 5)
 
             enheter.upsert(enhetSomSkalSlettes1).getOrThrow()
             enheter.upsert(enhetSomSkalSlettes2).getOrThrow()

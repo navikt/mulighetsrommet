@@ -9,7 +9,8 @@ data class NavEnhetDbo(
     val navn: String,
     val enhetNr: String,
     val status: NavEnhetStatus,
-    val type: Norg2Type
+    val type: Norg2Type,
+    val overordnetEnhet: String?
 )
 
 @Serializable

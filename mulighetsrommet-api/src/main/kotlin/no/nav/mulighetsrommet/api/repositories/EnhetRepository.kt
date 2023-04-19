@@ -21,13 +21,14 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into enhet(enhet_id, navn, enhetsnummer, status, type)
-            values (:enhet_id, :navn, :enhetsnummer, :status, :type)
+            insert into enhet(enhet_id, navn, enhetsnummer, status, type, overordnet_enhet)
+            values (:enhet_id, :navn, :enhetsnummer, :status, :type, :overordnet_enhet)
             on conflict (enhet_id)
                 do update set   navn            = excluded.navn,
                                 enhetsnummer    = excluded.enhetsnummer,
                                 status          = excluded.status,
-                                type            = excluded.type
+                                type            = excluded.type,
+                                overordnet_enhet = excluded.overordnet_enhet
             returning *
         """.trimIndent()
 
@@ -50,7 +51,7 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type
+            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type, e.overordnet_enhet
             from enhet e
             $where
             order by e.navn asc
@@ -77,7 +78,7 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type
+            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type, e.overordnet_enhet
             from enhet e
             join avtale a
             on a.enhet = e.enhetsnummer
@@ -94,7 +95,7 @@ class EnhetRepository(private val db: Database) {
     fun get(enhet: String): NavEnhetDbo? {
         @Language("PostgreSQL")
         val query = """
-            select navn, enhet_id, enhetsnummer, status, type
+            select navn, enhet_id, enhetsnummer, status, type, overordnet_enhet
             from enhet
             where enhetsnummer = ?
         """.trimIndent()
@@ -128,7 +129,8 @@ private fun NavEnhetDbo.toSqlParameters() = mapOf(
     "navn" to navn,
     "enhetsnummer" to enhetNr,
     "status" to status.name,
-    "type" to type.name
+    "type" to type.name,
+    "overordnet_enhet" to overordnetEnhet
 )
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
@@ -136,5 +138,6 @@ private fun Row.toEnhetDbo() = NavEnhetDbo(
     navn = string("navn"),
     enhetNr = string("enhetsnummer"),
     status = NavEnhetStatus.valueOf(string("status")),
-    type = Norg2Type.valueOf(string("type"))
+    type = Norg2Type.valueOf(string("type")),
+    overordnetEnhet = stringOrNull("overordnet_enhet")
 )
