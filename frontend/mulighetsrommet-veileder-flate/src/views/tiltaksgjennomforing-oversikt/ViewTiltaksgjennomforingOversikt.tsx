@@ -10,6 +10,7 @@ import styles from './ViewTiltaksgjennomforingOversikt.module.scss';
 import { OversiktenJoyride } from '../../components/joyride/OversiktenJoyride';
 import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 import { useEffect, useState } from 'react';
+import { OversiktenLastStepJoyride } from '../../components/joyride/OversiktenLastStepJoyride';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
@@ -28,10 +29,13 @@ const ViewTiltaksgjennomforingOversikt = () => {
         <Filtertags filter={filter} setFilter={setFilter} />
         <div className={styles.knapperad}>
           {visJoyride && (
-            <OversiktenJoyride
-              toggleHistorikkModal={setIsHistorikkModalOpen}
-              isHistorikkModalOpen={isHistorikkModalOpen}
-            />
+            <>
+              <OversiktenJoyride
+                toggleHistorikkModal={setIsHistorikkModalOpen}
+                isHistorikkModalOpen={isHistorikkModalOpen}
+              />
+              <OversiktenLastStepJoyride />
+            </>
           )}
           <HistorikkButton toggleHistorikkModal={setIsHistorikkModalOpen} isHistorikkModalOpen={isHistorikkModalOpen} />
         </div>

@@ -1,9 +1,11 @@
-import Joyride, { ACTIONS, EVENTS, STATUS, Step } from 'react-joyride';
+import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride';
 import { useEffect, useState } from 'react';
 import { localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
 import { stepsOversikten } from './Steps';
+import { useAtom } from 'jotai';
+import { joyrideAtom } from '../../core/atoms/atoms';
 
 interface Props {
   toggleHistorikkModal: (state: boolean) => void;
@@ -11,6 +13,7 @@ interface Props {
 }
 
 export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }: Props) {
+  const [joyride, setJoyride] = useAtom(joyrideAtom);
   const [state, setState] = useState({
     run: false,
     loading: false,
@@ -19,9 +22,9 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
 
   useEffect(() => {
     //viser joyride ved første load
-    return window.localStorage.getItem('joyride_oversikten') === null
-      ? window.localStorage.setItem('joyride_oversikten', 'true')
-      : window.localStorage.setItem('joyride_oversikten', 'false');
+    return joyride.joyrideOversikten === null
+      ? setJoyride({ ...joyride, joyrideOversikten: true })
+      : setJoyride({ ...joyride, joyrideOversikten: false });
   }, []);
 
   useEffect(() => {
@@ -31,20 +34,10 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
     }
   }, [isHistorikkModalOpen]);
 
-  const lastStep: Step[] = [
-    {
-      title: 'Tour',
-      content: 'Hvis du vil se dette igjen kan du klikke her.',
-      target: '#joyride_knapp',
-      disableBeacon: true,
-    },
-  ];
-
-  const handleJoyrideCallback = (data: { action: string; index: number; status: string; type: string }) => {
+  const handleJoyrideCallback = (data: any) => {
     const { action, index, status, type } = data;
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
 
-    // @ts-ignore
     if ([EVENTS.STEP_AFTER].includes(type)) {
       //må ha en timeout her for at joyride skal vente på at historikk-modalen vises
       if (EVENTS.TARGET_NOT_FOUND && index === 5) {
@@ -54,28 +47,15 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
         }, 200);
       }
       setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
-
-      //resetter joyride når den er ferdig eller man klikker skip
-    } else {
-      // @ts-ignore
-      if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-        if (window.localStorage.getItem('joyride_oversikten-last-step') === null) {
-          window.localStorage.setItem('joyride_oversikten-last-step', 'true');
-        }
-        setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
-        window.localStorage.setItem('joyride_oversikten', 'false');
-      }
+    }
+    //resetter joyride når den er ferdig eller man klikker skip
+    else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
+      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
     if ([ACTIONS.NEXT] && index === 7) {
       toggleHistorikkModal(false);
-    }
-  };
-
-  const handleJoyrideCallbackLastStep = (data: any) => {
-    const { status, type } = data;
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status) || [EVENTS.TOOLTIP_CLOSE].includes(type)) {
-      window.localStorage.setItem('joyride_oversikten-last-step', 'false');
     }
   };
 
@@ -84,7 +64,7 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
       <JoyrideKnapp
         handleClick={() => {
           setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
-          window.localStorage.setItem('joyride_oversikten', 'true');
+          setJoyride({ ...joyride, joyrideOversikten: true });
           setState(prevState => ({ ...prevState, run: true }));
           logEvent('mulighetsrommet.joyride', { value: 'oversikten' });
         }}
@@ -92,19 +72,12 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
       <Joyride
         locale={localeStrings()}
         continuous
-        run={window.localStorage.getItem('joyride_oversikten') === 'true'}
+        run={joyride.joyrideOversikten === true}
         steps={stepsOversikten}
         hideCloseButton
         callback={handleJoyrideCallback}
         showSkipButton
         stepIndex={state.stepIndex}
-      />
-
-      <Joyride
-        locale={localeStrings()}
-        run={window.localStorage.getItem('joyride_oversikten-last-step') === 'true'}
-        steps={lastStep}
-        callback={handleJoyrideCallbackLastStep}
       />
     </>
   );

@@ -1,7 +1,7 @@
 import { Alert, Button, Link, Loader } from '@navikt/ds-react';
 import { useAtom } from 'jotai';
 import { Ansatt } from 'mulighetsrommet-api-client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { BrukerHarIkke14aVedtakVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerHarIkke14aVedtakVarsel';
 import { BrukerKvalifisererIkkeVarsel } from '../../components/ikkeKvalifisertVarsel/BrukerKvalifisererIkkeVarsel';
 import Delemodal, { logDelMedbrukerEvent } from '../../components/modal/delemodal/Delemodal';
@@ -26,9 +26,9 @@ import TiltaksgjennomforingsHeader from '../../layouts/TiltaksgjennomforingsHead
 import { capitalize, erPreview, formaterDato } from '../../utils/Utils';
 import styles from './ViewTiltaksgjennomforingDetaljer.module.scss';
 import { DetaljerJoyride } from '../../components/joyride/DetaljerJoyride';
-import { DetaljerOpprettAvtaleJoyride } from '../../components/joyride/DetaljerOpprettAvtaleJoyride';
 import { Chat2Icon, CheckmarkIcon } from '@navikt/aksel-icons';
 import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
+import { DetaljerOpprettAvtaleJoyride } from '../../components/joyride/DetaljerOpprettAvtaleJoyride';
 
 const whiteListOpprettAvtaleKnapp = [
   'Midlertidig lønnstilskudd',
@@ -141,6 +141,11 @@ const ViewTiltaksgjennomforingDetaljer = () => {
     ],
   };
 
+  const opprettAvtale =
+    tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+    whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
+    !erPreview;
+
   return (
     <>
       <div className={styles.container}>
@@ -152,24 +157,12 @@ const ViewTiltaksgjennomforingDetaljer = () => {
             />
           )}
           {visJoyride && (
-            <DetaljerJoyride
-              setDelMedBrukerModal={setDelemodalApen}
-              opprettAvtale={
-                tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-                whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-                !erPreview
-              }
-            />
+            <>
+              <DetaljerJoyride opprettAvtale={opprettAvtale} />
+              {opprettAvtale ? <DetaljerOpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
+            </>
           )}
         </div>
-
-        <DetaljerOpprettAvtaleJoyride
-          opprettAvtale={
-            tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-            whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-            !erPreview
-          }
-        />
         <BrukerKvalifisererIkkeVarsel />
         <BrukerHarIkke14aVedtakVarsel />
         <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
@@ -194,20 +187,18 @@ const ViewTiltaksgjennomforingDetaljer = () => {
           <div className={styles.sidemeny}>
             <SidemenyDetaljer />
             <div className={styles.deleknapp_container}>
-              {tiltakstypeAsStringIsIndividuellTiltakstype(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-                whiteListOpprettAvtaleKnapp.includes(tiltaksgjennomforing.tiltakstype.tiltakstypeNavn) &&
-                !erPreview && (
-                  <Button
-                    onClick={kanBrukerFaaAvtale}
-                    variant="primary"
-                    className={styles.deleknapp}
-                    aria-label="Opprett avtale"
-                    data-testid="opprettavtaleknapp"
-                    disabled={!brukerHarRettPaaTiltak}
-                  >
-                    Opprett avtale
-                  </Button>
-                )}
+              {opprettAvtale && (
+                <Button
+                  onClick={kanBrukerFaaAvtale}
+                  variant="primary"
+                  className={styles.deleknapp}
+                  aria-label="Opprett avtale"
+                  data-testid="opprettavtaleknapp"
+                  disabled={!brukerHarRettPaaTiltak}
+                >
+                  Opprett avtale
+                </Button>
+              )}
               <Button
                 onClick={handleClickApneModal}
                 variant="secondary"

@@ -99,28 +99,7 @@ export const stepsDetaljer: Step[] = [
     disableBeacon: true,
   },
   {
-    content: 'Dette er teksten brukeren vil se i dialogen etter at tiltaket er delt.',
-    styles: {
-      options: {
-        zIndex: 10000,
-      },
-    },
-    target: '#deletekst',
-    disableBeacon: true,
-  },
-  {
-    content: 'Du kan også legge til mer tekst ved å klikke her.',
-
-    styles: {
-      options: {
-        zIndex: 10000,
-      },
-    },
-    target: '#personlig_melding_btn',
-    disableBeacon: true,
-  },
-  {
-    title: 'Tilbakemeldinger!',
+    title: 'Tilbakemeldinger',
     content: (
       <BodyShort>
         Har du innspill eller forslag til forbedringer vil vi gjerne at du tar kontakt med oss i{' '}
@@ -143,7 +122,16 @@ export const opprettAvtaleStep: Step[] = [
   {
     title: 'Opprett avtale',
     content: 'For enkelte av tiltakene vil det være mulig å opprette en avtale med bruker.',
-    target: '#opprett-avtale-knapp',
+    target: '[data-testid="opprettavtaleknapp"]',
+    disableBeacon: true,
+  },
+];
+
+export const stepsLastStep: Step[] = [
+  {
+    title: 'Tour',
+    content: 'Hvis du vil se dette igjen kan du klikke her.',
+    target: '#joyride_knapp',
     disableBeacon: true,
   },
 ];

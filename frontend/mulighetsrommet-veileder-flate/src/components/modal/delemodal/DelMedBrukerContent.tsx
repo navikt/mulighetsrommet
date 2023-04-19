@@ -104,7 +104,6 @@ export function DelMedBrukerContent({
         <BodyShort
           title="Teksten er hentet fra tiltakstypen og kan ikke redigeres."
           className={delemodalStyles.deletekst}
-          id="deletekst"
         >
           {`${state.deletekst}${visPersonligMelding ? '' : `\n\n${state.hilsen}`}`}
         </BodyShort>
@@ -115,7 +114,6 @@ export function DelMedBrukerContent({
           onClick={enablePersonligMelding}
           variant="secondary"
           className={delemodalStyles.personlig_melding_btn}
-          id="personlig_melding_btn"
         >
           Legg til personlig melding
         </Button>

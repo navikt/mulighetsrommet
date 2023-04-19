@@ -122,17 +122,13 @@ Cypress.Commands.add('resetSortering', () => {
 
 Cypress.Commands.add('skruAvJoyride', () => {
   cy.then(() => {
-    window.localStorage.setItem('joyride_oversikten-last-step', 'false');
-  })
-    .then(() => {
-      window.localStorage.setItem('joyride_oversikten', 'false');
-    })
-    .then(() => {
-      window.localStorage.setItem('joyride_detaljer', 'false');
-    })
-    .then(() => {
-      window.localStorage.setItem('joyride_har-vist-opprett-avtale', 'true');
+    window.localStorage.setItem('joyride_mulighetsrommet', {
+      joyrideOversikten: false,
+      joyrideOversiktenLastStep: false,
+      joyrideDetaljer: false,
+      joyrideDetaljerOpprettAvtale: false,
     });
+  });
 });
 
 function terminalLog(violations) {
