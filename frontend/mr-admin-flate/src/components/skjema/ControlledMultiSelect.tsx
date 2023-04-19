@@ -19,9 +19,6 @@ export const ControlledMultiSelect = (props: MultiSelectProps) => {
 
   return (
     <div>
-      <div style={{ marginBottom: "8px" }}>
-        <b>{label}</b>
-      </div>
       <Controller
         name={label}
         {...rest}
@@ -30,6 +27,12 @@ export const ControlledMultiSelect = (props: MultiSelectProps) => {
             fieldState: { error },
         }) => (
           <>
+            <label
+              style={{ marginBottom: "8px", display: "inline-block" }}
+              htmlFor={name}
+            >
+              <b>{label}</b>
+            </label>
             <MultiSelect
               error={Boolean(error)}
               placeholder={placeholder}
