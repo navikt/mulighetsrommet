@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, TextField } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import {
   Avtale,
   NavEnhet,
@@ -12,20 +11,21 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
+import { useAtom } from "jotai";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { avtaleFilter, tiltakstypefilter } from "../../../api/atoms";
+import { avtaleFilter } from "../../../api/atoms";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
 import { useAvtaler } from "../../../api/avtaler/useAvtaler";
 import { mulighetsrommetClient } from "../../../api/clients";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
-import useTiltakstyperWithFilter from "../../../api/tiltakstyper/useTiltakstyperWithFilter";
-import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { FormGroup } from "../../avtaler/opprett/OpprettAvtaleContainer";
-import { Laster } from "../../laster/Laster";
 import { Datovelger } from "../../skjema/OpprettComponents";
 import { SokeSelect } from "../../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
+import { Laster } from "../../laster/Laster";
+import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
+import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 
 const Schema = z.object({
   tiltakstype: z
@@ -94,17 +94,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, []);
 
-  const [tFilter, setTiltakstypeFilter] = useAtom(tiltakstypefilter);
-
-  useEffect(() => {
-    setTiltakstypeFilter({ ...tFilter, status: Tiltakstypestatus.AKTIV });
-  }, []);
-
   const {
     data: tiltakstyper,
     isLoading: isLoadingTiltakstyper,
     isError: isErrorTiltakstyper,
-  } = useTiltakstyperWithFilter();
+  } = useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
 
   const {
     data: enheter,
@@ -171,8 +165,8 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const navn = ansatt?.fornavn
     ? [ansatt.fornavn, ansatt.etternavn ?? ""]
-        .map((it) => capitalize(it))
-        .join(" ")
+      .map((it) => capitalize(it))
+      .join(" ")
     : "";
 
   if (
@@ -261,6 +255,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
           <TextField
             error={errors.antallPlasser?.message}
+            type="number"
             style={{ width: "180px" }}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
