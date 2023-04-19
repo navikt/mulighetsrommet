@@ -32,7 +32,27 @@ export const MultiSelect = (props: MultiSelectProps) => {
       minHeight: "48px",
       boxShadow: state.isFocused ? null : null,
     }),
+    multiValue: (provided: any) => ({
+      ...provided,
+      backgroundColor: '#005b82',
+      borderRadius: '15px',
+      color: 'white'
+    }),
+    multiValueLabel: (provided: any) => ({
+      ...provided,
+      color: 'white'
+    }),
+    multiValueRemove: (provided: any) => ({
+      ...provided,
+      color: '#cce1ff',
+      ':hover': {
+        backgroundColor: '#3380a5',
+        borderRadius: '15px',
+        color: "white",
+      },
+    }),
     indicatorSeparator: (state: any) => ({
+      ...state,
       display: 'none',
     }),
   });

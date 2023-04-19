@@ -15,6 +15,7 @@ import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper"
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
+import { MultiSelect } from "../skjema/MultiSelect";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
