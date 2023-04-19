@@ -18,7 +18,6 @@ object Norg2EnhetFixture {
 
 object NavEnhetDboFixture {
     val enhetDbo = NavEnhetDbo(
-        enhetId = Math.random().toInt(),
         enhetNr = "1000",
         navn = "Enhet X",
         status = NavEnhetStatus.AKTIV,

@@ -18,7 +18,7 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
         val (tilLagring, tilSletting) = alleEnheter.partition { it.enhet.type in whitelistTyper && it.enhet.status in whitelistStatus }
         log.info("Hentet ${alleEnheter.size} enheter fra NORG2. Sletter potensielt ${tilSletting.size} enheter som ikke har en whitelistet type ($whitelistTyper). Lagrer ${tilLagring.size} enheter fra NORG2 med type = $whitelistTyper")
 
-        slettEnheterSomIkkeHarWhitelistetType(tilSletting.map { it.enhet.enhetId })
+        slettEnheterSomIkkeHarWhitelistetType(tilSletting.map { it.enhet.enhetNr })
         lagreEnheter(tilLagring)
 
         return tilLagring
@@ -28,7 +28,6 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
         enheter.forEach {
             enhetRepository.upsert(
                 NavEnhetDbo(
-                    enhetId = it.enhet.enhetId,
                     navn = it.enhet.navn,
                     enhetNr = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
@@ -39,7 +38,7 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
         }
     }
 
-    private fun slettEnheterSomIkkeHarWhitelistetType(ider: List<Int>) {
-        enhetRepository.deleteWhereIds(ider)
+    private fun slettEnheterSomIkkeHarWhitelistetType(ider: List<String>) {
+        enhetRepository.deleteWhereEnhetsnummer(ider)
     }
 }
