@@ -1,9 +1,9 @@
-import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride';
-import { useEffect, useState } from 'react';
+import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
+import { useState } from 'react';
 import { localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
-import { stepsDetaljer } from './Steps';
+import { isStep, stepsDetaljer } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
 
@@ -18,33 +18,27 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     stepIndex: 0,
   });
 
-  useEffect(() => {
-    //viser joyride ved første load
-    return joyride.joyrideDetaljer === null
-      ? setJoyride({ ...joyride, joyrideDetaljer: true })
-      : setJoyride({ ...joyride, joyrideDetaljer: false });
-  }, []);
-
-  const handleJoyrideCallback = (data: any) => {
+  const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+
+    //kjører neste step når man klikker på neste
+    if (EVENTS.STEP_AFTER === type) {
+      setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
+    }
 
     if (!opprettAvtale) {
       //hvis brukeren ikke er inne på et tiltak med opprett avtale, settes opprett avtale-steps til false i localStorage
       setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: false });
 
       //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
-      if (index === 3 && [ACTIONS.NEXT]) {
+      if (isStep(data.step, 'opprett-avtale') && !opprettAvtale) {
         setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
       }
     }
 
-    if ([EVENTS.STEP_AFTER].includes(type)) {
-      setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
-    }
-
     //resetter joyride når den er ferdig eller man klikker skip
-    else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
       setJoyride({ ...joyride, joyrideDetaljer: false });
     }
@@ -62,7 +56,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       <Joyride
         locale={localeStrings()}
         continuous
-        run={joyride.joyrideDetaljer === true}
+        run={joyride.joyrideDetaljer}
         steps={stepsDetaljer}
         hideCloseButton
         callback={handleJoyrideCallback}

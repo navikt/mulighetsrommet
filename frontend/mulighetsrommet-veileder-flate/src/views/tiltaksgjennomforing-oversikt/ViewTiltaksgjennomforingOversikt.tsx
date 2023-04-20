@@ -31,13 +31,16 @@ const ViewTiltaksgjennomforingOversikt = () => {
           {visJoyride && (
             <>
               <OversiktenJoyride
-                toggleHistorikkModal={setIsHistorikkModalOpen}
+                setHistorikkModalOpen={setIsHistorikkModalOpen}
                 isHistorikkModalOpen={isHistorikkModalOpen}
               />
               <OversiktenLastStepJoyride />
             </>
           )}
-          <HistorikkButton toggleHistorikkModal={setIsHistorikkModalOpen} isHistorikkModalOpen={isHistorikkModalOpen} />
+          <HistorikkButton
+            setHistorikkModalOpen={setIsHistorikkModalOpen}
+            isHistorikkModalOpen={isHistorikkModalOpen}
+          />
         </div>
       </div>
       <div>

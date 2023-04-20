@@ -33,13 +33,13 @@ export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfil
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');
 export const joyrideAtom = atomWithStorage<{
-  joyrideOversikten: boolean | null;
+  joyrideOversikten: boolean;
   joyrideOversiktenLastStep: boolean | null;
-  joyrideDetaljer: boolean | null;
-  joyrideDetaljerHarVistOpprettAvtale: boolean | null;
+  joyrideDetaljer: boolean;
+  joyrideDetaljerHarVistOpprettAvtale: boolean;
 }>('joyride_mulighetsrommet', {
-  joyrideOversikten: null,
+  joyrideOversikten: true,
   joyrideOversiktenLastStep: null,
-  joyrideDetaljer: null,
-  joyrideDetaljerHarVistOpprettAvtale: null,
+  joyrideDetaljer: true,
+  joyrideDetaljerHarVistOpprettAvtale: true,
 });

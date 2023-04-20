@@ -1,18 +1,18 @@
-import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride';
+import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
 import { useEffect, useState } from 'react';
 import { localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
-import { stepsOversikten } from './Steps';
+import { getStepIndex, isStep, stepsOversikten } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
 
 interface Props {
-  toggleHistorikkModal: (state: boolean) => void;
+  setHistorikkModalOpen: (state: boolean) => void;
   isHistorikkModalOpen: boolean;
 }
 
-export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }: Props) {
+export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen }: Props) {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
   const [state, setState] = useState({
     run: false,
@@ -21,41 +21,34 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
   });
 
   useEffect(() => {
-    //viser joyride ved første load
-    return joyride.joyrideOversikten === null
-      ? setJoyride({ ...joyride, joyrideOversikten: true })
-      : setJoyride({ ...joyride, joyrideOversikten: false });
-  }, []);
-
-  useEffect(() => {
     if (isHistorikkModalOpen) {
-      setState(prevState => ({ ...prevState, stepIndex: 7 }));
-      toggleHistorikkModal(true);
+      setState(prevState => ({ ...prevState, stepIndex: getStepIndex(stepsOversikten, 'historikk-modal') }));
+      setHistorikkModalOpen(true);
     }
   }, [isHistorikkModalOpen]);
 
-  const handleJoyrideCallback = (data: any) => {
+  const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
 
-    if ([EVENTS.STEP_AFTER].includes(type)) {
-      //må ha en timeout her for at joyride skal vente på at historikk-modalen vises
-      if (EVENTS.TARGET_NOT_FOUND && index === 5) {
-        setState(prevState => ({ ...prevState, run: false, loading: true }));
-        setTimeout(() => {
-          setState(prevState => ({ ...prevState, run: true, loading: false }));
-        }, 200);
-      }
+    //kjører neste step når man klikker på neste
+    if (EVENTS.STEP_AFTER === type) {
       setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
     }
+
     //resetter joyride når den er ferdig eller man klikker skip
-    else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
+    else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
+      if (joyride.joyrideOversiktenLastStep === null) {
+        setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
+      } else {
+        setJoyride({ ...joyride, joyrideOversikten: false });
+      }
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
-    if ([ACTIONS.NEXT] && index === 7) {
-      toggleHistorikkModal(false);
+    //lukker historikk-modal
+    if (isStep(data.step, 'detaljert-visning')) {
+      setHistorikkModalOpen(false);
     }
   };
 
@@ -63,16 +56,15 @@ export function OversiktenJoyride({ toggleHistorikkModal, isHistorikkModalOpen }
     <>
       <JoyrideKnapp
         handleClick={() => {
-          setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
           setJoyride({ ...joyride, joyrideOversikten: true });
-          setState(prevState => ({ ...prevState, run: true }));
+          setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
           logEvent('mulighetsrommet.joyride', { value: 'oversikten' });
         }}
       />
       <Joyride
         locale={localeStrings()}
         continuous
-        run={joyride.joyrideOversikten === true}
+        run={joyride.joyrideOversikten}
         steps={stepsOversikten}
         hideCloseButton
         callback={handleJoyrideCallback}

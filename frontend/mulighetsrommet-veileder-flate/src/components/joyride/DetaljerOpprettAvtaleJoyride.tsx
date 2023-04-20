@@ -1,4 +1,4 @@
-import Joyride, { ACTIONS, STATUS } from 'react-joyride';
+import Joyride, { ACTIONS, CallBackProps, STATUS } from 'react-joyride';
 
 import React, { useState } from 'react';
 import { localeStrings } from './utils';
@@ -26,10 +26,13 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
     setState(prevState => ({ ...prevState, run: true }));
   }
 
-  const handleJoyrideCallbackOpprettAvtale = (data: any) => {
+  const handleJoyrideCallbackOpprettAvtale = (data: CallBackProps) => {
     const { action, status } = data;
     //Hvis gjennomføringen ikke har opprett avtale, vises denne neste gang man går inn på en gjennomføring med opprett avtale
-    if ([ACTIONS.CLOSE, ACTIONS.RESET].includes(action) || [STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    if (
+      ([ACTIONS.CLOSE, ACTIONS.RESET] as string[]).includes(action) ||
+      ([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)
+    ) {
       setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
@@ -39,7 +42,7 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
     <Joyride
       locale={localeStrings()}
       continuous
-      run={joyride.joyrideDetaljerHarVistOpprettAvtale === false}
+      run={!joyride.joyrideDetaljerHarVistOpprettAvtale}
       steps={opprettAvtaleStep}
       hideCloseButton
       callback={handleJoyrideCallbackOpprettAvtale}

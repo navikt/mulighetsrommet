@@ -7,13 +7,13 @@ import styles from './HistorikkForBrukerModal.module.scss';
 import { logEvent } from '../../core/api/logger';
 
 interface Props {
-  toggleHistorikkModal: (state: boolean) => void;
+  setHistorikkModalOpen: (state: boolean) => void;
   isHistorikkModalOpen: boolean;
 }
 
-export function HistorikkButton({ toggleHistorikkModal, isHistorikkModalOpen }: Props) {
+export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }: Props) {
   const handleClick = () => {
-    toggleHistorikkModal(true);
+    setHistorikkModalOpen(true);
     logEvent('mulighetsrommet.historikk');
   };
 
@@ -26,7 +26,7 @@ export function HistorikkButton({ toggleHistorikkModal, isHistorikkModalOpen }: 
         className={styles.historikk_modal}
         hideButtons
         modalOpen={isHistorikkModalOpen}
-        setModalOpen={() => toggleHistorikkModal(false)}
+        setModalOpen={() => setHistorikkModalOpen(false)}
         heading="Historikk"
         id="historikk_modal"
       >
