@@ -16,6 +16,7 @@
 // Import e2e.js using ES2015 syntax:
 import './e2e';
 import 'cypress-axe';
+import 'cypress-localstorage-commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('cypress-dark');
@@ -121,14 +122,15 @@ Cypress.Commands.add('resetSortering', () => {
 });
 
 Cypress.Commands.add('skruAvJoyride', () => {
-  cy.then(() => {
-    window.localStorage.setItem('joyride_mulighetsrommet', {
+  cy.setLocalStorage(
+    'joyride_mulighetsrommet',
+    JSON.stringify({
       joyrideOversikten: false,
       joyrideOversiktenLastStep: false,
       joyrideDetaljer: false,
-      joyrideDetaljerOpprettAvtale: false,
-    });
-  });
+      joyrideDetaljerHarVistOpprettAvtale: true,
+    })
+  );
 });
 
 function terminalLog(violations) {

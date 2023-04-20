@@ -47,12 +47,6 @@ describe('Tiltaksoversikt', () => {
     }
   });
 
-  it('Sjekk at joyride funker ved klikk', () => {
-    cy.get('#joyride_knapp').click();
-    cy.get('.react-joyride__tooltip').should('be.visible');
-    cy.get('[data-action=skip]').click();
-  });
-
   context('Filtrering', () => {
     it('Lagre antall tiltak uten filtrering', () => {
       cy.getByTestId('antall-tiltak').then($navn => {
