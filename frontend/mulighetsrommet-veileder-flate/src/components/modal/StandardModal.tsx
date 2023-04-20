@@ -14,6 +14,7 @@ interface StandardModalModalProps {
   btnText?: string;
   shouldCloseOnOverlayClick?: boolean;
   hideButtons?: boolean;
+  id?: string;
 }
 
 const StandardModal = ({
@@ -27,6 +28,7 @@ const StandardModal = ({
   btnText,
   shouldCloseOnOverlayClick,
   hideButtons = false,
+  id,
 }: StandardModalModalProps) => {
   const clickSend = () => {
     setModalOpen();
@@ -47,7 +49,7 @@ const StandardModal = ({
       className={classNames(styles.overstyrte_styles_fra_ds_modal, className)}
       aria-label="modal"
     >
-      <Modal.Content>
+      <Modal.Content id={id || ''}>
         <Heading spacing level="1" size="medium" data-testid="modal_header">
           {heading}
         </Heading>

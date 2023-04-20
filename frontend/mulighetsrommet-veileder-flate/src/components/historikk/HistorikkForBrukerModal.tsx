@@ -30,7 +30,7 @@ export function HistorikkForBrukerModal() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <ul className={styles.historikk_for_bruker_liste}>
+    <ul className={styles.historikk_for_bruker_liste} id="historikk-modal">
       {tiltak?.map(historikk => {
         return (
           <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>

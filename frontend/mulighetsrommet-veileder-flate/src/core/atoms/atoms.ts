@@ -1,5 +1,6 @@
 import { atomWithHash } from 'jotai-location';
 import { Innsatsgruppe } from 'mulighetsrommet-api-client';
+import { atomWithStorage } from 'jotai/utils';
 
 export interface Tiltaksgjennomforingsfilter {
   search?: string;
@@ -31,3 +32,14 @@ export const tiltaksgjennomforingsfilter = atomWithHash<Tiltaksgjennomforingsfil
 
 export const paginationAtom = atomWithHash('page', 1);
 export const faneAtom = atomWithHash('fane', 'tab1');
+export const joyrideAtom = atomWithStorage<{
+  joyrideOversikten: boolean;
+  joyrideOversiktenLastStep: boolean | null;
+  joyrideDetaljer: boolean;
+  joyrideDetaljerHarVistOpprettAvtale: boolean;
+}>('joyride_mulighetsrommet', {
+  joyrideOversikten: true,
+  joyrideOversiktenLastStep: null,
+  joyrideDetaljer: true,
+  joyrideDetaljerHarVistOpprettAvtale: true,
+});

@@ -8,6 +8,7 @@ describe('Preview-funksjonalitet for redaktører', () => {
 
   beforeEach(() => {
     cy.visit('/preview/11888');
+    cy.skruAvJoyride();
     cy.url().should('include', '/preview/');
   });
 
