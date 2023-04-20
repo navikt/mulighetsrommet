@@ -36,7 +36,7 @@ class ArenaAdapterServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
+        tilDato = LocalDate.of(2023, 1, 12),
     )
 
     val avtale = AvtaleDbo(
@@ -51,7 +51,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
-        opphav = AvtaleDbo.Opphav.ARENA
+        opphav = AvtaleDbo.Opphav.ARENA,
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -76,7 +76,7 @@ class ArenaAdapterServiceTest : FunSpec({
         norskIdent = "12345678910",
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.now(),
-        tilDato = LocalDateTime.now().plusYears(1)
+        tilDato = LocalDateTime.now().plusYears(1),
     )
 
     val tiltakstypeIndividuell = TiltakstypeDbo(
@@ -87,7 +87,7 @@ class ArenaAdapterServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12)
+        tilDato = LocalDate.of(2023, 1, 12),
     )
 
     val tiltakshistorikkIndividuell = TiltakshistorikkDbo.IndividueltTiltak(
@@ -264,7 +264,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.publish(
-                    TiltaksgjennomforingDto.from(tiltaksgjennomforingDto)
+                    TiltaksgjennomforingDto.from(tiltaksgjennomforingDto),
                 )
             }
 
@@ -272,7 +272,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.retract(
-                    tiltaksgjennomforing.id
+                    tiltaksgjennomforing.id,
                 )
             }
         }

@@ -24,8 +24,8 @@ import kotlin.time.Duration.Companion.seconds
 class KafkaConsumerOrchestratorTest : FunSpec({
     val kafka = install(
         TestContainerExtension(
-            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
-        )
+            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1")),
+        ),
     ) { withEmbeddedZookeeper() }
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -70,8 +70,8 @@ class KafkaConsumerOrchestratorTest : FunSpec({
                 id = "foo",
                 topic = "foo",
                 type = TopicType.CONSUMER,
-                running = true
-            )
+                running = true,
+            ),
         )
     }
 
@@ -88,7 +88,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         orchestrator.getConsumers().first().isRunning shouldBe true
 
         orchestrator.updateRunningTopics(
-            orchestrator.getTopics().map { it.copy(running = false) }
+            orchestrator.getTopics().map { it.copy(running = false) },
         )
 
         eventually(3.seconds) {

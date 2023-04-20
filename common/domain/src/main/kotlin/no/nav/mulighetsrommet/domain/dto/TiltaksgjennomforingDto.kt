@@ -17,14 +17,14 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val status: Tiltaksgjennomforingsstatus,
-    val virksomhetsnummer: String
+    val virksomhetsnummer: String,
 ) {
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String
+        val arenaKode: String,
     )
 
     companion object {
@@ -40,7 +40,7 @@ data class TiltaksgjennomforingDto(
                 startDato = tiltaksgjennomforing.startDato,
                 sluttDato = tiltaksgjennomforing.sluttDato,
                 status = tiltaksgjennomforing.status,
-                virksomhetsnummer = tiltaksgjennomforing.virksomhetsnummer
+                virksomhetsnummer = tiltaksgjennomforing.virksomhetsnummer,
             )
     }
 }

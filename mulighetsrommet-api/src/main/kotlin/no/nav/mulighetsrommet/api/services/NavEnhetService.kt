@@ -29,7 +29,7 @@ class NavEnhetService(private val enhetRepository: EnhetRepository) {
     }
 
     fun hentEnheterForAvtale(
-        filter: EnhetFilter
+        filter: EnhetFilter,
     ): List<NavEnhetDbo> {
         return enhetRepository.getAllEnheterWithAvtale(filter)
     }

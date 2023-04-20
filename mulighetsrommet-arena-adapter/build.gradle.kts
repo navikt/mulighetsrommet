@@ -2,17 +2,12 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ktlint)
     alias(libs.plugins.flyway)
     alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.arena.adapter.ApplicationKt")
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
 }
 
 flyway {

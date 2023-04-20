@@ -5,7 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.Norg2Service
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
+import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
 class SynchronizeNorgEnheter(config: Config, norg2Service: Norg2Service, slackNotifier: SlackNotifier) {
@@ -13,7 +13,7 @@ class SynchronizeNorgEnheter(config: Config, norg2Service: Norg2Service, slackNo
 
     data class Config(
         val delayOfMinutes: Int,
-        val schedulerStatePollDelay: Long = 1000
+        val schedulerStatePollDelay: Long = 1000,
     )
 
     val task: RecurringTask<Void> = Tasks

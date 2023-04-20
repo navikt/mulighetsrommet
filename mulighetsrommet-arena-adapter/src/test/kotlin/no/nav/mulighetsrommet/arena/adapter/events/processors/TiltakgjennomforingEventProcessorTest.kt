@@ -74,8 +74,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "000000"))
                 },
-                "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
-            )
+                "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() },
+            ),
         ): TiltakgjennomforingEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
@@ -128,8 +128,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         sakId = 13572352,
                         lopenummer = 123,
                         aar = 2022,
-                        enhet = "2990"
-                    )
+                        enhet = "2990",
+                    ),
                 )
 
                 val processor = createProcessor()
@@ -175,7 +175,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val tiltakstyper = TiltakstypeRepository(database.db)
                 tiltakstyper.upsert(tiltakstype)
                 entities.upsertMapping(
-                    ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled)
+                    ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled),
                 )
             }
 
@@ -186,10 +186,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     val (event) = prepareEvent(
                         createArenaTiltakgjennomforingEvent(
                             Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell
+                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                         ) {
                             it.copy(REG_DATO = regDatoBeforeAktivitetsplanen)
-                        }
+                        },
                     )
 
                     processor.handleEvent(event).shouldBeRight().should {
@@ -204,10 +204,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     val (event) = prepareEvent(
                         createArenaTiltakgjennomforingEvent(
                             Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell
+                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                         ) {
                             it.copy(REG_DATO = regDatoAfterAktivitetsplanen)
-                        }
+                        },
                     )
 
                     processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
@@ -222,8 +222,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     val (event) = prepareEvent(
                         createArenaTiltakgjennomforingEvent(
                             Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell
-                        )
+                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                        ),
                     )
 
                     processor.handleEvent(event).shouldBeRight()
@@ -242,7 +242,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val tiltakstyper = TiltakstypeRepository(database.db)
                 tiltakstyper.upsert(tiltakstype)
                 entities.upsertMapping(
-                    ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled)
+                    ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled),
                 )
             }
 
@@ -253,9 +253,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     createArenaTiltakgjennomforingEvent(Insert) {
                         it.copy(
                             REG_DATO = regDatoBeforeAktivitetsplanen,
-                            LOKALTNAVN = "Navn 1"
+                            LOKALTNAVN = "Navn 1",
                         )
-                    }
+                    },
                 )
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("tiltaksgjennomforing").row()
@@ -265,7 +265,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val e2 = createArenaTiltakgjennomforingEvent(Update) {
                     it.copy(
                         REG_DATO = regDatoAfterAktivitetsplanen,
-                        LOKALTNAVN = "Navn 2"
+                        LOKALTNAVN = "Navn 2",
                     )
                 }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
@@ -286,7 +286,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondError(HttpStatusCode.InternalServerError)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -303,7 +303,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondError(HttpStatusCode.NotFound)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
                 val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
@@ -318,12 +318,12 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            ArenaOrdsArrangor("123456", "000000")
+                            ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
                     "/api/v1/internal/arena/tiltaksgjennomforing" to {
                         respondError(HttpStatusCode.InternalServerError)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -339,10 +339,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            ArenaOrdsArrangor("123456", "000000")
+                            ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() }
+                    "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -350,9 +350,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     createArenaTiltakgjennomforingEvent(Insert) {
                         it.copy(
                             DATO_FRA = "2022-11-11 00:00:00",
-                            DATO_TIL = "2023-11-11 00:00:00"
+                            DATO_TIL = "2023-11-11 00:00:00",
                         )
-                    }
+                    },
                 )
 
                 processor.handleEvent(event).shouldBeRight()
@@ -384,7 +384,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val processor = createProcessor()
 
                 val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) }
+                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
                 )
 
                 processor.handleEvent(event).shouldBeLeft().should {
@@ -398,11 +398,11 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
                 prepareEvent(
                     createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Unhandled
+                    Unhandled,
                 )
 
                 val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) }
+                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
                 )
 
                 processor.handleEvent(event).shouldBeLeft().should {
@@ -421,7 +421,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 upsertAvtale(avtaleEvent, avtaleMapping)
 
                 val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) }
+                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
                 )
                 processor.handleEvent(event).shouldBeRight()
 
@@ -434,10 +434,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            ArenaOrdsArrangor("123456", "000000")
+                            ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() }
+                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -448,7 +448,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 upsertAvtale(avtaleEvent, avtaleMapping)
 
                 val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) }
+                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
                 )
                 processor.handleEvent(event).shouldBeRight()
 

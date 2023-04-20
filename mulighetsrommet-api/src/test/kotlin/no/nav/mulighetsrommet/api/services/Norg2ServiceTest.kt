@@ -19,15 +19,15 @@ class Norg2ServiceTest : FunSpec({
         val mockEnheter = listOf(
             Norg2Response(
                 enhet = Norg2EnhetFixture.enhet.copy(enhetId = 1, type = Norg2Type.AAREG),
-                overordnetEnhet = "1200"
+                overordnetEnhet = "1200",
             ),
             Norg2Response(
                 enhet = Norg2EnhetFixture.enhet.copy(enhetId = 2),
-                overordnetEnhet = "1200"
+                overordnetEnhet = "1200",
             ),
             Norg2Response(
                 enhet = Norg2EnhetFixture.enhet.copy(enhetId = 3),
-                overordnetEnhet = "1400"
+                overordnetEnhet = "1400",
             ),
         )
 

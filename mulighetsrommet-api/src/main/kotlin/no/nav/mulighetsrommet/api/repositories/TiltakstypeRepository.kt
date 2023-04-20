@@ -55,11 +55,11 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAll(
-        paginationParams: PaginationParams = PaginationParams()
+        paginationParams: PaginationParams = PaginationParams(),
     ): Pair<Int, List<TiltakstypeDto>> {
         val parameters = mapOf(
             "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset
+            "offset" to paginationParams.offset,
         )
 
         @Language("PostgreSQL")
@@ -91,7 +91,7 @@ class TiltakstypeRepository(private val db: Database) {
 
     fun getAllSkalMigreres(
         tiltakstypeFilter: TiltakstypeFilter,
-        paginationParams: PaginationParams = PaginationParams()
+        paginationParams: PaginationParams = PaginationParams(),
     ): Pair<Int, List<TiltakstypeDto>> {
         val parameters = mapOf(
             "search" to "%${tiltakstypeFilter.search}%",
@@ -110,7 +110,7 @@ class TiltakstypeRepository(private val db: Database) {
                     Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
                 }
             },
-            true to "skal_migreres = true"
+            true to "skal_migreres = true",
         )
 
         val order = when (tiltakstypeFilter.sortering) {
@@ -150,7 +150,7 @@ class TiltakstypeRepository(private val db: Database) {
     fun getAllByDateInterval(
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
-        pagination: PaginationParams
+        pagination: PaginationParams,
     ): List<TiltakstypeDto> {
         logger.info("Henter alle tiltakstyper med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd")
 
@@ -172,7 +172,7 @@ class TiltakstypeRepository(private val db: Database) {
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
                 "offset" to pagination.offset,
-            )
+            ),
         )
             .map { it.toTiltakstypeDto() }
             .asList
@@ -201,7 +201,7 @@ class TiltakstypeRepository(private val db: Database) {
         "sist_endret_dato_i_arena" to sistEndretDatoIArena,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
-        "rett_paa_tiltakspenger" to rettPaaTiltakspenger
+        "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
     private fun Row.toTiltakstypeDbo() = TiltakstypeDbo(
@@ -212,7 +212,7 @@ class TiltakstypeRepository(private val db: Database) {
         sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
-        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
     )
 
     private fun Row.toTiltakstypeDto(): TiltakstypeDto {
@@ -227,7 +227,7 @@ class TiltakstypeRepository(private val db: Database) {
             fraDato = fraDato,
             tilDato = tilDato,
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato)
+            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato),
         )
     }
 

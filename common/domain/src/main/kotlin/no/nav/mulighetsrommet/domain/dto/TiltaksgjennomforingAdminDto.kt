@@ -34,6 +34,6 @@ data class TiltaksgjennomforingAdminDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String
+        val arenaKode: String,
     )
 }

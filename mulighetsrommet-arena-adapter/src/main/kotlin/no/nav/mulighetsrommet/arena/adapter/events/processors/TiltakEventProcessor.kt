@@ -19,7 +19,7 @@ import java.util.*
 
 class TiltakEventProcessor(
     private val entities: ArenaEntityService,
-    private val client: MulighetsrommetApiClient
+    private val client: MulighetsrommetApiClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Tiltakstype
 
@@ -82,7 +82,7 @@ class TiltakEventProcessor(
                 tiltaksgjennomforingGenererTilsagnsbrevAutomatisk = ArenaUtils.parseJaNei(AUTOMATISK_TILSAGNSBREV),
                 visBegrunnelseForInnsoking = ArenaUtils.parseJaNei(STATUS_BEGRUNNELSE_INNSOKT),
                 sendHenvisningsbrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_HENVISNING_BREV),
-                sendKopibrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_KOPIBREV)
+                sendKopibrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_KOPIBREV),
             )
         }
         .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
@@ -95,6 +95,6 @@ class TiltakEventProcessor(
         sistEndretDatoIArena = sistEndretIArenaDato,
         fraDato = fraDato.toLocalDate(),
         tilDato = tilDato.toLocalDate(),
-        rettPaaTiltakspenger = rettPaaTiltakspenger
+        rettPaaTiltakspenger = rettPaaTiltakspenger,
     )
 }

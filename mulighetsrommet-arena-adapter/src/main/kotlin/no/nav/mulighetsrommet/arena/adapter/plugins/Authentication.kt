@@ -9,7 +9,7 @@ import java.net.URI
 import java.util.concurrent.TimeUnit
 
 fun Application.configureAuthentication(
-    auth: AuthConfig
+    auth: AuthConfig,
 ) {
     val (azure) = auth
 

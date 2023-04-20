@@ -18,7 +18,7 @@ fun Route.virksomhetRoutes() {
 
             val enhet = amtEnhetsregisterClientImpl.hentVirksomhet(orgnr) ?: return@get call.respondText(
                 text = "Fant ingen enhet med orgnr: $orgnr",
-                status = HttpStatusCode.NotFound
+                status = HttpStatusCode.NotFound,
             )
 
             call.respond(enhet)

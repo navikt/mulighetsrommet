@@ -19,14 +19,14 @@ fun Route.externalRoutes() {
         get("tiltaksgjennomforinger/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             tiltaksgjennomforingService.get(id)
                 .onRight {
                     if (it == null) {
                         return@get call.respondText(
                             "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                            status = HttpStatusCode.NotFound
+                            status = HttpStatusCode.NotFound,
                         )
                     }
                     call.respond(TiltaksgjennomforingDto.from(it))
@@ -40,12 +40,12 @@ fun Route.externalRoutes() {
         get("tiltaksgjennomforinger/id/{arenaId}") {
             val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
                 "Mangler eller ugyldig arenaId",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             val idResponse = arenaAdapterService.exchangeTiltaksgjennomforingsArenaIdForId(arenaId)
                 ?: return@get call.respondText(
                     "Det finnes ikke noe tiltaksgjennomføring med arenaId $arenaId",
-                    status = HttpStatusCode.NotFound
+                    status = HttpStatusCode.NotFound,
                 )
             call.respond(idResponse)
         }
@@ -53,19 +53,19 @@ fun Route.externalRoutes() {
         get("tiltaksgjennomforinger/arenadata/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             tiltaksgjennomforingService.get(id)
                 .map {
                     if (it == null) {
                         return@get call.respondText(
                             "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                            status = HttpStatusCode.NotFound
+                            status = HttpStatusCode.NotFound,
                         )
                     }
                     val status = arenaAdapterService.hentTiltaksgjennomforingsstatus(id)?.status ?: return@get call.respondText(
                         "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                        status = HttpStatusCode.NotFound
+                        status = HttpStatusCode.NotFound,
                     )
                     call.respond(TiltaksgjennomforingsArenadataDto.from(it, status))
                 }

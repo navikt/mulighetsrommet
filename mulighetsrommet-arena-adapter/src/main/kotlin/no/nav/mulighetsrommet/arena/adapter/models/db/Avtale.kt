@@ -23,7 +23,8 @@ data class Avtale(
         Planlagt,
         Aktiv,
         Avsluttet,
-        Avbrutt;
+        Avbrutt,
+        ;
 
         companion object {
             fun fromArenaAvtalestatuskode(avtalestatuskode: Avtalestatuskode): Status = when (avtalestatuskode) {

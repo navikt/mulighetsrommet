@@ -2,11 +2,6 @@ plugins {
     `java-test-fixtures`
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ktlint)
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

@@ -2,13 +2,13 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakshistorikkService(
     private val arrangorService: ArrangorService,
-    private val tiltakshistorikkRepository: TiltakshistorikkRepository
+    private val tiltakshistorikkRepository: TiltakshistorikkRepository,
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 

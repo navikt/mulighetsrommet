@@ -30,8 +30,8 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
                 registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                 fraDato = LocalDate.of(2023, 1, 11),
-                tilDato = LocalDate.of(2023, 1, 12)
-            )
+                tilDato = LocalDate.of(2023, 1, 12),
+            ),
         ).getOrThrow()
     }
 
@@ -62,7 +62,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         startDato: LocalDate = LocalDate.of(2023, 1, 11),
         sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
-        ansvarlige: List<String> = emptyList()
+        ansvarlige: List<String> = emptyList(),
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -77,7 +77,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = null,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
-            ansvarlige = ansvarlige
+            ansvarlige = ansvarlige,
         )
     }
 }

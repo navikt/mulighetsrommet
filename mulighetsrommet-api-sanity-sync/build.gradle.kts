@@ -2,16 +2,11 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ktlint)
     alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.sanity.ApplicationKt")
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

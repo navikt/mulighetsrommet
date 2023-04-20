@@ -37,7 +37,7 @@ data class AvtaleAdminDto(
     @Serializable
     data class NavEnhet(
         val enhetsnummer: String,
-        val navn: String? = null
+        val navn: String? = null,
     )
 
     @Serializable

@@ -16,5 +16,5 @@ enum class Handlingsplan {
     SOK,
 
     @SerialName("TIL")
-    TIL
+    TIL,
 }

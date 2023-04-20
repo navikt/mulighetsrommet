@@ -15,7 +15,7 @@ class KafkaSyncService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
-    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
+    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -27,7 +27,7 @@ class KafkaSyncService(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                pagination = paginationParams
+                pagination = paginationParams,
             ).getOrThrow()
 
             tiltaksgjennomforinger.forEach { it ->
@@ -49,7 +49,7 @@ class KafkaSyncService(
             val tiltakstyper = tiltakstypeRepository.getAllByDateInterval(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
-                pagination = paginationParams
+                pagination = paginationParams,
             )
 
             tiltakstyper.forEach { it ->

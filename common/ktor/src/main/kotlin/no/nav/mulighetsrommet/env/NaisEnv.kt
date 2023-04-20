@@ -4,7 +4,8 @@ enum class NaisEnv(val clusterName: String) {
 
     Local("local"),
     DevGCP("dev-gcp"),
-    ProdGCP("prod-gcp");
+    ProdGCP("prod-gcp"),
+    ;
 
     companion object {
         fun current(): NaisEnv = when (System.getenv("NAIS_CLUSTER_NAME")) {

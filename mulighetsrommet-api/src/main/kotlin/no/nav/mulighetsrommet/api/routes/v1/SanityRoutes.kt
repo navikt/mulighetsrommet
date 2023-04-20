@@ -35,8 +35,8 @@ fun Route.sanityRoutes() {
             call.respondWithData(
                 sanityService.hentLokasjonerForBrukersEnhetOgFylke(
                     getNorskIdent(),
-                    call.getAccessToken()
-                ).toResponse()
+                    call.getAccessToken(),
+                ).toResponse(),
             )
         }
 
@@ -46,8 +46,8 @@ fun Route.sanityRoutes() {
                 sanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
                     getNorskIdent(),
                     call.getAccessToken(),
-                    getTiltaksgjennomforingsFilter()
-                ).toResponse()
+                    getTiltaksgjennomforingsFilter(),
+                ).toResponse(),
             )
         }
 
@@ -66,7 +66,7 @@ private suspend fun ApplicationCall.respondWithData(apiResponse: ApiResponse) {
     this.response.call.respondText(
         text = apiResponse.text,
         contentType = apiResponse.contentType,
-        status = apiResponse.status
+        status = apiResponse.status,
     )
 }
 
@@ -80,7 +80,7 @@ private fun SanityResponse.toResponse(): ApiResponse {
             log.warn("Error fra Sanity -> {}", this.error)
             return ApiResponse(
                 text = this.error.toString(),
-                status = HttpStatusCode.InternalServerError
+                status = HttpStatusCode.InternalServerError,
             )
         }
     }
@@ -89,5 +89,5 @@ private fun SanityResponse.toResponse(): ApiResponse {
 data class ApiResponse(
     val text: String,
     val contentType: ContentType? = ContentType.Application.Json,
-    val status: HttpStatusCode? = HttpStatusCode.OK
+    val status: HttpStatusCode? = HttpStatusCode.OK,
 )

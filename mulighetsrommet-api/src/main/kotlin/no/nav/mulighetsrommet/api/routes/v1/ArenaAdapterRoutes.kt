@@ -34,7 +34,7 @@ fun Route.arenaAdapterRoutes() {
         delete("tiltakstype/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
 
             arenaAdapterService.removeTiltakstype(id)
@@ -59,7 +59,7 @@ fun Route.arenaAdapterRoutes() {
         delete("avtale/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
 
             arenaAdapterService.removeAvtale(id)
@@ -84,7 +84,7 @@ fun Route.arenaAdapterRoutes() {
         delete("tiltaksgjennomforing/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
 
             arenaAdapterService.removeTiltaksgjennomforing(id)
@@ -117,7 +117,7 @@ fun Route.arenaAdapterRoutes() {
         delete("tiltakshistorikk/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             arenaAdapterService.removeTiltakshistorikk(id)
                 .map { call.response.status(HttpStatusCode.OK) }
@@ -141,7 +141,7 @@ fun Route.arenaAdapterRoutes() {
         delete("deltaker/{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
 
             arenaAdapterService.removeDeltaker(id)
@@ -157,6 +157,6 @@ fun Route.arenaAdapterRoutes() {
 fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: PSQLException) {
     logger.debug(
         "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()}",
-        error
+        error,
     )
 }

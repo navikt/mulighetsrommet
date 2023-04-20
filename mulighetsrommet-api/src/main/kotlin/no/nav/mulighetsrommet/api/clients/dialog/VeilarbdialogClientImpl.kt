@@ -9,13 +9,13 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogResponse
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
 
 class VeilarbdialogClientImpl(
     private val baseUrl: String,
     private val tokenProvider: (accessToken: String) -> String,
-    clientEngine: HttpClientEngine = CIO.create()
+    clientEngine: HttpClientEngine = CIO.create(),
 ) : VeilarbdialogClient {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -26,7 +26,7 @@ class VeilarbdialogClientImpl(
     override suspend fun sendMeldingTilDialogen(
         fnr: String,
         accessToken: String,
-        requestBody: DialogRequest
+        requestBody: DialogRequest,
     ): DialogResponse? {
         return try {
             val response = client.post("$baseUrl/dialog?fnr=$fnr") {

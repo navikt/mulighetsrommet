@@ -9,7 +9,7 @@ data class NavEnhetDbo(
     val enhetNr: String,
     val status: NavEnhetStatus,
     val type: Norg2Type,
-    val overordnetEnhet: String?
+    val overordnetEnhet: String?,
 )
 
 @Serializable
@@ -17,5 +17,5 @@ enum class NavEnhetStatus {
     UNDER_ETABLERING,
     AKTIV,
     UNDER_AVVIKLING,
-    NEDLAGT
+    NEDLAGT,
 }

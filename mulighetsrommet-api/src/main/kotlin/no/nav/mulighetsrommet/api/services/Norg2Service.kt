@@ -32,8 +32,8 @@ class Norg2Service(private val norg2Client: Norg2Client, private val enhetReposi
                     enhetNr = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
                     type = Norg2Type.valueOf(it.enhet.type.name),
-                    overordnetEnhet = it.overordnetEnhet
-                )
+                    overordnetEnhet = it.overordnetEnhet,
+                ),
             )
         }
     }

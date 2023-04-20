@@ -32,7 +32,7 @@ import java.util.*
 class TiltakgjennomforingEventProcessor(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
-    private val ords: ArenaOrdsProxyClient
+    private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Tiltaksgjennomforing
 
@@ -43,7 +43,7 @@ class TiltakgjennomforingEventProcessor(
         if (!isGruppetiltak && isRegisteredBeforeAktivitetsplanen(data)) {
             return@either ProcessingResult(
                 Ignored,
-                "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen"
+                "Tiltaksgjennomføring ignorert fordi den ble opprettet før Aktivitetsplanen",
             )
         }
 
@@ -92,7 +92,7 @@ class TiltakgjennomforingEventProcessor(
 
     private suspend fun upsertTiltaksgjennomforing(
         operation: ArenaEvent.Operation,
-        tiltaksgjennomforing: Tiltaksgjennomforing
+        tiltaksgjennomforing: Tiltaksgjennomforing,
     ): Either<ProcessingError, ProcessingResult> = either {
         val tiltakstypeMapping = entities
             .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
@@ -146,7 +146,7 @@ class TiltakgjennomforingEventProcessor(
                 apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
                 antallPlasser = ANTALL_DELTAKERE,
                 status = TILTAKSTATUSKODE,
-                avtaleId = avtaleId
+                avtaleId = avtaleId,
             )
         }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
 
@@ -165,6 +165,6 @@ class TiltakgjennomforingEventProcessor(
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             ansvarlige = emptyList(),
-            enheter = emptyList()
+            enheter = emptyList(),
         )
 }

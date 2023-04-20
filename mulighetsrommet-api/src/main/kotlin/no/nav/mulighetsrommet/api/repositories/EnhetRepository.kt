@@ -68,12 +68,12 @@ class EnhetRepository(private val db: Database) {
         logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
         val parameters = mapOf(
             "statuser" to db.createTextArray(statuser.map { it.name }),
-            "tiltakstypeId" to filter.tiltakstypeId
+            "tiltakstypeId" to filter.tiltakstypeId,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.statuser to "e.status = any(:statuser)",
-            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid"
+            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid",
         )
 
         @Language("PostgreSQL")
@@ -110,7 +110,7 @@ class EnhetRepository(private val db: Database) {
         logger.info("Sletter enheter med enhetsnummer: $enhetsnummerForSletting")
 
         val parameters = mapOf(
-            "ider" to db.createTextArray(enhetsnummerForSletting)
+            "ider" to db.createTextArray(enhetsnummerForSletting),
         )
 
         @Language("PostgreSQL")
@@ -129,7 +129,7 @@ private fun NavEnhetDbo.toSqlParameters() = mapOf(
     "enhetsnummer" to enhetNr,
     "status" to status.name,
     "type" to type.name,
-    "overordnet_enhet" to overordnetEnhet
+    "overordnet_enhet" to overordnetEnhet,
 )
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
@@ -137,5 +137,5 @@ private fun Row.toEnhetDbo() = NavEnhetDbo(
     enhetNr = string("enhetsnummer"),
     status = NavEnhetStatus.valueOf(string("status")),
     type = Norg2Type.valueOf(string("type")),
-    overordnetEnhet = stringOrNull("overordnet_enhet")
+    overordnetEnhet = stringOrNull("overordnet_enhet"),
 )

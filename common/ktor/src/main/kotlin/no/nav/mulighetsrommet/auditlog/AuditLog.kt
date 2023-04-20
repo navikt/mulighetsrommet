@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.audit_log
+package no.nav.mulighetsrommet.auditlog
 
 import no.nav.common.audit_log.log.AuditLoggerImpl
 

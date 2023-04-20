@@ -25,7 +25,7 @@ object AppRoles {
 }
 
 fun Application.configureAuthentication(
-    auth: AuthConfig
+    auth: AuthConfig,
 ) {
     val (azure) = auth
 
@@ -105,6 +105,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNorskIdent(): String {
     return call.request.header("nav-norskident") ?: throw StatusException(
         HttpStatusCode.BadRequest,
-        "nav-norskident mangler i headers"
+        "nav-norskident mangler i headers",
     )
 }

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VedtakDto(
-    val innsatsgruppe: Innsatsgruppe?
+    val innsatsgruppe: Innsatsgruppe?,
 )
 
 @Serializable

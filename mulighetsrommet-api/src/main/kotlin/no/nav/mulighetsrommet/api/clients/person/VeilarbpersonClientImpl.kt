@@ -10,7 +10,7 @@ import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 class VeilarbpersonClientImpl(
     private val baseUrl: String,
     private val tokenProvider: (accessToken: String) -> String,
-    clientEngine: HttpClientEngine = CIO.create()
+    clientEngine: HttpClientEngine = CIO.create(),
 ) : VeilarbpersonClient {
     private val log = LoggerFactory.getLogger(javaClass)
 

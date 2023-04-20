@@ -95,7 +95,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
             executeQuery(
                 """
             *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }
@@ -105,7 +105,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
             executeQuery(
                 """
                 *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }
@@ -125,7 +125,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
 
         return CacheUtils.tryCacheFirstNotNull(sanityCache, fnr) {
             executeQuery(
-                query
+                query,
             )
         }
     }
@@ -133,7 +133,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
         fnr: String,
         accessToken: String,
-        filter: TiltaksgjennomforingFilter
+        filter: TiltaksgjennomforingFilter,
     ): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
@@ -214,7 +214,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         val fylkeResponse = when (response) {
             is SanityResponse.Result -> response.result?.let {
                 JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(
-                    it
+                    it,
                 )
             }
 

@@ -28,6 +28,6 @@ object AvtaleFixtures {
         REG_USER = "SIAMO",
         MOD_DATO = "2022-10-05 00:00:00",
         MOD_USER = "SIAMO",
-        PROFILELEMENT_ID_OPPL_TILTAK = 3000
+        PROFILELEMENT_ID_OPPL_TILTAK = 3000,
     )
 }

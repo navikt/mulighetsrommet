@@ -16,7 +16,7 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arrangorService: ArrangorService,
-    private val deltakerRepository: DeltakerRepository
+    private val deltakerRepository: DeltakerRepository,
 ) {
     private val log = LoggerFactory.getLogger("TiltaksgjennomforingService")
 
@@ -26,7 +26,7 @@ class TiltaksgjennomforingService(
 
     suspend fun getAll(
         paginationParams: PaginationParams,
-        filter: AdminTiltaksgjennomforingFilter
+        filter: AdminTiltaksgjennomforingFilter,
     ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> =
         tiltaksgjennomforingRepository
             .getAll(paginationParams, filter)
@@ -41,7 +41,7 @@ class TiltaksgjennomforingService(
 
     fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =
         TiltaksgjennomforingNokkeltallDto(
-            antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltaksgjennomforingId)
+            antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltaksgjennomforingId),
         )
 
     private suspend fun TiltaksgjennomforingAdminDto.hentVirksomhetsnavnForTiltaksgjennomforing(): TiltaksgjennomforingAdminDto {
@@ -54,5 +54,5 @@ class TiltaksgjennomforingService(
 }
 
 data class Sokefilter(
-    val tiltaksnummer: String
+    val tiltaksnummer: String,
 )

@@ -40,13 +40,13 @@ class KafkaSyncServiceTest : FunSpec({
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2099, 1, 12)
+        tilDato = LocalDate.of(2099, 1, 12),
     )
 
     fun createTiltaksgjennomforing(
         startDato: LocalDate = LocalDate.of(2023, 2, 15),
         sluttDato: LocalDate = LocalDate.of(2023, 11, 11),
-        avslutningsstatus: Avslutningsstatus = Avslutningsstatus.AVSLUTTET
+        avslutningsstatus: Avslutningsstatus = Avslutningsstatus.AVSLUTTET,
     ): TiltaksgjennomforingDbo {
         return TiltaksgjennomforingDbo(
             id = UUID.randomUUID(),
@@ -77,7 +77,7 @@ class KafkaSyncServiceTest : FunSpec({
             virksomhetsnummer = virksomhetsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            status = tiltaksgjennomforingsstatus
+            status = tiltaksgjennomforingsstatus,
         )
     }
 
@@ -91,7 +91,7 @@ class KafkaSyncServiceTest : FunSpec({
             fraDato = fraDato,
             tilDato = tilDato,
             rettPaaTiltakspenger = rettPaaTiltakspenger,
-            status = tiltakstypestatus
+            status = tiltakstypestatus,
         )
     }
 
@@ -104,7 +104,7 @@ class KafkaSyncServiceTest : FunSpec({
                 tiltaksgjennomforingRepository,
                 tiltakstypeRepository,
                 tiltaksgjennomforingKafkaProducer,
-                mockk()
+                mockk(),
             )
 
         val startdatoInnenforMenAvsluttetStatus = createTiltaksgjennomforing()
@@ -113,16 +113,16 @@ class KafkaSyncServiceTest : FunSpec({
         val sluttdatoInnenforMenAvbruttStatus = createTiltaksgjennomforing(
             startDato = lastSuccessDate,
             sluttDato = lastSuccessDate,
-            avslutningsstatus = Avslutningsstatus.AVBRUTT
+            avslutningsstatus = Avslutningsstatus.AVBRUTT,
         )
         val sluttdatoInnenfor = createTiltaksgjennomforing(
             startDato = lastSuccessDate,
             sluttDato = lastSuccessDate,
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         )
         val datoerUtenfor = createTiltaksgjennomforing(
             startDato = lastSuccessDate,
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         )
 
         test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {

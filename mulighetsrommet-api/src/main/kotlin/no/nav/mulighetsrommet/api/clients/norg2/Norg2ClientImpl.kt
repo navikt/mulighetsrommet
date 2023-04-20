@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 
 class Norg2ClientImpl(
     private val baseUrl: String,
-    clientEngine: HttpClientEngine = CIO.create()
+    clientEngine: HttpClientEngine = CIO.create(),
 ) : Norg2Client {
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = httpJsonClient(clientEngine)

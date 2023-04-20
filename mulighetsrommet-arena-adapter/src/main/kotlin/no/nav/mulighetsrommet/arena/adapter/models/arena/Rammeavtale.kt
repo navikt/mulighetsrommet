@@ -12,5 +12,5 @@ enum class Rammeavtale {
     SKAL,
 
     @SerialName("IKKE")
-    IKKE
+    IKKE,
 }

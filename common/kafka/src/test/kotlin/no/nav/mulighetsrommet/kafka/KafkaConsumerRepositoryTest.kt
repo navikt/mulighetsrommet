@@ -25,7 +25,7 @@ class KafkaConsumerRepositoryTest : FunSpec({
                 "key$it".toByteArray(),
                 "value$it".toByteArray(),
                 "{}",
-                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
             )
         }
 
@@ -67,8 +67,8 @@ class KafkaConsumerRepositoryTest : FunSpec({
                 "key1".toByteArray(),
                 "value1".toByteArray(),
                 "{}",
-                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-            )
+                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
+            ),
         )
 
         val result = kafkaConsumerRepository.getTopicPartitions(mutableListOf("topic1"))
