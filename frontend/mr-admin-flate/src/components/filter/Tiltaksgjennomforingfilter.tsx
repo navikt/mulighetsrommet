@@ -1,7 +1,8 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  TiltaksgjennomforingAvslutningsstatus, Tiltakstypestatus,
+  TiltaksgjennomforingAvslutningsstatus,
+  Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
 import {
@@ -19,9 +20,12 @@ export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
-  const { data: tiltakstyper } = useTiltakstyper({
-    status: Tiltakstypestatus.AKTIV
-  }, 1);
+  const { data: tiltakstyper } = useTiltakstyper(
+    {
+      status: Tiltakstypestatus.AKTIV,
+    },
+    1
+  );
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
@@ -57,7 +61,7 @@ export function Tiltaksgjennomforingfilter() {
           >
             <option value="">Alle enheter</option>
             {enheter?.map((enhet) => (
-              <option key={enhet.enhetId} value={enhet.enhetNr}>
+              <option key={enhet.enhetNr} value={enhet.enhetNr}>
                 {enhet.navn} - {enhet.enhetNr}
               </option>
             ))}

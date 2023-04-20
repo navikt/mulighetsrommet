@@ -1313,8 +1313,6 @@ components:
     NavEnhet:
       type: object
       properties:
-        enhetId:
-          type: number
         enhetNr:
           type: string
         overordnetEnhet:

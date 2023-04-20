@@ -3,6 +3,7 @@ import { Button, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   NavEnhet,
+  Norg2Type,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
   Tiltakstypestatus,
@@ -101,11 +102,10 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
   }, []);
 
-  const {
-    data: tiltakstyper,
-    isLoading: isLoadingTiltakstyper,
-    isError: isErrorTiltakstyper,
-  } = useTiltakstyper({ status: Tiltakstypestatus.AKTIV }, 1);
+  const { data: tiltakstyper, isError: isErrorTiltakstyper } = useTiltakstyper(
+    { status: Tiltakstypestatus.AKTIV },
+    1
+  );
 
   const {
     data: enheter,
@@ -116,11 +116,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   const [avtaleId, setAvtaleId] = useState<string | undefined>(
     props.tiltaksgjennomforing?.avtaleId
   );
-  const {
-    data: avtale,
-    isLoading: isLoadingAvtale,
-    isError: isErrorAvtale,
-  } = useAvtale(avtaleId);
+  const { data: avtale, isError: isErrorAvtale } = useAvtale(avtaleId);
 
   const {
     data: avtaler,
@@ -232,10 +228,14 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const enheterOptions = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
+
     const options = enheter
-      ?.filter((enhet: NavEnhet) =>
-        overordnet ? overordnet.enhetNr === enhet.overordnetEnhet : true
-      )
+      ?.filter((enhet: NavEnhet) => {
+        // Bare interessert i filtrering på overordnet enhet hvis overordnet enhet sin type er et fylke
+        return overordnet?.type === Norg2Type.FYLKE
+          ? overordnet.enhetNr === enhet.overordnetEnhet
+          : true;
+      })
       .map((enhet: NavEnhet) => ({
         label: enhet.navn,
         value: enhet.enhetNr,

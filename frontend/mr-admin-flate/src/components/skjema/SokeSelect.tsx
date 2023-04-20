@@ -16,7 +16,8 @@ export interface SelectProps {
   onChange?: (a0: any) => void;
 }
 
-const SokeSelect = React.forwardRef((props: SelectProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   const {
     label,
     placeholder,
@@ -72,11 +73,7 @@ const SokeSelect = React.forwardRef((props: SelectProps) => {
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
               defaultInputValue={defaultValue}
-              value={
-                disabled
-                  ? null
-                  : options.find((c) => c.value === value)
-              }
+              value={disabled ? null : options.find((c) => c.value === value)}
               onChange={(e) => {
                 onChange(e?.value);
                 providedOnChange?.(e?.value);
