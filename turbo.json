@@ -24,17 +24,6 @@
     "build:preprod": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
-    },
-    "mulighetsrommet-api-client#build": {
-      "inputs": ["../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"],
-      "outputs": ["build"]
-    },
-    "norg2-api-client#build": {
-      "inputs": ["openapi-norg2.json"],
-      "outputs": ["build"]
-    },
-    "dev": {
-      "cache": false
     }
   }
 }
