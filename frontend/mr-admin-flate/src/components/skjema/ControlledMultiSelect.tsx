@@ -7,16 +7,11 @@ export interface MultiSelectProps {
   label: string;
   placeholder: string;
   options: SelectOption[];
-  size?: "small" | "medium",
+  size?: "small" | "medium";
 }
 
 const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps) => {
-  const {
-    label,
-    placeholder,
-    options,
-    ...rest
-  } = props;
+  const { label, placeholder, options, ...rest } = props;
 
   return (
     <div>
@@ -24,8 +19,8 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps) => {
         name={label}
         {...rest}
         render={({
-            field: { onChange, value, name, ref },
-            fieldState: { error },
+          field: { onChange, value, name, ref },
+          fieldState: { error },
         }) => (
           <>
             <label
@@ -39,11 +34,9 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps) => {
               placeholder={placeholder}
               ref={ref}
               name={name}
-              value={
-                options.filter((c) => value?.includes(c.value))
-              }
+              value={options.filter((c) => value?.includes(c.value))}
               onChange={(e) => {
-                onChange(e.map((option: SelectOption) => option.value))
+                onChange(e.map((option: SelectOption) => option.value));
               }}
               options={options}
             />
@@ -59,7 +52,6 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps) => {
   );
 });
 
-ControlledMultiSelect.displayName = 'ControlledMultiSelect';
+ControlledMultiSelect.displayName = "ControlledMultiSelect";
 
 export { ControlledMultiSelect };
-
