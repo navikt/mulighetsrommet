@@ -13,15 +13,11 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "build:mock": {
+    "build:dev": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "build:labs": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
-    },
-    "build:preprod": {
+    "build:demo": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     }
