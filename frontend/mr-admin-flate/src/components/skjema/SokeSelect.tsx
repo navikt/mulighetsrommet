@@ -39,7 +39,11 @@ const SokeSelect = React.forwardRef((props: SelectProps) => {
     indicatorSeparator: () => ({
       display: "none",
     }),
-    singleValue: (provided: any) => ({
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      color: "black",
+    }),
+    placeholder: (provided: any) => ({
       ...provided,
       color: "#0000008f",
     }),
@@ -69,11 +73,9 @@ const SokeSelect = React.forwardRef((props: SelectProps) => {
               name={name}
               defaultInputValue={defaultValue}
               value={
-                disabled ? null :
-                options.find((c) => c.value === value) || {
-                  label: placeholder,
-                  value: "",
-                }
+                disabled
+                  ? null
+                  : options.find((c) => c.value === value)
               }
               onChange={(e) => {
                 onChange(e?.value);

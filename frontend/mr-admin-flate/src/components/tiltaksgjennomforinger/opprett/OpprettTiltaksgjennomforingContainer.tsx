@@ -67,7 +67,10 @@ export const OpprettTiltaksgjennomforingContainer = (
     defaultValues: {
       tittel: props.tiltaksgjennomforing?.navn,
       tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
-      enheter: props.tiltaksgjennomforing?.enheter.length === 0 ? ["alle_enheter"] : props.tiltaksgjennomforing?.enheter,
+      enheter:
+        props.tiltaksgjennomforing?.enheter.length === 0
+          ? ["alle_enheter"]
+          : props.tiltaksgjennomforing?.enheter,
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
@@ -177,18 +180,11 @@ export const OpprettTiltaksgjennomforingContainer = (
         .join(" ")
     : "";
 
-  if (
-    isLoadingAvtaler ||
-    isLoadingAvtale ||
-    isLoadingAnsatt ||
-    isLoadingEnheter ||
-    isLoadingTiltakstyper ||
-    !avtaler ||
-    !tiltakstyper ||
-    !enheter
-  ) {
+  if (!avtaler && !tiltakstyper && !enheter) {
+    console.log("Laster...", { avtaler, tiltakstyper, enheter });
     return <Laster />;
   }
+
   if (
     isErrorAvtaler ||
     isErrorAnsatt ||
@@ -201,60 +197,65 @@ export const OpprettTiltaksgjennomforingContainer = (
   }
 
   const avtalerOptions = () => {
-    if (avtale && !avtaler.data.find((a) => a.id === avtale.id)) {
-      avtaler.data.push(avtale);
+    if (avtale && !avtaler?.data.find((a) => a.id === avtale.id)) {
+      avtaler?.data.push(avtale);
     }
 
-    return avtaler.data.map((avtale: Avtale) => ({
-      value: avtale.id,
-      label: avtale.navn,
-    }));
+    return avtaler
+      ? avtaler?.data.map((avtale: Avtale) => ({
+          value: avtale.id,
+          label: avtale.navn,
+        }))
+      : [];
   };
 
   const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
-    const avtaleEnhet = enheter.find(e => e.enhetNr === avtale?.navEnhet?.enhetsnummer);
+    const avtaleEnhet = enheter?.find(
+      (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+    );
     if (!avtaleEnhet) {
       return undefined;
     }
     return avtaleEnhet.overordnetEnhet
-      ? enheter.find(e => e.enhetNr === avtaleEnhet?.overordnetEnhet)
-      : enheter.find(e => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer)
+      ? enheter?.find(
+        (e: NavEnhet) => e.enhetNr === avtaleEnhet?.overordnetEnhet
+      ) : enheter?.find(
+        (e: NavEnhet) => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer
+      )
   }
 
   const enheterLabel = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
-    return overordnet?.navn
-      ? "Enheter i " + overordnet.navn
-      : "Enheter";
+    return overordnet?.navn ? "Enheter i " + overordnet.navn : "Enheter";
   }
 
   const enheterOptions = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
     const options = enheter
-      .filter((enhet: NavEnhet) => overordnet ? overordnet.enhetNr === enhet.overordnetEnhet : true)
-      .map((enhet: NavEnhet) => (
-        {
-          label: enhet.navn,
-          value: enhet.enhetNr,
-        }
-      ))
-    options.unshift({ value: "alle_enheter", label: "Alle enheter"})
-    return options;
-  }
+      ?.filter((enhet: NavEnhet) =>
+        overordnet ? overordnet.enhetNr === enhet.overordnetEnhet : true
+      )
+      .map((enhet: NavEnhet) => ({
+        label: enhet.navn,
+        value: enhet.enhetNr,
+      }));
+    options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
+    return options || [];
+  };
 
   const fylkeEnheterOptions = () => {
     const overordnedeEnhetsnummer = enheter
-      .filter((enhet: NavEnhet) => enhet.overordnetEnhet)
+      ?.filter((enhet: NavEnhet) => enhet.overordnetEnhet)
       .map((enhet: NavEnhet) => enhet.overordnetEnhet)
       
     return enheter
-      .filter((enhet: NavEnhet) => overordnedeEnhetsnummer.includes(enhet.enhetNr))
+      ?.filter((enhet: NavEnhet) => overordnedeEnhetsnummer?.includes(enhet.enhetNr))
       .map((enhet: NavEnhet) => (
         {
           label: enhet.navn,
           value: enhet.enhetNr,
         }
-      ))
+      )) ?? []
   }
 
   return (
@@ -271,13 +272,17 @@ export const OpprettTiltaksgjennomforingContainer = (
                 form.resetField("avtale", { defaultValue: "" });
               },
             })}
-            options={tiltakstyper.data.map((tiltakstype) => ({
-              value: tiltakstype.id,
-              label: tiltakstype.navn,
-            }))}
+            options={
+              tiltakstyper
+                ? tiltakstyper?.data.map((tiltakstype) => ({
+                    value: tiltakstype.id,
+                    label: tiltakstype.navn,
+                  }))
+                : []
+            }
           />
           <SokeSelect
-            placeholder="Velg en"
+            placeholder={isLoadingAvtaler ? "Henter avtaler..." : "Velg en"}
             label="Avtale"
             {...register("avtale", {
               onChange: (e) => {
@@ -323,17 +328,19 @@ export const OpprettTiltaksgjennomforingContainer = (
             options={fylkeEnheterOptions()}
             defaultValue={overordnetEnhetFraAvtale()?.enhetNr}
             onChange={(e) => {
-              setFylkeEnhet(enheter.find((enhet: NavEnhet) => enhet.enhetNr === e))
+              setFylkeEnhet(enheter?.find((enhet: NavEnhet) => enhet.enhetNr === e))
             }}
           />
           <ControlledMultiSelect
-            placeholder="Velg en"
+            placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
             label={enheterLabel()}
             {...register("enheter")}
             options={enheterOptions()}
           />
           <SokeSelect
-            placeholder="Velg en"
+            placeholder={
+              isLoadingAnsatt ? "Laster gjennomføringsansvarlig..." : "Velg en"
+            }
             label={"Gjennomføringsansvarlig"}
             {...register("ansvarlig")}
             options={
@@ -367,6 +374,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             className={styles.button}
             onClick={props.onAvbryt}
             variant="tertiary"
+            type="button"
           >
             Avbryt
           </Button>

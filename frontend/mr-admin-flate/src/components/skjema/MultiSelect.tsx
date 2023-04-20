@@ -7,27 +7,19 @@ export interface MultiSelectProps {
   ref: React.Ref<any>;
   placeholder: string;
   options: SelectOption[];
-  size?: "small" | "medium",
+  size?: "small" | "medium";
   value: SelectOption[];
-  onChange: (e: any) => void,
+  onChange: (e: any) => void;
   error: boolean;
 }
 
 const MultiSelect = React.forwardRef((props: MultiSelectProps) => {
-  const {
-    name,
-    placeholder,
-    options,
-    onChange,
-    value,
-    ref,
-    error,
-  } = props;
+  const { name, placeholder, options, onChange, value, ref, error } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: '#fff',
+      background: "#fff",
       borderColor: isError ? "#C30000" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
       minHeight: "48px",
@@ -35,26 +27,34 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps) => {
     }),
     multiValue: (provided: any) => ({
       ...provided,
-      backgroundColor: '#005b82',
-      borderRadius: '15px',
-      color: 'white'
+      backgroundColor: "#005b82",
+      borderRadius: "15px",
+      color: "white",
     }),
     multiValueLabel: (provided: any) => ({
       ...provided,
-      color: 'white'
+      color: "white",
     }),
     multiValueRemove: (provided: any) => ({
       ...provided,
-      color: '#cce1ff',
-      ':hover': {
-        backgroundColor: '#3380a5',
-        borderRadius: '15px',
+      color: "#cce1ff",
+      ":hover": {
+        backgroundColor: "#3380a5",
+        borderRadius: "15px",
         color: "white",
       },
     }),
     indicatorSeparator: (state: any) => ({
       ...state,
-      display: 'none',
+      display: "none",
+    }),
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      color: "black",
+    }),
+    placeholder: (provided: any) => ({
+      ...provided,
+      color: "#0000008f",
     }),
   });
 
@@ -73,8 +73,8 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps) => {
         ...theme,
         colors: {
           ...theme.colors,
-          primary25: '#cce1ff',
-          primary: '#0067c5',
+          primary25: "#cce1ff",
+          primary: "#0067c5",
           danger: "black",
           dangerLight: "#0000004f",
           neutral10: "#cce1ff",
