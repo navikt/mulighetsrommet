@@ -46,7 +46,7 @@ const Schema = z.object({
   enheter: z
     .string()
     .array()
-    .nonempty({ message: "Du må velge en enhet" }),
+    .nonempty({ message: "Du må velge minst én enhet" }),
   ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
 });
 
