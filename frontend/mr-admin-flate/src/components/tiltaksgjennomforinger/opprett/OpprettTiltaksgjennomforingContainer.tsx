@@ -67,7 +67,10 @@ export const OpprettTiltaksgjennomforingContainer = (
     defaultValues: {
       tittel: props.tiltaksgjennomforing?.navn,
       tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
-      enheter: props.tiltaksgjennomforing?.enheter.length === 0 ? ["alle_enheter"] : [],
+      enheter:
+        props.tiltaksgjennomforing?.enheter.length === 0
+          ? ["alle_enheter"]
+          : [],
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
@@ -187,6 +190,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   ) {
     return <Laster />;
   }
+
   if (
     isErrorAvtaler ||
     isErrorAnsatt ||
@@ -210,15 +214,13 @@ export const OpprettTiltaksgjennomforingContainer = (
   };
 
   const enheterOptions = () => {
-    const options = enheter.map((enhet: NavEnhet) => (
-      {
-        label: enhet.navn,
-        value: enhet.enhetNr,
-      }
-    ))
-    options.unshift({ value: "alle_enheter", label: "Alle enheter"})
+    const options = enheter.map((enhet: NavEnhet) => ({
+      label: enhet.navn,
+      value: enhet.enhetNr,
+    }));
+    options.unshift({ value: "alle_enheter", label: "Alle enheter" });
     return options;
-  }
+  };
 
   return (
     <FormProvider {...form}>

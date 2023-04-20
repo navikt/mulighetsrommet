@@ -28,7 +28,11 @@ export const SokeSelect = (props: SelectProps) => {
     indicatorSeparator: () => ({
       display: "none",
     }),
-    singleValue: (provided: any) => ({
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      color: "#0000008f",
+    }),
+    placeholder: (provided: any) => ({
       ...provided,
       color: "#0000008f",
     }),
@@ -55,12 +59,7 @@ export const SokeSelect = (props: SelectProps) => {
               ref={ref}
               name={name}
               defaultInputValue={defaultValue}
-              value={
-                options.find((c) => c.value === value) || {
-                  label: placeholder,
-                  value: "",
-                }
-              }
+              value={options.find((c) => c.value === value)}
               onChange={(e) => {
                 onChange(e?.value);
               }}
