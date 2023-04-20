@@ -14,21 +14,21 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "^2.7.8",
-    "@sanity/vision": "^3.5.1",
+    "@navikt/aksel-icons": "^2.8.13",
+    "@sanity/vision": "^3.9.0",
     "prop-types": "^15.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.7.1",
+    "react-icons": "^4.8.0",
     "react-is": "^18.2.0",
     "react-switch": "^7.0.0",
-    "sanity": "^3.5.1",
-    "styled-components": "^5.3.8"
+    "sanity": "^3.9.0",
+    "styled-components": "^5.3.9"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^2.0.0",
-    "@types/react": "^18.0.28",
+    "@eslint/eslintrc": "^2.0.2",
+    "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
-    "eslint": "^8.35.0"
+    "eslint": "^8.38.0"
   }
 }

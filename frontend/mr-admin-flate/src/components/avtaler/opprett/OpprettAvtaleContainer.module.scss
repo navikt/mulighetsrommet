@@ -13,12 +13,17 @@
 .button_row {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: end;
+}
+
+.button {
+  margin-left: 16px;
 }
 
 .grid {
   display: grid;
   gap: 1rem;
+  align-items: start;
 
   &_1 {
     grid-template-columns: repeat(1, 1fr);

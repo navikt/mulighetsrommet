@@ -1,16 +1,15 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
+import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
-import no.nav.mulighetsrommet.api.services.Sokefilter
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
@@ -24,45 +23,30 @@ import java.time.LocalDate
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
-    val tiltaksgjennomforinger: TiltaksgjennomforingRepository by inject()
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val logger = application.environment.log
+    val log = application.environment.log
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
-            val (totalCount, items) = tiltaksgjennomforingService.getAll(paginationParams, filter)
-            call.respond(
-                PaginatedResponse(
-                    pagination = Pagination(
-                        totalCount = totalCount,
-                        currentPage = paginationParams.page,
-                        pageSize = paginationParams.limit
-                    ),
-                    data = items
-                )
-            )
-        }
-
-        get("tiltakstype/{id}") {
-            val tiltakstypeId = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig tiltakstypeId",
-                status = HttpStatusCode.BadRequest
-            )
-
-            val paginationParams = getPaginationParams()
-            val (totalCount, items) = tiltaksgjennomforinger.getAllByTiltakstypeId(tiltakstypeId, paginationParams)
-            call.respond(
-                PaginatedResponse(
-                    pagination = Pagination(
-                        totalCount = totalCount,
-                        currentPage = paginationParams.page,
-                        pageSize = paginationParams.limit
-                    ),
-                    data = items
-                )
-            )
+            tiltaksgjennomforingService.getAll(paginationParams, filter)
+                .onRight { (totalCount, items) ->
+                    call.respond(
+                        PaginatedResponse(
+                            pagination = Pagination(
+                                totalCount = totalCount,
+                                currentPage = paginationParams.page,
+                                pageSize = paginationParams.limit
+                            ),
+                            data = items
+                        )
+                    )
+                }
+                .onLeft {
+                    log.error("$it")
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføringer")
+                }
         }
 
         get("{id}") {
@@ -70,40 +54,36 @@ fun Route.tiltaksgjennomforingRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
-            val tiltaksgjennomforing = tiltaksgjennomforinger.get(id) ?: return@get call.respondText(
-                "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                status = HttpStatusCode.NotFound
-            )
-            call.respond(tiltaksgjennomforing)
+            tiltaksgjennomforingService
+                .get(id)
+                .onRight {
+                    if (it == null) {
+                        return@get call.respondText(
+                            "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                            status = HttpStatusCode.NotFound
+                        )
+                    }
+                    return@get call.respond(it)
+                }
+                .onLeft {
+                    log.error("$it")
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
+                }
         }
 
         put() {
             val request = call.receive<TiltaksgjennomforingRequest>()
 
             request.toDbo()
-                .map { tiltaksgjennomforinger.upsert(it) }
                 .onLeft { error ->
                     call.respond(HttpStatusCode.BadRequest, error.message.toString())
                 }
-                .map { call.respond(it) }
+                .flatMap { tiltaksgjennomforingService.upsert(it) }
+                .onRight { call.respond(it) }
                 .onLeft { error ->
                     log.error("$error")
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
                 }
-        }
-
-        get("sok") {
-            val tiltaksnummer = call.request.queryParameters["tiltaksnummer"] ?: return@get call.respondText(
-                "Mangler query-param 'tiltaksnummer'",
-                status = HttpStatusCode.BadRequest
-            )
-
-            val gjennomforinger = tiltaksgjennomforingService.sok(Sokefilter(tiltaksnummer = tiltaksnummer))
-            if (gjennomforinger.isEmpty()) {
-                call.respond(status = HttpStatusCode.NoContent, "Fant ingen tiltaksgjennomføringer for søket")
-            }
-
-            call.respond(gjennomforinger)
         }
 
         get("{id}/nokkeltall") {
@@ -111,9 +91,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest
             )
-            val nokkeltall = tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id)
-
-            call.respond(nokkeltall)
+            call.respond(tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id))
         }
     }
 }
@@ -135,6 +113,7 @@ data class TiltaksgjennomforingRequest(
     val antallPlasser: Int,
     val virksomhetsnummer: String,
     val tiltaksnummer: String,
+    val ansvarlig: String,
 ) {
     fun toDbo(): Either<Exception, TiltaksgjennomforingDbo> {
         if (sluttDato.isBefore(startDato)) {
@@ -157,6 +136,7 @@ data class TiltaksgjennomforingRequest(
                 tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
+                ansvarlige = listOf(ansvarlig),
             )
         )
     }

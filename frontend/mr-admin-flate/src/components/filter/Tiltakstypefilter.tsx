@@ -2,12 +2,12 @@ import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
-import { paginationAtom, tiltakstypefilter } from "../../api/atoms";
+import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
 import styles from "./Filter.module.scss";
 import { resetPaginering } from "../../utils/Utils";
 
 export function Tiltakstypefilter() {
-  const [sokefilter, setSokefilter] = useAtom(tiltakstypefilter);
+  const [sokefilter, setSokefilter] = useAtom(tiltakstypeFilter);
   const [, setPage] = useAtom(paginationAtom);
 
   return (

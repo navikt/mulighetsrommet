@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
+import io.ktor.server.plugins.*
+import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -18,18 +20,23 @@ class AvtaleService(
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val amtEnhetsregisterClient: AmtEnhetsregisterClient
 ) {
-
     suspend fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
             ?.hentEnhetsnavnForAvtale()
             ?.hentVirksomhetsnavnForAvtale()
     }
 
-    fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleDbo> {
+    suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleDbo> {
         val avtaleDbo = avtale.toDbo()
-        val result = avtaler.upsert(avtaleDbo)
-        return result
+        validerOrganisasjonsnummerForLeverandor(avtale.leverandorOrganisasjonsnummer)
+        return avtaler.upsert(avtaleDbo)
+    }
+
+    private suspend fun validerOrganisasjonsnummerForLeverandor(leverandorOrganisasjonsnummer: String) {
+        amtEnhetsregisterClient.hentVirksomhet(leverandorOrganisasjonsnummer)
+            ?: throw BadRequestException("Fant ikke virksomhet med organisasjonsnummer $leverandorOrganisasjonsnummer. Kan derfor ikke lagre avtalen.")
     }
 
     fun delete(id: UUID): QueryResult<Int> {

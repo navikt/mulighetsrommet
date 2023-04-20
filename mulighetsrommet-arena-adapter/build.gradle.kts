@@ -1,11 +1,10 @@
 plugins {
     application
-    jacoco
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.flywaydb.flyway")
-    id("org.jlleitschuh.gradle.ktlint")
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.shadow)
 }
 
 application {
@@ -20,6 +19,7 @@ flyway {
     url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
     password = System.getenv("DB_PASSWORD")
+    cleanDisabled = false
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -28,65 +28,59 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":common:domain"))
-    implementation(project(":common:database"))
-    testImplementation(testFixtures(project(":common:database")))
-    implementation(project(":common:kafka"))
-    implementation(project(":common:ktor"))
-    testImplementation(testFixtures(project(":common:ktor")))
-    implementation(project(":common:slack"))
+    implementation(projects.common.domain)
+    implementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
+    implementation(projects.common.kafka)
+    implementation(projects.common.ktor)
+    testImplementation(testFixtures(projects.common.ktor))
+    implementation(projects.common.ktorClients)
+    implementation(projects.common.slack)
 
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.arrow-kt:arrow-core:1.1.5")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.arrow.core)
 
-    val ktorVersion = "2.2.4"
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-default-headers-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
+    // Ktor
+    testImplementation(libs.ktor.client.mock)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.authJwt)
+    implementation(libs.ktor.server.contentNegotiation)
+    implementation(libs.ktor.server.callLogging)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.defaultHeaders)
+    implementation(libs.ktor.server.metricsMicrometer)
+    implementation(libs.ktor.server.netty)
+    testImplementation(libs.ktor.server.tests)
 
-    val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
-    implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
-    implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
+    implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.4.9") {
+        implementation("net.minidev:json-smart:2.4.10") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
 
-    val kotestVersion = "5.5.5"
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("org.testcontainers:kafka:1.17.6")
-    testImplementation("org.assertj:assertj-db:2.0.2")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.8")
+    // Test
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.assertions.arrow)
+    testImplementation(libs.mockk)
+    testImplementation(libs.assertj.db)
+    testImplementation(libs.nav.mockOauth2Server)
 
-    val koinVersion = "3.3.1"
-    implementation("io.insert-koin:koin-ktor:$koinVersion")
-    implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    // Dependency injection
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
+    // Metrics
+    implementation(libs.micrometer.registry.prometheus)
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.5")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
-    implementation("org.slf4j:slf4j-api:2.0.6")
+    implementation(libs.logback.classic)
+    implementation(libs.logback.logstashLogbackEncoder)
+    implementation(libs.slf4j)
 
-    implementation("com.github.kagkarlsson:db-scheduler:11.6")
+    implementation(libs.dbScheduler)
 }

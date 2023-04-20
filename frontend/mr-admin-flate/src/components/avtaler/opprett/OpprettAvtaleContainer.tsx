@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Select, TextField } from "@navikt/ds-react";
+import { Button, TextField, Textarea } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
@@ -8,13 +8,19 @@ import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import z from "zod";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import z from "zod";
 import { mulighetsrommetClient } from "../../../api/clients";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import {
+  capitalize,
+  formaterDatoSomYYYYMMDD,
+  tiltakstypekodeErAnskaffetTiltak,
+} from "../../../utils/Utils";
 import { Datovelger } from "../../skjema/OpprettComponents";
+import { VirksomhetInput } from "../../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
+import { SokeSelect } from "../../skjema/SokeSelect";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -32,7 +38,7 @@ const GyldigUrlHvisVerdi = z.union([
 
 const Schema = z.object({
   avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
-  tiltakstype: z.string().min(1, "Du må velge en tiltakstype"),
+  tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
   avtaletype: z.nativeEnum(Avtaletype, {
     required_error: "Du må velge en avtaletype",
   }),
@@ -41,7 +47,7 @@ const Schema = z.object({
     .min(9, "Organisasjonsnummer må være 9 siffer")
     .max(9, "Organisasjonsnummer må være 9 siffer")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
-  enhet: z.string().min(1, "Du må velge en enhet"),
+  enhet: z.string({ required_error: "Du må velge en enhet" }),
   antallPlasser: z
     .number({
       invalid_type_error:
@@ -55,8 +61,11 @@ const Schema = z.object({
   sluttDato: z
     .date({ required_error: "En avtale må ha en sluttdato" })
     .nullable(),
-  avtaleansvarlig: z.string().min(1, "Du må velge en avtaleansvarlig"),
+  avtaleansvarlig: z.string({
+    required_error: "Du må velge en avtaleansvarlig",
+  }),
   url: GyldigUrlHvisVerdi,
+  prisOgBetalingsinfo: z.string().optional(),
 });
 
 export type inferredSchema = z.infer<typeof Schema>;
@@ -72,15 +81,26 @@ export function OpprettAvtaleContainer({
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [feil, setFeil] = useState<string | null>("");
+
   const clickCancel = () => {
     setFeil(null);
+  };
+
+  const defaultEnhet = () => {
+    if (avtale?.navEnhet?.enhetsnummer) {
+      return avtale?.navEnhet?.enhetsnummer;
+    }
+    if (enheter.find((e) => e.enhetNr === ansatt.hovedenhet)) {
+      return ansatt.hovedenhet;
+    }
+    return undefined;
   };
 
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
-      enhet: avtale?.navEnhet?.enhetsnummer ?? ansatt.hovedenhet,
+      enhet: defaultEnhet(),
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
@@ -89,13 +109,20 @@ export function OpprettAvtaleContainer({
       startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
       sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
       url: avtale?.url || "",
+      prisOgBetalingsinfo: avtale?.prisbetingelser || undefined,
     },
   });
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = form;
+
+  const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
+    const tiltakstype = tiltakstyper.find((type) => type.id === tiltakstypeId);
+    return tiltakstypekodeErAnskaffetTiltak(tiltakstype?.arenaKode);
+  };
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
@@ -106,6 +133,7 @@ export function OpprettAvtaleContainer({
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
       enhet: data.enhet,
+      avtalenummer: avtale?.avtalenummer || "",
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
@@ -114,6 +142,9 @@ export function OpprettAvtaleContainer({
       url: data.url,
       ansvarlig: data.avtaleansvarlig,
       avtaletype: data.avtaletype,
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(data.tiltakstype)
+        ? data.prisOgBetalingsinfo
+        : undefined,
     };
 
     if (avtale?.id) {
@@ -184,69 +215,89 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup cols={2}>
-          <Select label={"Tiltakstype"} {...register("tiltakstype")}>
-            {tiltakstyper.map((tiltakstype) => (
-              <option key={tiltakstype.id} value={tiltakstype.id}>
-                {tiltakstype.navn}
-              </option>
-            ))}
-          </Select>
-
-          <Select
-            error={errors.enhet?.message}
+          <SokeSelect
+            placeholder="Velg en"
+            label={"Tiltakstype"}
+            {...register("tiltakstype")}
+            options={tiltakstyper.map((tiltakstype) => ({
+              value: tiltakstype.id,
+              label: tiltakstype.navn,
+            }))}
+          />
+          <SokeSelect
+            placeholder="Velg en"
             label={"Enhet"}
             {...register("enhet")}
-            defaultValue={ansatt.hovedenhet}
-          >
-            {enheter.map((enhet) => (
-              <option key={enhet.enhetId} value={enhet.enhetNr}>
-                {enhet.navn}
-              </option>
-            ))}
-          </Select>
+            options={enheter.map((enhet) => ({
+              value: `${enhet.enhetNr}`,
+              label: enhet.navn,
+            }))}
+          />
           <TextField
+            type={"number"}
             error={errors.antallPlasser?.message}
             label="Antall plasser"
             {...register("antallPlasser", { valueAsNumber: true })}
           />
-          <TextField
-            error={errors.leverandor?.message}
-            label="Leverandør"
-            {...register("leverandor")}
-          />
-          <Select
-            error={errors.avtaletype?.message}
+
+          <VirksomhetInput avtale={avtale} />
+          <SokeSelect
+            placeholder="Velg en"
             label={"Avtaletype"}
             {...register("avtaletype")}
-          >
-            <option value={Avtaletype.FORHAANDSGODKJENT}>
-              Forhåndsgodkjent avtale
-            </option>
-            <option value={Avtaletype.RAMMEAVTALE}>Rammeavtale</option>
-            <option value={Avtaletype.AVTALE}>Avtale</option>
-          </Select>
+            options={[
+              {
+                value: Avtaletype.FORHAANDSGODKJENT,
+                label: "Forhåndsgodkjent avtale",
+              },
+              {
+                value: Avtaletype.RAMMEAVTALE,
+                label: "Rammeavtale",
+              },
+              {
+                value: Avtaletype.AVTALE,
+                label: "Avtale",
+              },
+            ]}
+          />
           <TextField
             error={errors.url?.message}
             label="URL til avtale"
             {...register("url")}
           />
         </FormGroup>
+        {erAnskaffetTiltak(watch("tiltakstype")) ? (
+          <FormGroup>
+            <Textarea
+              error={errors.prisOgBetalingsinfo?.message}
+              label="Pris og betalingsinformasjon"
+              {...register("prisOgBetalingsinfo")}
+            />
+          </FormGroup>
+        ) : null}
+
         <FormGroup cols={2}>
-          <Select
-            error={errors.avtaleansvarlig?.message}
+          <SokeSelect
+            placeholder="Velg en"
             label={"Avtaleansvarlig"}
             {...register("avtaleansvarlig")}
-          >
-            <option
-              value={ansatt.ident ?? ""}
-            >{`${navn} - ${ansatt?.ident}`}</option>
-          </Select>
+            options={[
+              {
+                value: ansatt.ident ?? "",
+                label: `${navn} - ${ansatt?.ident}`,
+              },
+            ]}
+          />
         </FormGroup>
         <div className={styles.button_row}>
-          <Button onClick={onAvbryt} variant="danger">
+          <Button
+            className={styles.button}
+            onClick={onAvbryt}
+            variant="tertiary"
+          >
             Avbryt
           </Button>
-          <Button type="submit">
+          <Button className={styles.button} type="submit">
             {redigeringsModus ? "Lagre redigert avtale" : "Registrer avtale"}{" "}
           </Button>
         </div>

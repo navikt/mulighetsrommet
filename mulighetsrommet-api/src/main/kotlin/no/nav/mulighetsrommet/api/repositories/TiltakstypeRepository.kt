@@ -64,20 +64,32 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select
+                id,
+                navn,
+                tiltakskode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                rett_paa_tiltakspenger,
+                count(*) OVER() AS full_count
             from tiltakstype
             order by navn asc
             limit :limit
             offset :offset
         """.trimIndent()
 
-        val results = runQueryWithParameters(query, parameters)
+        val results = queryOf(query, parameters)
+            .map { it.int("full_count") to it.toTiltakstypeDto() }
+            .asList
+            .let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
     }
 
-    fun getAll(
+    fun getAllSkalMigreres(
         tiltakstypeFilter: TiltakstypeFilter,
         paginationParams: PaginationParams = PaginationParams()
     ): Pair<Int, List<TiltakstypeDto>> {
@@ -86,7 +98,7 @@ class TiltakstypeRepository(private val db: Database) {
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
             "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.Gruppetiltak),
-            "today" to tiltakstypeFilter.dagensDato
+            "today" to tiltakstypeFilter.dagensDato,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -97,7 +109,8 @@ class TiltakstypeRepository(private val db: Database) {
                     Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
                     Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
                 }
-            }
+            },
+            true to "skal_migreres = true"
         )
 
         val order = when (tiltakstypeFilter.sortering) {
@@ -108,7 +121,16 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select
+                id,
+                navn,
+                tiltakskode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                rett_paa_tiltakspenger,
+                count(*) OVER() AS full_count
             from tiltakstype
             $where
             order by $order
@@ -116,7 +138,10 @@ class TiltakstypeRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = runQueryWithParameters(query, parameters)
+        val results = queryOf(query, parameters)
+            .map { it.int("full_count") to it.toTiltakstypeDto() }
+            .asList
+            .let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
@@ -165,15 +190,6 @@ class TiltakstypeRepository(private val db: Database) {
 
         queryOf(query, id)
             .asUpdate
-            .let { db.run(it) }
-    }
-
-    private fun runQueryWithParameters(query: String, parameters: Map<String, Any?>): List<Pair<Int, TiltakstypeDto>> {
-        return queryOf(query, parameters)
-            .map {
-                it.int("full_count") to it.toTiltakstypeDto()
-            }
-            .asList
             .let { db.run(it) }
     }
 

@@ -1,11 +1,13 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.flatMap
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import java.util.*
 
@@ -42,12 +44,12 @@ class ArenaAdapterService(
         return avtaler.delete(id)
     }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingDbo> {
+    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+            .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
+            .map { it!! }
             .onRight {
-                tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.let {
-                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
-                }
+                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
             }
     }
 

@@ -1,6 +1,7 @@
 .summary_container {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 2px;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  background-color: white;
 }

@@ -12,7 +12,6 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -64,19 +63,19 @@ class TiltakEventProcessorTest : FunSpec({
             val processor = createProcessor()
 
             val (e1, mapping) = prepareEvent(createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") })
-            processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+            processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
             database.assertThat("tiltakstype").row()
                 .value("id").isEqualTo(mapping.entityId)
                 .value("navn").isEqualTo("Oppfølging 1")
 
             val e2 = createArenaTiltakEvent(Update) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
-            processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+            processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
             database.assertThat("tiltakstype").row()
                 .value("id").isEqualTo(mapping.entityId)
                 .value("navn").isEqualTo("Oppfølging 2")
 
             val e3 = createArenaTiltakEvent(Delete) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
-            processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+            processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
             database.assertThat("tiltakstype").row()
                 .value("id").isEqualTo(mapping.entityId)
                 .value("navn").isEqualTo("Oppfølging 1")

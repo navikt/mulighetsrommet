@@ -7,5 +7,8 @@
     "prettier": "^2.8.0",
     "turbo": "^1.6.3"
   },
-  "packageManager": "npm@8.5.2"
+  "packageManager": "npm@8.5.2",
+  "dependencies": {
+    "gitmoji-cli": "^8.1.1"
+  }
 }

@@ -34,6 +34,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      url: "https://www.mercell.no",
     },
     {
       id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -44,6 +45,7 @@ export const mockAvtaler: PaginertAvtale = {
       },
       navn: "Avtale hos Åna Fengsel",
       avtalenummer: "2020#4929",
+      url: "https://www.websak.no",
       leverandor: {
         organisasjonsnummer: "911830868",
         navn: "KRIMINALOMSORGSDIREKTORATET",
@@ -82,6 +84,7 @@ export const mockAvtaler: PaginertAvtale = {
       avtaletype: Avtaletype.RAMMEAVTALE,
       avtalestatus: Avtalestatus.AKTIV,
       prisbetingelser: "Maskert prisbetingelser",
+      url: "https://www.nav.no",
     },
     {
       id: "8a4a4dee-98c7-4a07-bc0c-f677a46c406f",

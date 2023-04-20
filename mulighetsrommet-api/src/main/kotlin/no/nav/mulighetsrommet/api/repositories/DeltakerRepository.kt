@@ -71,7 +71,10 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun countAntallDeltakereForTiltakstypeWithId(tiltakstypeId: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+    fun countAntallDeltakereForTiltakstypeWithId(
+        tiltakstypeId: UUID,
+        currentDate: LocalDate = LocalDate.now()
+    ): Int {
         val parameters = mapOf(
             "tiltakstypeId" to tiltakstypeId,
             "currentDate" to currentDate

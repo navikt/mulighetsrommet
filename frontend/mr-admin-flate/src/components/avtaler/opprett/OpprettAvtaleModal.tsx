@@ -3,7 +3,7 @@ import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
-import { useAlleTiltakstyper } from "../../../api/tiltakstyper/useAlleTiltakstyper";
+import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 import { Laster } from "../../laster/Laster";
 import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
@@ -23,10 +23,9 @@ const OpprettAvtaleModal = ({
   handleCancel,
   avtale,
 }: OpprettAvtaleModalProps) => {
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
-    useAlleTiltakstyper({
-      tiltakstypestatus: Tiltakstypestatus.AKTIV,
-    });
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper({
+    status: Tiltakstypestatus.AKTIV
+  }, 1);
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 
@@ -58,7 +57,7 @@ const OpprettAvtaleModal = ({
           aria-label="modal"
         >
           <Modal.Content>
-            <Heading size="small" level="2" data-testid="avtale_modal_header">
+            <Heading size="medium" level="2" data-testid="avtale_modal_header">
               {redigeringsModus ? "Rediger avtale" : "Registrer ny avtale"}
             </Heading>
             {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? (

@@ -93,6 +93,7 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val leverandorOrganisasjonsnummer: String,
+    val avtalenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -101,12 +102,14 @@ data class AvtaleRequest(
     val antallPlasser: Int,
     val url: String,
     val ansvarlig: String,
-    val avtaletype: Avtaletype
+    val avtaletype: Avtaletype,
+    val prisOgBetalingsinformasjon: String? = null
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
             id = id ?: UUID.randomUUID(),
             navn = navn,
+            avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
             startDato = startDato,
@@ -117,7 +120,8 @@ data class AvtaleRequest(
             antallPlasser = antallPlasser,
             url = url,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
-            ansvarlige = listOf(ansvarlig)
+            ansvarlige = listOf(ansvarlig),
+            prisbetingelser = prisOgBetalingsinformasjon
         )
     }
 }
