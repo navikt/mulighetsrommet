@@ -13,7 +13,8 @@ export interface MultiSelectProps {
   error: boolean;
 }
 
-const MultiSelect = React.forwardRef((props: MultiSelectProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
   const { name, placeholder, options, onChange, value, ref, error } = props;
 
   const customStyles = (isError: boolean) => ({
