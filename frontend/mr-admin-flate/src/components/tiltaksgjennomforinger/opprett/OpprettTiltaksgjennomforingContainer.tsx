@@ -218,16 +218,17 @@ export const OpprettTiltaksgjennomforingContainer = (
     }
     return avtaleEnhet.overordnetEnhet
       ? enheter?.find(
-        (e: NavEnhet) => e.enhetNr === avtaleEnhet?.overordnetEnhet
-      ) : enheter?.find(
-        (e: NavEnhet) => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer
-      )
-  }
+          (e: NavEnhet) => e.overordnetEnhet === avtaleEnhet?.overordnetEnhet
+        )
+      : enheter?.find(
+          (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+        );
+  };
 
   const enheterLabel = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
     return overordnet?.navn ? "Enheter i " + overordnet.navn : "Enheter";
-  }
+  };
 
   const enheterOptions = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
@@ -246,17 +247,19 @@ export const OpprettTiltaksgjennomforingContainer = (
   const fylkeEnheterOptions = () => {
     const overordnedeEnhetsnummer = enheter
       ?.filter((enhet: NavEnhet) => enhet.overordnetEnhet)
-      .map((enhet: NavEnhet) => enhet.overordnetEnhet)
-      
-    return enheter
-      ?.filter((enhet: NavEnhet) => overordnedeEnhetsnummer?.includes(enhet.enhetNr))
-      .map((enhet: NavEnhet) => (
-        {
+      .map((enhet: NavEnhet) => enhet.overordnetEnhet);
+
+    return (
+      enheter
+        ?.filter((enhet: NavEnhet) =>
+          overordnedeEnhetsnummer?.includes(enhet.enhetNr)
+        )
+        .map((enhet: NavEnhet) => ({
           label: enhet.navn,
           value: enhet.enhetNr,
-        }
-      )) ?? []
-  }
+        })) ?? []
+    );
+  };
 
   return (
     <FormProvider {...form}>
@@ -328,7 +331,9 @@ export const OpprettTiltaksgjennomforingContainer = (
             options={fylkeEnheterOptions()}
             defaultValue={overordnetEnhetFraAvtale()?.enhetNr}
             onChange={(e) => {
-              setFylkeEnhet(enheter?.find((enhet: NavEnhet) => enhet.enhetNr === e))
+              setFylkeEnhet(
+                enheter?.find((enhet: NavEnhet) => enhet.enhetNr === e)
+              );
             }}
           />
           <ControlledMultiSelect
