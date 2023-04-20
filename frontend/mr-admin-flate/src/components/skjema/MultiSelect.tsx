@@ -1,3 +1,4 @@
+import React from "react";
 import ReactSelect from "react-select";
 import { SelectOption } from "./SokeSelect";
 
@@ -12,7 +13,7 @@ export interface MultiSelectProps {
   error: boolean;
 }
 
-export const MultiSelect = (props: MultiSelectProps) => {
+const MultiSelect = React.forwardRef((props: MultiSelectProps) => {
   const {
     name,
     placeholder,
@@ -80,4 +81,8 @@ export const MultiSelect = (props: MultiSelectProps) => {
       })}
     />
   );
-}
+});
+
+MultiSelect.displayName = "MultiSelect";
+
+export { MultiSelect };
