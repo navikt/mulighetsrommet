@@ -1,5 +1,5 @@
-import ReactSelect from "react-select";
 import { Controller } from "react-hook-form";
+import ReactSelect from "react-select";
 
 export interface SelectOption {
   value?: string;
@@ -27,6 +27,10 @@ export const SokeSelect = (props: SelectProps) => {
     }),
     indicatorSeparator: () => ({
       display: "none",
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: "#0000008f",
     }),
   });
 
