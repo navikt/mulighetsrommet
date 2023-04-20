@@ -56,11 +56,12 @@ class KafkaSyncServiceTest : FunSpec({
             virksomhetsnummer = "123456789",
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = "2990",
+            arenaAnsvarligEnhet = "2990",
             avslutningsstatus = avslutningsstatus,
             tilgjengelighet = Tilgjengelighetsstatus.Ledig,
             antallPlasser = null,
             ansvarlige = emptyList(),
+            enheter = emptyList(),
         )
     }
 

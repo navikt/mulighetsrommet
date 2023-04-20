@@ -20,13 +20,14 @@ data class TiltaksgjennomforingAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
-    val enhet: String,
+    val arenaAnsvarligEnhet: String?,
     val status: Tiltaksgjennomforingsstatus,
     val tilgjengelighet: TiltaksgjennomforingDbo.Tilgjengelighetsstatus,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
     val ansvarlige: List<String>,
+    val enheter: List<String>,
 ) {
     @Serializable
     data class Tiltakstype(

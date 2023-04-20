@@ -37,12 +37,13 @@ class TiltakshistorikkServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         tiltaksnummer = "12345",
         virksomhetsnummer = "123456789",
-        enhet = "2990",
+        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         startDato = LocalDate.of(2022, 1, 1),
         tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

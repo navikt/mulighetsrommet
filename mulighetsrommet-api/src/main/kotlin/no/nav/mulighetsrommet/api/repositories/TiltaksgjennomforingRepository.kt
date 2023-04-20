@@ -19,7 +19,6 @@ import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingRepository(private val db: Database) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<Unit> = query {
@@ -27,21 +26,34 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, start_dato, slutt_dato, enhet, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :start_dato, :slutt_dato, :enhet, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id)
             on conflict (id)
-                do update set navn              = excluded.navn,
-                              tiltakstype_id    = excluded.tiltakstype_id,
-                              tiltaksnummer     = excluded.tiltaksnummer,
-                              virksomhetsnummer = excluded.virksomhetsnummer,
-                              start_dato        = excluded.start_dato,
-                              slutt_dato        = excluded.slutt_dato,
-                              enhet             = excluded.enhet,
-                              avslutningsstatus = excluded.avslutningsstatus,
-                              tilgjengelighet   = excluded.tilgjengelighet,
-                              antall_plasser    = excluded.antall_plasser,
-                              avtale_id         = excluded.avtale_id
+                do update set navn                  = excluded.navn,
+                              tiltakstype_id        = excluded.tiltakstype_id,
+                              tiltaksnummer         = excluded.tiltaksnummer,
+                              virksomhetsnummer     = excluded.virksomhetsnummer,
+                              arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet,
+                              start_dato            = excluded.start_dato,
+                              slutt_dato            = excluded.slutt_dato,
+                              avslutningsstatus     = excluded.avslutningsstatus,
+                              tilgjengelighet       = excluded.tilgjengelighet,
+                              antall_plasser        = excluded.antall_plasser,
+                              avtale_id             = excluded.avtale_id
             returning *
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val upsertEnhet = """
+             insert into tiltaksgjennomforing_enhet (tiltaksgjennomforing_id, enhetsnummer)
+             values (?::uuid, ?)
+             on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteEnheter = """
+             delete from tiltaksgjennomforing_enhet
+             where tiltaksgjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -77,6 +89,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     db.createTextArray(tiltaksgjennomforing.ansvarlige)
                 ).asExecute
             )
+
+            tiltaksgjennomforing.enheter.forEach { enhetId ->
+                tx.run(
+                    queryOf(
+                        upsertEnhet,
+                        tiltaksgjennomforing.id,
+                        enhetId
+                    ).asExecute
+                )
+            }
+
+            tx.run(
+                queryOf(
+                    deleteEnheter,
+                    tiltaksgjennomforing.id,
+                    db.createTextArray(tiltaksgjennomforing.enheter)
+                ).asExecute
+            )
         }
     }
 
@@ -92,15 +122,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.slutt_dato,
                    t.tiltakskode,
                    t.navn as tiltakstype_navn,
-                   tg.enhet,
+                   tg.arena_ansvarlig_enhet,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
                    tg.antall_plasser,
                    tg.avtale_id,
-                   array_agg(a.navident) as ansvarlige
+                   array_agg(a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as enheter
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                     left join tiltaksgjennomforing_enhet e on e.tiltaksgjennomforing_id = tg.id
             where tg.id = ?::uuid
             group by tg.id, t.id
         """.trimIndent()
@@ -150,16 +182,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.slutt_dato,
                    t.tiltakskode,
                    t.navn           as tiltakstype_navn,
-                   tg.enhet,
+                   tg.arena_ansvarlig_enhet,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
                    tg.antall_plasser,
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as enheter,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                   left join tiltaksgjennomforing_enhet e on e.tiltaksgjennomforing_id = tg.id
             $where
             group by tg.id, t.id
             order by $order
@@ -196,7 +230,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    virksomhetsnummer,
                    start_dato,
                    slutt_dato,
-                   enhet,
+                   arena_ansvarlig_enhet,
                    avslutningsstatus,
                    tilgjengelighet,
                    antall_plasser,
@@ -245,8 +279,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tiltaksnummer" to tiltaksnummer,
         "virksomhetsnummer" to virksomhetsnummer,
         "start_dato" to startDato,
+        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
-        "enhet" to enhet,
         "avslutningsstatus" to avslutningsstatus.name,
         "tilgjengelighet" to tilgjengelighet.name,
         "antall_plasser" to antallPlasser,
@@ -257,20 +291,25 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         id = uuid("id"),
         navn = string("navn"),
         tiltakstypeId = uuid("tiltakstype_id"),
-        tiltaksnummer = string("tiltaksnummer"),
+        tiltaksnummer = stringOrNull("tiltaksnummer"),
         virksomhetsnummer = string("virksomhetsnummer"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        enhet = string("enhet"),
+        arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
         avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
         tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
         antallPlasser = intOrNull("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
+    @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val sqlArray = sqlArrayOrNull("ansvarlige")?.let {
+        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+        } ?: emptyList()
+        val enheter = sqlArrayOrNull("enheter")?.let {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
 
@@ -284,11 +323,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arenaKode = string("tiltakskode"),
             ),
             navn = string("navn"),
-            tiltaksnummer = string("tiltaksnummer"),
+            tiltaksnummer = stringOrNull("tiltaksnummer"),
             virksomhetsnummer = string("virksomhetsnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = string("enhet"),
+            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
             status = Tiltaksgjennomforingsstatus.fromDbo(
                 LocalDate.now(),
                 startDato,
@@ -298,7 +337,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(string("tilgjengelighet")),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
-            ansvarlige = sqlArray,
+            ansvarlige = ansvarlige,
+            enheter = enheter,
         )
     }
 

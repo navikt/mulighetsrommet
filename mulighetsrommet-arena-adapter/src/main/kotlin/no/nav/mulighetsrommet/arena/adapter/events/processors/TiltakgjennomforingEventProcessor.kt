@@ -159,11 +159,12 @@ class TiltakgjennomforingEventProcessor(
             virksomhetsnummer = virksomhetsnummer,
             startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
-            enhet = sak.enhet,
+            arenaAnsvarligEnhet = sak.enhet,
             avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
             tilgjengelighet = if (apentForInnsok) Ledig else Stengt,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             ansvarlige = emptyList(),
+            enheter = emptyList()
         )
 }

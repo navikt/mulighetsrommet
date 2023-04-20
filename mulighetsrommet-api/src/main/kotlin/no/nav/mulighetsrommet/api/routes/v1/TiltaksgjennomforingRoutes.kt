@@ -109,11 +109,12 @@ data class TiltaksgjennomforingRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String,
+    val enhet: String? = null,
     val antallPlasser: Int,
     val virksomhetsnummer: String,
-    val tiltaksnummer: String,
+    val tiltaksnummer: String? = null,
     val ansvarlig: String,
+    val enheter: List<String>,
 ) {
     fun toDbo(): Either<Exception, TiltaksgjennomforingDbo> {
         if (sluttDato.isBefore(startDato)) {
@@ -130,13 +131,14 @@ data class TiltaksgjennomforingRequest(
                 avtaleId = avtaleId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                enhet = enhet,
+                arenaAnsvarligEnhet = enhet,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),
+                enheter = enheter,
             )
         )
     }

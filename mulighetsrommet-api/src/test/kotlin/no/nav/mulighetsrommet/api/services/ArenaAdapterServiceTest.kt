@@ -62,11 +62,12 @@ class ArenaAdapterServiceTest : FunSpec({
         virksomhetsnummer = "123456789",
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
-        enhet = "2990",
+        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -113,11 +114,12 @@ class ArenaAdapterServiceTest : FunSpec({
             virksomhetsnummer = virksomhetsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = enhet,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet,
             status = Tiltaksgjennomforingsstatus.AVSLUTTET,
             tilgjengelighet = Tilgjengelighetsstatus.Ledig,
             antallPlasser = null,
             ansvarlige = emptyList(),
+            enheter = emptyList(),
         )
     }
 

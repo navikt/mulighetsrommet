@@ -6,7 +6,10 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -63,18 +66,65 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 virksomhetsnummer = gjennomforing1.virksomhetsnummer,
                 startDato = gjennomforing1.startDato,
                 sluttDato = gjennomforing1.sluttDato,
-                enhet = gjennomforing1.enhet,
+                arenaAnsvarligEnhet = gjennomforing1.arenaAnsvarligEnhet,
                 status = Tiltaksgjennomforingsstatus.AVSLUTTET,
                 tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
                 ansvarlige = emptyList(),
+                enheter = emptyList(),
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
 
             tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
                 .shouldBeRight().second shouldHaveSize 1
+        }
+
+        test("enheter crud") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = EnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetNr = "1",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetNr = "2",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn3",
+                    enhetNr = "3",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+            ).shouldBeRight()
+
+            val gjennomforing = gjennomforing1.copy(enheter = listOf("1", "2"))
+
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
+            }
+            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(enheter = listOf("3", "1"))).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldContainExactlyInAnyOrder("1", "3")
+            }
+            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
         }
     }
 
@@ -264,12 +314,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tiltakstypeId = tiltakstype1.id,
                         tiltaksnummer = "$it",
                         virksomhetsnummer = "123456789",
-                        enhet = "2990",
+                        arenaAnsvarligEnhet = "2990",
                         avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                         startDato = LocalDate.of(2022, 1, 1),
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                         antallPlasser = null,
                         ansvarlige = emptyList(),
+                        enheter = emptyList(),
                     )
                 )
             }
