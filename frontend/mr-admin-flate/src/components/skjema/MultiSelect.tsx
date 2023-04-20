@@ -63,6 +63,7 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps) => {
       placeholder={placeholder}
       ref={ref}
       isMulti
+      noOptionsMessage={() => "Ingen funnet"}
       name={name}
       value={value}
       onChange={onChange}
