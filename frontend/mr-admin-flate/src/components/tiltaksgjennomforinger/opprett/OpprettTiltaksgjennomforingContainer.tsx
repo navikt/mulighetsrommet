@@ -70,7 +70,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       enheter:
         props.tiltaksgjennomforing?.enheter.length === 0
           ? ["alle_enheter"]
-          : [],
+          : props.tiltaksgjennomforing?.enheter,
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
@@ -133,6 +133,8 @@ export const OpprettTiltaksgjennomforingContainer = (
     isLoading: isLoadingAnsatt,
     isError: isErrorAnsatt,
   } = useHentAnsatt();
+
+  const [fylkeEnhet, setFylkeEnhet] = useState<NavEnhet | undefined>();
 
   useEffect(() => {
     if (ansatt && !isLoadingAnsatt) {
@@ -207,24 +209,28 @@ export const OpprettTiltaksgjennomforingContainer = (
       : [];
   };
 
-  const overordnetEnhet = (): NavEnhet | undefined => {
+  const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
     const avtaleEnhet = enheter?.find(
-      (e) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+      (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
     );
-    return avtaleEnhet?.overordnetEnhet
-      ? enheter?.find((e) => e.enhetNr === avtaleEnhet?.overordnetEnhet)
-      : enheter?.find(
-          (e) => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer
-        );
-  };
+    if (!avtaleEnhet) {
+      return undefined;
+    }
+    return avtaleEnhet.overordnetEnhet
+      ? enheter?.find(
+        (e: NavEnhet) => e.enhetNr === avtaleEnhet?.overordnetEnhet
+      ) : enheter?.find(
+        (e: NavEnhet) => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer
+      )
+  }
 
   const enheterLabel = () => {
-    const overordnet = overordnetEnhet();
+    const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
     return overordnet?.navn ? "Enheter i " + overordnet.navn : "Enheter";
-  };
+  }
 
   const enheterOptions = () => {
-    const overordnet = overordnetEnhet();
+    const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
     const options = enheter
       ?.filter((enhet: NavEnhet) =>
         overordnet ? overordnet.enhetNr === enhet.overordnetEnhet : true
@@ -236,6 +242,21 @@ export const OpprettTiltaksgjennomforingContainer = (
     options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
     return options || [];
   };
+
+  const fylkeEnheterOptions = () => {
+    const overordnedeEnhetsnummer = enheter
+      ?.filter((enhet: NavEnhet) => enhet.overordnetEnhet)
+      .map((enhet: NavEnhet) => enhet.overordnetEnhet)
+      
+    return enheter
+      ?.filter((enhet: NavEnhet) => overordnedeEnhetsnummer?.includes(enhet.enhetNr))
+      .map((enhet: NavEnhet) => (
+        {
+          label: enhet.navn,
+          value: enhet.enhetNr,
+        }
+      )) ?? []
+  }
 
   return (
     <FormProvider {...form}>
@@ -300,6 +321,16 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
+          <SokeSelect
+            placeholder={overordnetEnhetFraAvtale()?.navn ?? "Velg en"}
+            label={"Enhet (fylke)"}
+            disabled={!!overordnetEnhetFraAvtale()}
+            options={fylkeEnheterOptions()}
+            defaultValue={overordnetEnhetFraAvtale()?.enhetNr}
+            onChange={(e) => {
+              setFylkeEnhet(enheter?.find((enhet: NavEnhet) => enhet.enhetNr === e))
+            }}
+          />
           <ControlledMultiSelect
             placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
             label={enheterLabel()}
@@ -327,13 +358,13 @@ export const OpprettTiltaksgjennomforingContainer = (
         <FormGroup>
           <TextField
             readOnly
-            style={{ backgroundColor: "whitesmoke" }}
+            style={{ backgroundColor: "#F1F1F1" }}
             label={"Arrangør - fra avtalen"}
             value={avtale?.leverandor.navn || ""}
           />
           <TextField
             readOnly
-            style={{ backgroundColor: "whitesmoke" }}
+            style={{ backgroundColor: "#F1F1F1" }}
             label={"Avtaletype - fra avtalen"}
             value={avtale?.avtaletype || ""}
           />

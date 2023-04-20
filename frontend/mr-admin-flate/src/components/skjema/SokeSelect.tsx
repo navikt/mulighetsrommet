@@ -12,15 +12,25 @@ export interface SelectProps {
   placeholder: string;
   options: SelectOption[];
   defaultValue?: string;
+  disabled?: boolean;
+  onChange?: (a0: any) => void;
 }
 
 const SokeSelect = React.forwardRef((props: SelectProps) => {
-  const { label, placeholder, options, defaultValue, ...rest } = props;
+  const {
+    label,
+    placeholder,
+    options,
+    defaultValue,
+    disabled,
+    onChange: providedOnChange,
+    ...rest
+  } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: "#fff",
+      background: disabled ? "#F1F1F1" : "#fff",
       borderColor: isError ? "#C30000" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
       height: "50px",
@@ -57,13 +67,19 @@ const SokeSelect = React.forwardRef((props: SelectProps) => {
             </label>
             <ReactSelect
               placeholder={placeholder}
+              isDisabled={!!disabled}
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
               defaultInputValue={defaultValue}
-              value={options.find((c) => c.value === value)}
+              value={
+                disabled
+                  ? null
+                  : options.find((c) => c.value === value)
+              }
               onChange={(e) => {
                 onChange(e?.value);
+                providedOnChange?.(e?.value);
               }}
               styles={customStyles(Boolean(error))}
               options={options}
