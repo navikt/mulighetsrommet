@@ -294,6 +294,7 @@ export function OpprettAvtaleContainer({
             className={styles.button}
             onClick={onAvbryt}
             variant="tertiary"
+            type="button"
           >
             Avbryt
           </Button>
