@@ -54,6 +54,7 @@ const SokeSelect = React.forwardRef((props: SelectProps) => {
             <ReactSelect
               placeholder={placeholder}
               ref={ref}
+              noOptionsMessage={() => "Ingen funnet"}
               name={name}
               defaultInputValue={defaultValue}
               value={
