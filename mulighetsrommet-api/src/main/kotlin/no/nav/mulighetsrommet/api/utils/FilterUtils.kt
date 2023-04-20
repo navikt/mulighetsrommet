@@ -33,14 +33,14 @@ data class AdminTiltaksgjennomforingFilter(
     val tiltakstypeId: UUID? = null,
     val statuser: List<Avslutningsstatus>? = null,
     val sortering: String? = null,
-    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1)
+    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1),
 )
 
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = listOf(
         NavEnhetStatus.AKTIV,
         NavEnhetStatus.UNDER_AVVIKLING,
-        NavEnhetStatus.UNDER_ETABLERING
+        NavEnhetStatus.UNDER_ETABLERING,
     ),
     val tiltakstypeId: String? = null,
 )
@@ -49,7 +49,7 @@ data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
-    val lokasjoner: List<String> = emptyList()
+    val lokasjoner: List<String> = emptyList(),
 )
 
 enum class Tiltakstypekategori {
@@ -83,7 +83,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         search = search,
         avtalestatus = avtalestatus,
         enhet = enhet,
-        sortering = sortering
+        sortering = sortering,
     )
 }
 
@@ -98,7 +98,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         enhet = enhet,
         tiltakstypeId = tiltakstypeId,
         statuser = statuser,
-        sortering = sortering
+        sortering = sortering,
     )
 }
 
@@ -117,6 +117,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,
-        lokasjoner = lokasjoner
+        lokasjoner = lokasjoner,
     )
 }

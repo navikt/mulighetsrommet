@@ -1,5 +1,6 @@
-import ReactSelect from "react-select";
+import React from "react";
 import { Controller } from "react-hook-form";
+import ReactSelect from "react-select";
 
 export interface SelectOption {
   value?: string;
@@ -13,7 +14,7 @@ export interface SelectProps {
   defaultValue?: string;
 }
 
-export const SokeSelect = (props: SelectProps) => {
+const SokeSelect = React.forwardRef((props: SelectProps) => {
   const { label, placeholder, options, defaultValue, ...rest } = props;
 
   const customStyles = (isError: boolean) => ({
@@ -27,6 +28,10 @@ export const SokeSelect = (props: SelectProps) => {
     }),
     indicatorSeparator: () => ({
       display: "none",
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: "#0000008f",
     }),
   });
 
@@ -49,6 +54,7 @@ export const SokeSelect = (props: SelectProps) => {
             <ReactSelect
               placeholder={placeholder}
               ref={ref}
+              noOptionsMessage={() => "Ingen funnet"}
               name={name}
               defaultInputValue={defaultValue}
               value={
@@ -81,4 +87,8 @@ export const SokeSelect = (props: SelectProps) => {
       />
     </div>
   );
-};
+});
+
+SokeSelect.displayName = "SokeSelect";
+
+export { SokeSelect };

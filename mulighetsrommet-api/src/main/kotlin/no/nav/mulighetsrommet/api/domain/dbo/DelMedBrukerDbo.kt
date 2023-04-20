@@ -16,5 +16,5 @@ data class DelMedBrukerDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime? = null,
     val createdBy: String? = null,
-    val updatedBy: String? = null
+    val updatedBy: String? = null,
 )

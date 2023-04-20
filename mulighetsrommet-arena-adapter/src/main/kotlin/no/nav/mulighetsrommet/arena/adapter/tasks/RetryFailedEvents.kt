@@ -9,20 +9,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
+import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
 class RetryFailedEvents(
     private val config: Config,
     private val arenaEventService: ArenaEventService,
-    private val slackNotifier: SlackNotifier
+    private val slackNotifier: SlackNotifier,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
         val delayOfMinutes: Int,
-        val schedulerStatePollDelay: Long = 1000
+        val schedulerStatePollDelay: Long = 1000,
     )
 
     val task: RecurringTask<Void> = Tasks

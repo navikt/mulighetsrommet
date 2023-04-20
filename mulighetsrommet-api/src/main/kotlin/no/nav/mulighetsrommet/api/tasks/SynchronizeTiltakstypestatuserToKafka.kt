@@ -5,7 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.KafkaSyncService
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
+import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalTime
@@ -13,7 +13,7 @@ import java.time.ZoneId
 
 class SynchronizeTiltakstypestatuserToKafka(
     kafkaSyncService: KafkaSyncService,
-    slackNotifier: SlackNotifier
+    slackNotifier: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -28,7 +28,7 @@ class SynchronizeTiltakstypestatuserToKafka(
                 kafkaSyncService.oppdaterTiltakstypestatus(
                     LocalDate.now(),
                     context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
-                        ?: LocalDate.of(2023, 2, 1)
+                        ?: LocalDate.of(2023, 2, 1),
                 )
             }
         }

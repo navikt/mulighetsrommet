@@ -25,7 +25,7 @@ import java.util.*
 class AvtaleInfoEventProcessor(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
-    private val ords: ArenaOrdsProxyClient
+    private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.AvtaleInfo
 
@@ -128,7 +128,7 @@ class AvtaleInfoEventProcessor(
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
-            opphav = AvtaleDbo.Opphav.ARENA
+            opphav = AvtaleDbo.Opphav.ARENA,
         )
     }
 }

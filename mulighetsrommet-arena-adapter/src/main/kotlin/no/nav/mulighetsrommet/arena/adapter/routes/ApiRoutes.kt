@@ -17,13 +17,13 @@ fun Route.apiRoutes() {
     get("/api/exchange/{arenaId}") {
         val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
             "Mangler eller ugyldig arena-id",
-            status = HttpStatusCode.BadRequest
+            status = HttpStatusCode.BadRequest,
         )
 
         val mapping = arenaEntityService.getMappingIfHandled(ArenaTable.Tiltaksgjennomforing, arenaId)
             ?: return@get call.respondText(
                 "Det finnes ikke noe prosessert tiltaksgjennomføring med arena-id $arenaId",
-                status = HttpStatusCode.NotFound
+                status = HttpStatusCode.NotFound,
             )
 
         call.respond(ExchangeArenaIdForIdResponse(mapping.entityId))
@@ -32,13 +32,13 @@ fun Route.apiRoutes() {
     get("/api/status/{id}") {
         val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
             "Mangler eller ugyldig id",
-            status = HttpStatusCode.BadRequest
+            status = HttpStatusCode.BadRequest,
         )
 
         val tiltaksgjennomforing = arenaEntityService.getTiltaksgjennomforingOrNull(id)
             ?: return@get call.respondText(
                 "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                status = HttpStatusCode.NotFound
+                status = HttpStatusCode.NotFound,
             )
 
         call.respond(ArenaTiltaksgjennomforingsstatusDto(tiltaksgjennomforing.status))

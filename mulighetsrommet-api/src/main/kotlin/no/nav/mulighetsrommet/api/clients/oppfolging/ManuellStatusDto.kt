@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ManuellStatusDto(
     val erUnderManuellOppfolging: Boolean,
-    val krrStatus: KrrStatus
+    val krrStatus: KrrStatus,
 )
 
 @Serializable

@@ -72,7 +72,7 @@ fun Route.avtaleRoutes() {
         delete("{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
 
             avtaler.delete(id)
@@ -103,7 +103,7 @@ data class AvtaleRequest(
     val url: String,
     val ansvarlig: String,
     val avtaletype: Avtaletype,
-    val prisOgBetalingsinformasjon: String? = null
+    val prisOgBetalingsinformasjon: String? = null,
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
@@ -121,7 +121,7 @@ data class AvtaleRequest(
             url = url,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
             ansvarlige = listOf(ansvarlig),
-            prisbetingelser = prisOgBetalingsinformasjon
+            prisbetingelser = prisOgBetalingsinformasjon,
         )
     }
 }

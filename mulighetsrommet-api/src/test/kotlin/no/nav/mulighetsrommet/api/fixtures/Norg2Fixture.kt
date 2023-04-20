@@ -22,6 +22,6 @@ object NavEnhetDboFixture {
         navn = "Enhet X",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
-        overordnetEnhet = "1200"
+        overordnetEnhet = "1200",
     )
 }

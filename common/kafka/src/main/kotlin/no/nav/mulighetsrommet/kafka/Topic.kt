@@ -7,5 +7,5 @@ data class Topic(
     val id: String,
     val topic: String,
     val type: TopicType,
-    val running: Boolean
+    val running: Boolean,
 )

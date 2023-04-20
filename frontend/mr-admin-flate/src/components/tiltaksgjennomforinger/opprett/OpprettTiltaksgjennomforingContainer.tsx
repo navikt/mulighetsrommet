@@ -26,6 +26,7 @@ import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { Laster } from "../../laster/Laster";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
+import { ControlledMultiSelect } from "../../skjema/ControlledMultiSelect";
 
 const Schema = z.object({
   tiltakstype: z
@@ -42,7 +43,10 @@ const Schema = z.object({
     })
     .int()
     .positive(),
-  enhet: z.string({ required_error: "Du må velge en enhet" }),
+  enheter: z
+    .string()
+    .array()
+    .nonempty({ message: "Du må velge minst én enhet" }),
   ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
 });
 
@@ -63,7 +67,7 @@ export const OpprettTiltaksgjennomforingContainer = (
     defaultValues: {
       tittel: props.tiltaksgjennomforing?.navn,
       tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
-      enhet: props.tiltaksgjennomforing?.enhet,
+      enheter: props.tiltaksgjennomforing?.enheter.length === 0 ? ["alle_enheter"] : [],
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
@@ -142,7 +146,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       id: props.tiltaksgjennomforing ? props.tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: data.tiltakstype,
-      enhet: data.enhet,
+      enheter: data.enheter.includes("alle_enheter") ? [] : data.enheter,
       navn: data.tittel,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
@@ -205,6 +209,34 @@ export const OpprettTiltaksgjennomforingContainer = (
     }));
   };
 
+  const overordnetEnhet = (): NavEnhet | undefined => {
+    const avtaleEnhet = enheter.find(e => e.enhetNr === avtale?.navEnhet?.enhetsnummer);
+    return avtaleEnhet?.overordnetEnhet
+      ? enheter.find(e => e.enhetNr === avtaleEnhet?.overordnetEnhet)
+      : enheter.find(e => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer)
+  }
+
+  const enheterLabel = () => {
+    const overordnet = overordnetEnhet();
+    return overordnet?.navn
+      ? "Enheter i " + overordnet.navn
+      : "Enheter";
+  }
+
+  const enheterOptions = () => {
+    const overordnet = overordnetEnhet();
+    const options = enheter
+      .filter((enhet: NavEnhet) => overordnet ? overordnet.enhetNr === enhet.overordnetEnhet : true)
+      .map((enhet: NavEnhet) => (
+        {
+          label: enhet.navn,
+          value: enhet.enhetNr,
+        }
+      ))
+    options.unshift({ value: "alle_enheter", label: "Alle enheter"})
+    return options;
+  }
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -264,14 +296,11 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
-          <SokeSelect
+          <ControlledMultiSelect
             placeholder="Velg en"
-            label={"Enhet"}
-            {...register("enhet")}
-            options={enheter.map((enhet: NavEnhet) => ({
-              label: enhet.navn,
-              value: enhet.enhetNr,
-            }))}
+            label={enheterLabel()}
+            {...register("enheter")}
+            options={enheterOptions()}
           />
           <SokeSelect
             placeholder="Velg en"

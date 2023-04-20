@@ -8,13 +8,13 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
 
 class AmtEnhetsregisterClientImpl(
     private val baseUrl: String,
     private val tokenProvider: () -> String,
-    clientEngine: HttpClientEngine = CIO.create()
+    clientEngine: HttpClientEngine = CIO.create(),
 ) : AmtEnhetsregisterClient {
     private val log = LoggerFactory.getLogger(javaClass)
 

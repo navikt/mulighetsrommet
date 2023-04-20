@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Norg2Response(
     val enhet: Norg2EnhetDto,
-    val overordnetEnhet: String?
+    val overordnetEnhet: String?,
 )
 
 @Serializable
@@ -15,7 +15,7 @@ data class Norg2EnhetDto(
     val navn: String,
     val enhetNr: String,
     val status: Norg2EnhetStatus,
-    val type: Norg2Type
+    val type: Norg2Type,
 )
 
 @Serializable
@@ -30,7 +30,7 @@ enum class Norg2EnhetStatus {
     UNDER_AVVIKLING,
 
     @SerialName("Nedlagt")
-    NEDLAGT
+    NEDLAGT,
 }
 
 @Serializable
@@ -64,5 +64,5 @@ enum class Norg2Type {
     ROL,
     TILLIT,
     UTLAND,
-    YTA
+    YTA,
 }

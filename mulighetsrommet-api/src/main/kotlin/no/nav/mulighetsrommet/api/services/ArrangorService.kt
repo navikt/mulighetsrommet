@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class ArrangorService(
-    private val amtEnhetsregisterClient: AmtEnhetsregisterClient
+    private val amtEnhetsregisterClient: AmtEnhetsregisterClient,
 ) {
 
     private val cache: Cache<String, VirksomhetDto> = Caffeine.newBuilder()

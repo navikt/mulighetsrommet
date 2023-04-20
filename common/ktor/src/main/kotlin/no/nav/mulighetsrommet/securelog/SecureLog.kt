@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.secure_log
+package no.nav.mulighetsrommet.securelog
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

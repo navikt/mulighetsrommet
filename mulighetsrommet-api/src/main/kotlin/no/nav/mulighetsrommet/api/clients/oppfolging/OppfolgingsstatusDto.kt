@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OppfolgingsstatusDto(
     val oppfolgingsenhet: Oppfolgingsenhet?,
-    val servicegruppe: String?
+    val servicegruppe: String?,
 )
 
 @Serializable
 data class Oppfolgingsenhet(
     val navn: String?,
-    val enhetId: String?
+    val enhetId: String?,
 )

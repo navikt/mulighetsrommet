@@ -38,15 +38,15 @@ class ArenaEventRepositoryTest : FunSpec({
                         operation = ArenaEvent.Operation.Insert,
                         payload = Json.parseToJsonElement("{}"),
                         status = Processed,
-                    )
+                    ),
                 )
                 mappings.upsert(
                     ArenaEntityMapping(
                         arenaTable = event.arenaTable,
                         arenaId = event.arenaId,
                         entityId = UUID.randomUUID(),
-                        status = Handled
-                    )
+                        status = Handled,
+                    ),
                 )
             }
             (6..10).forEach {
@@ -57,7 +57,7 @@ class ArenaEventRepositoryTest : FunSpec({
                         operation = ArenaEvent.Operation.Insert,
                         payload = Json.parseToJsonElement("{}"),
                         status = Pending,
-                    )
+                    ),
                 )
                 mappings.upsert(
                     ArenaEntityMapping(
@@ -65,7 +65,7 @@ class ArenaEventRepositoryTest : FunSpec({
                         arenaId = event.arenaId,
                         entityId = UUID.randomUUID(),
                         status = Ignored,
-                    )
+                    ),
                 )
             }
         }

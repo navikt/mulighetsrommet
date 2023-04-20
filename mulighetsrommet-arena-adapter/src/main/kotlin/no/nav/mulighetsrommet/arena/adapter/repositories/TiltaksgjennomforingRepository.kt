@@ -82,7 +82,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "status" to status,
-        "avtale_id" to avtaleId
+        "avtale_id" to avtaleId,
     )
 
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
@@ -97,6 +97,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         apentForInnsok = boolean("apent_for_innsok"),
         antallPlasser = intOrNull("antall_plasser"),
         status = string("status"),
-        avtaleId = intOrNull("avtale_id")
+        avtaleId = intOrNull("avtale_id"),
     )
 }

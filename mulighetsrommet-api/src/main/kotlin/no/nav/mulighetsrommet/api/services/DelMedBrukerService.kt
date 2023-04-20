@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
@@ -24,7 +24,7 @@ class DelMedBrukerService(private val db: Database) {
 
         if (data.navident.trim().isEmpty()) {
             SecureLog.logger.warn(
-                "Veileders NAVident er tomt. Kan ikke lagre info om tiltak."
+                "Veileders NAVident er tomt. Kan ikke lagre info om tiltak.",
             )
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }

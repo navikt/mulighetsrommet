@@ -15,7 +15,7 @@ class ArenaJsonElementDeserializerTest : FunSpec({
             {
                 "FOO": "\u0000\u0000"
             }
-            """.trimIndent().toByteArray()
+            """.trimIndent().toByteArray(),
         )
         result.jsonObject.getValue("FOO").jsonPrimitive.content shouldBe ""
     }

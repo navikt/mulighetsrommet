@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PersonDto(
-    val fornavn: String
+    val fornavn: String,
 )

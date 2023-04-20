@@ -48,7 +48,7 @@ class MulighetsrommetApiClient(
                 url.takeFrom(
                     URLBuilder().takeFrom(baseUri).apply {
                         encodedPath += url.encodedPath
-                    }
+                    },
                 )
             }
         }
