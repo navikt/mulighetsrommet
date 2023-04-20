@@ -1317,6 +1317,8 @@ components:
           type: number
         enhetNr:
           type: string
+        overordnetEnhet:
+          type: string
         navn:
           type: string
         status:

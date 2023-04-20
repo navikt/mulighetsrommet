@@ -1,3 +1,4 @@
+import React from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
 
@@ -13,7 +14,7 @@ export interface SelectProps {
   defaultValue?: string;
 }
 
-export const SokeSelect = (props: SelectProps) => {
+const SokeSelect = React.forwardRef((props: SelectProps) => {
   const { label, placeholder, options, defaultValue, ...rest } = props;
 
   const customStyles = (isError: boolean) => ({
@@ -85,4 +86,8 @@ export const SokeSelect = (props: SelectProps) => {
       />
     </div>
   );
-};
+});
+
+SokeSelect.displayName = "SokeSelect";
+
+export { SokeSelect };

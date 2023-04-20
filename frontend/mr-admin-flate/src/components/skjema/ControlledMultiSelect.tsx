@@ -1,6 +1,7 @@
 import { Controller } from "react-hook-form";
 import { SelectOption } from "./SokeSelect";
 import { MultiSelect } from "./MultiSelect";
+import React from "react";
 
 export interface MultiSelectProps {
   label: string;
@@ -9,7 +10,7 @@ export interface MultiSelectProps {
   size?: "small" | "medium",
 }
 
-export const ControlledMultiSelect = (props: MultiSelectProps) => {
+const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps) => {
   const {
     label,
     placeholder,
@@ -56,4 +57,9 @@ export const ControlledMultiSelect = (props: MultiSelectProps) => {
       />
     </div>
   );
-}
+});
+
+ControlledMultiSelect.displayName = 'ControlledMultiSelect';
+
+export { ControlledMultiSelect };
+

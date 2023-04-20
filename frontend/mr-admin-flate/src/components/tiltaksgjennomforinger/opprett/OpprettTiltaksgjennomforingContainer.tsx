@@ -209,13 +209,30 @@ export const OpprettTiltaksgjennomforingContainer = (
     }));
   };
 
+  const overordnetEnhet = (): NavEnhet | undefined => {
+    const avtaleEnhet = enheter.find(e => e.enhetNr === avtale?.navEnhet?.enhetsnummer);
+    return avtaleEnhet?.overordnetEnhet
+      ? enheter.find(e => e.enhetNr === avtaleEnhet?.overordnetEnhet)
+      : enheter.find(e => e.overordnetEnhet === avtale?.navEnhet?.enhetsnummer)
+  }
+
+  const enheterLabel = () => {
+    const overordnet = overordnetEnhet();
+    return overordnet?.navn
+      ? "Enheter i " + overordnet.navn
+      : "Enheter";
+  }
+
   const enheterOptions = () => {
-    const options = enheter.map((enhet: NavEnhet) => (
-      {
-        label: enhet.navn,
-        value: enhet.enhetNr,
-      }
-    ))
+    const overordnet = overordnetEnhet();
+    const options = enheter
+      .filter((enhet: NavEnhet) => overordnet ? overordnet.enhetNr === enhet.overordnetEnhet : true)
+      .map((enhet: NavEnhet) => (
+        {
+          label: enhet.navn,
+          value: enhet.enhetNr,
+        }
+      ))
     options.unshift({ value: "alle_enheter", label: "Alle enheter"})
     return options;
   }
@@ -281,7 +298,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         <FormGroup>
           <ControlledMultiSelect
             placeholder="Velg en"
-            label={"Enhet"}
+            label={enheterLabel()}
             {...register("enheter")}
             options={enheterOptions()}
           />
