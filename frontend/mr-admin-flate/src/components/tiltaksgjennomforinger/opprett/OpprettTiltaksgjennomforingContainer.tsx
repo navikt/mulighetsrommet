@@ -223,7 +223,9 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const enheterLabel = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
-    return overordnet?.navn ? "Enheter i " + overordnet.navn : "Enheter";
+    return overordnet?.navn && overordnet.type === Norg2Type.FYLKE
+      ? "Enheter i " + overordnet.navn
+      : "Enheter";
   };
 
   const enheterOptions = () => {
