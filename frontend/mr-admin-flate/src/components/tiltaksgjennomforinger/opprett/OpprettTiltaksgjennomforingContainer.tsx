@@ -177,7 +177,6 @@ export const OpprettTiltaksgjennomforingContainer = (
     : "";
 
   if (!avtaler && !tiltakstyper && !enheter) {
-    console.log("Laster...", { avtaler, tiltakstyper, enheter });
     return <Laster />;
   }
 

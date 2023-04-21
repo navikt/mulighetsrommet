@@ -2,6 +2,7 @@ import {
   PaginertTiltaksgjennomforing,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
+import { mockAvtaler } from "./mock_avtaler";
 
 export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
@@ -24,8 +25,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      enheter: [],
+      enheter: ["0213", "0111", "0105"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -41,8 +43,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      enheter: [],
+      enheter: ["0213"],
       status: TiltaksgjennomforingStatus.AVLYST,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -58,8 +61,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -75,8 +79,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee365",
@@ -92,8 +97,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee366",
@@ -109,8 +115,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.AVBRUTT,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee367",
@@ -126,8 +133,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee368",
@@ -143,8 +151,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.AVLYST,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee369",
@@ -160,8 +169,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee310",
@@ -177,8 +187,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee311",
@@ -194,8 +205,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee312",
@@ -211,8 +223,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee313",
@@ -228,8 +241,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee314",
@@ -245,8 +259,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee315",
@@ -262,8 +277,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee316",
@@ -279,8 +295,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee317",
@@ -296,8 +313,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
+      avtaleId: mockAvtaler.data[0].id,
     },
     {
       id: "a7d63fb0-4366-412c-84b7-7c15518ee318",
@@ -313,8 +331,9 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      enheter: ["0213", "0111"],
       status: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
+      avtaleId: mockAvtaler.data[0].id,
     },
   ],
 };

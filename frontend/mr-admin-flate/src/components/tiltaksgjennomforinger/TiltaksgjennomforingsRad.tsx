@@ -1,8 +1,10 @@
 import { BodyShort } from "@navikt/ds-react";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { hentListeMedEnhetsnavn } from "../../utils/TiltaksgjennomforingUtils";
 import { formaterDato } from "../../utils/Utils";
-import styles from "../listeelementer/Listeelementer.module.scss";
 import { ListeRad } from "../listeelementer/ListeRad";
+import styles from "../listeelementer/Listeelementer.module.scss";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 
 interface Props {
@@ -10,6 +12,18 @@ interface Props {
 }
 
 export function TiltaksgjennomforingsRad({ tiltaksgjennomforing }: Props) {
+  const { data: enheter } = useAlleEnheter();
+  const enhetsNavn = hentListeMedEnhetsnavn(
+    enheter,
+    tiltaksgjennomforing.enheter
+  );
+
+  const formaterEnheter = (enheter: string[]): string => {
+    return enheter.length > 1
+      ? `${enhetsNavn.shift()} + ${enhetsNavn.length}`
+      : enhetsNavn[0];
+  };
+
   return (
     <ListeRad
       linkTo={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
@@ -20,6 +34,9 @@ export function TiltaksgjennomforingsRad({ tiltaksgjennomforing }: Props) {
         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
       >
         {tiltaksgjennomforing.navn}
+      </BodyShort>
+      <BodyShort aria-label={`Enheter for tiltaksgjennomforing: ${enhetsNavn}`}>
+        {formaterEnheter(enhetsNavn)}
       </BodyShort>
       <BodyShort
         aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}

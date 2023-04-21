@@ -8,9 +8,21 @@ import classNames from "classnames";
 import { OpprettTiltaksgjennomforingModal } from "../../components/tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
 import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import {
+  hentEnhetsnavn,
+  hentListeMedEnhetsnavn,
+} from "../../utils/TiltaksgjennomforingUtils";
 
 export function TiltaksgjennomforingInfo() {
-  const { data: tiltaksgjennomforing, isError, isLoading } = useTiltaksgjennomforingById();
+  const {
+    data: tiltaksgjennomforing,
+    isError,
+    isLoading,
+  } = useTiltaksgjennomforingById();
+  const { data: enheter, isLoading: enheterIsLoading } = useAlleEnheter();
+  const { data: avtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
   const { data: features } = useFeatureToggles();
 
   const [redigerModal, setRedigerModal] = useState(false);
@@ -32,6 +44,17 @@ export function TiltaksgjennomforingInfo() {
   if (!tiltaksgjennomforing) {
     return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
   }
+
+  const overordnetEnhet = hentEnhetsnavn(
+    enheter,
+    enheter?.find((e) => e.enhetNr === avtale?.navEnhet?.enhetsnummer)
+      ?.overordnetEnhet
+  );
+
+  const enhetsnavn = hentListeMedEnhetsnavn(
+    enheter,
+    tiltaksgjennomforing.enheter
+  );
 
   return (
     <div className={styles.container}>
@@ -59,7 +82,21 @@ export function TiltaksgjennomforingInfo() {
         </dl>
         <Separator />
         <dl className={styles.bolk}>
-          <Metadata header="Enhet" verdi={tiltaksgjennomforing.arenaAnsvarligEnhet} />
+          <Metadata
+            header="Fylke/region"
+            verdi={enheterIsLoading ? "..." : overordnetEnhet}
+          />
+          <Metadata
+            header={enhetsnavn.length > 1 ? "Enheter" : "Enhet"}
+            verdi={enhetsnavn}
+          />
+        </dl>
+        <Separator />
+        <dl className={styles.bolk}>
+          <Metadata
+            header="Enhet"
+            verdi={tiltaksgjennomforing.arenaAnsvarligEnhet}
+          />
           {tiltaksgjennomforing.virksomhetsnavn ? (
             <Metadata
               header="Arrangør"

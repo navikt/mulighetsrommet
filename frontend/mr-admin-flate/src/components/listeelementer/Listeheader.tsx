@@ -41,6 +41,7 @@ export function ListeheaderTiltaksgjennomforinger() {
   return (
     <Listeheader classname={styles.listeheader_tiltaksgjennomforinger}>
       <BodyShort>Tittel</BodyShort>
+      <BodyShort>Enhet</BodyShort>
       <BodyShort>Tiltaksnr.</BodyShort>
       <BodyShort>Arrangør</BodyShort>
       <BodyShort>Tiltakstype</BodyShort>
