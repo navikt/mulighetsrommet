@@ -1,3 +1,4 @@
+import './polyfill';
 import Navspa from '@navikt/navspa';
 import { createRoot } from 'react-dom/client';
 import App from './App';
