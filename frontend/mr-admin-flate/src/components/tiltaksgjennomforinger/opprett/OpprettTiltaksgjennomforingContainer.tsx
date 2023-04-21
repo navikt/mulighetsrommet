@@ -28,6 +28,7 @@ import { Laster } from "../../laster/Laster";
 import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
 import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "../../skjema/ControlledMultiSelect";
+import { finnOverordnetEnhetFraAvtale } from "../../../utils/TiltaksgjennomforingUtils";
 
 const Schema = z.object({
   tiltakstype: z
@@ -204,21 +205,8 @@ export const OpprettTiltaksgjennomforingContainer = (
       : [];
   };
 
-  const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
-    const avtaleEnhet = enheter?.find(
-      (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
-    );
-    if (!avtaleEnhet) {
-      return undefined;
-    }
-    return avtaleEnhet.overordnetEnhet
-      ? enheter?.find(
-          (e: NavEnhet) => e.overordnetEnhet === avtaleEnhet?.overordnetEnhet
-        )
-      : enheter?.find(
-          (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
-        );
-  };
+  const overordnetEnhetFraAvtale = () =>
+    finnOverordnetEnhetFraAvtale(avtale, enheter);
 
   const enheterLabel = () => {
     const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
