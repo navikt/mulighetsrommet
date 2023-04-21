@@ -155,14 +155,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "cutoffdato" to filter.sluttDatoCutoff,
+            "fylkesenhet" to filter.fylkesenhet,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.search to "(lower(tg.navn) like lower(:search))",
-            filter.enhet to "lower(tg.enhet) = lower(:enhet)",
+            filter.enhet to "lower(tg.arena_ansvarlig_enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
             filter.statuser to "tg.avslutningsstatus = any(:statuser::avslutningsstatus[])",
             filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
+            filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from enhet where overordnet_enhet = :fylkesenhet)",
         )
 
         val order = when (filter.sortering) {
