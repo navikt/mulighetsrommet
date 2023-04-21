@@ -91,14 +91,14 @@ export function Tiltaksgjennomforingfilter() {
             <option value="">Alle enheter</option>
             {enheter
               ?.filter((enhet) => {
-                const erLokal =
+                const erLokalEllerTiltaksenhet =
                   enhet.type === Norg2Type.LOKAL ||
                   enhet.type === Norg2Type.TILTAK;
                 const enheterFraFylke =
                   sokefilter.fylkesenhet === ""
                     ? true
                     : sokefilter.fylkesenhet === enhet.overordnetEnhet;
-                return erLokal && enheterFraFylke;
+                return erLokalEllerTiltaksenhet && enheterFraFylke;
               })
               ?.map((enhet) => (
                 <option key={enhet.enhetNr} value={enhet.enhetNr}>
