@@ -21,5 +21,4 @@ export default defineConfig({
     chunkSizeWarningLimit: 1400,
     sourcemap: true,
   },
-  // define: { global: {} },
 });
