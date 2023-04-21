@@ -21,8 +21,8 @@
     "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./",
-    "types": ["cypress", "cypress-axe", "vite/client", "vite-plugin-svgr/client"]
+    "types": ["cypress", "cypress-axe", "vite/client", "vite-plugin-svgr/client", "node"]
   },
   "exclude": ["node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
-  "include": ["src", "mock"]
+  "include": ["src", "mock"],
 }
