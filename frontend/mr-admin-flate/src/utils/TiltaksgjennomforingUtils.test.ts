@@ -1,6 +1,7 @@
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { Avtale, NavEnhet } from "mulighetsrommet-api-client";
 import { describe, test, expect } from "vitest";
 import {
+  finnOverordnetEnhetFraAvtale,
   hentEnhetsnavn,
   hentListeMedEnhetsnavn,
 } from "./TiltaksgjennomforingUtils";
@@ -51,5 +52,89 @@ describe("Tiltaksgjennomforing-utils", () => {
     const enhetsnummer = ["0111", "0213"];
     const result = hentListeMedEnhetsnavn(enheter, enhetsnummer);
     expect(result).toStrictEqual(["NAV Hvaler", "NAV Nordre Follo"]);
+  });
+
+  test("Skal finne overordnet enhet fra avtalen", () => {
+    const avtale: Avtale = {
+      avtalenummer: "123",
+      avtalestatus: "Aktiv" as any, // Fordi vitest klager ved bruk av enum fra mulighetsrommet-api-client
+      avtaletype: "Avtale" as any, // Fordi vitest klager ved bruk av enum fra mulighetsrommet-api-client
+      id: "12",
+      leverandor: {
+        navn: "Joblearn AS",
+        organisasjonsnummer: "123456789",
+      },
+      navEnhet: {
+        navn: "Nav Øst-Viken",
+        enhetsnummer: "0200",
+      },
+      navn: "Testavtale",
+      prisbetingelser: "",
+      startDato: "",
+      sluttDato: "",
+      tiltakstype: {
+        arenaKode: "TIL",
+        id: "1",
+        navn: "Tiltak",
+      },
+    };
+
+    const enheter: NavEnhet[] = [
+      {
+        navn: "NAV Nordre Follo",
+        enhetNr: "0213",
+        overordnetEnhet: "0200",
+      },
+      {
+        navn: "NAV Hvaler",
+        enhetNr: "0111",
+      },
+      {
+        navn: "NAV Øst-Viken",
+        enhetNr: "0200",
+      },
+    ];
+    const result = finnOverordnetEnhetFraAvtale(avtale, enheter);
+    expect(result?.navn).toBe("NAV Øst-Viken");
+  });
+
+  test("Skal returnere undefined dersom vi ikke kjenner til enheten som gjelder for avtalen", () => {
+    const avtale: Avtale = {
+      avtalenummer: "123",
+      avtalestatus: "Aktiv" as any, // Fordi vitest klager ved bruk av enum fra mulighetsrommet-api-client
+      avtaletype: "Avtale" as any, // Fordi vitest klager ved bruk av enum fra mulighetsrommet-api-client
+      id: "12",
+      leverandor: {
+        navn: "Joblearn AS",
+        organisasjonsnummer: "123456789",
+      },
+      navEnhet: {
+        navn: "Nav Øst-Viken",
+        enhetsnummer: "0200",
+      },
+      navn: "Testavtale",
+      prisbetingelser: "",
+      startDato: "",
+      sluttDato: "",
+      tiltakstype: {
+        arenaKode: "TIL",
+        id: "1",
+        navn: "Tiltak",
+      },
+    };
+
+    const enheter: NavEnhet[] = [
+      {
+        navn: "NAV Nordre Follo",
+        enhetNr: "0213",
+        overordnetEnhet: "0200",
+      },
+      {
+        navn: "NAV Hvaler",
+        enhetNr: "0111",
+      },
+    ];
+    const result = finnOverordnetEnhetFraAvtale(avtale, enheter);
+    expect(result).toBe(undefined);
   });
 });

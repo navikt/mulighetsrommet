@@ -1,4 +1,4 @@
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { Avtale, NavEnhet } from "mulighetsrommet-api-client";
 
 export const hentEnhetsnavn = (
   enheter: NavEnhet[] = [],
@@ -16,4 +16,23 @@ export const hentListeMedEnhetsnavn = (
   return (
     enhetsnummer?.map((enhet) => hentEnhetsnavn(enheter, enhet)).sort() ?? []
   );
+};
+
+export const finnOverordnetEnhetFraAvtale = (
+  avtale?: Avtale,
+  enheter?: NavEnhet[]
+): NavEnhet | undefined => {
+  const avtaleEnhet = enheter?.find(
+    (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+  );
+  if (!avtaleEnhet) {
+    return undefined;
+  }
+  return avtaleEnhet.overordnetEnhet
+    ? enheter?.find(
+        (e: NavEnhet) => e.overordnetEnhet === avtaleEnhet?.overordnetEnhet
+      )
+    : enheter?.find(
+        (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+      );
 };

@@ -11,6 +11,7 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import {
+  finnOverordnetEnhetFraAvtale,
   hentEnhetsnavn,
   hentListeMedEnhetsnavn,
 } from "../../utils/TiltaksgjennomforingUtils";
@@ -45,11 +46,7 @@ export function TiltaksgjennomforingInfo() {
     return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
   }
 
-  const overordnetEnhet = hentEnhetsnavn(
-    enheter,
-    enheter?.find((e) => e.enhetNr === avtale?.navEnhet?.enhetsnummer)
-      ?.overordnetEnhet
-  );
+  const overordnetEnhet = finnOverordnetEnhetFraAvtale(avtale, enheter);
 
   const enhetsnavn = hentListeMedEnhetsnavn(
     enheter,
@@ -84,25 +81,12 @@ export function TiltaksgjennomforingInfo() {
         <dl className={styles.bolk}>
           <Metadata
             header="Fylke/region"
-            verdi={enheterIsLoading ? "..." : overordnetEnhet}
+            verdi={enheterIsLoading ? "..." : overordnetEnhet?.navn ?? "N/A"}
           />
           <Metadata
             header={enhetsnavn.length > 1 ? "Enheter" : "Enhet"}
             verdi={enhetsnavn}
           />
-        </dl>
-        <Separator />
-        <dl className={styles.bolk}>
-          <Metadata
-            header="Enhet"
-            verdi={tiltaksgjennomforing.arenaAnsvarligEnhet}
-          />
-          {tiltaksgjennomforing.virksomhetsnavn ? (
-            <Metadata
-              header="Arrangør"
-              verdi={tiltaksgjennomforing.virksomhetsnavn}
-            />
-          ) : null}
         </dl>
       </div>
       <div className={styles.knapperad}>
