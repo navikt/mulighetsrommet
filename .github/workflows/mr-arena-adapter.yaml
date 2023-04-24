@@ -48,7 +48,7 @@ jobs:
         if: github.ref_name == 'main'
         with:
           gradle-build-module: :mulighetsrommet-arena-adapter
-          sub-module-mode: COMBINED # Include dependencies from common submodules
+          sub-module-mode: INDIVIDUAL
       - name: Build and push Docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push
