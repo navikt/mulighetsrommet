@@ -6,7 +6,7 @@ koin = "3.4.0"
 kotest = "5.6.1"
 kotlin = "1.8.20"
 ktor = "2.3.0"
-logback = "1.4.6"
+logback = "1.4.7"
 metrics = "4.2.18"
 
 [plugins]

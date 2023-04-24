@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
@@ -342,6 +343,100 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 tiltaksgjennomforinger.get(gjennomforing1.id)
                     .shouldBeRight()?.tilgjengelighet shouldBe Tilgjengelighetsstatus.Ledig
             }
+        }
+    }
+
+    context("Filtrering på tiltaksgjennomforingstatus") {
+        val defaultFilter = AdminTiltaksgjennomforingFilter(
+            dagensDato = LocalDate.of(2023, 2, 1),
+        )
+
+        val tiltaksgjennomforingAktiv = gjennomforing1
+        val tiltaksgjennomforingAvsluttetStatus =
+            gjennomforing1.copy(id = UUID.randomUUID(), avslutningsstatus = Avslutningsstatus.AVSLUTTET)
+        val tiltaksgjennomforingAvsluttetDato = gjennomforing1.copy(
+            id = UUID.randomUUID(),
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            sluttDato = LocalDate.of(2023, 1, 31),
+        )
+        val tiltaksgjennomforingAvbrutt = gjennomforing1.copy(
+            id = UUID.randomUUID(),
+            avslutningsstatus = Avslutningsstatus.AVBRUTT,
+        )
+        val tiltaksgjennomforingAvlyst = gjennomforing1.copy(
+            id = UUID.randomUUID(),
+            avslutningsstatus = Avslutningsstatus.AVLYST,
+        )
+        val tiltaksgjennomforingPlanlagt = gjennomforing1.copy(
+            id = UUID.randomUUID(),
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            startDato = LocalDate.of(2023, 2, 2),
+        )
+
+        beforeAny {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAktiv)
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvsluttetStatus)
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvsluttetDato)
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvbrutt)
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingPlanlagt)
+            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAvlyst)
+        }
+
+        test("filtrer på avbrutt") {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+
+            val result = tiltaksgjennomforingRepository.getAll(
+                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVBRUTT),
+            ).shouldBeRight()
+
+            result.second shouldHaveSize 1
+            result.second[0].id shouldBe tiltaksgjennomforingAvbrutt.id
+        }
+
+        test("filtrer på avsluttet") {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+
+            val result = tiltaksgjennomforingRepository.getAll(
+                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVSLUTTET),
+            ).shouldBeRight()
+
+            result.second shouldHaveSize 2
+            result.second.map { it.id }
+                .shouldContainAll(tiltaksgjennomforingAvsluttetDato.id, tiltaksgjennomforingAvsluttetStatus.id)
+        }
+
+        test("filtrer på gjennomføres") {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+
+            val result = tiltaksgjennomforingRepository.getAll(
+                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.GJENNOMFORES),
+            ).shouldBeRight()
+
+            result.second shouldHaveSize 1
+            result.second[0].id shouldBe tiltaksgjennomforingAktiv.id
+        }
+
+        test("filtrer på avlyst") {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+
+            val result = tiltaksgjennomforingRepository.getAll(
+                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.AVLYST),
+            ).shouldBeRight()
+
+            result.second shouldHaveSize 1
+            result.second[0].id shouldBe tiltaksgjennomforingAvlyst.id
+        }
+
+        test("filtrer på åpent for innsøk") {
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+
+            val result = tiltaksgjennomforingRepository.getAll(
+                filter = defaultFilter.copy(status = Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK),
+            ).shouldBeRight()
+
+            result.second shouldHaveSize 1
+            result.second[0].id shouldBe tiltaksgjennomforingPlanlagt.id
         }
     }
 

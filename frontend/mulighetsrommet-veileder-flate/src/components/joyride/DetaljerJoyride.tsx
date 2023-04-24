@@ -37,10 +37,16 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       }
     }
 
+    //resetter joyride ved error
+    if (STATUS.ERROR === status) {
+      setJoyride({ ...joyride, joyrideDetaljer: true });
+      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
+    }
+
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
       setJoyride({ ...joyride, joyrideDetaljer: false });
+      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
   };
 
