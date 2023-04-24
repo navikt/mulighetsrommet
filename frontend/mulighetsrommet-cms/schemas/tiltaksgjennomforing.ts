@@ -189,7 +189,7 @@ export const tiltaksgjennomforing = defineType({
             disableNew: true,
             filter: ({ document }) => {
               return {
-                filter: `fylke._ref == $fylke`,
+                filter: `fylke._ref == $fylke || type == 'Als'`,
                 params: {
                   fylke: document.fylke._ref,
                 },
@@ -206,9 +206,12 @@ export const tiltaksgjennomforing = defineType({
 
           const validEnheter = await getClient({
             apiVersion: API_VERSION,
-          }).fetch("*[_type == 'enhet' && fylke._ref == $fylke]._id", {
-            fylke: document.fylke._ref,
-          });
+          }).fetch(
+            "*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id",
+            {
+              fylke: document.fylke._ref,
+            }
+          );
 
           const paths = enheter
             ?.filter((enhet) => !validEnheter.includes(enhet._ref))

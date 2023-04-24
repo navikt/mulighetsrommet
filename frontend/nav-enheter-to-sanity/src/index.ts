@@ -1,6 +1,9 @@
 import { createClient } from "@sanity/client";
 import { EnhetskontaktinfoService, OpenAPI } from "norg2-api-client";
-import { toSanityEnheter } from "./sanity-enhet";
+import {
+  spesialEnheterToSanity,
+  fylkeOgUnderenheterToSanity,
+} from "./sanity-enhet";
 import { run } from "./script";
 
 OpenAPI.BASE = process.env.NORG2_API_ENDPOINT ?? "";
@@ -23,15 +26,17 @@ async function app(id: string) {
     );
 
   console.info("Konverterer enheter...");
-  const sanityEnheter = toSanityEnheter(enheter);
+  const spesialEnheter = spesialEnheterToSanity(enheter, ["ALS"]);
+  const fylkeOgUnderenheter = fylkeOgUnderenheterToSanity(enheter);
+  const enheterSomSkalSynces = [...fylkeOgUnderenheter, ...spesialEnheter];
 
   console.info("Skriver enheter til Sanity...");
   const transaction = client.transaction();
-  for (const enhet of sanityEnheter) {
+  for (const enhet of enheterSomSkalSynces) {
     transaction.createOrReplace(enhet);
   }
   const response = await transaction.commit();
   console.info("Oppdaterte enheter:", response.documentIds.length);
 
-  // TODO: Attempt to delete enheter that has status  "Nedlagt" / "Under avvikling" and error if they are referenced by other documents?
+  //TODO: Attempt to delete enheter that has status  "Nedlagt" / "Under avvikling" and error if they are referenced by other documents?
 }

@@ -26,7 +26,22 @@ const relevantEnhetStatus: Array<string | undefined> = [
   "Aktiv",
 ];
 
-export function toSanityEnheter(
+type Enhetstype = "LOKAL" | "TILTAK" | "FYLKE" | "ALS";
+
+export function spesialEnheterToSanity(
+  enheter: RsEnhetInkludertKontaktinformasjon[],
+  whitelistTyper: Enhetstype[]
+): SanityEnhet[] {
+  return enheter
+    .filter(
+      (enhet): enhet is AvailableEnhet =>
+        whitelistTyper.includes(enhet.enhet?.type as Enhetstype) &&
+        relevantEnhetStatus.includes(enhet.enhet?.status)
+    )
+    .map((enhet) => toSanityEnhet(enhet?.enhet));
+}
+
+export function fylkeOgUnderenheterToSanity(
   enheter: RsEnhetInkludertKontaktinformasjon[]
 ): SanityEnhet[] {
   return enheter
@@ -94,6 +109,7 @@ function toType(type?: string) {
   switch (type) {
     case "FYLKE":
     case "LOKAL":
+    case "ALS":
       return capitalize(type);
     default:
       throw new Error(`Unexpected type '${type}'`);
