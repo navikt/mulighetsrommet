@@ -1,7 +1,12 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
+<<<<<<< HEAD
   TiltaksgjennomforingAvslutningsstatus, TiltaksgjennomforingStatus,
+=======
+  Norg2Type,
+  TiltaksgjennomforingAvslutningsstatus,
+>>>>>>> 360dad96db54a8b90d1973c74479278fce5ee2c2
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
@@ -49,6 +54,31 @@ export function Tiltaksgjennomforingfilter() {
             data-testid="filter_sokefelt"
           />
           <Select
+            label="Filtrer på fylke"
+            hideLabel
+            size="small"
+            value={sokefilter.fylkesenhet}
+            data-testid="filter_tiltaksgjennomforing_fylkesenhet"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setSokefilter({
+                ...sokefilter,
+                enhet: "",
+                fylkesenhet: e.currentTarget.value,
+              });
+            }}
+          >
+            <option value="">Alle fylker</option>
+            {enheter
+              ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+              ?.sort()
+              ?.map((enhet) => (
+                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                  {enhet.navn}
+                </option>
+              ))}
+          </Select>
+          <Select
             label="Filtrer på enhet"
             hideLabel
             size="small"
@@ -56,15 +86,29 @@ export function Tiltaksgjennomforingfilter() {
             data-testid="filter_tiltaksgjennomforing_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               resetPaginering(setPage);
-              setSokefilter({ ...sokefilter, enhet: e.currentTarget.value });
+              setSokefilter({
+                ...sokefilter,
+                enhet: e.currentTarget.value,
+              });
             }}
           >
             <option value="">Alle enheter</option>
-            {enheter?.map((enhet) => (
-              <option key={enhet.enhetNr} value={enhet.enhetNr}>
-                {enhet.navn} - {enhet.enhetNr}
-              </option>
-            ))}
+            {enheter
+              ?.filter((enhet) => {
+                const erLokalEllerTiltaksenhet =
+                  enhet.type === Norg2Type.LOKAL ||
+                  enhet.type === Norg2Type.TILTAK;
+                const enheterFraFylke =
+                  sokefilter.fylkesenhet === ""
+                    ? true
+                    : sokefilter.fylkesenhet === enhet.overordnetEnhet;
+                return erLokalEllerTiltaksenhet && enheterFraFylke;
+              })
+              ?.map((enhet) => (
+                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                  {enhet.navn} - {enhet.enhetNr}
+                </option>
+              ))}
           </Select>
           <Select
             label="Filtrer på tiltakstype"

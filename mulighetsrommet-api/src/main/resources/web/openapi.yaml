@@ -198,6 +198,10 @@ paths:
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
+        - in: query
+          name: fylkesenhet
+          schema:
+            type: string
       responses:
         200:
           description: Object of paginated tiltaksgjennomføringer.
