@@ -34,6 +34,7 @@ data class AdminTiltaksgjennomforingFilter(
     val statuser: List<Avslutningsstatus>? = null,
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1),
+    val fylkesenhet: String ? = null,
 )
 
 data class EnhetFilter(
@@ -93,12 +94,14 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
     val statuser = call.parameters.getAll("status")?.map { Avslutningsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
+    val fylkesenhet = call.request.queryParameters["fylkesenhet"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
         enhet = enhet,
         tiltakstypeId = tiltakstypeId,
         statuser = statuser,
         sortering = sortering,
+        fylkesenhet = fylkesenhet,
     )
 }
 

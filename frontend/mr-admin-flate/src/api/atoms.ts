@@ -27,7 +27,7 @@ export interface TiltakstypeFilter {
   status?: Tiltakstypestatus;
   kategori?: Tiltakstypekategori;
   sortering?: SorteringTiltakstyper;
-};
+}
 
 export const tiltakstypeFilter = atomWithHash<TiltakstypeFilter>(
   "tiltakstypefilter",
@@ -48,6 +48,7 @@ export interface Tiltaksgjennomforingfilter {
   tiltakstype: string;
   status: TiltaksgjennomforingAvslutningsstatus;
   sortering: SorteringTiltaksgjennomforinger;
+  fylkesenhet: string;
 }
 
 export const tiltaksgjennomforingfilter =
@@ -59,6 +60,7 @@ export const tiltaksgjennomforingfilter =
       tiltakstype: "",
       status: TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET,
       sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+      fylkesenhet: "",
     },
     {
       setHash: "replaceState",
