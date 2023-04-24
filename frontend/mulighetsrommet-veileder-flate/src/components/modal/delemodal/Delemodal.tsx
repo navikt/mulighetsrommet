@@ -66,8 +66,10 @@ function sySammenBrukerTekst(chattekst: string, tiltaksgjennomforingsnavn: strin
 
 function sySammenHilsenTekst(veiledernavn?: string) {
   const interessant =
-    'Er dette tiltaket aktuelt for deg? Gi meg gjerne et ja/nei svar her i dialogen.\nDitt svar (ja/nei) vil ikke påvirke ditt forhold til NAV.';
-  return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}\n\nHilsen `;
+    'Er dette aktuelt for deg? Gi meg tilbakemelding her i dialogen.\nSvaret ditt vil ikke endre din utbetaling fra NAV.';
+  return veiledernavn
+    ? `${interessant}\n\nVi holder kontakten!\nHilsen ${veiledernavn}`
+    : `${interessant}\n\nVi holder kontakten!\nHilsen `;
 }
 
 const Delemodal = ({
