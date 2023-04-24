@@ -5,7 +5,7 @@ import {
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
-  TiltaksgjennomforingAvslutningsstatus,
+  TiltaksgjennomforingStatus,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -46,7 +46,7 @@ export interface Tiltaksgjennomforingfilter {
   search: string;
   enhet: string;
   tiltakstype: string;
-  status: TiltaksgjennomforingAvslutningsstatus;
+  status: TiltaksgjennomforingStatus;
   sortering: SorteringTiltaksgjennomforinger;
   fylkesenhet: string;
 }
@@ -58,7 +58,7 @@ export const tiltaksgjennomforingfilter =
       search: "",
       enhet: "",
       tiltakstype: "",
-      status: TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET,
+      status: TiltaksgjennomforingStatus.GJENNOMFORES,
       sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
       fylkesenhet: "",
     },

@@ -187,8 +187,8 @@ paths:
         - in: query
           name: status
           schema:
-            $ref: "#/components/schemas/TiltaksgjennomforingAvslutningsstatus"
-          description: Avslutningsstatus for tiltaksgjennomføring
+            $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          description: Status for tiltaksgjennomføring
         - in: query
           name: size
           schema:
