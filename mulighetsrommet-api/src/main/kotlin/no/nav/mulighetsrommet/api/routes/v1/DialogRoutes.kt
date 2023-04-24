@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
-import no.nav.mulighetsrommet.audit_log.AuditLog
+import no.nav.mulighetsrommet.auditlog.AuditLog
 import org.koin.ktor.ext.inject
 
 fun Route.dialogRoutes() {
@@ -42,7 +42,7 @@ fun Route.dialogRoutes() {
 }
 
 private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(
-    msg: String
+    msg: String,
 ): CefMessage? {
     return CefMessage.builder()
         .applicationName("mulighetsrommet-api")
@@ -54,7 +54,7 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(
         .timeEnded(System.currentTimeMillis())
         .extension(
             "msg",
-            msg
+            msg,
         )
         .build()
 }

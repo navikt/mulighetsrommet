@@ -7,5 +7,5 @@ data class VirksomhetDto(
     val organisasjonsnummer: String,
     val navn: String,
     val overordnetEnhetOrganisasjonsnummer: String? = null,
-    val overordnetEnhetNavn: String? = null
+    val overordnetEnhetNavn: String? = null,
 )

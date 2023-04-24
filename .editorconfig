@@ -1,7 +1,6 @@
 root = true
 
 [*]
-disabled_rules = no-wildcard-imports
 end_of_line = lf
 insert_final_newline = true
 charset = utf-8
@@ -10,6 +9,9 @@ trim_trailing_whitespace = true
 [*.{kt,kts}]
 indent_size = 4
 indent_style = space
+
+# Custom config to override `ktlint` defaults
+ktlint_standard_no-wildcard-imports = disabled
 
 [*.{js,ts,tsx,json}]
 indent_size = 2

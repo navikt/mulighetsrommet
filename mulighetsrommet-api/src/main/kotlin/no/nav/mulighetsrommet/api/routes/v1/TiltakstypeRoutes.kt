@@ -21,19 +21,18 @@ fun Route.tiltakstypeRoutes() {
             call.respond(
                 tiltakstypeService.getWithFilter(
                     filter,
-                    paginationParams
-                )
+                    paginationParams,
+                ),
             )
         }
-
         get("{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             val tiltakstype = tiltakstypeService.getById(id) ?: return@get call.respondText(
                 "Det finnes ikke noe tiltakstype med id $id",
-                status = HttpStatusCode.NotFound
+                status = HttpStatusCode.NotFound,
             )
 
             call.respond(tiltakstype)
@@ -42,7 +41,7 @@ fun Route.tiltakstypeRoutes() {
         get("{id}/nokkeltall") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             val nokkeltall = tiltakstypeService.getNokkeltallForTiltakstype(id)
 

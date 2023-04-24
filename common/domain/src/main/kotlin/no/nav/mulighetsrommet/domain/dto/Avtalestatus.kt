@@ -7,14 +7,15 @@ enum class Avtalestatus {
     Planlagt,
     Aktiv,
     Avsluttet,
-    Avbrutt;
+    Avbrutt,
+    ;
 
     companion object {
         fun resolveFromDatesAndAvslutningsstatus(
             now: LocalDate,
             startDato: LocalDate,
             sluttDato: LocalDate,
-            avslutningsstatus: Avslutningsstatus
+            avslutningsstatus: Avslutningsstatus,
         ): Avtalestatus = when {
             avslutningsstatus == Avslutningsstatus.AVBRUTT -> Avbrutt
             avslutningsstatus == Avslutningsstatus.AVSLUTTET -> Avsluttet

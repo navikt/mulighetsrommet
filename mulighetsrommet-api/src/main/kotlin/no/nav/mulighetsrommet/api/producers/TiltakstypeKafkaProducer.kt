@@ -9,17 +9,17 @@ import java.util.*
 
 class TiltakstypeKafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
-    private val config: Config
+    private val config: Config,
 ) {
     data class Config(
-        val topic: String
+        val topic: String,
     )
 
     fun publish(value: TiltakstypeDto) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),
-            Json.encodeToString(value)
+            Json.encodeToString(value),
         )
         kafkaProducerClient.sendSync(record)
     }
@@ -28,7 +28,7 @@ class TiltakstypeKafkaProducer(
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             id.toString(),
-            null
+            null,
         )
         kafkaProducerClient.sendSync(record)
     }

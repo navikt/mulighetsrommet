@@ -4,8 +4,8 @@
     "frontend/*"
   ],
   "devDependencies": {
-    "prettier": "^2.8.0",
-    "turbo": "^1.6.3"
+    "prettier": "^2.8.7",
+    "turbo": "^1.9.3"
   },
   "packageManager": "npm@8.5.2",
   "dependencies": {

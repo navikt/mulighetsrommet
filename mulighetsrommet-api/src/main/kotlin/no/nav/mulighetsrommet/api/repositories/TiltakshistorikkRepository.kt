@@ -81,16 +81,16 @@ class TiltakshistorikkRepository(private val db: Database) {
             "norsk_ident" to norskIdent,
             "status" to status.name,
             "fra_dato" to fraDato,
-            "til_dato" to tilDato
+            "til_dato" to tilDato,
         ) + when (this) {
             is TiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
-                "tiltaksgjennomforing_id" to tiltaksgjennomforingId
+                "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
             )
 
             is TiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
                 "beskrivelse" to beskrivelse,
                 "virksomhetsnummer" to virksomhetsnummer,
-                "tiltakstypeid" to tiltakstypeId
+                "tiltakstypeid" to tiltakstypeId,
             )
         }
     }
@@ -104,7 +104,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                     norskIdent = string("norsk_ident"),
                     status = Deltakerstatus.valueOf(string("status")),
                     fraDato = localDateTimeOrNull("fra_dato"),
-                    tilDato = localDateTimeOrNull("til_dato")
+                    tilDato = localDateTimeOrNull("til_dato"),
                 )
             }
             ?: TiltakshistorikkDbo.IndividueltTiltak(
@@ -115,7 +115,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                 tilDato = localDateTimeOrNull("til_dato"),
                 beskrivelse = string("beskrivelse"),
                 tiltakstypeId = uuid("tiltakstypeid"),
-                virksomhetsnummer = string("virksomhetsnummer")
+                virksomhetsnummer = string("virksomhetsnummer"),
             )
     }
 
@@ -128,6 +128,6 @@ class TiltakshistorikkRepository(private val db: Database) {
         tiltakstype = string("tiltakstype"),
         arrangor = stringOrNull("virksomhetsnummer")?.let {
             TiltakshistorikkDto.Arrangor(virksomhetsnummer = it, navn = null)
-        }
+        },
     )
 }

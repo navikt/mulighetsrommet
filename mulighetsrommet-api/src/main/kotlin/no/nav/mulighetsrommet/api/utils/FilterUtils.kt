@@ -41,7 +41,7 @@ data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = listOf(
         NavEnhetStatus.AKTIV,
         NavEnhetStatus.UNDER_AVVIKLING,
-        NavEnhetStatus.UNDER_ETABLERING
+        NavEnhetStatus.UNDER_ETABLERING,
     ),
     val tiltakstypeId: String? = null,
 )
@@ -50,7 +50,7 @@ data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
-    val lokasjoner: List<String> = emptyList()
+    val lokasjoner: List<String> = emptyList(),
 )
 
 enum class Tiltakstypekategori {
@@ -64,7 +64,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
     val kategori =
         call.request.queryParameters["tiltakstypekategori"]?.let { kategori -> Tiltakstypekategori.valueOf(kategori) }
     val sortering = call.request.queryParameters["sort"]
-    return TiltakstypeFilter(search = search, status = status, kategori = kategori, sortering = sortering)
+    return TiltakstypeFilter(
+        search = search,
+        status = status,
+        kategori = kategori,
+        sortering = sortering,
+    )
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
@@ -79,7 +84,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         search = search,
         avtalestatus = avtalestatus,
         enhet = enhet,
-        sortering = sortering
+        sortering = sortering,
     )
 }
 
@@ -94,7 +99,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         enhet = enhet,
         tiltakstypeId = tiltakstypeId,
         status = statuser,
-        sortering = sortering
+        sortering = sortering,
     )
 }
 
@@ -113,6 +118,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,
-        lokasjoner = lokasjoner
+        lokasjoner = lokasjoner,
     )
 }

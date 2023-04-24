@@ -4,7 +4,8 @@ enum class Avslutningsstatus {
     AVLYST,
     AVBRUTT,
     AVSLUTTET,
-    IKKE_AVSLUTTET;
+    IKKE_AVSLUTTET,
+    ;
 
     companion object {
         fun fromArenastatus(arenaStatus: String): Avslutningsstatus {

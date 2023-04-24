@@ -2,17 +2,12 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ktlint)
     alias(libs.plugins.flyway)
     alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
 }
 
 flyway {
@@ -90,7 +85,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.0") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.73") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.74") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

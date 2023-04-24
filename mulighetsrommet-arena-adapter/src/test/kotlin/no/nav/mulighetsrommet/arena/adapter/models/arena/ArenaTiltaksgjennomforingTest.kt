@@ -21,7 +21,7 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
             "ANTALL_DELTAKERE": $antallDeltakere,
             "TILTAKSTATUSKODE": "GJENNOMFOR",
             "AVTALE_ID": "1000"
-        }"""
+        }""",
     )
 
     context("decode from JSON") {
@@ -38,7 +38,7 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
                 STATUS_TREVERDIKODE_INNSOKNING = JaNeiStatus.Ja,
                 ANTALL_DELTAKERE = 5,
                 TILTAKSTATUSKODE = "GJENNOMFOR",
-                AVTALE_ID = 1000
+                AVTALE_ID = 1000,
             )
         }
 

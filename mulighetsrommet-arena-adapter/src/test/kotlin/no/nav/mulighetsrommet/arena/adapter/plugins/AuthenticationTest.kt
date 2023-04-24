@@ -32,7 +32,7 @@ class AuthenticationTest : FunSpec({
             withTestApplication(oauth) {
                 val response = client.get(apiUrl) {
                     bearerAuth(
-                        oauth.issueToken(audience = "skatteetaten").serialize()
+                        oauth.issueToken(audience = "skatteetaten").serialize(),
                     )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -44,7 +44,7 @@ class AuthenticationTest : FunSpec({
 
                 val response = client.get(apiUrl) {
                     bearerAuth(
-                        oauth.issueToken(audience = "skatteetaten").serialize()
+                        oauth.issueToken(audience = "skatteetaten").serialize(),
                     )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized

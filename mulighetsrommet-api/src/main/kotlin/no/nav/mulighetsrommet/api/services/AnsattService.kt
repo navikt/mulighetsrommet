@@ -8,7 +8,7 @@ import java.util.*
 
 class AnsattService(
     private val poaoTilgangService: PoaoTilgangService,
-    private val microsoftGraphService: MicrosoftGraphService
+    private val microsoftGraphService: MicrosoftGraphService,
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val data = microsoftGraphService.hentAnsattData(accessToken, navAnsattAzureId)
@@ -20,7 +20,7 @@ class AnsattService(
             navn = "${data.fornavn} ${data.etternavn}",
             tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet(),
             hovedenhet = data.hovedenhetKode,
-            hovedenhetNavn = data.hovedenhetNavn
+            hovedenhetNavn = data.hovedenhetNavn,
         )
     }
 }
@@ -41,11 +41,11 @@ data class AnsattData(
     val navn: String?,
     val tilganger: Set<Tilgang>,
     val hovedenhet: String,
-    val hovedenhetNavn: String
+    val hovedenhetNavn: String,
 )
 
 @Serializable
 enum class Tilgang {
     BETABRUKER,
-    UTVIKLER_VALP
+    UTVIKLER_VALP,
 }

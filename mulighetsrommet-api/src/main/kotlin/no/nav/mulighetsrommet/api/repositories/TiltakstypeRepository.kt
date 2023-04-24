@@ -55,38 +55,50 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAll(
-        paginationParams: PaginationParams = PaginationParams()
+        paginationParams: PaginationParams = PaginationParams(),
     ): Pair<Int, List<TiltakstypeDto>> {
         val parameters = mapOf(
             "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset
+            "offset" to paginationParams.offset,
         )
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select
+                id,
+                navn,
+                tiltakskode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                rett_paa_tiltakspenger,
+                count(*) OVER() AS full_count
             from tiltakstype
             order by navn asc
             limit :limit
             offset :offset
         """.trimIndent()
 
-        val results = runQueryWithParameters(query, parameters)
+        val results = queryOf(query, parameters)
+            .map { it.int("full_count") to it.toTiltakstypeDto() }
+            .asList
+            .let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
     }
 
-    fun getAll(
+    fun getAllSkalMigreres(
         tiltakstypeFilter: TiltakstypeFilter,
-        paginationParams: PaginationParams = PaginationParams()
+        paginationParams: PaginationParams = PaginationParams(),
     ): Pair<Int, List<TiltakstypeDto>> {
         val parameters = mapOf(
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
             "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.Gruppetiltak),
-            "today" to tiltakstypeFilter.dagensDato
+            "today" to tiltakstypeFilter.dagensDato,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -97,7 +109,8 @@ class TiltakstypeRepository(private val db: Database) {
                     Tiltakstypekategori.GRUPPE -> "tiltakskode = any(:gruppetiltakskoder)"
                     Tiltakstypekategori.INDIVIDUELL -> "not(tiltakskode = any(:gruppetiltakskoder))"
                 }
-            }
+            },
+            true to "skal_migreres = true",
         )
 
         val order = when (tiltakstypeFilter.sortering) {
@@ -108,7 +121,16 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select
+                id,
+                navn,
+                tiltakskode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                rett_paa_tiltakspenger,
+                count(*) OVER() AS full_count
             from tiltakstype
             $where
             order by $order
@@ -116,7 +138,10 @@ class TiltakstypeRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = runQueryWithParameters(query, parameters)
+        val results = queryOf(query, parameters)
+            .map { it.int("full_count") to it.toTiltakstypeDto() }
+            .asList
+            .let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
         return Pair(totaltAntall, tiltakstyper)
@@ -125,7 +150,7 @@ class TiltakstypeRepository(private val db: Database) {
     fun getAllByDateInterval(
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
-        pagination: PaginationParams
+        pagination: PaginationParams,
     ): List<TiltakstypeDto> {
         logger.info("Henter alle tiltakstyper med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd")
 
@@ -147,7 +172,7 @@ class TiltakstypeRepository(private val db: Database) {
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
                 "offset" to pagination.offset,
-            )
+            ),
         )
             .map { it.toTiltakstypeDto() }
             .asList
@@ -168,15 +193,6 @@ class TiltakstypeRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun runQueryWithParameters(query: String, parameters: Map<String, Any?>): List<Pair<Int, TiltakstypeDto>> {
-        return queryOf(query, parameters)
-            .map {
-                it.int("full_count") to it.toTiltakstypeDto()
-            }
-            .asList
-            .let { db.run(it) }
-    }
-
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
@@ -185,7 +201,7 @@ class TiltakstypeRepository(private val db: Database) {
         "sist_endret_dato_i_arena" to sistEndretDatoIArena,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
-        "rett_paa_tiltakspenger" to rettPaaTiltakspenger
+        "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
     private fun Row.toTiltakstypeDbo() = TiltakstypeDbo(
@@ -196,7 +212,7 @@ class TiltakstypeRepository(private val db: Database) {
         sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
         fraDato = localDate("fra_dato"),
         tilDato = localDate("til_dato"),
-        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger")
+        rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
     )
 
     private fun Row.toTiltakstypeDto(): TiltakstypeDto {
@@ -211,7 +227,7 @@ class TiltakstypeRepository(private val db: Database) {
             fraDato = fraDato,
             tilDato = tilDato,
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato)
+            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato),
         )
     }
 

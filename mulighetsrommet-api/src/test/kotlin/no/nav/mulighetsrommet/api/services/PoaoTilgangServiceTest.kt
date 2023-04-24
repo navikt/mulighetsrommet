@@ -24,8 +24,8 @@ class PoaoTilgangServiceTest : FunSpec(
                     throwable = null,
                     result = Decision.Deny(
                         message = "",
-                        reason = ""
-                    )
+                        reason = "",
+                    ),
                 )
 
                 val client: PoaoTilgangClient = mockk()
@@ -34,8 +34,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId1,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                 } returns mockResponse
 
@@ -50,8 +50,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId1,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                 }
             }
@@ -59,7 +59,7 @@ class PoaoTilgangServiceTest : FunSpec(
             test("should verify access to modia when decision is PERMIT") {
                 val mockResponse = ApiResult<Decision>(
                     throwable = null,
-                    result = Decision.Permit
+                    result = Decision.Permit,
                 )
 
                 val client: PoaoTilgangClient = mockk()
@@ -68,8 +68,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId1,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                 } returns mockResponse
 
@@ -82,8 +82,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId1,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                 }
             }
@@ -91,7 +91,7 @@ class PoaoTilgangServiceTest : FunSpec(
             test("should cache response based on provided NAVident") {
                 val mockResponse = ApiResult<Decision>(
                     throwable = null,
-                    result = Decision.Permit
+                    result = Decision.Permit,
                 )
 
                 val client: PoaoTilgangClient = mockk()
@@ -100,8 +100,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId1,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                 } returns mockResponse
                 every {
@@ -109,8 +109,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId2,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                 } returns mockResponse
                 every {
@@ -118,8 +118,8 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId2,
                             TilgangType.LESE,
-                            "10987654321"
-                        )
+                            "10987654321",
+                        ),
                     )
                 } returns mockResponse
 
@@ -137,25 +137,25 @@ class PoaoTilgangServiceTest : FunSpec(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId1,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId2,
                             TilgangType.LESE,
-                            "12345678910"
-                        )
+                            "12345678910",
+                        ),
                     )
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
                             navAnsattAzureId2,
                             TilgangType.LESE,
-                            "10987654321"
-                        )
+                            "10987654321",
+                        ),
                     )
                 }
             }
         }
-    }
+    },
 )

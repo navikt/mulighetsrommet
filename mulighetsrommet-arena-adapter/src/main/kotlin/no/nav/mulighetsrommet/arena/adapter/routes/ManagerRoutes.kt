@@ -58,7 +58,7 @@ fun Route.managerRoutes() {
 
         arenaEventService.replayEvent(
             table = request.table,
-            id = request.arenaId
+            id = request.arenaId,
         )
 
         call.respond(HttpStatusCode.Created)
@@ -69,7 +69,7 @@ fun Route.managerRoutes() {
 
         arenaEventService.deleteEntities(
             table = request.table,
-            ids = request.arenaIds
+            ids = request.arenaIds,
         )
 
         call.respond(HttpStatusCode.OK)
@@ -79,13 +79,13 @@ fun Route.managerRoutes() {
 @Serializable
 data class ReplayTopicEventRequest(
     val table: ArenaTable,
-    val arenaId: String
+    val arenaId: String,
 )
 
 @Serializable
 data class DeleteEventsRequest(
     val table: ArenaTable,
-    val arenaIds: List<String>
+    val arenaIds: List<String>,
 )
 
 @Serializable

@@ -17,17 +17,18 @@ class EnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(enhet: NavEnhetDbo): QueryResult<NavEnhetDbo> = query {
-        logger.info("Lagrer enhet id=${enhet.enhetId}")
+        logger.info("Lagrer enhet med enhetsnummer=${enhet.enhetNr}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into enhet(enhet_id, navn, enhetsnummer, status, type)
-            values (:enhet_id, :navn, :enhetsnummer, :status, :type)
-            on conflict (enhet_id)
+            insert into enhet(navn, enhetsnummer, status, type, overordnet_enhet)
+            values (:navn, :enhetsnummer, :status, :type, :overordnet_enhet)
+            on conflict (enhetsnummer)
                 do update set   navn            = excluded.navn,
                                 enhetsnummer    = excluded.enhetsnummer,
                                 status          = excluded.status,
-                                type            = excluded.type
+                                type            = excluded.type,
+                                overordnet_enhet = excluded.overordnet_enhet
             returning *
         """.trimIndent()
 
@@ -50,7 +51,7 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type
+            select distinct e.navn,(e.enhetsnummer), e.status, e.type, e.overordnet_enhet
             from enhet e
             $where
             order by e.navn asc
@@ -67,17 +68,17 @@ class EnhetRepository(private val db: Database) {
         logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
         val parameters = mapOf(
             "statuser" to db.createTextArray(statuser.map { it.name }),
-            "tiltakstypeId" to filter.tiltakstypeId
+            "tiltakstypeId" to filter.tiltakstypeId,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.statuser to "e.status = any(:statuser)",
-            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid"
+            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid",
         )
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.enhet_id, e.status, e.type
+            select distinct e.navn,(e.enhetsnummer), e.status, e.type, e.overordnet_enhet
             from enhet e
             join avtale a
             on a.enhet = e.enhetsnummer
@@ -94,7 +95,7 @@ class EnhetRepository(private val db: Database) {
     fun get(enhet: String): NavEnhetDbo? {
         @Language("PostgreSQL")
         val query = """
-            select navn, enhet_id, enhetsnummer, status, type
+            select navn, enhetsnummer, status, type, overordnet_enhet
             from enhet
             where enhetsnummer = ?
         """.trimIndent()
@@ -105,16 +106,16 @@ class EnhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun deleteWhereIds(idErForSletting: List<Int>) {
-        logger.info("Sletter enheter med id: $idErForSletting")
+    fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<String>) {
+        logger.info("Sletter enheter med enhetsnummer: $enhetsnummerForSletting")
 
         val parameters = mapOf(
-            "ider" to db.createIntArray(idErForSletting)
+            "ider" to db.createTextArray(enhetsnummerForSletting),
         )
 
         @Language("PostgreSQL")
         val delete = """
-            delete from enhet where enhet_id = any(:ider::integer[])
+            delete from enhet where enhetsnummer = any(:ider::text[])
         """.trimIndent()
 
         queryOf(delete, parameters)
@@ -124,17 +125,17 @@ class EnhetRepository(private val db: Database) {
 }
 
 private fun NavEnhetDbo.toSqlParameters() = mapOf(
-    "enhet_id" to enhetId,
     "navn" to navn,
     "enhetsnummer" to enhetNr,
     "status" to status.name,
-    "type" to type.name
+    "type" to type.name,
+    "overordnet_enhet" to overordnetEnhet,
 )
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
-    enhetId = int("enhet_id"),
     navn = string("navn"),
     enhetNr = string("enhetsnummer"),
     status = NavEnhetStatus.valueOf(string("status")),
-    type = Norg2Type.valueOf(string("type"))
+    type = Norg2Type.valueOf(string("type")),
+    overordnetEnhet = stringOrNull("overordnet_enhet"),
 )

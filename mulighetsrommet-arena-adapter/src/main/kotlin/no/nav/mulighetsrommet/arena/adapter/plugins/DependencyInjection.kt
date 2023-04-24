@@ -23,8 +23,8 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifier
-import no.nav.mulighetsrommet.slack_notifier.SlackNotifierImpl
+import no.nav.mulighetsrommet.slack.SlackNotifier
+import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -35,7 +35,7 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 
 fun Application.configureDependencyInjection(
-    appConfig: AppConfig
+    appConfig: AppConfig,
 ) {
     val tokenClient = createM2mTokenClient(appConfig)
     install(Koin) {
@@ -46,7 +46,7 @@ fun Application.configureDependencyInjection(
             repositories(),
             services(appConfig.services, tokenClient),
             tasks(appConfig.tasks),
-            slack(appConfig.slack)
+            slack(appConfig.slack),
         )
     }
 }
@@ -126,7 +126,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
     single {
         MulighetsrommetApiClient(
             config = MulighetsrommetApiClient.Config(maxRetries = 5),
-            baseUri = services.mulighetsrommetApi.url
+            baseUri = services.mulighetsrommetApi.url,
         ) {
             tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
         }

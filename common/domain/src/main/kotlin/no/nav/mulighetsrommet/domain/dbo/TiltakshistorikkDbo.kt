@@ -32,7 +32,7 @@ sealed class TiltakshistorikkDbo {
         @Serializable(with = LocalDateTimeSerializer::class)
         override val tilDato: LocalDateTime? = null,
         @Serializable(with = UUIDSerializer::class)
-        val tiltaksgjennomforingId: UUID
+        val tiltaksgjennomforingId: UUID,
     ) : TiltakshistorikkDbo()
 
     @Serializable
@@ -48,6 +48,6 @@ sealed class TiltakshistorikkDbo {
         val beskrivelse: String,
         @Serializable(with = UUIDSerializer::class)
         val tiltakstypeId: UUID,
-        val virksomhetsnummer: String
+        val virksomhetsnummer: String,
     ) : TiltakshistorikkDbo()
 }

@@ -72,8 +72,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
         fun createProcessor(
             engine: HttpClientEngine = createMockEngine(
                 "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() }
-            )
+                "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() },
+            ),
         ): TiltakdeltakerEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
@@ -147,7 +147,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
              */
             val tiltakstypeGruppeOpphavArena = TiltakstypeFixtures.Gruppe.copy(
                 id = UUID.randomUUID(),
-                tiltakskode = "IPSUNG"
+                tiltakskode = "IPSUNG",
             )
             val sakOpphavArena = Sak(sakId = 3, lopenummer = 3, aar = 2022, enhet = "2990")
             val tiltaksgjennomforingOpphavArena = tiltaksgjennomforing.copy(
@@ -165,7 +165,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 listOf(tiltakstypeGruppe, tiltakstypeIndividuell, tiltakstypeGruppeOpphavArena).forEach {
                     tiltakstyper.upsert(it).getOrThrow()
                     mappings.upsert(
-                        ArenaEntityMapping(ArenaTable.Tiltakstype, it.tiltakskode, it.id, Handled)
+                        ArenaEntityMapping(ArenaTable.Tiltakstype, it.tiltakskode, it.id, Handled),
                     )
                 }
 
@@ -182,8 +182,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                             ArenaTable.Tiltaksgjennomforing,
                             it.tiltaksgjennomforingId.toString(),
                             it.id,
-                            Handled
-                        )
+                            Handled,
+                        ),
                     )
                 }
             }
@@ -206,8 +206,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                         ArenaTable.Tiltaksgjennomforing,
                         tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
                         UUID.randomUUID(),
-                        Ignored
-                    )
+                        Ignored,
+                    ),
                 )
                 val event = createArenaTiltakdeltakerEvent(Insert)
 
@@ -219,7 +219,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                 val (e1, mapping) = prepareEvent(
                     createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") },
-                    Ignored
+                    Ignored,
                 )
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
@@ -242,7 +242,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should mark the event as Failed when arena ords proxy responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.InternalServerError) },
-                    "/api/v1/internal/arena/deltaker" to { respondOk() }
+                    "/api/v1/internal/arena/deltaker" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -258,7 +258,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() }
+                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
                 )
 
                 val processor = createProcessor(engine)
@@ -274,9 +274,9 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
                     "/api/v1/internal/arena/tiltakshistorikk" to {
                         respondError(
-                            HttpStatusCode.InternalServerError
+                            HttpStatusCode.InternalServerError,
                         )
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -324,9 +324,9 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            ArenaOrdsArrangor("123456", "000000")
+                            ArenaOrdsArrangor("123456", "000000"),
                         )
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -334,10 +334,10 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     createArenaTiltakdeltakerEvent(Insert) {
                         it.copy(
                             TILTAKDELTAKER_ID = 2,
-                            TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId
+                            TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId,
                         )
                     },
-                    Ignored
+                    Ignored,
                 )
 
                 processor.handleEvent(event).shouldBeRight()
@@ -368,7 +368,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     createArenaTiltakdeltakerEvent(Insert) {
                         it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforingOpphavArena.tiltaksgjennomforingId)
                     },
-                    Ignored
+                    Ignored,
                 )
 
                 processor.handleEvent(event).shouldBeRight()

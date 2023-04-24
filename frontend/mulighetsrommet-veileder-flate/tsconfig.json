@@ -24,5 +24,5 @@
     "types": ["cypress", "cypress-axe", "vite/client", "vite-plugin-svgr/client"]
   },
   "exclude": ["node_modules", "build", "scripts", "acceptance-tests", "webpack", "src/setupTests.ts"],
-  "include": ["src", "mock"]
+  "include": ["src", "mock"],
 }

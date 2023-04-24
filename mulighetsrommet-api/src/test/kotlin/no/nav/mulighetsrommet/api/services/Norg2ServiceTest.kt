@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.fixtures.Norg2EnhetFixture
 import no.nav.mulighetsrommet.api.repositories.EnhetRepository
@@ -16,9 +17,18 @@ class Norg2ServiceTest : FunSpec({
 
     test("Synkroniser enheter skal slette enheter som ikke tilfredstiller whitelist") {
         val mockEnheter = listOf(
-            Norg2EnhetFixture.enhet.copy(enhetId = 1, type = Norg2Type.AAREG),
-            Norg2EnhetFixture.enhet.copy(enhetId = 2),
-            Norg2EnhetFixture.enhet.copy(enhetId = 3)
+            Norg2Response(
+                enhet = Norg2EnhetFixture.enhet.copy(enhetId = 1, type = Norg2Type.AAREG),
+                overordnetEnhet = "1200",
+            ),
+            Norg2Response(
+                enhet = Norg2EnhetFixture.enhet.copy(enhetId = 2),
+                overordnetEnhet = "1200",
+            ),
+            Norg2Response(
+                enhet = Norg2EnhetFixture.enhet.copy(enhetId = 3),
+                overordnetEnhet = "1400",
+            ),
         )
 
         coEvery {
@@ -27,7 +37,9 @@ class Norg2ServiceTest : FunSpec({
 
         val tilLagring = norg2Service.synkroniserEnheter()
         tilLagring.size shouldBe 2
-        tilLagring[0].enhetId shouldBe 2
-        tilLagring[1].enhetId shouldBe 3
+        tilLagring[0].enhet.enhetId shouldBe 2
+        tilLagring[0].overordnetEnhet shouldBe "1200"
+        tilLagring[1].enhet.enhetId shouldBe 3
+        tilLagring[1].overordnetEnhet shouldBe "1400"
     }
 })

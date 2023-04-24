@@ -20,7 +20,7 @@ class TopicRepositoryTest : FunSpec({
 
         val updatedTopics = listOf(
             topic0.copy(running = true),
-            Topic(id = "new-id", topic = "new-topic", type = TopicType.CONSUMER, running = false)
+            Topic(id = "new-id", topic = "new-topic", type = TopicType.CONSUMER, running = false),
         )
 
         repository.setAll(updatedTopics)

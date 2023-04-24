@@ -44,7 +44,7 @@ const TiltaksdetaljerFane = () => {
         setFane(value);
       }}
     >
-      <Tabs.List className={styles.fane_liste}>
+      <Tabs.List className={styles.fane_liste} id="fane_liste">
         {faneoverskrifter
           .filter(fane => {
             return !(!visInnsiktsfane && fane === 'Innsikt');

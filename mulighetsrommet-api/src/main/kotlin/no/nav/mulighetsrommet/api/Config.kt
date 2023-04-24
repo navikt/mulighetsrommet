@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
     val server: ServerConfig,
-    val app: AppConfig
+    val app: AppConfig,
 )
 
 data class AppConfig(
@@ -30,11 +30,11 @@ data class AppConfig(
     val msGraphConfig: ServiceClientConfig,
     val tasks: TaskConfig,
     val norg2: Norg2Config,
-    val slack: SlackConfig
+    val slack: SlackConfig,
 )
 
 data class AuthConfig(
-    val azure: AuthProvider
+    val azure: AuthProvider,
 )
 
 data class KafkaConfig(
@@ -47,7 +47,7 @@ data class KafkaConfig(
 
 data class KafkaProducers(
     val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config,
-    val tiltakstyper: TiltakstypeKafkaProducer.Config
+    val tiltakstyper: TiltakstypeKafkaProducer.Config,
 )
 
 data class KafkaConsumers(
@@ -58,28 +58,28 @@ data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
     val audience: String,
-    val tokenEndpointUrl: String
+    val tokenEndpointUrl: String,
 )
 
 data class SwaggerConfig(
-    val enable: Boolean
+    val enable: Boolean,
 )
 
 data class ServiceClientConfig(
     val url: String,
-    val scope: String
+    val scope: String,
 )
 
 data class TaskConfig(
-    val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config
+    val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
 )
 
 data class Norg2Config(
-    val baseUrl: String
+    val baseUrl: String,
 )
 
 data class SlackConfig(
     val token: String,
     val channel: String,
-    val enable: Boolean
+    val enable: Boolean,
 )

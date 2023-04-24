@@ -293,8 +293,11 @@ export const tiltaksgjennomforing = defineType({
   preview: {
     select: {
       title: "tiltaksgjennomforingNavn",
-      tiltakstypeNavn: "tiltakstype.tiltakstypeNavn",
-      arrangornavn: "kontaktinfoArrangor.selskapsnavn",
+      tiltaksnummer: "tiltaksnummer.current",
     },
+    prepare: ({ title, tiltaksnummer }) => ({
+      title,
+      subtitle: tiltaksnummer ? tiltaksnummer : "",
+    }),
   },
 });

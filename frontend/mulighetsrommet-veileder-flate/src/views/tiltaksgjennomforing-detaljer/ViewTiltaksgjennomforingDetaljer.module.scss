@@ -9,12 +9,19 @@
   margin: 0 auto;
 }
 
+.top_wrapper {
+  align-items: baseline;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  margin-right: 1rem;
+}
+
 .flex {
   display: flex;
   flex-wrap: wrap;
 }
 
-.tiltakstype_detaljer {
+.tiltaksgjennomforing_detaljer {
   display: grid;
   grid-template-rows: auto 1fr;
   grid-template-columns: auto 23rem;
@@ -30,7 +37,6 @@
 .nokkelinfo_container {
   display: flex;
 }
-
 .alert {
   margin-top: 0.5rem;
   border-radius: 0;
@@ -79,7 +85,7 @@
 }
 
 @media (width <= 1200px) {
-  .tiltakstype_detaljer {
+  .tiltaksgjennomforing_detaljer {
     grid-template-columns: auto;
     grid-gap: 2rem;
 

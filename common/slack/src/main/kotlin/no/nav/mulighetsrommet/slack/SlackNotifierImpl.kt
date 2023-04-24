@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.slack_notifier
+package no.nav.mulighetsrommet.slack
 
 import com.slack.api.Slack
 import org.slf4j.LoggerFactory
@@ -26,7 +26,7 @@ class SlackNotifierImpl(private val token: String, private val channel: String, 
             if (!response.isOk) {
                 log.warn(
                     "Klarte ikke sende melding til Slack-kanal: $channel. Skulle sendt melding: '$message'",
-                    response.errors.joinToString("\n")
+                    response.errors.joinToString("\n"),
                 )
             }
         } catch (ioException: IOException) {

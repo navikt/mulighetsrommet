@@ -9,7 +9,6 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
-import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
@@ -17,6 +16,7 @@ import {
   OPPRETT_AVTALE_ADMIN_FLATE,
   useFeatureToggles,
 } from "../../api/features/feature-toggles";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 type Filters = "tiltakstype";
 
@@ -27,9 +27,10 @@ interface Props {
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
   const { data: enheter } = useEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper({
-    tiltakstypestatus: Tiltakstypestatus.AKTIV,
-  });
+  const { data: tiltakstyper } = useTiltakstyper(
+    { status: Tiltakstypestatus.AKTIV },
+    1
+  );
   const { data } = useAvtaler();
   const [, setPage] = useAtom(avtalePaginationAtom);
   const searchRef = useRef<HTMLDivElement | null>(null);
@@ -96,7 +97,7 @@ export function Avtalefilter(props: Props) {
           >
             <option value="">Alle enheter</option>
             {enheter?.map((enhet) => (
-              <option key={enhet.enhetId} value={enhet.enhetNr}>
+              <option key={enhet.enhetNr} value={enhet.enhetNr}>
                 {enhet.navn} - {enhet.enhetNr}
               </option>
             ))}

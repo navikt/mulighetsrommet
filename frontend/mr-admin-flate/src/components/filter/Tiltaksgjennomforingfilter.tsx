@@ -11,18 +11,21 @@ import {
 } from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper({
-    tiltakstypestatus: Tiltakstypestatus.AKTIV,
-  });
+  const { data: tiltakstyper } = useTiltakstyper(
+    {
+      status: Tiltakstypestatus.AKTIV,
+    },
+    1
+  );
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
@@ -58,7 +61,7 @@ export function Tiltaksgjennomforingfilter() {
           >
             <option value="">Alle enheter</option>
             {enheter?.map((enhet) => (
-              <option key={enhet.enhetId} value={enhet.enhetNr}>
+              <option key={enhet.enhetNr} value={enhet.enhetNr}>
                 {enhet.navn} - {enhet.enhetNr}
               </option>
             ))}

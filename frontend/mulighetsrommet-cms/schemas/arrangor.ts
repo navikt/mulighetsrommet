@@ -52,5 +52,9 @@ export const arrangor = defineType({
       adresse: "adresse",
       orgnr: "organisasjonsnummer.current",
     },
+    prepare: ({ title, adresse, orgnr }) => ({
+      title,
+      subtitle: [orgnr, adresse].filter(Boolean).join(" - "),
+    }),
   },
 });

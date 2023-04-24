@@ -39,21 +39,21 @@ class ArenaEventServiceTest : FunSpec({
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "1",
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Foo")))
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Foo"))),
     )
     val processedEvent = ArenaEvent(
         status = ProcessingStatus.Processed,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "2",
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Bar")))
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Bar"))),
     )
     val invalidEvent = ArenaEvent(
         status = ProcessingStatus.Invalid,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "3",
-        payload = JsonObject(mapOf("name" to JsonPrimitive("Baz")))
+        payload = JsonObject(mapOf("name" to JsonPrimitive("Baz"))),
     )
 
     lateinit var events: ArenaEventRepository
@@ -128,7 +128,7 @@ class ArenaEventServiceTest : FunSpec({
             val processor = spyk(
                 ArenaEventTestProcessor {
                     ProcessingResult(ArenaEntityMapping.Status.Ignored, "test").right()
-                }
+                },
             )
             val entitiesRepository = ArenaEntityMappingRepository(database.db)
             entitiesRepository.upsert(
@@ -136,8 +136,8 @@ class ArenaEventServiceTest : FunSpec({
                     pendingEvent.arenaTable,
                     pendingEvent.arenaId,
                     UUID.randomUUID(),
-                    Handled
-                )
+                    Handled,
+                ),
             )
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
@@ -157,7 +157,7 @@ class ArenaEventServiceTest : FunSpec({
             val processor = spyk(
                 ArenaEventTestProcessor {
                     ProcessingResult(ArenaEntityMapping.Status.Ignored).right()
-                }
+                },
             )
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
@@ -239,7 +239,8 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(
                 config = ArenaEventService.Config(maxRetries = 0),
                 events = events,
-                processors = listOf(processor), entities = entities
+                processors = listOf(processor),
+                entities = entities,
             )
             service.retryEvents(table)
 
@@ -260,7 +261,8 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(
                 config = ArenaEventService.Config(maxRetries = 1),
                 events = events,
-                processors = listOf(processor), entities = entities
+                processors = listOf(processor),
+                entities = entities,
             )
             service.retryEvents(table)
 

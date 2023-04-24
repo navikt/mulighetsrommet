@@ -8,17 +8,17 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable
 data class FylkeResponse(
-    val fylke: Fylke
+    val fylke: Fylke,
 )
 
 @Serializable
 data class Fylke(
-    val nummer: Slug
+    val nummer: Slug,
 )
 
 @Serializable
 data class Slug(
-    val current: String
+    val current: String,
 )
 
 @Serializable(with = SanityReponseSerializer::class)

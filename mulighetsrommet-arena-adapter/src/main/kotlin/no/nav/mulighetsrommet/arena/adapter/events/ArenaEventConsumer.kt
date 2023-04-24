@@ -43,7 +43,7 @@ internal fun decodeArenaEvent(payload: JsonElement): ArenaEvent {
         arenaId = arenaId,
         operation = operation,
         payload = payload,
-        status = ArenaEvent.ProcessingStatus.Pending
+        status = ArenaEvent.ProcessingStatus.Pending,
     )
 }
 

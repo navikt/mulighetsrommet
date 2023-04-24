@@ -20,7 +20,7 @@ class AvtaleService(
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val amtEnhetsregisterClient: AmtEnhetsregisterClient
+    private val amtEnhetsregisterClient: AmtEnhetsregisterClient,
 ) {
     suspend fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
@@ -45,7 +45,7 @@ class AvtaleService(
 
     suspend fun getAll(
         filter: AvtaleFilter,
-        pagination: PaginationParams = PaginationParams()
+        pagination: PaginationParams = PaginationParams(),
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(filter, pagination)
 
@@ -58,8 +58,8 @@ class AvtaleService(
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = pagination.page,
-                pageSize = pagination.limit
-            )
+                pageSize = pagination.limit,
+            ),
         )
     }
 
@@ -90,7 +90,7 @@ class AvtaleService(
         val antallDeltakereForAvtale = tiltaksgjennomforinger.countDeltakereForAvtaleWithId(id)
         return AvtaleNokkeltallDto(
             antallTiltaksgjennomforinger = antallTiltaksgjennomforinger,
-            antallDeltakere = antallDeltakereForAvtale
+            antallDeltakere = antallDeltakereForAvtale,
         )
     }
 }

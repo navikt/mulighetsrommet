@@ -37,10 +37,10 @@ fun Route.tiltaksgjennomforingRoutes() {
                             pagination = Pagination(
                                 totalCount = totalCount,
                                 currentPage = paginationParams.page,
-                                pageSize = paginationParams.limit
+                                pageSize = paginationParams.limit,
                             ),
-                            data = items
-                        )
+                            data = items,
+                        ),
                     )
                 }
                 .onLeft {
@@ -52,7 +52,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         get("{id}") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             tiltaksgjennomforingService
                 .get(id)
@@ -60,7 +60,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     if (it == null) {
                         return@get call.respondText(
                             "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                            status = HttpStatusCode.NotFound
+                            status = HttpStatusCode.NotFound,
                         )
                     }
                     return@get call.respond(it)
@@ -89,7 +89,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         get("{id}/nokkeltall") {
             val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             call.respond(tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id))
         }
@@ -109,11 +109,12 @@ data class TiltaksgjennomforingRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String,
+    val enhet: String? = null,
     val antallPlasser: Int,
     val virksomhetsnummer: String,
-    val tiltaksnummer: String,
+    val tiltaksnummer: String? = null,
     val ansvarlig: String,
+    val enheter: List<String>,
 ) {
     fun toDbo(): Either<Exception, TiltaksgjennomforingDbo> {
         if (sluttDato.isBefore(startDato)) {
@@ -130,14 +131,15 @@ data class TiltaksgjennomforingRequest(
                 avtaleId = avtaleId,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                enhet = enhet,
+                arenaAnsvarligEnhet = enhet,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 antallPlasser = antallPlasser,
                 tilgjengelighet = TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig,
                 tiltaksnummer = tiltaksnummer,
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),
-            )
+                enheter = enheter,
+            ),
         )
     }
 }

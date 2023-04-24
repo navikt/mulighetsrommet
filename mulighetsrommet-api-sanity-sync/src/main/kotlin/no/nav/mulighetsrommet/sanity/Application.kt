@@ -54,7 +54,7 @@ private fun CoroutineScope.produceTiltak(capacity: Int, sanity: SanityClient): R
               _id,
               "tiltaksnummer": tiltaksnummer.current
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         tiltak.result.forEach {
             if (it.tiltaksnummer != null) {
@@ -68,7 +68,7 @@ private fun CoroutineScope.produceTiltak(capacity: Int, sanity: SanityClient): R
 private suspend fun writeTilgjengelighetsstatus(
     channel: ReceiveChannel<Tiltak>,
     db: Database,
-    sanity: SanityClient
+    sanity: SanityClient,
 ) {
     channel.consumeEach { tiltak ->
         @Language("PostgreSQL")
@@ -110,7 +110,7 @@ private suspend fun writeTilgjengelighetsstatus(
                         }
                     ]
                 }
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }

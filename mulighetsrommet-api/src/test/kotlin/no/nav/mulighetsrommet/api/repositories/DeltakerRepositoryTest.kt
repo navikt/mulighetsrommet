@@ -122,7 +122,7 @@ class DeltakerRepositoryTest : FunSpec({
 
             val antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(
                 tiltakstype.id,
-                currentDate = LocalDate.of(2023, 3, 16)
+                currentDate = LocalDate.of(2023, 3, 16),
             )
             antallDeltakere shouldBe 3
         }

@@ -24,7 +24,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             record.key,
             record.value,
             record.headersJson,
-            record.timestamp
+            record.timestamp,
         ).asUpdate
         return db.run(queryResult).toLong()
     }
@@ -101,7 +101,7 @@ class KafkaConsumerRepository(private val db: Database) : KafkaConsumerRepositor
             row.stringOrNull("headers_json"),
             row.int("retries"),
             row.sqlTimestampOrNull("last_retry"),
-            row.long("record_timestamp")
+            row.long("record_timestamp"),
         )
     }
 }

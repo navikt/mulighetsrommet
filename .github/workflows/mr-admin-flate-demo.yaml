@@ -1,58 +1,48 @@
-name: CI/CD (mr-veileder-flate-mock)
+name: CI/CD (mr-admin-flate-demo)
 
 on:
   push:
     paths:
-      - .github/workflows/mr-veileder-flate-mock.yaml
+      - .github/workflows/mr-admin-flate-demo.yaml
       - package.json
       - package-lock.json
       - turbo.json
-      - frontend/mulighetsrommet-veileder-flate/**
+      - frontend/mr-admin-flate/**
   workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Environment
-        required: true
-        default: dev
-        options:
-          - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-mock:${{ github.sha }}
+  IMAGE: ghcr.io/navikt/mulighetsrommet/mr-admin-flate-mock:${{ github.sha }}
   CI: true
   TZ: Europe/Amsterdam
 
 jobs:
   build-and-test:
-    name: Build and test for Labs
+    name: Build and test
     runs-on: ubuntu-latest
-    env:
-      VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
-      VITE_SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+      - name: Test
+        run: npx turbo run lint test:ci --filter=mr-admin-flate
+      - name: Build
+        run: npx turbo run build:demo --filter=mr-admin-flate
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
-          working-directory: frontend/mulighetsrommet-veileder-flate
+          working-directory: frontend/mr-admin-flate
           browser: chrome
           headed: true
-          wait-on: http://localhost:3000
+          wait-on: http://localhost:5173
           start: npm start
           install: false
-      - name: Build
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        run: npx turbo run build:mock --filter=mulighetsrommet-veileder-flate
       - name: Build and publish Docker image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        working-directory: frontend/mulighetsrommet-veileder-flate
+        working-directory: frontend/mr-admin-flate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -61,8 +51,8 @@ jobs:
           docker build -t ${IMAGE} .
           docker push ${IMAGE}
 
-  deploy-labs:
-    name: Deploy (labs)
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     needs: [ build-and-test ]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
@@ -72,5 +62,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-labs.yaml
+          RESOURCE: frontend/mr-admin-flate/.nais/nais-demo.yaml
           VAR: image=${{ env.IMAGE }}

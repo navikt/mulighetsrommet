@@ -28,7 +28,7 @@ fun Route.frontendLoggerRoutes() {
             }.onFailure {
                 logger.error(
                     "Error during at request handler method=${this.context.request.httpMethod} path=${this.context.request.path()}",
-                    it
+                    it,
                 )
             }
         }
@@ -39,5 +39,5 @@ fun Route.frontendLoggerRoutes() {
 data class FrontendEvent(
     var name: String,
     var fields: Map<String, String> = emptyMap(),
-    var tags: Map<String, String> = emptyMap()
+    var tags: Map<String, String> = emptyMap(),
 )
