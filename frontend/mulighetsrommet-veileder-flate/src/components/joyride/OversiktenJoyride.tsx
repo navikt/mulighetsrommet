@@ -36,6 +36,12 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
       setState(prevState => ({ ...prevState, stepIndex: nextStepIndex }));
     }
 
+    //resetter joyride ved error
+    if (STATUS.ERROR === status) {
+      setJoyride({ ...joyride, joyrideOversikten: true });
+      setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
+    }
+
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       if (joyride.joyrideOversiktenLastStep === null) {
