@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuserToKafka
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserToKafka
 import no.nav.mulighetsrommet.database.Database
@@ -213,7 +214,7 @@ private fun services(appConfig: AppConfig) = module {
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { SanityService(appConfig.sanity, get()) }
+    single { SanityService(appConfig.sanity, get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
@@ -234,6 +235,7 @@ private fun tasks(config: TaskConfig) = module {
             SynchronizeTiltaksgjennomforingsstatuserToKafka(get(), get())
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
+        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(get(), get())
 
         val db: Database by inject()
 
@@ -243,6 +245,7 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
                 synchronizeTiltakstypestatuserToKafka.task,
+                synchronizeTiltaksgjennomforingEnheter.task,
             )
             .registerShutdownHook()
             .build()
