@@ -1,12 +1,8 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-<<<<<<< HEAD
-  TiltaksgjennomforingAvslutningsstatus, TiltaksgjennomforingStatus,
-=======
+  TiltaksgjennomforingStatus,
   Norg2Type,
-  TiltaksgjennomforingAvslutningsstatus,
->>>>>>> 360dad96db54a8b90d1973c74479278fce5ee2c2
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
