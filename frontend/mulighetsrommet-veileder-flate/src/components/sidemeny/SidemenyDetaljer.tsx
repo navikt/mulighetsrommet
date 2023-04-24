@@ -9,11 +9,27 @@ import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-a
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingById();
   if (!data) return null;
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato } = data;
+  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato, oppstartsdato } = data;
   const oppstart = resolveOppstart(data);
 
-  const visSluttdato = (tiltakstype: SanityTiltakstype, sluttdato?: string): boolean => {
+  const visDato = (tiltakstype: SanityTiltakstype, oppstart: string, oppstartsdato?: string, sluttdato?: string) => {
     return (
+      <div className={styles.rad}>
+        <BodyShort size="small" className={styles.tittel}>
+          {visSluttdato(tiltakstype, sluttdato, oppstartsdato) ? 'Varighet' : 'Oppstart'}
+        </BodyShort>
+        <BodyShort size="small">
+          {visSluttdato(tiltakstype, sluttdato, oppstartsdato)
+            ? `${formaterDato(oppstartsdato!!)} - ${formaterDato(sluttdato!!)}`
+            : oppstart}
+        </BodyShort>
+      </div>
+    );
+  };
+
+  const visSluttdato = (tiltakstype: SanityTiltakstype, sluttdato?: string, oppstartsdato?: string): boolean => {
+    return (
+      !!oppstartsdato &&
       !!sluttdato &&
       [
         'Opplæring - Gruppe AMO',
@@ -63,21 +79,7 @@ const SidemenyDetaljer = () => {
           <BodyShort size="small">{tiltakstype?.innsatsgruppe?.beskrivelse} </BodyShort>
         </div>
 
-        <div className={styles.rad}>
-          <BodyShort size="small" className={styles.tittel}>
-            Oppstart
-          </BodyShort>
-          <BodyShort size="small">{oppstart}</BodyShort>
-        </div>
-
-        {visSluttdato(tiltakstype, sluttdato) ? (
-          <div className={styles.rad}>
-            <BodyShort size="small" className={styles.tittel}>
-              Sluttdato
-            </BodyShort>
-            <BodyShort size="small">{formaterDato(sluttdato!!)}</BodyShort>
-          </div>
-        ) : null}
+        {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}
 
         {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className={styles.rad}>
