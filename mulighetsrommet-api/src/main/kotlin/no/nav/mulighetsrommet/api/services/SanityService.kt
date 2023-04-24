@@ -175,6 +175,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
                 lokasjon,
                 oppstart,
                 oppstartsdato,
+                sluttdato,
                 faneinnhold {
                   forHvemInfoboks,
                   forHvem,

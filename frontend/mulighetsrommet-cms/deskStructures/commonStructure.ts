@@ -127,6 +127,17 @@ export function commonStructure(S, Context) {
                       .params({ tiltakstype })
                   )
               ),
+            S.listItem()
+              .title("Sluttdato har passert")
+              .icon(GrDocumentPerformance)
+              .child(
+                S.documentList()
+                  .title("Sluttdato har passert")
+                  .filter(
+                    '_type == "tiltaksgjennomforing" && defined(sluttdato) && sluttdato < now()'
+                  )
+                  .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
+              ),
           ])
       ),
   ];

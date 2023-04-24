@@ -4,14 +4,26 @@ import Kopiknapp from '../kopiknapp/Kopiknapp';
 import Regelverksinfo from './Regelverksinfo';
 import styles from './Sidemenydetaljer.module.scss';
 import { formaterDato, utledLopenummerFraTiltaksnummer } from '../../utils/Utils';
-import { SanityTiltaksgjennomforing } from 'mulighetsrommet-api-client';
+import { SanityTiltaksgjennomforing, SanityTiltakstype } from 'mulighetsrommet-api-client';
 
 const SidemenyDetaljer = () => {
   const { data } = useTiltaksgjennomforingById();
   if (!data) return null;
-
-  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype } = data;
+  const { tiltaksnummer, kontaktinfoArrangor, tiltakstype, sluttdato } = data;
   const oppstart = resolveOppstart(data);
+
+  const visSluttdato = (tiltakstype: SanityTiltakstype, sluttdato?: string): boolean => {
+    return (
+      !!sluttdato &&
+      [
+        'Opplæring - Gruppe AMO',
+        'Jobbklubb',
+        'Digitalt oppfølgingstiltak for arbeidsledige ("digital jobbklubb")',
+        'Opplæring - Gruppe Fag- og yrkesopplæring',
+        'Opplæring - Fagskole (høyere yrkesfaglig utdanning)',
+      ].includes(tiltakstype?.tiltakstypeNavn)
+    );
+  };
 
   return (
     <>
@@ -57,6 +69,15 @@ const SidemenyDetaljer = () => {
           </BodyShort>
           <BodyShort size="small">{oppstart}</BodyShort>
         </div>
+
+        {visSluttdato(tiltakstype, sluttdato) ? (
+          <div className={styles.rad}>
+            <BodyShort size="small" className={styles.tittel}>
+              Sluttdato
+            </BodyShort>
+            <BodyShort size="small">{formaterDato(sluttdato!!)}</BodyShort>
+          </div>
+        ) : null}
 
         {(tiltakstype.regelverkFiler || tiltakstype.regelverkLenker) && (
           <div className={styles.rad}>

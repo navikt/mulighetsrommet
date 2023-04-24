@@ -154,6 +154,7 @@ export const apiHandlers: RestHandler[] = [
     lokasjon,
     oppstart,
     oppstartsdato,
+    sluttdato,
     faneinnhold {
       forHvemInfoboks,
       forHvem,
