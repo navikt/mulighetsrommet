@@ -1388,7 +1388,7 @@ components:
         nokkelinfoKomponenter:
           type: array
           items:
-            $ref: "#/components/schemas/SanityNokkelinfoKomponenter"
+            $ref: "#/components/schemas/SanityNokkelinfo"
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
@@ -1471,7 +1471,7 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
-    SanityNokkelinfoKomponenter:
+    SanityNokkelinfo:
       type: object
       properties:
         _id:
@@ -1479,7 +1479,7 @@ components:
         tittel:
           type: string
         innhold:
-          type: object
+          type: string
         hjelpetekst:
           type: string
       required:
