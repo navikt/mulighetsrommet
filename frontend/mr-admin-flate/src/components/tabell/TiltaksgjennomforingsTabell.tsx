@@ -146,6 +146,7 @@ export const TiltaksgjennomforingsTabell = () => {
                     >
                       <Lenke
                         to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                        data-testid="tiltaksgjennomforingrad"
                       >
                         {tiltaksgjennomforing.navn}
                       </Lenke>

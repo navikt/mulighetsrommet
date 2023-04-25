@@ -126,7 +126,10 @@ export const TiltakstypeTabell = () => {
                     scope="row"
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                   >
-                    <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>
+                    <Lenke
+                      to={`/tiltakstyper/${tiltakstype.id}`}
+                      data-testid="tiltakstyperad"
+                    >
                       {tiltakstype.navn}
                     </Lenke>
                   </Table.HeaderCell>

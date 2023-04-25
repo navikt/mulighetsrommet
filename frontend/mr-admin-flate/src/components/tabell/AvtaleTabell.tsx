@@ -132,7 +132,9 @@ export const AvtaleTabell = () => {
                     scope="row"
                     aria-label={`Avtalenavn: ${avtale.navn}`}
                   >
-                    <Lenke to={`/avtaler/${avtale.id}`}>{avtale.navn}</Lenke>
+                    <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtalerad">
+                      {avtale.navn}
+                    </Lenke>
                   </Table.HeaderCell>
                   <Table.DataCell
                     aria-label={`Leverandør: ${avtale.leverandor?.navn}`}
