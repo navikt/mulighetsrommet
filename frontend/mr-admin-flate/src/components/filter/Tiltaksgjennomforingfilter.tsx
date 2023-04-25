@@ -7,14 +7,14 @@ import {
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
 import {
-  useFeatureToggles,
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
+  useFeatureToggles,
 } from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
+import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export function Tiltaksgjennomforingfilter() {
@@ -127,8 +127,6 @@ export function Tiltaksgjennomforingfilter() {
               </option>
             ))}
           </Select>
-        </div>
-        <div className={styles.filter_right}>
           <Select
             label="Filtrer på status"
             hideLabel
@@ -157,6 +155,8 @@ export function Tiltaksgjennomforingfilter() {
             </option>
             <option value="">Alle statuser</option>
           </Select>
+        </div>
+        <div className={styles.filter_right}>
           {visOpprettTiltaksgjennomforingKnapp && (
             <>
               <Button size="small" onClick={() => setModalOpen(true)}>

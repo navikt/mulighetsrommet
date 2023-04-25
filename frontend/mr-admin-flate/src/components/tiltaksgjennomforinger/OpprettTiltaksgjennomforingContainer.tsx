@@ -13,21 +13,21 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useAtom } from "jotai";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { avtaleFilter } from "../../../api/atoms";
-import { useAvtale } from "../../../api/avtaler/useAvtale";
-import { useAvtaler } from "../../../api/avtaler/useAvtaler";
-import { mulighetsrommetClient } from "../../../api/clients";
-import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
-import { capitalize, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
-import { FormGroup } from "../../avtaler/opprett/OpprettAvtaleContainer";
-import { Datovelger } from "../../skjema/OpprettComponents";
-import { SokeSelect } from "../../skjema/SokeSelect";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { avtaleFilter } from "../../api/atoms";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { mulighetsrommetClient } from "../../api/clients";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { Datovelger } from "../skjema/OpprettComponents";
+import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
-import { Laster } from "../../laster/Laster";
-import { useNavigerTilTiltaksgjennomforing } from "../../../hooks/useNavigerTilTiltaksgjennomforing";
-import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
-import { ControlledMultiSelect } from "../../skjema/ControlledMultiSelect";
+import { Laster } from "../laster/Laster";
+import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
+import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 
 const Schema = z.object({
   tiltakstype: z

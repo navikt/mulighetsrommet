@@ -1,10 +1,10 @@
 import { Heading, Modal } from "@navikt/ds-react";
 import { Avtale, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { useAlleEnheter } from "../../../api/enhet/useAlleEnheter";
-import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
-import { Laster } from "../../laster/Laster";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { Laster } from "../laster/Laster";
 import styles from "./Modal.module.scss";
 import { OpprettAvtaleContainer } from "./OpprettAvtaleContainer";
 
@@ -23,9 +23,13 @@ const OpprettAvtaleModal = ({
   handleCancel,
   avtale,
 }: OpprettAvtaleModalProps) => {
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper({
-    status: Tiltakstypestatus.AKTIV
-  }, 1);
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } =
+    useTiltakstyper(
+      {
+        status: Tiltakstypestatus.AKTIV,
+      },
+      1
+    );
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useAlleEnheter();
 

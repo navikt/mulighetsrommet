@@ -1,11 +1,11 @@
 import { TextField } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { inferredSchema } from "../avtaler/opprett/OpprettAvtaleContainer";
+import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { useEffect, useReducer } from "react";
 import { mulighetsrommetClient } from "../../api/clients";
 import { capitalizeEveryWord } from "../../utils/Utils";
-import { reducer, initialState } from "../avtaler/opprett/virksomhetReducer";
+import { initialState, reducer } from "../avtaler/virksomhetReducer";
 import { Laster } from "../laster/Laster";
 import { Avtale } from "mulighetsrommet-api-client";
 import styles from "./VirksomhetInput.module.scss";
