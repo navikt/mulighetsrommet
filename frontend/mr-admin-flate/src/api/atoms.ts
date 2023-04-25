@@ -49,6 +49,7 @@ export interface Tiltaksgjennomforingfilter {
   status: TiltaksgjennomforingStatus;
   sortering: SorteringTiltaksgjennomforinger;
   fylkesenhet: string;
+  avtale: string;
 }
 
 export const tiltaksgjennomforingfilter =
@@ -61,6 +62,7 @@ export const tiltaksgjennomforingfilter =
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
       sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
       fylkesenhet: "",
+      avtale: "",
     },
     {
       setHash: "replaceState",
