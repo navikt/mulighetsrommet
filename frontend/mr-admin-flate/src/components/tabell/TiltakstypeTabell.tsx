@@ -38,43 +38,41 @@ export const TiltakstypeTabell = () => {
     );
   }
 
-  const tiltakstyperForSide = tiltakstyper
-    .sort((a, b) => {
-      const sortOrDefault = sort || {
-        orderBy: "navn",
-        direction: "ascending",
-      };
+  const tiltakstyperForSide = tiltakstyper.sort((a, b) => {
+    const sortOrDefault = sort || {
+      orderBy: "navn",
+      direction: "ascending",
+    };
 
-      const comparator = (a: any, b: any, orderBy: string | number) => {
-        const compare = (item1: any, item2: any) => {
-          if (item2 < item1 || item2 === undefined) {
-            return -1;
-          }
-          if (item2 > item1) {
-            return 1;
-          }
-          return 0;
-        };
-
-        if (orderBy === "status") {
-          return compare(a.status, b.status);
-        } else if (orderBy === "startdato") {
-          const dateB = new Date(b.fraDato);
-          const dateA = new Date(a.fraDato);
-          return compare(dateA, dateB);
-        } else if (orderBy === "sluttdato") {
-          const dateB = new Date(b.tilDato);
-          const dateA = new Date(a.tilDato);
-          return compare(dateA, dateB);
-        } else {
-          return compare(a[orderBy], b[orderBy]);
+    const comparator = (a: any, b: any, orderBy: string | number) => {
+      const compare = (item1: any, item2: any) => {
+        if (item2 < item1 || item2 === undefined) {
+          return -1;
         }
+        if (item2 > item1) {
+          return 1;
+        }
+        return 0;
       };
-      return sortOrDefault.direction === "ascending"
-        ? comparator(b, a, sortOrDefault.orderBy)
-        : comparator(a, b, sortOrDefault.orderBy);
-    })
-    .slice((page - 1) * rowsPerPage, page * rowsPerPage);
+
+      if (orderBy === "status") {
+        return compare(a.status, b.status);
+      } else if (orderBy === "startdato") {
+        const dateB = new Date(b.fraDato);
+        const dateA = new Date(a.fraDato);
+        return compare(dateA, dateB);
+      } else if (orderBy === "sluttdato") {
+        const dateB = new Date(b.tilDato);
+        const dateA = new Date(a.tilDato);
+        return compare(dateA, dateB);
+      } else {
+        return compare(a[orderBy], b[orderBy]);
+      }
+    };
+    return sortOrDefault.direction === "ascending"
+      ? comparator(b, a, sortOrDefault.orderBy)
+      : comparator(a, b, sortOrDefault.orderBy);
+  });
 
   const handleSort = (sortKey: string) => {
     setSort(
