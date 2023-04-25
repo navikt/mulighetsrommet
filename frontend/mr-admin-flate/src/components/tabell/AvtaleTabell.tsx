@@ -11,7 +11,6 @@ import { AVTALE_PAGE_SIZE } from "../../constants";
 import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import classNames from "classnames";
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
@@ -96,12 +95,7 @@ export const AvtaleTabell = () => {
   return (
     <>
       <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
-        <Table.Header
-          className={classNames(
-            styles.tabellheader,
-            styles.tabellheader_avtaler
-          )}
-        >
+        <Table.Header>
           <Table.Row>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
@@ -127,13 +121,7 @@ export const AvtaleTabell = () => {
           <Table.Body className={styles.tabellbody}>
             {avtalerForSide.map((avtale, index) => {
               return (
-                <Table.Row
-                  key={index}
-                  className={classNames(
-                    styles.tabellrad,
-                    styles.tabellrad_avtale
-                  )}
-                >
+                <Table.Row key={index}>
                   <Table.HeaderCell
                     scope="row"
                     aria-label={`Avtalenavn: ${avtale.navn}`}
