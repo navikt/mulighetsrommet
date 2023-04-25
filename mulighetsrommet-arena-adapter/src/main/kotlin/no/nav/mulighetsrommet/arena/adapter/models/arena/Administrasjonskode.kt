@@ -12,5 +12,5 @@ enum class Administrasjonskode {
     AMO,
 
     @SerialName("INST")
-    INST
+    INST,
 }

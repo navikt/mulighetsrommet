@@ -1,30 +1,23 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.jlleitschuh.gradle.ktlint")
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation(project(":common:database"))
-    testImplementation(testFixtures(project(":common:database")))
+    implementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
 
-    val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
-    implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.41.0")
+    api(libs.nav.common.kafka)
+    implementation(libs.shedlock.jdbc)
 
-    val kotestVersion = "5.5.5"
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("org.testcontainers:kafka:1.17.6")
-    testImplementation("org.assertj:assertj-db:2.0.2")
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.assertions.arrow)
+    testImplementation(libs.kotest.extensions.testcontainers)
+    testImplementation(libs.mockk)
+    testImplementation(libs.testcontainers.kafka)
+    testImplementation(libs.assertj.db)
 }

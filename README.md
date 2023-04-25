@@ -19,10 +19,13 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 
 ### Tooling via asdf
 
-Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette prosjektet lokalt.
-Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
+Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette
+prosjektet lokalt.
+Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil
+som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
 
-For å benytte `asdf` så holder det å [installere asdf](https://asdf-vm.com/guide/getting-started.html) og deretter kjøre kommandoen `asdf install` i rot av prosjektet.
+For å benytte `asdf` så holder det å [installere asdf](https://asdf-vm.com/guide/getting-started.html) og deretter kjøre
+kommandoen `asdf install` i rot av prosjektet.
 Foreløpig liste over verktøy som blir håndtert via `asdf` for dette prosjektet er som følger:
 
 - java
@@ -66,37 +69,37 @@ løsningen: [https://unleash.nais.io/#/features](https://unleash.nais.io/#/featu
 
 ### `mulighetsrommet-veileder-flate`
 
-| |                                                                                                         |
-|------------------|---------------------------------------------------------------------------------------------------------|
-| Kildekode        | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
-| README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (dev-miljø)  | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
-| Url (labs-miljø) | <https://mulighetsrommet-veileder-flate.ekstern.dev.nav.no/12345678910>                                                  |
+|                 |                                                                                                         |
+|-----------------|---------------------------------------------------------------------------------------------------------|
+| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
+| README          | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
+| Url (demo)      | <https://mulighetsrommet-veileder-flate.ekstern.dev.nav.no/12345678910>                                 |
+| Url (dev-miljø) | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
 
 ### `mulighetsrommet-api-client`
 
 Klient til frontend for å snakke med backend. Auto-generert med OpenAPI via `openapi.yaml` i `mulighetsrommet-api`.
 
-| | |
-| --------------- | ----------------------------------------------------------------------------------- |
-| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-api-client> |
-| README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-api-client/README.md> |
+|              |                                                                                                               |
+|--------------|---------------------------------------------------------------------------------------------------------------|
+| Kildekode    | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-api-client>                     |
+| README       | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-api-client/README.md>           |
 | openapi.yaml | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api/src/main/resources/web/openapi.yaml> |
 
 ### `mulighetsrommet-veileder-cms`
 
 Sanity Studio til forvaltning av informasjon for veiledere.
 
-| | |
-| --------------- | ----------------------------------------------------------------------------------- |
-| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-cms> |
-| README | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-cms/README.md> |
-| Url (test-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk> |
-| Url (prod-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/production/desk> |
+|                     |                                                                                              |
+|---------------------|----------------------------------------------------------------------------------------------|
+| Kildekode           | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-cms>           |
+| README              | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-cms/README.md> |
+| Url (test-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk>                              |
+| Url (prod-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/production/desk>                        |
 
 ### `mulighetsrommet-api`
 
-| |                                                                                     |
+|                 |                                                                                     |
 |-----------------|-------------------------------------------------------------------------------------|
 | Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api>           |
 | README          | <https://github.com/navikt/mulighetsrommet/blob/main/mulighetsrommet-api/README.md> |
@@ -107,10 +110,10 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 
 Applikasjon som gir oversikt over kafka-topics relevante for dette prosjektet.
 
-| |                                                                         |
-| --------------- |-------------------------------------------------------------------------|
-| README | <https://github.com/navikt/kafka-manager>                               |
-| Kildekode | <https://github.com/navikt/mulighetsrommet/tree/main/iac/kafka-manager> |
+|                 |                                                                         |
+|-----------------|-------------------------------------------------------------------------|
+| README          | <https://github.com/navikt/kafka-manager>                               |
+| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/iac/kafka-manager> |
 | Url (dev-miljø) | <https://mulighetsrommet-kafka-manager.intern.dev.nav.no>               |
 | Url (prod-miljø | <https://mulighetsrommet-kafka-manager.intern.nav.no>                   |
 
@@ -118,17 +121,20 @@ Applikasjon som gir oversikt over kafka-topics relevante for dette prosjektet.
 
 Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltakstyper og tiltaksgjennomføringer.
 
-| |                                                                                         |
+|                  |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mr-admin-flate/README.md> |
-| Demo-miljø       | <https://mulighetsrommet-admin-flate.ekstern.dev.nav.no>                                      |
+| Url (demo)       | <https://mulighetsrommet-admin-flate.ekstern.dev.nav.no>                                |
 | Url (dev-miljø)  | <https://mulighetsrommet-admin-flate.intern.dev.nav.no>                                 |
 | Url (prod-miljø) | <https://mulighetsrommet-admin-flate.intern.nav.no>                                     |
 
 ## Overvåking av automatiske jobber
-Vi har satt opp to Slack-bots som kan gi beskjed til oss på Slack i kanalen #team-valp-monitoring dersom det oppstår feil under kjøring av de automatiske jobbene.
+
+Vi har satt opp to Slack-bots som kan gi beskjed til oss på Slack i kanalen #team-valp-monitoring dersom det oppstår
+feil under kjøring av de automatiske jobbene.
 
 Botene finner man her:
+
 - Dev-monitorering: https://api.slack.com/apps/A04PW7S8J94/general
 - Prod-monitorering: https://api.slack.com/apps/A04Q2NNABDZ
 

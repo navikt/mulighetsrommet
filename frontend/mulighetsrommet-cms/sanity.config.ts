@@ -25,6 +25,22 @@ const createCommonConfig = (
       return `https://mulighetsrommet-veileder-flate.intern.nav.no/preview/${document._id}?preview=true`;
     },
   },
+  tools: (prev, { currentUser }) => {
+    // Check if the current user is an administrator or editor (Tom Stian og Marthe)
+    const isAdmin = currentUser?.roles.some((role) =>
+      ["administrator", "editor"].includes(role.name)
+    );
+
+    // Filter out the tools that should not be available to non-administrators
+    const nonAdminDeskTools = prev.filter(
+      (tool) => !["visionTool"].includes(tool.name)
+    );
+
+    // Return tools available to non-administrators
+    if (!isAdmin) return nonAdminDeskTools;
+
+    return prev;
+  },
   plugins: [
     deskTool({
       structure: structure,
@@ -33,6 +49,7 @@ const createCommonConfig = (
     visionTool({
       defaultApiVersion: API_VERSION,
       defaultDataset: "test",
+      name: "visionTool",
     }),
   ],
   schema: {

@@ -9,7 +9,7 @@ fun createArenaAvtaleInfoEvent(
     operation: ArenaEvent.Operation,
     avtale: ArenaAvtaleInfo = AvtaleFixtures.ArenaAvtaleInfo,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
-    modify: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it }
+    modify: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it },
 ): ArenaEvent = modify(avtale).let {
     createArenaEvent(
         ArenaTable.AvtaleInfo,
@@ -24,7 +24,7 @@ fun createArenaSakEvent(
     operation: ArenaEvent.Operation,
     sak: ArenaSak = SakFixtures.ArenaTiltakSak,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
-    modify: (sak: ArenaSak) -> ArenaSak = { it }
+    modify: (sak: ArenaSak) -> ArenaSak = { it },
 ): ArenaEvent = modify(sak).let {
     createArenaEvent(
         ArenaTable.Sak,
@@ -39,7 +39,7 @@ fun createArenaTiltakdeltakerEvent(
     operation: ArenaEvent.Operation,
     deltaker: ArenaTiltakdeltaker = DeltakerFixtures.ArenaTiltakdeltaker,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
-    modify: (deltaker: ArenaTiltakdeltaker) -> ArenaTiltakdeltaker = { it }
+    modify: (deltaker: ArenaTiltakdeltaker) -> ArenaTiltakdeltaker = { it },
 ): ArenaEvent = modify(deltaker).let {
     createArenaEvent(
         ArenaTable.Deltaker,
@@ -54,7 +54,7 @@ fun createArenaTiltakEvent(
     operation: ArenaEvent.Operation,
     tiltak: ArenaTiltak = TiltakstypeFixtures.ArenaGruppetiltak,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
-    modify: (tiltak: ArenaTiltak) -> ArenaTiltak = { it }
+    modify: (tiltak: ArenaTiltak) -> ArenaTiltak = { it },
 ): ArenaEvent = modify(tiltak).let {
     createArenaEvent(
         ArenaTable.Tiltakstype,
@@ -69,7 +69,7 @@ fun createArenaTiltakgjennomforingEvent(
     operation: ArenaEvent.Operation,
     tiltaksgjennomforing: ArenaTiltaksgjennomforing = TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingGruppe,
     status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
-    modify: (tiltaksgjennomforing: ArenaTiltaksgjennomforing) -> ArenaTiltaksgjennomforing = { it }
+    modify: (tiltaksgjennomforing: ArenaTiltaksgjennomforing) -> ArenaTiltaksgjennomforing = { it },
 ): ArenaEvent = modify(tiltaksgjennomforing).let {
     createArenaEvent(
         ArenaTable.Tiltaksgjennomforing,
@@ -110,8 +110,8 @@ private fun createArenaEvent(
                 "before": $before,
                 "after": $after
             }
-            """.trimIndent()
+            """.trimIndent(),
         ),
-        status = status
+        status = status,
     )
 }

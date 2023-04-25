@@ -19,7 +19,8 @@ data class ArenaEvent(
     enum class Operation {
         Insert,
         Update,
-        Delete;
+        Delete,
+        ;
 
         val opType
             get(): String = when (this) {

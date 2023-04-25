@@ -29,7 +29,7 @@ import java.util.*
 class TiltakdeltakerEventProcessor(
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
-    private val ords: ArenaOrdsProxyClient
+    private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Deltaker
 
@@ -46,7 +46,7 @@ class TiltakdeltakerEventProcessor(
         if (tiltaksgjennomforingIsIgnored) {
             return@either ProcessingResult(
                 Ignored,
-                "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert"
+                "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert",
             )
         }
 
@@ -147,7 +147,7 @@ class TiltakdeltakerEventProcessor(
                 fraDato = ArenaUtils.parseNullableTimestamp(DATO_FRA),
                 tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
                 registrertDato = ArenaUtils.parseTimestamp(REG_DATO),
-                status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE)
+                status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE),
             )
         }
         .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
@@ -155,7 +155,7 @@ class TiltakdeltakerEventProcessor(
     private suspend fun Deltaker.toTiltakshistorikkDbo(
         tiltakstype: Tiltakstype,
         tiltaksgjennomforing: Tiltaksgjennomforing,
-        norskIdent: String
+        norskIdent: String,
     ) = either<ProcessingError, TiltakshistorikkDbo> {
         if (isGruppetiltak(tiltakstype.tiltakskode)) {
             TiltakshistorikkDbo.Gruppetiltak(
@@ -164,7 +164,7 @@ class TiltakdeltakerEventProcessor(
                 status = status,
                 fraDato = fraDato,
                 tilDato = tilDato,
-                tiltaksgjennomforingId = tiltaksgjennomforing.id
+                tiltaksgjennomforingId = tiltaksgjennomforing.id,
             )
         } else {
             val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
@@ -184,7 +184,7 @@ class TiltakdeltakerEventProcessor(
                 tilDato = tilDato,
                 beskrivelse = tiltaksgjennomforing.navn,
                 tiltakstypeId = tiltakstype.id,
-                virksomhetsnummer = virksomhetsnummer
+                virksomhetsnummer = virksomhetsnummer,
             )
         }
     }

@@ -14,6 +14,7 @@ export function Tiltaksgjennomforingstatus({ tiltaksgjennomforing }: Props) {
 
   return (
     <Tag
+      size="small"
       aria-label={`Status for tiltaksgjennomføring: ${status}`}
       variant={
         status === TiltaksgjennomforingType.GJENNOMFORES ? "success" : "neutral"

@@ -49,7 +49,7 @@ class SanityClient(private val config: Config) {
     @Serializable
     data class Operation(
         val id: String? = null,
-        val operation: String
+        val operation: String,
     )
 
     enum class MutationVisibility {
@@ -81,7 +81,7 @@ class SanityClient(private val config: Config) {
             json(
                 Json {
                     ignoreUnknownKeys = true
-                }
+                },
             )
         }
 

@@ -15,17 +15,17 @@ class ArrangorServiceTest : FunSpec({
     val arrangorService = ArrangorService(amtEnhetsregister)
 
     beforeSpec {
-        coEvery { amtEnhetsregister.hentVirksomhet(111) } returns VirksomhetDto(
+        coEvery { amtEnhetsregister.hentVirksomhet("111") } returns VirksomhetDto(
             organisasjonsnummer = "789",
             navn = "Bedrift 1",
             overordnetEnhetOrganisasjonsnummer = "1011",
-            overordnetEnhetNavn = "Overordnetbedrift 1"
+            overordnetEnhetNavn = "Overordnetbedrift 1",
         )
-        coEvery { amtEnhetsregister.hentVirksomhet(222) } returns VirksomhetDto(
+        coEvery { amtEnhetsregister.hentVirksomhet("222") } returns VirksomhetDto(
             organisasjonsnummer = "7891",
             navn = "Bedrift 2",
             overordnetEnhetOrganisasjonsnummer = "1011",
-            overordnetEnhetNavn = "Overordnetbedrift 2"
+            overordnetEnhetNavn = "Overordnetbedrift 2",
         )
     }
 

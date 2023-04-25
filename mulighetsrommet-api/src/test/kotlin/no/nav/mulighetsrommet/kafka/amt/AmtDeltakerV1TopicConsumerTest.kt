@@ -46,7 +46,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         val deltakere = DeltakerRepository(database.db)
         val deltakerConsumer = AmtDeltakerV1TopicConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            deltakere
+            deltakere,
         )
 
         val amtDeltaker1 = AmtDeltakerV1Dto(
@@ -58,11 +58,11 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             status = AmtDeltakerV1Dto.Status.VENTER_PA_OPPSTART,
             registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
             dagerPerUke = null,
-            prosentStilling = null
+            prosentStilling = null,
         )
         val amtDeltaker2 = amtDeltaker1.copy(
             id = UUID.randomUUID(),
-            personIdent = "10101010101"
+            personIdent = "10101010101",
         )
         val deltaker1Dbo = DeltakerDbo(
             id = amtDeltaker1.id,

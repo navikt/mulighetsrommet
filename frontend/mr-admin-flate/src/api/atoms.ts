@@ -5,7 +5,7 @@ import {
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
-  TiltaksgjennomforingAvslutningsstatus,
+  TiltaksgjennomforingStatus,
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
@@ -22,12 +22,14 @@ export const avtalePaginationAtom = atomWithHash("avtalePage", 1, {
   setHash: "replaceState",
 });
 
-export const tiltakstypefilter = atomWithHash<{
-  sok: string;
+export interface TiltakstypeFilter {
+  sok?: string;
   status?: Tiltakstypestatus;
   kategori?: Tiltakstypekategori;
-  sortering: SorteringTiltakstyper;
-}>(
+  sortering?: SorteringTiltakstyper;
+}
+
+export const tiltakstypeFilter = atomWithHash<TiltakstypeFilter>(
   "tiltakstypefilter",
   {
     sok: "",
@@ -44,8 +46,9 @@ export interface Tiltaksgjennomforingfilter {
   search: string;
   enhet: string;
   tiltakstype: string;
-  status: TiltaksgjennomforingAvslutningsstatus;
+  status: TiltaksgjennomforingStatus;
   sortering: SorteringTiltaksgjennomforinger;
+  fylkesenhet: string;
 }
 
 export const tiltaksgjennomforingfilter =
@@ -55,8 +58,9 @@ export const tiltaksgjennomforingfilter =
       search: "",
       enhet: "",
       tiltakstype: "",
-      status: TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET,
+      status: TiltaksgjennomforingStatus.GJENNOMFORES,
       sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+      fylkesenhet: "",
     },
     {
       setHash: "replaceState",

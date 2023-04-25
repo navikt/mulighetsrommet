@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
     val server: ServerConfig,
-    val app: AppConfig
+    val app: AppConfig,
 )
 
 data class AppConfig(
@@ -19,12 +19,12 @@ data class AppConfig(
     val database: FlywayDatabaseAdapter.Config,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
-    val slack: SlackConfig
+    val slack: SlackConfig,
 )
 
 data class TaskConfig(
     val retryFailedEvents: RetryFailedEvents.Config,
-    val notifyFailedEvents: NotifyFailedEvents.Config
+    val notifyFailedEvents: NotifyFailedEvents.Config,
 )
 
 data class ServiceConfig(
@@ -34,19 +34,19 @@ data class ServiceConfig(
 )
 
 data class AuthConfig(
-    val azure: AuthProvider
+    val azure: AuthProvider,
 )
 
 data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
     val audience: String,
-    val tokenEndpointUrl: String
+    val tokenEndpointUrl: String,
 )
 
 data class ServiceClientConfig(
     val url: String,
-    val scope: String
+    val scope: String,
 )
 
 data class KafkaConfig(
@@ -66,5 +66,5 @@ data class KafkaConsumers(
 data class SlackConfig(
     val token: String,
     val channel: String,
-    val enable: Boolean
+    val enable: Boolean,
 )

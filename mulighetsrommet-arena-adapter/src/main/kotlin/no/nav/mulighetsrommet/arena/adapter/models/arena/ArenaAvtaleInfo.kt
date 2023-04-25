@@ -32,6 +32,7 @@ data class ArenaAvtaleInfo(
     val PROFILELEMENT_ID_OPPL_TILTAK: Int?,
 )
 
+@Serializable
 enum class Avtalekode {
     @SerialName("AVT")
     Avtale,
@@ -40,6 +41,7 @@ enum class Avtalekode {
     Rammeavtale,
 }
 
+@Serializable
 enum class Avtalestatuskode {
     @SerialName("PLAN")
     Planlagt,

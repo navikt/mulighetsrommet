@@ -5,12 +5,10 @@ import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 
 class MulighetsrommetApiClient(
@@ -28,13 +26,7 @@ class MulighetsrommetApiClient(
     private val client: HttpClient
 
     init {
-        client = HttpClient(engine) {
-            install(ContentNegotiation) {
-                json()
-            }
-            install(Logging) {
-                level = LogLevel.INFO
-            }
+        client = httpJsonClient(engine).config {
             install(HttpRequestRetry) {
                 retryIf(config.maxRetries) { _, response ->
                     response.status.value.let { it in 500..599 } || response.status == HttpStatusCode.Conflict
@@ -49,13 +41,14 @@ class MulighetsrommetApiClient(
                     logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
                 }
             }
+
             defaultRequest {
                 contentType(ContentType.Application.Json)
 
                 url.takeFrom(
                     URLBuilder().takeFrom(baseUri).apply {
                         encodedPath += url.encodedPath
-                    }
+                    },
                 )
             }
         }

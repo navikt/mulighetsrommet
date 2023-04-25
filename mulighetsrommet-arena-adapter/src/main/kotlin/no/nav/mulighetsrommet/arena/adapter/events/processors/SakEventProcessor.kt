@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 
 class SakEventProcessor(
-    private val entities: ArenaEntityService
+    private val entities: ArenaEntityService,
 ) : ArenaEventProcessor {
 
     override val arenaTable: ArenaTable = ArenaTable.Sak
@@ -51,7 +51,7 @@ class SakEventProcessor(
                 sakId = SAK_ID,
                 aar = AAR,
                 lopenummer = LOPENRSAK,
-                enhet = AETATENHET_ANSVARLIG
+                enhet = AETATENHET_ANSVARLIG,
             )
         }
         .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }

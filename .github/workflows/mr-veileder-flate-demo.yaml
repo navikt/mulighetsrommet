@@ -1,0 +1,78 @@
+name: CI/CD (mr-veileder-flate-demo)
+
+on:
+  push:
+    paths:
+      - .github/workflows/mr-veileder-flate-demo.yaml
+      - package.json
+      - package-lock.json
+      - turbo.json
+      - frontend/mulighetsrommet-veileder-flate/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/navikt/mulighetsrommet/mulighetsrommet-veileder-flate-mock:${{ github.sha }}
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    env:
+      VITE_SANITY_PROJECT_ID: xegcworx
+      VITE_SANITY_DATASET: test
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: frontend/mulighetsrommet-veileder-flate
+          browser: chrome
+          headed: true
+          wait-on: http://localhost:3000
+          start: npm start
+          install: false
+      - name: Build
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        run: npx turbo run build:demo --filter=mulighetsrommet-veileder-flate
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+      - name: Build and publish Docker image
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        working-directory: frontend/mulighetsrommet-veileder-flate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${{github.actor}} --password-stdin
+          docker build -t ${IMAGE} .
+          docker push ${IMAGE}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-demo.yaml
+          VAR: image=${{ env.IMAGE }}

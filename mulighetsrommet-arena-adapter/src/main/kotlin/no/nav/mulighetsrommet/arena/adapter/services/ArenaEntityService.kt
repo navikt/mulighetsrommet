@@ -27,8 +27,8 @@ class ArenaEntityService(
                     when (event.status) {
                         ArenaEvent.ProcessingStatus.Processed -> ArenaEntityMapping.Status.Handled
                         else -> ArenaEntityMapping.Status.Unhandled
-                    }
-                )
+                    },
+                ),
             )
     }
 

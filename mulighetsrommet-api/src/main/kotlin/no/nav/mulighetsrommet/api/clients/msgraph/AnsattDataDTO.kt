@@ -5,5 +5,5 @@ data class AnsattDataDTO(
     val hovedenhetNavn: String,
     val fornavn: String,
     val etternavn: String,
-    val navident: String
+    val navident: String,
 )

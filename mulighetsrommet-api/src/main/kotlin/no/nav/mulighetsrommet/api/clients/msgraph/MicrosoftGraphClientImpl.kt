@@ -6,15 +6,16 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.*
 
 class MicrosoftGraphClientImpl(
     private val baseUrl: String,
     private val tokenProvider: (accessToken: String) -> String,
-    clientEngine: HttpClientEngine = CIO.create()
+    clientEngine: HttpClientEngine = CIO.create(),
 ) : MicrosoftGraphClient {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -39,16 +40,16 @@ class MicrosoftGraphClientImpl(
             hovedenhetNavn = user.city,
             fornavn = user.givenName,
             etternavn = user.surname,
-            navident = user.onPremisesSamAccountName
+            navident = user.onPremisesSamAccountName,
         )
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MSGraphUser(
     val streetAddress: String,
     val city: String,
     val givenName: String,
     val surname: String,
-    val onPremisesSamAccountName: String
+    val onPremisesSamAccountName: String,
 )

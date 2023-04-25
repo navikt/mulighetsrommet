@@ -20,7 +20,7 @@ class AmtDeltakerV1TopicConsumer(
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
-    JsonElementDeserializer()
+    JsonElementDeserializer(),
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

@@ -10,14 +10,15 @@ enum class Tiltaksgjennomforingsstatus {
     AVBRUTT,
     AVLYST,
     AVSLUTTET,
-    APENT_FOR_INNSOK;
+    APENT_FOR_INNSOK,
+    ;
 
     companion object {
         fun fromDbo(
             dagensDato: LocalDate,
             startDato: LocalDate,
             sluttDato: LocalDate?,
-            avslutningsStatus: Avslutningsstatus
+            avslutningsStatus: Avslutningsstatus,
         ): Tiltaksgjennomforingsstatus {
             return when {
                 avslutningsStatus == Avslutningsstatus.AVLYST -> AVLYST
@@ -30,4 +31,3 @@ enum class Tiltaksgjennomforingsstatus {
         }
     }
 }
-

@@ -1,7 +1,8 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  TiltaksgjennomforingAvslutningsstatus,
+  TiltaksgjennomforingStatus,
+  Norg2Type,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
@@ -11,18 +12,21 @@ import {
 } from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { useAlleTiltakstyper } from "../../api/tiltakstyper/useAlleTiltakstyper";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export function Tiltaksgjennomforingfilter() {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
-  const { data: tiltakstyper } = useAlleTiltakstyper({
-    tiltakstypestatus: Tiltakstypestatus.AKTIV,
-  });
+  const { data: tiltakstyper } = useTiltakstyper(
+    {
+      status: Tiltakstypestatus.AKTIV,
+    },
+    1
+  );
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
@@ -46,6 +50,31 @@ export function Tiltaksgjennomforingfilter() {
             data-testid="filter_sokefelt"
           />
           <Select
+            label="Filtrer på fylke"
+            hideLabel
+            size="small"
+            value={sokefilter.fylkesenhet}
+            data-testid="filter_tiltaksgjennomforing_fylkesenhet"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              resetPaginering(setPage);
+              setSokefilter({
+                ...sokefilter,
+                enhet: "",
+                fylkesenhet: e.currentTarget.value,
+              });
+            }}
+          >
+            <option value="">Alle fylker</option>
+            {enheter
+              ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+              ?.sort()
+              ?.map((enhet) => (
+                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                  {enhet.navn}
+                </option>
+              ))}
+          </Select>
+          <Select
             label="Filtrer på enhet"
             hideLabel
             size="small"
@@ -53,15 +82,29 @@ export function Tiltaksgjennomforingfilter() {
             data-testid="filter_tiltaksgjennomforing_enhet"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               resetPaginering(setPage);
-              setSokefilter({ ...sokefilter, enhet: e.currentTarget.value });
+              setSokefilter({
+                ...sokefilter,
+                enhet: e.currentTarget.value,
+              });
             }}
           >
             <option value="">Alle enheter</option>
-            {enheter?.map((enhet) => (
-              <option key={enhet.enhetId} value={enhet.enhetNr}>
-                {enhet.navn} - {enhet.enhetNr}
-              </option>
-            ))}
+            {enheter
+              ?.filter((enhet) => {
+                const erLokalEllerTiltaksenhet =
+                  enhet.type === Norg2Type.LOKAL ||
+                  enhet.type === Norg2Type.TILTAK;
+                const enheterFraFylke =
+                  sokefilter.fylkesenhet === ""
+                    ? true
+                    : sokefilter.fylkesenhet === enhet.overordnetEnhet;
+                return erLokalEllerTiltaksenhet && enheterFraFylke;
+              })
+              ?.map((enhet) => (
+                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                  {enhet.navn} - {enhet.enhetNr}
+                </option>
+              ))}
           </Select>
           <Select
             label="Filtrer på tiltakstype"
@@ -97,23 +140,20 @@ export function Tiltaksgjennomforingfilter() {
               setSokefilter({
                 ...sokefilter,
                 status: e.currentTarget
-                  .value as TiltaksgjennomforingAvslutningsstatus,
+                  .value as TiltaksgjennomforingStatus,
               });
             }}
           >
-            <option
-              value={TiltaksgjennomforingAvslutningsstatus.IKKE_AVSLUTTET}
-            >
-              Aktiv
+            <option value={TiltaksgjennomforingStatus.GJENNOMFORES}>
+              Gjennomføres
             </option>
-            <option value={TiltaksgjennomforingAvslutningsstatus.AVSLUTTET}>
+            <option value={TiltaksgjennomforingStatus.AVSLUTTET}>
               Avsluttet
             </option>
-            <option value={TiltaksgjennomforingAvslutningsstatus.AVBRUTT}>
-              Avbrutt
-            </option>
-            <option value={TiltaksgjennomforingAvslutningsstatus.AVLYST}>
-              Avlyst
+            <option value={TiltaksgjennomforingStatus.AVBRUTT}>Avbrutt</option>
+            <option value={TiltaksgjennomforingStatus.AVLYST}>Avlyst</option>
+            <option value={TiltaksgjennomforingStatus.APENT_FOR_INNSOK}>
+              Åpent for innsøk
             </option>
             <option value="">Alle statuser</option>
           </Select>

@@ -33,5 +33,5 @@ data class ArenaTiltak(
     val AUTOMATISK_TILSAGNSBREV: JaNeiStatus,
     val STATUS_BEGRUNNELSE_INNSOKT: JaNeiStatus,
     val STATUS_HENVISNING_BREV: JaNeiStatus,
-    val STATUS_KOPIBREV: JaNeiStatus
+    val STATUS_KOPIBREV: JaNeiStatus,
 )

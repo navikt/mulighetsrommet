@@ -30,7 +30,7 @@ class DelMedBrukerServiceTest : FunSpec({
             norskIdent = "12345678910",
             navident = "nav123",
             sanityId = "123456",
-            dialogId = "1234"
+            dialogId = "1234",
         )
 
         test("Insert del med bruker-data") {
@@ -45,7 +45,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
         test("Lagre til tabell feiler dersom input for brukers fnr er ulikt 11 tegn") {
             val payloadMedFeilData = payload.copy(
-                norskIdent = "12345678910123"
+                norskIdent = "12345678910123",
             )
             val exception = shouldThrow<BadRequestException> {
                 service.lagreDelMedBruker(payloadMedFeilData)
@@ -59,7 +59,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
             val delMedBruker = service.getDeltMedBruker(
                 fnr = "12345678910",
-                sanityId = "123456"
+                sanityId = "123456",
             )
 
             delMedBruker.shouldBeRight().should {

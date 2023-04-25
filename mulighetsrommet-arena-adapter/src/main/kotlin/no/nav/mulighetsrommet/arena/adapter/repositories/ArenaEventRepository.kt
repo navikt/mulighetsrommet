@@ -59,8 +59,8 @@ class ArenaEventRepository(private val db: Database) {
             mapOf(
                 "table" to table.table,
                 "entity_status" to entityStatus.name,
-                "processing_status" to processingStatus.name
-            )
+                "processing_status" to processingStatus.name,
+            ),
         )
             .asUpdate
             .let { db.run(it) }
@@ -97,7 +97,7 @@ class ArenaEventRepository(private val db: Database) {
             idGreaterThan to "arena_id > :arena_id",
             status to "processing_status= :status::processing_status",
             retriesLessThan to "retries < :max_retries",
-            retriesGreaterThanOrEqual to "retries >= :retriesGreaterThanOrEqual"
+            retriesGreaterThanOrEqual to "retries >= :retriesGreaterThanOrEqual",
         )
 
         @Language("PostgreSQL")
@@ -118,7 +118,7 @@ class ArenaEventRepository(private val db: Database) {
                 "max_retries" to retriesLessThan,
                 "retriesGreaterThanOrEqual" to retriesGreaterThanOrEqual,
                 "limit" to limit,
-            )
+            ),
         )
             .map { it.toEvent() }
             .asList

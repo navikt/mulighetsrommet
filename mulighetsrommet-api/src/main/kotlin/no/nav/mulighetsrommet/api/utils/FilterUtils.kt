@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.utils
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
@@ -31,15 +31,18 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = "",
     val enhet: String? = null,
     val tiltakstypeId: UUID? = null,
-    val statuser: List<Avslutningsstatus>? = null,
+    val status: Tiltaksgjennomforingsstatus? = null,
     val sortering: String? = null,
+    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1),
+    val dagensDato: LocalDate = LocalDate.now(),
+    val fylkesenhet: String ? = null,
 )
 
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = listOf(
         NavEnhetStatus.AKTIV,
         NavEnhetStatus.UNDER_AVVIKLING,
-        NavEnhetStatus.UNDER_ETABLERING
+        NavEnhetStatus.UNDER_ETABLERING,
     ),
     val tiltakstypeId: String? = null,
 )
@@ -48,7 +51,7 @@ data class TiltaksgjennomforingFilter(
     val innsatsgruppe: String? = null,
     val tiltakstypeIder: List<String> = emptyList(),
     val sokestreng: String = "",
-    val lokasjoner: List<String> = emptyList()
+    val lokasjoner: List<String> = emptyList(),
 )
 
 enum class Tiltakstypekategori {
@@ -62,7 +65,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): Tiltak
     val kategori =
         call.request.queryParameters["tiltakstypekategori"]?.let { kategori -> Tiltakstypekategori.valueOf(kategori) }
     val sortering = call.request.queryParameters["sort"]
-    return TiltakstypeFilter(search = search, status = status, kategori = kategori, sortering = sortering)
+    return TiltakstypeFilter(
+        search = search,
+        status = status,
+        kategori = kategori,
+        sortering = sortering,
+    )
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
@@ -77,7 +85,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         search = search,
         avtalestatus = avtalestatus,
         enhet = enhet,
-        sortering = sortering
+        sortering = sortering,
     )
 }
 
@@ -85,14 +93,16 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val search = call.request.queryParameters["search"]
     val enhet = call.request.queryParameters["enhet"]
     val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.let { UUID.fromString(it) }
-    val statuser = call.parameters.getAll("status")?.map { Avslutningsstatus.valueOf(it) }
+    val statuser = call.request.queryParameters["status"]?.let { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
+    val fylkesenhet = call.request.queryParameters["fylkesenhet"]
     return AdminTiltaksgjennomforingFilter(
         search = search,
         enhet = enhet,
         tiltakstypeId = tiltakstypeId,
-        statuser = statuser,
-        sortering = sortering
+        status = statuser,
+        sortering = sortering,
+        fylkesenhet = fylkesenhet,
     )
 }
 
@@ -111,6 +121,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter
         innsatsgruppe = innsatsgruppe,
         tiltakstypeIder = tiltakstypeIder,
         sokestreng = sokestreng,
-        lokasjoner = lokasjoner
+        lokasjoner = lokasjoner,
     )
 }

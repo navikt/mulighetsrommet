@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient,
-    private val veilarbpersonClient: VeilarbpersonClient
+    private val veilarbpersonClient: VeilarbpersonClient,
 ) {
 
     suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
@@ -26,7 +26,7 @@ class BrukerService(
             servicegruppe = oppfolgingsstatus?.servicegruppe,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
             fornavn = personInfo?.fornavn,
-            manuellStatus = manuellStatus
+            manuellStatus = manuellStatus,
         )
     }
 
@@ -37,6 +37,6 @@ class BrukerService(
         val oppfolgingsenhet: Oppfolgingsenhet?,
         val servicegruppe: String?,
         val fornavn: String?,
-        val manuellStatus: ManuellStatusDto?
+        val manuellStatus: ManuellStatusDto?,
     )
 }

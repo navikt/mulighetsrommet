@@ -36,13 +36,13 @@ class ArenaEntityServiceTest : FunSpec({
                     ArenaTable.Tiltaksgjennomforing,
                     arenaId,
                     entityId,
-                    ArenaEntityMapping.Status.Handled
-                )
+                    ArenaEntityMapping.Status.Handled,
+                ),
             )
 
             val mapping = arenaEntityService.getMappingIfHandled(
                 ArenaTable.Tiltaksgjennomforing,
-                arenaId
+                arenaId,
             )
 
             mapping?.entityId shouldBe entityId
@@ -54,12 +54,12 @@ class ArenaEntityServiceTest : FunSpec({
                 row(ArenaEntityMapping.Status.Ignored),
             ) { status ->
                 arenaEntityMappingRepository.upsert(
-                    ArenaEntityMapping(ArenaTable.Tiltaksgjennomforing, arenaId, entityId, status)
+                    ArenaEntityMapping(ArenaTable.Tiltaksgjennomforing, arenaId, entityId, status),
                 )
 
                 val mapping = arenaEntityService.getMappingIfHandled(
                     ArenaTable.Tiltaksgjennomforing,
-                    arenaId
+                    arenaId,
                 )
 
                 mapping shouldBe null

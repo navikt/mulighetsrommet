@@ -1,114 +1,108 @@
 plugins {
     application
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.flywaydb.flyway")
-    id("org.jlleitschuh.gradle.ktlint")
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }
 
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
-}
-
 flyway {
     url = System.getenv("DB_URL")
     user = System.getenv("DB_USERNAME")
     password = System.getenv("DB_PASSWORD")
+    cleanDisabled = false
 }
 
 dependencies {
-    implementation(project(":common:domain"))
-    implementation(project(":common:ktor"))
-    implementation(project(":common:database"))
-    implementation(project(":common:slack"))
-    implementation(project(":common:kafka"))
-    testImplementation(testFixtures(project(":common:database")))
+    implementation(projects.common.domain)
+    implementation(projects.common.ktor)
+    implementation(projects.common.ktorClients)
+    implementation(projects.common.database)
+    implementation(projects.common.slack)
+    implementation(projects.common.kafka)
+    testImplementation(testFixtures(projects.common.database))
 
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.arrow-kt:arrow-core:1.1.5")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.arrow.core)
 
-    val ktorVersion = "2.2.4"
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("io.ktor:ktor-server-cors:$ktorVersion")
-    implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-    implementation("io.ktor:ktor-server-auto-head-response:$ktorVersion")
-    implementation("io.ktor:ktor-server-caching-headers:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-server-conditional-headers:$ktorVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-server-sessions:$ktorVersion")
-    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    // Ktor
+    testImplementation(libs.ktor.client.mock)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.server.defaultHeaders)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.authJwt)
+    implementation(libs.ktor.server.autoHeadResponse)
+    implementation(libs.ktor.server.cachingHeaders)
+    implementation(libs.ktor.server.callLogging)
+    implementation(libs.ktor.server.conditionalHeaders)
+    implementation(libs.ktor.server.contentNegotiation)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.metricsMicrometer)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.sessions)
+    implementation(libs.ktor.server.swagger)
+    testImplementation(libs.ktor.server.testHost)
 
     // Cache
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
-    implementation("io.prometheus:simpleclient_caffeine:0.16.0")
+    implementation(libs.caffeine)
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.4")
+    // Metrics
+    implementation(libs.prometheus.caffeine)
+    implementation(libs.micrometer.registry.prometheus)
 
-    val koinVersion = "3.3.1"
-    implementation("io.insert-koin:koin-ktor:$koinVersion")
-    implementation("io.insert-koin:koin-logger-slf4j:$koinVersion")
+    implementation(libs.nav.common.auditLog)
+    implementation(libs.nav.common.tokenClient)
 
-    val navCommonModules = "3.2023.03.22_12.48-00fcbdc8f455"
-    implementation("com.github.navikt.common-java-modules:audit-log:$navCommonModules")
+    // Dependency injection
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
+
+    implementation(libs.nav.common.auditLog)
     constraints {
-        val logbackVerison = "1.4.6"
-        implementation("ch.qos.logback:logback-core:$logbackVerison") {
+        implementation(libs.logback.core) {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("ch.qos.logback:logback-classic:$logbackVerison") {
+        implementation(libs.logback.classic) {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
-    implementation("com.github.navikt.common-java-modules:kafka:$navCommonModules")
-    implementation("com.github.navikt.common-java-modules:token-client:$navCommonModules")
+    implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.4.9") {
+        implementation("net.minidev:json-smart:2.4.10") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
 
     // Tilgangskontroll
-    implementation("com.github.navikt.poao-tilgang:client:2023.03.06_12.28-f645c4624641")
+    implementation(libs.nav.poaoTilgang.client)
     constraints {
         implementation("org.yaml:snakeyaml:2.0") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.73") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.74") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
 
     // Test
-    val kotestVersion = "5.5.5"
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
-    testImplementation("org.assertj:assertj-db:2.0.2")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.8")
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.assertions.arrow)
+    testImplementation(libs.assertj.db)
+    testImplementation(libs.mockk)
+    testImplementation(libs.nav.mockOauth2Server)
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.5")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
-    implementation("org.slf4j:slf4j-api:2.0.6")
+    implementation(libs.logback.classic)
+    implementation(libs.logback.logstashLogbackEncoder)
+    implementation(libs.slf4j)
 
     // DB-scheduler
-    implementation("com.github.kagkarlsson:db-scheduler:11.6")
+    implementation(libs.dbScheduler)
 }

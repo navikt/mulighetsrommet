@@ -6,14 +6,14 @@ import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.poao_tilgang.client.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class PoaoTilgangService(
-    val client: PoaoTilgangClient
+    val client: PoaoTilgangClient,
 ) {
 
     private val tilgangCache: Cache<String, Boolean> = Caffeine.newBuilder()
@@ -40,8 +40,8 @@ class PoaoTilgangService(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
                     navAnsattAzureId,
                     TilgangType.LESE,
-                    norskIdent
-                )
+                    norskIdent,
+                ),
             )
                 .getOrDefault(Decision.Deny("Veileder har ikke tilgang til bruker", "")).isPermit
         }

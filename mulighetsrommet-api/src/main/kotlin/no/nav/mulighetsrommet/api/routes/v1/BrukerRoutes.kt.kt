@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
-import no.nav.mulighetsrommet.audit_log.AuditLog
-import no.nav.mulighetsrommet.secure_log.SecureLog
+import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
 
 fun Route.brukerRoutes() {
@@ -31,7 +31,7 @@ fun Route.brukerRoutes() {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
             val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
                 "Mangler eller ugyldig fnr",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             val accessToken = call.getAccessToken()
             call.respond(brukerService.hentBrukerdata(fnr, accessToken))
@@ -63,7 +63,7 @@ private fun PipelineContext<Unit, ApplicationCall>.createAuditMessage(msg: Strin
         .timeEnded(System.currentTimeMillis())
         .extension(
             "msg",
-            msg
+            msg,
         )
         .build()
 }

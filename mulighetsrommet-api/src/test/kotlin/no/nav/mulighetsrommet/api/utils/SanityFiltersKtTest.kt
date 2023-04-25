@@ -80,7 +80,7 @@ class SanityFiltersKtTest : FunSpec({
             result shouldBe listOf(
                 Innsatsgruppe.STANDARD_INNSATS.name,
                 Innsatsgruppe.SITUASJONSBESTEMT_INNSATS.name,
-                Innsatsgruppe.SPESIELT_TILPASSET_INNSATS.name
+                Innsatsgruppe.SPESIELT_TILPASSET_INNSATS.name,
             )
         }
 
@@ -91,7 +91,7 @@ class SanityFiltersKtTest : FunSpec({
                 Innsatsgruppe.STANDARD_INNSATS.name,
                 Innsatsgruppe.SITUASJONSBESTEMT_INNSATS.name,
                 Innsatsgruppe.SPESIELT_TILPASSET_INNSATS.name,
-                Innsatsgruppe.VARIG_TILPASSET_INNSATS.name
+                Innsatsgruppe.VARIG_TILPASSET_INNSATS.name,
             )
         }
     }

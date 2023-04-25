@@ -12,8 +12,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.setup.http.httpJsonClient
 import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -95,7 +95,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
             executeQuery(
                 """
             *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }
@@ -105,7 +105,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
             executeQuery(
                 """
                 *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }
@@ -125,7 +125,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
 
         return CacheUtils.tryCacheFirstNotNull(sanityCache, fnr) {
             executeQuery(
-                query
+                query,
             )
         }
     }
@@ -133,7 +133,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
     suspend fun hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
         fnr: String,
         accessToken: String,
-        filter: TiltaksgjennomforingFilter
+        filter: TiltaksgjennomforingFilter,
     ): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
         val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
@@ -175,6 +175,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
                 lokasjon,
                 oppstart,
                 oppstartsdato,
+                sluttdato,
                 faneinnhold {
                   forHvemInfoboks,
                   forHvem,
@@ -214,7 +215,7 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         val fylkeResponse = when (response) {
             is SanityResponse.Result -> response.result?.let {
                 JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(
-                    it
+                    it,
                 )
             }
 

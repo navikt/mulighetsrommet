@@ -1,14 +1,14 @@
 package no.nav.mulighetsrommet.kafka
 
 import kotlinx.coroutines.runBlocking
-import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
+import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder.TopicConfig
 import org.apache.kafka.common.serialization.Deserializer
 import java.util.function.Consumer
 
 abstract class KafkaTopicConsumer<K, V>(
     val config: Config,
     private val keyDeserializer: Deserializer<K>,
-    private val valueDeserializer: Deserializer<V>
+    private val valueDeserializer: Deserializer<V>,
 ) {
 
     data class Config(
@@ -17,8 +17,8 @@ abstract class KafkaTopicConsumer<K, V>(
         val initialRunningState: Boolean = false,
     )
 
-    internal fun toTopicConfig(kafkaConsumerRepository: KafkaConsumerRepository): KafkaConsumerClientBuilder.TopicConfig<K, V> {
-        return KafkaConsumerClientBuilder.TopicConfig<K, V>()
+    internal fun toTopicConfig(kafkaConsumerRepository: KafkaConsumerRepository): TopicConfig<K, V> {
+        return TopicConfig<K, V>()
             .withLogging()
             .withStoreOnFailure(kafkaConsumerRepository)
             .withConsumerConfig(
@@ -29,7 +29,7 @@ abstract class KafkaTopicConsumer<K, V>(
                     runBlocking {
                         consume(event.key(), event.value())
                     }
-                }
+                },
             )
     }
 

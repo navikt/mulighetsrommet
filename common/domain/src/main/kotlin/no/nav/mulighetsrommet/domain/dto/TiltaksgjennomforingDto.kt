@@ -17,34 +17,30 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val status: Tiltaksgjennomforingsstatus,
-    val virksomhetsnummer: String
+    val virksomhetsnummer: String,
 ) {
-
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String
+        val arenaKode: String,
     )
 
     companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) = tiltaksgjennomforing.run {
+        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) =
             TiltaksgjennomforingDto(
-                id = id,
-                tiltakstype = tiltakstype.run {
-                    Tiltakstype(
-                        id = id,
-                        navn = navn,
-                        arenaKode = arenaKode
-                    )
-                },
-                navn = navn,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                status = status,
-                virksomhetsnummer = virksomhetsnummer
+                id = tiltaksgjennomforing.id,
+                tiltakstype = Tiltakstype(
+                    id = tiltaksgjennomforing.tiltakstype.id,
+                    navn = tiltaksgjennomforing.tiltakstype.navn,
+                    arenaKode = tiltaksgjennomforing.tiltakstype.arenaKode,
+                ),
+                navn = tiltaksgjennomforing.navn,
+                startDato = tiltaksgjennomforing.startDato,
+                sluttDato = tiltaksgjennomforing.sluttDato,
+                status = tiltaksgjennomforing.status,
+                virksomhetsnummer = tiltaksgjennomforing.virksomhetsnummer,
             )
-        }
     }
 }

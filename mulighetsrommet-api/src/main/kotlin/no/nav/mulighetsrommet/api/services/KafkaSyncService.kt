@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginate
+import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import org.slf4j.LoggerFactory
@@ -14,7 +15,7 @@ class KafkaSyncService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
-    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer
+    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -26,13 +27,14 @@ class KafkaSyncService(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                pagination = paginationParams
-            )
+                pagination = paginationParams,
+            ).getOrThrow()
 
             tiltaksgjennomforinger.forEach { it ->
-                tiltaksgjennomforingRepository.get(it.id)?.let {
-                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
-                }
+                tiltaksgjennomforingRepository.get(it.id).getOrThrow()
+                    ?.let {
+                        tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
+                    }
             }
 
             tiltaksgjennomforinger
@@ -47,7 +49,7 @@ class KafkaSyncService(
             val tiltakstyper = tiltakstypeRepository.getAllByDateInterval(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
-                pagination = paginationParams
+                pagination = paginationParams,
             )
 
             tiltakstyper.forEach { it ->

@@ -74,6 +74,6 @@ class TopicRepository(private val db: Database) {
         id = string("id"),
         topic = string("topic"),
         type = TopicType.valueOf(string("type")),
-        running = boolean("running")
+        running = boolean("running"),
     )
 }

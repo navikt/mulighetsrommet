@@ -15,31 +15,31 @@ class ArenaEventConsumerTest : FunSpec({
                 createArenaTiltakEvent(Delete) { it.copy(TILTAKSKODE = "TILTAK") },
                 Delete,
                 Tiltakstype,
-                "TILTAK"
+                "TILTAK",
             ),
             row(
                 createArenaSakEvent(Insert) { it.copy(SAK_ID = 1) },
                 Insert,
                 Sak,
-                "1"
+                "1",
             ),
             row(
                 createArenaAvtaleInfoEvent(Update) { it.copy(AVTALE_ID = 2) },
                 Update,
                 AvtaleInfo,
-                "2"
+                "2",
             ),
             row(
                 createArenaTiltakgjennomforingEvent(Insert) { it.copy(TILTAKGJENNOMFORING_ID = 3) },
                 Insert,
                 Tiltaksgjennomforing,
-                "3"
+                "3",
             ),
             row(
                 createArenaTiltakdeltakerEvent(Insert) { it.copy(TILTAKDELTAKER_ID = 4) },
                 Insert,
                 Deltaker,
-                "4"
+                "4",
             ),
         ) { event, operation, table, id ->
             val decoded = decodeArenaEvent(event.payload)

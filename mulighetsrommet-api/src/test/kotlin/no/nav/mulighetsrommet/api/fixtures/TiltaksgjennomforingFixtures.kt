@@ -15,10 +15,12 @@ object TiltaksgjennomforingFixtures {
         virksomhetsnummer = "976663934",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        enhet = "2990",
+        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -29,10 +31,12 @@ object TiltaksgjennomforingFixtures {
         virksomhetsnummer = "111111111",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        enhet = "2990",
+        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -43,9 +47,11 @@ object TiltaksgjennomforingFixtures {
         virksomhetsnummer = "222222222",
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
-        enhet = "2990",
+        arenaAnsvarligEnhet = "2990",
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
+        ansvarlige = emptyList(),
+        enheter = emptyList(),
     )
 }

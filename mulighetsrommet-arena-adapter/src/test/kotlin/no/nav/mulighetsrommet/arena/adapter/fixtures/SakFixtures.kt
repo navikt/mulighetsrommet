@@ -8,7 +8,7 @@ object SakFixtures {
         SAKSKODE = "TILT",
         AAR = 2022,
         LOPENRSAK = 1,
-        AETATENHET_ANSVARLIG = "2990"
+        AETATENHET_ANSVARLIG = "2990",
     )
 
     val ArenaIkkeTiltakSak = ArenaSak(
@@ -16,6 +16,6 @@ object SakFixtures {
         SAKSKODE = "NOT_TILT",
         AAR = 2022,
         LOPENRSAK = 1,
-        AETATENHET_ANSVARLIG = "2990"
+        AETATENHET_ANSVARLIG = "2990",
     )
 }

@@ -16,32 +16,15 @@ class TiltakstypeService(
     private val tiltakstypeRepository: TiltakstypeRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val avtaleRepository: AvtaleRepository,
-    private val deltakerRepository: DeltakerRepository
+    private val deltakerRepository: DeltakerRepository,
 ) {
-    fun getAll(
-        paginationParams: PaginationParams
-    ): PaginatedResponse<TiltakstypeDto> {
-        val (totalCount, items) = tiltakstypeRepository.getAll(
-            paginationParams
-        )
-
-        return PaginatedResponse(
-            data = items,
-            pagination = Pagination(
-                totalCount = totalCount,
-                currentPage = paginationParams.page,
-                pageSize = paginationParams.limit
-            )
-        )
-    }
-
     fun getWithFilter(
         tiltakstypeFilter: TiltakstypeFilter,
-        paginationParams: PaginationParams
+        paginationParams: PaginationParams,
     ): PaginatedResponse<TiltakstypeDto> {
-        val (totalCount, items) = tiltakstypeRepository.getAll(
+        val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
             tiltakstypeFilter,
-            paginationParams
+            paginationParams,
         )
 
         return PaginatedResponse(
@@ -49,8 +32,8 @@ class TiltakstypeService(
             pagination = Pagination(
                 totalCount = totalCount,
                 currentPage = paginationParams.page,
-                pageSize = paginationParams.limit
-            )
+                pageSize = paginationParams.limit,
+            ),
         )
     }
 
@@ -62,6 +45,10 @@ class TiltakstypeService(
         val antallGjennomforinger = tiltaksgjennomforingRepository.countGjennomforingerForTiltakstypeWithId(tiltakstypeId)
         val antallAvtaler = avtaleRepository.countAktiveAvtalerForTiltakstypeWithId(tiltakstypeId)
         val antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltakstypeId)
-        return TiltakstypeNokkeltallDto(antallTiltaksgjennomforinger = antallGjennomforinger, antallAvtaler = antallAvtaler, antallDeltakere = antallDeltakere)
+        return TiltakstypeNokkeltallDto(
+            antallTiltaksgjennomforinger = antallGjennomforinger,
+            antallAvtaler = antallAvtaler,
+            antallDeltakere = antallDeltakere,
+        )
     }
 }

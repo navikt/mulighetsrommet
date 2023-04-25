@@ -92,14 +92,14 @@ class AvtaleRepository(private val db: Database) {
                 queryOf(
                     upsertAnsvarlig,
                     avtale.id,
-                    ansvarlig
+                    ansvarlig,
                 ).asExecute.let { tx.run(it) }
             }
 
             queryOf(
                 deleteAnsvarlige,
                 avtale.id,
-                db.createTextArray(avtale.ansvarlige)
+                db.createTextArray(avtale.ansvarlige),
             ).asExecute.let { tx.run(it) }
 
             result
@@ -152,7 +152,7 @@ class AvtaleRepository(private val db: Database) {
 
     fun getAll(
         filter: AvtaleFilter,
-        pagination: PaginationParams = PaginationParams()
+        pagination: PaginationParams = PaginationParams(),
     ): Pair<Int, List<AvtaleAdminDto>> {
         if (filter.tiltakstypeId != null) {
             logger.info("Henter avtaler for tiltakstype med id: '${filter.tiltakstypeId}'")
@@ -165,14 +165,14 @@ class AvtaleRepository(private val db: Database) {
             "enhet" to filter.enhet,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "today" to filter.dagensDato
+            "today" to filter.dagensDato,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.enhet to "lower(a.enhet) = lower(:enhet)"
+            filter.enhet to "lower(a.enhet) = lower(:enhet)",
         )
 
         val order = when (filter.sortering) {
@@ -239,7 +239,7 @@ class AvtaleRepository(private val db: Database) {
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "url" to url,
-        "opphav" to opphav.name
+        "opphav" to opphav.name,
     )
 
     private fun Row.toAvtaleDbo(): AvtaleDbo {
@@ -257,7 +257,7 @@ class AvtaleRepository(private val db: Database) {
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             url = stringOrNull("url"),
-            opphav = AvtaleDbo.Opphav.valueOf(string("opphav"))
+            opphav = AvtaleDbo.Opphav.valueOf(string("opphav")),
         )
     }
 
@@ -270,11 +270,11 @@ class AvtaleRepository(private val db: Database) {
             tiltakstype = AvtaleAdminDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
-                arenaKode = string("tiltakskode")
+                arenaKode = string("tiltakskode"),
             ),
             avtalenummer = stringOrNull("avtalenummer"),
             leverandor = AvtaleAdminDto.Leverandor(
-                organisasjonsnummer = string("leverandor_organisasjonsnummer")
+                organisasjonsnummer = string("leverandor_organisasjonsnummer"),
             ),
             startDato = startDato,
             sluttDato = sluttDato,
@@ -286,21 +286,21 @@ class AvtaleRepository(private val db: Database) {
                 LocalDate.now(),
                 startDato,
                 sluttDato,
-                Avslutningsstatus.valueOf(string("avslutningsstatus"))
+                Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
             prisbetingelser = stringOrNull("prisbetingelser"),
             ansvarlig = stringOrNull("navident"),
             url = stringOrNull("url"),
-            antallPlasser = intOrNull("antall_plasser")
+            antallPlasser = intOrNull("antall_plasser"),
         )
     }
 
     private fun Avtalestatus.toDbStatement(): String {
         return when (this) {
-            Avtalestatus.Aktiv -> "((:today >= start_dato and :today <= slutt_dato) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-            Avtalestatus.Avsluttet -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
+            Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and (:today >= start_dato and :today <= slutt_dato))"
+            Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
             Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-            Avtalestatus.Planlagt -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
+            Avtalestatus.Planlagt -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today < start_dato)"
         }
     }
 

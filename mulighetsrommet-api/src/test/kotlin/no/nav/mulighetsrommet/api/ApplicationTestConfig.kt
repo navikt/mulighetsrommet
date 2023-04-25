@@ -17,7 +17,7 @@ fun createDatabaseTestConfig() = createDatabaseTestSchema("mulighetsrommet-api-d
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     config: AppConfig = createTestApplicationConfig(oauth),
-    test: suspend ApplicationTestBuilder.() -> R
+    test: suspend ApplicationTestBuilder.() -> R,
 ) {
     var flywayAdapter: FlywayDatabaseAdapter? = null
 
@@ -52,15 +52,15 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
-            delayOfMinutes = 10
+            delayOfMinutes = 10,
         ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(
         token = "",
         channel = "",
-        enable = false
-    )
+        enable = false,
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig {
@@ -69,19 +69,19 @@ fun createKafkaConfig(): KafkaConfig {
         producerId = "mulighetsrommet-api-producer",
         producers = KafkaProducers(
             tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
-            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1")
+            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
         ),
         consumerGroupId = "mulighetsrommet-api-consumer",
         consumers = KafkaConsumers(
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
-        )
+        ),
     )
 }
 
 fun createServiceClientConfig(url: String): ServiceClientConfig {
     return ServiceClientConfig(
         url = url,
-        scope = ""
+        scope = "",
     )
 }
 
@@ -90,14 +90,14 @@ fun createServiceClientConfig(url: String): ServiceClientConfig {
 fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
-    audience: String = "default"
+    audience: String = "default",
 ): AuthConfig {
     return AuthConfig(
         azure = AuthProvider(
             issuer = oauth.issuerUrl(issuer).toString(),
             jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
             audience = audience,
-            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString()
-        )
+            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
+        ),
     )
 }

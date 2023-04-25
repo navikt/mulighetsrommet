@@ -7,6 +7,5 @@ import java.util.*
 @Serializable
 data class ExchangeArenaIdForIdResponse(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID
+    val id: UUID,
 )
-

@@ -24,32 +24,32 @@ class BrukerServiceTest : FunSpec({
     beforeSpec {
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(FNR, any()) } returns OppfolgingsstatusDto(
             oppfolgingsenhet = mockOppfolgingsenhet(),
-            servicegruppe = "IKKE_VURDERT"
+            servicegruppe = "IKKE_VURDERT",
         )
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(FNR, any()) } returns mockManuellStatus()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(FNR, any()) } returns VedtakDto(
-            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS
+            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
         )
 
         coEvery { veilarbpersonClient.hentPersonInfo(FNR, any()) } returns PersonDto(
-            fornavn = "Ola"
+            fornavn = "Ola",
         )
 
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(FNR_2, any()) } returns OppfolgingsstatusDto(
             oppfolgingsenhet = mockOppfolgingsenhet(),
-            servicegruppe = "IKKE_VURDERT"
+            servicegruppe = "IKKE_VURDERT",
         )
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(FNR_2, any()) } returns mockManuellStatus()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(FNR_2, any()) } returns VedtakDto(
-            innsatsgruppe = Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
+            innsatsgruppe = Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         )
 
         coEvery { veilarbpersonClient.hentPersonInfo(FNR_2, any()) } returns PersonDto(
-            fornavn = "Petter"
+            fornavn = "Petter",
         )
     }
 
@@ -70,8 +70,8 @@ fun mockManuellStatus(): ManuellStatusDto {
         erUnderManuellOppfolging = false,
         krrStatus = KrrStatus(
             kanVarsles = true,
-            erReservert = false
-        )
+            erReservert = false,
+        ),
     )
 }
 

@@ -30,7 +30,8 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
     status: HttpStatusCode = HttpStatusCode.OK,
 ): HttpResponseData {
     val headers = headersOf(
-        HttpHeaders.ContentType, ContentType.Application.Json.toString()
+        HttpHeaders.ContentType,
+        ContentType.Application.Json.toString(),
     )
     return respond(JsonIgnoreUnknownKeys.encodeToString(T::class.serializer(), content), status, headers)
 }
@@ -42,7 +43,7 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
  * [IllegalStateException] if it receives an HTTP request without a corresponding handler.
  */
 fun createMockEngine(
-    vararg requestHandlers: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>
+    vararg requestHandlers: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>,
 ) = MockEngine { request ->
     for ((path, handler) in requestHandlers) {
         if (request.url.encodedPath.matches(path.toRegex())) {

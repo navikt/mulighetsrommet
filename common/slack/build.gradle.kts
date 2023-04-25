@@ -1,14 +1,9 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.jlleitschuh.gradle.ktlint")
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
     // Slack-SDK
-    implementation("com.slack.api:slack-api-client:1.27.3")
+    implementation(libs.slack.client)
 }

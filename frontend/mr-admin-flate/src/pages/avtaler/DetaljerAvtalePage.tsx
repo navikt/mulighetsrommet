@@ -10,10 +10,14 @@ import { Avtaleinfo } from "./Avtaleinfo";
 import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { Laster } from "../../components/laster/Laster";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 export function DetaljerAvtalePage() {
-  const { data: avtale, isLoading } = useAvtale();
+  const { avtaleId } = useParams<{ avtaleId: string }>();
+  if (!avtaleId) {
+    throw new Error("Fant ingen avtaleId i url");
+  }
+  const { data: avtale, isLoading } = useAvtale(avtaleId);
   const [tabValgt, setTabValgt] = useState("avtaleinfo");
   const { data } = useFeatureToggles();
 

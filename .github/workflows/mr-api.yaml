@@ -6,6 +6,8 @@ on:
       - .github/workflows/mr-api.yaml
       - build.gradle.kts
       - settings.gradle.kts
+      - gradle.properties
+      - gradle/libs.versions.toml
       - common/**
       - mulighetsrommet-api/**
   workflow_dispatch:
@@ -33,8 +35,8 @@ jobs:
     runs-on:
       labels: ubuntu-latest-8-cores
     permissions:
-      contents: "read"
-      id-token: "write"
+      contents: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -42,6 +44,13 @@ jobs:
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:build
+      - name: Submit Gradle dependencies
+        uses: mikepenz/gradle-dependency-submission@v0.8.6
+        if: github.ref_name == 'main'
+        with:
+          gradle-build-module: |-
+            :mulighetsrommet-api
+          sub-module-mode: COMBINED # Include dependencies from common submodules
       - name: Build and push Docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push
@@ -59,7 +68,7 @@ jobs:
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
-    needs: [ build-and-test ]
+    needs: [build-and-test]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
@@ -75,7 +84,7 @@ jobs:
   deploy-prod:
     name: Deploy (prod)
     runs-on: ubuntu-latest
-    needs: [ build-and-test, deploy-dev ]
+    needs: [build-and-test, deploy-dev]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
       - name: Checkout

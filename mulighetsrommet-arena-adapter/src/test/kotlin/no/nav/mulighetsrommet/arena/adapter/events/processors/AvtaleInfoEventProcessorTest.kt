@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -63,8 +62,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 "/ords/arbeidsgiver" to {
                     respondJson(ArenaOrdsArrangor("123456", "1000000"))
                 },
-                "/api/v1/internal/arena/avtale.*" to { respondOk() }
-            )
+                "/api/v1/internal/arena/avtale.*" to { respondOk() },
+            ),
         ): AvtaleInfoEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
@@ -110,8 +109,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         ArenaTable.Tiltakstype,
                         tiltakstype.tiltakskode,
                         tiltakstype.id,
-                        Handled
-                    )
+                        Handled,
+                    ),
                 )
             }
 
@@ -154,7 +153,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val processor = createProcessor()
 
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
-                processor.handleEvent(e1) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Aktiv.name)
@@ -162,7 +161,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val e2 = createArenaAvtaleInfoEvent(Update) {
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
                 }
-                processor.handleEvent(e2) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Planlagt.name)
@@ -170,7 +169,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val e3 = createArenaAvtaleInfoEvent(Update) {
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
                 }
-                processor.handleEvent(e3) shouldBeRight ProcessingResult(Handled)
+                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Avsluttet.name)
@@ -180,7 +179,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondError(HttpStatusCode.InternalServerError)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -198,7 +197,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondError(HttpStatusCode.NotFound)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -215,12 +214,12 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(
-                            ArenaOrdsArrangor("123456", "100000")
+                            ArenaOrdsArrangor("123456", "100000"),
                         )
                     },
                     "/api/v1/internal/arena/avtale" to {
                         respondError(HttpStatusCode.InternalServerError)
-                    }
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -238,7 +237,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
-                    "/api/v1/internal/arena/avtale.*" to { respondOk() }
+                    "/api/v1/internal/arena/avtale.*" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 

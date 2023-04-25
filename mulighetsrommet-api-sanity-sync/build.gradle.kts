@@ -1,17 +1,12 @@
 plugins {
     application
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.jlleitschuh.gradle.ktlint")
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.sanity.ApplicationKt")
-}
-
-ktlint {
-    disabledRules.addAll("no-wildcard-imports")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -20,21 +15,21 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":common:domain"))
-    implementation(project(":common:database"))
-    implementation(project(":common:ktor"))
+    implementation(projects.common.domain)
+    implementation(projects.common.database)
+    implementation(projects.common.ktor)
 
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation(libs.kotlinx.coroutines.core)
 
-    val ktorVersion = "2.2.4"
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    // Ktor
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.contentNegotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.json)
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.5")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.3")
-    implementation("org.slf4j:slf4j-api:2.0.6")
+    implementation(libs.logback.classic)
+    implementation(libs.logback.logstashLogbackEncoder)
+    implementation(libs.slf4j)
 }
