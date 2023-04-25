@@ -24,19 +24,6 @@ export function ListeheaderTiltakstyper() {
   );
 }
 
-export function ListeheaderAvtaler() {
-  return (
-    <Listeheader classname={styles.listeheader_avtaler}>
-      <BodyShort>Tittel</BodyShort>
-      <BodyShort>Leverandør</BodyShort>
-      <BodyShort>Enhet</BodyShort>
-      <BodyShort>Startdato</BodyShort>
-      <BodyShort>Sluttdato</BodyShort>
-      <BodyShort>Status</BodyShort>
-    </Listeheader>
-  );
-}
-
 export function ListeheaderTiltaksgjennomforinger() {
   return (
     <Listeheader classname={styles.listeheader_tiltaksgjennomforinger}>

@@ -9,7 +9,7 @@ import { PagineringsOversikt } from "../../../components/paginering/PagineringOv
 import { AVTALE_PAGE_SIZE } from "../../../constants";
 import { useGetTiltakstypeIdFromUrl } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import pageStyles from "../../Page.module.scss";
-import { AvtaleTabell } from "./AvtaleTabell";
+import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
 
 export function AvtalerForTiltakstype() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrl();
