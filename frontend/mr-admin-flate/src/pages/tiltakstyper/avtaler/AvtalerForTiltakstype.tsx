@@ -33,12 +33,6 @@ export function AvtalerForTiltakstype() {
   return (
     <div>
       <Avtalefilter skjulFilter={{ tiltakstype: true }} />
-      <PagineringsOversikt
-        page={page}
-        antall={avtaler.length}
-        maksAntall={pagination.totalCount}
-        type="avtaler"
-      />
       <AvtaleTabell />
       {avtaler.length > 0 ? (
         <PagineringContainer>

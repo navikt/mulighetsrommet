@@ -94,6 +94,12 @@ export const AvtaleTabell = () => {
   };
   return (
     <>
+      <PagineringsOversikt
+        page={page}
+        antall={avtaler.length}
+        maksAntall={pagination?.totalCount}
+        type="avtaler"
+      />
       <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
         <Table.Header>
           <Table.Row>

@@ -7,7 +7,7 @@ import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
+import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import {
   OPPRETT_AVTALE_ADMIN_FLATE,
   useFeatureToggles,

@@ -1,21 +1,22 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
 import { useState } from "react";
 import { useAtom } from "jotai";
-import { paginationAtom } from "../../api/atoms";
+import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
 import { Laster } from "../laster/Laster";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
 import { PAGE_SIZE } from "../../constants";
 import { formaterDato } from "../../utils/Utils";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
-import useTiltakstyperWithFilter from "../../api/tiltakstyper/useTiltakstyperWithFilter";
 import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
 import pageStyles from "../../pages/Page.module.scss";
 import { PagineringContainer } from "../paginering/PagineringContainer";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export const TiltakstypeTabell = () => {
-  const { data, isLoading, isError } = useTiltakstyperWithFilter();
   const [page, setPage] = useAtom(paginationAtom);
+  const [filter] = useAtom(tiltakstypeFilter);
+  const { data, isLoading, isError } = useTiltakstyper(filter, page);
   const [sort, setSort] = useState();
   const rowsPerPage = 15;
   const pagination = data?.pagination;
