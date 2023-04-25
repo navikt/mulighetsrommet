@@ -1,7 +1,7 @@
 import { UNSAFE_DatePicker, UNSAFE_useRangeDatepicker } from "@navikt/ds-react";
 import { useController } from "react-hook-form";
 import { formaterDato } from "../../utils/Utils";
-import { inferredSchema } from "../avtaler/opprett/OpprettAvtaleContainer";
+import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
 import "./OpprettComponents.module.scss";
 
 interface DatoProps {

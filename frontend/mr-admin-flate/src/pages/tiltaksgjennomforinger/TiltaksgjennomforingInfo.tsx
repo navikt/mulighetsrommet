@@ -5,12 +5,16 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { Laster } from "../../components/laster/Laster";
 import { Alert, Button } from "@navikt/ds-react";
 import classNames from "classnames";
-import { OpprettTiltaksgjennomforingModal } from "../../components/tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
 import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { OpprettTiltaksgjennomforingModal } from "../../components/tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
 
 export function TiltaksgjennomforingInfo() {
-  const { data: tiltaksgjennomforing, isError, isLoading } = useTiltaksgjennomforingById();
+  const {
+    data: tiltaksgjennomforing,
+    isError,
+    isLoading,
+  } = useTiltaksgjennomforingById();
   const { data: features } = useFeatureToggles();
 
   const [redigerModal, setRedigerModal] = useState(false);
@@ -59,7 +63,10 @@ export function TiltaksgjennomforingInfo() {
         </dl>
         <Separator />
         <dl className={styles.bolk}>
-          <Metadata header="Enhet" verdi={tiltaksgjennomforing.arenaAnsvarligEnhet} />
+          <Metadata
+            header="Enhet"
+            verdi={tiltaksgjennomforing.arenaAnsvarligEnhet}
+          />
           {tiltaksgjennomforing.virksomhetsnavn ? (
             <Metadata
               header="Arrangør"

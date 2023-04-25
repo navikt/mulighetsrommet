@@ -1,6 +1,5 @@
 import { Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { ChangeEvent } from "react";
 import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
 import styles from "./Filter.module.scss";
@@ -61,24 +60,6 @@ export function Tiltakstypefilter() {
           <option value="GRUPPE">Gruppetiltak</option>
           <option value="INDIVIDUELL">Individuelle tiltak</option>
           <option value="ALLE">Alle</option>
-        </Select>
-      </div>
-      <div>
-        <Select
-          label="Sorter"
-          hideLabel
-          size="small"
-          value={sokefilter.sortering}
-          data-testid="filter_avtale_enhet"
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            setSokefilter({
-              ...sokefilter,
-              sortering: e.currentTarget.value as SorteringTiltakstyper,
-            });
-          }}
-        >
-          <option value="navn-ascending">Navn A-Å</option>
-          <option value="navn-descending">Navn Å-A</option>
         </Select>
       </div>
     </div>

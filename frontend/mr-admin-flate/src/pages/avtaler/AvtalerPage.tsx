@@ -1,9 +1,9 @@
 import { Heading } from "@navikt/ds-react";
-import { AvtaleOversikt } from "../../components/avtaler/AvtaleOversikt";
 import { Avtalefilter } from "../../components/filter/Avtalefilter";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import styles from "../Page.module.scss";
+import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 
 export function AvtalerPage() {
   return (
@@ -13,7 +13,7 @@ export function AvtalerPage() {
           Oversikt over avtaler
         </Heading>
         <Avtalefilter />
-        <AvtaleOversikt />
+        <AvtaleTabell />
       </ContainerLayout>
     </MainContainer>
   );

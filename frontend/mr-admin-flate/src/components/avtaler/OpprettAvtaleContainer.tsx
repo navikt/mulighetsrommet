@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, TextField, Textarea } from "@navikt/ds-react";
+import { Button, Textarea, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
@@ -10,17 +10,17 @@ import { porten } from "mulighetsrommet-veileder-flate/src/constants";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
-import { mulighetsrommetClient } from "../../../api/clients";
+import { mulighetsrommetClient } from "../../api/clients";
 import {
   capitalize,
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
-} from "../../../utils/Utils";
-import { Datovelger } from "../../skjema/OpprettComponents";
-import { VirksomhetInput } from "../../virksomhet/VirksomhetInput";
+} from "../../utils/Utils";
+import { Datovelger } from "../skjema/OpprettComponents";
+import { VirksomhetInput } from "../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useNavigerTilAvtale } from "../../../hooks/useNavigerTilAvtale";
-import { SokeSelect } from "../../skjema/SokeSelect";
+import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
+import { SokeSelect } from "../skjema/SokeSelect";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
