@@ -161,25 +161,21 @@ export const TiltakstypeTabell = () => {
       </Table>
       {tiltakstyper.length > 0 ? (
         <PagineringContainer>
-          <>
-            <PagineringsOversikt
-              page={page}
-              antall={tiltakstyper.length}
-              maksAntall={pagination?.totalCount}
-              type="tiltakstyper"
-            />
-            <Pagination
-              className={pageStyles.pagination}
-              size="small"
-              data-testid="paginering"
-              page={page}
-              onPageChange={setPage}
-              count={Math.ceil(
-                (pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE
-              )}
-              data-version="v1"
-            />
-          </>
+          <PagineringsOversikt
+            page={page}
+            antall={tiltakstyper.length}
+            maksAntall={pagination?.totalCount}
+            type="tiltakstyper"
+          />
+          <Pagination
+            className={pageStyles.pagination}
+            size="small"
+            data-testid="paginering"
+            page={page}
+            onPageChange={setPage}
+            count={Math.ceil((pagination?.totalCount ?? PAGE_SIZE) / PAGE_SIZE)}
+            data-version="v1"
+          />
         </PagineringContainer>
       ) : null}
     </>

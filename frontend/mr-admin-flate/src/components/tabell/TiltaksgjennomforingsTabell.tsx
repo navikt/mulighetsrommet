@@ -151,19 +151,16 @@ export const TiltaksgjennomforingsTabell = () => {
                         {tiltaksgjennomforing.navn}
                       </Lenke>
                     </Table.HeaderCell>
-
                     <Table.DataCell
                       aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
                     >
                       {tiltaksgjennomforing.tiltaksnummer}
                     </Table.DataCell>
-
                     <Table.DataCell
                       aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
                     >
                       {tiltaksgjennomforing.virksomhetsnavn}
                     </Table.DataCell>
-
                     <Table.DataCell
                       aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
                     >
