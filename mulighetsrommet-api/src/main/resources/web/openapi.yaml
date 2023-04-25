@@ -1427,6 +1427,8 @@ components:
             - midlertidig_stengt
         oppstartsdato:
           type: string
+        sluttdato:
+          type: string
         estimert_ventetid:
           type: string
         faneinnhold:

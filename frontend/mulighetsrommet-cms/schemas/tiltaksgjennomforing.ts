@@ -150,6 +150,13 @@ export const tiltaksgjennomforing = defineType({
       hidden: ({ parent }) => parent?.oppstart !== "dato",
     }),
     defineField({
+      name: "sluttdato",
+      title: "Sluttdato",
+      description: "Dato for når gjennomføringen slutter",
+      type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
+    }),
+    defineField({
       name: "lokasjon",
       title: "Lokasjon",
       description:
