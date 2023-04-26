@@ -76,6 +76,7 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
         callback={handleJoyrideCallback}
         showSkipButton
         stepIndex={state.stepIndex}
+        disableScrolling
       />
     </>
   );

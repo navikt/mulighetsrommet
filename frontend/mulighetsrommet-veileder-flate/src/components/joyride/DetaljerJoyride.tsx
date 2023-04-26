@@ -68,6 +68,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
         callback={handleJoyrideCallback}
         showSkipButton
         stepIndex={state.stepIndex}
+        disableScrolling
       />
     </>
   );
