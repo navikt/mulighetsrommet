@@ -13,7 +13,6 @@ class SynchronizeNorgEnheter(config: Config, navEnheterSyncService: NavEnheterSy
 
     data class Config(
         val delayOfMinutes: Int,
-        val schedulerStatePollDelay: Long = 1000,
     )
 
     val task: RecurringTask<Void> = Tasks
