@@ -123,3 +123,10 @@ Eksempel:
 ```sh
 $ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
 ```
+
+## Automatiske jobber
+Vi har flere automatiske jobber som kjører til gitte intervaller. Disse finner man under mappen `/tasks`. Jobbene bruker `db-scheduler` for å vite når de skal kjøre.
+
+### Oppdatere enheter fra NORG til Sanity
+Jobben `synchronize-norg2-enheter-to-sanity` brukes for å oppdatere enheter i Sanity med fasit fra NORG2.
+Jobben benytter seg av tokenet `Token for task: synchronize-norg2-enheter-to-sanity fra api (PROD | TEST)` som har create/update-tilgang til enheter-dokumentene i Sanity.

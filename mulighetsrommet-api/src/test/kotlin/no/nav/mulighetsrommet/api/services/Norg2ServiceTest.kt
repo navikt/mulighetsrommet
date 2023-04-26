@@ -13,7 +13,8 @@ import no.nav.mulighetsrommet.api.repositories.EnhetRepository
 class Norg2ServiceTest : FunSpec({
     val norg2Client: Norg2Client = mockk()
     val enheter: EnhetRepository = mockk(relaxed = true)
-    val norg2Service = Norg2Service(norg2Client, enheter)
+    val sanityService: SanityService = mockk(relaxed = true)
+    val norg2Service = Norg2Service(norg2Client, enheter, sanityService)
 
     test("Synkroniser enheter skal slette enheter som ikke tilfredstiller whitelist") {
         val mockEnheter = listOf(

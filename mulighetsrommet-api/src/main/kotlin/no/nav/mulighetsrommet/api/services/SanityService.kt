@@ -6,21 +6,34 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.utils.SanityUtils.isUnderliggendeEnhet
+import no.nav.mulighetsrommet.api.utils.SanityUtils.toEnhetId
+import no.nav.mulighetsrommet.api.utils.SanityUtils.toStatus
+import no.nav.mulighetsrommet.api.utils.SanityUtils.toType
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
+import kotlin.collections.set
 
-class SanityService(private val config: Config, private val brukerService: BrukerService) {
+class SanityService(
+    private val config: Config,
+    private val brukerService: BrukerService,
+    private val slackNotifier: SlackNotifier,
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
     private val fylkenummerCache = mutableMapOf<String?, String>()
@@ -32,11 +45,13 @@ class SanityService(private val config: Config, private val brukerService: Bruke
 
     data class Config(
         val authToken: String?,
+        val authTokenForMutation: String?,
         val dataset: String,
         val projectId: String,
         val apiVersion: String = "v2023-01-01",
     ) {
         val apiUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/query/$dataset"
+        val mutateUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/mutate/$dataset"
     }
 
     init {
@@ -55,22 +70,8 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    suspend fun executeQuery(query: String, fnr: String?, accessToken: String): SanityResponse {
-        if (fnr !== null) {
-            return getMedBrukerdata(query, fnr, accessToken)
-        }
+    private suspend fun executeQuery(query: String): SanityResponse {
         return get(query)
-    }
-
-    suspend fun executeQuery(query: String): SanityResponse {
-        return get(query)
-    }
-
-    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): SanityResponse {
-        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
-        val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId) ?: ""
-        return get(query, enhetsId, fylkesId)
     }
 
     private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): SanityResponse {
@@ -232,5 +233,101 @@ class SanityService(private val config: Config, private val brukerService: Bruke
             logger.warn("Spørring mot Sanity feilet", exception)
             null
         }
+    }
+
+    suspend fun updateEnheterToSanity(sanityEnheter: List<SanityEnhet>) {
+        logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
+        val mutations = Mutations(mutations = sanityEnheter.map { Mutation(createOrReplace = it) })
+        val mutateClient = client.config {
+            defaultRequest {
+                config.authTokenForMutation?.also {
+                    bearerAuth(it)
+                }
+                url(config.mutateUrl)
+            }
+        }
+        val response = mutateClient.post {
+            contentType(ContentType.Application.Json)
+            setBody(mutations)
+        }
+        if (response.status !== HttpStatusCode.OK) {
+            logger.error("Klarte ikke oppdatere enheter fra NORG til Sanity: {}", response.status)
+            slackNotifier.sendMessage("Klarte ikke oppdatere enheter fra NORG til Sanity. Statuskode: ${response.status.value}. Dette må sees på av en utvikler.")
+        } else {
+            logger.info("Oppdaterte enheter fra NORG til Sanity.")
+        }
+    }
+
+    fun spesialEnheterToSanityEnheter(enheter: List<Norg2Response>): List<SanityEnhet> {
+        return enheter.filter { SanityUtils.relevanteStatuser(it.enhet.status) }.map { toSanityEnhet(it.enhet) }
+    }
+
+    fun fylkeOgUnderenheterToSanity(fylkerOgEnheter: List<Norg2Response>): List<SanityEnhet> {
+        val fylker =
+            fylkerOgEnheter.filter { SanityUtils.relevanteStatuser(it.enhet.status) && it.enhet.type == Norg2Type.FYLKE }
+
+        return fylker.flatMap { fylke ->
+            val underliggendeEnheter = fylkerOgEnheter.filter { isUnderliggendeEnhet(fylke.enhet, it) }
+                .map { toSanityEnhet(it.enhet, fylke.enhet) }
+            listOf(toSanityEnhet(fylke.enhet)) + underliggendeEnheter
+        }
+    }
+
+    private fun toSanityEnhet(enhet: Norg2EnhetDto, fylke: Norg2EnhetDto? = null): SanityEnhet {
+        var fylkeTilEnhet: FylkeRef? = null
+
+        if (fylke != null) {
+            fylkeTilEnhet = FylkeRef(
+                _type = "reference",
+                _ref = toEnhetId(fylke),
+                _key = fylke.enhetNr,
+            )
+        } else if (enhet.type == Norg2Type.ALS) {
+            val fylkesnummer = getFylkesnummerForSpesialenhet(enhet.enhetNr)
+            if (fylkesnummer != null) {
+                fylkeTilEnhet = FylkeRef(
+                    _type = "reference",
+                    _ref = "enhet.fylke.$fylkesnummer",
+                    _key = fylkesnummer,
+                )
+            }
+        }
+
+        return SanityEnhet(
+            _id = toEnhetId(enhet),
+            _type = "enhet",
+            navn = enhet.navn,
+            nummer = EnhetSlug(
+                _type = "slug",
+                current = enhet.enhetNr,
+            ),
+            type = toType(enhet.type.name),
+            status = toStatus(enhet.status.name),
+            fylke = fylkeTilEnhet,
+        )
+    }
+
+    private fun getFylkesnummerForSpesialenhet(enhetNr: String): String? {
+        val spesialEnheterTilFylkeMap = mapOf(
+            "1291" to "1200", // Vestland
+            "0291" to "0200", // Øst-Viken
+            "1591" to "1500", // Møre og Romsdal,
+            "1891" to "1800", // Nordland
+            "0491" to "0400", // Innlandet
+            "0691" to "0600", // Vest-Viken,
+            "0891" to "0800", // Vestfold og Telemark
+            "1091" to "1000", // Agder,
+            "1991" to "1900", // Troms og Finnmark
+            "5772" to "5700", // Trøndelag,
+            "0391" to "0300", // Oslo
+            "1191" to "1100", // Rogaland
+        )
+
+        val fantFylke = spesialEnheterTilFylkeMap[enhetNr]
+        if (fantFylke == null) {
+            slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: $enhetNr. En utvikler må sjekke om enheten skal mappe til et fylke.")
+            return null
+        }
+        return fantFylke
     }
 }

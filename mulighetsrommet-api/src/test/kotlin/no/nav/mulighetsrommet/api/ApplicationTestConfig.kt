@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheterToSanity
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
@@ -40,7 +41,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseTestConfig(),
     auth = createAuthConfig(oauth),
     kafka = createKafkaConfig(),
-    sanity = SanityService.Config(projectId = "", authToken = "", dataset = ""),
+    sanity = SanityService.Config(projectId = "", authToken = "", dataset = "", authTokenForMutation = ""),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
     veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
@@ -52,6 +53,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
+            delayOfMinutes = 10,
+        ),
+        synchronizeNorgEnheterToSanity = SynchronizeNorgEnheterToSanity.Config(
             delayOfMinutes = 10,
         ),
     ),
