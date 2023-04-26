@@ -3,13 +3,13 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Mutations(
-    val mutations: List<Mutation>,
+data class Mutations<T>(
+    val mutations: List<Mutation<T>>,
 )
 
 @Serializable
-data class Mutation(
-    val createOrReplace: SanityEnhet,
+data class Mutation<T>(
+    val createOrReplace: T,
 )
 
 @Serializable

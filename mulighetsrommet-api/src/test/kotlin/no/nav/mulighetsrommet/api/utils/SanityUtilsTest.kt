@@ -30,7 +30,7 @@ class SanityUtilsTest : FunSpec({
                     type = Norg2Type.LOKAL,
                 ),
             )
-            val result = SanityUtils.isUnderliggendeEnhet(fylkesenhet, enhet)
+            val result = NavEnhetUtils.isUnderliggendeEnhet(fylkesenhet, enhet)
             result shouldBe true
         }
 
@@ -53,35 +53,35 @@ class SanityUtilsTest : FunSpec({
                     type = Norg2Type.ALS,
                 ),
             )
-            val result = SanityUtils.isUnderliggendeEnhet(fylkesenhet, enhet)
+            val result = NavEnhetUtils.isUnderliggendeEnhet(fylkesenhet, enhet)
             result shouldBe false
         }
 
         test("Relevante statuser") {
-            SanityUtils.relevanteStatuser(Norg2EnhetStatus.AKTIV) shouldBe true
-            SanityUtils.relevanteStatuser(Norg2EnhetStatus.UNDER_AVVIKLING) shouldBe true
-            SanityUtils.relevanteStatuser(Norg2EnhetStatus.UNDER_ETABLERING) shouldBe true
-            SanityUtils.relevanteStatuser(Norg2EnhetStatus.NEDLAGT) shouldBe false
+            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.AKTIV) shouldBe true
+            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.UNDER_AVVIKLING) shouldBe true
+            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.UNDER_ETABLERING) shouldBe true
+            NavEnhetUtils.relevanteStatuser(Norg2EnhetStatus.NEDLAGT) shouldBe false
         }
 
         test("toType skal returnere typer med stor forbokstav") {
-            SanityUtils.toType("FYLKE") shouldBe "Fylke"
-            SanityUtils.toType("LOKAL") shouldBe "Lokal"
-            SanityUtils.toType("TILTAK") shouldBe "Tiltak"
-            SanityUtils.toType("ALS") shouldBe "Als"
+            NavEnhetUtils.toType("FYLKE") shouldBe "Fylke"
+            NavEnhetUtils.toType("LOKAL") shouldBe "Lokal"
+            NavEnhetUtils.toType("TILTAK") shouldBe "Tiltak"
+            NavEnhetUtils.toType("ALS") shouldBe "Als"
             val exception = shouldThrow<BadRequestException> {
-                SanityUtils.toType("Ukjent type")
+                NavEnhetUtils.toType("Ukjent type")
             }
             exception.localizedMessage shouldBe "'Ukjent type' er ikke en gyldig type for enhet. Gyldige typer er 'FYLKE', 'LOKAL', 'ALS', 'TILTAK'."
         }
 
         test("toStatus skal returnere status med stor forbokstav") {
-            SanityUtils.toStatus("AKTIV") shouldBe "Aktiv"
-            SanityUtils.toStatus("NEDLAGT") shouldBe "Nedlagt"
-            SanityUtils.toStatus("UNDER_ETABLERING") shouldBe "Under_etablering"
-            SanityUtils.toStatus("UNDER_AVVIKLING") shouldBe "Under_avvikling"
+            NavEnhetUtils.toStatus("AKTIV") shouldBe "Aktiv"
+            NavEnhetUtils.toStatus("NEDLAGT") shouldBe "Nedlagt"
+            NavEnhetUtils.toStatus("UNDER_ETABLERING") shouldBe "Under_etablering"
+            NavEnhetUtils.toStatus("UNDER_AVVIKLING") shouldBe "Under_avvikling"
             val exception = shouldThrow<BadRequestException> {
-                SanityUtils.toStatus("Ukjent status")
+                NavEnhetUtils.toStatus("Ukjent status")
             }
             exception.localizedMessage shouldBe "'Ukjent status' er ikke en gyldig status. Gyldige statuser er 'AKTIV', 'NEDLAGT', 'UNDER_ETABLERING', 'UNDER_AVVIKLING'"
         }

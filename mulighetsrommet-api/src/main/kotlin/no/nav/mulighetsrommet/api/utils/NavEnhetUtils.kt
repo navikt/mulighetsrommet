@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
 
-object SanityUtils {
+object NavEnhetUtils {
     fun isUnderliggendeEnhet(fylke: Norg2EnhetDto, enhet: Norg2Response): Boolean {
         return relevanteStatuser(enhet.enhet.status) && enhet.overordnetEnhet == fylke.enhetNr
     }
