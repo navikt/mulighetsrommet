@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClientImpl
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClientImpl
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClientImpl
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
@@ -210,6 +211,16 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.norg2.baseUrl,
         )
     }
+    single {
+        SanityClient(
+            config = SanityClient.Config(
+                projectId = appConfig.sanity.projectId,
+                dataset = appConfig.sanity.dataset,
+                apiVersion = appConfig.sanity.apiVersion,
+                token = appConfig.sanity.authTokenForMutation,
+            ),
+        )
+    }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
@@ -223,7 +234,7 @@ private fun services(appConfig: AppConfig) = module {
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
-    single { Norg2Service(get(), get()) }
+    single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
 }

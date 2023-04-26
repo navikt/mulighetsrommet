@@ -19,8 +19,12 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
+import kotlin.collections.set
 
-class SanityService(private val config: Config, private val brukerService: BrukerService) {
+class SanityService(
+    private val config: Config,
+    private val brukerService: BrukerService,
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
     private val fylkenummerCache = mutableMapOf<String?, String>()
@@ -32,11 +36,13 @@ class SanityService(private val config: Config, private val brukerService: Bruke
 
     data class Config(
         val authToken: String?,
+        val authTokenForMutation: String?,
         val dataset: String,
         val projectId: String,
         val apiVersion: String = "v2023-01-01",
     ) {
         val apiUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/query/$dataset"
+        val mutateUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/mutate/$dataset"
     }
 
     init {
@@ -55,22 +61,8 @@ class SanityService(private val config: Config, private val brukerService: Bruke
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    suspend fun executeQuery(query: String, fnr: String?, accessToken: String): SanityResponse {
-        if (fnr !== null) {
-            return getMedBrukerdata(query, fnr, accessToken)
-        }
+    private suspend fun executeQuery(query: String): SanityResponse {
         return get(query)
-    }
-
-    suspend fun executeQuery(query: String): SanityResponse {
-        return get(query)
-    }
-
-    private suspend fun getMedBrukerdata(query: String, fnr: String, accessToken: String): SanityResponse {
-        val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
-        val fylkesId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId) ?: ""
-        return get(query, enhetsId, fylkesId)
     }
 
     private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): SanityResponse {

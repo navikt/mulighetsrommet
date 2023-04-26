@@ -120,7 +120,7 @@ function toStatus(status?: string) {
   switch (status) {
     case "Aktiv":
     case "Nedlagt":
-    case "Under utvikling":
+    case "Under etablering":
     case "Under avvikling":
       return status;
     default:
