@@ -17,7 +17,7 @@ class SynchronizeNorgEnheterToSanity(config: Config, norg2Service: Norg2Service,
     )
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-norg2-enheter-to-sanity", FixedDelay.ofSeconds(config.delayOfMinutes))
+        .recurring("synchronize-norg2-enheter-to-sanity", FixedDelay.ofMinutes(config.delayOfMinutes))
         .onFailure { _, _ ->
             slackNotifier.sendMessage("Klarte ikke synkronisere enheter fra NORG2 til Sanity. Konsekvensen er at ingen enheter blir oppdaterte i Sanity og redaktørene vil ikke få tilgang på enhetene de skal ha tilgang på.")
         }
