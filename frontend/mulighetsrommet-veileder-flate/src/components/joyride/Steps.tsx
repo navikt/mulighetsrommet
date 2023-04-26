@@ -29,6 +29,8 @@ export const stepsOversikten: MulighetsrommetStep[] = [
     target: '[data-testid="oversikt_tiltaksgjennomforinger"]',
     disableBeacon: true,
     id: 'liste-over-tiltak',
+    // placement: 'top-start',
+    // disableScrolling: true,
   },
   {
     title: 'Prefiltrering',

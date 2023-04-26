@@ -20,6 +20,7 @@ export const OversiktenLastStepJoyride = () => {
       run={joyride.joyrideOversiktenLastStep === true}
       steps={stepsLastStep}
       callback={handleJoyrideCallbackLastStep}
+      disableScrolling
     />
   );
 };

@@ -48,6 +48,7 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
       callback={handleJoyrideCallbackOpprettAvtale}
       showSkipButton
       disableOverlayClose
+      disableScrolling
     />
   );
 };
