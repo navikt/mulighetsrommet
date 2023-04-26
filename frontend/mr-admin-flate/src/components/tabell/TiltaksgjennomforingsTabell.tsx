@@ -13,7 +13,35 @@ import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/u
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import pageStyles from "../../pages/Page.module.scss";
 
-export const TiltaksgjennomforingsTabell = () => {
+interface ColumnHeader {
+  sortKey: Kolonne;
+  tittel: string;
+}
+
+const headers: ColumnHeader[] = [
+  { sortKey: "navn", tittel: "Tittel" },
+  { sortKey: "tiltaksnummer", tittel: "Tiltaksnr." },
+  { sortKey: "arrangor", tittel: "Arrangør" },
+  { sortKey: "tiltakstype", tittel: "Tiltakstype" },
+  { sortKey: "startdato", tittel: "Startdato" },
+  { sortKey: "sluttdato", tittel: "Sluttdato" },
+  { sortKey: "status", tittel: "Status" },
+];
+
+type Kolonne =
+  | "navn"
+  | "tiltaksnummer"
+  | "tiltakstype"
+  | "arrangor"
+  | "startdato"
+  | "sluttdato"
+  | "status";
+
+interface Props {
+  skjulKolonne?: Partial<Record<Kolonne, boolean>>;
+}
+
+export const TiltaksgjennomforingsTabell = (props: Props) => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useState();
@@ -109,27 +137,17 @@ export const TiltaksgjennomforingsTabell = () => {
       <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader sortKey="navn" sortable>
-              Tittel
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltaksnummer" sortable>
-              Tiltaksnr.
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="arrangor" sortable>
-              Arrangør
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltakstype" sortable>
-              Tiltakstype
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="startdato" sortable>
-              Startdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="sluttdato" sortable>
-              Sluttdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="status" sortable>
-              Status
-            </Table.ColumnHeader>
+            {headers
+              .filter((header) => {
+                return props.skjulKolonne
+                  ? !props.skjulKolonne[header.sortKey]
+                  : true;
+              })
+              .map((header) => (
+                <Table.ColumnHeader sortKey={header.sortKey} sortable>
+                  {header.tittel}
+                </Table.ColumnHeader>
+              ))}
           </Table.Row>
         </Table.Header>
         {tiltaksgjennomforinger.length > 0 ? (
@@ -154,16 +172,20 @@ export const TiltaksgjennomforingsTabell = () => {
                     >
                       {tiltaksgjennomforing.tiltaksnummer}
                     </Table.DataCell>
-                    <Table.DataCell
-                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
-                    >
-                      {tiltaksgjennomforing.virksomhetsnavn}
-                    </Table.DataCell>
-                    <Table.DataCell
-                      aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
-                    >
-                      {tiltaksgjennomforing.tiltakstype.navn}
-                    </Table.DataCell>
+                    {props.skjulKolonne?.arrangor ? null : (
+                      <Table.DataCell
+                        aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
+                      >
+                        {tiltaksgjennomforing.virksomhetsnavn}
+                      </Table.DataCell>
+                    )}
+                    {props.skjulKolonne?.tiltakstype ? null : (
+                      <Table.DataCell
+                        aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
+                      >
+                        {tiltaksgjennomforing.tiltakstype.navn}
+                      </Table.DataCell>
+                    )}
                     <Table.DataCell
                       title={`Startdato ${formaterDato(
                         tiltaksgjennomforing.startDato
