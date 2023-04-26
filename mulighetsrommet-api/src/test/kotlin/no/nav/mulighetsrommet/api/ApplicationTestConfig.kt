@@ -40,7 +40,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseTestConfig(),
     auth = createAuthConfig(oauth),
     kafka = createKafkaConfig(),
-    sanity = SanityService.Config(projectId = "", authToken = "", dataset = ""),
+    sanity = SanityService.Config(projectId = "", authToken = "", dataset = "", authTokenForMutation = ""),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
     veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
