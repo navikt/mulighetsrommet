@@ -17,8 +17,8 @@ class SynchronizeNorgEnheter(config: Config, navEnheterSyncService: NavEnheterSy
 
     val task: RecurringTask<Void> = Tasks
         .recurring("synchronize-norg2-enheter", FixedDelay.ofMinutes(config.delayOfMinutes))
-        .onFailure { _, _ ->
-            slackNotifier.sendMessage("Klarte ikke synkronisere enheter fra NORG2. Konsekvensen er at ingen enheter blir oppdaterte i databasen og vi kan potensielt vise feil enheter til bruker i admin-flate.")
+        .onFailure { failure, _ ->
+            slackNotifier.sendMessage("Klarte ikke synkronisere enheter fra NORG2. Konsekvensen er at ingen enheter blir oppdaterte i databasen og vi kan potensielt vise feil enheter til bruker i admin-flate. Cause: ${failure.cause.get().message}")
         }
         .execute { _, _ ->
             runBlocking {

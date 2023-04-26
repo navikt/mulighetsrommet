@@ -37,7 +37,7 @@ app:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}
     authToken: ${SANITY_AUTH_TOKEN}
-    authTokenForMutation: ${SANITY_AUTH_TOKEN_FOR_MUTATION:-""}
+    authTokenForMutation: ${SANITY_AUTH_TOKEN_FOR_MUTATION}
 
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
