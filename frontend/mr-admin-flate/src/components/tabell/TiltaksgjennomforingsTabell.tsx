@@ -144,7 +144,7 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
                   : true;
               })
               .map((header) => (
-                <Table.ColumnHeader sortKey={header.sortKey} sortable>
+                <Table.ColumnHeader key={header.sortKey} sortKey={header.sortKey} sortable>
                   {header.tittel}
                 </Table.ColumnHeader>
               ))}
