@@ -3,5 +3,5 @@ import { ENABLE_ARBEIDSFLATE, Features, VIS_INNSIKTSFANE, VIS_JOYRIDE } from '..
 export const mockFeatures: Features = {
   [ENABLE_ARBEIDSFLATE]: true,
   [VIS_INNSIKTSFANE]: false,
-  [VIS_JOYRIDE]: true,
+  [VIS_JOYRIDE]: false,
 };
