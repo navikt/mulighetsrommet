@@ -11,6 +11,7 @@ import { NokkeltallForAvtale } from "./nokkeltall/NokkeltallForAvtale";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { Laster } from "../../components/laster/Laster";
 import { Link, useParams } from "react-router-dom";
+import { TiltaksgjennomforingerForAvtale } from "./tiltaksgjennomforinger/TiltaksgjennomforingerForAvtale";
 
 export function DetaljerAvtalePage() {
   const { avtaleId } = useParams<{ avtaleId: string }>();
@@ -51,6 +52,7 @@ export function DetaljerAvtalePage() {
       <Tabs value={tabValgt} onChange={setTabValgt}>
         <Tabs.List className={styles.list}>
           <Tabs.Tab value="avtaleinfo" label="Avtaleinfo" />
+          <Tabs.Tab value="tiltaksgjennomforinger" label="Gjennomføringer" />
           {data?.["mulighetsrommet.admin-flate-vis-nokkeltall"] ? (
             <Tabs.Tab value="nokkeltall" label="Nøkkeltall" />
           ) : null}
@@ -58,6 +60,14 @@ export function DetaljerAvtalePage() {
         <Tabs.Panel value="avtaleinfo" className="h-24 w-full bg-gray-50 p-4">
           <ContainerLayout>
             <Avtaleinfo />
+          </ContainerLayout>
+        </Tabs.Panel>
+        <Tabs.Panel
+          value="tiltaksgjennomforinger"
+          className="h-24 w-full bg-gray-50 p-4"
+        >
+          <ContainerLayout>
+            <TiltaksgjennomforingerForAvtale />
           </ContainerLayout>
         </Tabs.Panel>
         <Tabs.Panel value="nokkeltall" className="h-24 w-full bg-gray-50 p-4">

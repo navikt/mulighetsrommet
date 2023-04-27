@@ -1,9 +1,16 @@
 :global(.mulighetsrommet-veileder-flate) {
   .joyride_knapp {
     color: black;
-    padding: 0.3rem 0.3rem 0;
-    width: 2.5rem;
-    height: 2.5rem;
     justify-self: end;
   }
-}
+
+    :global(.navds-label) {
+      display: flex;
+      flex-direction: column;
+      font-weight: lighter;
+
+      svg {
+        margin: 0 auto;
+      }
+    }
+  }

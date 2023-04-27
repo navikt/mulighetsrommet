@@ -40,8 +40,6 @@ export const AvtaleTabell = () => {
   }
 
   const handleSort = (sortKey: string) => {
-    console.log(sortKey);
-    console.log(sort);
     const direction =
       sort.direction === "ascending" ? "descending" : "ascending";
 

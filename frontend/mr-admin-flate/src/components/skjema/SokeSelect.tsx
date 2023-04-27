@@ -51,7 +51,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
   });
 
   return (
-    <div>
+    <>
       <Controller
         name={label}
         {...rest}
@@ -97,7 +97,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           </>
         )}
       />
-    </div>
+    </>
   );
 });
 

@@ -18,6 +18,7 @@ export function useAdminTiltaksgjennomforinger() {
       fylkesenhet: filter.fylkesenhet ? filter.fylkesenhet : undefined,
       sort: filter.sortering ? filter.sortering : undefined,
       size: PAGE_SIZE,
+      avtaleId: filter.avtale ? filter.avtale : undefined,
     })
   );
 }

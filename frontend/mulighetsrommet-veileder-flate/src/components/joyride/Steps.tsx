@@ -1,6 +1,7 @@
 import { Step } from 'react-joyride';
 import Lenke from '../lenke/Lenke';
 import { BodyShort } from '@navikt/ds-react';
+import { porten } from '../../constants';
 
 export function getStepIndex(steps: MulighetsrommetStep[], stepId: string): number {
   return steps.findIndex(step => step.id === stepId);
@@ -55,13 +56,11 @@ export const stepsOversikten: MulighetsrommetStep[] = [
     title: 'Tiltakshistorikk',
     content:
       'Historikken gir deg oversikt over hvilke tiltak brukeren har deltatt på de siste fem årene. Klikk på ikonet for å se historikken.',
-    target: '#historikkBtn',
+    target: '#historikk_knapp',
     placement: 'left',
     disableBeacon: true,
     disableOverlayClose: true,
     spotlightClicks: true,
-    hideCloseButton: true,
-    hideFooter: true,
     id: 'tiltakshistorikk-knapp',
   },
   {
@@ -75,7 +74,7 @@ export const stepsOversikten: MulighetsrommetStep[] = [
       },
     },
     disableBeacon: true,
-    id: 'historikk-modal',
+    id: 'tiltakshistorikk-modal',
   },
   {
     title: 'Detaljert visning',
@@ -104,7 +103,7 @@ export const stepsDetaljer: MulighetsrommetStep[] = [
   },
   {
     title: 'Nøkkelinformasjon',
-    content: 'I denn boksen finner du nøkkelinformasjon om tiltaket og lenker til Rundskriv og Forskrifter.',
+    content: 'I denne boksen finner du nøkkelinformasjon om tiltaket og lenker til Rundskriv og Forskrifter.',
     target: '#sidemeny',
     disableBeacon: true,
     id: 'nokkelinformasjon',
@@ -129,7 +128,7 @@ export const stepsDetaljer: MulighetsrommetStep[] = [
       <BodyShort>
         Har du innspill eller forslag til forbedringer vil vi gjerne at du tar kontakt med oss i{' '}
         {
-          <Lenke to={'https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401'} target={'_blank'}>
+          <Lenke to={porten} target={'_blank'}>
             Porten
           </Lenke>
         }
