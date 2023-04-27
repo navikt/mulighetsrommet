@@ -1,20 +1,23 @@
-package no.nav.mulighetsrommet.arena.adapter.utils
+package no.nav.mulighetsrommet.tasks
 
 import com.github.kagkarlsson.scheduler.serializer.Serializer
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import java.nio.charset.StandardCharsets
 
+/**
+ * Serializer to be used in combination with instances of `db-scheduler` tasks that require specific task data to run.
+ *
+ * See the documentation for more info:
+ * - https://github.com/kagkarlsson/db-scheduler/tree/431f162e6a2e43774a0b6a283aa576bd9c2cf5bf#serializers
+ */
 class DbSchedulerKotlinSerializer : Serializer {
-    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(data: Any): ByteArray {
         val serializer = serializer(data.javaClass)
         return Json.encodeToString(serializer, data).toByteArray(StandardCharsets.UTF_8)
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun <T : Any?> deserialize(clazz: Class<T>, serializedData: ByteArray): T {
         // Hackish workaround?
         // https://github.com/Kotlin/kotlinx.serialization/issues/1134
