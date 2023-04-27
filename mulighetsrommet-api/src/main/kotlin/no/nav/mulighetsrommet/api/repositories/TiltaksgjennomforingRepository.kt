@@ -171,6 +171,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val order = when (filter.sortering) {
             "navn-ascending" -> "tg.navn asc"
             "navn-descending" -> "tg.navn desc"
+            "tiltaksnummer-ascending" -> "tg.tiltaksnummer asc"
+            "tiltaksnummer-descending" -> "tg.tiltaksnummer desc"
+            "arrangor-ascending" -> "tg.virksomhetsnummer asc"
+            "arrangor-descending" -> "tg.virksomhetsnummer desc"
+            "tiltakstype-ascending" -> "t.navn asc"
+            "tiltakstype-descending" -> "t.navn desc"
+            "startdato-ascending" -> "tg.start_dato asc"
+            "startdato-descending" -> "tg.start_dato desc"
+            "sluttdato-ascending" -> "tg.slutt_dato asc"
+            "sluttdato-descending" -> "tg.slutt_dato desc"
             else -> "tg.navn asc"
         }
 
