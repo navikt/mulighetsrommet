@@ -29,8 +29,6 @@ export const stepsOversikten: MulighetsrommetStep[] = [
     target: '[data-testid="oversikt_tiltaksgjennomforinger"]',
     disableBeacon: true,
     id: 'liste-over-tiltak',
-    // placement: 'top-start',
-    // disableScrolling: true,
   },
   {
     title: 'Prefiltrering',
@@ -57,13 +55,11 @@ export const stepsOversikten: MulighetsrommetStep[] = [
     title: 'Tiltakshistorikk',
     content:
       'Historikken gir deg oversikt over hvilke tiltak brukeren har deltatt på de siste fem årene. Klikk på ikonet for å se historikken.',
-    target: '#historikkBtn',
+    target: '#historikk_knapp',
     placement: 'left',
     disableBeacon: true,
     disableOverlayClose: true,
     spotlightClicks: true,
-    hideCloseButton: true,
-    hideFooter: true,
     id: 'tiltakshistorikk-knapp',
   },
   {
@@ -77,7 +73,7 @@ export const stepsOversikten: MulighetsrommetStep[] = [
       },
     },
     disableBeacon: true,
-    id: 'historikk-modal',
+    id: 'tiltakshistorikk-modal',
   },
   {
     title: 'Detaljert visning',
@@ -106,7 +102,7 @@ export const stepsDetaljer: MulighetsrommetStep[] = [
   },
   {
     title: 'Nøkkelinformasjon',
-    content: 'I denn boksen finner du nøkkelinformasjon om tiltaket og lenker til Rundskriv og Forskrifter.',
+    content: 'I denne boksen finner du nøkkelinformasjon om tiltaket og lenker til Rundskriv og Forskrifter.',
     target: '#sidemeny',
     disableBeacon: true,
     id: 'nokkelinformasjon',

@@ -1,6 +1,6 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
 import { useState } from 'react';
-import { localeStrings } from './utils';
+import { joyrideKnappefarge, localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
 import { isStep, stepsDetaljer } from './Steps';
@@ -48,6 +48,12 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       setJoyride({ ...joyride, joyrideDetaljer: false });
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
+
+    //lukker joyride ved klikk på escape
+    if (ACTIONS.CLOSE === action) {
+      setJoyride({ ...joyride, joyrideDetaljer: false });
+      setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
+    }
   };
 
   return (
@@ -69,6 +75,13 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
         showSkipButton
         stepIndex={state.stepIndex}
         disableScrolling
+        styles={{
+          options: {
+            primaryColor: joyrideKnappefarge,
+          },
+        }}
+        disableCloseOnEsc={false}
+        disableOverlayClose={true}
       />
     </>
   );

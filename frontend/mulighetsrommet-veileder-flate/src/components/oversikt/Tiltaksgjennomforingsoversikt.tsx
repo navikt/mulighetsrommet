@@ -52,7 +52,7 @@ const Tiltaksgjennomforingsoversikt = () => {
     if (error instanceof ApiError) {
       return (
         <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg så ta kontakt med Porten.
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt med Porten.
           <pre>{JSON.stringify({ message: error.message, status: error.status, url: error.url }, null, 2)}</pre>
         </Alert>
       );
