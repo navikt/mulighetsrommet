@@ -100,7 +100,7 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
         className={styles.table}
       >
         <Table.Header>
-          <Table.Row>
+          <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
@@ -126,9 +126,11 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
           <Table.Body>
             {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
               return (
-                <Table.Row key={index}>
+                <Table.Row
+                  key={index}
+                  className={styles.tiltaksgjennomforing_tabellrad}
+                >
                   <Table.DataCell
-                    scope="row"
                     aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
                     className={styles.title}
                   >

@@ -70,7 +70,7 @@ export const TiltakstypeTabell = () => {
         className={styles.table}
       >
         <Table.Header>
-          <Table.Row>
+          <Table.Row className={styles.tiltakstype_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
@@ -87,9 +87,8 @@ export const TiltakstypeTabell = () => {
           <Table.Body>
             {tiltakstyper.map((tiltakstype, index) => {
               return (
-                <Table.Row key={index}>
+                <Table.Row key={index} className={styles.tiltakstype_tabellrad}>
                   <Table.DataCell
-                    scope="row"
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                     className={styles.title}
                   >

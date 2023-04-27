@@ -68,7 +68,7 @@ export const AvtaleTabell = () => {
         className={styles.table}
       >
         <Table.Header>
-          <Table.Row>
+          <Table.Row className={styles.avtale_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
@@ -91,9 +91,8 @@ export const AvtaleTabell = () => {
           <Table.Body>
             {avtaler.map((avtale, index) => {
               return (
-                <Table.Row key={index}>
+                <Table.Row key={index} className={styles.avtale_tabellrad}>
                   <Table.DataCell
-                    scope="row"
                     aria-label={`Avtalenavn: ${avtale.navn}`}
                     className={styles.title}
                   >
