@@ -10,7 +10,7 @@
   "devDependencies": {
     "@tsconfig/node18": "^2.0.0",
     "@types/node": "^18.15.12",
-    "esbuild": "^0.17.17",
+    "esbuild": "^0.17.18",
     "typescript": "^5.0.4"
   },
   "dependencies": {
