@@ -44,6 +44,7 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
+      logEvent('mulighetsrommet.joyride', { value: 'oversikten', status });
       if (joyride.joyrideOversiktenLastStep === null) {
         setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
       } else {
