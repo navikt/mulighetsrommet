@@ -12,6 +12,8 @@ import { Feilmelding, forsokPaNyttLink } from '../feilmelding/Feilmelding';
 import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
+import Lenke from '../lenke/Lenke';
+import { porten } from '../../constants';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -52,13 +54,26 @@ const Tiltaksgjennomforingsoversikt = () => {
     if (error instanceof ApiError) {
       return (
         <Alert variant="error">
-          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt med Porten.
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{' '}
+          {
+            <Lenke to={porten} target={'_blank'}>
+              Porten
+            </Lenke>
+          }
           <pre>{JSON.stringify({ message: error.message, status: error.status, url: error.url }, null, 2)}</pre>
         </Alert>
       );
     } else {
       return (
-        <Alert variant="error">Det har dessverre skjedd en feil. Om feilen gjentar seg så ta kontakt med Porten.</Alert>
+        <Alert variant="error">
+          Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i{' '}
+          {
+            <Lenke to={porten} target={'_blank'}>
+              Porten
+            </Lenke>
+          }
+          .
+        </Alert>
       );
     }
   }
