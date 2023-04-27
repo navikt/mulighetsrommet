@@ -19,8 +19,9 @@ export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }:
 
   return (
     <>
-      <Button onClick={handleClick} variant="tertiary" id="historikkBtn" className={btnStyles.historikk_knapp}>
-        <ClockDashedIcon aria-label="Historikk" />
+      <Button variant="tertiary" onClick={handleClick} id="historikk_knapp" className={btnStyles.historikk_knapp}>
+        <ClockDashedIcon aria-label="Historikk" fontSize="1.7rem" />
+        Historikk
       </Button>
       <StandardModal
         className={styles.historikk_modal}
