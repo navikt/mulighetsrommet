@@ -277,6 +277,32 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getTilgjengelighetsstatus(tiltaksnummer: String?): TiltaksgjennomforingDbo.Tilgjengelighetsstatus? {
+        @Language("PostgreSQL")
+        val query = """
+            select tilgjengelighet
+            from tiltaksgjennomforing
+            where (:aar::text is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
+               or (:aar::text is not null and split_part(tiltaksnummer, '#', 1) = :aar and split_part(tiltaksnummer, '#', 2) = :lopenr)
+        """.trimIndent()
+
+        val parameters = tiltaksnummer?.split("#")?.let {
+            if (it.size == 2) {
+                mapOf("aar" to it.first(), "lopenr" to it[1])
+            } else {
+                mapOf("aar" to null, "lopenr" to it.first())
+            }
+        }
+
+        return queryOf(query, parameters)
+            .map {
+                val value = it.string("tilgjengelighet")
+                TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)
+            }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     private fun Tiltaksgjennomforingsstatus.toDbStatement(): String {
         return when (this) {
             Tiltaksgjennomforingsstatus.APENT_FOR_INNSOK -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
