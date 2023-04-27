@@ -23,32 +23,34 @@ const ViewTiltaksgjennomforingOversikt = () => {
   }, [isHistorikkModalOpen]);
 
   return (
-    <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
-      <Filtermeny />
-      <div className={styles.filtertags_og_knapperad}>
-        <Filtertags filter={filter} setFilter={setFilter} />
-        <div className={styles.knapperad}>
-          {visJoyride && (
-            <>
-              <OversiktenJoyride
-                setHistorikkModalOpen={setIsHistorikkModalOpen}
-                isHistorikkModalOpen={isHistorikkModalOpen}
-              />
-              <OversiktenLastStepJoyride />
-            </>
-          )}
-          <HistorikkButton
-            setHistorikkModalOpen={setIsHistorikkModalOpen}
-            isHistorikkModalOpen={isHistorikkModalOpen}
-          />
+    <>
+      <div className={styles.tiltakstype_oversikt} data-testid="tiltakstype-oversikt">
+        <Filtermeny />
+        <div className={styles.filtertags_og_knapperad}>
+          <Filtertags filter={filter} setFilter={setFilter} />
+          <div className={styles.knapperad}>
+            {visJoyride && (
+              <>
+                <OversiktenJoyride
+                  setHistorikkModalOpen={setIsHistorikkModalOpen}
+                  isHistorikkModalOpen={isHistorikkModalOpen}
+                />
+                <OversiktenLastStepJoyride />
+              </>
+            )}
+            <HistorikkButton
+              setHistorikkModalOpen={setIsHistorikkModalOpen}
+              isHistorikkModalOpen={isHistorikkModalOpen}
+            />
+          </div>
+        </div>
+        <div>
+          <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
+          <BrukerHarIkke14aVedtakVarsel />
+          <Tiltaksgjennomforingsoversikt />
         </div>
       </div>
-      <div>
-        <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-        <BrukerHarIkke14aVedtakVarsel />
-        <Tiltaksgjennomforingsoversikt />
-      </div>
-    </div>
+    </>
   );
 };
 

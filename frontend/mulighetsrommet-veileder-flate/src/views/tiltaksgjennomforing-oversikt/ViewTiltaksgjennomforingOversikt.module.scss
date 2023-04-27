@@ -17,8 +17,18 @@
     gap: 0.5rem;
 
     button {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 5rem;
+      height: 4rem;
+
+      :global(.navds-label) {
+        display: flex;
+        flex-direction: column;
+        font-weight: lighter;
+
+        svg {
+          margin: 0 auto;
+        }
+      }
     }
   }
 }

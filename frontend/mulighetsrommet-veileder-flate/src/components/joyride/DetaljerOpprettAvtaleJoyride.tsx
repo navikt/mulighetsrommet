@@ -1,7 +1,7 @@
 import Joyride, { ACTIONS, CallBackProps, STATUS } from 'react-joyride';
 
 import React, { useState } from 'react';
-import { localeStrings } from './utils';
+import { joyrideKnappefarge, localeStrings } from './utils';
 import { opprettAvtaleStep } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
@@ -36,6 +36,12 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
       setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
+
+    //lukker joyride ved klikk på escape
+    if (ACTIONS.CLOSE === action) {
+      setJoyride({ ...joyride, joyrideDetaljerHarVistOpprettAvtale: true });
+      setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
+    }
   };
 
   return (
@@ -47,8 +53,14 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
       hideCloseButton
       callback={handleJoyrideCallbackOpprettAvtale}
       showSkipButton
-      disableOverlayClose
       disableScrolling
+      styles={{
+        options: {
+          primaryColor: joyrideKnappefarge,
+        },
+      }}
+      disableCloseOnEsc={false}
+      disableOverlayClose={true}
     />
   );
 };

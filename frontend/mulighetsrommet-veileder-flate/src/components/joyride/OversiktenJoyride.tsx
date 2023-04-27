@@ -1,6 +1,6 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
 import { useEffect, useState } from 'react';
-import { localeStrings } from './utils';
+import { joyrideKnappefarge, localeStrings } from './utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
 import { getStepIndex, isStep, stepsOversikten } from './Steps';
@@ -22,7 +22,7 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
 
   useEffect(() => {
     if (isHistorikkModalOpen) {
-      setState(prevState => ({ ...prevState, stepIndex: getStepIndex(stepsOversikten, 'historikk-modal') }));
+      setState(prevState => ({ ...prevState, stepIndex: getStepIndex(stepsOversikten, 'tiltakshistorikk-modal') }));
       setHistorikkModalOpen(true);
     }
   }, [isHistorikkModalOpen]);
@@ -44,6 +44,7 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
+      logEvent('mulighetsrommet.joyride', { value: 'oversikten', status });
       if (joyride.joyrideOversiktenLastStep === null) {
         setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
       } else {
@@ -52,8 +53,40 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
 
+    //lukker joyride ved klikk på escape
+    if (ACTIONS.CLOSE === action) {
+      setJoyride({ ...joyride, joyrideOversikten: false });
+      setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
+      if (joyride.joyrideOversiktenLastStep === null) {
+        setJoyride({ ...joyride, joyrideOversiktenLastStep: true, joyrideOversikten: false });
+      }
+    }
+
+    //åpner historikk-modal ved klikk på neste
+    if (isStep(data.step, 'tiltakshistorikk-knapp') && EVENTS.STEP_AFTER === type) {
+      setHistorikkModalOpen(true);
+    }
+
     //lukker historikk-modal
     if (isStep(data.step, 'detaljert-visning')) {
+      setHistorikkModalOpen(false);
+    }
+
+    //lukker historikk-modal hvis man klikker på close
+    if (
+      isStep(data.step, 'tiltakshistorikk-modal') &&
+      (STATUS.SKIPPED.includes(status) || STATUS.FINISHED.includes(status))
+    ) {
+      setHistorikkModalOpen(false);
+    }
+
+    //åpner historikk-modal om man klikker forrige på den etter
+    if (isStep(data.step, 'detaljert-visning') && ACTIONS.PREV === action) {
+      setHistorikkModalOpen(true);
+    }
+
+    // lukker historikk-modal om man klikker forrige i modalen
+    if (isStep(data.step, 'tiltakshistorikk-modal') && ACTIONS.PREV === action) {
       setHistorikkModalOpen(false);
     }
   };
@@ -77,6 +110,13 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
         showSkipButton
         stepIndex={state.stepIndex}
         disableScrolling
+        styles={{
+          options: {
+            primaryColor: joyrideKnappefarge,
+          },
+        }}
+        disableCloseOnEsc={false}
+        disableOverlayClose={true}
       />
     </>
   );
