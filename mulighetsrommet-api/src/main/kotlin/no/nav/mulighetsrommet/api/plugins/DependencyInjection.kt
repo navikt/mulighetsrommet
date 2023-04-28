@@ -218,7 +218,7 @@ private fun services(appConfig: AppConfig) = module {
                 projectId = appConfig.sanity.projectId,
                 dataset = appConfig.sanity.dataset,
                 apiVersion = appConfig.sanity.apiVersion,
-                token = appConfig.sanity.authTokenForMutation,
+                token = appConfig.sanity.authToken,
             ),
         )
     }

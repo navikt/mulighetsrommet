@@ -36,7 +36,6 @@ app:
     dataset: test
     projectId: xegcworx
     authToken: ${SANITY_AUTH_TOKEN:-""}
-    authTokenForMutation: ${SANITY_AUTH_TOKEN_FOR_MUTATION:-""}
 
   swagger:
     enable: true

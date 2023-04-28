@@ -36,7 +36,6 @@ class SanityService(
 
     data class Config(
         val authToken: String?,
-        val authTokenForMutation: String?,
         val dataset: String,
         val projectId: String,
         val apiVersion: String = "v2023-01-01",
