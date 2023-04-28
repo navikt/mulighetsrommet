@@ -18,7 +18,7 @@ describe("Forside", () => {
     });
   });
   context("Landingssiden ved innlogging", () => {
-    it.only("Skal vise kort for tiltaktyper og avtaler på forsiden", () => {
+    it("Skal vise kort for tiltaktyper og avtaler på forsiden", () => {
       cy.getByTestId("tiltakstyper").contains("Tiltakstyper");
       cy.getByTestId("avtaler").contains("Avtaler");
       cy.getByTestId("tiltaksgjennomføringer").contains(
