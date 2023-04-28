@@ -246,7 +246,7 @@ private fun tasks(config: TaskConfig) = module {
             SynchronizeTiltaksgjennomforingsstatuserToKafka(get(), get())
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
-        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(get(), get())
+        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(config.synchronizeEnheterFraSanityTilApi, get(), get())
 
         val db: Database by inject()
 
