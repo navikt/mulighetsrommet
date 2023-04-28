@@ -1,6 +1,7 @@
 import { Step } from 'react-joyride';
 import Lenke from '../lenke/Lenke';
 import { BodyShort } from '@navikt/ds-react';
+import { porten } from '../../constants';
 
 export function getStepIndex(steps: MulighetsrommetStep[], stepId: string): number {
   return steps.findIndex(step => step.id === stepId);
@@ -127,7 +128,7 @@ export const stepsDetaljer: MulighetsrommetStep[] = [
       <BodyShort>
         Har du innspill eller forslag til forbedringer vil vi gjerne at du tar kontakt med oss i{' '}
         {
-          <Lenke to={'https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401'} target={'_blank'}>
+          <Lenke to={porten} target={'_blank'}>
             Porten
           </Lenke>
         }
