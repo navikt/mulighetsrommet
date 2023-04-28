@@ -63,7 +63,8 @@ class TilgjengelighetsstatusSanitySyncService(
         channel: ReceiveChannel<Tiltak>,
     ) {
         channel.consumeEach { tiltak ->
-            val tilgjengelighet = tiltaksgjennomforingRepository.getTilgjengelighetsstatus(tiltak.tiltaksnummer)
+            val tilgjengelighet =
+                tiltak.tiltaksnummer?.let { tiltaksgjennomforingRepository.getTilgjengelighetsstatus(it) }
 
             tilgjengelighet?.let {
                 sanityClient.mutate(
