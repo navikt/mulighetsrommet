@@ -225,7 +225,8 @@ private fun services(appConfig: AppConfig) = module {
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { SanityService(appConfig.sanity, get(), get()) }
+    single { SanityService(appConfig.sanity, get()) }
+    single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
     single { DialogService(get()) }
@@ -246,7 +247,8 @@ private fun tasks(config: TaskConfig) = module {
             SynchronizeTiltaksgjennomforingsstatuserToKafka(get(), get())
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
-        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(config.synchronizeEnheterFraSanityTilApi, get(), get())
+        val synchronizeTiltaksgjennomforingEnheter =
+            SynchronizeTiltaksgjennomforingEnheter(config.synchronizeEnheterFraSanityTilApi, get(), get())
 
         val db: Database by inject()
 

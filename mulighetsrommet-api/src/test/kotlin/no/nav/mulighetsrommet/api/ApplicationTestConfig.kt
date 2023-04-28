@@ -54,9 +54,11 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 10,
+            disabled = true,
         ),
         synchronizeEnheterFraSanityTilApi = SynchronizeTiltaksgjennomforingEnheter.Config(
             delayOfMinutes = 10,
+            disabled = true,
         ),
     ),
     norg2 = Norg2Config(baseUrl = ""),

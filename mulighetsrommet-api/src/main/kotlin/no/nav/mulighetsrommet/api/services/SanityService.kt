@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.getOrElse
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.*
@@ -13,8 +12,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingResponse
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
@@ -27,7 +24,6 @@ import kotlin.collections.set
 class SanityService(
     private val config: Config,
     private val brukerService: BrukerService,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val client: HttpClient
@@ -154,61 +150,6 @@ class SanityService(
                 tilgjengelighetsstatus
               }
         """.trimIndent()
-
-        return executeQuery(query)
-    }
-
-    suspend fun oppdaterTiltaksgjennomforingEnheter() {
-        val gjennomforinger = when (val response = hentEnheterForTiltaksgjennomforinger()) {
-            is SanityResponse.Result -> {
-                if (response.result != null) {
-                    JsonIgnoreUnknownKeys.decodeFromJsonElement<List<SanityTiltaksgjennomforingResponse>>(response.result)
-                } else {
-                    emptyList()
-                }
-            }
-
-            is SanityResponse.Error -> {
-                logger.error("Feil ved henting av gjennomføringer fra Sanity: ${response.error}")
-                emptyList()
-            }
-        }
-
-        val gjennomforingerMedEnheter = gjennomforinger
-            .filter {
-                it.tiltaksnummer != null &&
-                    !it.enheter.isNullOrEmpty() &&
-                    it.enheter.any { it._ref != null }
-            }
-
-        val sukksesser = gjennomforingerMedEnheter
-            .sumOf {
-                val enheter = it.enheter!!
-                    .filter { it._ref != null }
-                    .map { it._ref!!.takeLast(4) }
-
-                tiltaksgjennomforingRepository.updateEnheter(it.tiltaksnummer!!, enheter)
-                    .getOrElse { error ->
-                        logger.warn("Klarte ikke oppdatere enheter: $enheter. Error: $error")
-                        0
-                    }
-            }
-
-        logger.info(
-            "Oppdaterte enheter for tiltaksgjennomføringer fra Sanity." +
-                " $sukksesser sukksesser, ${gjennomforingerMedEnheter.size - sukksesser} feilet.",
-        )
-    }
-
-    suspend fun hentEnheterForTiltaksgjennomforinger(): SanityResponse {
-        val query =
-            """
-            *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))]{
-              _id,
-              "tiltaksnummer": tiltaksnummer.current,
-              "enheter": enheter
-            }
-            """.trimIndent()
 
         return executeQuery(query)
     }

@@ -138,7 +138,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
         }
 
-        test("update sanity enheter") {
+        test("Oppdater enheter fra Sanity-tiltaksgjennomføringer til database") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = EnhetRepository(database.db)
             enhetRepository.upsert(

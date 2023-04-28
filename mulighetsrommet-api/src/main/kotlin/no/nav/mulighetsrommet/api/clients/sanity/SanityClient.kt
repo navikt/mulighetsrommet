@@ -11,8 +11,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import org.slf4j.LoggerFactory
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
@@ -34,13 +34,6 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         val mutationUrl
             get() = "$baseUrl/data/mutate/$dataset"
     }
-
-    @Serializable
-    data class QueryResponse<T>(
-        val ms: Int,
-        val query: String,
-        val result: T,
-    )
 
     enum class MutationVisibility {
         Sync,
@@ -81,7 +74,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
     }
 
-    internal suspend inline fun <reified T> getMany(query: String): QueryResponse<List<T>> {
+    internal suspend fun query(query: String): SanityResponse {
         val response = client.get(config.queryUrl) {
             url {
                 parameters.append("query", query)
