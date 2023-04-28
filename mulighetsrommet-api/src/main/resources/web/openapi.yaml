@@ -1006,8 +1006,6 @@ components:
       enum:
         - navn-ascending
         - navn-descending
-        - leverandor-ascending
-        - leverandor-descending
         - enhet-ascending
         - enhet-descending
         - startdato-ascending
@@ -1032,8 +1030,6 @@ components:
         - navn-descending
         - tiltaksnummer-ascending
         - tiltaksnummer-descending
-        - arrangor-ascending
-        - arrangor-descending
         - tiltakstype-ascending
         - tiltakstype-descending
         - startdato-ascending
