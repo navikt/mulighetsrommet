@@ -1,5 +1,5 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
-import { joyrideKnappefarge, localeStrings } from './utils';
+import { joyrideStyling, localeStrings } from './Utils';
 import { stepsLastStep } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
@@ -27,11 +27,7 @@ export const OversiktenLastStepJoyride = () => {
       callback={handleJoyrideCallbackLastStep}
       disableScrolling
       hideCloseButton
-      styles={{
-        options: {
-          primaryColor: joyrideKnappefarge,
-        },
-      }}
+      styles={joyrideStyling()}
       disableCloseOnEsc={false}
       disableOverlayClose={true}
     />

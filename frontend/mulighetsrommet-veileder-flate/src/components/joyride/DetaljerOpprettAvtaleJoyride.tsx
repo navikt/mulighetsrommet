@@ -1,7 +1,6 @@
 import Joyride, { ACTIONS, CallBackProps, STATUS } from 'react-joyride';
-
 import React, { useState } from 'react';
-import { joyrideKnappefarge, localeStrings } from './utils';
+import { joyrideStyling, localeStrings } from './Utils';
 import { opprettAvtaleStep } from './Steps';
 import { useAtom } from 'jotai';
 import { joyrideAtom } from '../../core/atoms/atoms';
@@ -54,11 +53,7 @@ export const DetaljerOpprettAvtaleJoyride = ({ opprettAvtale }: Props) => {
       callback={handleJoyrideCallbackOpprettAvtale}
       showSkipButton
       disableScrolling
-      styles={{
-        options: {
-          primaryColor: joyrideKnappefarge,
-        },
-      }}
+      styles={joyrideStyling()}
       disableCloseOnEsc={false}
       disableOverlayClose={true}
     />

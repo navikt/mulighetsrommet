@@ -4,13 +4,14 @@
     justify-self: end;
   }
 
-    :global(.navds-label) {
-      display: flex;
-      flex-direction: column;
-      font-weight: lighter;
+  :global(.navds-label) {
+    display: flex;
+    flex-direction: row;
+    font-weight: lighter;
+    gap: 2px;
 
-      svg {
-        margin: 0 auto;
-      }
+    svg {
+      margin: 0 auto;
     }
   }
+}
