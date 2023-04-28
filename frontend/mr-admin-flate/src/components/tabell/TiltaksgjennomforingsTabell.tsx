@@ -15,35 +15,7 @@ import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomfor
 import pageStyles from "../../pages/Page.module.scss";
 import { Sortering } from "./Types";
 
-interface ColumnHeader {
-  sortKey: Kolonne;
-  tittel: string;
-}
-
-const headers: ColumnHeader[] = [
-  { sortKey: "navn", tittel: "Tittel" },
-  { sortKey: "tiltaksnummer", tittel: "Tiltaksnr." },
-  { sortKey: "arrangor", tittel: "Arrangør" },
-  { sortKey: "tiltakstype", tittel: "Tiltakstype" },
-  { sortKey: "startdato", tittel: "Startdato" },
-  { sortKey: "sluttdato", tittel: "Sluttdato" },
-  { sortKey: "status", tittel: "Status" },
-];
-
-type Kolonne =
-  | "navn"
-  | "tiltaksnummer"
-  | "tiltakstype"
-  | "arrangor"
-  | "startdato"
-  | "sluttdato"
-  | "status";
-
-interface Props {
-  skjulKolonne?: Partial<Record<Kolonne, boolean>>;
-}
-
-export const TiltaksgjennomforingsTabell = (props: Props) => {
+export const TiltaksgjennomforingsTabell = () => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useState<Sortering>({
