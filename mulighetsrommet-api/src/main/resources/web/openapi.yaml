@@ -202,6 +202,10 @@ paths:
           name: fylkesenhet
           schema:
             type: string
+        - in: query
+          name: avtaleId
+          schema:
+            type: string
       responses:
         200:
           description: Object of paginated tiltaksgjennomføringer.
@@ -1392,7 +1396,7 @@ components:
         nokkelinfoKomponenter:
           type: array
           items:
-            $ref: "#/components/schemas/SanityNokkelinfoKomponenter"
+            $ref: "#/components/schemas/SanityNokkelinfo"
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
@@ -1426,6 +1430,8 @@ components:
             - lopende
             - midlertidig_stengt
         oppstartsdato:
+          type: string
+        sluttdato:
           type: string
         estimert_ventetid:
           type: string
@@ -1475,7 +1481,7 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
-    SanityNokkelinfoKomponenter:
+    SanityNokkelinfo:
       type: object
       properties:
         _id:
@@ -1483,7 +1489,7 @@ components:
         tittel:
           type: string
         innhold:
-          type: object
+          type: string
         hjelpetekst:
           type: string
       required:

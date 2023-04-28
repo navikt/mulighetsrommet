@@ -8,7 +8,9 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingResponse
@@ -20,6 +22,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
+import kotlin.collections.set
 
 class SanityService(
     private val config: Config,
@@ -42,6 +45,7 @@ class SanityService(
         val apiVersion: String = "v2023-01-01",
     ) {
         val apiUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/query/$dataset"
+        val mutateUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/mutate/$dataset"
     }
 
     init {
@@ -60,7 +64,7 @@ class SanityService(
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    suspend fun executeQuery(query: String): SanityResponse {
+    private suspend fun executeQuery(query: String): SanityResponse {
         return get(query)
     }
 
@@ -163,6 +167,7 @@ class SanityService(
                     emptyList()
                 }
             }
+
             is SanityResponse.Error -> {
                 logger.error("Feil ved henting av gjennomforinger fra sanity: ${response.error}")
                 emptyList()
@@ -172,9 +177,9 @@ class SanityService(
         val gjennomforingerMedEnheter = gjennomforinger
             .filter {
                 it.tiltaksnummer != null &&
-                it.enheter != null &&
-                it.enheter.isNotEmpty() &&
-                it.enheter.any { it._ref != null }
+                    it.enheter != null &&
+                    it.enheter.isNotEmpty() &&
+                    it.enheter.any { it._ref != null }
             }
 
         val sukksesser = gjennomforingerMedEnheter
@@ -192,7 +197,8 @@ class SanityService(
 
         logger.info(
             "Oppdaterte enheter for tiltaksgjennomføringer fra sanity." +
-            " ${sukksesser} sukksesser, ${gjennomforingerMedEnheter.size - sukksesser} feilet.")
+                " $sukksesser sukksesser, ${gjennomforingerMedEnheter.size - sukksesser} feilet.",
+        )
     }
 
     suspend fun hentEnheterForTiltaksgjennomforinger(): SanityResponse {
@@ -220,6 +226,7 @@ class SanityService(
                 lokasjon,
                 oppstart,
                 oppstartsdato,
+                sluttdato,
                 faneinnhold {
                   forHvemInfoboks,
                   forHvem,

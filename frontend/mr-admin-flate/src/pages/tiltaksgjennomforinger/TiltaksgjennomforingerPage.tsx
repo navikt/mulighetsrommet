@@ -1,9 +1,9 @@
 import { Heading } from "@navikt/ds-react";
 import { Tiltaksgjennomforingfilter } from "../../components/filter/Tiltaksgjennomforingfilter";
-import { TiltaksgjennomforingOversikt } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingOversikt";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { MainContainer } from "../../layouts/MainContainer";
 import styles from "../Page.module.scss";
+import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";
 
 export function TiltaksgjennomforingerPage() {
   return (
@@ -13,7 +13,7 @@ export function TiltaksgjennomforingerPage() {
           Oversikt over tiltaksgjennomføringer
         </Heading>
         <Tiltaksgjennomforingfilter />
-        <TiltaksgjennomforingOversikt />
+        <TiltaksgjennomforingsTabell />
       </ContainerLayout>
     </MainContainer>
   );

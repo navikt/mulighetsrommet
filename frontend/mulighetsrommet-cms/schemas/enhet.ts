@@ -4,6 +4,7 @@ import { defineType, defineField } from "sanity";
 export enum EnhetType {
   Fylke = "Fylke",
   Lokal = "Lokal",
+  Als = "Als",
 }
 
 export const enhet = defineType({

@@ -11,6 +11,7 @@ data class SanityTiltaksgjennomforingResponse(
     val tiltaksnummer: String?,
     val enheter: List<Enhet>?,
 )
+
 @Serializable
 data class Enhet(
     val _ref: String?,

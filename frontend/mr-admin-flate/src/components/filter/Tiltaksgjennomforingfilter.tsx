@@ -7,17 +7,23 @@ import {
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
 import {
-  useFeatureToggles,
   OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE,
+  useFeatureToggles,
 } from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/opprett/OpprettTiltaksgjennomforingModal";
+import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
-export function Tiltaksgjennomforingfilter() {
+type Filters = "tiltakstype";
+
+interface Props {
+  skjulFilter?: Record<Filters, boolean>;
+}
+
+export function Tiltaksgjennomforingfilter(props: Props) {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
@@ -106,29 +112,29 @@ export function Tiltaksgjennomforingfilter() {
                 </option>
               ))}
           </Select>
-          <Select
-            label="Filtrer på tiltakstype"
-            hideLabel
-            size="small"
-            value={sokefilter.tiltakstype}
-            data-testid="filter_tiltaksgjennomforing_tiltakstype"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              resetPaginering(setPage);
-              setSokefilter({
-                ...sokefilter,
-                tiltakstype: e.currentTarget.value,
-              });
-            }}
-          >
-            <option value="">Alle tiltakstyper</option>
-            {tiltakstyper?.data?.map((tiltakstype) => (
-              <option key={tiltakstype.id} value={tiltakstype.id}>
-                {tiltakstype.navn}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className={styles.filter_right}>
+          {props.skjulFilter?.tiltakstype ? null : (
+            <Select
+              label="Filtrer på tiltakstype"
+              hideLabel
+              size="small"
+              value={sokefilter.tiltakstype}
+              data-testid="filter_tiltaksgjennomforing_tiltakstype"
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                resetPaginering(setPage);
+                setSokefilter({
+                  ...sokefilter,
+                  tiltakstype: e.currentTarget.value,
+                });
+              }}
+            >
+              <option value="">Alle tiltakstyper</option>
+              {tiltakstyper?.data?.map((tiltakstype) => (
+                <option key={tiltakstype.id} value={tiltakstype.id}>
+                  {tiltakstype.navn}
+                </option>
+              ))}
+            </Select>
+          )}
           <Select
             label="Filtrer på status"
             hideLabel
@@ -139,8 +145,7 @@ export function Tiltaksgjennomforingfilter() {
               resetPaginering(setPage);
               setSokefilter({
                 ...sokefilter,
-                status: e.currentTarget
-                  .value as TiltaksgjennomforingStatus,
+                status: e.currentTarget.value as TiltaksgjennomforingStatus,
               });
             }}
           >
@@ -157,6 +162,8 @@ export function Tiltaksgjennomforingfilter() {
             </option>
             <option value="">Alle statuser</option>
           </Select>
+        </div>
+        <div className={styles.filter_right}>
           {visOpprettTiltaksgjennomforingKnapp && (
             <>
               <Button size="small" onClick={() => setModalOpen(true)}>

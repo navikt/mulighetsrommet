@@ -11,7 +11,7 @@ import {
 } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { NavLink, useParams } from "react-router-dom";
-import OpprettAvtaleModal from "../../components/avtaler/opprett/OpprettAvtaleModal";
+import OpprettAvtaleModal from "../../components/avtaler/OpprettAvtaleModal";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function Avtaleinfo() {

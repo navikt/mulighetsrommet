@@ -37,7 +37,7 @@ Se demo av løsningen her https://mulighetsrommet-admin-flate.ekstern.dev.nav.no
 
 # Henvendelser
 
-Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på github.
+Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.
 
 ## For NAV-ansatte
 

@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -33,6 +34,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val tiltakstype2 = TiltakstypeFixtures.Oppfolging
 
+    val avtaleFixtures = AvtaleFixtures(database)
+
+    val avtale1 = avtaleFixtures.createAvtaleForTiltakstype(tiltakstypeId = tiltakstype1.id)
+
+    val avtale2 = avtaleFixtures.createAvtaleForTiltakstype(tiltakstypeId = tiltakstype2.id)
+
     val gjennomforing1 = TiltaksgjennomforingFixtures.Arbeidstrening1
 
     val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1
@@ -44,6 +51,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltakstyper = TiltakstypeRepository(database.db)
         tiltakstyper.upsert(tiltakstype1)
         tiltakstyper.upsert(tiltakstype2)
+
+        avtaleFixtures.upsertAvtaler(listOf(avtale1, avtale2))
     }
 
     context("CRUD") {
@@ -168,6 +177,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it!!.enheter.shouldContainExactlyInAnyOrder("2")
             }
             database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(1)
+        }
+    }
+
+    context("Filtrer på avtale") {
+        test("Kun gjennomforinger tilhørende avtale blir tatt med") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+            tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2.copy(avtaleId = avtale1.id)).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing2.copy(id = UUID.randomUUID(), avtaleId = avtale2.id))
+                .shouldBeRight()
+
+            val result =
+                tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter(avtaleId = avtale1.id))
+                    .shouldBeRight().second
+            result shouldHaveSize 1
+            result.first().id shouldBe gjennomforing2.id
         }
     }
 

@@ -1,20 +1,6 @@
 :global(.mulighetsrommet-veileder-flate) {
   .historikk_knapp {
-    padding: 0 0.3rem 0;
-    border: 2px solid transparent;
-
-    &:focus {
-      border: 2px solid var(--a-border-focus);
-    }
-
-    :global(.navds-label) {
-      padding-top: 0.5rem;
-    }
-
-    svg {
-      width: 1.5rem;
-      height: auto;
-      color: black;
-    }
+    color: black;
+    justify-self: end;
   }
 }

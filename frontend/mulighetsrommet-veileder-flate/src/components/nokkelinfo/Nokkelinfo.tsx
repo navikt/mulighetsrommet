@@ -1,10 +1,16 @@
 import { BodyShort, Heading, HelpText } from '@navikt/ds-react';
-import { SanityNokkelinfoKomponenter } from 'mulighetsrommet-api-client';
 import styles from './Nokkelinfo.module.scss';
 
 export interface NokkelinfoProps {
-  nokkelinfoKomponenter: SanityNokkelinfoKomponenter[];
+  nokkelinfoKomponenter: NokkelinfoElement[];
   uuTitle?: string;
+}
+
+export interface NokkelinfoElement {
+  _id: string;
+  tittel?: string;
+  innhold?: string | JSX.Element ;
+  hjelpetekst?: string;
 }
 
 const Nokkelinfo = ({ nokkelinfoKomponenter, uuTitle, ...rest }: NokkelinfoProps) => {

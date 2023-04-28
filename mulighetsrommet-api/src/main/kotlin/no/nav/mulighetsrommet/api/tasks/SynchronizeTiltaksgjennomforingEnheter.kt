@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
-
 class SynchronizeTiltaksgjennomforingEnheter(
     sanityService: SanityService,
     slackNotifier: SlackNotifier,

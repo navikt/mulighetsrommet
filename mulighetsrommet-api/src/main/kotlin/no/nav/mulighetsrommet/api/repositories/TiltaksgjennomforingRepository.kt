@@ -149,7 +149,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 .asList
                 .let { db.run(it) }
             if (ider.size > 1) {
-                throw PSQLException("Fant flere enn én tiltaksgjennomforing_id for tiltaksnummer: ${tiltaksnummer}", null)
+                throw PSQLException("Fant flere enn én tiltaksgjennomforing_id for tiltaksnummer: $tiltaksnummer", null)
             }
             if (ider.isEmpty()) {
                 return@transaction 0
@@ -158,11 +158,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
             enheter.forEach { enhetsnummer ->
                 tx.run(
-                    queryOf( upsertEnhet, mapOf("id" to id, "enhetsnummer" to enhetsnummer)).asExecute,
+                    queryOf(upsertEnhet, mapOf("id" to id, "enhetsnummer" to enhetsnummer)).asExecute,
                 )
             }
             tx.run(
-                queryOf(deleteEnheter, mapOf("id" to id, "enhetsnummere" to db.createTextArray(enheter))).asExecute
+                queryOf(deleteEnheter, mapOf("id" to id, "enhetsnummere" to db.createTextArray(enheter))).asExecute,
             )
 
             1
@@ -216,6 +216,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "cutoffdato" to filter.sluttDatoCutoff,
             "today" to filter.dagensDato,
             "fylkesenhet" to filter.fylkesenhet,
+            "avtaleId" to filter.avtaleId,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -225,6 +226,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.status to filter.status?.toDbStatement(),
             filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
             filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from enhet where overordnet_enhet = :fylkesenhet)",
+            filter.avtaleId to "tg.avtale_id = :avtaleId",
         )
 
         val order = when (filter.sortering) {

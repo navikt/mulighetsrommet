@@ -150,6 +150,13 @@ export const tiltaksgjennomforing = defineType({
       hidden: ({ parent }) => parent?.oppstart !== "dato",
     }),
     defineField({
+      name: "sluttdato",
+      title: "Sluttdato",
+      description: "Dato for når gjennomføringen slutter",
+      type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
+    }),
+    defineField({
       name: "lokasjon",
       title: "Lokasjon",
       description:
@@ -189,7 +196,7 @@ export const tiltaksgjennomforing = defineType({
             disableNew: true,
             filter: ({ document }) => {
               return {
-                filter: `fylke._ref == $fylke`,
+                filter: `fylke._ref == $fylke || type == 'Als'`,
                 params: {
                   fylke: document.fylke._ref,
                 },
@@ -206,9 +213,12 @@ export const tiltaksgjennomforing = defineType({
 
           const validEnheter = await getClient({
             apiVersion: API_VERSION,
-          }).fetch("*[_type == 'enhet' && fylke._ref == $fylke]._id", {
-            fylke: document.fylke._ref,
-          });
+          }).fetch(
+            "*[(_type == 'enhet' && fylke._ref == $fylke) || type == 'Als']._id",
+            {
+              fylke: document.fylke._ref,
+            }
+          );
 
           const paths = enheter
             ?.filter((enhet) => !validEnheter.includes(enhet._ref))

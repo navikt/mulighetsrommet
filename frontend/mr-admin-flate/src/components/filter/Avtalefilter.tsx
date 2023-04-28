@@ -1,17 +1,13 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import {
-  Avtalestatus,
-  SorteringAvtaler,
-  Tiltakstypestatus,
-} from "mulighetsrommet-api-client";
+import { Avtalestatus, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useEnheter } from "../../api/enhet/useEnheter";
 import { resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import OpprettAvtaleModal from "../avtaler/opprett/OpprettAvtaleModal";
+import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
 import {
   OPPRETT_AVTALE_ADMIN_FLATE,
   useFeatureToggles,
@@ -124,26 +120,6 @@ export function Avtalefilter(props: Props) {
           )}
         </div>
         <div className={styles.filter_right}>
-          <Select
-            label="Sorter"
-            hideLabel
-            size="small"
-            value={filter.sortering}
-            data-testid="filter_avtale_enhet"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              setFilter({
-                ...filter,
-                sortering: e.currentTarget.value as SorteringAvtaler,
-              });
-            }}
-          >
-            <option value="navn-ascending">Navn A-Å</option>
-            <option value="navn-descending">Navn Å-A</option>
-            <option value="status-ascending">Status A-Å</option>
-            <option value="status-descending">Status Å-A</option>
-            <option value="sluttdato-ascending">Sluttdato A-Å</option>
-            <option value="sluttdato-descending">Sluttdato Å-A</option>
-          </Select>
           {visOpprettAvtaleknapp && (
             <>
               <Button
