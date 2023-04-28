@@ -169,7 +169,7 @@ class SanityService(
             }
 
             is SanityResponse.Error -> {
-                logger.error("Feil ved henting av gjennomforinger fra sanity: ${response.error}")
+                logger.error("Feil ved henting av gjennomføringer fra Sanity: ${response.error}")
                 emptyList()
             }
         }
@@ -177,8 +177,7 @@ class SanityService(
         val gjennomforingerMedEnheter = gjennomforinger
             .filter {
                 it.tiltaksnummer != null &&
-                    it.enheter != null &&
-                    it.enheter.isNotEmpty() &&
+                    !it.enheter.isNullOrEmpty() &&
                     it.enheter.any { it._ref != null }
             }
 
@@ -190,13 +189,13 @@ class SanityService(
 
                 tiltaksgjennomforingRepository.updateEnheter(it.tiltaksnummer!!, enheter)
                     .getOrElse { error ->
-                        logger.warn("$error")
+                        logger.warn("Klarte ikke oppdatere enheter: $enheter. Error: $error")
                         0
                     }
             }
 
         logger.info(
-            "Oppdaterte enheter for tiltaksgjennomføringer fra sanity." +
+            "Oppdaterte enheter for tiltaksgjennomføringer fra Sanity." +
                 " $sukksesser sukksesser, ${gjennomforingerMedEnheter.size - sukksesser} feilet.",
         )
     }
