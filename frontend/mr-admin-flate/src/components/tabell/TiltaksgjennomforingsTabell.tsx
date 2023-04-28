@@ -13,7 +13,7 @@ import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import pageStyles from "../../pages/Page.module.scss";
-import { Sortering } from "./Utils";
+import { Sortering } from "./Types";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -86,7 +86,7 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
   };
 
   return (
-    <>
+    <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
         page={page}
         antall={tiltaksgjennomforinger.length}
@@ -97,7 +97,7 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}
-        className={styles.table}
+        className={styles.tabell}
       >
         <Table.Header>
           <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
@@ -107,9 +107,7 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
             <Table.ColumnHeader sortKey="tiltaksnummer" sortable>
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="arrangor" sortable>
-              Arrangør
-            </Table.ColumnHeader>
+            <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
             <Table.ColumnHeader sortKey="tiltakstype" sortable>
               Tiltakstype
             </Table.ColumnHeader>
@@ -213,6 +211,6 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
           />
         </PagineringContainer>
       ) : null}
-    </>
+    </div>
   );
 };

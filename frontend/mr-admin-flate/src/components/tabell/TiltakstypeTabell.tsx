@@ -13,7 +13,7 @@ import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
 import pageStyles from "../../pages/Page.module.scss";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { Sortering } from "./Utils";
+import { Sortering } from "./Types";
 
 export const TiltakstypeTabell = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -57,7 +57,7 @@ export const TiltakstypeTabell = () => {
     });
   };
   return (
-    <>
+    <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
         page={page}
         antall={tiltakstyper.length}
@@ -67,7 +67,7 @@ export const TiltakstypeTabell = () => {
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}
-        className={styles.table}
+        className={styles.tabell}
       >
         <Table.Header>
           <Table.Row className={styles.tiltakstype_tabellrad}>
@@ -144,6 +144,6 @@ export const TiltakstypeTabell = () => {
           />
         </PagineringContainer>
       ) : null}
-    </>
+    </div>
   );
 };

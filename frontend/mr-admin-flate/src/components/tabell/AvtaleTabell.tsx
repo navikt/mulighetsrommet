@@ -12,7 +12,7 @@ import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { SorteringAvtaler } from "mulighetsrommet-api-client";
 import { useState } from "react";
-import { Sortering } from "./Utils";
+import { Sortering } from "./Types";
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
@@ -55,7 +55,7 @@ export const AvtaleTabell = () => {
   };
 
   return (
-    <>
+    <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
         page={page}
         antall={avtaler.length}
@@ -65,16 +65,14 @@ export const AvtaleTabell = () => {
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}
-        className={styles.table}
+        className={styles.tabell}
       >
         <Table.Header>
           <Table.Row className={styles.avtale_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="leverandor" sortable>
-              Leverandør
-            </Table.ColumnHeader>
+            <Table.ColumnHeader>Leverandør</Table.ColumnHeader>
             <Table.ColumnHeader sortKey="enhet" sortable>
               Enhet
             </Table.ColumnHeader>
@@ -157,6 +155,6 @@ export const AvtaleTabell = () => {
           />
         </PagineringContainer>
       ) : null}
-    </>
+    </div>
   );
 };

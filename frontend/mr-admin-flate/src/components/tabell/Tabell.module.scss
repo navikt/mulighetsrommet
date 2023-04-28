@@ -1,24 +1,31 @@
-.table {
+.tabell_wrapper {
   background-color: white;
-  padding: 2rem;
-}
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-bottom: 2rem;
 
-.title {
-  text-decoration: underline;
-}
+  .tabell {
+    background-color: white;
+    margin: .5rem 0;
+  }
 
-:global(.navds-table__row) {
-  display: grid;
-}
+  .title {
+    text-decoration: underline;
+  }
 
-.tiltaksgjennomforing_tabellrad {
-  grid-template-columns: 3fr 1fr 3fr 3fr repeat(3, 1fr);
-}
+  :global(.navds-table__row) {
+    display: grid;
+  }
 
-.tiltakstype_tabellrad {
-  grid-template-columns: 3fr repeat(3, 1fr);
-}
+  .tiltaksgjennomforing_tabellrad {
+    grid-template-columns: 3fr 1fr 3fr 3fr repeat(3, 1fr);
+  }
 
-.avtale_tabellrad {
-  grid-template-columns: 3fr 2fr 2fr repeat(3, 1fr);
+  .tiltakstype_tabellrad {
+    grid-template-columns: 3fr repeat(3, 1fr);
+  }
+
+  .avtale_tabellrad {
+    grid-template-columns: 3fr 2fr 2fr repeat(3, 1fr);
+  }
 }
