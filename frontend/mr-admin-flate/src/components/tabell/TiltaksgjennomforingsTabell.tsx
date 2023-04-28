@@ -15,7 +15,13 @@ import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomfor
 import pageStyles from "../../pages/Page.module.scss";
 import { Sortering } from "./Types";
 
-export const TiltaksgjennomforingsTabell = () => {
+interface Props {
+  skjulKolonner?: boolean;
+}
+
+export const TiltaksgjennomforingsTabell = ({
+  skjulKolonner = false,
+}: Props) => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useState<Sortering>({
@@ -79,10 +85,14 @@ export const TiltaksgjennomforingsTabell = () => {
             <Table.ColumnHeader sortKey="tiltaksnummer" sortable>
               Tiltaksnr.
             </Table.ColumnHeader>
-            <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltakstype" sortable>
-              Tiltakstype
-            </Table.ColumnHeader>
+            {!skjulKolonner && (
+              <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
+            )}
+            {!skjulKolonner && (
+              <Table.ColumnHeader sortKey="tiltakstype" sortable>
+                Tiltakstype
+              </Table.ColumnHeader>
+            )}
             <Table.ColumnHeader sortKey="startdato" sortable>
               Startdato
             </Table.ColumnHeader>
@@ -116,16 +126,20 @@ export const TiltaksgjennomforingsTabell = () => {
                   >
                     {tiltaksgjennomforing.tiltaksnummer}
                   </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
-                  >
-                    {tiltaksgjennomforing.virksomhetsnavn}
-                  </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
-                  >
-                    {tiltaksgjennomforing.tiltakstype.navn}
-                  </Table.DataCell>
+                  {!skjulKolonner && (
+                    <Table.DataCell
+                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
+                    >
+                      {tiltaksgjennomforing.virksomhetsnavn}
+                    </Table.DataCell>
+                  )}
+                  {!skjulKolonner && (
+                    <Table.DataCell
+                      aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
+                    >
+                      {tiltaksgjennomforing.tiltakstype.navn}
+                    </Table.DataCell>
+                  )}
                   <Table.DataCell
                     title={`Startdato ${formaterDato(
                       tiltaksgjennomforing.startDato

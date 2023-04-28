@@ -34,7 +34,7 @@ export function TiltaksgjennomforingerForAvtale() {
   return (
     <>
       <Tiltaksgjennomforingfilter skjulFilter={{ tiltakstype: true }} />
-      <TiltaksgjennomforingsTabell />
+      <TiltaksgjennomforingsTabell skjulKolonner />
     </>
   );
 }
