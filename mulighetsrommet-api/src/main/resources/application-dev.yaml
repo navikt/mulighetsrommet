@@ -81,7 +81,7 @@ app:
     synchronizeNorgEnheter:
       delayOfMinutes: 360  # Hver 6. time
     synchronizeTilgjengelighetsstatuser:
-      cronExpression: '*/30 6-18 * * * *'
+      cronExpression: '*/30 6-18 * * *'
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
