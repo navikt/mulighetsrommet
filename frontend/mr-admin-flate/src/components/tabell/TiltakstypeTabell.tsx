@@ -1,5 +1,4 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { useState } from "react";
 import { useAtom } from "jotai";
 import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
 import { SorteringTiltakstyper } from "../../../../mulighetsrommet-api-client";
@@ -13,16 +12,13 @@ import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
 import pageStyles from "../../pages/Page.module.scss";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { Sortering } from "./Types";
+import { useSort } from "../../hooks/useSort";
 
 export const TiltakstypeTabell = () => {
   const [page, setPage] = useAtom(paginationAtom);
   const [filter, setFilter] = useAtom(tiltakstypeFilter);
   const { data, isLoading, isError } = useTiltakstyper(filter, page);
-  const [sort, setSort] = useState<Sortering>({
-    orderBy: "navn",
-    direction: "ascending",
-  });
+  const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;
   const tiltakstyper = data?.data ?? [];
 

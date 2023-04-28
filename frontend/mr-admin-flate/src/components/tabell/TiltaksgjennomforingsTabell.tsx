@@ -1,5 +1,4 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { useState } from "react";
 import { useAtom } from "jotai";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
@@ -13,8 +12,8 @@ import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import pageStyles from "../../pages/Page.module.scss";
-import { Sortering } from "./Types";
 import classNames from "classnames";
+import { useSort } from "../../hooks/useSort";
 
 interface Props {
   skjulKolonner?: boolean;
@@ -25,10 +24,7 @@ export const TiltaksgjennomforingsTabell = ({
 }: Props) => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
-  const [sort, setSort] = useState<Sortering>({
-    orderBy: "navn",
-    direction: "ascending",
-  });
+  const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const pagination = data?.pagination;
   const tiltaksgjennomforinger = data?.data ?? [];

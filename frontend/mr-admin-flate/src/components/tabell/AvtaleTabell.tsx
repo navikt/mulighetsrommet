@@ -11,17 +11,13 @@ import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { SorteringAvtaler } from "mulighetsrommet-api-client";
-import { useState } from "react";
-import { Sortering } from "./Types";
+import { useSort } from "../../hooks/useSort";
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
   const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
-  const [sort, setSort] = useState<Sortering>({
-    orderBy: "navn",
-    direction: "ascending",
-  });
+  const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;
   const avtaler = data?.data ?? [];
 
