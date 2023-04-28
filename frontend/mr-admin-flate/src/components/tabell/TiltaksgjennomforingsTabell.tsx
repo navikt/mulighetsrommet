@@ -14,6 +14,7 @@ import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/u
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import pageStyles from "../../pages/Page.module.scss";
 import { Sortering } from "./Types";
+import classNames from "classnames";
 
 interface Props {
   skjulKolonner?: boolean;
@@ -78,7 +79,13 @@ export const TiltaksgjennomforingsTabell = ({
         className={styles.tabell}
       >
         <Table.Header>
-          <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
+          <Table.Row
+            className={classNames(
+              !skjulKolonner
+                ? styles.tiltaksgjennomforing_tabellrad
+                : styles.tiltaksgjennomforing_skjul_kolonner
+            )}
+          >
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
@@ -108,7 +115,11 @@ export const TiltaksgjennomforingsTabell = ({
               return (
                 <Table.Row
                   key={index}
-                  className={styles.tiltaksgjennomforing_tabellrad}
+                  className={classNames(
+                    !skjulKolonner
+                      ? styles.tiltaksgjennomforing_tabellrad
+                      : styles.tiltaksgjennomforing_skjul_kolonner
+                  )}
                 >
                   <Table.DataCell
                     aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
