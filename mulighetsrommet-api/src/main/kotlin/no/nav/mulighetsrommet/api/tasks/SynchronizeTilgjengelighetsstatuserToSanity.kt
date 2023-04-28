@@ -22,10 +22,7 @@ class SynchronizeTilgjengelighetsstatuserToSanity(
     )
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron("*/30 * * * * *"))
-        //.recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron("*/30 6-18 * * *"))
-        //.recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron(config.chronExpression))
-        //.recurring("synchronize-tilgjengelighetsstatuser", FixedDelay.ofMinutes(20))
+        .recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron(config.chronExpression))
         .onFailure { failure, _ ->
             slackNotifier.sendMessage("Klarte ikke synkronisere tilgjengelighetsstatuser til Sanity. Konsekvensen er at tilgjengelighetsstatusene i Sanity vil være utdaterte. Cause: ${failure.cause.get().message}")
         }
