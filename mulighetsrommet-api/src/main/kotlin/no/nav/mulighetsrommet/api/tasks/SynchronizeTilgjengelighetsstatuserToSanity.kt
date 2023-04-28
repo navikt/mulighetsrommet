@@ -16,11 +16,11 @@ class SynchronizeTilgjengelighetsstatuserToSanity(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val chronExpression: String,
+        val cronExpression: String,
     )
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron(config.chronExpression))
+        .recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron(config.cronExpression))
         .onFailure { failure, _ ->
             slackNotifier.sendMessage("Klarte ikke synkronisere tilgjengelighetsstatuser til Sanity. Konsekvensen er at tilgjengelighetsstatusene i Sanity vil være utdaterte. Cause: ${failure.cause.get().message}")
         }
