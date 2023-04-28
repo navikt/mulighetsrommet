@@ -232,6 +232,16 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val order = when (filter.sortering) {
             "navn-ascending" -> "tg.navn asc"
             "navn-descending" -> "tg.navn desc"
+            "tiltaksnummer-ascending" -> "tg.tiltaksnummer asc"
+            "tiltaksnummer-descending" -> "tg.tiltaksnummer desc"
+            "arrangor-ascending" -> "tg.virksomhetsnummer asc"
+            "arrangor-descending" -> "tg.virksomhetsnummer desc"
+            "tiltakstype-ascending" -> "t.navn asc"
+            "tiltakstype-descending" -> "t.navn desc"
+            "startdato-ascending" -> "tg.start_dato asc"
+            "startdato-descending" -> "tg.start_dato desc"
+            "sluttdato-ascending" -> "tg.slutt_dato asc"
+            "sluttdato-descending" -> "tg.slutt_dato desc"
             else -> "tg.navn asc"
         }
 
@@ -333,6 +343,32 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         queryOf(query, id)
             .asUpdate
+            .let { db.run(it) }
+    }
+
+    fun getTilgjengelighetsstatus(tiltaksnummer: String): TiltaksgjennomforingDbo.Tilgjengelighetsstatus? {
+        @Language("PostgreSQL")
+        val query = """
+            select tilgjengelighet
+            from tiltaksgjennomforing
+            where (:aar::text is null and split_part(tiltaksnummer, '#', 2) = :lopenr)
+               or (:aar::text is not null and split_part(tiltaksnummer, '#', 1) = :aar and split_part(tiltaksnummer, '#', 2) = :lopenr)
+        """.trimIndent()
+
+        val parameters = tiltaksnummer.split("#").let {
+            if (it.size == 2) {
+                mapOf("aar" to it.first(), "lopenr" to it[1])
+            } else {
+                mapOf("aar" to null, "lopenr" to it.first())
+            }
+        }
+
+        return queryOf(query, parameters)
+            .map {
+                val value = it.string("tilgjengelighet")
+                TiltaksgjennomforingDbo.Tilgjengelighetsstatus.valueOf(value)
+            }
+            .asSingle
             .let { db.run(it) }
     }
 

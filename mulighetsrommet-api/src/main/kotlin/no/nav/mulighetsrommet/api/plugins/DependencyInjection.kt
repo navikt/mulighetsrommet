@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuserToKafka
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserToKafka
@@ -239,6 +240,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
+    single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -249,6 +251,7 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
         val synchronizeTiltaksgjennomforingEnheter =
             SynchronizeTiltaksgjennomforingEnheter(config.synchronizeEnheterFraSanityTilApi, get(), get())
+        val synchronizeTilgjengelighetsstatuserToSanity = SynchronizeTilgjengelighetsstatuserToSanity(config.synchronizeTilgjengelighetsstatuser, get(), get())
 
         val db: Database by inject()
 
@@ -259,6 +262,7 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
                 synchronizeTiltakstypestatuserToKafka.task,
                 synchronizeTiltaksgjennomforingEnheter.task,
+                synchronizeTilgjengelighetsstatuserToSanity.task,
             )
             .registerShutdownHook()
             .build()

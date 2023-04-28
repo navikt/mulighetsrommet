@@ -1,7 +1,7 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { useState } from "react";
 import { useAtom } from "jotai";
 import { paginationAtom, tiltakstypeFilter } from "../../api/atoms";
+import { SorteringTiltakstyper } from "../../../../mulighetsrommet-api-client";
 import { Laster } from "../laster/Laster";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
@@ -12,13 +12,13 @@ import { Tiltakstypestatus } from "../statuselementer/Tiltakstypestatus";
 import pageStyles from "../../pages/Page.module.scss";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useSort } from "../../hooks/useSort";
 
 export const TiltakstypeTabell = () => {
   const [page, setPage] = useAtom(paginationAtom);
-  const [filter] = useAtom(tiltakstypeFilter);
+  const [filter, setFilter] = useAtom(tiltakstypeFilter);
   const { data, isLoading, isError } = useTiltakstyper(filter, page);
-  const [sort, setSort] = useState();
-  const rowsPerPage = 15;
+  const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;
   const tiltakstyper = data?.data ?? [];
 
@@ -38,74 +38,37 @@ export const TiltakstypeTabell = () => {
     );
   }
 
-  const tiltakstyperForSide = tiltakstyper.sort((a, b) => {
-    const sortOrDefault = sort || {
-      orderBy: "navn",
-      direction: "ascending",
-    };
-
-    const comparator = (a: any, b: any, orderBy: string | number) => {
-      const compare = (item1: any, item2: any) => {
-        if (item2 < item1 || item2 === undefined) {
-          return -1;
-        }
-        if (item2 > item1) {
-          return 1;
-        }
-        return 0;
-      };
-
-      if (orderBy === "status") {
-        return compare(a.status, b.status);
-      } else if (orderBy === "startdato") {
-        const dateB = new Date(b.fraDato);
-        const dateA = new Date(a.fraDato);
-        return compare(dateA, dateB);
-      } else if (orderBy === "sluttdato") {
-        const dateB = new Date(b.tilDato);
-        const dateA = new Date(a.tilDato);
-        return compare(dateA, dateB);
-      } else {
-        return compare(a[orderBy], b[orderBy]);
-      }
-    };
-    return sortOrDefault.direction === "ascending"
-      ? comparator(b, a, sortOrDefault.orderBy)
-      : comparator(a, b, sortOrDefault.orderBy);
-  });
-
   const handleSort = (sortKey: string) => {
-    setSort(
-      // @ts-ignore
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            // @ts-ignore
-            orderBy: sortKey,
-            direction:
-              // @ts-ignore
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          }
-    );
+    const direction =
+      sort.direction === "ascending" ? "descending" : "ascending";
+
+    setSort({
+      orderBy: sortKey,
+      direction,
+    });
+
+    setFilter({
+      ...filter,
+      sortering: `${sortKey}-${direction}` as SorteringTiltakstyper,
+    });
   };
   return (
-    <>
+    <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
         page={page}
         antall={tiltakstyper.length}
         maksAntall={pagination?.totalCount}
         type="tiltakstyper"
       />
-      <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
+      <Table
+        sort={sort!}
+        onSortChange={(sortKey) => handleSort(sortKey!)}
+        className={styles.tabell}
+      >
         <Table.Header>
-          <Table.Row>
+          <Table.Row className={styles.tiltakstype_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="status" sortable>
-              Status
             </Table.ColumnHeader>
             <Table.ColumnHeader sortKey="startdato" sortable>
               Startdato
@@ -113,16 +76,17 @@ export const TiltakstypeTabell = () => {
             <Table.ColumnHeader sortKey="sluttdato" sortable>
               Sluttdato
             </Table.ColumnHeader>
+            <Table.ColumnHeader>Status</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         {tiltakstyper.length > 0 ? (
-          <Table.Body className={styles.tabellbody}>
-            {tiltakstyperForSide.map((tiltakstype, index) => {
+          <Table.Body>
+            {tiltakstyper.map((tiltakstype, index) => {
               return (
-                <Table.Row key={index}>
-                  <Table.HeaderCell
-                    scope="row"
+                <Table.Row key={index} className={styles.tiltakstype_tabellrad}>
+                  <Table.DataCell
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
+                    className={styles.title}
                   >
                     <Lenke
                       to={`/tiltakstyper/${tiltakstype.id}`}
@@ -130,9 +94,6 @@ export const TiltakstypeTabell = () => {
                     >
                       {tiltakstype.navn}
                     </Lenke>
-                  </Table.HeaderCell>
-                  <Table.DataCell>
-                    <Tiltakstypestatus tiltakstype={tiltakstype} />
                   </Table.DataCell>
 
                   <Table.DataCell
@@ -148,6 +109,9 @@ export const TiltakstypeTabell = () => {
                     )}`}
                   >
                     {formaterDato(tiltakstype.tilDato)}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    <Tiltakstypestatus tiltakstype={tiltakstype} />
                   </Table.DataCell>
                 </Table.Row>
               );
@@ -176,6 +140,6 @@ export const TiltakstypeTabell = () => {
           />
         </PagineringContainer>
       ) : null}
-    </>
+    </div>
   );
 };

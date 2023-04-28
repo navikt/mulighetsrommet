@@ -25,3 +25,10 @@
 .muted {
   color: var(--a-text-subtle);
 }
+
+.alert {
+  margin-bottom: 1rem;
+  :global(.navds-alert__wrapper) {
+    max-width: none;
+  }
+}

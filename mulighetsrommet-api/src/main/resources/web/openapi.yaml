@@ -1006,8 +1006,10 @@ components:
       enum:
         - navn-ascending
         - navn-descending
-        - status-ascending
-        - status-descending
+        - enhet-ascending
+        - enhet-descending
+        - startdato-ascending
+        - startdato-descending
         - sluttdato-ascending
         - sluttdato-descending
 
@@ -1016,12 +1018,24 @@ components:
       enum:
         - navn-ascending
         - navn-descending
+        - startdato-ascending
+        - startdato-descending
+        - sluttdato-ascending
+        - sluttdato-descending
 
     SorteringTiltaksgjennomforinger:
       type: string
       enum:
         - navn-ascending
         - navn-descending
+        - tiltaksnummer-ascending
+        - tiltaksnummer-descending
+        - tiltakstype-ascending
+        - tiltakstype-descending
+        - startdato-ascending
+        - startdato-descending
+        - sluttdato-ascending
+        - sluttdato-descending
 
     Tiltaksgjennomforing:
       type: object

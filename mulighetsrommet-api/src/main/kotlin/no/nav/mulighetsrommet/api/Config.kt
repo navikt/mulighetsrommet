@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -74,6 +75,7 @@ data class ServiceClientConfig(
 data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
     val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
+    val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
 )
 
 data class Norg2Config(

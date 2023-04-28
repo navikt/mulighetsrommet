@@ -18,10 +18,10 @@
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
     "@navikt/aksel-icons": "^2.8.16",
-    "@navikt/ds-css": "^2.8.15",
+    "@navikt/ds-css": "^2.9.2",
     "@navikt/ds-css-internal": "^2.8.15",
     "@navikt/ds-react": "^2.8.15",
-    "@navikt/ds-react-internal": "^2.8.15",
+    "@navikt/ds-react-internal": "^2.9.2",
     "@navikt/ds-tokens": "^2.9.0",
     "@tanstack/react-query": "^4.29.3",
     "@tanstack/react-query-devtools": "^4.29.5",
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.0.11",
+    "@types/react-dom": "^18.2.1",
     "@vitejs/plugin-react": "^4.0.0",
     "axe-core": "^4.7.0",
     "cross-env": "^7.0.3",

@@ -1,6 +1,6 @@
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from 'react-joyride';
 import { useState } from 'react';
-import { joyrideKnappefarge, localeStrings } from './utils';
+import { joyrideStyling, localeStrings } from './Utils';
 import { JoyrideKnapp } from './JoyrideKnapp';
 import { logEvent } from '../../core/api/logger';
 import { isStep, stepsDetaljer } from './Steps';
@@ -76,11 +76,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
         showSkipButton
         stepIndex={state.stepIndex}
         disableScrolling
-        styles={{
-          options: {
-            primaryColor: joyrideKnappefarge,
-          },
-        }}
+        styles={joyrideStyling()}
         disableCloseOnEsc={false}
         disableOverlayClose={true}
       />

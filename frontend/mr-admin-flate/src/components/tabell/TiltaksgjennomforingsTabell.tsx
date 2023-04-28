@@ -1,7 +1,7 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { useState } from "react";
 import { useAtom } from "jotai";
-import { paginationAtom } from "../../api/atoms";
+import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
+import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -12,40 +12,20 @@ import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import pageStyles from "../../pages/Page.module.scss";
-
-interface ColumnHeader {
-  sortKey: Kolonne;
-  tittel: string;
-}
-
-const headers: ColumnHeader[] = [
-  { sortKey: "navn", tittel: "Tittel" },
-  { sortKey: "tiltaksnummer", tittel: "Tiltaksnr." },
-  { sortKey: "arrangor", tittel: "Arrangør" },
-  { sortKey: "tiltakstype", tittel: "Tiltakstype" },
-  { sortKey: "startdato", tittel: "Startdato" },
-  { sortKey: "sluttdato", tittel: "Sluttdato" },
-  { sortKey: "status", tittel: "Status" },
-];
-
-type Kolonne =
-  | "navn"
-  | "tiltaksnummer"
-  | "tiltakstype"
-  | "arrangor"
-  | "startdato"
-  | "sluttdato"
-  | "status";
+import classNames from "classnames";
+import { useSort } from "../../hooks/useSort";
 
 interface Props {
-  skjulKolonne?: Partial<Record<Kolonne, boolean>>;
+  skjulKolonner?: boolean;
 }
 
-export const TiltaksgjennomforingsTabell = (props: Props) => {
+export const TiltaksgjennomforingsTabell = ({
+  skjulKolonner = false,
+}: Props) => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
-  const [sort, setSort] = useState();
-  const rowsPerPage = 15;
+  const [sort, setSort] = useSort("navn");
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
   const pagination = data?.pagination;
   const tiltaksgjennomforinger = data?.data ?? [];
 
@@ -65,161 +45,141 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
     );
   }
 
-  const tiltaksgjennomforingerForSide = tiltaksgjennomforinger.sort((a, b) => {
-    const sortOrDefault = sort || {
-      orderBy: "navn",
-      direction: "ascending",
-    };
-
-    const comparator = (a: any, b: any, orderBy: string | number) => {
-      const compare = (item1: any, item2: any) => {
-        if (item2 < item1 || item2 === undefined) {
-          return -1;
-        }
-        if (item2 > item1) {
-          return 1;
-        }
-        return 0;
-      };
-
-      if (orderBy === "leverandor") {
-        return compare(a.leverandor.navn, b.leverandor.navn);
-      } else if (orderBy === "tiltaksnummer") {
-        return compare(a.tiltaksnummer, b.tiltaksnummer);
-      } else if (orderBy === "arrangor") {
-        return compare(a.virksomhetsnavn, b.virksomhetsnavn);
-      } else if (orderBy === "tiltakstype") {
-        return compare(a.tiltakstype.navn, b.tiltakstype.navn);
-      } else if (orderBy === "startdato") {
-        const dateB = new Date(b.startDato);
-        const dateA = new Date(a.startDato);
-        return compare(dateA, dateB);
-      } else if (orderBy === "sluttdato") {
-        const dateB = new Date(b.sluttDato);
-        const dateA = new Date(a.sluttDato);
-        return compare(dateA, dateB);
-      } else if (orderBy === "status") {
-        return compare(a.status, b.status);
-      } else {
-        return compare(a[orderBy], b[orderBy]);
-      }
-    };
-    return sortOrDefault.direction === "ascending"
-      ? comparator(b, a, sortOrDefault.orderBy)
-      : comparator(a, b, sortOrDefault.orderBy);
-  });
-
   const handleSort = (sortKey: string) => {
-    setSort(
-      // @ts-ignore
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            // @ts-ignore
-            orderBy: sortKey,
-            direction:
-              // @ts-ignore
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          }
-    );
+    const direction =
+      sort.direction === "ascending" ? "descending" : "ascending";
+
+    setSort({
+      orderBy: sortKey,
+      direction,
+    });
+
+    setFilter({
+      ...filter,
+      sortering: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+    });
   };
 
   return (
-    <>
+    <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
         page={page}
         antall={tiltaksgjennomforinger.length}
         maksAntall={pagination?.totalCount}
         type="tiltaksgjennomføringer"
       />
-      <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
+
+      <Table
+        sort={sort!}
+        onSortChange={(sortKey) => handleSort(sortKey!)}
+        className={styles.tabell}
+      >
         <Table.Header>
-          <Table.Row>
-            {headers
-              .filter((header) => {
-                return props.skjulKolonne
-                  ? !props.skjulKolonne[header.sortKey]
-                  : true;
-              })
-              .map((header) => (
-                <Table.ColumnHeader key={header.sortKey} sortKey={header.sortKey} sortable>
-                  {header.tittel}
+          <Table.Row
+            className={classNames(
+              !skjulKolonner
+                ? styles.tiltaksgjennomforing_tabellrad
+                : styles.tiltaksgjennomforing_skjul_kolonner
+            )}
+          >
+            <Table.ColumnHeader sortKey="navn" sortable>
+              Tittel
+            </Table.ColumnHeader>
+            <Table.ColumnHeader sortKey="tiltaksnummer" sortable>
+              Tiltaksnr.
+            </Table.ColumnHeader>
+            {!skjulKolonner && (
+              <>
+                <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
+                <Table.ColumnHeader sortKey="tiltakstype" sortable>
+                  Tiltakstype
                 </Table.ColumnHeader>
-              ))}
+              </>
+            )}
+            <Table.ColumnHeader sortKey="startdato" sortable>
+              Startdato
+            </Table.ColumnHeader>
+            <Table.ColumnHeader sortKey="sluttdato" sortable>
+              Sluttdato
+            </Table.ColumnHeader>
+            <Table.ColumnHeader>Status</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         {tiltaksgjennomforinger.length > 0 ? (
-          <Table.Body className={styles.tabellbody}>
-            {tiltaksgjennomforingerForSide.map(
-              (tiltaksgjennomforing, index) => {
-                return (
-                  <Table.Row key={index}>
-                    <Table.HeaderCell
-                      scope="row"
-                      aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
+          <Table.Body>
+            {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
+              return (
+                <Table.Row
+                  key={index}
+                  className={classNames(
+                    !skjulKolonner
+                      ? styles.tiltaksgjennomforing_tabellrad
+                      : styles.tiltaksgjennomforing_skjul_kolonner
+                  )}
+                >
+                  <Table.DataCell
+                    aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
+                    className={styles.title}
+                  >
+                    <Lenke
+                      to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                      data-testid="tiltaksgjennomforingrad"
                     >
-                      <Lenke
-                        to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
-                        data-testid="tiltaksgjennomforingrad"
-                      >
-                        {tiltaksgjennomforing.navn}
-                      </Lenke>
-                    </Table.HeaderCell>
-                    <Table.DataCell
-                      aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
-                    >
-                      {tiltaksgjennomforing.tiltaksnummer}
-                    </Table.DataCell>
-                    {props.skjulKolonne?.arrangor ? null : (
+                      {tiltaksgjennomforing.navn}
+                    </Lenke>
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
+                  >
+                    {tiltaksgjennomforing.tiltaksnummer}
+                  </Table.DataCell>
+                  {!skjulKolonner && (
+                    <>
                       <Table.DataCell
                         aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
                       >
                         {tiltaksgjennomforing.virksomhetsnavn}
                       </Table.DataCell>
-                    )}
-                    {props.skjulKolonne?.tiltakstype ? null : (
                       <Table.DataCell
                         aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
                       >
                         {tiltaksgjennomforing.tiltakstype.navn}
                       </Table.DataCell>
-                    )}
-                    <Table.DataCell
-                      title={`Startdato ${formaterDato(
-                        tiltaksgjennomforing.startDato
-                      )}`}
-                      aria-label={`Startdato: ${formaterDato(
-                        tiltaksgjennomforing.startDato
-                      )}`}
-                    >
-                      {formaterDato(tiltaksgjennomforing.startDato)}
-                    </Table.DataCell>
-                    <Table.DataCell
-                      title={`Sluttdato ${formaterDato(
-                        tiltaksgjennomforing.sluttDato
-                      )}, "-"`}
-                      aria-label={
-                        tiltaksgjennomforing.sluttDato
-                          ? `Sluttdato: ${formaterDato(
-                              tiltaksgjennomforing.sluttDato,
-                              "-"
-                            )}`
-                          : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
-                      }
-                    >
-                      {formaterDato(tiltaksgjennomforing.sluttDato)}
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <Tiltaksgjennomforingstatus
-                        tiltaksgjennomforing={tiltaksgjennomforing}
-                      />
-                    </Table.DataCell>
-                  </Table.Row>
-                );
-              }
-            )}
+                    </>
+                  )}
+                  <Table.DataCell
+                    title={`Startdato ${formaterDato(
+                      tiltaksgjennomforing.startDato
+                    )}`}
+                    aria-label={`Startdato: ${formaterDato(
+                      tiltaksgjennomforing.startDato
+                    )}`}
+                  >
+                    {formaterDato(tiltaksgjennomforing.startDato)}
+                  </Table.DataCell>
+                  <Table.DataCell
+                    title={`Sluttdato ${formaterDato(
+                      tiltaksgjennomforing.sluttDato
+                    )}, "-"`}
+                    aria-label={
+                      tiltaksgjennomforing.sluttDato
+                        ? `Sluttdato: ${formaterDato(
+                            tiltaksgjennomforing.sluttDato,
+                            "-"
+                          )}`
+                        : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
+                    }
+                  >
+                    {formaterDato(tiltaksgjennomforing.sluttDato)}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    <Tiltaksgjennomforingstatus
+                      tiltaksgjennomforing={tiltaksgjennomforing}
+                    />
+                  </Table.DataCell>
+                </Table.Row>
+              );
+            })}
           </Table.Body>
         ) : (
           <></>
@@ -244,6 +204,6 @@ export const TiltaksgjennomforingsTabell = (props: Props) => {
           />
         </PagineringContainer>
       ) : null}
-    </>
+    </div>
   );
 };

@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
@@ -59,6 +60,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         synchronizeEnheterFraSanityTilApi = SynchronizeTiltaksgjennomforingEnheter.Config(
             delayOfMinutes = 10,
             disabled = true,
+        ),
+        synchronizeTilgjengelighetsstatuser = SynchronizeTilgjengelighetsstatuserToSanity.Config(
+            cronExpression = "* * * * * *",
         ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
