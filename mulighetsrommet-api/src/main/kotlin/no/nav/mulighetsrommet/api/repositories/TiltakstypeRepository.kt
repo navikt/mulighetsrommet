@@ -116,6 +116,10 @@ class TiltakstypeRepository(private val db: Database) {
         val order = when (tiltakstypeFilter.sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
+            "startdato-ascending" -> "fra_dato asc"
+            "startdato-descending" -> "fra_dato desc"
+            "sluttdato-ascending" -> "til_dato asc"
+            "sluttdato-descending" -> "til_dato desc"
             else -> "navn asc"
         }
 

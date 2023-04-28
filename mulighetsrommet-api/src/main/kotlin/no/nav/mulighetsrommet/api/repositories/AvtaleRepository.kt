@@ -178,8 +178,12 @@ class AvtaleRepository(private val db: Database) {
         val order = when (filter.sortering) {
             "navn-ascending" -> "a.navn asc"
             "navn-descending" -> "a.navn desc"
-            "status-ascending" -> "a.avslutningsstatus asc, a.start_dato asc, a.slutt_dato desc"
-            "status-descending" -> "a.avslutningsstatus desc, a.slutt_dato asc, a.start_dato desc"
+            "leverandor-ascending" -> "a.leverandor_organisasjonsnummer asc"
+            "leverandor-descending" -> "a.leverandor_organisasjonsnummer desc"
+            "enhet-ascending" -> "e.navn asc"
+            "enhet-descending" -> "e.navn desc"
+            "startdato-ascending" -> "a.start_dato asc, a.navn asc"
+            "startdato-descending" -> "a.start_dato desc, a.navn asc"
             "sluttdato-ascending" -> "a.slutt_dato asc, a.navn asc"
             "sluttdato-descending" -> "a.slutt_dato desc, a.navn asc"
             else -> "a.navn asc"
@@ -206,6 +210,7 @@ class AvtaleRepository(private val db: Database) {
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
+                     left join enhet e on a.enhet = e.enhetsnummer
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
             $where
             order by $order

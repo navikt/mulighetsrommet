@@ -1,8 +1,7 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { useState } from "react";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { useAtom } from "jotai";
-import { avtalePaginationAtom } from "../../api/atoms";
+import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -11,12 +10,14 @@ import { AVTALE_PAGE_SIZE } from "../../constants";
 import { capitalizeEveryWord, formaterDato } from "../../utils/Utils";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
+import { SorteringAvtaler } from "mulighetsrommet-api-client";
+import { useSort } from "../../hooks/useSort";
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
+  const [filter, setFilter] = useAtom(avtaleFilter);
   const [page, setPage] = useAtom(avtalePaginationAtom);
-  const [sort, setSort] = useState();
-  const rowsPerPage = 15;
+  const [sort, setSort] = useSort("navn");
   const pagination = data?.pagination;
   const avtaler = data?.data ?? [];
 
@@ -34,79 +35,40 @@ export const AvtaleTabell = () => {
     );
   }
 
-  const avtalerForSide = avtaler.sort((a, b) => {
-    const sortOrDefault = sort || {
-      orderBy: "navn",
-      direction: "ascending",
-    };
-
-    const comparator = (a: any, b: any, orderBy: string | number) => {
-      const compare = (item1: any, item2: any) => {
-        if (item2 < item1 || item2 === undefined) {
-          return -1;
-        }
-        if (item2 > item1) {
-          return 1;
-        }
-        return 0;
-      };
-
-      if (orderBy === "leverandor") {
-        return compare(a.leverandor.navn, b.leverandor.navn);
-      } else if (orderBy === "enhet") {
-        return compare(a.navEnhet.navn, b.navEnhet.navn);
-      } else if (orderBy === "startdato") {
-        const dateB = new Date(b.startDato);
-        const dateA = new Date(a.startDato);
-        return compare(dateA, dateB);
-      } else if (orderBy === "sluttdato") {
-        const dateB = new Date(b.sluttDato);
-        const dateA = new Date(a.sluttDato);
-        return compare(dateA, dateB);
-      } else if (orderBy === "status") {
-        return compare(a.avtalestatus, b.avtalestatus);
-      } else {
-        return compare(a[orderBy], b[orderBy]);
-      }
-    };
-    return sortOrDefault.direction === "ascending"
-      ? comparator(b, a, sortOrDefault.orderBy)
-      : comparator(a, b, sortOrDefault.orderBy);
-  });
-
   const handleSort = (sortKey: string) => {
-    setSort(
-      // @ts-ignore
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            // @ts-ignore
-            orderBy: sortKey,
-            direction:
-              // @ts-ignore
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          }
-    );
+    const direction =
+      sort.direction === "ascending" ? "descending" : "ascending";
+
+    setSort({
+      orderBy: sortKey,
+      direction,
+    });
+
+    setFilter({
+      ...filter,
+      sortering: `${sortKey}-${direction}` as SorteringAvtaler,
+    });
   };
+
   return (
-    <>
+    <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
         page={page}
         antall={avtaler.length}
         maksAntall={pagination?.totalCount}
         type="avtaler"
       />
-      <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
+      <Table
+        sort={sort!}
+        onSortChange={(sortKey) => handleSort(sortKey!)}
+        className={styles.tabell}
+      >
         <Table.Header>
-          <Table.Row>
+          <Table.Row className={styles.avtale_tabellrad}>
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="leverandor" sortable>
-              Leverandør
-            </Table.ColumnHeader>
+            <Table.ColumnHeader>Leverandør</Table.ColumnHeader>
             <Table.ColumnHeader sortKey="enhet" sortable>
               Enhet
             </Table.ColumnHeader>
@@ -116,24 +78,22 @@ export const AvtaleTabell = () => {
             <Table.ColumnHeader sortKey="sluttdato" sortable>
               Sluttdato
             </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="status" sortable>
-              Status
-            </Table.ColumnHeader>
+            <Table.ColumnHeader>Status</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         {avtaler.length > 0 ? (
-          <Table.Body className={styles.tabellbody}>
-            {avtalerForSide.map((avtale, index) => {
+          <Table.Body>
+            {avtaler.map((avtale, index) => {
               return (
-                <Table.Row key={index}>
-                  <Table.HeaderCell
-                    scope="row"
+                <Table.Row key={index} className={styles.avtale_tabellrad}>
+                  <Table.DataCell
                     aria-label={`Avtalenavn: ${avtale.navn}`}
+                    className={styles.title}
                   >
                     <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtalerad">
                       {avtale.navn}
                     </Lenke>
-                  </Table.HeaderCell>
+                  </Table.DataCell>
                   <Table.DataCell
                     aria-label={`Leverandør: ${avtale.leverandor?.navn}`}
                   >
@@ -191,6 +151,6 @@ export const AvtaleTabell = () => {
           />
         </PagineringContainer>
       ) : null}
-    </>
+    </div>
   );
 };
