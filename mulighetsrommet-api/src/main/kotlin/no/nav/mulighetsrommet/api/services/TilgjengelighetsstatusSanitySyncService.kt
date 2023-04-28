@@ -29,7 +29,6 @@ data class Tiltak(
 
 class TilgjengelighetsstatusSanitySyncService(
     private val sanityClient: SanityClient,
-    private val slackNotifier: SlackNotifier,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

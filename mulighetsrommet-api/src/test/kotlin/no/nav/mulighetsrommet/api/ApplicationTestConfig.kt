@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
@@ -54,6 +55,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 10,
         ),
+        synchronizeTilgjengelighetsstatuser = SynchronizeTilgjengelighetsstatuserToSanity.Config(
+            chronExpression = ""
+        )
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(
