@@ -12,7 +12,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker

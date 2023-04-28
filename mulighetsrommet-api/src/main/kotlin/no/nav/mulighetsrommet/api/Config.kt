@@ -73,7 +73,7 @@ data class ServiceClientConfig(
 
 data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
-    val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config
+    val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
 )
 
 data class Norg2Config(

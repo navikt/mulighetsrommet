@@ -2,10 +2,8 @@ package no.nav.mulighetsrommet.api.tasks
 
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.services.NavEnheterSyncService
 import no.nav.mulighetsrommet.api.services.TilgjengelighetsstatusSanitySyncService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -13,7 +11,7 @@ import org.slf4j.LoggerFactory
 class SynchronizeTilgjengelighetsstatuserToSanity(
     config: Config,
     tilgjengelighetsstatuserToSanity: TilgjengelighetsstatusSanitySyncService,
-    slackNotifier: SlackNotifier
+    slackNotifier: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
