@@ -86,12 +86,12 @@ export const TiltaksgjennomforingsTabell = ({
               Tiltaksnr.
             </Table.ColumnHeader>
             {!skjulKolonner && (
-              <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
-            )}
-            {!skjulKolonner && (
-              <Table.ColumnHeader sortKey="tiltakstype" sortable>
-                Tiltakstype
-              </Table.ColumnHeader>
+              <>
+                <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
+                <Table.ColumnHeader sortKey="tiltakstype" sortable>
+                  Tiltakstype
+                </Table.ColumnHeader>
+              </>
             )}
             <Table.ColumnHeader sortKey="startdato" sortable>
               Startdato
@@ -127,18 +127,18 @@ export const TiltaksgjennomforingsTabell = ({
                     {tiltaksgjennomforing.tiltaksnummer}
                   </Table.DataCell>
                   {!skjulKolonner && (
-                    <Table.DataCell
-                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
-                    >
-                      {tiltaksgjennomforing.virksomhetsnavn}
-                    </Table.DataCell>
-                  )}
-                  {!skjulKolonner && (
-                    <Table.DataCell
-                      aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
-                    >
-                      {tiltaksgjennomforing.tiltakstype.navn}
-                    </Table.DataCell>
+                    <>
+                      <Table.DataCell
+                        aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
+                      >
+                        {tiltaksgjennomforing.virksomhetsnavn}
+                      </Table.DataCell>
+                      <Table.DataCell
+                        aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
+                      >
+                        {tiltaksgjennomforing.tiltakstype.navn}
+                      </Table.DataCell>
+                    </>
                   )}
                   <Table.DataCell
                     title={`Startdato ${formaterDato(
