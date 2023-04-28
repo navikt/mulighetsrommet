@@ -1,3 +1,4 @@
+import { Heading } from "@navikt/ds-react";
 import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import styles from "./BrukerNotifikasjoner.module.scss";
@@ -11,7 +12,9 @@ export function BrukerNotifikasjoner() {
 
   return (
     <section className={styles.container}>
-      <h3>Hei {bruker?.fornavn}</h3>
+      <Heading level="3" size="medium">
+        Hei {bruker?.fornavn}
+      </Heading>
       <Varsel
         tittel="Varsler"
         melding="Her kommer det funksjonalitet for varsler"
