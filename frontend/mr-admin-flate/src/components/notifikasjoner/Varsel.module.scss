@@ -1,0 +1,29 @@
+.container {
+  background-color: var(--a-orange-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.ikon {
+  color: #b86b00;
+  display: inline-block;
+}
+
+.ikon_container {
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--a-orange-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

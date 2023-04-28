@@ -39,22 +39,11 @@ export const arrangor = defineType({
       type: "string",
       validation: (rule) => rule.required(),
     }),
-    defineField({
-      name: "organisasjonsnummer",
-      title: "Organisasjonsnummer",
-      type: "slug",
-      validation: (rule) => rule.required(),
-    }),
   ],
   preview: {
     select: {
       title: "selskapsnavn",
-      adresse: "adresse",
-      orgnr: "organisasjonsnummer.current",
+      subtitle: "adresse",
     },
-    prepare: ({ title, adresse, orgnr }) => ({
-      title,
-      subtitle: [orgnr, adresse].filter(Boolean).join(" - "),
-    }),
   },
 });
