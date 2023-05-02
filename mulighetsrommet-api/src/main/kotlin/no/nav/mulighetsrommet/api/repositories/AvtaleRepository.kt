@@ -162,7 +162,7 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "tiltakstype_id" to filter.tiltakstypeId,
             "search" to "%${filter.search}%",
-            "enhet" to filter.enhet,
+            "enhet" to filter.fylkesenhet,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to filter.dagensDato,
@@ -172,7 +172,7 @@ class AvtaleRepository(private val db: Database) {
             filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.enhet to "lower(a.enhet) = lower(:enhet)",
+            filter.fylkesenhet to "lower(a.enhet) = lower(:enhet)",
         )
 
         val order = when (filter.sortering) {
