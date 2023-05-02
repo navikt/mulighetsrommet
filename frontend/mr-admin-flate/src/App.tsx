@@ -12,6 +12,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { DetaljerTiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/DetaljerTiltaksgjennomforingerPage";
+import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 
 export function App() {
   const optionalAnsatt = useHentAnsatt();
@@ -84,6 +85,11 @@ export function App() {
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
         element={<DetaljerTiltaksgjennomforingerPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="notifikasjoner"
+        element={<NotifikasjonerPage />}
         errorElement={<ErrorPage />}
       />
 
