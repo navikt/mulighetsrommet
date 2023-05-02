@@ -29,9 +29,9 @@ export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsg
     <>
       {(standardInnsatsBruker || situasjonsbestemtInnsatsBruker || spesieltTilpassetInnsats) && (
         <Alert variant="warning" className={styles.varsel}>
-          Du ser nå en oversikt over tiltak for innsatsgruppen{' '}
-          <strong className={appStyles.lowercase}>{innsatsgruppeFiltrertNavn}</strong>, og det vises derfor tiltak som
-          valgt bruker ikke kvalifiserer til i listen.
+          Oversikten viser nå tiltak for innsatsgruppen
+          <strong className={appStyles.lowercase}> {innsatsgruppeFiltrertNavn}</strong>. Tenker du noen av disse er
+          aktuelle bør du gjøre en ny behovsvurdering.
         </Alert>
       )}
     </>
