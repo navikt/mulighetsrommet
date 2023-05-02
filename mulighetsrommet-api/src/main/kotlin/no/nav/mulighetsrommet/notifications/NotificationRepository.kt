@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 class NotificationRepository(private val db: Database) {
@@ -78,6 +79,22 @@ class NotificationRepository(private val db: Database) {
                 createdAt = notificationDbo.createdAt,
             )
         }
+    }
+
+    fun setNotificationSeenAt(id: UUID, userId: String, seenAt: LocalDateTime?): QueryResult<Unit> = query {
+        logger.info("Setting notification id=$id seenAt=$seenAt")
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into user_notification (notification_id, user_id, seen_at)
+            values (:notification_id::uuid, :user_id, :seen_at)
+            on conflict (notification_id, user_id) do update set seen_at = excluded.seen_at
+            returning notification_id, user_id, seen_at
+        """.trimIndent()
+
+        queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "seen_at" to seenAt))
+            .asExecute
+            .let { db.run(it) }
     }
 
     fun get(id: UUID): QueryResult<Notification> = query {
