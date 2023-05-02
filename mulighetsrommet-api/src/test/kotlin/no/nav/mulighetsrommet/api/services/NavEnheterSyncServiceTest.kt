@@ -21,7 +21,7 @@ class NavEnheterSyncServiceTest : FunSpec({
         MockEngine {
             respondOk("Ok")
         },
-        SanityClient.Config(projectId = "hehee", dataset = "", apiVersion = "", token = ""),
+        SanityClient.Config(projectId = "", dataset = "", apiVersion = "", token = ""),
     )
     val navEnheterSyncService = NavEnheterSyncService(norg2Client, sanityClient, enheter, slackNotifier)
 
