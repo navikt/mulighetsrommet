@@ -32,7 +32,7 @@ class NavEnheterSyncService(
         val fylkerOgEnheterToSanity = fylkeOgUnderenheterToSanity(tilLagring)
 
         slettEnheterSomIkkeHarWhitelistetType(tilSletting.map { it.enhet.enhetNr })
-        lagreEnheter(tilLagring)
+        lagreEnheter(tilLagring + spesialEnheter)
         lagreEnheterTilSanity(spesialEnheterToSanity + fylkerOgEnheterToSanity)
 
         return tilLagring
