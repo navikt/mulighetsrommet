@@ -36,7 +36,7 @@ app:
   sanity:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}
-    authToken: ${SANITY_AUTH_TOKEN}
+    token: ${SANITY_AUTH_TOKEN}
 
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
@@ -76,6 +76,8 @@ app:
 
   tasks:
     synchronizeNorgEnheter:
+      delayOfMinutes: 360 # Hver 6. time
+    synchronizeEnheterFraSanityTilApi:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeTilgjengelighetsstatuser:
       cronExpression: '*/30 6-18 * * *'

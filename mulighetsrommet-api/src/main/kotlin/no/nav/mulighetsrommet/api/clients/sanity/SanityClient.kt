@@ -11,8 +11,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import org.slf4j.LoggerFactory
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
@@ -22,7 +22,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
     data class Config(
         val projectId: String,
         val dataset: String,
-        val apiVersion: String,
+        val apiVersion: String = "v2023-01-01", // https://www.sanity.io/docs/api-versioning
         val token: String?,
     ) {
         private val baseUrl
@@ -34,13 +34,6 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         val mutationUrl
             get() = "$baseUrl/data/mutate/$dataset"
     }
-
-    @Serializable
-    data class QueryResponse<T>(
-        val ms: Int,
-        val query: String,
-        val result: T,
-    )
 
     enum class MutationVisibility {
         Sync,
@@ -81,10 +74,13 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
     }
 
-    internal suspend inline fun <reified T> getMany(query: String): QueryResponse<List<T>> {
+    internal suspend fun query(query: String, params: Map<String, String> = emptyMap()): SanityResponse {
         val response = client.get(config.queryUrl) {
             url {
                 parameters.append("query", query)
+                params.entries.forEach {
+                    parameters.append(it.key, it.value)
+                }
             }
         }
 
