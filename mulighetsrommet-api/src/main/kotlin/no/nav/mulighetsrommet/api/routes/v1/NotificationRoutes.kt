@@ -23,22 +23,22 @@ fun Route.notificationRoutes() {
             call.respond(PaginatedResponse.of(notifications))
         }
 
-        post("{id}/seen") {
+        post("{id}/read") {
             val id = call.parameters.getOrFail<UUID>("id")
             val userId = getNavIdent()
 
             // TODO: access control to ensure that `id` is `userId`'s notificaiton
-            notificationService.markNotificationAsSeen(id, userId)
+            notificationService.markNotificationAsRead(id, userId)
 
             call.respond(HttpStatusCode.OK)
         }
 
-        post("{id}/unseen") {
+        post("{id}/unread") {
             val id = call.parameters.getOrFail<UUID>("id")
             val userId = getNavIdent()
 
             // TODO: access control to ensure that `id` is `userId`'s notificaiton
-            notificationService.markNotificationAsUnseen(id, userId)
+            notificationService.markNotificationAsUnread(id, userId)
 
             call.respond(HttpStatusCode.OK)
         }

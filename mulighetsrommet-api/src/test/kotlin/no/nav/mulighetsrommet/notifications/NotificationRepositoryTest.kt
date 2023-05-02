@@ -32,7 +32,7 @@ class NotificationRepositoryTest : FunSpec({
         createdAt = now,
     )
 
-    fun Notification.asUserNotification(userId: String, seenAt: LocalDateTime? = null) = run {
+    fun Notification.asUserNotification(userId: String, readAt: LocalDateTime? = null) = run {
         UserNotification(
             id = id,
             type = type,
@@ -40,7 +40,7 @@ class NotificationRepositoryTest : FunSpec({
             description = description,
             user = userId,
             createdAt = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault()),
-            seenAt = seenAt,
+            readAt = readAt,
         )
     }
 
@@ -74,20 +74,20 @@ class NotificationRepositoryTest : FunSpec({
     }
 
     test("set notification status for user") {
-        val seenAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+        val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
         notifications.upsert(commonNotification).shouldBeRight()
         notifications.upsert(userNotification).shouldBeRight()
 
-        notifications.setNotificationSeenAt(commonNotification.id, "ABC", seenAtTime).shouldBeRight()
-        notifications.setNotificationSeenAt(userNotification.id, "ABC", seenAtTime).shouldBeRight()
-        notifications.setNotificationSeenAt(commonNotification.id, "XYZ", seenAtTime).shouldBeRight()
+        notifications.setNotificationReadAt(commonNotification.id, "ABC", readAtTime).shouldBeRight()
+        notifications.setNotificationReadAt(userNotification.id, "ABC", readAtTime).shouldBeRight()
+        notifications.setNotificationReadAt(commonNotification.id, "XYZ", readAtTime).shouldBeRight()
 
         notifications.getUserNotifications() shouldBeRight listOf(
-            commonNotification.asUserNotification("ABC", seenAtTime),
-            userNotification.asUserNotification("ABC", seenAtTime),
-            commonNotification.asUserNotification("XYZ", seenAtTime),
+            commonNotification.asUserNotification("ABC", readAtTime),
+            userNotification.asUserNotification("ABC", readAtTime),
+            commonNotification.asUserNotification("XYZ", readAtTime),
         )
     }
 
@@ -95,11 +95,11 @@ class NotificationRepositoryTest : FunSpec({
     // Det beste er nok å kvitte oss med `target`-kolonnen og eksplisitt opprette notifications per bruker,
     // men dette blir vanskelig å gjøre før vi får på plass en bruker-tabell
     xtest("should not be able to set notification status for another user's notification") {
-        val seenAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+        val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
         notifications.upsert(userNotification).shouldBeRight()
 
-        notifications.setNotificationSeenAt(userNotification.id, "XYZ", seenAtTime).shouldBeLeft()
+        notifications.setNotificationReadAt(userNotification.id, "XYZ", readAtTime).shouldBeLeft()
     }
 })

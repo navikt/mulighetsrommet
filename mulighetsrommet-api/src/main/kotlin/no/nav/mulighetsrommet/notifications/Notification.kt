@@ -41,7 +41,7 @@ data class UserNotification(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val seenAt: LocalDateTime?,
+    val readAt: LocalDateTime?,
 )
 
 /**
@@ -61,7 +61,7 @@ internal data class NotificationDbo(
 internal data class UserNotificationDbo(
     val notificationId: UUID,
     val userId: String,
-    val seenAt: LocalDateTime?,
+    val readAt: LocalDateTime?,
 )
 
 internal enum class NotificationTarget {

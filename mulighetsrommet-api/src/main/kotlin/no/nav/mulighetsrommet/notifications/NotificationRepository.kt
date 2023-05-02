@@ -30,10 +30,10 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertUserNotification = """
-            insert into user_notification (notification_id, user_id, seen_at)
-            values (:notification_id::uuid, :user_id, :seen_at)
-            on conflict (notification_id, user_id) do update set seen_at = excluded.seen_at
-            returning notification_id, user_id, seen_at
+            insert into user_notification (notification_id, user_id, read_at)
+            values (:notification_id::uuid, :user_id, :read_at)
+            on conflict (notification_id, user_id) do update set read_at = excluded.read_at
+            returning notification_id, user_id, read_at
         """.trimIndent()
 
         db.transaction { tx ->
@@ -62,7 +62,7 @@ class NotificationRepository(private val db: Database) {
                     mapOf(
                         "notification_id" to notification.id,
                         "user_id" to notification.user,
-                        "seen_at" to null,
+                        "read_at" to null,
                     ),
                 )
                     .map { it.toUserNotificationDbo() }
@@ -81,18 +81,18 @@ class NotificationRepository(private val db: Database) {
         }
     }
 
-    fun setNotificationSeenAt(id: UUID, userId: String, seenAt: LocalDateTime?): QueryResult<Unit> = query {
-        logger.info("Setting notification id=$id seenAt=$seenAt")
+    fun setNotificationReadAt(id: UUID, userId: String, readAt: LocalDateTime?): QueryResult<Unit> = query {
+        logger.info("Setting notification id=$id readAt=$readAt")
 
         @Language("PostgreSQL")
         val query = """
-            insert into user_notification (notification_id, user_id, seen_at)
-            values (:notification_id::uuid, :user_id, :seen_at)
-            on conflict (notification_id, user_id) do update set seen_at = excluded.seen_at
-            returning notification_id, user_id, seen_at
+            insert into user_notification (notification_id, user_id, read_at)
+            values (:notification_id::uuid, :user_id, :read_at)
+            on conflict (notification_id, user_id) do update set read_at = excluded.read_at
+            returning notification_id, user_id, read_at
         """.trimIndent()
 
-        queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "seen_at" to seenAt))
+        queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "read_at" to readAt))
             .asExecute
             .let { db.run(it) }
     }
@@ -136,7 +136,7 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.target, n.title, n.description, n.created_at, un.user_id, un.seen_at
+            select n.id, n.type, n.target, n.title, n.description, n.created_at, un.user_id, un.read_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             $where
@@ -175,7 +175,7 @@ class NotificationRepository(private val db: Database) {
     private fun Row.toUserNotificationDbo() = UserNotificationDbo(
         notificationId = uuid("notification_id"),
         userId = string("user_id"),
-        seenAt = localDateTimeOrNull("seen_at"),
+        readAt = localDateTimeOrNull("read_at"),
     )
 
     private fun Row.toNotification() = Notification(
@@ -194,6 +194,6 @@ class NotificationRepository(private val db: Database) {
         description = stringOrNull("description"),
         user = userId ?: string("user_id"),
         createdAt = localDateTime("created_at"),
-        seenAt = localDateTimeOrNull("seen_at"),
+        readAt = localDateTimeOrNull("read_at"),
     )
 }

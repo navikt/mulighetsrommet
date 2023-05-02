@@ -18,7 +18,7 @@ create table user_notification
 (
     notification_id uuid not null references notification (id) on delete cascade,
     user_id         text not null,
-    seen_at         timestamp,
+    read_at         timestamp,
     primary key (notification_id, user_id)
 );
 

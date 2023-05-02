@@ -766,24 +766,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertUserNotifications"
 
-  /api/v1/internal/notifications/{id}/seen:
+  /api/v1/internal/notifications/{id}/read:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Notifications
-      operationId: markAsSeen
+      operationId: markAsRead
       responses:
         200:
           description: OK
 
-  /api/v1/internal/notifications/{id}/unseen:
+  /api/v1/internal/notifications/{id}/unread:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Notifications
-      operationId: markAsUnseen
+      operationId: markAsUnread
       responses:
         200:
           description: OK
@@ -1691,7 +1691,7 @@ components:
         createdAt:
           type: string
           format: date-time
-        seenAt:
+        readAt:
           type: string
           format: date-time
       required:
@@ -1701,4 +1701,4 @@ components:
         - description
         - user
         - createdAt
-        - seenAt
+        - readAt

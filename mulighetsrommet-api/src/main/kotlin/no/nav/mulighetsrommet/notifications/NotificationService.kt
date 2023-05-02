@@ -69,19 +69,19 @@ class NotificationService(
             }
     }
 
-    fun markNotificationAsSeen(id: UUID, userId: String) {
-        notifications.setNotificationSeenAt(id, userId, LocalDateTime.now())
+    fun markNotificationAsRead(id: UUID, userId: String) {
+        notifications.setNotificationReadAt(id, userId, LocalDateTime.now())
             .onLeft {
-                logger.error("Failed to mark notification as seen", it.error)
-                throw StatusException(HttpStatusCode.InternalServerError, "Failed to mark notification as seen")
+                logger.error("Failed to mark notification as read", it.error)
+                throw StatusException(HttpStatusCode.InternalServerError, "Failed to mark notification as read")
             }
     }
 
-    fun markNotificationAsUnseen(id: UUID, userId: String) {
-        notifications.setNotificationSeenAt(id, userId, null)
+    fun markNotificationAsUnread(id: UUID, userId: String) {
+        notifications.setNotificationReadAt(id, userId, null)
             .onLeft {
-                logger.error("Failed to mark notification as unseen", it.error)
-                throw StatusException(HttpStatusCode.InternalServerError, "Failed to mark notification as unseen")
+                logger.error("Failed to mark notification as unread", it.error)
+                throw StatusException(HttpStatusCode.InternalServerError, "Failed to mark notification as unread")
             }
     }
 }
