@@ -2,7 +2,7 @@ import { UNSAFE_DatePicker, UNSAFE_useRangeDatepicker } from "@navikt/ds-react";
 import { useController } from "react-hook-form";
 import { formaterDato } from "../../utils/Utils";
 import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
-import "./OpprettComponents.module.scss";
+import style from "./OpprettComponents.module.scss";
 
 interface DatoProps {
   name: string;
@@ -29,6 +29,7 @@ export function Datovelger<T>({
         startDato.onChange(val?.from);
         sluttDato.onChange(val?.to);
       },
+      allowTwoDigitYear: true,
     });
 
   const futureDate = () => {
@@ -44,7 +45,7 @@ export function Datovelger<T>({
       fromDate={new Date("1 Jan 2020")}
       toDate={futureDate()}
     >
-      <div style={{ display: "flex", gap: "5rem" }}>
+      <div className={style.datofelt}>
         <DatoFelt<T>
           {...fra}
           {...fromInputProps}
@@ -74,7 +75,7 @@ export function DatoFelt<T>({
       label={label}
       name={name}
       size="medium"
-      value={value}
+      defaultValue={value}
     />
   );
 }
