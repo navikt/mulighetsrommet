@@ -1,9 +1,0 @@
-{
-  "extends": ["//"],
-  "pipeline": {
-    "build": {
-      "inputs": ["openapi-norg2.json"],
-      "outputs": ["build"]
-    }
-  }
-}
