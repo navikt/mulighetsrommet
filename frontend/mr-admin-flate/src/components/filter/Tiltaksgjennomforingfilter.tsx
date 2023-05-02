@@ -1,8 +1,8 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  TiltaksgjennomforingStatus,
   Norg2Type,
+  TiltaksgjennomforingStatus,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { ChangeEvent, useState } from "react";
@@ -12,7 +12,7 @@ import {
 } from "../../api/features/feature-toggles";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { resetPaginering } from "../../utils/Utils";
+import { inneholderUrl, resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -37,7 +37,8 @@ export function Tiltaksgjennomforingfilter(props: Props) {
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
     features.isSuccess &&
-    features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE];
+    features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE] &&
+    inneholderUrl("/avtaler/");
 
   return (
     <>
