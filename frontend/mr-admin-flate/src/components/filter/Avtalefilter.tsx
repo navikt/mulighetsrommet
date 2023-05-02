@@ -1,18 +1,22 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtalestatus, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import {
+  Avtalestatus,
+  Norg2Type,
+  Tiltakstypestatus,
+} from "mulighetsrommet-api-client";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { avtaleFilter, avtalePaginationAtom } from "../../api/atoms";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
-import { useEnheter } from "../../api/enhet/useEnheter";
-import { resetPaginering } from "../../utils/Utils";
-import styles from "./Filter.module.scss";
-import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
+import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import {
   OPPRETT_AVTALE_ADMIN_FLATE,
   useFeatureToggles,
 } from "../../api/features/feature-toggles";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { resetPaginering } from "../../utils/Utils";
+import OpprettAvtaleModal from "../avtaler/OpprettAvtaleModal";
+import styles from "./Filter.module.scss";
 
 type Filters = "tiltakstype";
 
@@ -22,7 +26,7 @@ interface Props {
 
 export function Avtalefilter(props: Props) {
   const [filter, setFilter] = useAtom(avtaleFilter);
-  const { data: enheter } = useEnheter();
+  const { data: enheter } = useAlleEnheter();
   const { data: tiltakstyper } = useTiltakstyper(
     { status: Tiltakstypestatus.AKTIV },
     1
@@ -81,22 +85,24 @@ export function Avtalefilter(props: Props) {
             <option value="">Alle statuser</option>
           </Select>
           <Select
-            label="Filtrer på enhet"
+            label="Filtrer på fylke"
             hideLabel
             size="small"
-            value={filter.enhet}
-            data-testid="filter_avtale_enhet"
+            value={filter.fylkeenhet}
+            data-testid="filter_avtale_fylke"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               resetPaginering(setPage);
-              setFilter({ ...filter, enhet: e.currentTarget.value });
+              setFilter({ ...filter, fylkeenhet: e.currentTarget.value });
             }}
           >
-            <option value="">Alle enheter</option>
-            {enheter?.map((enhet) => (
-              <option key={enhet.enhetNr} value={enhet.enhetNr}>
-                {enhet.navn} - {enhet.enhetNr}
-              </option>
-            ))}
+            <option value="">Alle fylker</option>
+            {enheter
+              ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
+              ?.map((enhet) => (
+                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                  {enhet.navn} - {enhet.enhetNr}
+                </option>
+              ))}
           </Select>
           {props.skjulFilter?.tiltakstype ? null : (
             <Select

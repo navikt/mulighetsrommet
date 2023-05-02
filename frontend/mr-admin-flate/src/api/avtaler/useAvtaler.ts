@@ -16,7 +16,7 @@ export function useAvtaler() {
       filter.tiltakstype,
       debouncedSok,
       filter.status,
-      filter.enhet,
+      filter.fylkeenhet,
       filter.sortering,
       page
     ),
@@ -25,7 +25,7 @@ export function useAvtaler() {
         tiltakstypeId: filter.tiltakstype || undefined,
         search: debouncedSok || undefined,
         avtalestatus: filter.status ? filter.status : undefined,
-        enhet: filter.enhet ? filter.enhet : undefined,
+        fylkesenhet: filter.fylkeenhet ? filter.fylkeenhet : undefined,
         sort: filter.sortering,
         page,
         size: AVTALE_PAGE_SIZE,

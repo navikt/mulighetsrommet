@@ -1,4 +1,8 @@
-import { NavEnhet, NavEnhetStatus } from "mulighetsrommet-api-client";
+import {
+  NavEnhet,
+  NavEnhetStatus,
+  Norg2Type,
+} from "mulighetsrommet-api-client";
 
 export const mockEnheter: NavEnhet[] = [
   {
@@ -20,5 +24,23 @@ export const mockEnheter: NavEnhet[] = [
     navn: "NAV Nordre Aker",
     enhetNr: "0331",
     status: NavEnhetStatus.AKTIV,
+  },
+  {
+    navn: "NAV Sogn og Fjordane",
+    enhetNr: "1400",
+    status: NavEnhetStatus.AKTIV,
+    type: Norg2Type.FYLKE,
+  },
+  {
+    navn: "NAV Møre og Romsdal",
+    enhetNr: "1500",
+    status: NavEnhetStatus.AKTIV,
+    type: Norg2Type.FYLKE,
+  },
+  {
+    navn: "NAV Innlandet",
+    enhetNr: "0400",
+    status: NavEnhetStatus.AKTIV,
+    type: Norg2Type.FYLKE,
   },
 ];

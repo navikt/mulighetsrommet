@@ -22,7 +22,7 @@ data class AvtaleFilter(
     val tiltakstypeId: UUID? = null,
     val search: String? = null,
     val avtalestatus: Avtalestatus? = null,
-    val enhet: String? = null,
+    val fylkesenhet: String? = null,
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
 )
@@ -79,13 +79,13 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     val search = call.request.queryParameters["search"]
     val avtalestatus =
         call.request.queryParameters["avtalestatus"]?.let { status -> Avtalestatus.valueOf(status) }
-    val enhet = call.request.queryParameters["enhet"]
+    val fylkesenhet = call.request.queryParameters["fylkesenhet"]
     val sortering = call.request.queryParameters["sort"]
     return AvtaleFilter(
         tiltakstypeId = tiltakstypeId,
         search = search,
         avtalestatus = avtalestatus,
-        enhet = enhet,
+        fylkesenhet = fylkesenhet,
         sortering = sortering,
     )
 }
