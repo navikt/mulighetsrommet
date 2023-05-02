@@ -31,8 +31,19 @@ export function Datovelger<T>({
       },
     });
 
+  const futureDate = () => {
+    const newDate = new Date();
+    const tenYearsFromNow = newDate.setFullYear(newDate.getFullYear() + 10);
+    return new Date(tenYearsFromNow);
+  };
+
   return (
-    <UNSAFE_DatePicker {...datepickerProps}>
+    <UNSAFE_DatePicker
+      {...datepickerProps}
+      dropdownCaption
+      fromDate={new Date("1 Jan 2020")}
+      toDate={futureDate()}
+    >
       <div style={{ display: "flex", gap: "5rem" }}>
         <DatoFelt<T>
           {...fra}
