@@ -181,7 +181,7 @@ class AvtaleRepositoryTest : FunSpec({
 
                     filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
-                        enhet = "1801",
+                        fylkesenhet = "1801",
                     ),
                 )
                 result.second shouldHaveSize 1
