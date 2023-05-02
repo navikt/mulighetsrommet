@@ -172,7 +172,7 @@ class AvtaleRepository(private val db: Database) {
             filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.fylkesenhet to "lower(a.enhet) = lower(:enhet)",
+            filter.fylkesenhet to "lower(a.enhet) = lower(:enhet) or lower(a.enhet) in (select enhetsnummer from enhet where overordnet_enhet = :enhet)",
         )
 
         val order = when (filter.sortering) {
