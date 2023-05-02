@@ -4,6 +4,7 @@ import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
 import { NavigeringHeader } from "../../pages/forside/NavigeringHeader";
 import { capitalize } from "../../utils/Utils";
 import styles from "./AdministratorHeader.module.scss";
+import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 
 export function AdministratorHeader() {
   const response = useHentAnsatt();
@@ -16,12 +17,15 @@ export function AdministratorHeader() {
 
   return (
     <Header>
-      <Header.Title as="h1">
+      <Header.Title className={styles.title} as="h1">
         <Link className={styles.link} to="/">
           NAV arbeidsmarkedstiltak
         </Link>
       </Header.Title>
-      <NavigeringHeader />
+      <div className={styles.content}>
+        <NavigeringHeader />
+        <Notifikasjonsbjelle />
+      </div>
       <Header.User
         data-testid="header-navident"
         name={ansattNavn}
