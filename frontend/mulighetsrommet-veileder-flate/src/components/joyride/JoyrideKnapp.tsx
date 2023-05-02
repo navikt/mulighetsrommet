@@ -8,7 +8,7 @@ interface Props {
 
 export const JoyrideKnapp = ({ handleClick }: Props) => {
   return (
-    <Button variant="tertiary" onClick={handleClick} id="joyride_knapp" className={style.joyride_knapp}>
+    <Button size="small" variant="tertiary" onClick={handleClick} id="joyride_knapp" className={style.joyride_knapp}>
       <HikingTrailSignIcon title="Veiviser" fontSize="1.7rem" />
       Veiviser
     </Button>
