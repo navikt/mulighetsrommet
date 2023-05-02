@@ -112,3 +112,7 @@ export const tiltakstypekodeErAnskaffetTiltak = (
 
   return ANSKAFFEDE_TILTAK.includes(tiltakstypekode);
 };
+
+export const inneholderUrl = (string: string) => {
+  return window.location.href.indexOf(string) > -1;
+};
