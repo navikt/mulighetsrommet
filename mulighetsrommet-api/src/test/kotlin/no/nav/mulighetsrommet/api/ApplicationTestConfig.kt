@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api
 
 import io.ktor.server.testing.*
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
@@ -42,7 +42,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseTestConfig(),
     auth = createAuthConfig(oauth),
     kafka = createKafkaConfig(),
-    sanity = SanityService.Config(projectId = "", authToken = "", dataset = ""),
+    sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
     veilarbpersonConfig = createServiceClientConfig("veilarbperson"),

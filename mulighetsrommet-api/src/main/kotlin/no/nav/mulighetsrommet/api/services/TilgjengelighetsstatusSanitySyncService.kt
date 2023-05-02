@@ -10,10 +10,9 @@ import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import org.slf4j.LoggerFactory
 
 @Serializable
-data class Tiltak(
+data class Tiltaksgjennomforing(
     val _id: String,
     val tiltaksnummer: String?,
 )
@@ -22,8 +21,6 @@ class TilgjengelighetsstatusSanitySyncService(
     private val sanityClient: SanityClient,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     suspend fun synchronizeTilgjengelighetsstatus() =
         coroutineScope {
             val channelCapacity = 20
@@ -40,9 +37,9 @@ class TilgjengelighetsstatusSanitySyncService(
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun CoroutineScope.produceTiltak(capacity: Int): ReceiveChannel<Tiltak> {
+    private fun CoroutineScope.produceTiltak(capacity: Int): ReceiveChannel<Tiltaksgjennomforing> {
         return produce(capacity = capacity) {
-            val tiltak = sanityClient.getMany<Tiltak>(
+            val result = sanityClient.query(
                 """
             *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))]{
               _id,
@@ -50,17 +47,22 @@ class TilgjengelighetsstatusSanitySyncService(
             }
                 """.trimIndent(),
             )
-            tiltak.result.forEach {
-                if (it.tiltaksnummer != null) {
-                    send(it)
+
+            if (result is SanityResponse.Result) {
+                val gjennomforinger = result.decode<List<Tiltaksgjennomforing>>()
+                gjennomforinger.forEach {
+                    if (it.tiltaksnummer != null) {
+                        send(it)
+                    }
                 }
             }
+
             close()
         }
     }
 
     private suspend fun writeTilgjengelighetsstatus(
-        channel: ReceiveChannel<Tiltak>,
+        channel: ReceiveChannel<Tiltaksgjennomforing>,
     ) {
         channel.consumeEach { tiltak ->
             val tilgjengelighet =

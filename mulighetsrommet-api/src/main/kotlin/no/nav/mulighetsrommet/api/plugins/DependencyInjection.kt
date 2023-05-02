@@ -35,11 +35,7 @@ import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
-import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingsstatuserToKafka
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltakstypestatuserToKafka
+import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -215,18 +211,13 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         SanityClient(
-            config = SanityClient.Config(
-                projectId = appConfig.sanity.projectId,
-                dataset = appConfig.sanity.dataset,
-                apiVersion = appConfig.sanity.apiVersion,
-                token = appConfig.sanity.authToken,
-            ),
+            config = appConfig.sanity,
         )
     }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
-    single { SanityService(appConfig.sanity, get()) }
+    single { VeilederflateSanityService(get(), get()) }
     single { SanityTiltaksgjennomforingEnheterTilApiService(get(), get()) }
     single { ArrangorService(get()) }
     single { BrukerService(get(), get(), get()) }
@@ -251,7 +242,8 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
         val synchronizeTiltaksgjennomforingEnheter =
             SynchronizeTiltaksgjennomforingEnheter(config.synchronizeEnheterFraSanityTilApi, get(), get())
-        val synchronizeTilgjengelighetsstatuserToSanity = SynchronizeTilgjengelighetsstatuserToSanity(config.synchronizeTilgjengelighetsstatuser, get(), get())
+        val synchronizeTilgjengelighetsstatuserToSanity =
+            SynchronizeTilgjengelighetsstatuserToSanity(config.synchronizeTilgjengelighetsstatuser, get(), get())
 
         val db: Database by inject()
 

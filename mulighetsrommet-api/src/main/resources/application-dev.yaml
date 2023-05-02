@@ -36,7 +36,7 @@ app:
   sanity:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}
-    authToken: ${SANITY_AUTH_TOKEN}
+    token: ${SANITY_AUTH_TOKEN}
 
   swagger:
     enable: true

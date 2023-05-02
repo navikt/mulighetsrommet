@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.SanityService
+import no.nav.mulighetsrommet.api.services.VeilederflateSanityService
 import no.nav.mulighetsrommet.api.utils.getAccessToken
 import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
@@ -16,24 +16,24 @@ import org.slf4j.LoggerFactory
 
 val log = LoggerFactory.getLogger("sanityRouteLogger")
 fun Route.sanityRoutes() {
-    val sanityService: SanityService by inject()
+    val veilederflateSanityService: VeilederflateSanityService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("/api/v1/internal/sanity") {
         get("/innsatsgrupper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(sanityService.hentInnsatsgrupper().toResponse())
+            call.respondWithData(veilederflateSanityService.hentInnsatsgrupper().toResponse())
         }
 
         get("/tiltakstyper") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            call.respondWithData(sanityService.hentTiltakstyper().toResponse())
+            call.respondWithData(veilederflateSanityService.hentTiltakstyper().toResponse())
         }
 
         get("/lokasjoner") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             call.respondWithData(
-                sanityService.hentLokasjonerForBrukersEnhetOgFylke(
+                veilederflateSanityService.hentLokasjonerForBrukersEnhetOgFylke(
                     getNorskIdent(),
                     call.getAccessToken(),
                 ).toResponse(),
@@ -43,7 +43,7 @@ fun Route.sanityRoutes() {
         get("/tiltaksgjennomforinger") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
             call.respondWithData(
-                sanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
+                veilederflateSanityService.hentTiltaksgjennomforingerForBrukerBasertPaEnhetOgFylke(
                     getNorskIdent(),
                     call.getAccessToken(),
                     getTiltaksgjennomforingsFilter(),
@@ -57,7 +57,7 @@ fun Route.sanityRoutes() {
                 text = "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest,
             )
-            call.respondWithData(sanityService.hentTiltaksgjennomforing(id).toResponse())
+            call.respondWithData(veilederflateSanityService.hentTiltaksgjennomforing(id).toResponse())
         }
     }
 }
