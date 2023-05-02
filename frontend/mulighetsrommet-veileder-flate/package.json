@@ -55,7 +55,7 @@
     "@navikt/ds-codemod": "^2.8.15",
     "@sanity/cli": "^3.9.1",
     "@types/debug": "^4.1.7",
-    "@types/node": "^18.16.0",
+    "@types/node": "^18.16.3",
     "@types/react-modal": "^3.16.0",
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
