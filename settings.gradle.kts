@@ -10,6 +10,5 @@ include(
     "common:ktor-clients",
     "common:slack",
     "mulighetsrommet-api",
-    "mulighetsrommet-api-sanity-sync",
     "mulighetsrommet-arena-adapter",
 )
