@@ -1,10 +1,11 @@
 package no.nav.mulighetsrommet.api
 
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.services.SanityService
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
@@ -18,7 +19,7 @@ data class AppConfig(
     val database: FlywayDatabaseAdapter.Config,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
-    val sanity: SanityService.Config,
+    val sanity: SanityClient.Config,
     val swagger: SwaggerConfig = SwaggerConfig(enable = false),
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
@@ -73,6 +74,7 @@ data class ServiceClientConfig(
 
 data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
+    val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
     val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
 )
 

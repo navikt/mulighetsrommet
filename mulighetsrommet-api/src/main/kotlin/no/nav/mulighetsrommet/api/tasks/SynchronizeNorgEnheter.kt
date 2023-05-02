@@ -8,11 +8,16 @@ import no.nav.mulighetsrommet.api.services.NavEnheterSyncService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
-class SynchronizeNorgEnheter(config: Config, navEnheterSyncService: NavEnheterSyncService, slackNotifier: SlackNotifier) {
+class SynchronizeNorgEnheter(
+    config: Config,
+    navEnheterSyncService: NavEnheterSyncService,
+    slackNotifier: SlackNotifier,
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
         val delayOfMinutes: Int,
+        val disabled: Boolean = false,
     )
 
     val task: RecurringTask<Void> = Tasks
@@ -22,6 +27,8 @@ class SynchronizeNorgEnheter(config: Config, navEnheterSyncService: NavEnheterSy
         }
         .execute { _, _ ->
             runBlocking {
+                if (config.disabled) return@runBlocking
+
                 logger.info("Kjører synkronisering av NORG2-enheter")
                 navEnheterSyncService.synkroniserEnheter()
             }

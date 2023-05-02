@@ -17,5 +17,8 @@ export const joyrideStyling = () => {
     buttonNext: {
       width: 100,
     },
+    tooltipContent: {
+      padding: '10px',
+    },
   };
 };

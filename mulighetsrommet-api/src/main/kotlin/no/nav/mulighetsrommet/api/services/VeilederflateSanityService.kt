@@ -2,18 +2,12 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonObject
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.utils.*
-import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -21,12 +15,11 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 import kotlin.collections.set
 
-class SanityService(
-    private val config: Config,
+class VeilederflateSanityService(
+    private val sanityClient: SanityClient,
     private val brukerService: BrukerService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val client: HttpClient
     private val fylkenummerCache = mutableMapOf<String?, String>()
     private val sanityCache: Cache<String, SanityResponse> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
@@ -34,56 +27,26 @@ class SanityService(
         .recordStats()
         .build()
 
-    data class Config(
-        val authToken: String?,
-        val dataset: String,
-        val projectId: String,
-        val apiVersion: String = "v2023-01-01",
-    ) {
-        val apiUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/query/$dataset"
-        val mutateUrl get() = "https://$projectId.apicdn.sanity.io/$apiVersion/data/mutate/$dataset"
-    }
-
     init {
-        logger.debug("Init SanityHttpClient")
-        client = httpJsonClient().config {
-            defaultRequest {
-                config.authToken?.also {
-                    bearerAuth(it)
-                }
-
-                url(config.apiUrl)
-            }
-        }
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    private suspend fun executeQuery(query: String): SanityResponse {
-        return get(query)
-    }
-
-    private suspend fun get(query: String, enhetsId: String? = null, fylkeId: String? = null): SanityResponse {
-        try {
-            client.get {
-                url {
-                    parameters.append("query", query)
-                    enhetsId?.let { parameters.append("\$enhetsId", "\"enhet.lokal.$it\"") }
-                    fylkeId?.let { parameters.append("\$fylkeId", "\"enhet.fylke.$it\"") }
-                }
-            }.let {
-                return it.body()
-            }
-        } catch (exception: Exception) {
-            logger.error("Klarte ikke hente data fra Sanity", exception)
-            return SanityResponse.Error(JsonNull.jsonObject)
-        }
+    private suspend fun get(
+        query: String,
+        enhetsId: String? = null,
+        fylkeId: String? = null,
+    ): SanityResponse {
+        val parameters = mutableMapOf<String, String>()
+        enhetsId?.let { parameters.put("\$enhetsId", "\"enhet.lokal.$it\"") }
+        fylkeId?.let { parameters.put("\$fylkeId", "\"enhet.fylke.$it\"") }
+        return sanityClient.query(query, parameters)
     }
 
     suspend fun hentInnsatsgrupper(): SanityResponse {
         return CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
-            executeQuery(
+            get(
                 """
             *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
                 """.trimIndent(),
@@ -93,7 +56,7 @@ class SanityService(
 
     suspend fun hentTiltakstyper(): SanityResponse {
         return CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
-            executeQuery(
+            get(
                 """
                 *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
                 """.trimIndent(),
@@ -115,7 +78,7 @@ class SanityService(
         """.trimIndent()
 
         return CacheUtils.tryCacheFirstNotNull(sanityCache, fnr) {
-            executeQuery(
+            get(
                 query,
             )
         }
@@ -151,7 +114,7 @@ class SanityService(
               }
         """.trimIndent()
 
-        return executeQuery(query)
+        return get(query)
     }
 
     suspend fun hentTiltaksgjennomforing(id: String): SanityResponse {
@@ -186,12 +149,11 @@ class SanityService(
                   },
                   regelverkLenker[]->,
                   innsatsgruppe->,
-
                 }
               }
         """.trimIndent()
 
-        return executeQuery(query)
+        return get(query)
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
@@ -199,7 +161,8 @@ class SanityService(
             return fylkenummerCache[enhetsId]
         }
 
-        val response = get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
+        val response =
+            get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
 
         logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 

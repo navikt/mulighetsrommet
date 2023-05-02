@@ -110,7 +110,7 @@ paths:
             $ref: "#/components/schemas/Avtalestatus"
           description: Status for avtale
         - in: query
-          name: enhet
+          name: fylkesenhet
           schema:
             type: string
           description: 4 digit enhetskode

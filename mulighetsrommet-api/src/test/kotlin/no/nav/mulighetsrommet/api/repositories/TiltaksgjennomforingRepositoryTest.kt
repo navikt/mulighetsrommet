@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -135,6 +136,47 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it!!.enheter.shouldContainExactlyInAnyOrder("1", "3")
             }
             database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+        }
+
+        test("Oppdater enheter fra Sanity-tiltaksgjennomføringer til database") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val enhetRepository = EnhetRepository(database.db)
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn1",
+                    enhetNr = "1",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+            enhetRepository.upsert(
+                NavEnhetDbo(
+                    navn = "Navn2",
+                    enhetNr = "2",
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            ).shouldBeRight()
+
+            val gjennomforing = gjennomforing1.copy(tiltaksnummer = "2023#1")
+
+            tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldBeEmpty()
+            }
+            tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2")).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
+            }
+            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+
+            tiltaksgjennomforinger.updateEnheter("1", listOf("2")).shouldBeRight()
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
+                it!!.enheter.shouldContainExactlyInAnyOrder("2")
+            }
+            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(1)
         }
     }
 

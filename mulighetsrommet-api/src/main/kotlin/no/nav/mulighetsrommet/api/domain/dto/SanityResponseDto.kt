@@ -1,10 +1,18 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonContentPolymorphicSerializer
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
+
+@Serializable
+data class SanityTiltaksgjennomforingResponse(
+    val tiltaksnummer: String?,
+    val enheter: List<Enhet>?,
+)
+
+@Serializable
+data class Enhet(
+    val _ref: String?,
+)
 
 @Serializable
 data class FylkeResponse(
@@ -27,8 +35,12 @@ sealed class SanityResponse {
     data class Result(
         val ms: Int,
         val query: String,
-        val result: JsonElement?,
-    ) : SanityResponse()
+        val result: JsonElement,
+    ) : SanityResponse() {
+        inline fun <reified T> decode(): T {
+            return Json.decodeFromJsonElement(result)
+        }
+    }
 
     @Serializable
     data class Error(
