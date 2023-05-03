@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -257,7 +257,6 @@ paths:
               schema:
                 type: string
 
-
   /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
     get:
       tags:
@@ -421,7 +420,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: { }
+              schema: {}
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -752,7 +751,55 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Virksomhet"
+                $ref: "#/components/schemas/Virksomhet"
+
+  /api/v1/internal/notifications:
+    get:
+      tags:
+        - Notifications
+      operationId: getNotifications
+      responses:
+        200:
+          description: Notifications for the user that is currently signed in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginertUserNotifications"
+
+  /api/v1/internal/notifications/summary:
+    get:
+      tags:
+        - Notifications
+      operationId: getNotificationSummary
+      responses:
+        200:
+          description: Notifications for the user that is currently signed in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserNotificationSummary"
+
+  /api/v1/internal/notifications/{id}/read:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Notifications
+      operationId: markAsRead
+      responses:
+        200:
+          description: OK
+
+  /api/v1/internal/notifications/{id}/unread:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Notifications
+      operationId: markAsUnread
+      responses:
+        200:
+          description: OK
 
 components:
   securitySchemes:
@@ -1212,7 +1259,6 @@ components:
         - Planlagt
         - Avsluttet
 
-
     Tiltakstypekategori:
       type: string
       enum:
@@ -1623,3 +1669,57 @@ components:
       required:
         - organisasjonsnummer
         - navn
+
+    PaginertUserNotifications:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserNotification"
+
+    UserNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - Notification
+            - Task
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        user:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        readAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - title
+        - description
+        - user
+        - createdAt
+        - readAt
+
+    UserNotificationSummary:
+      type: object
+      properties:
+        unreadCount:
+          type: integer
+      required:
+        - unreadCount

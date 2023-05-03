@@ -18,14 +18,15 @@ flyway {
 }
 
 dependencies {
+    implementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.domain)
+    implementation(projects.common.kafka)
     implementation(projects.common.ktor)
     implementation(projects.common.ktorClients)
-    implementation(projects.common.database)
-    implementation(projects.common.slack)
-    implementation(projects.common.kafka)
     implementation(projects.common.metrics)
-    testImplementation(testFixtures(projects.common.database))
+    implementation(projects.common.slack)
+    implementation(projects.common.tasks)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)

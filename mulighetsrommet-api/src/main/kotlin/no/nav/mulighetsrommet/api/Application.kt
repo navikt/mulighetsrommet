@@ -51,6 +51,7 @@ fun Application.configure(config: AppConfig) {
             delMedBrukerRoutes()
             enhetRoutes()
             virksomhetRoutes()
+            notificationRoutes()
         }
         authenticate(AuthProvider.AzureAdDefaultApp.name) {
             arenaAdapterRoutes()

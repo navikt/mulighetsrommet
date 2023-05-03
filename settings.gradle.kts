@@ -10,6 +10,7 @@ include(
     "common:ktor-clients",
     "common:metrics",
     "common:slack",
+    "common:tasks",
     "mulighetsrommet-api",
     "mulighetsrommet-arena-adapter",
 )
