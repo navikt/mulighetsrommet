@@ -10,6 +10,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
+    implementation(projects.common.metrics)
     testFixturesImplementation(libs.ktor.client.core)
     testFixturesImplementation(libs.ktor.client.mock)
     testFixturesImplementation(libs.ktor.serialization.json)
@@ -21,9 +22,6 @@ dependencies {
     implementation(libs.ktor.server.statusPages)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authJwt)
-
-    // Metrikker
-    implementation(libs.micrometer.registry.prometheus)
 
     // Audit-logging
     implementation(libs.nav.common.auditLog)

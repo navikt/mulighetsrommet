@@ -10,7 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.ktor.plugins.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory

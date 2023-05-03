@@ -41,7 +41,7 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
-import no.nav.mulighetsrommet.ktor.plugins.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.poao_tilgang.client.PoaoTilgangClient

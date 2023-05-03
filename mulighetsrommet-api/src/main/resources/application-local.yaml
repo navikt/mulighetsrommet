@@ -35,7 +35,8 @@ app:
   sanity:
     dataset: test
     projectId: xegcworx
-    token: ${SANITY_AUTH_TOKEN:-""}
+    token: ${SANITY_AUTH_TOKEN:-}
+    useCdn: false
 
   swagger:
     enable: true
@@ -88,6 +89,6 @@ app:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
 
   slack:
-    token: ${SLACK_TOKEN:-""}
+    token: ${SLACK_TOKEN:-}
     channel: "#team-valp-monitoring"
     enable: false

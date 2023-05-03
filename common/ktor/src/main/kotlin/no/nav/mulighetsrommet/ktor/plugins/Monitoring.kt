@@ -10,15 +10,10 @@ import io.ktor.server.plugins.callloging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.mulighetsrommet.metrics.Metrikker
 
 fun interface MonitoredResource {
     fun isAvailable(): Boolean
-}
-
-object Metrikker {
-    val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 }
 
 fun Application.configureMonitoring(vararg resources: MonitoredResource) {

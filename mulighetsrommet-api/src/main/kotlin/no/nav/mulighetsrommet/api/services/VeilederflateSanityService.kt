@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.utils.*
-import no.nav.mulighetsrommet.ktor.plugins.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
@@ -33,22 +33,11 @@ class VeilederflateSanityService(
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    private suspend fun get(
-        query: String,
-        enhetsId: String? = null,
-        fylkeId: String? = null,
-    ): SanityResponse {
-        val parameters = mutableMapOf<String, String>()
-        enhetsId?.let { parameters.put("\$enhetsId", "\"enhet.lokal.$it\"") }
-        fylkeId?.let { parameters.put("\$fylkeId", "\"enhet.fylke.$it\"") }
-        return sanityClient.query(query, parameters)
-    }
-
     suspend fun hentInnsatsgrupper(): SanityResponse {
         return CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
-            get(
+            sanityClient.query(
                 """
-            *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
+                *[_type == "innsatsgruppe" && !(_id in path("drafts.**"))] | order(order asc)
                 """.trimIndent(),
             )
         }
@@ -56,9 +45,9 @@ class VeilederflateSanityService(
 
     suspend fun hentTiltakstyper(): SanityResponse {
         return CacheUtils.tryCacheFirstNotNull(sanityCache, "tiltakstyper") {
-            get(
+            sanityClient.query(
                 """
-                *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
+                    *[_type == "tiltakstype" && !(_id in path("drafts.**"))]
                 """.trimIndent(),
             )
         }
@@ -78,9 +67,7 @@ class VeilederflateSanityService(
         """.trimIndent()
 
         return CacheUtils.tryCacheFirstNotNull(sanityCache, fnr) {
-            get(
-                query,
-            )
+            sanityClient.query(query)
         }
     }
 
@@ -114,7 +101,7 @@ class VeilederflateSanityService(
               }
         """.trimIndent()
 
-        return get(query)
+        return sanityClient.query(query)
     }
 
     suspend fun hentTiltaksgjennomforing(id: String): SanityResponse {
@@ -153,7 +140,7 @@ class VeilederflateSanityService(
               }
         """.trimIndent()
 
-        return get(query)
+        return sanityClient.query(query)
     }
 
     private suspend fun getFylkeIdBasertPaaEnhetsId(enhetsId: String?): String? {
@@ -162,7 +149,7 @@ class VeilederflateSanityService(
         }
 
         val response =
-            get("*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
+            sanityClient.query(query = "*[_type == \"enhet\" && type == \"Lokal\" && nummer.current == \"$enhetsId\"][0]{fylke->}")
 
         logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 

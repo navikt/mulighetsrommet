@@ -31,6 +31,7 @@ dependencies {
     testImplementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)
     implementation(projects.common.slack)
+    implementation(projects.common.metrics)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)
@@ -68,9 +69,6 @@ dependencies {
     // Dependency injection
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
-
-    // Metrics
-    implementation(libs.micrometer.registry.prometheus)
 
     // Logging
     implementation(libs.logback.classic)

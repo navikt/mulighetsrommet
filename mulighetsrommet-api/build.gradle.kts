@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
+    implementation(projects.common.metrics)
     testImplementation(testFixtures(projects.common.database))
 
     // Kotlin
@@ -54,7 +55,6 @@ dependencies {
 
     // Metrics
     implementation(libs.prometheus.caffeine)
-    implementation(libs.micrometer.registry.prometheus)
 
     implementation(libs.nav.common.auditLog)
     implementation(libs.nav.common.tokenClient)

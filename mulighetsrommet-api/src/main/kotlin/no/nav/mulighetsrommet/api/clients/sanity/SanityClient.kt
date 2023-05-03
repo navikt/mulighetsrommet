@@ -13,6 +13,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
@@ -24,9 +25,10 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         val dataset: String,
         val apiVersion: String = "v2023-01-01", // https://www.sanity.io/docs/api-versioning
         val token: String?,
+        val useCdn: Boolean = true,
     ) {
         private val baseUrl
-            get() = "https://$projectId.apicdn.sanity.io/$apiVersion"
+            get() = "https://$projectId.${if (useCdn) "apicdn" else "api"}.sanity.io/$apiVersion"
 
         val queryUrl
             get() = "$baseUrl/data/query/$dataset"
@@ -49,6 +51,8 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
             level = LogLevel.INFO
         }
 
+        install(ClientResponseMetricPlugin)
+
         install(HttpRequestRetry) {
             retryOnServerErrors(maxRetries = 5)
             exponentialDelay()
@@ -70,17 +74,18 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
 
         defaultRequest {
             contentType(ContentType.Application.Json)
-            config.token?.let { bearerAuth(it) }
+            config.token.takeIf {
+                !it.isNullOrEmpty()
+            }?.let {
+                bearerAuth(it)
+            }
         }
     }
 
-    internal suspend fun query(query: String, params: Map<String, String> = emptyMap()): SanityResponse {
+    internal suspend fun query(query: String): SanityResponse {
         val response = client.get(config.queryUrl) {
             url {
                 parameters.append("query", query)
-                params.entries.forEach {
-                    parameters.append(it.key, it.value)
-                }
             }
         }
 

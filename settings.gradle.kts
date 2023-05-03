@@ -8,6 +8,7 @@ include(
     "common:kafka",
     "common:ktor",
     "common:ktor-clients",
+    "common:metrics",
     "common:slack",
     "mulighetsrommet-api",
     "mulighetsrommet-arena-adapter",
