@@ -1,7 +1,9 @@
 @use "@navikt/ds-tokens/dist/tokens" as *;
 
 :global(.navdsi-header) {
-  flex-wrap: wrap;
+  @media (max-width: $a-breakpoint-md) {
+    flex-wrap: wrap;
+  }
 }
 
 .link {
@@ -10,7 +12,14 @@
 }
 
 .user {
-  @media (min-width: $a-breakpoint-sm) {
+  @media (min-width: $a-breakpoint-md) {
     margin-left: auto;
   }
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
 }

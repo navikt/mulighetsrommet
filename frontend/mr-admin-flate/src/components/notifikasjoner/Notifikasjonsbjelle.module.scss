@@ -1,0 +1,19 @@
+.lenke {
+  color: white;
+  margin-right: 1rem;
+}
+
+.bell_container {
+  position: relative;
+}
+
+.notifier {
+  width: 10px;
+  height: 10px;
+  background-color: var(--a-icon-danger);
+  display: inline-block;
+  border-radius: 100%;
+  position: absolute;
+  right: 2px;
+  bottom: 25px;
+}
