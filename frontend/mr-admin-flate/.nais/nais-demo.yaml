@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: mulighetsrommet-admin-flate-demo
+  name: mr-admin-flate-demo
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -29,13 +29,13 @@ spec:
       memory: 256Mi
   gcp:
     buckets:
-      - name: mulighetsrommet-admin-flate-demo
+      - name: mr-admin-flate-demo
         cascadingDelete: false
   env:
     - name: JSON_CONFIG
       value: >
         {
           "gcs": {
-            "bucketName": "mulighetsrommet-admin-flate-demo"
+            "bucketName": "mr-admin-flate-demo"
           }
         }
