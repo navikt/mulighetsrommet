@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
+import style from "./SokeSelect.module.scss";
 
 export interface SelectOption {
   value?: string;
@@ -60,15 +61,13 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           fieldState: { error },
         }) => (
           <>
-            <label
-              style={{ marginBottom: "8px", display: "inline-block" }}
-              htmlFor={name}
-            >
+            <label className={style.label} htmlFor={name}>
               <b>{label}</b>
             </label>
             <ReactSelect
               placeholder={placeholder}
               isDisabled={!!disabled}
+              className={style.sokeselect}
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
@@ -90,7 +89,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               })}
             />
             {error && (
-              <div style={{ marginTop: "8px", color: "#C30000" }}>
+              <div className={style.errormsg}>
                 <b>• {error.message}</b>
               </div>
             )}
