@@ -70,9 +70,6 @@ dependencies {
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
 
-    // Metrics
-    implementation(libs.micrometer.registry.prometheus)
-
     // Logging
     implementation(libs.logback.classic)
     implementation(libs.logback.logstashLogbackEncoder)

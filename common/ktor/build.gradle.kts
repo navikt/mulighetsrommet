@@ -23,9 +23,6 @@ dependencies {
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authJwt)
 
-    // Metrikker
-    implementation(libs.micrometer.registry.prometheus)
-
     // Audit-logging
     implementation(libs.nav.common.auditLog)
     constraints {
