@@ -9,6 +9,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.api.metrics.ErrorCounter
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -60,6 +61,7 @@ class VeilarboppfolgingClientImpl(
 
                 response.body()
             } catch (exe: Exception) {
+                ErrorCounter("veilarboppfolging.oppfolgingsstatus").increment()
                 SecureLog.logger.error("Klarte ikke hente oppfølgingsstatus for bruker med fnr: $fnr")
                 log.error("Klarte ikke hente oppfølgingsstatus. Se secureLogs for detaljer.")
                 return null
@@ -81,6 +83,7 @@ class VeilarboppfolgingClientImpl(
 
                 response.body()
             } catch (exe: Exception) {
+                ErrorCounter("veilarboppfolging.manuellStatus").increment()
                 SecureLog.logger.error("Klarte ikke hente manuell status for bruker med fnr: $fnr", exe)
                 log.error("Klarte ikke hente manuell status. Se detaljer i secureLogs.")
                 return null

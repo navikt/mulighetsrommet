@@ -8,6 +8,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.api.metrics.ErrorCounter
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -45,6 +46,7 @@ class VeilarbpersonClientImpl(
                     bearerAuth(tokenProvider.invoke(accessToken))
                 }.body()
             } catch (exe: Exception) {
+                ErrorCounter("veilarbperson").increment()
                 SecureLog.logger.error("Klarte ikke hente fornavn for bruker med fnr: $fnr")
                 log.error("Klarte ikke hente fornavn. Se detaljer i secureLog.")
                 return null

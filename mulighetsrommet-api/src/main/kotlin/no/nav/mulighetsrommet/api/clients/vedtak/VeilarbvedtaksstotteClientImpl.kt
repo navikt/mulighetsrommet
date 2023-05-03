@@ -10,6 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.decodeFromString
+import no.nav.mulighetsrommet.api.metrics.ErrorCounter
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.ktor.plugins.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -61,6 +62,7 @@ class VeilarbvedtaksstotteClientImpl(
             try {
                 JsonIgnoreUnknownKeys.decodeFromString(body)
             } catch (e: Throwable) {
+                ErrorCounter("veilarbvedtaksstotte").increment()
                 SecureLog.logger.error(
                     "Klarte ikke hente siste 14A-vedtak for bruker med fnr: $fnr, response: $response, body: $body",
                     e,

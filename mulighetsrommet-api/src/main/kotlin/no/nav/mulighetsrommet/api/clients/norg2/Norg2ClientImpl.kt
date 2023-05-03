@@ -4,6 +4,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
+import no.nav.mulighetsrommet.api.metrics.ErrorCounter
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 
@@ -22,6 +23,7 @@ class Norg2ClientImpl(
             }
             response.body()
         } catch (exe: Exception) {
+            ErrorCounter("norg2").increment()
             log.error("Klarte ikke hente enheter fra NORG2. Konsekvensen er at oppdatering av enheter mot database ikke blir kjørt")
             throw exe
         }

@@ -7,6 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.metrics.ErrorCounter
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingsstatusDto
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -37,7 +38,10 @@ class ArenaAdapterClientImpl(
                 log.warn("Tiltaksgjennomføring finnes ikke: $arenaId")
                 null
             }
-            else -> throw ResponseException(response, "Unexpected response from arena-adapter")
+            else -> {
+                ErrorCounter("arenaadapter.gjennomforingArena").increment()
+                throw ResponseException(response, "Unexpected response from arena-adapter")
+            }
         }
     }
 
@@ -54,7 +58,10 @@ class ArenaAdapterClientImpl(
                 log.warn("Tiltaksgjennomføring finnes ikke: $id")
                 null
             }
-            else -> throw ResponseException(response, "Unexpected response from arena-adapter")
+            else -> {
+                ErrorCounter("arenaadapter.gjennomforingsstatus").increment()
+                throw ResponseException(response, "Unexpected response from arena-adapter")
+            }
         }
     }
 }
