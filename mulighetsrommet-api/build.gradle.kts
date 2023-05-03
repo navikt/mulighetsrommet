@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
+    implementation(projects.common.metrics)
     testImplementation(testFixtures(projects.common.database))
 
     // Kotlin

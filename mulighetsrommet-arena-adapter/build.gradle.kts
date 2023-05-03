@@ -31,6 +31,7 @@ dependencies {
     testImplementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)
     implementation(projects.common.slack)
+    implementation(projects.common.metrics)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)

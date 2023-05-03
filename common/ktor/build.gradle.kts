@@ -10,6 +10,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 dependencies {
+    implementation(projects.common.metrics)
     testFixturesImplementation(libs.ktor.client.core)
     testFixturesImplementation(libs.ktor.client.mock)
     testFixturesImplementation(libs.ktor.serialization.json)
