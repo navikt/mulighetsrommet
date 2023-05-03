@@ -10,7 +10,7 @@ function Notifier() {
 export function Notifikasjonsbjelle() {
   const { data: features } = useFeatureToggles();
 
-  const harUlesteNotifikasjoner = true; // TODO Må utledes fra API
+  const harUlesteNotifikasjoner = true; // TODO Må utledes om man har uleste notifikasjoner fra API
 
   return features?.["mulighetsrommet.admin-flate-se-notifikasjoner"] ? (
     <Link to="/notifikasjoner" className={styles.lenke}>
