@@ -1,17 +1,17 @@
 import {
-  TableContainer,
+  Box,
+  Button,
+  Flex,
+  Switch,
   Table,
-  Thead,
-  Tr,
-  Th,
+  TableContainer,
   Tbody,
   Td,
-  Switch,
-  Flex,
-  Button,
-  Box,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Section } from "../components/Section";
 import { putTopicRunningState } from "../core/api";
 import { useTopics } from "../core/hooks";
@@ -20,7 +20,7 @@ function TopicOverview() {
   const { topics, isTopicsLoading, setTopics } = useTopics();
   const [isSaveLoading, setIsSaveLoading] = useState(false);
 
-  const setRunningState = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const setRunningState = (event: ChangeEvent<HTMLInputElement>) => {
     const changedTopics = [...topics];
     changedTopics[
       changedTopics.map((t) => t.topic).indexOf(event.currentTarget.name)
