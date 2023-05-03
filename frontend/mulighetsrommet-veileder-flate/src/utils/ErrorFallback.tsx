@@ -1,5 +1,5 @@
 import { Feilmelding, forsokPaNyttLink } from '../components/feilmelding/Feilmelding';
-import { porten } from '../constants';
+import { porten } from 'mulighetsrommet-frontend-common/constants';
 
 export function ErrorFallback({ error }: any) {
   let feilmelding = (

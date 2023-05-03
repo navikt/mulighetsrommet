@@ -4,5 +4,3 @@ export const APPLICATION_NAME = 'mulighetsrommet-veileder-flate';
  * gets mounted.
  */
 export const MODAL_ACCESSIBILITY_WRAPPER = 'modal-a11y-wrapper';
-
-export const porten = 'https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401';

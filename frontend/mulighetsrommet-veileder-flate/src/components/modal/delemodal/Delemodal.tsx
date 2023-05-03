@@ -12,7 +12,7 @@ import { DelMedBrukerContent } from './DelMedBrukerContent';
 import { useNavigerTilDialogen } from '../../../hooks/useNavigerTilDialogen';
 import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 import { StatusModal } from './StatusModal';
-import { porten } from '../../../constants';
+import { porten } from 'mulighetsrommet-frontend-common/constants';
 
 export const logDelMedbrukerEvent = (
   action: 'Åpnet dialog' | 'Delte med bruker' | 'Del med bruker feilet' | 'Avbrutt del med bruker' | 'Sett hilsen'
