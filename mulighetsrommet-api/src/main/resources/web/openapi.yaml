@@ -766,6 +766,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertUserNotifications"
 
+  /api/v1/internal/notifications/summary:
+    get:
+      tags:
+        - Notifications
+      operationId: getNotificationSummary
+      responses:
+        200:
+          description: Notifications for the user that is currently signed in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserNotificationSummary"
+
   /api/v1/internal/notifications/{id}/read:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1702,3 +1715,11 @@ components:
         - user
         - createdAt
         - readAt
+
+    UserNotificationSummary:
+      type: object
+      properties:
+        unreadCount:
+          type: integer
+      required:
+        - unreadCount

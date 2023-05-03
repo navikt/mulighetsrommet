@@ -44,6 +44,11 @@ data class UserNotification(
     val readAt: LocalDateTime?,
 )
 
+@Serializable
+data class UserNotificationSummary(
+    val unreadCount: Int,
+)
+
 /**
  * Internal representation of notifications
  */

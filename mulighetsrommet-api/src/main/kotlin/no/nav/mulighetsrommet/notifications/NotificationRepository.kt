@@ -149,6 +149,38 @@ class NotificationRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getUserNotificationSummary(userId: String): QueryResult<UserNotificationSummary> = query {
+        @Language("PostgreSQL")
+        val query = """
+            with all_common_notifications as (select count(*) as count
+                                              from notification
+                                              where target = 'All'),
+                 read_common_notifications as (select count(*) as count
+                                               from notification n
+                                                        left join user_notification un on n.id = un.notification_id
+                                               where target = 'All'
+                                                 and (un.user_id = :user_id and un.read_at is not null)),
+                 unread_user_notifications as (select count(*) as count
+                                               from notification n
+                                                        join user_notification un on n.id = un.notification_id
+                                               where n.target = 'User'
+                                                 and user_id = :user_id
+                                                 and read_at is null)
+            select (select count from all_common_notifications) -
+                   (select count from read_common_notifications) +
+                   (select count from unread_user_notifications) as unread_count
+        """.trimIndent()
+
+        queryOf(query, mapOf("user_id" to userId))
+            .map {
+                UserNotificationSummary(
+                    unreadCount = it.int("unread_count"),
+                )
+            }
+            .asSingle
+            .let { db.run(it)!! }
+    }
+
     fun delete(id: UUID): QueryResult<Int> = query {
         logger.info("Deleting notification id=$id")
 

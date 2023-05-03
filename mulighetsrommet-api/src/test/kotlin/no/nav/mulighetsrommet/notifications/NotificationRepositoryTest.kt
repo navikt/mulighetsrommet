@@ -44,6 +44,14 @@ class NotificationRepositoryTest : FunSpec({
         )
     }
 
+    beforeEach {
+        database.db.migrate()
+    }
+
+    afterEach {
+        database.db.clean()
+    }
+
     test("CRUD") {
         val notifications = NotificationRepository(database.db)
 
@@ -101,5 +109,28 @@ class NotificationRepositoryTest : FunSpec({
         notifications.upsert(userNotification).shouldBeRight()
 
         notifications.setNotificationReadAt(userNotification.id, "XYZ", readAtTime).shouldBeLeft()
+    }
+
+    test("get notification summary for user") {
+        val notifications = NotificationRepository(database.db)
+
+        notifications.upsert(commonNotification).shouldBeRight()
+        notifications.upsert(userNotification).shouldBeRight()
+
+        notifications.getUserNotificationSummary("ABC") shouldBeRight UserNotificationSummary(
+            unreadCount = 2,
+        )
+        notifications.getUserNotificationSummary("XYZ") shouldBeRight UserNotificationSummary(
+            unreadCount = 1,
+        )
+
+        notifications.setNotificationReadAt(commonNotification.id, "ABC", LocalDateTime.now()).shouldBeRight()
+
+        notifications.getUserNotificationSummary("ABC") shouldBeRight UserNotificationSummary(
+            unreadCount = 1,
+        )
+        notifications.getUserNotificationSummary("XYZ") shouldBeRight UserNotificationSummary(
+            unreadCount = 1,
+        )
     }
 })

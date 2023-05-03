@@ -5,7 +5,7 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.ExecutionComplete
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import no.nav.mulighetsrommet.database.DatabaseAdapter
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -62,10 +62,15 @@ class NotificationService(
         return notifications.getUserNotifications(userId)
             .getOrElse {
                 logger.error("Failed to get notifications for user=$userId", it.error)
-                throw StatusException(
-                    HttpStatusCode.InternalServerError,
-                    "Failed to get notifications for user=$userId",
-                )
+                throw StatusException(InternalServerError, "Failed to get notifications for user=$userId")
+            }
+    }
+
+    fun getNotificationSummary(userId: String): UserNotificationSummary {
+        return notifications.getUserNotificationSummary(userId)
+            .getOrElse {
+                logger.error("Failed to get summary for user=$userId", it.error)
+                throw StatusException(InternalServerError, "Failed to get summary for user=$userId")
             }
     }
 
@@ -73,7 +78,7 @@ class NotificationService(
         notifications.setNotificationReadAt(id, userId, LocalDateTime.now())
             .onLeft {
                 logger.error("Failed to mark notification as read", it.error)
-                throw StatusException(HttpStatusCode.InternalServerError, "Failed to mark notification as read")
+                throw StatusException(InternalServerError, "Failed to mark notification as read")
             }
     }
 
@@ -81,7 +86,7 @@ class NotificationService(
         notifications.setNotificationReadAt(id, userId, null)
             .onLeft {
                 logger.error("Failed to mark notification as unread", it.error)
-                throw StatusException(HttpStatusCode.InternalServerError, "Failed to mark notification as unread")
+                throw StatusException(InternalServerError, "Failed to mark notification as unread")
             }
     }
 }

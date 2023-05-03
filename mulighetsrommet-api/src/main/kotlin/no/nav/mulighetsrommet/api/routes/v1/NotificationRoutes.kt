@@ -23,6 +23,14 @@ fun Route.notificationRoutes() {
             call.respond(PaginatedResponse.of(notifications))
         }
 
+        get("summary") {
+            val userId = getNavIdent()
+
+            val summary = notificationService.getNotificationSummary(userId)
+
+            call.respond(summary)
+        }
+
         post("{id}/read") {
             val id = call.parameters.getOrFail<UUID>("id")
             val userId = getNavIdent()
