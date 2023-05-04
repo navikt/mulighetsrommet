@@ -18,7 +18,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const features = useFeatureToggles();
   const visJoyride = features.isSuccess && features.data[VIS_JOYRIDE];
-  const { data } = useTiltaksgjennomforinger();
+  const { isFetched } = useTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -36,7 +36,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
                 <OversiktenJoyride
                   setHistorikkModalOpen={setIsHistorikkModalOpen}
                   isHistorikkModalOpen={isHistorikkModalOpen}
-                  isTableFetched={!!data}
+                  isTableFetched={isFetched}
                 />
                 <OversiktenLastStepJoyride />
               </>
