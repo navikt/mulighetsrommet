@@ -1,0 +1,38 @@
+.list_element {
+  list-style: none;
+  width: 100%;
+  background-color: white;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 12px;
+
+  a {
+    color: black;
+  }
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+}
+
+.notifikasjon_container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.muted {
+  color: var(--a-text-subtle);
+  font-size: 14px;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bold {
+  font-weight: bold;
+}
