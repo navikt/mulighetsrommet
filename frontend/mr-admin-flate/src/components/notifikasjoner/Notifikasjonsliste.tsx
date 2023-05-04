@@ -3,6 +3,7 @@ import styles from "./BrukerNotifikasjoner.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Notifikasjonssrad } from "./Notifikasjonssrad";
 import { Laster } from "../laster/Laster";
+import { Alert, BodyShort } from "@navikt/ds-react";
 
 export function Notifikasjonsliste() {
   const { data: features } = useFeatureToggles();
@@ -19,6 +20,14 @@ export function Notifikasjonsliste() {
   }
 
   const { data } = paginertResultat;
+
+  if (data.length !== 0) {
+    return (
+      <Alert variant="info">
+        <BodyShort>Du har ingen nye varsler.</BodyShort>
+      </Alert>
+    );
+  }
 
   return (
     <section className={styles.container}>
