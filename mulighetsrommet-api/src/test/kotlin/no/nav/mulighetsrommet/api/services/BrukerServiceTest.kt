@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.oppfolging.*
+import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.PersonDto
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
@@ -34,6 +35,10 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonDto(
             fornavn = "Ola",
+            geografiskEnhet = Enhet(
+                navn = "NAV Fredrikstad",
+                enhetsnummer = "0106",
+            ),
         )
 
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr2, any()) } returns OppfolgingsstatusDto(
@@ -49,6 +54,10 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarbpersonClient.hentPersonInfo(fnr2, any()) } returns PersonDto(
             fornavn = "Petter",
+            geografiskEnhet = Enhet(
+                navn = "NAV Fredrikstad",
+                enhetsnummer = "0106",
+            ),
         )
     }
 
@@ -60,7 +69,9 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.erReservert shouldBe false
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
         brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.navn shouldBe "NAV Fredrikstad"
-        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetId shouldBe "0116"
+        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetId shouldBe "0106"
+        brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.navn shouldBe "NAV Fredrikstad"
+        brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.enhetsnummer shouldBe "0106"
     }
 })
 
@@ -75,5 +86,5 @@ fun mockManuellStatus(): ManuellStatusDto {
 }
 
 fun mockOppfolgingsenhet(): Oppfolgingsenhet {
-    return Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0116")
+    return Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0106")
 }

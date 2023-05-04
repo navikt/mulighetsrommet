@@ -36,6 +36,10 @@ export const apiHandlers: RestHandler[] = [
           enhetId: ENHET_FREDRIKSTAD,
         },
         fornavn: 'IHERDIG',
+        geografiskEnhet: {
+          navn: 'NAV Fredrikstad',
+          enhetsnummer: ENHET_FREDRIKSTAD,
+        },
         manuellStatus: {
           erUnderManuellOppfolging: false,
           krrStatus: {

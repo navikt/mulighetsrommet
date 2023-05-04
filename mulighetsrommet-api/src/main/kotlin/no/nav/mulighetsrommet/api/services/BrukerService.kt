@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -22,9 +23,10 @@ class BrukerService(
 
         return Brukerdata(
             fnr = fnr,
-            oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
-            servicegruppe = oppfolgingsstatus?.servicegruppe,
             innsatsgruppe = sisteVedtak?.innsatsgruppe,
+            oppfolgingsenhet = oppfolgingsstatus?.oppfolgingsenhet,
+            geografiskEnhet = personInfo?.geografiskEnhet,
+            servicegruppe = oppfolgingsstatus?.servicegruppe,
             fornavn = personInfo?.fornavn,
             manuellStatus = manuellStatus,
         )
@@ -35,6 +37,7 @@ class BrukerService(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
         val oppfolgingsenhet: Oppfolgingsenhet?,
+        val geografiskEnhet: Enhet?,
         val servicegruppe: String?,
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto?,
