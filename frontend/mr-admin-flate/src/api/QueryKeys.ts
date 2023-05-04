@@ -43,4 +43,5 @@ export const QueryKeys = {
   avtale: (avtaleId: string) => [avtaleId, "avtale"],
   nokkeltallAvtale: (avtaleId: string) => [avtaleId, "nokkeltallAvtale"],
   enheter: () => ["enheter"],
+  antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
 };
