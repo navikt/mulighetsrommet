@@ -1,5 +1,7 @@
 .sokeselect {
-  z-index: 100;
+  :global(.css-1nmdiq5-menu) {
+    z-index: 1000;
+  }
 }
 
 .label {
@@ -9,5 +11,5 @@
 
 .errormsg {
   margin-top: 8px;
-  color: #C30000;
+  color: #c30000;
 }

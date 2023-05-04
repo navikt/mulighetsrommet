@@ -1,8 +1,8 @@
 import { UNSAFE_DatePicker, UNSAFE_useRangeDatepicker } from "@navikt/ds-react";
 import { useController } from "react-hook-form";
-import { formaterDato } from "../../utils/Utils";
 import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
 import style from "./OpprettComponents.module.scss";
+import { formaterDato } from "../../utils/Utils";
 
 interface DatoProps {
   name: string;
@@ -39,27 +39,29 @@ export function Datovelger<T>({
   };
 
   return (
-    <UNSAFE_DatePicker
-      {...datepickerProps}
-      dropdownCaption
-      fromDate={new Date("1 Jan 2020")}
-      toDate={futureDate()}
-    >
-      <div className={style.datofelt}>
-        <DatoFelt<T>
-          {...fra}
-          {...fromInputProps}
-          ref={null}
-          value={formaterDato(startDato.value!!)}
-        />
-        <DatoFelt<T>
-          {...til}
-          {...toInputProps}
-          ref={null}
-          value={formaterDato(sluttDato.value!!)}
-        />
-      </div>
-    </UNSAFE_DatePicker>
+    <div>
+      <UNSAFE_DatePicker
+        {...datepickerProps}
+        dropdownCaption
+        fromDate={new Date("1 Jan 2020")}
+        toDate={futureDate()}
+      >
+        <div className={style.datofelt}>
+          <DatoFelt<T>
+            {...fra}
+            {...fromInputProps}
+            ref={null}
+            value={formaterDato(startDato.value!!)}
+          />
+          <DatoFelt<T>
+            {...til}
+            {...toInputProps}
+            ref={null}
+            value={formaterDato(sluttDato.value!!)}
+          />
+        </div>
+      </UNSAFE_DatePicker>
+    </div>
   );
 }
 
