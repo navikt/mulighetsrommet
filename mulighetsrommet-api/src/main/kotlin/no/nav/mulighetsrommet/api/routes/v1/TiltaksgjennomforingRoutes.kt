@@ -71,7 +71,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 }
         }
 
-        put() {
+        put {
             val request = call.receive<TiltaksgjennomforingRequest>()
 
             request.toDbo()

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -28,11 +27,9 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/internal/bruker") {
         get {
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), getNorskIdent())
-            val fnr = call.request.queryParameters["fnr"] ?: return@get call.respondText(
-                "Mangler eller ugyldig fnr",
-                status = HttpStatusCode.BadRequest,
-            )
+            val fnr = getNorskIdent()
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), fnr)
+
             val accessToken = call.getAccessToken()
             call.respond(brukerService.hentBrukerdata(fnr, accessToken))
         }

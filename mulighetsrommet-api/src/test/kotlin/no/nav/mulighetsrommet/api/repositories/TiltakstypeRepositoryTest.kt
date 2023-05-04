@@ -159,15 +159,6 @@ class TiltakstypeRepositoryTest : FunSpec({
             ).second shouldHaveSize 3
         }
 
-        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    search = null,
-                    kategori = null,
-                ),
-            ).second shouldHaveSize 3
-        }
-
         test("Filter på planlagt returnerer planlagte tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
                 TiltakstypeFilter(

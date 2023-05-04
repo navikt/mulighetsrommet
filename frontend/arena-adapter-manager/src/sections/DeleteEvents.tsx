@@ -1,6 +1,6 @@
 import { Section } from "../components/Section";
 import { Button, Input, Select } from "@chakra-ui/react";
-import { deleteEvents, replayEvent, replayEvents } from "../core/api";
+import { deleteEvents } from "../core/api";
 import { useState } from "react";
 import { useArenaTables } from "../core/hooks";
 

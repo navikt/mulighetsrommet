@@ -1,7 +1,7 @@
 import { Step } from 'react-joyride';
 import Lenke from '../lenke/Lenke';
 import { BodyShort } from '@navikt/ds-react';
-import { porten } from '../../constants';
+import { porten } from 'mulighetsrommet-frontend-common/constants';
 
 export function getStepIndex(steps: MulighetsrommetStep[], stepId: string): number {
   return steps.findIndex(step => step.id === stepId);

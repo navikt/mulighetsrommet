@@ -13,7 +13,7 @@ import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
 import Lenke from '../lenke/Lenke';
-import { porten } from '../../constants';
+import { porten } from 'mulighetsrommet-frontend-common/constants';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);

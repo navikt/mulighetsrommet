@@ -2,7 +2,7 @@ import { TextField } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
-import { useEffect, useReducer } from "react";
+import { ChangeEvent, useEffect, useReducer } from "react";
 import { mulighetsrommetClient } from "../../api/clients";
 import { capitalizeEveryWord } from "../../utils/Utils";
 import { initialState, reducer } from "../avtaler/virksomhetReducer";
@@ -60,7 +60,7 @@ export function VirksomhetInput({ avtale }: Props) {
         error={errors.leverandor?.message}
         label={"Leverandør"}
         {...register("leverandor", {
-          onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange: (e: ChangeEvent<HTMLInputElement>) =>
             sjekkOrgnr(e.currentTarget.value),
         })}
         data-testid="leverandor-input"

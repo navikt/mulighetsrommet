@@ -45,7 +45,7 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
 
     //resetter joyride når den er ferdig eller man klikker skip
     else if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
-      logEvent('mulighetsrommet.joyride', { value: 'oversikten', status });
+      logEvent('mulighetsrommet.joyride', { value: 'detaljer', status });
       setJoyride({ ...joyride, joyrideDetaljer: false });
       setState(prevState => ({ ...prevState, run: false, stepIndex: 0 }));
     }
