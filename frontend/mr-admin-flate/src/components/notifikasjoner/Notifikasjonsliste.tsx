@@ -2,7 +2,7 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 import styles from "./BrukerNotifikasjoner.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Notifikasjonssrad } from "./Notifikasjonssrad";
-import {Laster} from "../laster/Laster";
+import { Laster } from "../laster/Laster";
 
 export function Notifikasjonsliste() {
   const { data: features } = useFeatureToggles();
@@ -24,11 +24,7 @@ export function Notifikasjonsliste() {
     <section className={styles.container}>
       {data.map((n, i) => {
         return (
-          <Notifikasjonssrad
-            key={n.id}
-            index={i}
-            notifikasjon={n}
-          ></Notifikasjonssrad>
+          <Notifikasjonssrad key={n.id} notifikasjon={n}></Notifikasjonssrad>
         );
       })}
     </section>
