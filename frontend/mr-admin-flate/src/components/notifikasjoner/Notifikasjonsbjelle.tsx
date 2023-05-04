@@ -2,7 +2,7 @@ import { BellIcon } from "@navikt/aksel-icons";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { Link } from "react-router-dom";
 import styles from "./Notifikasjonsbjelle.module.scss";
-import { useAntallUlesteNotifikasjoner } from "../../api/notifikasjoner/useAntallUlesteNotifikasjoner";
+import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
 
 function Notifier() {
   return <span className={styles.notifier}></span>;
@@ -13,7 +13,7 @@ export function Notifikasjonsbjelle() {
   const {
     data: antallUlesteNotifikasjoner,
     isLoading: isLoadingUlesteNotifikasjoner,
-  } = useAntallUlesteNotifikasjoner();
+  } = useNotificationSummary();
 
   if (isLoadingUlesteNotifikasjoner && !antallUlesteNotifikasjoner) {
     return null;
