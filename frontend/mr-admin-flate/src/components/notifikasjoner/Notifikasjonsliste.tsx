@@ -1,8 +1,8 @@
-import { Loader } from "@navikt/ds-react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import styles from "./BrukerNotifikasjoner.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Notifikasjonssrad } from "./Notifikasjonssrad";
+import {Laster} from "../laster/Laster";
 
 export function Notifikasjonsliste() {
   const { data: features } = useFeatureToggles();
@@ -10,8 +10,8 @@ export function Notifikasjonsliste() {
 
   if (!features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]) return null;
 
-  if (isLoading) {
-    return <Loader />;
+  if (isLoading && !paginertResultat) {
+    return <Laster />;
   }
 
   if (!paginertResultat) {

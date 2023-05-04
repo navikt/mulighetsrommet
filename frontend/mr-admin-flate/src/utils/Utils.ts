@@ -38,6 +38,20 @@ export function formaterDato(dato?: string | Date, fallback = ""): string {
   return result;
 }
 
+export function formaterDatoTid(dato: string | Date, fallback = ""): string {
+  const result = new Date(dato).toLocaleTimeString("no-NO", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  if (result === "Invalid Date") {
+    return fallback;
+  }
+
+  return result.replace(",", " -");
+}
+
 export function formaterDatoSomYYYYMMDD(
   dato?: Date | null,
   fallback = ""

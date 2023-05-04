@@ -3,32 +3,18 @@ import { UserNotification } from "mulighetsrommet-api-client";
 import styles from "./Notifikasjonsrad.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 import { CheckmarkCircleIcon } from "@navikt/aksel-icons";
-
-export function formaterDatoTid(dato: string | Date, fallback = ""): string {
-  const result = new Date(dato).toLocaleTimeString("no-NO", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-
-  if (result === "Invalid Date") {
-    return fallback;
-  }
-
-  return result.replace(",", " -");
-}
+import {formaterDatoTid} from "../../utils/Utils";
 
 interface Props {
   notifikasjon: UserNotification;
-  index: number;
 }
 
-export function Notifikasjonssrad({ notifikasjon, index }: Props) {
+export function Notifikasjonssrad({ notifikasjon }: Props) {
   const { id, type, title, description, user, createdAt, readAt } =
     notifikasjon;
 
   return (
-    <li className={styles.list_element} id={`list_element_${index}`}>
+    <li className={styles.list_element} id={id}>
       <div className={styles.notifikasjon_container}>
         <div className={classNames(styles.flex, styles.navn)}>
           <BodyShort
