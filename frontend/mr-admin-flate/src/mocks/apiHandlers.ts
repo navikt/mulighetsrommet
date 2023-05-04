@@ -7,11 +7,12 @@ import {
   NavEnhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
-  PaginertTiltakstype,
+  PaginertTiltakstype, PaginertUserNotifications,
   Tiltaksgjennomforing,
   TiltaksgjennomforingNokkeltall,
   Tiltakstype,
   TiltakstypeNokkeltall,
+  UserNotification,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { mockBetabruker } from "./fixtures/mock_ansatt";
@@ -23,6 +24,7 @@ import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 import { mockVirksomhet } from "./fixtures/mock_virksomhet";
+import { mockNotifikasjoner } from "./fixtures/mock_notifikasjoner";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -249,6 +251,13 @@ export const apiHandlers = [
     "*/api/v1/internal/virksomhet/:orgnr",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockVirksomhet));
+    }
+  ),
+
+  rest.get<any, any, PaginertUserNotifications>(
+    "*/api/v1/internal/notifications",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockNotifikasjoner));
     }
   ),
 ];
