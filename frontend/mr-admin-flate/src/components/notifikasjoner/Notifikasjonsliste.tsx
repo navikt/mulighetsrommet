@@ -1,8 +1,6 @@
-import { Heading, Loader } from "@navikt/ds-react";
-import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
+import { Loader } from "@navikt/ds-react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import styles from "./BrukerNotifikasjoner.module.scss";
-import { Varsel } from "./Varsel";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Notifikasjonssrad } from "./Notifikasjonssrad";
 
@@ -26,7 +24,11 @@ export function Notifikasjonsliste() {
     <section className={styles.container}>
       {data.map((n, i) => {
         return (
-          <Notifikasjonssrad index={i} notifikasjon={n}></Notifikasjonssrad>
+          <Notifikasjonssrad
+            key={n.id}
+            index={i}
+            notifikasjon={n}
+          ></Notifikasjonssrad>
         );
       })}
     </section>
