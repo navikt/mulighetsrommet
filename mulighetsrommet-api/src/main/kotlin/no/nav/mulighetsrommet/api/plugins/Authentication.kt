@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -102,8 +103,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNorskIdent(): String {
-    return call.request.queryParameters["fnr"] ?: throw StatusException(
+    val fnr = call.request.queryParameters["fnr"] ?: throw StatusException(
         HttpStatusCode.BadRequest,
         "fnr mangler som queryparameter",
     )
+
+    if (fnr.length != 11) throw BadRequestException("fnr må være 11 siffer")
+
+    return fnr
 }
