@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.plugins.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.poao_tilgang.client.*

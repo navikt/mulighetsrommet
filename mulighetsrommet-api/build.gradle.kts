@@ -18,13 +18,15 @@ flyway {
 }
 
 dependencies {
+    implementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.domain)
+    implementation(projects.common.kafka)
     implementation(projects.common.ktor)
     implementation(projects.common.ktorClients)
-    implementation(projects.common.database)
+    implementation(projects.common.metrics)
     implementation(projects.common.slack)
-    implementation(projects.common.kafka)
-    testImplementation(testFixtures(projects.common.database))
+    implementation(projects.common.tasks)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)
@@ -54,7 +56,6 @@ dependencies {
 
     // Metrics
     implementation(libs.prometheus.caffeine)
-    implementation(libs.micrometer.registry.prometheus)
 
     implementation(libs.nav.common.auditLog)
     implementation(libs.nav.common.tokenClient)

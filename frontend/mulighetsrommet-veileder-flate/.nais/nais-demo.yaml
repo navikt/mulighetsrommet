@@ -1,22 +1,21 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
-  name: demo-mulighetsrommet-veileder-flate
+  name: mulighetsrommet-veileder-flate-demo
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
-  annotations:
-     nais.io/read-only-file-system: "false"
 spec:
-  image: {{image}}
+  image: ghcr.io/navikt/poao-frontend/poao-frontend:2023.04.13_12.56-e509a7e7034a
   port: 8080
   ingresses:
     - https://mulighetsrommet-veileder-flate.ekstern.dev.nav.no
+    - https://mulighetsrommet-veileder-flate-demo.ekstern.dev.nav.no
   liveness:
-    path: /internal/isalive
+    path: /internal/alive
     initialDelay: 10
   readiness:
-    path: /internal/isready
+    path: /internal/ready
     initialDelay: 10
   replicas:
     min: 1
@@ -29,6 +28,20 @@ spec:
     requests:
       cpu: 250m
       memory: 256Mi
+  gcp:
+    buckets:
+      - name: mulighetsrommet-veileder-flate-demo
+        cascadingDelete: false
   env:
-    - name: CORS_DOMAIN
-      value: "*"
+    - name: JSON_CONFIG
+      value: >
+        {
+          "gcs": {
+            "bucketName": "mulighetsrommet-veileder-flate-demo"
+          },
+          "header": {
+            "csp": {
+              "connectSrc": ["'self'", "cdn.sanity.io", "api.sanity.io", "*.sanity.io"]
+            }
+          }
+        }

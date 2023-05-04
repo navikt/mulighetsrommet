@@ -85,7 +85,7 @@ export function Avtalefilter(props: Props) {
             <option value="">Alle statuser</option>
           </Select>
           <Select
-            label="Filtrer på fylke"
+            label="Filtrer på region"
             hideLabel
             size="small"
             value={filter.fylkeenhet}
@@ -95,7 +95,7 @@ export function Avtalefilter(props: Props) {
               setFilter({ ...filter, fylkeenhet: e.currentTarget.value });
             }}
           >
-            <option value="">Alle fylker</option>
+            <option value="">Alle regioner</option>
             {enheter
               ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
               ?.map((enhet) => (
