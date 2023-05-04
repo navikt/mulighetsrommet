@@ -1,5 +1,5 @@
 import { blockContentValidation } from "../validation/blockContentValidation";
-import { defineField, defineType, SanityDocument } from "sanity";
+import { defineField, defineType } from "sanity";
 
 const MAKS_LENGDE_INNHOLD = 2500;
 const infoboksOptions = {

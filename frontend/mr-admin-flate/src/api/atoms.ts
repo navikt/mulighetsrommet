@@ -1,4 +1,3 @@
-import { ExtractAtomValue } from "jotai";
 import { atomWithHash } from "jotai-location";
 import {
   Avtalestatus,
@@ -13,11 +12,7 @@ import {
 export const paginationAtom = atomWithHash("page", 1, {
   setHash: "replaceState",
 });
-export const paginationAtomTiltaksgjennomforingMedTiltakstype = atomWithHash(
-  "pageOnGjennomforing",
-  1,
-  { setHash: "replaceState" }
-);
+
 export const avtalePaginationAtom = atomWithHash("avtalePage", 1, {
   setHash: "replaceState",
 });
@@ -96,8 +91,6 @@ export const avtaleTabAtom = atomWithHash<AvtaleTabs>(
     setHash: "replaceState",
   }
 );
-
-export type avtaleFilterType = ExtractAtomValue<typeof avtaleFilter>;
 
 export { avtaleFilter };
 

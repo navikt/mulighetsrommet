@@ -1,4 +1,3 @@
-import S from "@sanity/desk-tool/structure-builder";
 import { GrDocumentPerformance, GrLocation } from "react-icons/gr";
 import { FaWpforms } from "react-icons/fa";
 import { GrUserAdmin } from "react-icons/gr";
