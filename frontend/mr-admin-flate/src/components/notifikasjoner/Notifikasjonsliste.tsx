@@ -22,7 +22,7 @@ export function Notifikasjonsliste() {
 
   return (
     <section className={styles.container}>
-      {data.map((n, i) => {
+      {data.map((n) => {
         return (
           <Notifikasjonssrad key={n.id} notifikasjon={n}></Notifikasjonssrad>
         );
