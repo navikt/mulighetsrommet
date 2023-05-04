@@ -57,7 +57,7 @@ export function Tiltaksgjennomforingfilter(props: Props) {
             data-testid="filter_sokefelt"
           />
           <Select
-            label="Filtrer på fylke"
+            label="Filtrer på region"
             hideLabel
             size="small"
             value={sokefilter.fylkesenhet}
@@ -71,7 +71,7 @@ export function Tiltaksgjennomforingfilter(props: Props) {
               });
             }}
           >
-            <option value="">Alle fylker</option>
+            <option value="">Alle regioner</option>
             {enheter
               ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
               ?.sort()
