@@ -5,13 +5,16 @@ import { tiltaksgjennomforingsfilter } from '../../atoms/atoms';
 import { mulighetsrommetClient } from '../clients';
 import { QueryKeys } from '../query-keys';
 import { useHentBrukerdata } from './useHentBrukerdata';
+import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 
 export default function useTiltaksgjennomforinger() {
   const [filter] = useAtom(tiltaksgjennomforingsfilter);
   const brukerData = useHentBrukerdata();
+  const fnr = useHentFnrFraUrl();
 
   return useQuery(QueryKeys.sanity.tiltaksgjennomforinger(brukerData.data, filter), () =>
     mulighetsrommetClient.sanity.getTiltaksgjennomforingForBruker({
+      fnr,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
       sokestreng: filter.search,
       lokasjoner: filter.lokasjoner.map(({ tittel }) => tittel),

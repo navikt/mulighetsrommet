@@ -9,6 +9,7 @@ import modalStyles from '../Modal.module.scss';
 import { logDelMedbrukerEvent } from './Delemodal';
 import delemodalStyles from './Delemodal.module.scss';
 import { Actions, State } from './DelemodalActions';
+import { useHentFnrFraUrl } from '../../../hooks/useHentFnrFraUrl';
 
 const MAKS_ANTALL_TEGN_HILSEN = 300;
 
@@ -29,6 +30,7 @@ export function DelMedBrukerContent({
   veiledernavn,
   brukernavn,
 }: Props) {
+  const fnr = useHentFnrFraUrl();
   const [visPersonligMelding, setVisPersonligMelding] = useState(false);
   const senderTilDialogen = state.sendtStatus === 'SENDER';
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
@@ -68,7 +70,7 @@ export function DelMedBrukerContent({
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforingsnavn}`;
     const tekst = sySammenDeletekst();
     try {
-      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ requestBody: { overskrift, tekst } });
+      const res = await mulighetsrommetClient.dialogen.delMedDialogen({ fnr, requestBody: { overskrift, tekst } });
       if (tiltaksgjennomforingId) {
         await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforingId);
       }
