@@ -6,7 +6,7 @@ import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { Tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { usePrepopulerFilter } from '../../hooks/usePrepopulerFilter';
 import Show from '../../utils/Show';
-import { BrukersOppfolgingsenhet } from '../oppfolgingsenhet/BrukerOppfolgingsenhet';
+import { BrukersGeografiskeEnhet } from '../geografiskEnhet/BrukersGeografiskeEnhet';
 import { ErrorTag } from '../tags/ErrorTag';
 import FilterTag from '../tags/FilterTag';
 import SearchFieldTag from '../tags/SearchFieldTag';
@@ -35,7 +35,7 @@ export function Filtertags({ filter, setFilter }: FiltertagsProps) {
 
   return (
     <div className={styles.filtertags} data-testid="filtertags">
-      <BrukersOppfolgingsenhet />
+      <BrukersGeografiskeEnhet />
       {!brukerdata.isLoading && !brukerdata.data?.innsatsgruppe && !brukerdata.data?.servicegruppe && (
         <ErrorTag
           innhold="Innsatsgruppe og servicegruppe mangler"

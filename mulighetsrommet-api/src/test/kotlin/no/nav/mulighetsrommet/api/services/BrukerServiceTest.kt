@@ -5,12 +5,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.oppfolging.*
+import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.PersonDto
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
-import no.nav.mulighetsrommet.api.domain.*
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
@@ -35,6 +35,10 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarbpersonClient.hentPersonInfo(FNR, any()) } returns PersonDto(
             fornavn = "Ola",
+            geografiskEnhet = Enhet(
+                navn = "NAV Fredrikstad",
+                enhetsnummer = "0106",
+            ),
         )
 
         coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(FNR_2, any()) } returns OppfolgingsstatusDto(
@@ -50,6 +54,10 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarbpersonClient.hentPersonInfo(FNR_2, any()) } returns PersonDto(
             fornavn = "Petter",
+            geografiskEnhet = Enhet(
+                navn = "NAV Fredrikstad",
+                enhetsnummer = "0106",
+            ),
         )
     }
 
@@ -61,7 +69,9 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(FNR, "").manuellStatus?.krrStatus?.erReservert shouldBe false
         brukerService.hentBrukerdata(FNR, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
         brukerService.hentBrukerdata(FNR, "").oppfolgingsenhet?.navn shouldBe "NAV Fredrikstad"
-        brukerService.hentBrukerdata(FNR, "").oppfolgingsenhet?.enhetId shouldBe "0116"
+        brukerService.hentBrukerdata(FNR, "").oppfolgingsenhet?.enhetId shouldBe "0106"
+        brukerService.hentBrukerdata(FNR, "").geografiskEnhet?.navn shouldBe "NAV Fredrikstad"
+        brukerService.hentBrukerdata(FNR, "").geografiskEnhet?.enhetsnummer shouldBe "0106"
     }
 })
 
@@ -76,5 +86,5 @@ fun mockManuellStatus(): ManuellStatusDto {
 }
 
 fun mockOppfolgingsenhet(): Oppfolgingsenhet {
-    return Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0116")
+    return Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0106")
 }

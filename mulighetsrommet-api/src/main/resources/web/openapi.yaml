@@ -1201,6 +1201,8 @@ components:
           type: string
         oppfolgingsenhet:
           $ref: "#/components/schemas/Oppfolgingsenhet"
+        geografiskEnhet:
+          $ref: "#/components/schemas/GeografiskEnhet"
         fornavn:
           type: string
         manuellStatus:
@@ -1208,6 +1210,7 @@ components:
       required:
         - fnr
         - oppfolgingsenhet
+        - geografiskEnhet
 
     Ansatt:
       type: object
@@ -1275,6 +1278,16 @@ components:
       required:
         - navn
         - enhetId
+    GeografiskEnhet:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+        - navn
+        - enhetsnummer
 
     FrontendEvent:
       type: object

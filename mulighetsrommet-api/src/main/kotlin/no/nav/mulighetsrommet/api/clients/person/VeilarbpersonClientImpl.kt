@@ -45,8 +45,8 @@ class VeilarbpersonClientImpl(
                     bearerAuth(tokenProvider.invoke(accessToken))
                 }.body()
             } catch (exe: Exception) {
-                SecureLog.logger.error("Klarte ikke hente fornavn for bruker med fnr: $fnr")
-                log.error("Klarte ikke hente fornavn. Se detaljer i secureLog.")
+                SecureLog.logger.error("Klarte ikke hente persondata for bruker med fnr: $fnr")
+                log.error("Klarte ikke hente persondata. Se detaljer i secureLog.")
                 return null
             }
         }

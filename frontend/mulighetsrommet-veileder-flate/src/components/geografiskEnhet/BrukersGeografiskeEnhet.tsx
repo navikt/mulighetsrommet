@@ -3,24 +3,24 @@ import { useHentBrukerdata } from '../../core/api/queries/useHentBrukerdata';
 import { kebabCase } from '../../utils/Utils';
 import { ErrorTag } from '../tags/ErrorTag';
 
-export function BrukersOppfolgingsenhet() {
+export function BrukersGeografiskeEnhet() {
   const brukerdata = useHentBrukerdata();
-  const brukersOppfolgingsenhet = brukerdata?.data?.oppfolgingsenhet?.navn;
+  const brukersGeografiskeEnhet = brukerdata?.data?.geografiskEnhet?.navn;
 
   if (brukerdata?.isLoading) {
     return null;
   }
 
-  return brukersOppfolgingsenhet ? (
+  return brukersGeografiskeEnhet ? (
     <Tag
       className="cypress-tag"
       key={'navenhet'}
       size="small"
       data-testid={`${kebabCase('filtertag_navenhet')}`}
-      title="Brukers oppfølgingsenhet"
+      title="Brukers geografiske enhet"
       variant={'info'}
     >
-      {brukersOppfolgingsenhet}
+      {brukersGeografiskeEnhet}
     </Tag>
   ) : (
     <ErrorTag
