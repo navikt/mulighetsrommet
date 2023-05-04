@@ -43,7 +43,7 @@ export function Notifikasjonssrad({ notifikasjon, index }: Props) {
           </BodyShort>
         </div>
         <CheckmarkCircleIcon
-          fillOpacity={new Date(readAt) >= new Date() ? 0.4 : 1}
+          fillOpacity={readAt == null ? 0.4 : 1}
           fontSize={"1.5rem"}
         />
       </div>
