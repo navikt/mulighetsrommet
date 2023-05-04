@@ -3,23 +3,27 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.*
 
+/**
+ * Graph explorer:
+ * - https://developer.microsoft.com/en-us/graph/graph-explorer
+ */
 class MicrosoftGraphClientImpl(
+    engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
     private val tokenProvider: (accessToken: String) -> String,
-    clientEngine: HttpClientEngine = CIO.create(),
 ) : MicrosoftGraphClient {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val client = httpJsonClient(clientEngine).config {
+    private val client = httpJsonClient(engine).config {
         install(HttpCache)
     }
 
@@ -34,7 +38,7 @@ class MicrosoftGraphClientImpl(
             throw RuntimeException("Klarte ikke finne bruker med azure-id. Finnes brukeren i AD?")
         }
 
-        val user = response.body<MSGraphUser>()
+        val user = response.body<MsGraphUserDto>()
         return AnsattDataDTO(
             hovedenhetKode = user.streetAddress,
             hovedenhetNavn = user.city,
@@ -44,12 +48,3 @@ class MicrosoftGraphClientImpl(
         )
     }
 }
-
-@Serializable
-data class MSGraphUser(
-    val streetAddress: String,
-    val city: String,
-    val givenName: String,
-    val surname: String,
-    val onPremisesSamAccountName: String,
-)
