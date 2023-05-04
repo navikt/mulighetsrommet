@@ -3,7 +3,7 @@ import { UserNotification } from "mulighetsrommet-api-client";
 import styles from "./Notifikasjonsrad.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 import { CheckmarkCircleIcon } from "@navikt/aksel-icons";
-import {formaterDatoTid} from "../../utils/Utils";
+import { formaterDatoTid } from "../../utils/Utils";
 
 interface Props {
   notifikasjon: UserNotification;
@@ -14,7 +14,7 @@ export function Notifikasjonssrad({ notifikasjon }: Props) {
     notifikasjon;
 
   return (
-    <li className={styles.list_element} id={id}>
+    <li className={styles.list_element}>
       <div className={styles.notifikasjon_container}>
         <div className={classNames(styles.flex, styles.navn)}>
           <BodyShort
