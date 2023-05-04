@@ -17,22 +17,9 @@
   flex-direction: column;
 }
 
-.gjennomforing_container {
-}
-
-.ikon {
-  grid-area: ikon;
-  width: 1.5rem;
-  height: auto;
-  color: black;
-}
-
-.metadata {
-  grid-area: metadata;
-}
-
-.navn {
-  grid-area: navn;
+.notifikasjon_container {
+  display: flex;
+  justify-content: space-between;
 }
 
 .muted {

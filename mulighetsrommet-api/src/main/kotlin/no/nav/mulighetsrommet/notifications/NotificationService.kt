@@ -6,7 +6,7 @@ import com.github.kagkarlsson.scheduler.task.ExecutionComplete
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
-import no.nav.mulighetsrommet.database.DatabaseAdapter
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.slack.SlackNotifier
@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class NotificationService(
-    database: DatabaseAdapter,
+    database: Database,
     private val slack: SlackNotifier,
     private val notifications: NotificationRepository,
 ) {
