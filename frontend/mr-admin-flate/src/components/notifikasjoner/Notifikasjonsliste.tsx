@@ -4,10 +4,10 @@ import { useFeatureToggles } from "../../api/features/feature-toggles";
 import styles from "./BrukerNotifikasjoner.module.scss";
 import { Varsel } from "./Varsel";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
+import { Notifikasjonssrad } from "./Notifikasjonssrad";
 
 export function Notifikasjonsliste() {
   const { data: features } = useFeatureToggles();
-  const { data: bruker } = useHentAnsatt();
   const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt();
 
   if (!features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]) return null;
@@ -20,14 +20,14 @@ export function Notifikasjonsliste() {
     return null;
   }
 
-  console.log(paginertResultat);
-
-  const { pagination, data } = paginertResultat;
+  const { data } = paginertResultat;
 
   return (
     <section className={styles.container}>
-      {data.map((n) => {
-        return <div>{n.title}</div>;
+      {data.map((n, i) => {
+        return (
+          <Notifikasjonssrad index={i} notifikasjon={n}></Notifikasjonssrad>
+        );
       })}
     </section>
   );

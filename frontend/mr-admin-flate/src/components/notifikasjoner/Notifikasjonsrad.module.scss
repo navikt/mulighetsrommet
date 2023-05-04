@@ -18,29 +18,13 @@
 }
 
 .gjennomforing_container {
-  display: grid;
-  grid-template-columns: 20% 1fr 2%;
-  grid-template-areas: 'navn metadata ikon';
-  align-items: center;
-  min-height: 4rem;
-  gap: 2rem;
-  justify-content: space-between;
-
-  @media (width <= 1000px) {
-    align-items: flex-start;
-    justify-content: flex-start;
-    grid-template-rows: auto;
-    grid-template-areas:
-      'navn navn ikon'
-      'metadata metadata metadata';
-  }
 }
 
 .ikon {
   grid-area: ikon;
-    width: 1.5rem;
-    height: auto;
-    color: black;
+  width: 1.5rem;
+  height: auto;
+  color: black;
 }
 
 .metadata {
@@ -49,18 +33,6 @@
 
 .navn {
   grid-area: navn;
-}
-
-.infogrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(5rem, 10rem));
-  gap: 1rem;
-  justify-content: space-evenly;
-
-  @media (width <= 1000px) {
-    gap: 5px;
-    justify-content: initial;
-  }
 }
 
 .muted {
@@ -74,6 +46,6 @@
   white-space: nowrap;
 }
 
-.as_link {
-  color: #0067c5;
+.bold {
+  font-weight: bold;
 }

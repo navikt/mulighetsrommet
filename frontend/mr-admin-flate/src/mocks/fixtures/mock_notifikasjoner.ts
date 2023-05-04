@@ -13,7 +13,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {  pagination: {
     description: "Beskrivelse",
     user: "B99876",
     createdAt: "2023-01-26T13:51:50.417-07:00",
-    seenAt: "2023-01-26T13:51:50.417-07:00",
+    readAt: "2023-01-26T13:51:50.417-07:00",
   },
   {
     id: "eccd9a93-3f08-4006-b3cb-751762e8bccf",
@@ -22,6 +22,6 @@ export const mockNotifikasjoner: PaginertUserNotifications = {  pagination: {
     description: "Beskrivelse",
     user: "B99876",
     createdAt: "2023-01-26T13:51:50.417-07:00",
-    seenAt: "2023-01-26T13:51:50.417-07:00",
+    readAt: "2023-01-26T13:51:50.417-07:00",
   },
 ]};
