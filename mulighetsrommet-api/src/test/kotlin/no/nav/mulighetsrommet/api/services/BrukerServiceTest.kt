@@ -69,7 +69,7 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.erReservert shouldBe false
         brukerService.hentBrukerdata(fnr1, "").manuellStatus?.krrStatus?.kanVarsles shouldBe true
         brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.navn shouldBe "NAV Fredrikstad"
-        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetId shouldBe "0116"
+        brukerService.hentBrukerdata(fnr1, "").oppfolgingsenhet?.enhetId shouldBe "0106"
         brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.navn shouldBe "NAV Fredrikstad"
         brukerService.hentBrukerdata(fnr1, "").geografiskEnhet?.enhetsnummer shouldBe "0106"
     }
