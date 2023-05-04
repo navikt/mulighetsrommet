@@ -11,12 +11,14 @@ import { OversiktenJoyride } from '../../components/joyride/OversiktenJoyride';
 import { useFeatureToggles, VIS_JOYRIDE } from '../../core/api/feature-toggles';
 import { useEffect, useState } from 'react';
 import { OversiktenLastStepJoyride } from '../../components/joyride/OversiktenLastStepJoyride';
+import useTiltaksgjennomforinger from '../../core/api/queries/useTiltaksgjennomforinger';
 
 const ViewTiltaksgjennomforingOversikt = () => {
   const [filter, setFilter] = useAtom(tiltaksgjennomforingsfilter);
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const features = useFeatureToggles();
   const visJoyride = features.isSuccess && features.data[VIS_JOYRIDE];
+  const { data } = useTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -34,6 +36,7 @@ const ViewTiltaksgjennomforingOversikt = () => {
                 <OversiktenJoyride
                   setHistorikkModalOpen={setIsHistorikkModalOpen}
                   isHistorikkModalOpen={isHistorikkModalOpen}
+                  isTableFetched={!!data}
                 />
                 <OversiktenLastStepJoyride />
               </>

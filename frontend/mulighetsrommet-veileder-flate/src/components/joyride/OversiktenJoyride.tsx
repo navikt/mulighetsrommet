@@ -10,9 +10,10 @@ import { joyrideAtom } from '../../core/atoms/atoms';
 interface Props {
   setHistorikkModalOpen: (state: boolean) => void;
   isHistorikkModalOpen: boolean;
+  isTableFetched: boolean;
 }
 
-export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen }: Props) {
+export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen, isTableFetched }: Props) {
   const [joyride, setJoyride] = useAtom(joyrideAtom);
   const [state, setState] = useState({
     run: false,
@@ -103,7 +104,7 @@ export function OversiktenJoyride({ setHistorikkModalOpen, isHistorikkModalOpen 
       <Joyride
         locale={localeStrings()}
         continuous
-        run={joyride.joyrideOversikten}
+        run={joyride.joyrideOversikten && isTableFetched}
         steps={stepsOversikten}
         hideCloseButton
         callback={handleJoyrideCallback}
