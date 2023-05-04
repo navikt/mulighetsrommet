@@ -6,7 +6,7 @@ import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { porten } from "mulighetsrommet-veileder-flate/src/constants";
+import { porten } from "mulighetsrommet-frontend-common/constants";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";

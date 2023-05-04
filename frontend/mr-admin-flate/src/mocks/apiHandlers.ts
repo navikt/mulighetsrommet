@@ -80,8 +80,7 @@ export const apiHandlers = [
   rest.get<any, any, NavEnhet[]>(
     "*/api/v1/internal/enheter",
     (req, res, ctx) => {
-      const enheter = mockEnheter;
-      return res(ctx.status(200), ctx.json(enheter));
+      return res(ctx.status(200), ctx.json(mockEnheter));
     }
   ),
 

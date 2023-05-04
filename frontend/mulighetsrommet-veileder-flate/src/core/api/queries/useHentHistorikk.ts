@@ -5,9 +5,7 @@ import { QueryKeys } from '../query-keys';
 
 export function useHentHistorikk(prefetch: boolean = true) {
   const fnr = useHentFnrFraUrl();
-  return useQuery(
-    [QueryKeys.Historikk, fnr],
-    () => mulighetsrommetClient.historikk.hentHistorikkForBruker(),
-    { enabled: prefetch }
-  );
+  return useQuery([QueryKeys.Historikk, fnr], () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ fnr }), {
+    enabled: prefetch,
+  });
 }

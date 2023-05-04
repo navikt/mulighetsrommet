@@ -13,7 +13,7 @@ import { Sorteringsmeny } from '../sorteringmeny/Sorteringsmeny';
 import { Gjennomforingsrad } from './Gjennomforingsrad';
 import styles from './Tiltaksgjennomforingsoversikt.module.scss';
 import Lenke from '../lenke/Lenke';
-import { porten } from '../../constants';
+import { porten } from 'mulighetsrommet-frontend-common/constants';
 
 const Tiltaksgjennomforingsoversikt = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -143,14 +143,14 @@ const Tiltaksgjennomforingsoversikt = () => {
       : sorter(tiltaksgjennomforinger)
   ).slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
-  if (!brukerdata?.data?.oppfolgingsenhet) {
+  if (!brukerdata?.data?.geografiskEnhet) {
     return (
       <Feilmelding
-        header="Kunne ikke hente brukers oppfølgingsenhet"
+        header="Kunne ikke hente brukers geografiske enhet"
         beskrivelse={
           <>
-            Brukers oppfølgingsenhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena, og{' '}
-            {forsokPaNyttLink()}
+            Brukers geografiske enhet kunne ikke hentes. Kontroller at brukeren er under oppfølging og finnes i Arena,
+            og {forsokPaNyttLink()}
           </>
         }
         ikonvariant="error"

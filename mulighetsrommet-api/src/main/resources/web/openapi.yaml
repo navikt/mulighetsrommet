@@ -453,6 +453,8 @@ paths:
                   $ref: "#/components/schemas/SanityTiltakstype"
 
   /api/v1/internal/sanity/lokasjoner:
+    parameters:
+      - $ref: "#/components/parameters/Fnr"
     get:
       tags:
         - Sanity
@@ -468,6 +470,8 @@ paths:
                   type: string
 
   /api/v1/internal/sanity/tiltaksgjennomforinger:
+    parameters:
+      - $ref: "#/components/parameters/Fnr"
     get:
       tags:
         - Sanity
@@ -529,6 +533,8 @@ paths:
                   $ref: "#/components/schemas/SanityTiltaksgjennomforing"
 
   /api/v1/internal/dialog:
+    parameters:
+      - $ref: "#/components/parameters/Fnr"
     post:
       tags:
         - dialogen
@@ -553,6 +559,8 @@ paths:
                 type: string
 
   /api/v1/internal/bruker/historikk:
+    parameters:
+      - $ref: "#/components/parameters/Fnr"
     get:
       tags:
         - Historikk
@@ -1201,6 +1209,8 @@ components:
           type: string
         oppfolgingsenhet:
           $ref: "#/components/schemas/Oppfolgingsenhet"
+        geografiskEnhet:
+          $ref: "#/components/schemas/GeografiskEnhet"
         fornavn:
           type: string
         manuellStatus:
@@ -1208,6 +1218,7 @@ components:
       required:
         - fnr
         - oppfolgingsenhet
+        - geografiskEnhet
 
     Ansatt:
       type: object
@@ -1275,6 +1286,16 @@ components:
       required:
         - navn
         - enhetId
+    GeografiskEnhet:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+        - navn
+        - enhetsnummer
 
     FrontendEvent:
       type: object

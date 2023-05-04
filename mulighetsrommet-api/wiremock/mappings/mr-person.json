@@ -11,7 +11,11 @@
   "response": {
     "status": 200,
     "jsonBody": {
-      "fornavn": "Iherdig"
+      "fornavn": "Iherdig",
+      "geografiskEnhet": {
+        "enhetsnummer": "0106",
+        "navn": "NAV Fredrikstad"
+      }
     },
     "headers": {
       "Content-Type": "application/json"

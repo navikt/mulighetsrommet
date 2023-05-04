@@ -20,7 +20,7 @@ export const apiHandlers: RestHandler[] = [
   rest.get<any, any, Bruker>('*/api/v1/internal/bruker', (req, res, ctx) => {
     const fnr = req.url.searchParams.get('fnr');
 
-    if (typeof fnr !== 'string') {
+    if (!fnr) {
       return badReq("'fnr' must be specified");
     }
 
@@ -36,6 +36,10 @@ export const apiHandlers: RestHandler[] = [
           enhetId: ENHET_FREDRIKSTAD,
         },
         fornavn: 'IHERDIG',
+        geografiskEnhet: {
+          navn: 'NAV Fredrikstad',
+          enhetsnummer: ENHET_FREDRIKSTAD,
+        },
         manuellStatus: {
           erUnderManuellOppfolging: false,
           krrStatus: {
@@ -74,7 +78,7 @@ export const apiHandlers: RestHandler[] = [
   rest.get<any, any, any>('*/api/v1/internal/sanity', async req => {
     const query = req.url.searchParams.get('query');
 
-    if (!(typeof query === 'string')) {
+    if (!query) {
       return badReq("'query' must be specified");
     }
 

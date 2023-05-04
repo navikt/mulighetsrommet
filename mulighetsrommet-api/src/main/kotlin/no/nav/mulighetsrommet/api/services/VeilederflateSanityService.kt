@@ -55,8 +55,8 @@ class VeilederflateSanityService(
 
     suspend fun hentLokasjonerForBrukersEnhetOgFylke(fnr: String, accessToken: String): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
-        val fylkeId = getFylkeIdBasertPaaEnhetsId(brukerData.oppfolgingsenhet?.enhetId) ?: ""
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
+        val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
 
         val query = """
             array::unique(*[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))
@@ -77,7 +77,7 @@ class VeilederflateSanityService(
         filter: TiltaksgjennomforingFilter,
     ): SanityResponse {
         val brukerData = brukerService.hentBrukerdata(fnr, accessToken)
-        val enhetsId = brukerData.oppfolgingsenhet?.enhetId ?: ""
+        val enhetsId = brukerData.geografiskEnhet?.enhetsnummer ?: ""
         val fylkeId = getFylkeIdBasertPaaEnhetsId(enhetsId) ?: ""
         val query = """
             *[_type == "tiltaksgjennomforing" && !(_id in path("drafts.**"))

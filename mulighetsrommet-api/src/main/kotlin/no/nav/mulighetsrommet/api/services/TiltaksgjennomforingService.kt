@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.flatMap
-import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNokkeltallDto
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -10,7 +9,6 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -18,8 +16,6 @@ class TiltaksgjennomforingService(
     private val arrangorService: ArrangorService,
     private val deltakerRepository: DeltakerRepository,
 ) {
-    private val log = LoggerFactory.getLogger("TiltaksgjennomforingService")
-
     suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
             .map { it?.hentVirksomhetsnavnForTiltaksgjennomforing() }
@@ -52,7 +48,3 @@ class TiltaksgjennomforingService(
         return this
     }
 }
-
-data class Sokefilter(
-    val tiltaksnummer: String,
-)

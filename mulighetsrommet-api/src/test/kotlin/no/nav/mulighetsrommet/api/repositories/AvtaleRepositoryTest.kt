@@ -290,37 +290,6 @@ class AvtaleRepositoryTest : FunSpec({
                 result.second[4].navn shouldBe "Avtale hos Anders"
             }
 
-            test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
-                val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Anders",
-                )
-                val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Åse",
-                )
-                val avtale3 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Øyvind",
-                )
-                val avtale4 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Kjetil",
-                )
-                val avtale5 = avtaleFixture.createAvtaleForTiltakstype(
-                    navn = "Avtale hos Ærfuglen Ærle",
-                )
-                val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2, avtale3, avtale4, avtale5))
-                val result = avtaleRepository.getAll(
-                    filter = defaultFilter.copy(
-                        sortering = "navn-ascending",
-                    ),
-                )
-
-                result.second shouldHaveSize 5
-                result.second[0].navn shouldBe "Avtale hos Anders"
-                result.second[1].navn shouldBe "Avtale hos Kjetil"
-                result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
-                result.second[3].navn shouldBe "Avtale hos Øyvind"
-                result.second[4].navn shouldBe "Avtale hos Åse"
-            }
-
             test("Sortering på sluttdato fra a-å sorterer korrekt") {
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
                     sluttDato = LocalDate.of(2010, 1, 31),

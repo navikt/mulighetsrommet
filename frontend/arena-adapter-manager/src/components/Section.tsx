@@ -1,6 +1,7 @@
-import { Heading, Center, VStack, Spinner, Box } from "@chakra-ui/react";
+import { Box, Center, Heading, Spinner, VStack } from "@chakra-ui/react";
+import { PropsWithChildren } from "react";
 
-interface SectionProps extends React.PropsWithChildren {
+interface SectionProps extends PropsWithChildren {
   headerText: string;
   isLoading: boolean;
   loadingText: string;
