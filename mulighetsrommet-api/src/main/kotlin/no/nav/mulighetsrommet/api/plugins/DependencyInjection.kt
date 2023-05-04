@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
@@ -138,6 +139,7 @@ private fun repositories() = module {
     single { TiltakshistorikkRepository(get()) }
     single { EnhetRepository(get()) }
     single { DeltakerRepository(get()) }
+    single { NotificationRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {

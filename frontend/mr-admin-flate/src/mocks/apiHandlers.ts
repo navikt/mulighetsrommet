@@ -12,6 +12,7 @@ import {
   TiltaksgjennomforingNokkeltall,
   Tiltakstype,
   TiltakstypeNokkeltall,
+  UserNotificationSummary,
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { mockBetabruker } from "./fixtures/mock_ansatt";
@@ -23,6 +24,7 @@ import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
 import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 import { mockVirksomhet } from "./fixtures/mock_virksomhet";
+import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -248,6 +250,12 @@ export const apiHandlers = [
     "*/api/v1/internal/virksomhet/:orgnr",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockVirksomhet));
+    }
+  ),
+  rest.get<any, any, UserNotificationSummary>(
+    "*/api/v1/internal/notifications/summary",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(mockUserNotificationSummary));
     }
   ),
 ];
