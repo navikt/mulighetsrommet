@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.repositories.EnhetRepository
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.utils.NavEnhetUtils
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 class NavEnheterSyncService(
     private val norg2Client: Norg2Client,
     private val sanityClient: SanityClient,
-    private val enhetRepository: EnhetRepository,
+    private val enhetRepository: NavEnhetRepository,
     private val slackNotifier: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

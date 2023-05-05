@@ -94,7 +94,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("enheter crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = EnhetRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
@@ -140,7 +140,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("Oppdater enheter fra Sanity-tiltaksgjennomføringer til database") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = EnhetRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
