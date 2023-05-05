@@ -43,7 +43,7 @@ class NavEnheterSyncService(
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = it.enhet.navn,
-                    enhetNr = it.enhet.enhetNr,
+                    enhetsnummer = it.enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(it.enhet.status.name),
                     type = Norg2Type.valueOf(it.enhet.type.name),
                     overordnetEnhet = it.overordnetEnhet,

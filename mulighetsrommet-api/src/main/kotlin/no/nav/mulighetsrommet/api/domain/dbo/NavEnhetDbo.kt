@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 @Serializable
 data class NavEnhetDbo(
     val navn: String,
-    val enhetNr: String,
+    val enhetsnummer: String,
     val status: NavEnhetStatus,
     val type: Norg2Type,
     val overordnetEnhet: String?,

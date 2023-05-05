@@ -17,7 +17,7 @@ class NavEnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(enhet: NavEnhetDbo): QueryResult<NavEnhetDbo> = query {
-        logger.info("Lagrer enhet med enhetsnummer=${enhet.enhetNr}")
+        logger.info("Lagrer enhet med enhetsnummer=${enhet.enhetsnummer}")
 
         @Language("PostgreSQL")
         val query = """
@@ -126,7 +126,7 @@ class NavEnhetRepository(private val db: Database) {
 
 private fun NavEnhetDbo.toSqlParameters() = mapOf(
     "navn" to navn,
-    "enhetsnummer" to enhetNr,
+    "enhetsnummer" to enhetsnummer,
     "status" to status.name,
     "type" to type.name,
     "overordnet_enhet" to overordnetEnhet,
@@ -134,7 +134,7 @@ private fun NavEnhetDbo.toSqlParameters() = mapOf(
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
     navn = string("navn"),
-    enhetNr = string("enhetsnummer"),
+    enhetsnummer = string("enhetsnummer"),
     status = NavEnhetStatus.valueOf(string("status")),
     type = Norg2Type.valueOf(string("type")),
     overordnetEnhet = stringOrNull("overordnet_enhet"),

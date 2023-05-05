@@ -76,7 +76,7 @@ export function Tiltaksgjennomforingfilter(props: Props) {
               ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
               ?.sort()
               ?.map((enhet) => (
-                <option key={enhet.enhetNr} value={enhet.enhetNr}>
+                <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
                   {enhet.navn}
                 </option>
               ))}
@@ -108,8 +108,8 @@ export function Tiltaksgjennomforingfilter(props: Props) {
                 return erLokalEllerTiltaksenhet && enheterFraFylke;
               })
               ?.map((enhet) => (
-                <option key={enhet.enhetNr} value={enhet.enhetNr}>
-                  {enhet.navn} - {enhet.enhetNr}
+                <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
+                  {enhet.navn} - {enhet.enhetsnummer}
                 </option>
               ))}
           </Select>
