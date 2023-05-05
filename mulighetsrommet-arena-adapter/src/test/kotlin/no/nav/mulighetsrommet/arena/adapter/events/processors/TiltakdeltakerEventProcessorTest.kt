@@ -69,12 +69,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(
-            engine: HttpClientEngine = createMockEngine(
-                "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() },
-            ),
-        ): TiltakdeltakerEventProcessor {
+        fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakdeltakerEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
             }
@@ -215,12 +210,18 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             }
 
             test("should treat all operations as upserts") {
-                val processor = createProcessor()
-
                 val (e1, mapping) = prepareEvent(
                     createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") },
                     Ignored,
                 )
+
+                val engine = createMockEngine(
+                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
+
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
@@ -289,13 +290,15 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             }
 
             test("should call api with tiltakshistorikk when all services responds with success") {
+                val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
+
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk.*" to { respondOk() },
+                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
-                val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
                 processor.handleEvent(event).shouldBeRight()
 
                 engine.requestHistory.last().apply {

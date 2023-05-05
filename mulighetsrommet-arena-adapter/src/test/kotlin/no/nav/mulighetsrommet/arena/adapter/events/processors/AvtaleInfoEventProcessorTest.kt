@@ -57,14 +57,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(
-            engine: HttpClientEngine = createMockEngine(
-                "/ords/arbeidsgiver" to {
-                    respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                },
-                "/api/v1/internal/arena/avtale.*" to { respondOk() },
-            ),
-        ): AvtaleInfoEventProcessor {
+        fun createProcessor(engine: HttpClientEngine = createMockEngine()): AvtaleInfoEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
             }
@@ -150,9 +143,17 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             }
 
             test("should treat all operations as upserts") {
-                val processor = createProcessor()
-
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(ArenaOrdsArrangor("123456", "1000000"))
+                    },
+                    "/api/v1/internal/arena/avtale" to { respondOk() },
+                    "/api/v1/internal/arena/avtale/${mapping.entityId}" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
+
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
@@ -166,7 +167,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
-                val e3 = createArenaAvtaleInfoEvent(Update) {
+                val e3 = createArenaAvtaleInfoEvent(Delete) {
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
                 }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
@@ -233,15 +234,17 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             }
 
             test("should call api with mapped event payload when all services responds with success") {
+                val (event, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
+
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
-                    "/api/v1/internal/arena/avtale.*" to { respondOk() },
+                    "/api/v1/internal/arena/avtale" to { respondOk() },
+                    "/api/v1/internal/arena/avtale/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
-                val (event, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
                 processor.handleEvent(event).shouldBeRight()
 
                 engine.requestHistory.last().apply {
