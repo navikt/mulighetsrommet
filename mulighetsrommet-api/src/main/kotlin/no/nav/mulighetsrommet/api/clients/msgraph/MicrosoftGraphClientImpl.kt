@@ -3,10 +3,10 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ class MicrosoftGraphClientImpl(
         install(HttpCache)
     }
 
-    override suspend fun hentAnsattdata(accessToken: String, navAnsattAzureId: UUID): AnsattDataDTO {
+    override suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId?\$select=streetAddress,city,givenName,surname,onPremisesSamAccountName") {
             bearerAuth(tokenProvider(accessToken))
         }
@@ -39,7 +39,7 @@ class MicrosoftGraphClientImpl(
         }
 
         val user = response.body<MsGraphUserDto>()
-        return AnsattDataDTO(
+        return NavAnsattDto(
             hovedenhetKode = user.streetAddress,
             hovedenhetNavn = user.city,
             fornavn = user.givenName,

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.util.*
@@ -30,7 +31,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
             token
         }
 
-        client.hentAnsattdata("token", id) shouldBe AnsattDataDTO(
+        client.getNavAnsatt("token", id) shouldBe NavAnsattDto(
             fornavn = "Donald",
             etternavn = "Duck",
             navident = "DD123456",

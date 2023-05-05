@@ -6,21 +6,21 @@ import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.TEAM_MULIGHETSROMME
 import no.nav.poao_tilgang.client.AdGruppe
 import java.util.*
 
-class AnsattService(
+class NavAnsattService(
     private val poaoTilgangService: PoaoTilgangService,
     private val microsoftGraphService: MicrosoftGraphService,
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
-        val data = microsoftGraphService.hentAnsattData(accessToken, navAnsattAzureId)
+        val ansatt = microsoftGraphService.getNavAnsatt(accessToken, navAnsattAzureId)
         val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
         return AnsattData(
-            etternavn = data.etternavn,
-            fornavn = data.fornavn,
-            ident = data.navident,
-            navn = "${data.fornavn} ${data.etternavn}",
+            etternavn = ansatt.etternavn,
+            fornavn = ansatt.fornavn,
+            ident = ansatt.navident,
+            navn = "${ansatt.fornavn} ${ansatt.etternavn}",
             tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet(),
-            hovedenhet = data.hovedenhetKode,
-            hovedenhetNavn = data.hovedenhetNavn,
+            hovedenhet = ansatt.hovedenhetKode,
+            hovedenhetNavn = ansatt.hovedenhetNavn,
         )
     }
 }
