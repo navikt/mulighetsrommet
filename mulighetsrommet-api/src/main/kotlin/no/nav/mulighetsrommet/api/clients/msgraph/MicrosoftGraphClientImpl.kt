@@ -7,6 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -69,6 +70,18 @@ class MicrosoftGraphClientImpl(
                 hovedenhetKode = user.streetAddress,
                 hovedenhetNavn = user.city,
             )
+        }
+    }
+
+    override suspend fun getMemberGroups(navAnsattAzureId: UUID): List<AdGruppe> {
+        val response = client.get("/v1.0/users/$navAnsattAzureId/transitiveMemberOf") {
+            parameter("\$select", "id,displayName")
+        }
+
+        val result = response.body<ODataListResponse<MsGraphGroup>>()
+
+        return result.value.map { group ->
+            AdGruppe(id = group.id, navn = group.displayName)
         }
     }
 }

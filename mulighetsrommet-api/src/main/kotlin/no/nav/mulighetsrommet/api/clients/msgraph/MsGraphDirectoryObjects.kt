@@ -36,3 +36,16 @@ data class MsGraphUserDto(
      */
     val city: String,
 )
+
+@Serializable
+data class MsGraphGroup(
+    /**
+     * Object ID i Azure AD
+     */
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    /**
+     * Unikt navn, har typisk formatet 0000-GA-<min-ad-gruppe>
+     */
+    val displayName: String,
+)

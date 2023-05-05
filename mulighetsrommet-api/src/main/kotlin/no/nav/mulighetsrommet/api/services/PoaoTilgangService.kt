@@ -22,19 +22,17 @@ class PoaoTilgangService(
         .recordStats()
         .build()
 
-    private val brukerAzureIdToAdGruppeCache: Cache<String, List<AdGruppe>> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
     init {
-        val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("brukerAzureIdToAdGruppeCache", brukerAzureIdToAdGruppeCache)
+        val cacheMetrics: CacheMetricsCollector =
+            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("tilgangCache", tilgangCache)
     }
 
-    suspend fun verifyAccessToUserFromVeileder(navAnsattAzureId: UUID, norskIdent: String, errorBlock: (suspend () -> Unit)? = null) {
+    suspend fun verifyAccessToUserFromVeileder(
+        navAnsattAzureId: UUID,
+        norskIdent: String,
+        errorBlock: (suspend () -> Unit)? = null,
+    ) {
         val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-$norskIdent") {
             client.evaluatePolicy(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
@@ -60,12 +58,6 @@ class PoaoTilgangService(
         if (!access) {
             SecureLog.logger.warn("Veileder med navAnsattAzureId $navAnsattAzureId har ikke tilgang til modia")
             throw StatusException(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til modia, se mer i secure logs")
-        }
-    }
-
-    fun hentAdGrupper(navAnsattAzureId: UUID): List<AdGruppe> {
-        return CacheUtils.tryCacheFirstNotNull(brukerAzureIdToAdGruppeCache, navAnsattAzureId.toString()) {
-            client.hentAdGrupper(navAnsattAzureId).getOrDefault { emptyList() }
         }
     }
 }

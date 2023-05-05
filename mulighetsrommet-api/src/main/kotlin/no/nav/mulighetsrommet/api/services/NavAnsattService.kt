@@ -1,18 +1,17 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.ADMIN_FLATE_BETABRUKER
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.TEAM_MULIGHETSROMMET
-import no.nav.poao_tilgang.client.AdGruppe
 import java.util.*
 
 class NavAnsattService(
-    private val poaoTilgangService: PoaoTilgangService,
     private val microsoftGraphService: MicrosoftGraphService,
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val ansatt = microsoftGraphService.getNavAnsatt(accessToken, navAnsattAzureId)
-        val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
+        val azureAdGrupper = microsoftGraphService.getNavAnsattAdGrupper(navAnsattAzureId)
         return AnsattData(
             etternavn = ansatt.etternavn,
             fornavn = ansatt.fornavn,
