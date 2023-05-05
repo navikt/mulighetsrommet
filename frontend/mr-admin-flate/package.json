@@ -22,7 +22,7 @@
     "@navikt/ds-css-internal": "^2.9.7",
     "@navikt/ds-react": "^2.8.15",
     "@navikt/ds-react-internal": "^2.9.5",
-    "@navikt/ds-tokens": "^2.9.0",
+    "@navikt/ds-tokens": "^2.9.8",
     "@tanstack/react-query": "^4.29.3",
     "@tanstack/react-query-devtools": "^4.29.6",
     "classnames": "^2.3.2",
