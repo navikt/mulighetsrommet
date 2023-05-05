@@ -53,4 +53,22 @@ class MicrosoftGraphClientImpl(
             navident = user.onPremisesSamAccountName,
         )
     }
+
+    override suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto> {
+        val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
+            parameter("\$select", "streetAddress,city,givenName,surname,onPremisesSamAccountName")
+        }
+
+        val result = response.body<ODataListResponse<MsGraphUserDto>>()
+
+        return result.value.map { user ->
+            NavAnsattDto(
+                hovedenhetKode = user.streetAddress,
+                hovedenhetNavn = user.city,
+                fornavn = user.givenName,
+                etternavn = user.surname,
+                navident = user.onPremisesSamAccountName,
+            )
+        }
+    }
 }

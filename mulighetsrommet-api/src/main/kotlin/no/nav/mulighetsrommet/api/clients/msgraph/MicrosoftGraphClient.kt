@@ -5,4 +5,6 @@ import java.util.*
 
 interface MicrosoftGraphClient {
     suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto
+
+    suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto>
 }
