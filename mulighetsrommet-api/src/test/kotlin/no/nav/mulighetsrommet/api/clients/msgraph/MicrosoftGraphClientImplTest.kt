@@ -13,9 +13,10 @@ class MicrosoftGraphClientImplTest : FunSpec({
         val id = UUID.randomUUID()
 
         val engine = createMockEngine(
-            "/v1.0/users/$id?\$select=streetAddress,city,givenName,surname,onPremisesSamAccountName" to {
+            "/v1.0/users/$id?\$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName" to {
                 respondJson(
                     MsGraphUserDto(
+                        id = id,
                         givenName = "Donald",
                         surname = "Duck",
                         onPremisesSamAccountName = "DD123456",
@@ -32,9 +33,9 @@ class MicrosoftGraphClientImplTest : FunSpec({
         }
 
         client.getNavAnsatt("token", id) shouldBe NavAnsattDto(
+            navident = "DD123456",
             fornavn = "Donald",
             etternavn = "Duck",
-            navident = "DD123456",
             hovedenhetKode = "0400",
             hovedenhetNavn = "Andeby",
         )

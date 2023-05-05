@@ -35,7 +35,7 @@ class MicrosoftGraphClientImpl(
     override suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
         val response = client.get("/v1.0/users/$navAnsattAzureId") {
             bearerAuth(tokenProvider(accessToken))
-            parameter("\$select", "streetAddress,city,givenName,surname,onPremisesSamAccountName")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName")
         }
 
         if ((response.status == HttpStatusCode.NotFound) || (response.status == HttpStatusCode.NoContent)) {
@@ -46,28 +46,28 @@ class MicrosoftGraphClientImpl(
 
         val user = response.body<MsGraphUserDto>()
         return NavAnsattDto(
-            hovedenhetKode = user.streetAddress,
-            hovedenhetNavn = user.city,
+            navident = user.onPremisesSamAccountName,
             fornavn = user.givenName,
             etternavn = user.surname,
-            navident = user.onPremisesSamAccountName,
+            hovedenhetKode = user.streetAddress,
+            hovedenhetNavn = user.city,
         )
     }
 
     override suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
-            parameter("\$select", "streetAddress,city,givenName,surname,onPremisesSamAccountName")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName")
         }
 
         val result = response.body<ODataListResponse<MsGraphUserDto>>()
 
         return result.value.map { user ->
             NavAnsattDto(
-                hovedenhetKode = user.streetAddress,
-                hovedenhetNavn = user.city,
+                navident = user.onPremisesSamAccountName,
                 fornavn = user.givenName,
                 etternavn = user.surname,
-                navident = user.onPremisesSamAccountName,
+                hovedenhetKode = user.streetAddress,
+                hovedenhetNavn = user.city,
             )
         }
     }
