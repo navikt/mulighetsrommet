@@ -1,9 +1,15 @@
 .container {
   margin-bottom: 1rem;
-  max-width: 70ch;
 }
 
 .link {
   text-decoration: none;
   color: black;
+}
+
+.notifikasjonsliste {
+  max-width: 80ch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }

@@ -1,10 +1,9 @@
 import { Heading } from "@navikt/ds-react";
 import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
+import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
 import styles from "./BrukerNotifikasjoner.module.scss";
 import { Varsel } from "./Varsel";
-import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
-import { Link } from "react-router-dom";
 
 export function BrukerNotifikasjoner() {
   const { data: features } = useFeatureToggles();
@@ -21,9 +20,11 @@ export function BrukerNotifikasjoner() {
       <Heading level="3" size="medium">
         Hei {bruker?.fornavn}
       </Heading>
-      <Link className={styles.link} to="/notifikasjoner">
-        <Varsel tittel="Varsler" melding="Du har nye varsler" />
-      </Link>
+      <Varsel
+        href="/notifikasjoner"
+        tittel="Varsler"
+        melding="Du har nye varsler"
+      />
     </section>
   );
 }

@@ -1,31 +1,29 @@
-import { BodyShort, Heading } from "@navikt/ds-react";
-import { BellIcon, ChevronRightIcon } from "@navikt/aksel-icons";
+import { BellIcon } from "@navikt/aksel-icons";
+import { LinkPanel } from "@navikt/ds-react";
 import styles from "./Varsel.module.scss";
 
 interface IVarsel {
   tittel: string;
   melding: string;
+  href: string;
 }
 
-export function Varsel({ tittel, melding }: IVarsel) {
+export function Varsel({ tittel, melding, href }: IVarsel) {
   return (
-    <div className={styles.container}>
-      <div className={styles.left}>
-        <div>
-          <span className={styles.ikon_container}>
-            <BellIcon className={styles.ikon} />
-          </span>
+    <>
+      <LinkPanel href={href} className={styles.container} border={false}>
+        <div className={styles.flex}>
+          <div>
+            <span className={styles.ikon_container}>
+              <BellIcon className={styles.ikon} />
+            </span>
+          </div>
+          <div>
+            <LinkPanel.Title as="h3">{tittel}</LinkPanel.Title>
+            <LinkPanel.Description>{melding}</LinkPanel.Description>
+          </div>
         </div>
-        <div>
-          <Heading size="small" level="3">
-            {tittel}
-          </Heading>
-          <BodyShort>{melding}</BodyShort>
-        </div>
-      </div>
-      <div>
-        <ChevronRightIcon />
-      </div>
-    </div>
+      </LinkPanel>
+    </>
   );
 }
