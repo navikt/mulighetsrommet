@@ -6,6 +6,7 @@ import com.github.kagkarlsson.scheduler.task.ExecutionComplete
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import no.nav.mulighetsrommet.api.utils.NotificationFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -58,8 +59,8 @@ class NotificationService(
         client.schedule(instance, instant)
     }
 
-    fun getNotifications(userId: String): List<UserNotification> {
-        return notifications.getUserNotifications(userId)
+    fun getNotifications(userId: String, filter: NotificationFilter): List<UserNotification> {
+        return notifications.getUserNotifications(userId, filter)
             .getOrElse {
                 logger.error("Failed to get notifications for user=$userId", it.error)
                 throw StatusException(InternalServerError, "Failed to get notifications for user=$userId")

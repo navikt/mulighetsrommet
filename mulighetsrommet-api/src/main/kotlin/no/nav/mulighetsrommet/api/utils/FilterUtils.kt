@@ -55,8 +55,23 @@ data class TiltaksgjennomforingFilter(
     val lokasjoner: List<String> = emptyList(),
 )
 
+data class NotificationFilter(
+    val status: NotificationStatus? = null,
+)
+
+enum class NotificationStatus {
+    NEW, OLD
+}
+
 enum class Tiltakstypekategori {
     INDIVIDUELL, GRUPPE
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
+    val status = call.request.queryParameters["status"]
+    return NotificationFilter(
+        status = status?.let { NotificationStatus.valueOf(it) },
+    )
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
