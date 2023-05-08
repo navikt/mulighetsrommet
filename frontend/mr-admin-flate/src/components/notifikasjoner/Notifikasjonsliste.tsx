@@ -31,11 +31,13 @@ export function Notifikasjonsliste() {
 
   return (
     <section className={styles.container}>
-      {data.map((n) => {
-        return (
-          <Notifikasjonssrad key={n.id} notifikasjon={n}></Notifikasjonssrad>
-        );
-      })}
+      <ul className={styles.notifikasjonsliste}>
+        {data.map((n) => {
+          return (
+            <Notifikasjonssrad key={n.id} notifikasjon={n}></Notifikasjonssrad>
+          );
+        })}
+      </ul>
     </section>
   );
 }
