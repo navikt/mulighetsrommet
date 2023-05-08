@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class EregVirksomhetDto(
     val organisasjonsnummer: String,
     val navn: Navn,
-    val organisasjonsleddOver: OrganisasjonsleddOver? = null,
+    val organisasjonsleddOver: List<OrganisasjonsleddOver>? = null,
 )
 
 @Serializable
