@@ -156,7 +156,7 @@ const ViewTiltaksgjennomforingDetaljer = () => {
               tekst="Tilbake til tiltaksoversikten"
             />
           )}
-          {visJoyride && (
+          {visJoyride && !erPreview && (
             <>
               <DetaljerJoyride opprettAvtale={opprettAvtale} />
               {opprettAvtale ? <DetaljerOpprettAvtaleJoyride opprettAvtale={opprettAvtale} /> : null}
