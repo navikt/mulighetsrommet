@@ -106,25 +106,25 @@ class NotificationRepositoryTest : FunSpec({
     test("filter for notification status") {
         val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
-        val oldFilter = NotificationFilter(status = NotificationStatus.Old)
-        val newFilter = NotificationFilter(status = NotificationStatus.New)
+        val readFilter = NotificationFilter(status = NotificationStatus.Read)
+        val unreadFilter = NotificationFilter(status = NotificationStatus.Unread)
 
         notifications.upsert(commonNotification).shouldBeRight()
         notifications.upsert(userNotification).shouldBeRight()
 
-        notifications.getUserNotifications("ABC", newFilter) shouldBeRight listOf(
+        notifications.getUserNotifications("ABC", unreadFilter) shouldBeRight listOf(
             userNotification.asUserNotification("ABC"),
             commonNotification.asUserNotification("ABC"),
         )
 
-        notifications.getUserNotifications("ABC", oldFilter) shouldBeRight emptyList()
+        notifications.getUserNotifications("ABC", readFilter) shouldBeRight emptyList()
 
         notifications.setNotificationReadAt(userNotification.id, "ABC", readAtTime).shouldBeRight()
         notifications.setNotificationReadAt(commonNotification.id, "ABC", readAtTime).shouldBeRight()
 
-        notifications.getUserNotifications("ABC", newFilter) shouldBeRight emptyList()
+        notifications.getUserNotifications("ABC", unreadFilter) shouldBeRight emptyList()
 
-        notifications.getUserNotifications("ABC", oldFilter) shouldBeRight listOf(
+        notifications.getUserNotifications("ABC", readFilter) shouldBeRight listOf(
             userNotification.asUserNotification("ABC", readAtTime),
             commonNotification.asUserNotification("ABC", readAtTime),
         )

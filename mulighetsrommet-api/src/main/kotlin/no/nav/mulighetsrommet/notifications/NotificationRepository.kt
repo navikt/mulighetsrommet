@@ -233,8 +233,8 @@ class NotificationRepository(private val db: Database) {
 
     private fun NotificationStatus.toDbStatement(): String {
         return when (this) {
-            NotificationStatus.Old -> "un.read_at is not null"
-            NotificationStatus.New -> "un.read_at is null"
+            NotificationStatus.Read -> "un.read_at is not null"
+            NotificationStatus.Unread -> "un.read_at is null"
         }
     }
 }
