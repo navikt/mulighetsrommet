@@ -38,6 +38,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       height: "50px",
       boxShadow: state.isFocused ? null : null,
     }),
+    clearIndicator: (provided: any) => ({
+      ...provided,
+      zIndex: "100",
+    }),
     indicatorSeparator: () => ({
       display: "none",
     }),
@@ -48,6 +52,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     placeholder: (provided: any) => ({
       ...provided,
       color: "#0000008f",
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      zIndex: "1000",
     }),
   });
 
@@ -60,14 +68,13 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           field: { onChange, value, name, ref },
           fieldState: { error },
         }) => (
-          <>
+          <div>
             <label className={style.label} htmlFor={name}>
               <b>{label}</b>
             </label>
             <ReactSelect
               placeholder={placeholder}
               isDisabled={!!disabled}
-              className={style.sokeselect}
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
@@ -93,7 +100,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
                 <b>• {error.message}</b>
               </div>
             )}
-          </>
+          </div>
         )}
       />
     </>
