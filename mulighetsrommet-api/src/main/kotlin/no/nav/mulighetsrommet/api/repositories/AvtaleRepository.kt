@@ -172,7 +172,7 @@ class AvtaleRepository(private val db: Database) {
             filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.fylkesenhet to "lower(a.enhet) = lower(:enhet) or lower(a.enhet) in (select enhetsnummer from enhet where overordnet_enhet = :enhet)",
+            filter.fylkesenhet to "lower(a.enhet) = lower(:enhet) or lower(a.enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :enhet)",
         )
 
         val order = when (filter.sortering) {
@@ -210,7 +210,7 @@ class AvtaleRepository(private val db: Database) {
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
-                     left join enhet e on a.enhet = e.enhetsnummer
+                     left join nav_enhet e on a.enhet = e.enhetsnummer
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
             $where
             order by $order

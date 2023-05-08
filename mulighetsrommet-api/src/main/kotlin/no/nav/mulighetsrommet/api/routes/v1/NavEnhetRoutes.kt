@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.utils.getEnhetFilter
 import org.koin.ktor.ext.inject
 
-fun Route.enhetRoutes() {
+fun Route.navEnhetRoutes() {
     val navEnhetService: NavEnhetService by inject()
 
     route("api/v1/internal/enheter") {

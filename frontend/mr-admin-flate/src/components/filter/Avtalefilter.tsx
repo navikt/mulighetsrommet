@@ -99,8 +99,8 @@ export function Avtalefilter(props: Props) {
             {enheter
               ?.filter((enhet) => enhet.type === Norg2Type.FYLKE)
               ?.map((enhet) => (
-                <option key={enhet.enhetNr} value={enhet.enhetNr}>
-                  {enhet.navn} - {enhet.enhetNr}
+                <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
+                  {enhet.navn} - {enhet.enhetsnummer}
                 </option>
               ))}
           </Select>
