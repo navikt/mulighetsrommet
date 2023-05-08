@@ -8,5 +8,6 @@ interface MicrosoftGraphClient {
     suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto
 
     suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto>
+
     suspend fun getMemberGroups(navAnsattAzureId: UUID): List<AdGruppe>
 }

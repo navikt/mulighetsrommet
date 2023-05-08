@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -9,7 +10,7 @@ import java.util.*
 
 class MicrosoftGraphClientImplTest : FunSpec({
 
-    test("should get an MsGraph user as a NAV ansatt") {
+    test("should get an MsGraph user as a NavAnsatt") {
         val id = UUID.randomUUID()
 
         val engine = createMockEngine(
@@ -39,5 +40,23 @@ class MicrosoftGraphClientImplTest : FunSpec({
             hovedenhetKode = "0400",
             hovedenhetNavn = "Andeby",
         )
+    }
+
+    test("should get member groups as AdGruppe") {
+        val id = UUID.randomUUID()
+
+        val group = MsGraphGroup(UUID.randomUUID(), displayName = "TEST")
+
+        val engine = createMockEngine(
+            "/v1.0/users/$id/transitiveMemberOf" to {
+                respondJson(GetMemberGroupsResponse(listOf(group)))
+            },
+        )
+
+        val client = MicrosoftGraphClientImpl(engine, "https://ms-graph.com") { token ->
+            token
+        }
+
+        client.getMemberGroups(id) shouldBe listOf(AdGruppe(group.id, group.displayName))
     }
 })

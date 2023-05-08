@@ -60,7 +60,7 @@ class MicrosoftGraphClientImpl(
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName")
         }
 
-        val result = response.body<ODataListResponse<MsGraphUserDto>>()
+        val result = response.body<GetGroupMembersResponse>()
 
         return result.value.map { user ->
             NavAnsattDto(
@@ -78,7 +78,7 @@ class MicrosoftGraphClientImpl(
             parameter("\$select", "id,displayName")
         }
 
-        val result = response.body<ODataListResponse<MsGraphGroup>>()
+        val result = response.body<GetMemberGroupsResponse>()
 
         return result.value.map { group ->
             AdGruppe(id = group.id, navn = group.displayName)
