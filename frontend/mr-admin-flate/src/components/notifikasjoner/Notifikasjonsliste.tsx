@@ -21,7 +21,7 @@ export function Notifikasjonsliste() {
 
   const { data } = paginertResultat;
 
-  if (data.length !== 0) {
+  if (data.length === 0) {
     return (
       <Alert variant="info">
         <BodyShort>Du har ingen nye varsler.</BodyShort>
