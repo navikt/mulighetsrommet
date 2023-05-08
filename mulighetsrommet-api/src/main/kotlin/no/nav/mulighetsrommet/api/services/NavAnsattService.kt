@@ -11,7 +11,7 @@ class NavAnsattService(
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
         val ansatt = microsoftGraphService.getNavAnsatt(accessToken, navAnsattAzureId)
-        val azureAdGrupper = microsoftGraphService.getNavAnsattAdGrupper(navAnsattAzureId)
+        val azureAdGrupper = microsoftGraphService.getNavAnsattAdGrupper(accessToken, navAnsattAzureId)
         return AnsattData(
             etternavn = ansatt.etternavn,
             fornavn = ansatt.fornavn,

@@ -14,7 +14,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
         val id = UUID.randomUUID()
 
         val engine = createMockEngine(
-            "/v1.0/users/$id?\$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName" to {
+            "/v1.0/users/$id?\$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail" to {
                 respondJson(
                     MsGraphUserDto(
                         id = id,
@@ -48,7 +48,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
         val group = MsGraphGroup(UUID.randomUUID(), displayName = "TEST")
 
         val engine = createMockEngine(
-            "/v1.0/users/$id/transitiveMemberOf" to {
+            "/v1.0/users/$id/transitiveMemberOf/microsoft.graph.group" to {
                 respondJson(GetMemberGroupsResponse(listOf(group)))
             },
         )
@@ -57,6 +57,6 @@ class MicrosoftGraphClientImplTest : FunSpec({
             token
         }
 
-        client.getMemberGroups(id) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.getMemberGroups("token", id) shouldBe listOf(AdGruppe(group.id, group.displayName))
     }
 })

@@ -27,16 +27,12 @@ class MicrosoftGraphClientImpl(
 
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
-
-        defaultRequest {
-            url(baseUrl)
-        }
     }
 
     override suspend fun getNavAnsatt(accessToken: String, navAnsattAzureId: UUID): NavAnsattDto {
-        val response = client.get("/v1.0/users/$navAnsattAzureId") {
+        val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
             bearerAuth(tokenProvider(accessToken))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
         }
 
         if ((response.status == HttpStatusCode.NotFound) || (response.status == HttpStatusCode.NoContent)) {
@@ -55,9 +51,22 @@ class MicrosoftGraphClientImpl(
         )
     }
 
+    override suspend fun getMemberGroups(accessToken: String, navAnsattAzureId: UUID): List<AdGruppe> {
+        val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
+            bearerAuth(tokenProvider(accessToken))
+            parameter("\$select", "id,displayName")
+        }
+
+        val result = response.body<GetMemberGroupsResponse>()
+
+        return result.value.map { group ->
+            AdGruppe(id = group.id, navn = group.displayName)
+        }
+    }
+
     override suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
         }
 
         val result = response.body<GetGroupMembersResponse>()
@@ -70,18 +79,6 @@ class MicrosoftGraphClientImpl(
                 hovedenhetKode = user.streetAddress,
                 hovedenhetNavn = user.city,
             )
-        }
-    }
-
-    override suspend fun getMemberGroups(navAnsattAzureId: UUID): List<AdGruppe> {
-        val response = client.get("/v1.0/users/$navAnsattAzureId/transitiveMemberOf") {
-            parameter("\$select", "id,displayName")
-        }
-
-        val result = response.body<GetMemberGroupsResponse>()
-
-        return result.value.map { group ->
-            AdGruppe(id = group.id, navn = group.displayName)
         }
     }
 }

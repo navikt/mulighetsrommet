@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/ms-graph/v1.0/users/[0-9a-z-]+/transitiveMemberOf/microsoft.graph.group"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "value": [
+        {
+          "id": "ee45478c-57a5-4ee6-b28d-b65f8c1733fe",
+          "displayName": "0000-GA-mr-admin-flate_betabruker"
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
