@@ -5,17 +5,14 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.fixtures.Norg2EnhetFixture
-import no.nav.mulighetsrommet.api.repositories.EnhetRepository
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.slack.SlackNotifier
 
 class NavEnheterSyncServiceTest : FunSpec({
     val norg2Client: Norg2Client = mockk()
-    val enheter: EnhetRepository = mockk(relaxed = true)
+    val enheter: NavEnhetRepository = mockk(relaxed = true)
     val slackNotifier: SlackNotifier = mockk(relaxed = true)
     val sanityClient = SanityClient(
         MockEngine {
@@ -26,17 +23,25 @@ class NavEnheterSyncServiceTest : FunSpec({
     val navEnheterSyncService = NavEnheterSyncService(norg2Client, sanityClient, enheter, slackNotifier)
 
     test("Synkroniser enheter skal slette enheter som ikke tilfredstiller whitelist") {
+        val norg2Enhet = Norg2EnhetDto(
+            enhetId = Math.random().toInt(),
+            enhetNr = "1000",
+            navn = "Enhet X",
+            status = Norg2EnhetStatus.AKTIV,
+            type = Norg2Type.LOKAL,
+        )
+
         val mockEnheter = listOf(
             Norg2Response(
-                enhet = Norg2EnhetFixture.enhet.copy(enhetId = 1, type = Norg2Type.AAREG),
+                enhet = norg2Enhet.copy(enhetId = 1, type = Norg2Type.AAREG),
                 overordnetEnhet = "1200",
             ),
             Norg2Response(
-                enhet = Norg2EnhetFixture.enhet.copy(enhetId = 2),
+                enhet = norg2Enhet.copy(enhetId = 2),
                 overordnetEnhet = "1200",
             ),
             Norg2Response(
-                enhet = Norg2EnhetFixture.enhet.copy(enhetId = 3),
+                enhet = norg2Enhet.copy(enhetId = 3),
                 overordnetEnhet = "1400",
             ),
         )

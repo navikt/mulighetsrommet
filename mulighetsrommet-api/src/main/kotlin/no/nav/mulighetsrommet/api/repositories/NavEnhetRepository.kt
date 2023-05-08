@@ -13,15 +13,15 @@ import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
-class EnhetRepository(private val db: Database) {
+class NavEnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsert(enhet: NavEnhetDbo): QueryResult<NavEnhetDbo> = query {
-        logger.info("Lagrer enhet med enhetsnummer=${enhet.enhetNr}")
+        logger.info("Lagrer enhet med enhetsnummer=${enhet.enhetsnummer}")
 
         @Language("PostgreSQL")
         val query = """
-            insert into enhet(navn, enhetsnummer, status, type, overordnet_enhet)
+            insert into nav_enhet(navn, enhetsnummer, status, type, overordnet_enhet)
             values (:navn, :enhetsnummer, :status, :type, :overordnet_enhet)
             on conflict (enhetsnummer)
                 do update set   navn            = excluded.navn,
@@ -52,7 +52,7 @@ class EnhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select distinct e.navn,(e.enhetsnummer), e.status, e.type, e.overordnet_enhet
-            from enhet e
+            from nav_enhet e
             $where
             order by e.navn asc
         """.trimIndent()
@@ -79,7 +79,7 @@ class EnhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select distinct e.navn,(e.enhetsnummer), e.status, e.type, e.overordnet_enhet
-            from enhet e
+            from nav_enhet e
             join avtale a
             on a.enhet = e.enhetsnummer
             $where
@@ -96,7 +96,7 @@ class EnhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select navn, enhetsnummer, status, type, overordnet_enhet
-            from enhet
+            from nav_enhet
             where enhetsnummer = ?
         """.trimIndent()
 
@@ -115,7 +115,7 @@ class EnhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val delete = """
-            delete from enhet where enhetsnummer = any(:ider::text[])
+            delete from nav_enhet where enhetsnummer = any(:ider::text[])
         """.trimIndent()
 
         queryOf(delete, parameters)
@@ -126,7 +126,7 @@ class EnhetRepository(private val db: Database) {
 
 private fun NavEnhetDbo.toSqlParameters() = mapOf(
     "navn" to navn,
-    "enhetsnummer" to enhetNr,
+    "enhetsnummer" to enhetsnummer,
     "status" to status.name,
     "type" to type.name,
     "overordnet_enhet" to overordnetEnhet,
@@ -134,7 +134,7 @@ private fun NavEnhetDbo.toSqlParameters() = mapOf(
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
     navn = string("navn"),
-    enhetNr = string("enhetsnummer"),
+    enhetsnummer = string("enhetsnummer"),
     status = NavEnhetStatus.valueOf(string("status")),
     type = Norg2Type.valueOf(string("type")),
     overordnetEnhet = stringOrNull("overordnet_enhet"),

@@ -25,7 +25,7 @@ export function Notifikasjonsbjelle() {
     <Link to="/notifikasjoner" className={styles.lenke}>
       <div className={styles.bell_container}>
         {harUlesteNotifikasjoner > 0 ? <Notifier /> : null}
-        <BellIcon fontSize={30} title="Notifikasjonsbjelle" />
+        <BellIcon fontSize={24} title="Notifikasjonsbjelle" />
       </div>
     </Link>
   ) : null;

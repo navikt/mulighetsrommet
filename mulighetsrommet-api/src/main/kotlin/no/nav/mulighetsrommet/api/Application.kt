@@ -49,7 +49,7 @@ fun Application.configure(config: AppConfig) {
             frontendLoggerRoutes()
             dialogRoutes()
             delMedBrukerRoutes()
-            enhetRoutes()
+            navEnhetRoutes()
             virksomhetRoutes()
             notificationRoutes()
         }

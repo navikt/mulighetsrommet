@@ -90,7 +90,7 @@ export function OpprettAvtaleContainer({
     if (avtale?.navEnhet?.enhetsnummer) {
       return avtale?.navEnhet?.enhetsnummer;
     }
-    if (enheter.find((e) => e.enhetNr === ansatt.hovedenhet)) {
+    if (enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet)) {
       return ansatt.hovedenhet;
     }
     return undefined;
@@ -229,7 +229,7 @@ export function OpprettAvtaleContainer({
             label={"Enhet"}
             {...register("enhet")}
             options={enheter.map((enhet) => ({
-              value: `${enhet.enhetNr}`,
+              value: `${enhet.enhetsnummer}`,
               label: enhet.navn,
             }))}
           />

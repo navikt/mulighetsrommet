@@ -5,15 +5,18 @@
 
 .bell_container {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notifier {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background-color: var(--a-icon-danger);
   display: inline-block;
   border-radius: 100%;
   position: absolute;
   right: 2px;
-  bottom: 25px;
+  bottom: 15px;
 }

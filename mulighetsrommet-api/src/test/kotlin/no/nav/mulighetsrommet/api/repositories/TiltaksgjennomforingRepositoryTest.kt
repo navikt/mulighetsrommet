@@ -94,11 +94,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("enheter crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = EnhetRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
-                    enhetNr = "1",
+                    enhetsnummer = "1",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
@@ -107,7 +107,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
-                    enhetNr = "2",
+                    enhetsnummer = "2",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
@@ -116,7 +116,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn3",
-                    enhetNr = "3",
+                    enhetsnummer = "3",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
@@ -140,11 +140,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("Oppdater enheter fra Sanity-tiltaksgjennomføringer til database") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val enhetRepository = EnhetRepository(database.db)
+            val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn1",
-                    enhetNr = "1",
+                    enhetsnummer = "1",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,
@@ -153,7 +153,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             enhetRepository.upsert(
                 NavEnhetDbo(
                     navn = "Navn2",
-                    enhetNr = "2",
+                    enhetsnummer = "2",
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = null,

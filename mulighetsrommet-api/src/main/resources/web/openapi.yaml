@@ -1402,9 +1402,10 @@ components:
     NavEnhet:
       type: object
       properties:
-        enhetNr:
+        enhetsnummer:
           type: string
         overordnetEnhet:
+          nullable: true
           type: string
         navn:
           type: string
@@ -1412,6 +1413,11 @@ components:
           $ref: "#/components/schemas/NavEnhetStatus"
         type:
           $ref: "#/components/schemas/Norg2Type"
+      required:
+        - navn
+        - enhetsnummer
+        - status
+        - type
 
     Leverandor:
       type: object

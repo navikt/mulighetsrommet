@@ -207,7 +207,7 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
     const avtaleEnhet = enheter?.find(
-      (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+      (e: NavEnhet) => e.enhetsnummer === avtale?.navEnhet?.enhetsnummer
     );
     if (!avtaleEnhet) {
       return undefined;
@@ -217,7 +217,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           (e: NavEnhet) => e.overordnetEnhet === avtaleEnhet?.overordnetEnhet
         )
       : enheter?.find(
-          (e: NavEnhet) => e.enhetNr === avtale?.navEnhet?.enhetsnummer
+          (e: NavEnhet) => e.enhetsnummer === avtale?.navEnhet?.enhetsnummer
         );
   };
 
@@ -235,12 +235,12 @@ export const OpprettTiltaksgjennomforingContainer = (
       ?.filter((enhet: NavEnhet) => {
         // Bare interessert i filtrering på overordnet enhet hvis overordnet enhet sin type er et fylke
         return overordnet?.type === Norg2Type.FYLKE
-          ? overordnet.enhetNr === enhet.overordnetEnhet
+          ? overordnet.enhetsnummer === enhet.overordnetEnhet
           : true;
       })
       .map((enhet: NavEnhet) => ({
         label: enhet.navn,
-        value: enhet.enhetNr,
+        value: enhet.enhetsnummer,
       }));
     options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
     return options || [];
@@ -254,11 +254,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     return (
       enheter
         ?.filter((enhet: NavEnhet) =>
-          overordnedeEnhetsnummer?.includes(enhet.enhetNr)
+          overordnedeEnhetsnummer?.includes(enhet.enhetsnummer)
         )
         .map((enhet: NavEnhet) => ({
           label: enhet.navn,
-          value: enhet.enhetNr,
+          value: enhet.enhetsnummer,
         })) ?? []
     );
   };
@@ -331,10 +331,10 @@ export const OpprettTiltaksgjennomforingContainer = (
             label={"Enhet (fylke)"}
             disabled={!!overordnetEnhetFraAvtale()}
             options={fylkeEnheterOptions()}
-            defaultValue={overordnetEnhetFraAvtale()?.enhetNr}
+            defaultValue={overordnetEnhetFraAvtale()?.enhetsnummer}
             onChange={(e) => {
               setFylkeEnhet(
-                enheter?.find((enhet: NavEnhet) => enhet.enhetNr === e)
+                enheter?.find((enhet: NavEnhet) => enhet.enhetsnummer === e)
               );
             }}
           />

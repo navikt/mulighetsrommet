@@ -24,8 +24,8 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@navikt/aksel-icons": "^2.9.5",
-    "@navikt/ds-css": "^2.9.2",
+    "@navikt/aksel-icons": "^2.9.8",
+    "@navikt/ds-css": "^2.9.8",
     "@navikt/ds-react": "^2.8.15",
     "@navikt/navspa": "^6.0.1",
     "@portabletext/react": "^3.0.0",
@@ -60,7 +60,7 @@
     "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-cypress": "^2.13.2",
+    "eslint-plugin-cypress": "^2.13.3",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-prettier": "^4.2.1",
