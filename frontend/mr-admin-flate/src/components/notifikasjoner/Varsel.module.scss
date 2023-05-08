@@ -4,12 +4,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
+  width: 70ch;
 }
 
-.left {
+.flex {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .ikon {

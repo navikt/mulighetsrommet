@@ -18,40 +18,42 @@ export function NotifikasjonerPage() {
   };
 
   return (
-    <ContainerLayout>
-      <Heading size={"medium"}>Varsler</Heading>
-      <Tabs
-        defaultValue={fane}
-        size="small"
-        selectionFollowsFocus
-        className={styles.fane_root}
-        onChange={(value) => {
-          logEvent("mulighetsrommet.faner", {
-            value: tabValueTilFaneoverSkrifter[value],
-          });
-          setFane(value);
-        }}
-      >
-        <Tabs.List className={styles.fane_liste} id="fane_liste">
-          {faneoverskrifter.map((fane, index) => (
-            <Tabs.Tab
-              key={index}
-              value={`tab${index + 1}`}
-              label={fane}
-              className={styles.btn_tab}
-              data-testid={`fane_${kebabCase(fane)}`}
-            />
-          ))}
-        </Tabs.List>
-        <div className={styles.fane_panel}>
-          <Tabs.Panel value="tab1" data-testid="tab1">
-            <LesteNotifikasjonsliste />
-          </Tabs.Panel>
-          <Tabs.Panel value="tab2" data-testid="tab2">
-            <UlesteNotifikasjonsliste />
-          </Tabs.Panel>
-        </div>
-      </Tabs>
-    </ContainerLayout>
+    <main>
+      <ContainerLayout>
+        <Heading size={"medium"}>Varsler</Heading>
+        <Tabs
+          defaultValue={fane}
+          size="small"
+          selectionFollowsFocus
+          className={styles.fane_root}
+          onChange={(value) => {
+            logEvent("mulighetsrommet.faner", {
+              value: tabValueTilFaneoverSkrifter[value],
+            });
+            setFane(value);
+          }}
+        >
+          <Tabs.List className={styles.fane_liste} id="fane_liste">
+            {faneoverskrifter.map((fane, index) => (
+              <Tabs.Tab
+                key={index}
+                value={`tab${index + 1}`}
+                label={fane}
+                className={styles.btn_tab}
+                data-testid={`fane_${kebabCase(fane)}`}
+              />
+            ))}
+          </Tabs.List>
+          <div className={styles.fane_panel}>
+            <Tabs.Panel value="tab1" data-testid="tab1">
+              <LesteNotifikasjonsliste />
+            </Tabs.Panel>
+            <Tabs.Panel value="tab2" data-testid="tab2">
+              <UlesteNotifikasjonsliste />
+            </Tabs.Panel>
+          </div>
+        </Tabs>
+      </ContainerLayout>
+    </main>
   );
 }

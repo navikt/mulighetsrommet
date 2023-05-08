@@ -22,7 +22,11 @@ export function Notifikasjonsbjelle() {
   const harUlesteNotifikasjoner = antallUlesteNotifikasjoner?.unreadCount || -1;
 
   return features?.["mulighetsrommet.admin-flate-se-notifikasjoner"] ? (
-    <Link to="/notifikasjoner" className={styles.lenke}>
+    <Link
+      to="/notifikasjoner"
+      className={styles.lenke}
+      data-testid="notifikasjonsbjelle"
+    >
       <div className={styles.bell_container}>
         {harUlesteNotifikasjoner > 0 ? <Notifier /> : null}
         <BellIcon fontSize={24} title="Notifikasjonsbjelle" />
