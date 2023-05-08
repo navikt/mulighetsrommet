@@ -20,6 +20,8 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClientImpl
+import no.nav.mulighetsrommet.api.clients.enhetsregister.EregClient
+import no.nav.mulighetsrommet.api.clients.enhetsregister.EregClientImpl
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClientImpl
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -152,6 +154,11 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = {
                 m2mTokenProvider.createMachineToMachineToken(appConfig.amtEnhetsregister.scope)
             },
+        )
+    }
+    single<EregClient> {
+        EregClientImpl(
+            baseUrl = appConfig.ereg.url,
         )
     }
     single<VeilarboppfolgingClient> {

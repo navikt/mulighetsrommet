@@ -66,6 +66,9 @@ app:
     url: http://amt-enhetsregister.amt
     scope: api://prod-gcp.amt.amt-enhetsregister/.default
 
+  ereg:
+    url: https://ereg-services.prod.intern.nav.no/api/v2
+
   msGraphConfig:
     url: https://graph.microsoft.com
     scope: https://graph.microsoft.com/.default
