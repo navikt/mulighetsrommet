@@ -106,8 +106,8 @@ class NotificationRepositoryTest : FunSpec({
     test("filter for notification status") {
         val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
-        val oldFilter = NotificationFilter(status = NotificationStatus.OLD)
-        val newFilter = NotificationFilter(status = NotificationStatus.NEW)
+        val oldFilter = NotificationFilter(status = NotificationStatus.Old)
+        val newFilter = NotificationFilter(status = NotificationStatus.New)
 
         notifications.upsert(commonNotification).shouldBeRight()
         notifications.upsert(userNotification).shouldBeRight()

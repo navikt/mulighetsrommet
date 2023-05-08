@@ -60,7 +60,7 @@ data class NotificationFilter(
 )
 
 enum class NotificationStatus {
-    NEW, OLD
+    New, Old
 }
 
 enum class Tiltakstypekategori {
