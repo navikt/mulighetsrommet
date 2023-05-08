@@ -4,6 +4,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.utils.NotificationFilter
+import no.nav.mulighetsrommet.api.utils.NotificationStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.time.Instant
 import java.time.LocalDateTime
@@ -31,6 +33,8 @@ class NotificationRepositoryTest : FunSpec({
         user = "ABC",
         createdAt = now,
     )
+
+    val filter = NotificationFilter()
 
     fun Notification.asUserNotification(userId: String, readAt: LocalDateTime? = null) = run {
         UserNotification(
@@ -71,12 +75,12 @@ class NotificationRepositoryTest : FunSpec({
         notifications.upsert(commonNotification).shouldBeRight()
         notifications.upsert(userNotification).shouldBeRight()
 
-        notifications.getUserNotifications("ABC") shouldBeRight listOf(
+        notifications.getUserNotifications("ABC", filter) shouldBeRight listOf(
             userNotification.asUserNotification("ABC"),
             commonNotification.asUserNotification("ABC"),
         )
 
-        notifications.getUserNotifications("XYZ") shouldBeRight listOf(
+        notifications.getUserNotifications("XYZ", filter) shouldBeRight listOf(
             commonNotification.asUserNotification("XYZ"),
         )
     }
@@ -92,10 +96,37 @@ class NotificationRepositoryTest : FunSpec({
         notifications.setNotificationReadAt(userNotification.id, "ABC", readAtTime).shouldBeRight()
         notifications.setNotificationReadAt(commonNotification.id, "XYZ", readAtTime).shouldBeRight()
 
-        notifications.getUserNotifications() shouldBeRight listOf(
+        notifications.getUserNotifications(filter = filter) shouldBeRight listOf(
             commonNotification.asUserNotification("ABC", readAtTime),
             userNotification.asUserNotification("ABC", readAtTime),
             commonNotification.asUserNotification("XYZ", readAtTime),
+        )
+    }
+
+    test("filter for notification status") {
+        val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+        val notifications = NotificationRepository(database.db)
+        val readFilter = NotificationFilter(status = NotificationStatus.Read)
+        val unreadFilter = NotificationFilter(status = NotificationStatus.Unread)
+
+        notifications.upsert(commonNotification).shouldBeRight()
+        notifications.upsert(userNotification).shouldBeRight()
+
+        notifications.getUserNotifications("ABC", unreadFilter) shouldBeRight listOf(
+            userNotification.asUserNotification("ABC"),
+            commonNotification.asUserNotification("ABC"),
+        )
+
+        notifications.getUserNotifications("ABC", readFilter) shouldBeRight emptyList()
+
+        notifications.setNotificationReadAt(userNotification.id, "ABC", readAtTime).shouldBeRight()
+        notifications.setNotificationReadAt(commonNotification.id, "ABC", readAtTime).shouldBeRight()
+
+        notifications.getUserNotifications("ABC", unreadFilter) shouldBeRight emptyList()
+
+        notifications.getUserNotifications("ABC", readFilter) shouldBeRight listOf(
+            userNotification.asUserNotification("ABC", readAtTime),
+            commonNotification.asUserNotification("ABC", readAtTime),
         )
     }
 
