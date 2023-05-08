@@ -50,6 +50,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     amtEnhetsregister = createServiceClientConfig("amtenhetsregister"),
+    ereg = createServiceClientConfig("ereg"),
     msGraphConfig = createServiceClientConfig("ms-graph"),
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tasks = TaskConfig(
