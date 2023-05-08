@@ -45,7 +45,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:build
       - name: Submit Gradle dependencies
-        uses: mikepenz/gradle-dependency-submission@v0.8.6
+        uses: mikepenz/gradle-dependency-submission@4c18b5f3e7cc4eda0bbeb2eb93aafec7f0980bc2 # TODO: replace hash with new version tag when it's available
         if: github.ref_name == 'main'
         with:
           gradle-build-module: :mulighetsrommet-api
