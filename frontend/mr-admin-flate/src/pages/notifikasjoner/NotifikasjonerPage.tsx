@@ -1,11 +1,12 @@
 import { Heading, Tabs } from "@navikt/ds-react";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { Notifikasjonsliste } from "../../components/notifikasjoner/Notifikasjonsliste";
+import { LesteNotifikasjonsliste } from "../../components/notifikasjoner/LesteNotifikasjonsliste";
 import { useAtom } from "jotai/index";
 import { logEvent } from "mulighetsrommet-veileder-flate/src/core/api/logger";
 import { kebabCase } from "mulighetsrommet-veileder-flate/src/utils/Utils";
 import { faneAtom } from "../../api/atoms";
 import styles from "./NotifikasjonerPage.module.scss";
+import { UlesteNotifikasjonsliste } from "../../components/notifikasjoner/UlesteNotifikasjonsliste";
 
 export function NotifikasjonerPage() {
   const [fane, setFane] = useAtom(faneAtom);
@@ -44,10 +45,10 @@ export function NotifikasjonerPage() {
         </Tabs.List>
         <div className={styles.fane_panel}>
           <Tabs.Panel value="tab1" data-testid="tab1">
-            <Notifikasjonsliste />
+            <LesteNotifikasjonsliste />
           </Tabs.Panel>
           <Tabs.Panel value="tab2" data-testid="tab2">
-            <Notifikasjonsliste />
+            <UlesteNotifikasjonsliste />
           </Tabs.Panel>
         </div>
       </Tabs>

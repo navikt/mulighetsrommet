@@ -4,10 +4,13 @@ import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifika
 import { Notifikasjonssrad } from "./Notifikasjonssrad";
 import { Laster } from "../laster/Laster";
 import { Alert, BodyShort } from "@navikt/ds-react";
+import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
 
-export function Notifikasjonsliste() {
+export function LesteNotifikasjonsliste() {
   const { data: features } = useFeatureToggles();
-  const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt();
+  const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt(
+    Notifikasjonsstatus.READ
+  );
 
   if (!features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]) return null;
 
