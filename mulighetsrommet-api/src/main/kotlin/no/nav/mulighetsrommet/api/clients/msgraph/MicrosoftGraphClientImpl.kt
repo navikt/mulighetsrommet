@@ -104,6 +104,7 @@ class MicrosoftGraphClientImpl(
         }
 
         else -> NavAnsattDto(
+            oid = user.id,
             navident = user.onPremisesSamAccountName,
             fornavn = user.givenName,
             etternavn = user.surname,
