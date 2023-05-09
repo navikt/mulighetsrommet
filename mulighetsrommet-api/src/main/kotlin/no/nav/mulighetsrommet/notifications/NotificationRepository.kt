@@ -129,25 +129,27 @@ class NotificationRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getUserNotifications(userId: String? = null): QueryResult<List<UserNotification>> = query {
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            userId to "n.target = 'All' or un.user_id = :user_id",
-        )
+    fun getUserNotifications(userId: String? = null, filter: NotificationFilter): QueryResult<List<UserNotification>> =
+        query {
+            val where = DatabaseUtils.andWhereParameterNotNull(
+                userId to "(n.target = 'All' or un.user_id = :user_id)",
+                filter.status to filter.status?.toDbStatement(),
+            )
 
-        @Language("PostgreSQL")
-        val query = """
+            @Language("PostgreSQL")
+            val query = """
             select n.id, n.type, n.target, n.title, n.description, n.created_at, un.user_id, un.read_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             $where
             order by created_at desc
-        """.trimIndent()
+            """.trimIndent()
 
-        queryOf(query, mapOf("user_id" to userId))
-            .map { it.toUserNotification(userId) }
-            .asList
-            .let { db.run(it) }
-    }
+            queryOf(query, mapOf("user_id" to userId))
+                .map { it.toUserNotification(userId) }
+                .asList
+                .let { db.run(it) }
+        }
 
     fun getUserNotificationSummary(userId: String): QueryResult<UserNotificationSummary> = query {
         @Language("PostgreSQL")
@@ -228,4 +230,11 @@ class NotificationRepository(private val db: Database) {
         createdAt = localDateTime("created_at"),
         readAt = localDateTimeOrNull("read_at"),
     )
+
+    private fun NotificationStatus.toDbStatement(): String {
+        return when (this) {
+            NotificationStatus.Read -> "un.read_at is not null"
+            NotificationStatus.Unread -> "un.read_at is null"
+        }
+    }
 }

@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.utils.getNotificationFilter
 import no.nav.mulighetsrommet.notifications.NotificationService
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -17,8 +18,9 @@ fun Route.notificationRoutes() {
     route("api/v1/internal/notifications") {
         get {
             val userId = getNavIdent()
+            val filter = getNotificationFilter()
 
-            val notifications = notificationService.getNotifications(userId)
+            val notifications = notificationService.getNotifications(userId, filter)
 
             call.respond(PaginatedResponse.of(notifications))
         }
