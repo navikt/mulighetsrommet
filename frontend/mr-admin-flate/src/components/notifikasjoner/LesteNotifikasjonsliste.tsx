@@ -25,7 +25,7 @@ export function LesteNotifikasjonsliste() {
 
   const { data } = paginertResultat;
 
-  if (data.length !== 0) {
+  if (data.length === 0) {
     return (
       <EmptyState
         tittel={"Du har ingen tidligere varsler"}

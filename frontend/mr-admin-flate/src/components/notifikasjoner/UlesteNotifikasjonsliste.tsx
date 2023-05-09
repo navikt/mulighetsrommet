@@ -26,7 +26,7 @@ export function UlesteNotifikasjonsliste() {
 
   const { data } = paginertResultat;
 
-  if (data.length !== 0) {
+  if (data.length === 0) {
     return (
       <EmptyState
         tittel={"Ingen nye varsler"}
