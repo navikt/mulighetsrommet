@@ -24,7 +24,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -41,7 +41,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
     },
     {
@@ -58,7 +58,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "2990",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -75,7 +75,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -92,7 +92,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -109,7 +109,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.AVBRUTT,
     },
     {
@@ -126,7 +126,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -143,7 +143,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.AVLYST,
     },
     {
@@ -160,7 +160,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -177,7 +177,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -194,7 +194,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -211,7 +211,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -228,7 +228,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -245,7 +245,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -262,7 +262,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -279,7 +279,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -296,7 +296,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.GJENNOMFORES,
     },
     {
@@ -313,7 +313,7 @@ export const mockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
       startDato: "2022-01-01",
       sluttDato: "2022-12-12",
       arenaAnsvarligEnhet: "1190",
-      enheter: [],
+      navEnheter: [],
       status: TiltaksgjennomforingStatus.APENT_FOR_INNSOK,
     },
   ],
