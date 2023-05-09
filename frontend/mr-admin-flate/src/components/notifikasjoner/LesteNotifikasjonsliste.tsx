@@ -4,7 +4,7 @@ import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifika
 import { Laster } from "../laster/Laster";
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
-import {LestNotifikasjonssrad} from "./LestNotifikasjonssrad";
+import { LestNotifikasjonssrad } from "./LestNotifikasjonssrad";
 
 export function LesteNotifikasjonsliste() {
   const { data: features } = useFeatureToggles();
@@ -34,13 +34,16 @@ export function LesteNotifikasjonsliste() {
   }
 
   return (
-    <section className={styles.container}>
+    <dl className={styles.container}>
       {data.map((n) => {
         return (
-          <LestNotifikasjonssrad key={n.id} notifikasjon={n}></LestNotifikasjonssrad>
+          <LestNotifikasjonssrad
+            key={n.id}
+            notifikasjon={n}
+          ></LestNotifikasjonssrad>
         );
       })}
-    </section>
+    </dl>
   );
 }
 
