@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.tasks
 
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
+import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.TilgjengelighetsstatusSanitySyncService
@@ -16,11 +18,20 @@ class SynchronizeTilgjengelighetsstatuserToSanity(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val cronExpression: String,
-    )
+        val disabled: Boolean = false,
+        val cronPattern: String? = null,
+    ) {
+        fun toSchedule(): Schedule {
+            return if (disabled) {
+                DisabledSchedule()
+            } else {
+                Schedules.cron(cronPattern)
+            }
+        }
+    }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-tilgjengelighetsstatuser", Schedules.cron(config.cronExpression))
+        .recurring("synchronize-tilgjengelighetsstatuser", config.toSchedule())
         .onFailure { failure, _ ->
             slackNotifier.sendMessage("Klarte ikke synkronisere tilgjengelighetsstatuser til Sanity. Konsekvensen er at tilgjengelighetsstatusene i Sanity vil være utdaterte. Cause: ${failure.cause.get().message}")
         }

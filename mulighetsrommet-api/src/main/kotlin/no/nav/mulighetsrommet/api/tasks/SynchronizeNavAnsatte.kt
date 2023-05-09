@@ -23,8 +23,8 @@ class SynchronizeNavAnsatte(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val cronPattern: String?,
         val disabled: Boolean = false,
+        val cronPattern: String? = null,
         val groups: List<UUID> = listOf(),
     ) {
         fun toSchedule(): Schedule {

@@ -140,6 +140,7 @@ private fun repositories() = module {
     single { NavEnhetRepository(get()) }
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
+    single { NavAnsattRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -244,14 +245,23 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single {
-        val synchronizeTiltaksgjennomforingsstatuserToKafka =
-            SynchronizeTiltaksgjennomforingsstatuserToKafka(get(), get())
+        val synchronizeTiltaksgjennomforingsstatuserToKafka = SynchronizeTiltaksgjennomforingsstatuserToKafka(
+            get(),
+            get(),
+        )
         val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
-        val synchronizeTiltaksgjennomforingEnheter =
-            SynchronizeTiltaksgjennomforingEnheter(config.synchronizeEnheterFraSanityTilApi, get(), get())
-        val synchronizeTilgjengelighetsstatuserToSanity =
-            SynchronizeTilgjengelighetsstatuserToSanity(config.synchronizeTilgjengelighetsstatuser, get(), get())
+        val synchronizeTiltaksgjennomforingEnheter = SynchronizeTiltaksgjennomforingEnheter(
+            config.synchronizeEnheterFraSanityTilApi,
+            get(),
+            get(),
+        )
+        val synchronizeTilgjengelighetsstatuserToSanity = SynchronizeTilgjengelighetsstatuserToSanity(
+            config.synchronizeTilgjengelighetsstatuser,
+            get(),
+            get(),
+        )
+        val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get())
 
         val db: Database by inject()
 
@@ -263,6 +273,7 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeTiltakstypestatuserToKafka.task,
                 synchronizeTiltaksgjennomforingEnheter.task,
                 synchronizeTilgjengelighetsstatuserToSanity.task,
+                synchronizeNavAnsatte.task,
             )
             .registerShutdownHook()
             .build()
