@@ -34,7 +34,7 @@ export function LesteNotifikasjonsliste() {
   }
 
   return (
-    <dl className={styles.container}>
+    <ul className={styles.container}>
       {data.map((n) => {
         return (
           <LestNotifikasjonssrad
@@ -43,7 +43,7 @@ export function LesteNotifikasjonsliste() {
           ></LestNotifikasjonssrad>
         );
       })}
-    </dl>
+    </ul>
   );
 }
 

@@ -35,13 +35,13 @@ export function UlesteNotifikasjonsliste() {
   }
 
   return (
-    <dl className={styles.container}>
+    <ul className={styles.container}>
       {data.map((n) => {
         return (
           <Notifikasjonssrad key={n.id} notifikasjon={n}></Notifikasjonssrad>
         );
       })}
-    </dl>
+    </ul>
   );
 }
 
