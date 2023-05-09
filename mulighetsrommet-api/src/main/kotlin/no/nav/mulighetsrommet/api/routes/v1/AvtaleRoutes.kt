@@ -112,7 +112,7 @@ data class AvtaleRequest(
     val ansvarlig: String,
     val avtaletype: Avtaletype,
     val prisOgBetalingsinformasjon: String? = null,
-    val enheter: List<String> = emptyList(),
+    val navEnheter: List<String> = emptyList(),
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
@@ -132,7 +132,7 @@ data class AvtaleRequest(
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
             ansvarlige = listOf(ansvarlig),
             prisbetingelser = prisOgBetalingsinformasjon,
-            enheter = enheter,
+            navEnheter = navEnheter,
         )
     }
 }

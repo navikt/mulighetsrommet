@@ -63,7 +63,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         startDato: LocalDate = LocalDate.of(2023, 1, 11),
         sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
         ansvarlige: List<String> = emptyList(),
-        enheter: List<String> = emptyList(),
+        navEnheter: List<String> = emptyList(),
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -80,7 +80,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             prisbetingelser = null,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
             ansvarlige = ansvarlige,
-            enheter = enheter,
+            navEnheter = navEnheter,
         )
     }
 }

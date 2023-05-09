@@ -115,7 +115,7 @@ class AvtaleRepository(private val db: Database) {
                 db.createTextArray(avtale.ansvarlige),
             ).asExecute.let { tx.run(it) }
 
-            avtale.enheter.forEach { enhet ->
+            avtale.navEnheter.forEach { enhet ->
                 queryOf(
                     upsertEnhet,
                     avtale.id,
@@ -126,7 +126,7 @@ class AvtaleRepository(private val db: Database) {
             queryOf(
                 deleteEnheter,
                 avtale.id,
-                db.createTextArray(avtale.enheter),
+                db.createTextArray(avtale.navEnheter),
             ).asExecute.let { tx.run(it) }
         }
     }
@@ -150,7 +150,7 @@ class AvtaleRepository(private val db: Database) {
                    nav_enhet.navn as nav_enhet_navn,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
-                   array_agg(e.enhetsnummer) as enheter,
+                   array_agg(e.enhetsnummer) as navEnheter,
                    aa.navident
             from avtale a
                      join tiltakstype t on t.id = a.tiltakstype_id
@@ -238,7 +238,7 @@ class AvtaleRepository(private val db: Database) {
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
                    aa.navident as navident,
-                   array_agg(ae.enhetsnummer) as enheter,
+                   array_agg(ae.enhetsnummer) as navEnheter,
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
@@ -287,7 +287,7 @@ class AvtaleRepository(private val db: Database) {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
         val navRegion = stringOrNull("nav_region")
-        val enheter = sqlArrayOrNull("enheter")?.let {
+        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
 
@@ -303,7 +303,7 @@ class AvtaleRepository(private val db: Database) {
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer"),
             ),
-            enheter = enheter,
+            navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
             navRegion = navRegion?.let {

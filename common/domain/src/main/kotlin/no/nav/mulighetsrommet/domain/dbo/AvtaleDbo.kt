@@ -22,7 +22,7 @@ data class AvtaleDbo(
     val sluttDato: LocalDate,
     val arenaAnsvarligEnhet: String?,
     val navRegion: String?,
-    val enheter: List<String>,
+    val navEnheter: List<String>,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
     val opphav: Opphav,

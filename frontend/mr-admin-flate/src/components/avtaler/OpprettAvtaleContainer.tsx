@@ -49,7 +49,7 @@ const Schema = z.object({
     .max(9, "Organisasjonsnummer må være 9 siffer")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
   navRegion: z.string({ required_error: "Du må velge en enhet" }),
-  enheter: z
+  navEnheter: z
     .string()
     .array()
     .nonempty({ message: "Du må velge minst én enhet" }),
@@ -107,10 +107,10 @@ export function OpprettAvtaleContainer({
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(),
-      enheter:
-        avtale?.enheter.length === 0
+      navEnheter:
+        avtale?.navEnheter.length === 0
           ? ["alle_enheter"]
-          : avtale?.enheter,
+          : avtale?.navEnheter,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
@@ -143,7 +143,7 @@ export function OpprettAvtaleContainer({
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
       navRegion: data.navRegion,
-      enheter: data.enheter.includes("alle_enheter") ? [] : data.enheter,
+      navEnheter: data.navEnheter.includes("alle_enheter") ? [] : data.navEnheter,
       avtalenummer: avtale?.avtalenummer || "",
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
@@ -286,7 +286,7 @@ export function OpprettAvtaleContainer({
             {...register("navRegion")}
             onChange={(e) => {
               setNavRegion(e);
-              form.setValue("enheter", [] as any);
+              form.setValue("navEnheter", [] as any);
             }}
             options={enheter
               .filter((enhet) => enhet.type === Norg2Type.FYLKE)
@@ -298,7 +298,7 @@ export function OpprettAvtaleContainer({
           <ControlledMultiSelect
             placeholder="Velg en"
             label={"NAV enhet (kontorer)"}
-            {...register("enheter")}
+            {...register("navEnheter")}
             options={enheterOptions()}
           />
         </FormGroup>

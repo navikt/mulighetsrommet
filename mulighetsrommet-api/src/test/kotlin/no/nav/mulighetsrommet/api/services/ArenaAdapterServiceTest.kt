@@ -53,7 +53,7 @@ class ArenaAdapterServiceTest : FunSpec({
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
         opphav = AvtaleDbo.Opphav.ARENA,
-        enheter = emptyList(),
+        navEnheter = emptyList(),
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -69,7 +69,7 @@ class ArenaAdapterServiceTest : FunSpec({
         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
         antallPlasser = null,
         ansvarlige = emptyList(),
-        enheter = emptyList(),
+        navEnheter = emptyList(),
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -121,7 +121,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tilgjengelighet = Tilgjengelighetsstatus.Ledig,
             antallPlasser = null,
             ansvarlige = emptyList(),
-            enheter = emptyList(),
+            navEnheter = emptyList(),
         )
     }
 

@@ -967,7 +967,7 @@ components:
         antallPlasser:
           type: number
           nullable: true
-        enheter:
+        navEnheter:
           type: array
           items:
             type: string
@@ -982,7 +982,7 @@ components:
         - avtaletype
         - avtalestatus
         - prisbetingelser
-        - enheter
+        - navEnheter
 
     AvtaleRequest:
       type: object
@@ -1017,7 +1017,7 @@ components:
           $ref: "#/components/schemas/Avtaletype"
         prisOgBetalingsinformasjon:
           type: string
-        enheter:
+        navEnheter:
           type: array
           items:
             type: string
@@ -1033,7 +1033,7 @@ components:
         - antallPlasser
         - ansvarlig
         - avtaletype
-        - enheter
+        - navEnheter
 
     EmbeddedTiltakstype:
       type: object
@@ -1127,7 +1127,7 @@ components:
         sluttDato:
           type: string
           format: date
-        enheter:
+        navEnheter:
           type: array
           items:
             type: string
@@ -1144,7 +1144,7 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
-        - enheter
+        - navEnheter
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1174,7 +1174,7 @@ components:
           type: string
         ansvarlig:
           type: string
-        enheter:
+        navEnheter:
           type: array
           items:
             type: string
@@ -1188,7 +1188,7 @@ components:
         - antallPlasser
         - virksomhetsnummer
         - ansvarlig
-        - enheter
+        - navEnheter
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
