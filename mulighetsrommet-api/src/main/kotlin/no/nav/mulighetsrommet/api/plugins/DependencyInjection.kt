@@ -197,7 +197,11 @@ private fun services(appConfig: AppConfig) = module {
         MicrosoftGraphClientImpl(
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
+                if (token == null) {
+                    m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
+                } else {
+                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
+                }
             },
         )
     }

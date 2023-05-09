@@ -69,6 +69,7 @@ class MicrosoftGraphClientImpl(
 
     override suspend fun getGroupMembers(groupId: UUID): List<NavAnsattDto> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
+            bearerAuth(tokenProvider.invoke(null))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail")
         }
 
