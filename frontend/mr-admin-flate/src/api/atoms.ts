@@ -17,6 +17,10 @@ export const avtalePaginationAtom = atomWithHash("avtalePage", 1, {
   setHash: "replaceState",
 });
 
+export const faneAtom = atomWithHash('fane', 'tab1', {
+  setHash: 'replaceState',
+});
+
 export interface TiltakstypeFilter {
   sok?: string;
   status?: Tiltakstypestatus;
