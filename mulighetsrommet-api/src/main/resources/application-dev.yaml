@@ -70,7 +70,7 @@ app:
     scope: api://dev-gcp.amt.amt-enhetsregister/.default
 
   ereg:
-    url: https://ereg-services.dev.intern.nav.no/api/v2
+    url: https://ereg-services-q1.dev-fss-pub.nais.io/api/v2
 
   msGraphConfig:
     url: https://graph.microsoft.com

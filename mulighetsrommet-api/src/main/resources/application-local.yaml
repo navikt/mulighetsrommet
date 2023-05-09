@@ -70,7 +70,7 @@ app:
     scope: default
 
   ereg:
-    url: https://ereg-services.dev.intern.nav.no/api/v2
+    url: https://ereg-services-q1.dev-fss-pub.nais.io/api/v2
 
   msGraphConfig:
     url: http://localhost:8090/ms-graph
