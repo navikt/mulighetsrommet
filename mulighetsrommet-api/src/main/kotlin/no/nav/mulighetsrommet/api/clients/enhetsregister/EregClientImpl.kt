@@ -23,11 +23,7 @@ class EregClientImpl(
 
     override suspend fun hentVirksomhet(virksomhetsnummer: String): EregVirksomhetDto? {
         // TODO Vurder om inkluderHierarki skal være et filter vi kan konfigurere ved kall av tjeneste
-        val response = client.get("$baseUrl/organisasjon/$virksomhetsnummer?inkluderHierarki=true") {
-            headers {
-                this.append("Nav-Consumer-Id", "team-mulighetsrommet")
-            }
-        }
+        val response = client.get("$baseUrl/organisasjon/$virksomhetsnummer?inkluderHierarki=true")
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
