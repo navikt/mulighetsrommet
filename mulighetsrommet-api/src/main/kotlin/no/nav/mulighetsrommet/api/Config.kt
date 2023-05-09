@@ -28,7 +28,7 @@ data class AppConfig(
     val veilarbveilederConfig: ServiceClientConfig,
     val poaoTilgang: ServiceClientConfig,
     val amtEnhetsregister: ServiceClientConfig,
-    val ereg: ServiceClientConfig,
+    val ereg: EregConfig,
     val arenaAdapter: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
     val tasks: TaskConfig,
@@ -71,6 +71,10 @@ data class SwaggerConfig(
 data class ServiceClientConfig(
     val url: String,
     val scope: String,
+)
+
+data class EregConfig(
+    val url: String,
 )
 
 data class TaskConfig(
