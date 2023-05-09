@@ -1,16 +1,18 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/ms-graph/v1.0/users/([\\d\\D]*)"
+    "urlPathPattern": "/ms-graph/v1.0/users/[0-9a-z-]+"
   },
   "response": {
     "status": 200,
     "jsonBody": {
+      "id": "0bab029e-e84e-4842-8a27-d153b29782cf",
       "streetAddress": "2990",
       "city": "IT-Avdelingen",
       "onPremisesSamAccountName": "B123456",
       "givenName": "Bertil",
-      "surname": "Betabruker"
+      "surname": "Betabruker",
+      "mail": "bertil.betabruker@nav.no"
     },
     "headers": {
       "Content-Type": "application/json"

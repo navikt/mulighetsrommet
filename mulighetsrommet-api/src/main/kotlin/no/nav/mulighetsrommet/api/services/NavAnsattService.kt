@@ -1,26 +1,25 @@
 package no.nav.mulighetsrommet.api.services
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.ADMIN_FLATE_BETABRUKER
 import no.nav.mulighetsrommet.api.tilgangskontroll.AdGrupper.TEAM_MULIGHETSROMMET
-import no.nav.poao_tilgang.client.AdGruppe
 import java.util.*
 
-class AnsattService(
-    private val poaoTilgangService: PoaoTilgangService,
+class NavAnsattService(
     private val microsoftGraphService: MicrosoftGraphService,
 ) {
     suspend fun hentAnsattData(accessToken: String, navAnsattAzureId: UUID): AnsattData {
-        val data = microsoftGraphService.hentAnsattData(accessToken, navAnsattAzureId)
-        val azureAdGrupper = poaoTilgangService.hentAdGrupper(navAnsattAzureId)
+        val ansatt = microsoftGraphService.getNavAnsatt(accessToken, navAnsattAzureId)
+        val azureAdGrupper = microsoftGraphService.getNavAnsattAdGrupper(accessToken, navAnsattAzureId)
         return AnsattData(
-            etternavn = data.etternavn,
-            fornavn = data.fornavn,
-            ident = data.navident,
-            navn = "${data.fornavn} ${data.etternavn}",
+            etternavn = ansatt.etternavn,
+            fornavn = ansatt.fornavn,
+            ident = ansatt.navident,
+            navn = "${ansatt.fornavn} ${ansatt.etternavn}",
             tilganger = azureAdGrupper.mapNotNull(::mapAdGruppeTilTilgang).toSet(),
-            hovedenhet = data.hovedenhetKode,
-            hovedenhetNavn = data.hovedenhetNavn,
+            hovedenhet = ansatt.hovedenhetKode,
+            hovedenhetNavn = ansatt.hovedenhetNavn,
         )
     }
 }

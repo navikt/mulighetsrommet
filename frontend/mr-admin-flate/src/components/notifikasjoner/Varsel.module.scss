@@ -4,7 +4,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  width: 70ch;
+
+  @media screen and (min-width: 850px) {
+    max-width: 35%;
+  }
 }
 
 .flex {
@@ -17,12 +20,13 @@
 .ikon {
   color: #b86b00;
   display: inline-block;
+  font-size: 1.5rem;
 }
 
 .ikon_container {
   display: inline-block;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background-color: var(--a-orange-200);
   display: flex;
