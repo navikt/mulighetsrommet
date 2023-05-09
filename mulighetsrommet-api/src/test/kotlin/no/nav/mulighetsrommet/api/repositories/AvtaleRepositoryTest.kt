@@ -174,20 +174,24 @@ class AvtaleRepositoryTest : FunSpec({
         context("Enhet") {
             test("Filtrere på region returnerer avtaler for gitt region") {
                 val navEnhetRepository = NavEnhetRepository(database.db)
-                navEnhetRepository.upsert(NavEnhetDbo(
-                    navn = "Oppland",
-                    enhetsnummer = "1900",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ))
-                navEnhetRepository.upsert(NavEnhetDbo(
-                    navn = "Vestland",
-                    enhetsnummer = "1801",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ))
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Oppland",
+                        enhetsnummer = "1900",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Vestland",
+                        enhetsnummer = "1801",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
 
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
                     navRegion = "1801",

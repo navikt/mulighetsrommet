@@ -309,7 +309,7 @@ class AvtaleRepository(private val db: Database) {
             navRegion = navRegion?.let {
                 AvtaleAdminDto.NavEnhet(
                     enhetsnummer = it,
-                    navn = string("nav_enhet_navn")
+                    navn = string("nav_enhet_navn"),
                 )
             },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
