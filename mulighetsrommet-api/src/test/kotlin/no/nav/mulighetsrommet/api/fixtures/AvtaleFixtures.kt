@@ -1,10 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
