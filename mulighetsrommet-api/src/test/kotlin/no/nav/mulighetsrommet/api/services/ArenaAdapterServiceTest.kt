@@ -47,11 +47,13 @@ class ArenaAdapterServiceTest : FunSpec({
         leverandorOrganisasjonsnummer = "123456789",
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
-        enhet = "2990",
+        arenaAnsvarligEnhet = "2990",
+        navRegion = null,
         avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         prisbetingelser = "💸",
         opphav = AvtaleDbo.Opphav.ARENA,
+        enheter = emptyList(),
     )
 
     val tiltaksgjennomforing = TiltaksgjennomforingDbo(
@@ -196,7 +198,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("leverandor_organisasjonsnummer").isEqualTo(avtale.leverandorOrganisasjonsnummer)
                 .value("start_dato").isEqualTo(avtale.startDato)
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
-                .value("enhet").isEqualTo(avtale.enhet)
+                .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
                 .value("avtaletype").isEqualTo(avtale.avtaletype.name)
                 .value("avslutningsstatus").isEqualTo(avtale.avslutningsstatus.name)
                 .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)

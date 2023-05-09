@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.flatMap
 import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNokkeltallDto
@@ -18,20 +19,21 @@ import java.util.*
 class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val arrangorService: ArrangorService,
-    private val navEnhetService: NavEnhetService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val amtEnhetsregisterClient: AmtEnhetsregisterClient,
 ) {
-    suspend fun get(id: UUID): AvtaleAdminDto? {
+    suspend fun get(id: UUID): QueryResult<AvtaleAdminDto?> {
         return avtaler.get(id)
-            ?.hentEnhetsnavnForAvtale()
-            ?.hentVirksomhetsnavnForAvtale()
+            .map { it?.hentVirksomhetsnavnForAvtale() }
     }
 
-    suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleDbo> {
+    suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleAdminDto> {
         val avtaleDbo = avtale.toDbo()
         validerOrganisasjonsnummerForLeverandor(avtale.leverandorOrganisasjonsnummer)
+
         return avtaler.upsert(avtaleDbo)
+            .flatMap { avtaler.get(avtaleDbo.id) }
+            .map { it!! } // If upsert is succesfull it should exist here
     }
 
     private suspend fun validerOrganisasjonsnummerForLeverandor(leverandorOrganisasjonsnummer: String) {
@@ -50,8 +52,7 @@ class AvtaleService(
         val (totalCount, items) = avtaler.getAll(filter, pagination)
 
         val avtalerMedLeverandorNavn = items
-            .hentVirksomhetsnavnForAvtaler()
-            .hentEnhetsnavnForAvtaler()
+            .map { it.hentVirksomhetsnavnForAvtale() }
 
         return PaginatedResponse(
             data = avtalerMedLeverandorNavn,
@@ -63,26 +64,9 @@ class AvtaleService(
         )
     }
 
-    private suspend fun List<AvtaleAdminDto>.hentVirksomhetsnavnForAvtaler(): List<AvtaleAdminDto> {
-        return this.map {
-            it.hentVirksomhetsnavnForAvtale()
-        }
-    }
-
     private suspend fun AvtaleAdminDto.hentVirksomhetsnavnForAvtale(): AvtaleAdminDto {
         val virksomhet = arrangorService.hentVirksomhet(this.leverandor.organisasjonsnummer)
         return this.copy(leverandor = this.leverandor.copy(navn = virksomhet?.navn))
-    }
-
-    private fun List<AvtaleAdminDto>.hentEnhetsnavnForAvtaler(): List<AvtaleAdminDto> {
-        return this.map {
-            it.hentEnhetsnavnForAvtale()
-        }
-    }
-
-    private fun AvtaleAdminDto.hentEnhetsnavnForAvtale(): AvtaleAdminDto {
-        val enhet = navEnhetService.hentEnhet(this.navEnhet.enhetsnummer)
-        return this.copy(navEnhet = this.navEnhet.copy(navn = enhet?.navn))
     }
 
     fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {

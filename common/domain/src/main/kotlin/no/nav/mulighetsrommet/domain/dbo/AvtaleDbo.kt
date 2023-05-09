@@ -20,7 +20,9 @@ data class AvtaleDbo(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String,
+    val arenaAnsvarligEnhet: String?,
+    val navRegion: String?,
+    val enheter: List<String>,
     val avtaletype: Avtaletype,
     val avslutningsstatus: Avslutningsstatus,
     val opphav: Opphav,

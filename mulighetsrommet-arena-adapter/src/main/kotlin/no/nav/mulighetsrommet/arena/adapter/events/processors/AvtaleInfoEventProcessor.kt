@@ -124,11 +124,13 @@ class AvtaleInfoEventProcessor(
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = avtale.ansvarligEnhet,
+            arenaAnsvarligEnhet = avtale.ansvarligEnhet,
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = avtale.prisbetingelser,
             opphav = AvtaleDbo.Opphav.ARENA,
+            navRegion = null,
+            enheter = emptyList()
         )
     }
 }

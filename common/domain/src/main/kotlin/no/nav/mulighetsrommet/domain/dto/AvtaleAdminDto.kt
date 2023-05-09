@@ -18,13 +18,14 @@ data class AvtaleAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val navEnhet: NavEnhet,
+    val navRegion: NavEnhet?,
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
     val ansvarlig: String?,
     val url: String?,
     val antallPlasser: Int?,
+    val enheter: List<String>,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -37,7 +38,7 @@ data class AvtaleAdminDto(
     @Serializable
     data class NavEnhet(
         val enhetsnummer: String,
-        val navn: String? = null,
+        val navn: String,
     )
 
     @Serializable

@@ -52,51 +52,53 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
 
   return (
     <>
-      <Controller
-        name={label}
-        {...rest}
-        render={({
-          field: { onChange, value, name, ref },
-          fieldState: { error },
-        }) => (
-          <>
-            <label
-              style={{ marginBottom: "8px", display: "inline-block" }}
-              htmlFor={name}
-            >
-              <b>{label}</b>
-            </label>
-            <ReactSelect
-              placeholder={placeholder}
-              isDisabled={!!disabled}
-              ref={ref}
-              noOptionsMessage={() => "Ingen funnet"}
-              name={name}
-              defaultInputValue={defaultValue}
-              value={disabled ? null : options.find((c) => c.value === value)}
-              onChange={(e) => {
-                onChange(e?.value);
-                providedOnChange?.(e?.value);
-              }}
-              styles={customStyles(Boolean(error))}
-              options={options}
-              theme={(theme: any) => ({
-                ...theme,
-                colors: {
-                  ...theme.colors,
-                  primary25: "#cce1ff",
-                  primary: "#0067c5",
-                },
-              })}
-            />
-            {error && (
-              <div style={{ marginTop: "8px", color: "#C30000" }}>
-                <b>• {error.message}</b>
-              </div>
-            )}
-          </>
-        )}
-      />
+      <div>
+        <Controller
+          name={label}
+          {...rest}
+          render={({
+            field: { onChange, value, name, ref },
+            fieldState: { error },
+          }) => (
+            <>
+              <label
+                style={{ marginBottom: "8px", display: "inline-block" }}
+                htmlFor={name}
+              >
+                <b>{label}</b>
+              </label>
+              <ReactSelect
+                placeholder={placeholder}
+                isDisabled={!!disabled}
+                ref={ref}
+                noOptionsMessage={() => "Ingen funnet"}
+                name={name}
+                defaultInputValue={defaultValue}
+                value={disabled ? null : options.find((c) => c.value === value)}
+                onChange={(e) => {
+                  onChange(e?.value);
+                  providedOnChange?.(e?.value);
+                }}
+                styles={customStyles(Boolean(error))}
+                options={options}
+                theme={(theme: any) => ({
+                  ...theme,
+                  colors: {
+                    ...theme.colors,
+                    primary25: "#cce1ff",
+                    primary: "#0067c5",
+                  },
+                })}
+              />
+              {error && (
+                <div style={{ marginTop: "8px", color: "#C30000" }}>
+                  <b>• {error.message}</b>
+                </div>
+              )}
+            </>
+          )}
+        />
+      </div>
     </>
   );
 });

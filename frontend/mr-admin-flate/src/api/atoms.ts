@@ -67,7 +67,7 @@ export const tiltaksgjennomforingfilter =
 const avtaleFilter = atomWithHash<{
   sok: string;
   status: Avtalestatus;
-  fylkeenhet: string;
+  navRegion: string;
   tiltakstype: string;
   sortering: SorteringAvtaler;
 }>(
@@ -75,7 +75,7 @@ const avtaleFilter = atomWithHash<{
   {
     sok: "",
     status: Avtalestatus.AKTIV,
-    fylkeenhet: "",
+    navRegion: "",
     tiltakstype: "",
     sortering: SorteringAvtaler.NAVN_ASCENDING,
   },

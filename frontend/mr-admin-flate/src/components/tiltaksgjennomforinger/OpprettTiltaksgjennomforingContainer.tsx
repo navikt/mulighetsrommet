@@ -206,19 +206,9 @@ export const OpprettTiltaksgjennomforingContainer = (
   };
 
   const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
-    const avtaleEnhet = enheter?.find(
-      (e: NavEnhet) => e.enhetsnummer === avtale?.navEnhet?.enhetsnummer
+    return enheter?.find(
+      (e: NavEnhet) => e.enhetsnummer === avtale?.navRegion?.enhetsnummer
     );
-    if (!avtaleEnhet) {
-      return undefined;
-    }
-    return avtaleEnhet.overordnetEnhet
-      ? enheter?.find(
-          (e: NavEnhet) => e.overordnetEnhet === avtaleEnhet?.overordnetEnhet
-        )
-      : enheter?.find(
-          (e: NavEnhet) => e.enhetsnummer === avtale?.navEnhet?.enhetsnummer
-        );
   };
 
   const enheterLabel = () => {

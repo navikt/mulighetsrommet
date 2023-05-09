@@ -129,13 +129,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.upsert(gjennomforing.copy(enheter = listOf("3", "1"))).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.enheter.shouldContainExactlyInAnyOrder("1", "3")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
         }
 
         test("Oppdater enheter fra Sanity-tiltaksgjennomføringer til database") {
@@ -170,13 +170,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
                 it!!.enheter.shouldContainExactlyInAnyOrder("2")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(1)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
     }
 

@@ -110,7 +110,7 @@ paths:
             $ref: "#/components/schemas/Avtalestatus"
           description: Status for avtale
         - in: query
-          name: fylkesenhet
+          name: navRegion
           schema:
             type: string
           description: 4 digit enhetskode
@@ -949,7 +949,7 @@ components:
         sluttDato:
           type: string
           format: date
-        navEnhet:
+        navRegion:
           $ref: "#/components/schemas/AvtaleNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
@@ -967,6 +967,10 @@ components:
         antallPlasser:
           type: number
           nullable: true
+        enheter:
+          type: array
+          items:
+            type: string
       required:
         - id
         - tiltakstype
@@ -975,10 +979,10 @@ components:
         - leverandor
         - startDato
         - sluttDato
-        - enhet
         - avtaletype
         - avtalestatus
         - prisbetingelser
+        - enheter
 
     AvtaleRequest:
       type: object
@@ -1001,7 +1005,7 @@ components:
         sluttDato:
           type: string
           format: date
-        enhet:
+        navRegion:
           type: string
         antallPlasser:
           type: number
@@ -1013,6 +1017,10 @@ components:
           $ref: "#/components/schemas/Avtaletype"
         prisOgBetalingsinformasjon:
           type: string
+        enheter:
+          type: array
+          items:
+            type: string
       required:
         - tiltakstypeId
         - navn
@@ -1020,11 +1028,12 @@ components:
         - leverandorOrganisasjonsnummer
         - startDato
         - sluttDato
-        - enhet
+        - navRegion
         - avtalestatus
         - antallPlasser
         - ansvarlig
         - avtaletype
+        - enheter
 
     EmbeddedTiltakstype:
       type: object

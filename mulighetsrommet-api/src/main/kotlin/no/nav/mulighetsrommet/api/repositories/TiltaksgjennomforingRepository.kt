@@ -46,14 +46,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertEnhet = """
-             insert into tiltaksgjennomforing_enhet (tiltaksgjennomforing_id, enhetsnummer)
+             insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
              values (?::uuid, ?)
              on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteEnheter = """
-             delete from tiltaksgjennomforing_enhet
+             delete from tiltaksgjennomforing_nav_enhet
              where tiltaksgjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
@@ -124,14 +124,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertEnhet = """
-            insert into tiltaksgjennomforing_enhet (tiltaksgjennomforing_id, enhetsnummer)
+            insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
                 values (:id::uuid, :enhetsnummer)
                 on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteEnheter = """
-            delete from tiltaksgjennomforing_enhet
+            delete from tiltaksgjennomforing_nav_enhet
             where tiltaksgjennomforing_id = :id::uuid and not (enhetsnummer = any (:enhetsnummere))
         """.trimIndent()
 
@@ -191,7 +191,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_enhet e on e.tiltaksgjennomforing_id = tg.id
+                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             where tg.id = ?::uuid
             group by tg.id, t.id
         """.trimIndent()
@@ -267,7 +267,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                   left join tiltaksgjennomforing_enhet e on e.tiltaksgjennomforing_id = tg.id
+                   left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             $where
             group by tg.id, t.id
             order by $order

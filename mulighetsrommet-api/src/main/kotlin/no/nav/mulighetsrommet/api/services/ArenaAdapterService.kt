@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import java.util.*
@@ -36,8 +37,10 @@ class ArenaAdapterService(
         }
     }
 
-    fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleDbo> {
+    fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleAdminDto> {
         return avtaler.upsert(avtale)
+            .flatMap { avtaler.get(avtale.id) }
+            .map { it!! }
     }
 
     fun removeAvtale(id: UUID): QueryResult<Int> {
