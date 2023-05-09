@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
-    "@navikt/aksel-icons": "^2.9.8",
+    "@navikt/aksel-icons": "^3.0.0",
     "@navikt/ds-css": "^2.9.8",
     "@navikt/ds-css-internal": "^2.9.7",
     "@navikt/ds-react": "^2.8.15",
