@@ -2,13 +2,13 @@ import { CheckmarkCircleIcon } from "@navikt/aksel-icons";
 import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
 import { UserNotification } from "mulighetsrommet-api-client";
 import { formaterDatoTid } from "../../utils/Utils";
-import styles from "./Notifikasjonsrad.module.scss";
+import styles from "./UlestNotifikasjonsrad.module.scss";
 
 interface Props {
   notifikasjon: UserNotification;
 }
 
-export function Notifikasjonssrad({ notifikasjon }: Props) {
+export function UlestNotifikasjonssrad({ notifikasjon }: Props) {
   const { title, description, createdAt, readAt } = notifikasjon;
 
   return (
