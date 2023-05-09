@@ -1,0 +1,28 @@
+.list_element {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  padding: 1rem;
+  border-bottom: 0.5px solid var(--a-text-subtle);
+
+  a {
+    color: black;
+  }
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.muted {
+  color: var(--a-text-subtle);
+  font-size: 14px;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: wrap;
+}

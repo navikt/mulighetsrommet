@@ -1,3 +1,12 @@
+.heading {
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.container {
+  margin-left: 4rem;
+}
+
 .fane {
   &_root {
     margin-bottom: 2rem;
@@ -6,7 +15,6 @@
   &_liste {
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid var(--a-border-default);
     gap: 6px;
     justify-content: start;
 
@@ -55,9 +63,7 @@
   }
 }
 
-:global(.mr-admin-flate) {
-  :global(.navds-tabs__tablist-wrapper) {
-    width: 100%;
-    display: block !important;
-  }
+:global(.navds-tabs__tablist-wrapper) {
+  background-color: transparent;
+  width: 704px;
 }

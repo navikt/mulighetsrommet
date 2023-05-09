@@ -5,6 +5,7 @@ import { Notifikasjonssrad } from "./Notifikasjonssrad";
 import { Laster } from "../laster/Laster";
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
+import {LestNotifikasjonssrad} from "./LestNotifikasjonssrad";
 
 export function UlesteNotifikasjonsliste() {
   const { data: features } = useFeatureToggles();

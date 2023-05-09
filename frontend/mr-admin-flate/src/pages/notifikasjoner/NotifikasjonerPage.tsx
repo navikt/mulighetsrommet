@@ -12,15 +12,17 @@ export function NotifikasjonerPage() {
   const [fane, setFane] = useAtom(faneAtom);
 
   const faneoverskrifter = ["Nye varsler", "Tidligere varsler"] as const;
-  const tabValueTilFaneoverSkrifter: { [key: string]: string } = {
+  const tabValueTilFaneoverskrifter: { [key: string]: string } = {
     tab1: faneoverskrifter[0],
     tab2: faneoverskrifter[1],
   };
 
   return (
-    <main>
+    <main className={styles.container}>
       <ContainerLayout>
-        <Heading size={"medium"}>Varsler</Heading>
+        <Heading className={styles.heading} size={"large"}>
+          Varsler
+        </Heading>
         <Tabs
           defaultValue={fane}
           size="small"
@@ -28,7 +30,7 @@ export function NotifikasjonerPage() {
           className={styles.fane_root}
           onChange={(value) => {
             logEvent("mulighetsrommet.faner", {
-              value: tabValueTilFaneoverSkrifter[value],
+              value: tabValueTilFaneoverskrifter[value],
             });
             setFane(value);
           }}
@@ -46,10 +48,10 @@ export function NotifikasjonerPage() {
           </Tabs.List>
           <div className={styles.fane_panel}>
             <Tabs.Panel value="tab1" data-testid="tab1">
-              <LesteNotifikasjonsliste />
+              <UlesteNotifikasjonsliste />
             </Tabs.Panel>
             <Tabs.Panel value="tab2" data-testid="tab2">
-              <UlesteNotifikasjonsliste />
+              <LesteNotifikasjonsliste />
             </Tabs.Panel>
           </div>
         </Tabs>

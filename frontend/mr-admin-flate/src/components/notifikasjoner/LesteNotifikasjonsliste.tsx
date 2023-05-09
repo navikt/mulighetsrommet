@@ -1,10 +1,10 @@
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import styles from "./BrukerNotifikasjoner.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
-import { Notifikasjonssrad } from "./Notifikasjonssrad";
 import { Laster } from "../laster/Laster";
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
+import {LestNotifikasjonssrad} from "./LestNotifikasjonssrad";
 
 export function LesteNotifikasjonsliste() {
   const { data: features } = useFeatureToggles();
@@ -37,7 +37,7 @@ export function LesteNotifikasjonsliste() {
     <section className={styles.container}>
       {data.map((n) => {
         return (
-          <Notifikasjonssrad key={n.id} notifikasjon={n}></Notifikasjonssrad>
+          <LestNotifikasjonssrad key={n.id} notifikasjon={n}></LestNotifikasjonssrad>
         );
       })}
     </section>
