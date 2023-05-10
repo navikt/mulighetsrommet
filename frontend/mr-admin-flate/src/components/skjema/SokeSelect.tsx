@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
+import style from "./SokeSelect.module.scss";
 
 export interface SelectOption {
   value?: string;
@@ -37,6 +38,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       height: "50px",
       boxShadow: state.isFocused ? null : null,
     }),
+    clearIndicator: (provided: any) => ({
+      ...provided,
+      zIndex: "100",
+    }),
     indicatorSeparator: () => ({
       display: "none",
     }),
@@ -47,6 +52,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
     placeholder: (provided: any) => ({
       ...provided,
       color: "#0000008f",
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      zIndex: "1000",
     }),
   });
 
@@ -59,11 +68,8 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
           field: { onChange, value, name, ref },
           fieldState: { error },
         }) => (
-          <>
-            <label
-              style={{ marginBottom: "8px", display: "inline-block" }}
-              htmlFor={name}
-            >
+          <div>
+            <label className={style.label} htmlFor={name}>
               <b>{label}</b>
             </label>
             <ReactSelect
@@ -90,11 +96,11 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
               })}
             />
             {error && (
-              <div style={{ marginTop: "8px", color: "#C30000" }}>
+              <div className={style.errormsg}>
                 <b>• {error.message}</b>
               </div>
             )}
-          </>
+          </div>
         )}
       />
     </>
