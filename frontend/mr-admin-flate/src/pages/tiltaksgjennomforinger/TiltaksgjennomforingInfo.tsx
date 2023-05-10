@@ -8,24 +8,27 @@ import classNames from "classnames";
 import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { OpprettTiltaksgjennomforingModal } from "../../components/tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 
 export function TiltaksgjennomforingInfo() {
   const {
     data: tiltaksgjennomforing,
-    isError,
-    isLoading,
+    isError: isErrorTiltaksgjennomforing,
+    isLoading: isLoadingTiltaksgjennomforing,
   } = useTiltaksgjennomforingById();
+  const { data: avtale, isError: isErrorAvtale, isLoading: isLoadingAvtale } = useAvtale(tiltaksgjennomforing?.avtaleId)
   const { data: features } = useFeatureToggles();
 
   const [redigerModal, setRedigerModal] = useState(false);
   const handleRediger = () => setRedigerModal(true);
   const lukkRedigerModal = () => setRedigerModal(false);
 
-  if (!tiltaksgjennomforing && isLoading) {
+  if (isLoadingTiltaksgjennomforing || isLoadingAvtale) {
     return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
   }
 
-  if (isError) {
+
+  if (isErrorTiltaksgjennomforing || isErrorAvtale || !avtale || !tiltaksgjennomforing) {
     return (
       <Alert variant="error">
         Klarte ikke hente informasjon om tiltaksgjennomføring
@@ -91,6 +94,7 @@ export function TiltaksgjennomforingInfo() {
         onClose={lukkRedigerModal}
         shouldCloseOnOverlayClick={true}
         tiltaksgjennomforing={tiltaksgjennomforing}
+        avtale={avtale}
       />
     </div>
   );
