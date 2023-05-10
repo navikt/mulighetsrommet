@@ -69,14 +69,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(
-            engine: HttpClientEngine = createMockEngine(
-                "/ords/arbeidsgiver" to {
-                    respondJson(ArenaOrdsArrangor("123456", "000000"))
-                },
-                "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() },
-            ),
-        ): TiltakgjennomforingEventProcessor {
+        fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "api") {
                 "Bearer token"
             }
@@ -247,8 +240,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should treat all operations on gruppetiltak as upserts") {
-                val processor = createProcessor()
-
                 val (e1, mapping) = prepareEvent(
                     createArenaTiltakgjennomforingEvent(Insert) {
                         it.copy(
@@ -257,6 +248,18 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         )
                     },
                 )
+
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(
+                            ArenaOrdsArrangor("123456", "000000"),
+                        )
+                    },
+                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
+
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
@@ -336,16 +339,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should call api with mapped event payload when all services responds with success") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                    "/api/v1/internal/arena/tiltaksgjennomforing.*" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
-
                 val (event, mapping) = prepareEvent(
                     createArenaTiltakgjennomforingEvent(Insert) {
                         it.copy(
@@ -354,6 +347,17 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         )
                     },
                 )
+
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(
+                            ArenaOrdsArrangor("123456", "000000"),
+                        )
+                    },
+                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
 
                 processor.handleEvent(event).shouldBeRight()
 
@@ -412,7 +416,13 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should not keep reference to avtale when avtale is Ignored") {
-                val processor = createProcessor()
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(ArenaOrdsArrangor("123456", "000000"))
+                    },
+                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
 
                 val (avtaleEvent, avtaleMapping) = prepareEvent(
                     createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },

@@ -766,6 +766,12 @@ paths:
       tags:
         - Notifications
       operationId: getNotifications
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/Notifikasjonsstatus"
+          description: Status for notifikasjon
       responses:
         200:
           description: Notifications for the user that is currently signed in.
@@ -1064,6 +1070,12 @@ components:
         - Aktiv
         - Avsluttet
         - Avbrutt
+
+    Notifikasjonsstatus:
+      type: string
+      enum:
+        - Read
+        - Unread
 
     SorteringAvtaler:
       type: string

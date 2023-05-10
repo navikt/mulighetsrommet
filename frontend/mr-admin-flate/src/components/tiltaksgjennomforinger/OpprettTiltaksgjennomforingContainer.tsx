@@ -19,7 +19,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
-import { Datovelger } from "../skjema/OpprettComponents";
+import { Datovelger } from "../skjema/Datovelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { Laster } from "../laster/Laster";

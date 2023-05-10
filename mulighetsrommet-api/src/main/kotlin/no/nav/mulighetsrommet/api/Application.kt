@@ -45,7 +45,7 @@ fun Application.configure(config: AppConfig) {
             tiltaksgjennomforingRoutes()
             sanityRoutes()
             brukerRoutes()
-            ansattRoute()
+            navAnsattRoutes()
             frontendLoggerRoutes()
             dialogRoutes()
             delMedBrukerRoutes()

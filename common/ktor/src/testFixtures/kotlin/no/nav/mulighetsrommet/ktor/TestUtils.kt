@@ -45,12 +45,27 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
 fun createMockEngine(
     vararg requestHandlers: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>,
 ) = MockEngine { request ->
-    for ((path, handler) in requestHandlers) {
-        if (request.url.encodedPath.matches(path.toRegex())) {
+    for ((uri, handler) in requestHandlers) {
+        val mockUrl = Url(uri)
+
+        if (urlMatches(request.url, mockUrl)) {
             return@MockEngine handler(request)
         }
     }
-    throw IllegalStateException("Mock-response missing for path ${request.url.encodedPath}")
+
+    throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
+}
+
+private fun urlMatches(requestUrl: Url, mockUrl: Url): Boolean {
+    if (requestUrl.encodedPath != mockUrl.encodedPath) {
+        return false
+    }
+
+    if (!mockUrl.parameters.isEmpty() && requestUrl.parameters != mockUrl.parameters) {
+        return false
+    }
+
+    return true
 }
 
 fun Url.getLastPathParameterAsUUID(): UUID {

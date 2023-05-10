@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import ReactSelect from "react-select";
+import style from "./SokeSelect.module.scss";
 
 export interface SelectOption {
   value?: string;
@@ -37,6 +38,10 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       height: "50px",
       boxShadow: state.isFocused ? null : null,
     }),
+    clearIndicator: (provided: any) => ({
+      ...provided,
+      zIndex: "100",
+    }),
     indicatorSeparator: () => ({
       display: "none",
     }),
@@ -48,57 +53,56 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
       ...provided,
       color: "#0000008f",
     }),
+    menu: (provided: any) => ({
+      ...provided,
+      zIndex: "1000",
+    }),
   });
 
   return (
     <>
-      <div>
-        <Controller
-          name={label}
-          {...rest}
-          render={({
-            field: { onChange, value, name, ref },
-            fieldState: { error },
-          }) => (
-            <>
-              <label
-                style={{ marginBottom: "8px", display: "inline-block" }}
-                htmlFor={name}
-              >
-                <b>{label}</b>
-              </label>
-              <ReactSelect
-                placeholder={placeholder}
-                isDisabled={!!disabled}
-                ref={ref}
-                noOptionsMessage={() => "Ingen funnet"}
-                name={name}
-                defaultInputValue={defaultValue}
-                value={disabled ? null : options.find((c) => c.value === value)}
-                onChange={(e) => {
-                  onChange(e?.value);
-                  providedOnChange?.(e?.value);
-                }}
-                styles={customStyles(Boolean(error))}
-                options={options}
-                theme={(theme: any) => ({
-                  ...theme,
-                  colors: {
-                    ...theme.colors,
-                    primary25: "#cce1ff",
-                    primary: "#0067c5",
-                  },
-                })}
-              />
-              {error && (
-                <div style={{ marginTop: "8px", color: "#C30000" }}>
-                  <b>• {error.message}</b>
-                </div>
-              )}
-            </>
-          )}
-        />
-      </div>
+      <Controller
+        name={label}
+        {...rest}
+        render={({
+          field: { onChange, value, name, ref },
+          fieldState: { error },
+        }) => (
+          <div>
+            <label className={style.label} htmlFor={name}>
+              <b>{label}</b>
+            </label>
+            <ReactSelect
+              placeholder={placeholder}
+              isDisabled={!!disabled}
+              ref={ref}
+              noOptionsMessage={() => "Ingen funnet"}
+              name={name}
+              defaultInputValue={defaultValue}
+              value={disabled ? null : options.find((c) => c.value === value)}
+              onChange={(e) => {
+                onChange(e?.value);
+                providedOnChange?.(e?.value);
+              }}
+              styles={customStyles(Boolean(error))}
+              options={options}
+              theme={(theme: any) => ({
+                ...theme,
+                colors: {
+                  ...theme.colors,
+                  primary25: "#cce1ff",
+                  primary: "#0067c5",
+                },
+              })}
+            />
+            {error && (
+              <div className={style.errormsg}>
+                <b>• {error.message}</b>
+              </div>
+            )}
+          </div>
+        )}
+      />
     </>
   );
 });
