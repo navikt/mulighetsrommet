@@ -46,14 +46,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertEnhet = """
-             insert into tiltaksgjennomforing_enhet (tiltaksgjennomforing_id, enhetsnummer)
+             insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
              values (?::uuid, ?)
              on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteEnheter = """
-             delete from tiltaksgjennomforing_enhet
+             delete from tiltaksgjennomforing_nav_enhet
              where tiltaksgjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
@@ -91,7 +91,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ).asExecute,
             )
 
-            tiltaksgjennomforing.enheter.forEach { enhetId ->
+            tiltaksgjennomforing.navEnheter.forEach { enhetId ->
                 tx.run(
                     queryOf(
                         upsertEnhet,
@@ -105,13 +105,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     deleteEnheter,
                     tiltaksgjennomforing.id,
-                    db.createTextArray(tiltaksgjennomforing.enheter),
+                    db.createTextArray(tiltaksgjennomforing.navEnheter),
                 ).asExecute,
             )
         }
     }
 
-    fun updateEnheter(tiltaksnummer: String, enheter: List<String>): QueryResult<Int> = query {
+    fun updateEnheter(tiltaksnummer: String, navEnheter: List<String>): QueryResult<Int> = query {
         @Language("PostgreSQL")
         val findId = """
             select id from tiltaksgjennomforing
@@ -124,14 +124,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertEnhet = """
-            insert into tiltaksgjennomforing_enhet (tiltaksgjennomforing_id, enhetsnummer)
+            insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
                 values (:id::uuid, :enhetsnummer)
                 on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteEnheter = """
-            delete from tiltaksgjennomforing_enhet
+            delete from tiltaksgjennomforing_nav_enhet
             where tiltaksgjennomforing_id = :id::uuid and not (enhetsnummer = any (:enhetsnummere))
         """.trimIndent()
 
@@ -156,13 +156,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             }
             val id = ider[0]
 
-            enheter.forEach { enhetsnummer ->
+            navEnheter.forEach { enhetsnummer ->
                 tx.run(
                     queryOf(upsertEnhet, mapOf("id" to id, "enhetsnummer" to enhetsnummer)).asExecute,
                 )
             }
             tx.run(
-                queryOf(deleteEnheter, mapOf("id" to id, "enhetsnummere" to db.createTextArray(enheter))).asExecute,
+                queryOf(deleteEnheter, mapOf("id" to id, "enhetsnummere" to db.createTextArray(navEnheter))).asExecute,
             )
 
             1
@@ -187,11 +187,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.antall_plasser,
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as enheter
+                   array_agg(e.enhetsnummer) as navEnheter
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_enhet e on e.tiltaksgjennomforing_id = tg.id
+                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             where tg.id = ?::uuid
             group by tg.id, t.id
         """.trimIndent()
@@ -262,12 +262,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.antall_plasser,
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as enheter,
+                   array_agg(e.enhetsnummer) as navEnheter,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                   left join tiltaksgjennomforing_enhet e on e.tiltaksgjennomforing_id = tg.id
+                   left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             $where
             group by tg.id, t.id
             order by $order
@@ -411,7 +411,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         antallPlasser = intOrNull("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
         ansvarlige = emptyList(),
-        enheter = emptyList(),
+        navEnheter = emptyList(),
     )
 
     @Suppress("UNCHECKED_CAST")
@@ -419,7 +419,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
-        val enheter = sqlArrayOrNull("enheter")?.let {
+        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
 
@@ -448,7 +448,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlige = ansvarlige,
-            enheter = enheter,
+            navEnheter = navEnheter,
         )
     }
 

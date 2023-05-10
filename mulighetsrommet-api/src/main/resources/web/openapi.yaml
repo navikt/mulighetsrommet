@@ -110,7 +110,7 @@ paths:
             $ref: "#/components/schemas/Avtalestatus"
           description: Status for avtale
         - in: query
-          name: fylkesenhet
+          name: navRegion
           schema:
             type: string
           description: 4 digit enhetskode
@@ -955,7 +955,7 @@ components:
         sluttDato:
           type: string
           format: date
-        navEnhet:
+        navRegion:
           $ref: "#/components/schemas/AvtaleNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
@@ -973,6 +973,10 @@ components:
         antallPlasser:
           type: number
           nullable: true
+        navEnheter:
+          type: array
+          items:
+            type: string
       required:
         - id
         - tiltakstype
@@ -981,10 +985,10 @@ components:
         - leverandor
         - startDato
         - sluttDato
-        - enhet
         - avtaletype
         - avtalestatus
         - prisbetingelser
+        - navEnheter
 
     AvtaleRequest:
       type: object
@@ -1007,7 +1011,7 @@ components:
         sluttDato:
           type: string
           format: date
-        enhet:
+        navRegion:
           type: string
         antallPlasser:
           type: number
@@ -1019,6 +1023,10 @@ components:
           $ref: "#/components/schemas/Avtaletype"
         prisOgBetalingsinformasjon:
           type: string
+        navEnheter:
+          type: array
+          items:
+            type: string
       required:
         - tiltakstypeId
         - navn
@@ -1026,11 +1034,12 @@ components:
         - leverandorOrganisasjonsnummer
         - startDato
         - sluttDato
-        - enhet
+        - navRegion
         - avtalestatus
         - antallPlasser
         - ansvarlig
         - avtaletype
+        - navEnheter
 
     EmbeddedTiltakstype:
       type: object
@@ -1130,7 +1139,7 @@ components:
         sluttDato:
           type: string
           format: date
-        enheter:
+        navEnheter:
           type: array
           items:
             type: string
@@ -1147,7 +1156,7 @@ components:
         - navn
         - tiltaksnummer
         - virksomhetsnummer
-        - enheter
+        - navEnheter
 
     TiltaksgjennomforingRequest:
       type: object
@@ -1177,7 +1186,7 @@ components:
           type: string
         ansvarlig:
           type: string
-        enheter:
+        navEnheter:
           type: array
           items:
             type: string
@@ -1191,7 +1200,7 @@ components:
         - antallPlasser
         - virksomhetsnummer
         - ansvarlig
-        - enheter
+        - navEnheter
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

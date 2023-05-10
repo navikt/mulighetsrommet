@@ -44,7 +44,7 @@ const Schema = z.object({
     })
     .int()
     .positive(),
-  enheter: z
+  navEnheter: z
     .string()
     .array()
     .nonempty({ message: "Du må velge minst én enhet" }),
@@ -68,10 +68,10 @@ export const OpprettTiltaksgjennomforingContainer = (
     defaultValues: {
       tittel: props.tiltaksgjennomforing?.navn,
       tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
-      enheter:
-        props.tiltaksgjennomforing?.enheter.length === 0
+      navEnheter:
+        props.tiltaksgjennomforing?.navEnheter.length === 0
           ? ["alle_enheter"]
-          : props.tiltaksgjennomforing?.enheter,
+          : props.tiltaksgjennomforing?.navEnheter,
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
       avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
@@ -147,7 +147,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       id: props.tiltaksgjennomforing ? props.tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: data.tiltakstype,
-      enheter: data.enheter.includes("alle_enheter") ? [] : data.enheter,
+      navEnheter: data.navEnheter.includes("alle_enheter") ? [] : data.navEnheter,
       navn: data.tittel,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
@@ -206,19 +206,9 @@ export const OpprettTiltaksgjennomforingContainer = (
   };
 
   const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
-    const avtaleEnhet = enheter?.find(
-      (e: NavEnhet) => e.enhetsnummer === avtale?.navEnhet?.enhetsnummer
+    return enheter?.find(
+      (e: NavEnhet) => e.enhetsnummer === avtale?.navRegion?.enhetsnummer
     );
-    if (!avtaleEnhet) {
-      return undefined;
-    }
-    return avtaleEnhet.overordnetEnhet
-      ? enheter?.find(
-          (e: NavEnhet) => e.overordnetEnhet === avtaleEnhet?.overordnetEnhet
-        )
-      : enheter?.find(
-          (e: NavEnhet) => e.enhetsnummer === avtale?.navEnhet?.enhetsnummer
-        );
   };
 
   const enheterLabel = () => {
@@ -341,7 +331,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           <ControlledMultiSelect
             placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
             label={enheterLabel()}
-            {...register("enheter")}
+            {...register("navEnheter")}
             options={enheterOptions()}
           />
           <SokeSelect

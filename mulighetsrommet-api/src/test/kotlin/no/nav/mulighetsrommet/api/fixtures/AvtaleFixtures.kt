@@ -57,12 +57,13 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         tiltakstypeId: UUID = this.tiltakstypeId,
         navn: String = "Avtalenavn",
         avtalenummer: String = "2023#1",
-        enhet: String = "1801",
+        navRegion: String? = null,
         avtaletype: Avtaletype = Avtaletype.Rammeavtale,
         avslutningsstatus: Avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         startDato: LocalDate = LocalDate.of(2023, 1, 11),
         sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
         ansvarlige: List<String> = emptyList(),
+        navEnheter: List<String> = emptyList(),
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -72,12 +73,14 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             leverandorOrganisasjonsnummer = "12345678910",
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = enhet,
+            arenaAnsvarligEnhet = null,
+            navRegion = navRegion,
             avtaletype = avtaletype,
             avslutningsstatus = avslutningsstatus,
             prisbetingelser = null,
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
             ansvarlige = ansvarlige,
+            navEnheter = navEnheter,
         )
     }
 }

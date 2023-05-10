@@ -101,10 +101,10 @@ export const AvtaleTabell = () => {
                 </Table.DataCell>
                 <Table.DataCell
                   aria-label={`NAV-enhet: ${
-                    avtale.navEnhet?.navn || avtale.navEnhet?.enhetsnummer
+                    avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer
                   }`}
                 >
-                  {avtale.navEnhet?.navn || avtale?.navEnhet?.enhetsnummer}
+                  {avtale.navRegion?.navn || avtale.navRegion?.enhetsnummer}
                 </Table.DataCell>
                 <Table.DataCell
                   aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}

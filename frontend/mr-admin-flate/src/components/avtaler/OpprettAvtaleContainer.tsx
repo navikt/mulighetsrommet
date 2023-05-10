@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Textarea, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Avtale, AvtaleRequest, Avtaletype } from "mulighetsrommet-api-client";
+import { Avtale, AvtaleRequest, Avtaletype, Norg2Type } from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
@@ -21,6 +21,7 @@ import { VirksomhetInput } from "../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import { SokeSelect } from "../skjema/SokeSelect";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -47,7 +48,11 @@ const Schema = z.object({
     .min(9, "Organisasjonsnummer må være 9 siffer")
     .max(9, "Organisasjonsnummer må være 9 siffer")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
-  enhet: z.string({ required_error: "Du må velge en enhet" }),
+  navRegion: z.string({ required_error: "Du må velge en enhet" }),
+  navEnheter: z
+    .string()
+    .array()
+    .nonempty({ message: "Du må velge minst én enhet" }),
   antallPlasser: z
     .number({
       invalid_type_error:
@@ -81,14 +86,15 @@ export function OpprettAvtaleContainer({
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [feil, setFeil] = useState<string | null>("");
+  const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
 
   const clickCancel = () => {
     setFeil(null);
   };
 
   const defaultEnhet = () => {
-    if (avtale?.navEnhet?.enhetsnummer) {
-      return avtale?.navEnhet?.enhetsnummer;
+    if (avtale?.navRegion?.enhetsnummer) {
+      return avtale?.navRegion?.enhetsnummer;
     }
     if (enheter.find((e) => e.enhetsnummer === ansatt.hovedenhet)) {
       return ansatt.hovedenhet;
@@ -100,7 +106,11 @@ export function OpprettAvtaleContainer({
     resolver: zodResolver(Schema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
-      enhet: defaultEnhet(),
+      navRegion: defaultEnhet(),
+      navEnheter:
+        avtale?.navEnheter.length === 0
+          ? ["alle_enheter"]
+          : avtale?.navEnheter,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
@@ -132,7 +142,8 @@ export function OpprettAvtaleContainer({
 
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
-      enhet: data.enhet,
+      navRegion: data.navRegion,
+      navEnheter: data.navEnheter.includes("alle_enheter") ? [] : data.navEnheter,
       avtalenummer: avtale?.avtalenummer || "",
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
@@ -190,6 +201,23 @@ export function OpprettAvtaleContainer({
     );
   }
 
+  const enheterOptions = () => {
+    if (!navRegion) {
+      return [];
+    }
+
+    const options = enheter
+      ?.filter((enhet: NavEnhet) => {
+        return navRegion === enhet.overordnetEnhet
+      })
+      .map((enhet: NavEnhet) => ({
+        label: enhet.navn,
+        value: enhet.enhetsnummer,
+      }));
+    options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
+    return options || [];
+  };
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -198,20 +226,6 @@ export function OpprettAvtaleContainer({
             error={errors.avtalenavn?.message}
             label="Avtalenavn"
             {...register("avtalenavn")}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Datovelger
-            fra={{
-              label: "Startdato",
-              error: errors.startDato?.message,
-              ...register("startDato"),
-            }}
-            til={{
-              label: "Sluttdato",
-              error: errors.sluttDato?.message,
-              ...register("sluttDato"),
-            }}
           />
         </FormGroup>
         <FormGroup cols={2}>
@@ -224,23 +238,7 @@ export function OpprettAvtaleContainer({
               label: tiltakstype.navn,
             }))}
           />
-          <SokeSelect
-            placeholder="Velg en"
-            label={"Enhet"}
-            {...register("enhet")}
-            options={enheter.map((enhet) => ({
-              value: `${enhet.enhetsnummer}`,
-              label: enhet.navn,
-            }))}
-          />
-          <TextField
-            type={"number"}
-            error={errors.antallPlasser?.message}
-            label="Antall plasser"
-            {...register("antallPlasser", { valueAsNumber: true })}
-          />
-
-          <VirksomhetInput avtale={avtale} />
+          <div></div>
           <SokeSelect
             placeholder="Velg en"
             label={"Avtaletype"}
@@ -261,6 +259,52 @@ export function OpprettAvtaleContainer({
             ]}
           />
           <TextField
+            type={"number"}
+            error={errors.antallPlasser?.message}
+            label="Antall plasser"
+            {...register("antallPlasser", { valueAsNumber: true })}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Datovelger
+            fra={{
+              label: "Startdato",
+              error: errors.startDato?.message,
+              ...register("startDato"),
+            }}
+            til={{
+              label: "Sluttdato",
+              error: errors.sluttDato?.message,
+              ...register("sluttDato"),
+            }}
+          />
+        </FormGroup>
+        <FormGroup>
+         <SokeSelect
+            placeholder="Velg en"
+            label={"NAV region"}
+            {...register("navRegion")}
+            onChange={(e) => {
+              setNavRegion(e);
+              form.setValue("navEnheter", [] as any);
+            }}
+            options={enheter
+              .filter((enhet) => enhet.type === Norg2Type.FYLKE)
+              .map((enhet) => ({
+                value: `${enhet.enhetsnummer}`,
+                label: enhet.navn,
+              }))}
+          />
+          <ControlledMultiSelect
+            placeholder="Velg en"
+            label={"NAV enhet (kontorer)"}
+            {...register("navEnheter")}
+            options={enheterOptions()}
+          />
+        </FormGroup>
+        <FormGroup>
+          <VirksomhetInput avtale={avtale} />
+          <TextField
             error={errors.url?.message}
             label="URL til avtale"
             {...register("url")}
@@ -275,7 +319,6 @@ export function OpprettAvtaleContainer({
             />
           </FormGroup>
         ) : null}
-
         <FormGroup cols={2}>
           <SokeSelect
             placeholder="Velg en"

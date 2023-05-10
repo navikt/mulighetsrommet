@@ -20,7 +20,7 @@ class AvtaleRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(avtale: AvtaleDbo): QueryResult<AvtaleDbo> = query {
+    fun upsert(avtale: AvtaleDbo): QueryResult<Unit> = query {
         logger.info("Lagrer avtale id=${avtale.id}")
 
         @Language("PostgreSQL")
@@ -32,7 +32,8 @@ class AvtaleRepository(private val db: Database) {
                                leverandor_organisasjonsnummer,
                                start_dato,
                                slutt_dato,
-                               enhet,
+                               arena_ansvarlig_enhet,
+                               nav_region,
                                avtaletype,
                                avslutningsstatus,
                                prisbetingelser,
@@ -46,7 +47,8 @@ class AvtaleRepository(private val db: Database) {
                     :leverandor_organisasjonsnummer,
                     :start_dato,
                     :slutt_dato,
-                    :enhet,
+                    :arena_ansvarlig_enhet,
+                    :nav_region,
                     :avtaletype::avtaletype,
                     :avslutningsstatus::avslutningsstatus,
                     :prisbetingelser,
@@ -59,7 +61,8 @@ class AvtaleRepository(private val db: Database) {
                                            leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
                                            start_dato                     = excluded.start_dato,
                                            slutt_dato                     = excluded.slutt_dato,
-                                           enhet                          = excluded.enhet,
+                                           arena_ansvarlig_enhet          = excluded.arena_ansvarlig_enhet,
+                                           nav_region                     = excluded.nav_region,
                                            avtaletype                     = excluded.avtaletype,
                                            avslutningsstatus              = excluded.avslutningsstatus,
                                            prisbetingelser                = excluded.prisbetingelser,
@@ -82,11 +85,21 @@ class AvtaleRepository(private val db: Database) {
              where avtale_id = ?::uuid and not (navident = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val upsertEnhet = """
+             insert into avtale_nav_enhet (avtale_id, enhetsnummer)
+             values (?::uuid, ?)
+             on conflict (avtale_id, enhetsnummer) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteEnheter = """
+             delete from avtale_nav_enhet
+             where avtale_id = ?::uuid and not (enhetsnummer = any (?))
+        """.trimIndent()
+
         db.transaction { tx ->
-            val result = queryOf(query, avtale.toSqlParameters())
-                .map { it.toAvtaleDbo() }
-                .asSingle
-                .let { tx.run(it)!! }
+            tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
             avtale.ansvarlige.forEach { ansvarlig ->
                 queryOf(
@@ -102,11 +115,23 @@ class AvtaleRepository(private val db: Database) {
                 db.createTextArray(avtale.ansvarlige),
             ).asExecute.let { tx.run(it) }
 
-            result
+            avtale.navEnheter.forEach { enhet ->
+                queryOf(
+                    upsertEnhet,
+                    avtale.id,
+                    enhet,
+                ).asExecute.let { tx.run(it) }
+            }
+
+            queryOf(
+                deleteEnheter,
+                avtale.id,
+                db.createTextArray(avtale.navEnheter),
+            ).asExecute.let { tx.run(it) }
         }
     }
 
-    fun get(id: UUID): AvtaleAdminDto? {
+    fun get(id: UUID): QueryResult<AvtaleAdminDto?> = query {
         @Language("PostgreSQL")
         val query = """
             select a.id,
@@ -116,21 +141,26 @@ class AvtaleRepository(private val db: Database) {
                    a.leverandor_organisasjonsnummer,
                    a.start_dato,
                    a.slutt_dato,
-                   a.enhet,
+                   a.nav_region,
                    a.avtaletype,
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.url,
                    a.antall_plasser,
+                   nav_enhet.navn as nav_enhet_navn,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
+                   array_agg(e.enhetsnummer) as navEnheter,
                    aa.navident
             from avtale a
                      join tiltakstype t on t.id = a.tiltakstype_id
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
+                     left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
+                     left join avtale_nav_enhet e on e.avtale_id = a.id
             where a.id = ?::uuid
+            group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn
         """.trimIndent()
-        return queryOf(query, id)
+        queryOf(query, id)
             .map { it.toAvtaleAdminDto() }
             .asSingle
             .let { db.run(it) }
@@ -162,7 +192,7 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "tiltakstype_id" to filter.tiltakstypeId,
             "search" to "%${filter.search}%",
-            "enhet" to filter.fylkesenhet,
+            "nav_region" to filter.navRegion,
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to filter.dagensDato,
@@ -172,7 +202,7 @@ class AvtaleRepository(private val db: Database) {
             filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstype_id",
             filter.search to "(lower(a.navn) like lower(:search))",
             filter.avtalestatus to filter.avtalestatus?.toDbStatement(),
-            filter.fylkesenhet to "lower(a.enhet) = lower(:enhet) or lower(a.enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :enhet)",
+            filter.navRegion to "lower(a.nav_region) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) = lower(:nav_region) or lower(a.arena_ansvarlig_enhet) in (select enhetsnummer from nav_enhet where overordnet_enhet = :nav_region)",
         )
 
         val order = when (filter.sortering) {
@@ -198,21 +228,25 @@ class AvtaleRepository(private val db: Database) {
                    a.leverandor_organisasjonsnummer,
                    a.start_dato,
                    a.slutt_dato,
-                   a.enhet,
+                   a.nav_region,
                    a.avtaletype,
                    a.avslutningsstatus,
                    a.prisbetingelser,
                    a.antall_plasser,
                    a.url,
+                   nav_enhet.navn as nav_enhet_navn,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
                    aa.navident as navident,
+                   array_agg(ae.enhetsnummer) as navEnheter,
                    count(*) over () as full_count
             from avtale a
                      join tiltakstype t on a.tiltakstype_id = t.id
-                     left join nav_enhet e on a.enhet = e.enhetsnummer
+                     left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
+                     left join avtale_nav_enhet ae on ae.avtale_id = a.id
             $where
+            group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn
             order by $order
             limit :limit
             offset :offset
@@ -238,7 +272,8 @@ class AvtaleRepository(private val db: Database) {
         "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "enhet" to enhet,
+        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        "nav_region" to navRegion,
         "avtaletype" to avtaletype.name,
         "avslutningsstatus" to avslutningsstatus.name,
         "prisbetingelser" to prisbetingelser,
@@ -247,28 +282,15 @@ class AvtaleRepository(private val db: Database) {
         "opphav" to opphav.name,
     )
 
-    private fun Row.toAvtaleDbo(): AvtaleDbo {
-        return AvtaleDbo(
-            id = uuid("id"),
-            navn = string("navn"),
-            tiltakstypeId = uuid("tiltakstype_id"),
-            avtalenummer = stringOrNull("avtalenummer"),
-            leverandorOrganisasjonsnummer = string("leverandor_organisasjonsnummer"),
-            startDato = localDate("start_dato"),
-            sluttDato = localDate("slutt_dato"),
-            enhet = string("enhet"),
-            avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            avslutningsstatus = Avslutningsstatus.valueOf(string("avslutningsstatus")),
-            prisbetingelser = stringOrNull("prisbetingelser"),
-            antallPlasser = intOrNull("antall_plasser"),
-            url = stringOrNull("url"),
-            opphav = AvtaleDbo.Opphav.valueOf(string("opphav")),
-        )
-    }
-
+    @Suppress("UNCHECKED_CAST")
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
+        val navRegion = stringOrNull("nav_region")
+        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+        } ?: emptyList()
+
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -281,11 +303,15 @@ class AvtaleRepository(private val db: Database) {
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer"),
             ),
+            navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,
-            navEnhet = AvtaleAdminDto.NavEnhet(
-                enhetsnummer = string("enhet"),
-            ),
+            navRegion = navRegion?.let {
+                AvtaleAdminDto.NavEnhet(
+                    enhetsnummer = it,
+                    navn = string("nav_enhet_navn"),
+                )
+            },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),

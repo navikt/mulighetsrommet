@@ -165,6 +165,6 @@ class TiltakgjennomforingEventProcessor(
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             ansvarlige = emptyList(),
-            enheter = emptyList(),
+            navEnheter = emptyList(),
         )
 }

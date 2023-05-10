@@ -69,7 +69,7 @@ export function Avtaleinfo() {
         <Separator />
         <div className={styles.bolk}>
           <Metadata header="Tiltakstype" verdi={avtale.tiltakstype.navn} />
-          <Metadata header="Enhet" verdi={avtale.navEnhet?.navn} />
+          <Metadata header="Enhet" verdi={avtale.navRegion?.navn} />
           <Metadata header="Antall plasser" verdi={avtale.antallPlasser} />
           <Metadata
             header="Leverandør"

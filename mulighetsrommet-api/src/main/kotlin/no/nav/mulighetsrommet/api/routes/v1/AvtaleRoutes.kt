@@ -39,12 +39,20 @@ fun Route.avtaleRoutes() {
                 status = HttpStatusCode.BadRequest,
             )
 
-            val avtale = avtaler.get(id) ?: return@get call.respondText(
-                text = "Det finnes ikke noen avtale med id $id",
-                status = HttpStatusCode.NotFound,
-            )
-
-            call.respond(avtale)
+            avtaler.get(id)
+                .onRight {
+                    if (it == null) {
+                        return@get call.respondText(
+                            text = "Det finnes ikke noen avtale med id $id",
+                            status = HttpStatusCode.NotFound,
+                        )
+                    }
+                    return@get call.respond(it)
+                }
+                .onLeft {
+                    log.error("$it")
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente avtale")
+                }
         }
 
         get("{id}/nokkeltall") {
@@ -98,12 +106,13 @@ data class AvtaleRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val enhet: String,
+    val navRegion: String,
     val antallPlasser: Int,
     val url: String,
     val ansvarlig: String,
     val avtaletype: Avtaletype,
     val prisOgBetalingsinformasjon: String? = null,
+    val navEnheter: List<String> = emptyList(),
 ) {
     fun toDbo(): AvtaleDbo {
         return AvtaleDbo(
@@ -114,7 +123,8 @@ data class AvtaleRequest(
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
-            enhet = enhet,
+            arenaAnsvarligEnhet = null,
+            navRegion = navRegion,
             avtaletype = avtaletype,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             antallPlasser = antallPlasser,
@@ -122,6 +132,7 @@ data class AvtaleRequest(
             opphav = AvtaleDbo.Opphav.MR_ADMIN_FLATE,
             ansvarlige = listOf(ansvarlig),
             prisbetingelser = prisOgBetalingsinformasjon,
+            navEnheter = navEnheter,
         )
     }
 }

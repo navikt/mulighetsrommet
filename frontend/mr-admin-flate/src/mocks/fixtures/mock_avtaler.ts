@@ -27,7 +27,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1087",
         navn: "NAV Våler",
       },
@@ -53,7 +54,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2020-07-01",
       sluttDato: "2024-06-30",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1187",
         navn: "NAV Våler",
       },
@@ -77,7 +79,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2020-07-01",
       sluttDato: "2023-06-30",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "0587",
         navn: "NAV Våler",
       },
@@ -102,7 +105,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2020-07-01",
       sluttDato: "2024-06-30",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "0800",
         navn: "NAV Våler",
       },
@@ -126,7 +130,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2021-11-01",
       sluttDato: "2023-10-31",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",
       },
@@ -150,7 +155,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2021-11-01",
       sluttDato: "2024-06-30",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",
       },
@@ -174,7 +180,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2019-08-20",
       sluttDato: "2023-08-19",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1087",
         navn: "NAV Våler",
       },
@@ -198,7 +205,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2022-01-01",
       sluttDato: "2025-05-09",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1187",
         navn: "NAV Våler",
       },
@@ -222,7 +230,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2021-10-01",
       sluttDato: "2024-12-31",
-      navEnhet: {
+      navEnheter: ['alle_enheter'],
+      navRegion: {
         enhetsnummer: "1087",
         navn: "NAV Våler",
       },
@@ -245,7 +254,8 @@ export const mockAvtaler: PaginertAvtale = {
       },
       startDato: "2020-07-01",
       sluttDato: "2023-06-30",
-      navEnhet: {
+      navEnheter: ['alle_enheter'],
+      navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",
       },
@@ -269,7 +279,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2019-07-01",
       sluttDato: "2023-06-30",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1500",
         navn: "NAV Våler",
       },
@@ -293,7 +304,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2020-10-01",
       sluttDato: "2023-09-30",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "0687",
         navn: "NAV Våler",
       },
@@ -317,7 +329,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2021-09-21",
       sluttDato: "2024-09-20",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "0287",
         navn: "NAV Våler",
       },
@@ -341,7 +354,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2022-01-01",
       sluttDato: "2024-12-31",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",
       },
@@ -365,7 +379,8 @@ export const mockAvtaler: PaginertAvtale = {
 
       startDato: "2022-01-01",
       sluttDato: "2024-12-31",
-      navEnhet: {
+      navEnheter: [],
+      navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",
       },

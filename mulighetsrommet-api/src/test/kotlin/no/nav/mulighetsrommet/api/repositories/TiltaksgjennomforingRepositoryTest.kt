@@ -83,7 +83,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 antallPlasser = null,
                 avtaleId = gjennomforing1.avtaleId,
                 ansvarlige = emptyList(),
-                enheter = emptyList(),
+                navEnheter = emptyList(),
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -92,7 +92,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .shouldBeRight().second shouldHaveSize 1
         }
 
-        test("enheter crud") {
+        test("navEnheter crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
@@ -123,22 +123,22 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             ).shouldBeRight()
 
-            val gjennomforing = gjennomforing1.copy(enheter = listOf("1", "2"))
+            val gjennomforing = gjennomforing1.copy(navEnheter = listOf("1", "2"))
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder("1", "2")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
-            tiltaksgjennomforinger.upsert(gjennomforing.copy(enheter = listOf("3", "1"))).shouldBeRight()
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1"))).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.enheter.shouldContainExactlyInAnyOrder("1", "3")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder("1", "3")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
         }
 
-        test("Oppdater enheter fra Sanity-tiltaksgjennomføringer til database") {
+        test("Oppdater navEnheter fra Sanity-tiltaksgjennomføringer til database") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
             val enhetRepository = NavEnhetRepository(database.db)
             enhetRepository.upsert(
@@ -164,19 +164,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.enheter.shouldBeEmpty()
+                it!!.navEnheter.shouldBeEmpty()
             }
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.enheter.shouldContainExactlyInAnyOrder("1", "2")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder("1", "2")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(2)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.enheter.shouldContainExactlyInAnyOrder("2")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder("2")
             }
-            database.assertThat("tiltaksgjennomforing_enhet").hasNumberOfRows(1)
+            database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
     }
 
@@ -483,7 +483,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         tilgjengelighet = Tilgjengelighetsstatus.Ledig,
                         antallPlasser = null,
                         ansvarlige = emptyList(),
-                        enheter = emptyList(),
+                        navEnheter = emptyList(),
                     ),
                 )
             }

@@ -88,11 +88,11 @@ export function Avtalefilter(props: Props) {
             label="Filtrer på region"
             hideLabel
             size="small"
-            value={filter.fylkeenhet}
-            data-testid="filter_avtale_fylke"
+            value={filter.navRegion}
+            data-testid="filter_avtale_nav_region"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               resetPaginering(setPage);
-              setFilter({ ...filter, fylkeenhet: e.currentTarget.value });
+              setFilter({ ...filter, navRegion: e.currentTarget.value });
             }}
           >
             <option value="">Alle regioner</option>

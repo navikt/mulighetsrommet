@@ -5,7 +5,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -169,23 +172,46 @@ class AvtaleRepositoryTest : FunSpec({
             }
         }
         context("Enhet") {
-            test("Filtrere på enhet returnerer avtaler for gitt enhet") {
+            test("Filtrere på region returnerer avtaler for gitt region") {
+                val navEnhetRepository = NavEnhetRepository(database.db)
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Oppland",
+                        enhetsnummer = "1900",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+                navEnhetRepository.upsert(
+                    NavEnhetDbo(
+                        navn = "Vestland",
+                        enhetsnummer = "1801",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.FYLKE,
+                        overordnetEnhet = null,
+                    ),
+                )
+
                 val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
-                    enhet = "1801",
+                    navRegion = "1801",
                 )
                 val avtale2 = avtaleFixture.createAvtaleForTiltakstype(
-                    enhet = "1900",
+                    navRegion = "1900",
                 )
                 val avtaleRepository = avtaleFixture.upsertAvtaler(listOf(avtale1, avtale2))
-                val result = avtaleRepository.getAll(
+                val aa = avtaleRepository.get(avtale1.id).shouldBeRight()
+                aa?.navRegion?.enhetsnummer shouldBe "1801"
 
+                val result = avtaleRepository.getAll(
                     filter = defaultFilter.copy(
                         tiltakstypeId = avtaleFixture.tiltakstypeId,
-                        fylkesenhet = "1801",
+                        navRegion = "1801",
                     ),
                 )
                 result.second shouldHaveSize 1
-                result.second[0].navEnhet.enhetsnummer shouldBe "1801"
+                result.second[0].navRegion?.enhetsnummer shouldBe "1801"
+                result.second[0].navRegion?.navn shouldBe "Vestland"
             }
         }
 
