@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -420,7 +420,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -760,6 +760,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Virksomhet"
+
+  /api/v1/internal/virksomhet/oppslag/{orgnr}:
+    get:
+      tags:
+        - Hent virksomhet fra Brreg
+      operationId: hentVirksomhetMedOrgnrFraBrreg
+      parameters:
+        - in: path
+          name: orgnr
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Enhet fra Brreg
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrregEnhet"
+
+  /api/v1/internal/virksomhet/sok/{sok}:
+    get:
+      tags:
+        - Søk på virksomheter fra Brreg
+      operationId: sokVirksomhetFraBrreg
+      parameters:
+        - in: path
+          name: sok
+          schema:
+            type: string
+          description: Søkestreng for navn på virksomheter
+      responses:
+        200:
+          description: Liste med enheter fra Brreg
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrregEnhet"
 
   /api/v1/internal/notifications:
     get:
@@ -1750,3 +1790,26 @@ components:
           type: integer
       required:
         - unreadCount
+
+    BrregEnhet:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        overordnetEnhet:
+          type: string
+          nullable: true
+        underenheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/BrregEnhet"
+
+    BrregEnhetUtenUnderenheterDto:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string

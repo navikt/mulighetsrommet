@@ -16,6 +16,8 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClientImpl
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClientImpl
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
@@ -217,6 +219,9 @@ private fun services(appConfig: AppConfig) = module {
             config = appConfig.sanity,
         )
     }
+    single<BrregClient> {
+        BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
+    }
     single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
@@ -236,6 +241,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
+    single { BrregService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

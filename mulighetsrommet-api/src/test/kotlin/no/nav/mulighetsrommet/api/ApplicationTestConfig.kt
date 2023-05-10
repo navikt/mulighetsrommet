@@ -71,6 +71,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         channel = "",
         enable = false,
     ),
+    brreg = BrregConfig(baseUrl = ""),
 )
 
 fun createKafkaConfig(): KafkaConfig {
