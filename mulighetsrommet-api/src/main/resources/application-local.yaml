@@ -79,11 +79,15 @@ app:
 
   tasks:
     synchronizeNorgEnheter:
+      disabled: true
       delayOfMinutes: 360 # Hver 6. time
     synchronizeEnheterFraSanityTilApi:
+      disabled: true
       delayOfMinutes: 360 # Hver 6. time
     synchronizeTilgjengelighetsstatuser:
-      cronExpression: '0 0/30 6-18 * * *'
+      disabled: true
+    synchronizeNavAnsatte:
+      disabled: true
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

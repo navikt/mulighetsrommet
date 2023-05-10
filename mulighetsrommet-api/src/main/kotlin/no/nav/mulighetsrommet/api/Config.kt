@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
 import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
@@ -76,6 +77,7 @@ data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
     val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
     val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
+    val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
 )
 
 data class Norg2Config(
