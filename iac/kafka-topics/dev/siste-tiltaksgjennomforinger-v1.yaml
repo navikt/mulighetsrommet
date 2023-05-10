@@ -27,6 +27,9 @@ spec:
     - team: amt
       application: amt-kafka-manager
       access: read
+    - team: amt
+      application: amt-arrangor
+      access: read
     - team: teamoppfolging
       application: teamoppfolging-kafka
       access: read
