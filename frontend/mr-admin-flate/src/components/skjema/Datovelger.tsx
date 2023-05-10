@@ -1,8 +1,8 @@
 import { UNSAFE_DatePicker, UNSAFE_useRangeDatepicker } from "@navikt/ds-react";
 import { useController } from "react-hook-form";
-import { formaterDato } from "../../utils/Utils";
 import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
-import style from "./OpprettComponents.module.scss";
+import style from "./Datovelger.module.scss";
+import { formaterDato } from "../../utils/Utils";
 
 interface DatoProps {
   name: string;
@@ -23,28 +23,34 @@ export function Datovelger<T>({
   const { field: sluttDato } = useController<inferredSchema, "sluttDato">({
     name: "sluttDato",
   });
+
+  const pastDate = () => {
+    const newDate = new Date();
+    const fiveYearsAgo = newDate.setFullYear(newDate.getFullYear() - 3);
+    return new Date(fiveYearsAgo);
+  };
+
+  const futureDate = () => {
+    const newDate = new Date();
+    const tenYearsFromNow = newDate.setFullYear(newDate.getFullYear() + 3);
+    return new Date(tenYearsFromNow);
+  };
+
   const { datepickerProps, toInputProps, fromInputProps } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
+        if (!val) return;
         startDato.onChange(val?.from);
         sluttDato.onChange(val?.to);
       },
       allowTwoDigitYear: true,
+      inputFormat: "dd.MM.yyyy",
+      fromDate: pastDate(),
+      toDate: futureDate(),
     });
 
-  const futureDate = () => {
-    const newDate = new Date();
-    const tenYearsFromNow = newDate.setFullYear(newDate.getFullYear() + 10);
-    return new Date(tenYearsFromNow);
-  };
-
   return (
-    <UNSAFE_DatePicker
-      {...datepickerProps}
-      dropdownCaption
-      fromDate={new Date("1 Jan 2020")}
-      toDate={futureDate()}
-    >
+    <UNSAFE_DatePicker {...datepickerProps} dropdownCaption>
       <div className={style.datofelt}>
         <DatoFelt<T>
           {...fra}
