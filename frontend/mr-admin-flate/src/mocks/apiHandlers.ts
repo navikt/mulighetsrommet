@@ -7,7 +7,8 @@ import {
   NavEnhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
-  PaginertTiltakstype, PaginertUserNotifications,
+  PaginertTiltakstype,
+  PaginertUserNotifications,
   Tiltaksgjennomforing,
   TiltaksgjennomforingNokkeltall,
   Tiltakstype,
@@ -26,6 +27,7 @@ import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgje
 import { mockVirksomhet } from "./fixtures/mock_virksomhet";
 import { mockNotifikasjoner } from "./fixtures/mock_notifikasjoner";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
+import { mockBrregEnheter } from "./fixtures/mock_BrregEnheter";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
@@ -263,6 +265,21 @@ export const apiHandlers = [
     "*/api/v1/internal/notifications/summary",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockUserNotificationSummary));
+    }
+  ),
+
+  // TODO Type opp korrekt returtype
+  rest.get<any, any, any>(
+    "*/api/v1/internal/virksomhet/sok/:sok",
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(
+          mockBrregEnheter.filter((enhet) =>
+            enhet.navn?.toLowerCase().includes(req.params.sok.toLowerCase())
+          )
+        )
+      );
     }
   ),
 ];
