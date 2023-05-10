@@ -17,20 +17,6 @@ fun Route.virksomhetRoutes() {
     route("api/v1/internal/virksomhet") {
         get("{orgnr}") {
             val orgnr = call.parameters["orgnr"] ?: return@get call.respondText(
-                text = "Mangler eller ugyldig organisasjonsnummer",
-                status = HttpStatusCode.BadRequest,
-            )
-
-            val enhet = amtEnhetsregisterClientImpl.hentVirksomhet(orgnr) ?: return@get call.respondText(
-                text = "Fant ingen enhet med orgnr: $orgnr",
-                status = HttpStatusCode.NotFound,
-            )
-
-            call.respond(enhet)
-        }
-
-        get("oppslag/{orgnr}") {
-            val orgnr = call.parameters["orgnr"] ?: return@get call.respondText(
                 text = "Mangler verdi for 'orgnr'",
                 status = HttpStatusCode.BadRequest,
             )

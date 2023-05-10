@@ -8,8 +8,7 @@ import io.ktor.server.plugins.*
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.clients.brreg.BrregEnhetDto
-import no.nav.mulighetsrommet.api.clients.brreg.BrregEnhetUtenUnderenheterDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 
 class BrregServiceTest : FunSpec({
 
@@ -17,11 +16,11 @@ class BrregServiceTest : FunSpec({
     val brregService = BrregService(brregClient)
 
     beforeSpec {
-        coEvery { brregClient.hentEnhet("123456789") } returns BrregEnhetDto(
+        coEvery { brregClient.hentEnhet("123456789") } returns VirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "Testbedriften AS",
             underenheter = listOf(
-                BrregEnhetDto(
+                VirksomhetDto(
                     organisasjonsnummer = "234567891",
                     navn = "Underenhet til Testbedriften AS",
                 ),
@@ -33,11 +32,11 @@ class BrregServiceTest : FunSpec({
         coEvery { brregClient.sokEtterOverordnetEnheter("ingen treff her") } returns emptyList()
 
         coEvery { brregClient.sokEtterOverordnetEnheter("Nav") } returns listOf(
-            BrregEnhetUtenUnderenheterDto(
+            VirksomhetDto(
                 organisasjonsnummer = "123456789",
                 navn = "NAV AS",
             ),
-            BrregEnhetUtenUnderenheterDto(
+            VirksomhetDto(
                 organisasjonsnummer = "445533227",
                 navn = "Navesen AS",
             ),
@@ -48,7 +47,7 @@ class BrregServiceTest : FunSpec({
         brregService.hentEnhet("123456789").organisasjonsnummer shouldBe "123456789"
         brregService.hentEnhet("123456789").navn shouldBe "Testbedriften AS"
         brregService.hentEnhet("123456789").underenheter?.shouldContain(
-            BrregEnhetDto(
+            VirksomhetDto(
                 organisasjonsnummer = "234567891",
                 navn = "Underenhet til Testbedriften AS",
             ),

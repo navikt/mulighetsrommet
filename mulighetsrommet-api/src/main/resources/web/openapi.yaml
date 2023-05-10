@@ -746,26 +746,7 @@ paths:
     get:
       tags:
         - Hent virksomhet
-      operationId: hentVirksomhetMedOrgnr
-      parameters:
-        - in: path
-          name: orgnr
-          schema:
-            type: string
-          description: Hvilket organisasjonsnummer tilhører virksomheten
-      responses:
-        200:
-          description: Virksomhet som matcher organisasjonsnummeret
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Virksomhet"
-
-  /api/v1/internal/virksomhet/oppslag/{orgnr}:
-    get:
-      tags:
-        - Hent virksomhet fra Brreg
-      operationId: hentVirksomhetMedOrgnrFraBrreg
+      operationId: hentVirksomhet
       parameters:
         - in: path
           name: orgnr
@@ -774,17 +755,17 @@ paths:
           description: 9-sifret organisasjonsnummer
       responses:
         200:
-          description: Enhet fra Brreg
+          description: Virksomhet som matcher organisasjonsnummeret
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BrregEnhet"
+                $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/virksomhet/sok/{sok}:
     get:
       tags:
-        - Søk på virksomheter fra Brreg
-      operationId: sokVirksomhetFraBrreg
+        - Søk på virksomheter
+      operationId: sokVirksomhet
       parameters:
         - in: path
           name: sok
@@ -793,13 +774,13 @@ paths:
           description: Søkestreng for navn på virksomheter
       responses:
         200:
-          description: Liste med enheter fra Brreg
+          description: Liste med virksomheter
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregEnhet"
+                  $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/notifications:
     get:
@@ -1729,10 +1710,14 @@ components:
           type: string
         navn:
           type: string
-        overordnetEnhetOrganisasjonsnummer:
+        overordnetEnhet:
           type: string
-        overordnetEnhetNavn:
-          type: string
+          nullable: true
+        underenheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/Virksomhet"
+          nullable: true
       required:
         - organisasjonsnummer
         - navn
@@ -1790,26 +1775,3 @@ components:
           type: integer
       required:
         - unreadCount
-
-    BrregEnhet:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-        overordnetEnhet:
-          type: string
-          nullable: true
-        underenheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/BrregEnhet"
-
-    BrregEnhetUtenUnderenheterDto:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string

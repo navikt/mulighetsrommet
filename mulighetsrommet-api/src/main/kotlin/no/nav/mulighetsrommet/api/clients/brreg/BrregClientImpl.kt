@@ -10,6 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 
@@ -28,16 +29,21 @@ class BrregClientImpl(
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
+    private val size = 10
 
-    override suspend fun hentEnhet(orgnr: String): BrregEnhetDto {
+    override suspend fun hentEnhet(orgnr: String): VirksomhetDto {
         validerOrgnr(orgnr)
         val response = client.get("$baseUrl/enheter/$orgnr")
         val data = tolkRespons<BrregEnhet>(response, orgnr)
 
         // Vi fikk treff på hovedenhet
         if (data != null) {
-            val underenheter = hentUnderenheterForOverordnetEnhet(orgnr)
-            return tilBrregEnhetDto(data, null).copy(underenheter = underenheter)
+            return VirksomhetDto(
+                organisasjonsnummer = data.organisasjonsnummer,
+                navn = data.navn,
+                overordnetEnhet = null,
+                underenheter = hentUnderenheterForOverordnetEnhet(orgnr),
+            )
         }
 
         // Ingen treff på hovedenhet, vi sjekker underenheter også
@@ -45,36 +51,41 @@ class BrregClientImpl(
         val underenhetData = tolkRespons<BrregEnhet>(underenhetResponse, orgnr)
 
         return underenhetData?.let {
-            tilBrregEnhetDto(it, it.overordnetEnhet)
+            VirksomhetDto(
+                organisasjonsnummer = it.organisasjonsnummer,
+                navn = it.navn,
+                overordnetEnhet = it.overordnetEnhet,
+                underenheter = null,
+            )
         } ?: throw NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'")
     }
 
-    override suspend fun sokEtterOverordnetEnheter(orgnr: String): List<BrregEnhetUtenUnderenheterDto> {
+    override suspend fun sokEtterOverordnetEnheter(orgnr: String): List<VirksomhetDto> {
         val sokEllerOppslag = when (OrgnummerUtil.erOrgnr(orgnr)) {
             true -> "organisasjonsnummer"
             false -> "navn"
         }
 
         val hovedenhetResponse = client.get("$baseUrl/enheter") {
-            parameter("size", 1000)
+            parameter("size", size)
             parameter(sokEllerOppslag, orgnr)
         }
 
         val data = tolkRespons<BrregEmbeddedHovedenheter>(hovedenhetResponse, orgnr)
 
         return data?._embedded?.enheter?.map {
-            BrregEnhetUtenUnderenheterDto(
+            VirksomhetDto(
                 organisasjonsnummer = it.organisasjonsnummer,
                 navn = it.navn,
             )
         } ?: emptyList()
     }
 
-    private suspend fun hentUnderenheterForOverordnetEnhet(orgnrOverordnetEnhet: String): List<BrregEnhetDto> {
+    private suspend fun hentUnderenheterForOverordnetEnhet(orgnrOverordnetEnhet: String): List<VirksomhetDto> {
         validerOrgnr(orgnrOverordnetEnhet)
 
         val underenheterResponse = client.get("$baseUrl/underenheter") {
-            parameter("size", 1000)
+            parameter("size", size)
             parameter("overordnetEnhet", orgnrOverordnetEnhet)
         }
 
@@ -82,18 +93,14 @@ class BrregClientImpl(
 
         return data?.let {
             it._embedded?.underenheter?.map {
-                tilBrregEnhetDto(it, orgnrOverordnetEnhet)
+                VirksomhetDto(
+                    organisasjonsnummer = it.organisasjonsnummer,
+                    navn = it.navn,
+                    overordnetEnhet = orgnrOverordnetEnhet,
+                    underenheter = null,
+                )
             }
         } ?: emptyList()
-    }
-
-    private fun tilBrregEnhetDto(it: BrregEnhet, orgnrOverordnetEnhet: String? = null): BrregEnhetDto {
-        return BrregEnhetDto(
-            organisasjonsnummer = it.organisasjonsnummer,
-            navn = it.navn,
-            overordnetEnhet = orgnrOverordnetEnhet,
-            underenheter = emptyList(),
-        )
     }
 
     private suspend inline fun <reified T> tolkRespons(response: HttpResponse, orgnr: String): T? {
@@ -116,28 +123,28 @@ class BrregClientImpl(
 }
 
 @Serializable
-data class BrregEnhet(
+internal data class BrregEnhet(
     val organisasjonsnummer: String,
     val navn: String,
     val overordnetEnhet: String? = null,
 )
 
 @Serializable
-data class BrregEmbeddedHovedenheter(
+internal data class BrregEmbeddedHovedenheter(
     val _embedded: BrregHovedenheter? = null,
 )
 
 @Serializable
-data class BrregHovedenheter(
+internal data class BrregHovedenheter(
     val enheter: List<BrregEnhet>,
 )
 
 @Serializable
-data class BrregEmbeddedUnderenheter(
+internal data class BrregEmbeddedUnderenheter(
     val _embedded: BrregUnderenheter? = null,
 )
 
 @Serializable
-data class BrregUnderenheter(
+internal data class BrregUnderenheter(
     val underenheter: List<BrregEnhet>,
 )
