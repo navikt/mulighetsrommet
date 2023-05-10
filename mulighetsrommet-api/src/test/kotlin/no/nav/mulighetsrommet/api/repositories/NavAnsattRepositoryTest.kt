@@ -31,21 +31,22 @@ class NavAnsattRepositoryTest : FunSpec({
 
         test("CRUD") {
             val ansatt = NavAnsattDbo(
-                oid = UUID.randomUUID(),
+                azureId = UUID.randomUUID(),
                 navIdent = "DD123456",
                 fornavn = "Donald",
                 etternavn = "Duck",
                 hovedenhet = "1000",
+                fraAdGruppe = UUID.randomUUID(),
             )
 
             ansatte.upsert(ansatt).shouldBeRight()
 
-            ansatte.getByObjectId(ansatt.oid) shouldBeRight ansatt
+            ansatte.getByAzureId(ansatt.azureId) shouldBeRight ansatt
             ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight ansatt
 
-            ansatte.deleteByObjectId(ansatt.oid).shouldBeRight()
+            ansatte.deleteByAzureId(ansatt.azureId).shouldBeRight()
 
-            ansatte.getByObjectId(ansatt.oid) shouldBeRight null
+            ansatte.getByAzureId(ansatt.azureId) shouldBeRight null
             ansatte.getByNavIdent(ansatt.navIdent) shouldBeRight null
         }
     }

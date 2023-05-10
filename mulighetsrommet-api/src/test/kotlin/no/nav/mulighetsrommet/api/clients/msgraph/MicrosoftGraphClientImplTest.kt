@@ -35,7 +35,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
         val client = createClient(engine)
 
         client.getNavAnsatt("token", id) shouldBe NavAnsattDto(
-            oid = id,
+            azureId = id,
             navident = "DD123456",
             fornavn = "Donald",
             etternavn = "Duck",

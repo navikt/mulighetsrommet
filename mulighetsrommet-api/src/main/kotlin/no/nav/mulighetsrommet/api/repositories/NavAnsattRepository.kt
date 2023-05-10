@@ -13,13 +13,14 @@ class NavAnsattRepository(private val db: Database) {
     fun upsert(ansatt: NavAnsattDbo): QueryResult<NavAnsattDbo> = query {
         @Language("PostgreSQL")
         val query = """
-            insert into nav_ansatt(nav_ident, oid, fornavn, etternavn, hovedenhet)
-            values (:nav_ident, :oid, :fornavn, :etternavn, :hovedenhet)
+            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe)
+            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :fra_ad_gruppe::uuid)
             on conflict (nav_ident)
-                do update set oid        = excluded.oid,
-                              fornavn    = excluded.fornavn,
-                              etternavn  = excluded.etternavn,
-                              hovedenhet = excluded.hovedenhet
+                do update set fornavn       = excluded.fornavn,
+                              etternavn     = excluded.etternavn,
+                              hovedenhet    = excluded.hovedenhet,
+                              azure_id      = excluded.azure_id,
+                              fra_ad_gruppe = excluded.fra_ad_gruppe
             returning *
         """.trimIndent()
 
@@ -32,7 +33,7 @@ class NavAnsattRepository(private val db: Database) {
     fun getByNavIdent(navIdent: String): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, oid, fornavn, etternavn, hovedenhet
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe
             from nav_ansatt
             where nav_ident = :nav_ident
         """.trimIndent()
@@ -43,45 +44,47 @@ class NavAnsattRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getByObjectId(objectId: UUID): QueryResult<NavAnsattDbo?> = query {
+    fun getByAzureId(azureId: UUID): QueryResult<NavAnsattDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select nav_ident, oid, fornavn, etternavn, hovedenhet
+            select nav_ident, fornavn, etternavn, hovedenhet, azure_id, fra_ad_gruppe
             from nav_ansatt
-            where oid = :oid::uuid
+            where azure_id = :azure_id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("oid" to objectId))
+        queryOf(query, mapOf("azure_id" to azureId))
             .map { it.toNavAnsatt() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun deleteByObjectId(objectId: UUID): QueryResult<Int> = query {
+    fun deleteByAzureId(azureId: UUID): QueryResult<Int> = query {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
-            where oid = :oid::uuid
+            where azure_id = :azure_id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("oid" to objectId))
+        queryOf(query, mapOf("azure_id" to azureId))
             .asUpdate
             .let { db.run(it) }
     }
 
     private fun NavAnsattDbo.toSqlParameters() = mapOf(
         "nav_ident" to navIdent,
-        "oid" to oid,
         "fornavn" to fornavn,
         "etternavn" to etternavn,
         "hovedenhet" to hovedenhet,
+        "azure_id" to azureId,
+        "fra_ad_gruppe" to fraAdGruppe,
     )
 
     private fun Row.toNavAnsatt() = NavAnsattDbo(
         navIdent = string("nav_ident"),
-        oid = uuid("oid"),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
         hovedenhet = string("hovedenhet"),
+        azureId = uuid("azure_id"),
+        fraAdGruppe = uuid("fra_ad_gruppe"),
     )
 }

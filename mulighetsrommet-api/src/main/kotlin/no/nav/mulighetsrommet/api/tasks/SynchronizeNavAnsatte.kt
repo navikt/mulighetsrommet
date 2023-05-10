@@ -57,7 +57,17 @@ class SynchronizeNavAnsatte(
 
                     val members = msGraphClient.getGroupMembers(groupId)
                     members.forEach { ansatt ->
-                        val dbo = NavAnsattDbo.fromDto(ansatt)
+                        val dbo = ansatt.run {
+                            NavAnsattDbo(
+                                navIdent = navident,
+                                fornavn = fornavn,
+                                etternavn = etternavn,
+                                hovedenhet = hovedenhetKode,
+                                azureId = azureId,
+                                fraAdGruppe = groupId,
+                            )
+                        }
+
                         ansatte.upsert(dbo).onLeft {
                             throw it.error
                         }
