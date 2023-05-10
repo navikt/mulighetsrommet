@@ -3,9 +3,7 @@ import styles from "./BrukerNotifikasjoner.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { UlestNotifikasjonssrad } from "./UlestNotifikasjonssrad";
 import { Laster } from "../laster/Laster";
-import { Alert, BodyShort } from "@navikt/ds-react";
 import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
-import { LestNotifikasjonssrad } from "./LestNotifikasjonssrad";
 import { EmptyState } from "./EmptyState";
 
 export function UlesteNotifikasjonsliste() {
