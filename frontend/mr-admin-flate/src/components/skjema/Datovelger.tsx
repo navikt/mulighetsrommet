@@ -24,15 +24,21 @@ export function Datovelger<T>({
     name: "sluttDato",
   });
 
+  const offsetAntallAar = 3;
+
   const pastDate = () => {
     const newDate = new Date();
-    const yearsAgo = newDate.setFullYear(newDate.getFullYear() - 3);
+    const yearsAgo = newDate.setFullYear(
+      newDate.getFullYear() - offsetAntallAar
+    );
     return new Date(yearsAgo);
   };
 
   const futureDate = () => {
     const newDate = new Date();
-    const yearsFromNow = newDate.setFullYear(newDate.getFullYear() + 3);
+    const yearsFromNow = newDate.setFullYear(
+      newDate.getFullYear() + offsetAntallAar
+    );
     return new Date(yearsFromNow);
   };
 
