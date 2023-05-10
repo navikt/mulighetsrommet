@@ -9,18 +9,19 @@ export interface MultiSelectProps {
   options: SelectOption[];
   size?: "small" | "medium";
   value: SelectOption[];
+  disabled?: boolean;
   onChange: (e: any) => void;
   error: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
-  const { name, placeholder, options, onChange, value, ref, error } = props;
+  const { name, placeholder, options, onChange, value, ref, error, disabled } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
       ...provided,
-      background: "#fff",
+      background: disabled ? "#F1F1F1" : "#fff",
       borderColor: isError ? "#C30000" : "#0000008f",
       borderWidth: isError ? "2px" : "1px",
       minHeight: "48px",
@@ -64,6 +65,7 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       placeholder={placeholder}
       ref={ref}
       isMulti
+      isDisabled={!!disabled}
       noOptionsMessage={() => "Ingen funnet"}
       name={name}
       value={value}

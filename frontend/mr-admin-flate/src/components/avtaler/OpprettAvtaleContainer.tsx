@@ -297,6 +297,7 @@ export function OpprettAvtaleContainer({
           />
           <ControlledMultiSelect
             placeholder="Velg en"
+            disabled={!navRegion}
             label={"NAV enhet (kontorer)"}
             {...register("navEnheter")}
             options={enheterOptions()}
