@@ -26,14 +26,14 @@ export function Datovelger<T>({
 
   const pastDate = () => {
     const newDate = new Date();
-    const fiveYearsAgo = newDate.setFullYear(newDate.getFullYear() - 3);
-    return new Date(fiveYearsAgo);
+    const yearsAgo = newDate.setFullYear(newDate.getFullYear() - 3);
+    return new Date(yearsAgo);
   };
 
   const futureDate = () => {
     const newDate = new Date();
-    const tenYearsFromNow = newDate.setFullYear(newDate.getFullYear() + 3);
-    return new Date(tenYearsFromNow);
+    const yearsFromNow = newDate.setFullYear(newDate.getFullYear() + 3);
+    return new Date(yearsFromNow);
   };
 
   const { datepickerProps, toInputProps, fromInputProps } =
