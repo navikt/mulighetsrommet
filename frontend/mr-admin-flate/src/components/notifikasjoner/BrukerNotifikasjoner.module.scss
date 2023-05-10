@@ -1,7 +1,11 @@
 .container {
   margin-bottom: 1rem;
-  max-width: 704px;
+  max-width: 100%;
   padding-inline-start: unset;
+
+  @media screen and (min-width: 850px) {
+    max-width: 35%;
+  }
 }
 
 .link {
