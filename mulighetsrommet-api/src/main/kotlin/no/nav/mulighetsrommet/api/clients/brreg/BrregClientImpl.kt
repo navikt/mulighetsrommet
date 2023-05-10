@@ -36,7 +36,8 @@ class BrregClientImpl(
 
         // Vi fikk treff på hovedenhet
         if (data != null) {
-            return tilBrregEnhetDto(data, null)
+            val underenheter = hentUnderenheterForOverordnetEnhet(orgnr)
+            return tilBrregEnhetDto(data, null).copy(underenheter = underenheter)
         }
 
         // Ingen treff på hovedenhet, vi sjekker underenheter også
@@ -44,7 +45,7 @@ class BrregClientImpl(
         val underenhetData = tolkRespons<BrregEnhet>(underenhetResponse, orgnr)
 
         return underenhetData?.let {
-            tilBrregEnhetDto(it, it.overordnetEnhet).copy(underenheter = hentUnderenheterForOverordnetEnhet(orgnr))
+            tilBrregEnhetDto(it, it.overordnetEnhet)
         } ?: throw NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'")
     }
 

@@ -31,11 +31,11 @@ fun Route.virksomhetRoutes() {
 
         get("oppslag/{orgnr}") {
             val orgnr = call.parameters["orgnr"] ?: return@get call.respondText(
-                text = "Mangler verdi for 'sok'",
+                text = "Mangler verdi for 'orgnr'",
                 status = HttpStatusCode.BadRequest,
             )
 
-            if (OrgnummerUtil.erOrgnr(orgnr)) {
+            if (!OrgnummerUtil.erOrgnr(orgnr)) {
                 throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
             }
 
