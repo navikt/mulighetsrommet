@@ -3,7 +3,7 @@ import { UserNotification } from "mulighetsrommet-api-client";
 import { formaterDatoTid } from "../../utils/Utils";
 import styles from "./LestNotifikasjonsrad.module.scss";
 import { useState } from "react";
-import {CheckmarkButton} from "./CheckmarkButton";
+import { CheckmarkButton } from "./CheckmarkButton";
 
 interface Props {
   notifikasjon: UserNotification;
@@ -31,7 +31,7 @@ export function LestNotifikasjonssrad({ notifikasjon }: Props) {
         </BodyShort>
       </div>
       <div>
-        <CheckmarkButton  id={notifikasjon.id} read={read} setRead={setRead}/>
+        <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} />
       </div>
     </li>
   );
