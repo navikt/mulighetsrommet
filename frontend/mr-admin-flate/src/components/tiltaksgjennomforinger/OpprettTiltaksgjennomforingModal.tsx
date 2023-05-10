@@ -1,11 +1,10 @@
 import { Heading, Modal } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Modal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { porten } from "mulighetsrommet-frontend-common/constants";
 import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
 import { OpprettTiltaksgjennomforingContainer } from "./OpprettTiltaksgjennomforingContainer";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 interface ModalProps {
   modalOpen: boolean;
@@ -14,6 +13,7 @@ interface ModalProps {
   handleCancel?: () => void;
   shouldCloseOnOverlayClick?: boolean;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
+  avtale: Avtale;
 }
 
 export const OpprettTiltaksgjennomforingModal = ({
@@ -21,6 +21,7 @@ export const OpprettTiltaksgjennomforingModal = ({
   onClose,
   handleCancel,
   tiltaksgjennomforing,
+  avtale,
 }: ModalProps) => {
   const { navigerTilTiltaksgjennomforing } =
     useNavigerTilTiltaksgjennomforing();
@@ -29,13 +30,13 @@ export const OpprettTiltaksgjennomforingModal = ({
   });
 
   const clickCancel = () => {
-    setError(false);
+    setError(null);
     setResult(null);
     onClose();
     handleCancel?.();
   };
 
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<React.ReactNode | null>(null);
   const [result, setResult] = useState<string | null>(null);
 
   const redigeringsModus = !!tiltaksgjennomforing;
@@ -60,6 +61,7 @@ export const OpprettTiltaksgjennomforingModal = ({
               setError={setError}
               setResult={setResult}
               tiltaksgjennomforing={tiltaksgjennomforing}
+              avtale={avtale}
             />
           </Modal.Content>
         </Modal>
@@ -69,15 +71,9 @@ export const OpprettTiltaksgjennomforingModal = ({
           modalOpen={modalOpen}
           ikonVariant="error"
           heading="Kunne ikke opprette gjennomføring"
-          text={
-            <>
-              Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil
-              hos oss. Forsøk på nytt eller ta <a href={porten}>kontakt</a> i
-              Porten dersom du trenger mer hjelp.
-            </>
-          }
+          text={error}
           onClose={clickCancel}
-          primaryButtonOnClick={() => setError(false)}
+          primaryButtonOnClick={() => setError(null)}
           primaryButtonText="Prøv igjen"
           secondaryButtonOnClick={clickCancel}
           secondaryButtonText="Avbryt"

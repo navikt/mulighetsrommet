@@ -6,11 +6,14 @@ import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgj
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
 import { useAdminTiltaksgjennomforinger } from "../../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Alert } from "@navikt/ds-react";
+import { useAvtale } from "../../../api/avtaler/useAvtale";
 
 export function TiltaksgjennomforingerForAvtale() {
   const avtaleId = useGetAvtaleIdFromUrl();
   const { data } = useAdminTiltaksgjennomforinger();
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilter);
+
+  const { data: avtale } = useAvtale(avtaleId);
 
   useEffect(() => {
     if (avtaleId) {
@@ -19,7 +22,7 @@ export function TiltaksgjennomforingerForAvtale() {
     }
   }, [avtaleId]);
 
-  if (!data) {
+  if (!data || !avtale) {
     return null;
   }
 
@@ -33,7 +36,10 @@ export function TiltaksgjennomforingerForAvtale() {
 
   return (
     <>
-      <Tiltaksgjennomforingfilter skjulFilter={{ tiltakstype: true }} />
+      <Tiltaksgjennomforingfilter
+        skjulFilter={{ tiltakstype: true }}
+        avtale={avtale}
+      />
       <TiltaksgjennomforingsTabell skjulKolonner />
     </>
   );

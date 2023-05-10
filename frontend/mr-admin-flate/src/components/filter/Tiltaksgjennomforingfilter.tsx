@@ -1,6 +1,7 @@
 import { Button, Search, Select } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
+  Avtale,
   Norg2Type,
   TiltaksgjennomforingStatus,
   Tiltakstypestatus,
@@ -21,6 +22,7 @@ type Filters = "tiltakstype";
 
 interface Props {
   skjulFilter?: Record<Filters, boolean>;
+  avtale?: Avtale;
 }
 
 export function Tiltaksgjennomforingfilter(props: Props) {
@@ -165,7 +167,7 @@ export function Tiltaksgjennomforingfilter(props: Props) {
           </Select>
         </div>
         <div className={styles.filter_right}>
-          {visOpprettTiltaksgjennomforingKnapp && (
+          {props.avtale && visOpprettTiltaksgjennomforingKnapp && (
             <>
               <Button size="small" onClick={() => setModalOpen(true)}>
                 Opprett ny gjennomføring
@@ -173,6 +175,7 @@ export function Tiltaksgjennomforingfilter(props: Props) {
 
               <OpprettTiltaksgjennomforingModal
                 modalOpen={modalOpen}
+                avtale={props.avtale}
                 onClose={() => setModalOpen(false)}
               />
             </>
