@@ -130,7 +130,7 @@ class AvtaleInfoEventProcessor(
             prisbetingelser = avtale.prisbetingelser,
             opphav = AvtaleDbo.Opphav.ARENA,
             navRegion = null,
-            enheter = emptyList()
+            navEnheter = emptyList(),
         )
     }
 }
