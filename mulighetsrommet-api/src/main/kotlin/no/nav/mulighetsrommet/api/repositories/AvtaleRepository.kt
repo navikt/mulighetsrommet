@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.Virksomhetstype
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -98,6 +99,19 @@ class AvtaleRepository(private val db: Database) {
              where avtale_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val upsertUnderenheter = """
+             insert into leverandor_virksomhet_avtale (avtale_id, organisasjonsnummer, type_virksomhet)
+             values (?::uuid, ?, ?::virksomhetstype)
+             on conflict (avtale_id, organisasjonsnummer) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteUnderenheter = """
+             delete from leverandor_virksomhet_avtale
+             where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
+        """.trimIndent()
+
         db.transaction { tx ->
             tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
@@ -128,6 +142,21 @@ class AvtaleRepository(private val db: Database) {
                 avtale.id,
                 db.createTextArray(avtale.navEnheter),
             ).asExecute.let { tx.run(it) }
+
+            avtale.leverandorUnderenheter.forEach { underenhet ->
+                queryOf(
+                    upsertUnderenheter,
+                    avtale.id,
+                    underenhet,
+                    Virksomhetstype.Underenhet.name,
+                ).asExecute.let { tx.run(it) }
+            }
+
+            queryOf(
+                deleteUnderenheter,
+                avtale.id,
+                db.createTextArray(avtale.leverandorUnderenheter),
+            ).asExecute.let { tx.run(it) }
         }
     }
 
@@ -150,6 +179,7 @@ class AvtaleRepository(private val db: Database) {
                    nav_enhet.navn as nav_enhet_navn,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
+                   array_agg(lva.organisasjonsnummer) as leverandorUnderenheter,
                    array_agg(e.enhetsnummer) as navEnheter,
                    aa.navident
             from avtale a
@@ -157,6 +187,7 @@ class AvtaleRepository(private val db: Database) {
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
                      left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                      left join avtale_nav_enhet e on e.avtale_id = a.id
+                     left join leverandor_virksomhet_avtale lva on lva.avtale_id = a.id
             where a.id = ?::uuid
             group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn
         """.trimIndent()
@@ -238,6 +269,7 @@ class AvtaleRepository(private val db: Database) {
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
                    aa.navident as navident,
+                   array_agg(lva.organisasjonsnummer) as leverandorUnderenheter,
                    array_agg(ae.enhetsnummer) as navEnheter,
                    count(*) over () as full_count
             from avtale a
@@ -245,6 +277,7 @@ class AvtaleRepository(private val db: Database) {
                      left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
                      left join avtale_nav_enhet ae on ae.avtale_id = a.id
+                     left join leverandor_virksomhet_avtale lva on lva.avtale_id = a.id
             $where
             group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn
             order by $order
@@ -270,6 +303,7 @@ class AvtaleRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
@@ -290,6 +324,10 @@ class AvtaleRepository(private val db: Database) {
         val navEnheter = sqlArrayOrNull("navEnheter")?.let {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
+        val underenheter = sqlArrayOrNull("leverandorUnderenheter")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+                .map { AvtaleAdminDto.Leverandor(organisasjonsnummer = it) }
+        } ?: emptyList()
 
         return AvtaleAdminDto(
             id = uuid("id"),
@@ -303,6 +341,7 @@ class AvtaleRepository(private val db: Database) {
             leverandor = AvtaleAdminDto.Leverandor(
                 organisasjonsnummer = string("leverandor_organisasjonsnummer"),
             ),
+            leverandorUnderenheter = underenheter,
             navEnheter = navEnheter,
             startDato = startDato,
             sluttDato = sluttDato,

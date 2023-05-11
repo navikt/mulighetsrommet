@@ -101,6 +101,7 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val leverandorOrganisasjonsnummer: String,
+    val leverandorUnderenheter: List<String> = emptyList(),
     val avtalenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -121,6 +122,7 @@ data class AvtaleRequest(
             avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            leverandorUnderenheter = leverandorUnderenheter,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = null,

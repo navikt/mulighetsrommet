@@ -64,6 +64,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
         sluttDato: LocalDate = LocalDate.of(2023, 2, 28),
         ansvarlige: List<String> = emptyList(),
         navEnheter: List<String> = emptyList(),
+        leverandorUnderenheter: List<String> = emptyList(),
     ): AvtaleDbo {
         return AvtaleDbo(
             id = UUID.randomUUID(),
@@ -71,6 +72,7 @@ class AvtaleFixtures(private val database: FlywayDatabaseTestListener) {
             avtalenummer = avtalenummer,
             tiltakstypeId = tiltakstypeId,
             leverandorOrganisasjonsnummer = "12345678910",
+            leverandorUnderenheter = leverandorUnderenheter,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = null,

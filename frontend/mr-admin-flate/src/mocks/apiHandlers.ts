@@ -273,4 +273,17 @@ export const apiHandlers = [
       );
     }
   ),
+  rest.get<any, any, Virksomhet | undefined>(
+    "*/api/v1/internal/virksomhet/:orgnr",
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(
+          mockVirksomheter.find(
+            (enhet) => enhet.organisasjonsnummer === req.params.orgnr
+          )
+        )
+      );
+    }
+  ),
 ];

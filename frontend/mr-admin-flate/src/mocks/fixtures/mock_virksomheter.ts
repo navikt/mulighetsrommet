@@ -4,6 +4,13 @@ export const mockVirksomheter: Virksomhet[] = [
   {
     organisasjonsnummer: "123456789",
     navn: "Testbedrift AS",
+    underenheter: [
+      {
+        organisasjonsnummer: "876543987",
+        navn: "Underenhet AS",
+        overordnetEnhet: "123456789",
+      },
+    ],
   },
   {
     organisasjonsnummer: "987654321",
