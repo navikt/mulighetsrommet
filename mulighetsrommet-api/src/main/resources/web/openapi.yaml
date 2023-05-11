@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -420,7 +420,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: {}
+              schema: { }
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -746,13 +746,13 @@ paths:
     get:
       tags:
         - Hent virksomhet
-      operationId: hentVirksomhetMedOrgnr
+      operationId: hentVirksomhet
       parameters:
         - in: path
           name: orgnr
           schema:
             type: string
-          description: Hvilket organisasjonsnummer tilhører virksomheten
+          description: 9-sifret organisasjonsnummer
       responses:
         200:
           description: Virksomhet som matcher organisasjonsnummeret
@@ -760,6 +760,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Virksomhet"
+
+  /api/v1/internal/virksomhet/sok/{sok}:
+    get:
+      tags:
+        - Søk på virksomheter
+      operationId: sokVirksomhet
+      parameters:
+        - in: path
+          name: sok
+          schema:
+            type: string
+          description: Søkestreng for navn på virksomheter
+      responses:
+        200:
+          description: Liste med virksomheter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/notifications:
     get:
@@ -1710,10 +1731,14 @@ components:
           type: string
         navn:
           type: string
-        overordnetEnhetOrganisasjonsnummer:
+        overordnetEnhet:
           type: string
-        overordnetEnhetNavn:
-          type: string
+          nullable: true
+        underenheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/Virksomhet"
+          nullable: true
       required:
         - organisasjonsnummer
         - navn

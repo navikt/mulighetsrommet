@@ -21,20 +21,29 @@ internal data class MsGraphUserDto(
     val surname: String,
     /**
      * NAVident
+     *
+     * Vi antar at denne er definert for alle ansatte,
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
      */
-    val onPremisesSamAccountName: String,
+    val onPremisesSamAccountName: String?,
     /**
      * E-postadresse
      */
     val mail: String,
     /**
      * NAV Enhetskode
+     *
+     * Vi antar at denne er definert for alle ansatte,
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
      */
-    val streetAddress: String,
+    val streetAddress: String?,
     /**
      * NAV Enhetsnavn
+     *
+     * Vi antar at denne er definert for alle ansatte,
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
      */
-    val city: String,
+    val city: String?,
 )
 
 @Serializable

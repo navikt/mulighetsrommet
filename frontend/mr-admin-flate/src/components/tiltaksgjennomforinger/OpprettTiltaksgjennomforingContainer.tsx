@@ -3,20 +3,14 @@ import { Button, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   NavEnhet,
-  Norg2Type,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-  Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
-import { useAtom } from "jotai";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { avtaleFilter } from "../../api/atoms";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { Datovelger } from "../skjema/Datovelger";
@@ -24,16 +18,12 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettTiltaksgjennomforingContainer.module.scss";
 import { Laster } from "../laster/Laster";
 import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
+import { porten } from "mulighetsrommet-frontend-common/constants";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 
 const Schema = z.object({
-  tiltakstype: z
-    .string({ required_error: "Du må velge en tiltakstype" })
-    .min(1),
-  avtale: z.string({ required_error: "Du må velge en avtale" }).min(1),
   tittel: z.string().min(1, "Du må skrive inn tittel"),
   startDato: z.date({ required_error: "En gjennomføring må ha en startdato" }),
   sluttDato: z.date({ required_error: "En gjennomføring må ha en sluttdato" }),
@@ -55,10 +45,27 @@ export type inferredSchema = z.infer<typeof Schema>;
 
 interface OpprettTiltaksgjennomforingContainerProps {
   onAvbryt: () => void;
-  setError: Dispatch<SetStateAction<boolean>>;
+  setError: Dispatch<SetStateAction<React.ReactNode | null>>;
   setResult: Dispatch<SetStateAction<string | null>>;
+  avtale: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
+
+const tekniskFeilError = () => (
+  <>
+    Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil
+    hos oss. Forsøk på nytt eller ta <a href={porten}>kontakt</a> i
+    Porten dersom du trenger mer hjelp.
+  </>
+)
+
+const avtaleManglerNavRegionError = () => (
+  <>
+    Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for
+    å kunne opprette en gjennomføring. Ta <a href={porten}>kontakt</a> i
+    Porten dersom du trenger mer hjelp.
+  </>
+)
 
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
@@ -67,13 +74,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     resolver: zodResolver(Schema),
     defaultValues: {
       tittel: props.tiltaksgjennomforing?.navn,
-      tiltakstype: props.tiltaksgjennomforing?.tiltakstype?.id,
       navEnheter:
         props.tiltaksgjennomforing?.navEnheter.length === 0
           ? ["alle_enheter"]
           : props.tiltaksgjennomforing?.navEnheter,
       ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
-      avtale: props.tiltaksgjennomforing?.avtaleId,
       antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
       startDato: props.tiltaksgjennomforing?.startDato
         ? new Date(props.tiltaksgjennomforing.startDato)
@@ -92,20 +97,6 @@ export const OpprettTiltaksgjennomforingContainer = (
 
   const { navigerTilTiltaksgjennomforing } =
     useNavigerTilTiltaksgjennomforing();
-  const [aFilter, setAvtaleFilter] = useAtom(avtaleFilter);
-  useEffect(() => {
-    if (props.tiltaksgjennomforing?.tiltakstype) {
-      setAvtaleFilter({
-        ...aFilter,
-        tiltakstype: props.tiltaksgjennomforing.tiltakstype.id,
-      });
-    }
-  }, []);
-
-  const { data: tiltakstyper, isError: isErrorTiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV },
-    1
-  );
 
   const {
     data: enheter,
@@ -113,24 +104,11 @@ export const OpprettTiltaksgjennomforingContainer = (
     isError: isErrorEnheter,
   } = useAlleEnheter();
 
-  const [avtaleId, setAvtaleId] = useState<string | undefined>(
-    props.tiltaksgjennomforing?.avtaleId
-  );
-  const { data: avtale, isError: isErrorAvtale } = useAvtale(avtaleId);
-
-  const {
-    data: avtaler,
-    isLoading: isLoadingAvtaler,
-    isError: isErrorAvtaler,
-  } = useAvtaler();
-
   const {
     data: ansatt,
     isLoading: isLoadingAnsatt,
     isError: isErrorAnsatt,
   } = useHentAnsatt();
-
-  const [fylkeEnhet, setFylkeEnhet] = useState<NavEnhet | undefined>();
 
   useEffect(() => {
     if (ansatt && !isLoadingAnsatt) {
@@ -146,14 +124,14 @@ export const OpprettTiltaksgjennomforingContainer = (
     const body: TiltaksgjennomforingRequest = {
       id: props.tiltaksgjennomforing ? props.tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
-      tiltakstypeId: data.tiltakstype,
+      tiltakstypeId: props.avtale.tiltakstype.id,
       navEnheter: data.navEnheter.includes("alle_enheter") ? [] : data.navEnheter,
       navn: data.tittel,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
-      avtaleId: data.avtale,
+      avtaleId: props.avtale.id,
       ansvarlig: data.ansvarlig,
-      virksomhetsnummer: avtale!!.leverandor.organisasjonsnummer,
+      virksomhetsnummer: props.avtale.leverandor.organisasjonsnummer,
       tiltaksnummer: props.tiltaksgjennomforing?.tiltaksnummer,
     };
 
@@ -166,7 +144,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         );
       navigerTilTiltaksgjennomforing(response.id);
     } catch {
-      props.setError(true);
+      props.setError(tekniskFeilError());
     }
   };
 
@@ -176,122 +154,46 @@ export const OpprettTiltaksgjennomforingContainer = (
         .join(" ")
     : "";
 
-  if (!avtaler && !tiltakstyper && !enheter) {
-    console.log("Laster...", { avtaler, tiltakstyper, enheter });
+  if (!enheter) {
     return <Laster />;
   }
-
-  if (
-    isErrorAvtaler ||
-    isErrorAnsatt ||
-    isErrorAvtale ||
-    isErrorTiltakstyper ||
-    isErrorEnheter ||
-    isErrorAvtale
-  ) {
-    props.setError(true);
+  if (!props.avtale.navRegion) {
+    props.setError(avtaleManglerNavRegionError());
   }
 
-  const avtalerOptions = () => {
-    if (avtale && !avtaler?.data.find((a) => a.id === avtale.id)) {
-      avtaler?.data.push(avtale);
-    }
-
-    return avtaler
-      ? avtaler?.data.map((avtale: Avtale) => ({
-          value: avtale.id,
-          label: avtale.navn,
-        }))
-      : [];
-  };
-
-  const overordnetEnhetFraAvtale = (): NavEnhet | undefined => {
-    return enheter?.find(
-      (e: NavEnhet) => e.enhetsnummer === avtale?.navRegion?.enhetsnummer
-    );
-  };
-
-  const enheterLabel = () => {
-    const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
-    return overordnet?.navn && overordnet.type === Norg2Type.FYLKE
-      ? "Enheter i " + overordnet.navn
-      : "Enheter";
-  };
+  if (isErrorAnsatt || isErrorEnheter) {
+    props.setError(tekniskFeilError());
+  }
 
   const enheterOptions = () => {
-    const overordnet = overordnetEnhetFraAvtale() ?? fylkeEnhet;
-
     const options = enheter
-      ?.filter((enhet: NavEnhet) => {
-        // Bare interessert i filtrering på overordnet enhet hvis overordnet enhet sin type er et fylke
-        return overordnet?.type === Norg2Type.FYLKE
-          ? overordnet.enhetsnummer === enhet.overordnetEnhet
-          : true;
-      })
-      .map((enhet: NavEnhet) => ({
+      .filter((enhet: NavEnhet) => props.avtale.navRegion?.enhetsnummer === enhet.overordnetEnhet)
+      .filter((enhet: NavEnhet) => props.avtale.navEnheter.length === 0 || props.avtale.navEnheter.includes(enhet.enhetsnummer))
+      .map((enhet) => ({
         label: enhet.navn,
-        value: enhet.enhetsnummer,
-      }));
+        value: enhet.enhetsnummer
+      }))
+
     options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
     return options || [];
-  };
-
-  const fylkeEnheterOptions = () => {
-    const overordnedeEnhetsnummer = enheter
-      ?.filter((enhet: NavEnhet) => enhet.overordnetEnhet)
-      .map((enhet: NavEnhet) => enhet.overordnetEnhet);
-
-    return (
-      enheter
-        ?.filter((enhet: NavEnhet) =>
-          overordnedeEnhetsnummer?.includes(enhet.enhetsnummer)
-        )
-        .map((enhet: NavEnhet) => ({
-          label: enhet.navn,
-          value: enhet.enhetsnummer,
-        })) ?? []
-    );
   };
 
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <FormGroup>
-          <SokeSelect
-            placeholder="Velg en"
-            label={"Tiltakstype"}
-            {...register("tiltakstype", {
-              onChange: (e) => {
-                setAvtaleFilter({ ...aFilter, tiltakstype: e.target.value });
-                setAvtaleId(undefined);
-                form.resetField("avtale", { defaultValue: "" });
-              },
-            })}
-            options={
-              tiltakstyper
-                ? tiltakstyper?.data.map((tiltakstype) => ({
-                    value: tiltakstype.id,
-                    label: tiltakstype.navn,
-                  }))
-                : []
-            }
-          />
-          <SokeSelect
-            placeholder={isLoadingAvtaler ? "Henter avtaler..." : "Velg en"}
-            label="Avtale"
-            {...register("avtale", {
-              onChange: (e) => {
-                setAvtaleId(e.target.value);
-              },
-            })}
-            options={avtalerOptions()}
-          />
-        </FormGroup>
-        <FormGroup>
           <TextField
             error={errors.tittel?.message}
             label="Tiltaksnavn"
             {...register("tittel")}
+          />
+        </FormGroup>
+        <FormGroup>
+          <TextField
+            readOnly
+            style={{ backgroundColor: "#F1F1F1" }}
+            label={"Avtale"}
+            value={props.avtale.navn || ""}
           />
         </FormGroup>
         <FormGroup>
@@ -316,29 +218,25 @@ export const OpprettTiltaksgjennomforingContainer = (
           />
         </FormGroup>
         <FormGroup>
-          <SokeSelect
-            placeholder={overordnetEnhetFraAvtale()?.navn ?? "Velg en"}
-            label={"Enhet (fylke)"}
-            disabled={!!overordnetEnhetFraAvtale()}
-            options={fylkeEnheterOptions()}
-            defaultValue={overordnetEnhetFraAvtale()?.enhetsnummer}
-            onChange={(e) => {
-              setFylkeEnhet(
-                enheter?.find((enhet: NavEnhet) => enhet.enhetsnummer === e)
-              );
-            }}
+          <TextField
+            readOnly
+            style={{ backgroundColor: "#F1F1F1" }}
+            label={"NAV region"}
+            value={props.avtale.navRegion?.navn || ""}
           />
           <ControlledMultiSelect
             placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
-            label={enheterLabel()}
+            label={"NAV enhet (kontorer)"}
             {...register("navEnheter")}
             options={enheterOptions()}
           />
+        </FormGroup>
+        <FormGroup>
           <SokeSelect
             placeholder={
-              isLoadingAnsatt ? "Laster gjennomføringsansvarlig..." : "Velg en"
+              isLoadingAnsatt ? "Laster Tiltaksansvarlig..." : "Velg en"
             }
-            label={"Gjennomføringsansvarlig"}
+            label={"Tiltaksansvarlig"}
             {...register("ansvarlig")}
             options={
               isLoadingAnsatt
@@ -350,20 +248,6 @@ export const OpprettTiltaksgjennomforingContainer = (
                     },
                   ]
             }
-          />
-        </FormGroup>
-        <FormGroup>
-          <TextField
-            readOnly
-            style={{ backgroundColor: "#F1F1F1" }}
-            label={"Arrangør - fra avtalen"}
-            value={avtale?.leverandor.navn || ""}
-          />
-          <TextField
-            readOnly
-            style={{ backgroundColor: "#F1F1F1" }}
-            label={"Avtaletype - fra avtalen"}
-            value={avtale?.avtaletype || ""}
           />
         </FormGroup>
         <div className={styles.button_row}>

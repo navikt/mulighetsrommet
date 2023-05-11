@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
-import no.nav.mulighetsrommet.api.clients.enhetsregister.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
@@ -27,12 +27,13 @@ class ArrangorService(
     suspend fun hentVirksomhet(virksomhetsnummer: String): VirksomhetDto? {
         return CacheUtils
             .tryCacheFirstNullable(cache, virksomhetsnummer) {
-                val virksomhet: VirksomhetDto? = virksomhetsnummer.let { amtEnhetsregisterClient.hentVirksomhet(it) }
-                virksomhet
+                amtEnhetsregisterClient.hentVirksomhet(virksomhetsnummer)
             }
     }
 
     suspend fun hentOverordnetEnhetNavnForArrangor(virksomhetsnummer: String): String? {
-        return hentVirksomhet(virksomhetsnummer)?.overordnetEnhetNavn
+        val virksomhet = hentVirksomhet(virksomhetsnummer)
+        val overordnetVirksomhet = virksomhet?.overordnetEnhet?.let { hentVirksomhet(it) }
+        return overordnetVirksomhet?.navn
     }
 }

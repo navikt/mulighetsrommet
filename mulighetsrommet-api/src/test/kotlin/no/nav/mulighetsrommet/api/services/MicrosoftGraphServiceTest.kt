@@ -15,7 +15,14 @@ class MicrosoftGraphServiceTest : FunSpec({
 
     context("Hent ansattdata for nav-ansatt") {
         test("Når man kaller hentAnsattData for en nav ansatts azureId får man svar og repeterende forespørsler kommer fra cache") {
-            val mockResponse = NavAnsattDto(hovedenhetKode = "2990", hovedenhetNavn = "IT-Avdelingen", fornavn = "Bertil", etternavn = "Betabruker", navident = "B123456")
+            val mockResponse = NavAnsattDto(
+                azureId = UUID.randomUUID(),
+                hovedenhetKode = "2990",
+                hovedenhetNavn = "IT-Avdelingen",
+                fornavn = "Bertil",
+                etternavn = "Betabruker",
+                navident = "B123456",
+            )
             val mockAccessToken = "123"
 
             val client: MicrosoftGraphClient = mockk()

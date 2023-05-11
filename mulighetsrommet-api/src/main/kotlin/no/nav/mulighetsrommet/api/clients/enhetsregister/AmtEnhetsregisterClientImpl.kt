@@ -7,6 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
@@ -28,7 +29,16 @@ class AmtEnhetsregisterClientImpl(
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.OK -> {
+                val data = response.body<AmtEnhetDto>()
+                VirksomhetDto(
+                    organisasjonsnummer = data.organisasjonsnummer,
+                    navn = data.navn,
+                    overordnetEnhet = data.overordnetEnhetOrganisasjonsnummer,
+                    underenheter = null,
+                )
+            }
+
             HttpStatusCode.NotFound -> {
                 log.debug("Virksomhet finnes ikke, sjekk securelogs")
                 SecureLog.logger.debug("Virksomhet finnes ikke: $virksomhetsnummer")
