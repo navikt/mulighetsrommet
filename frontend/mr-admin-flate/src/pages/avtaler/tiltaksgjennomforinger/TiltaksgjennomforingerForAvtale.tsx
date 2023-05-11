@@ -5,7 +5,6 @@ import { useGetAvtaleIdFromUrl } from "../../../hooks/useGetAvtaleIdFromUrl";
 import { Tiltaksgjennomforingfilter } from "../../../components/filter/Tiltaksgjennomforingfilter";
 import { TiltaksgjennomforingsTabell } from "../../../components/tabell/TiltaksgjennomforingsTabell";
 import { useAdminTiltaksgjennomforinger } from "../../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { Alert } from "@navikt/ds-react";
 import { useAvtale } from "../../../api/avtaler/useAvtale";
 
 export function TiltaksgjennomforingerForAvtale() {
@@ -24,14 +23,6 @@ export function TiltaksgjennomforingerForAvtale() {
 
   if (!data || !avtale) {
     return null;
-  }
-
-  if (data.data.length === 0) {
-    return (
-      <Alert variant="info">
-        Det finnes ingen tiltaksgjennomføringer for avtalen.{" "}
-      </Alert>
-    );
   }
 
   return (

@@ -29,11 +29,14 @@ export const TiltaksgjennomforingsTabell = ({
   const pagination = data?.pagination;
   const tiltaksgjennomforinger = data?.data ?? [];
 
-  if (!tiltaksgjennomforinger && isLoading) {
+  if (
+    (!tiltaksgjennomforinger || tiltaksgjennomforinger.length === 0) &&
+    isLoading
+  ) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
-  if (!tiltaksgjennomforinger) {
+  if (tiltaksgjennomforinger.length === 0) {
     return <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>;
   }
 
@@ -41,6 +44,14 @@ export const TiltaksgjennomforingsTabell = ({
     return (
       <Alert variant="error">
         Vi hadde problemer med henting av tiltaksgjennomføringer
+      </Alert>
+    );
+  }
+
+  if (tiltaksgjennomforinger.length === 0) {
+    return (
+      <Alert variant="info">
+        Det finnes ingen tiltaksgjennomføringer for avtalen.
       </Alert>
     );
   }
