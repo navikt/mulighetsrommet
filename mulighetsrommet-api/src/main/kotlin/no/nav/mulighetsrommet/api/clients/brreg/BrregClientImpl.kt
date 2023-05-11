@@ -31,6 +31,10 @@ class BrregClientImpl(
     }
     private val size = 10
 
+    data class Config(
+        val baseUrl: String,
+    )
+
     override suspend fun hentEnhet(orgnr: String): VirksomhetDto {
         validerOrgnr(orgnr)
         val response = client.get("$baseUrl/enheter/$orgnr")

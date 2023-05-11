@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
@@ -33,7 +34,7 @@ data class AppConfig(
     val tasks: TaskConfig,
     val norg2: Norg2Config,
     val slack: SlackConfig,
-    val brreg: BrregConfig,
+    val brreg: BrregClientImpl.Config,
 )
 
 data class AuthConfig(
@@ -80,10 +81,6 @@ data class TaskConfig(
 )
 
 data class Norg2Config(
-    val baseUrl: String,
-)
-
-data class BrregConfig(
     val baseUrl: String,
 )
 

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import io.ktor.server.testing.*
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
@@ -71,7 +72,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         channel = "",
         enable = false,
     ),
-    brreg = BrregConfig(baseUrl = ""),
+    brreg = BrregClientImpl.Config(baseUrl = ""),
 )
 
 fun createKafkaConfig(): KafkaConfig {
