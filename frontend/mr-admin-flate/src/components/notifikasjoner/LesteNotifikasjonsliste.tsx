@@ -1,11 +1,10 @@
+import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
-import styles from "./BrukerNotifikasjoner.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "../laster/Laster";
-import { Alert, BodyShort } from "@navikt/ds-react";
-import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
-import { LestNotifikasjonssrad } from "./LestNotifikasjonssrad";
+import styles from "./BrukerNotifikasjoner.module.scss";
 import { EmptyState } from "./EmptyState";
+import { LestNotifikasjonssrad } from "./LestNotifikasjonssrad";
 
 export function LesteNotifikasjonsliste() {
   const { data: features } = useFeatureToggles();

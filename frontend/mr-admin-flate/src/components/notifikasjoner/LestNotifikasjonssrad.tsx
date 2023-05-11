@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function LestNotifikasjonssrad({ notifikasjon }: Props) {
-  const { title, description, createdAt, readAt } = notifikasjon;
+  const { title, description, createdAt } = notifikasjon;
 
   const [read, setRead] = useState<boolean>(true);
 

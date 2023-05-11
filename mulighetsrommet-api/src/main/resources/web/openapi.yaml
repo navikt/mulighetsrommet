@@ -745,7 +745,7 @@ paths:
   /api/v1/internal/virksomhet/{orgnr}:
     get:
       tags:
-        - Hent virksomhet
+        - Virksomhet
       operationId: hentVirksomhet
       parameters:
         - in: path
@@ -764,7 +764,7 @@ paths:
   /api/v1/internal/virksomhet/sok/{sok}:
     get:
       tags:
-        - Søk på virksomheter
+        - Virksomhet
       operationId: sokVirksomhet
       parameters:
         - in: path

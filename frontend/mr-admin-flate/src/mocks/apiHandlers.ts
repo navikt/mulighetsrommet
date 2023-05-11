@@ -7,7 +7,8 @@ import {
   NavEnhet,
   PaginertAvtale,
   PaginertTiltaksgjennomforing,
-  PaginertTiltakstype, PaginertUserNotifications,
+  PaginertTiltakstype,
+  PaginertUserNotifications,
   Tiltaksgjennomforing,
   TiltaksgjennomforingNokkeltall,
   Tiltakstype,
@@ -15,16 +16,16 @@ import {
   UserNotificationSummary,
   Virksomhet,
 } from "mulighetsrommet-api-client";
+import { mockVirksomheter } from "./fixtures/mock_virksomheter";
 import { mockBetabruker } from "./fixtures/mock_ansatt";
-import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
+import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockEnheter } from "./fixtures/mock_enheter";
+import { mockNotifikasjoner } from "./fixtures/mock_notifikasjoner";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
+import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
-import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
-import { mockVirksomhet } from "./fixtures/mock_virksomhet";
-import { mockNotifikasjoner } from "./fixtures/mock_notifikasjoner";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
 
 export const apiHandlers = [
@@ -246,13 +247,6 @@ export const apiHandlers = [
       ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" })
     );
   }),
-
-  rest.get<any, any, Virksomhet>(
-    "*/api/v1/internal/virksomhet/:orgnr",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockVirksomhet));
-    }
-  ),
   rest.get<any, any, PaginertUserNotifications>(
     "*/api/v1/internal/notifications",
     (req, res, ctx) => {
@@ -263,6 +257,20 @@ export const apiHandlers = [
     "*/api/v1/internal/notifications/summary",
     (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(mockUserNotificationSummary));
+    }
+  ),
+
+  rest.get<any, any, Virksomhet[]>(
+    "*/api/v1/internal/virksomhet/sok/:sok",
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(
+          mockVirksomheter.filter((enhet) =>
+            enhet.navn?.toLowerCase().includes(req.params.sok.toLowerCase())
+          )
+        )
+      );
     }
   ),
 ];

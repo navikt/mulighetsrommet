@@ -29,7 +29,7 @@ class BrregClientImpl(
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
-    private val size = 10
+    private val size = 20
 
     data class Config(
         val baseUrl: String,

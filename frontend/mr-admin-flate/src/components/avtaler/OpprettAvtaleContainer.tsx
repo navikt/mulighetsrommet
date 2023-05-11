@@ -1,27 +1,32 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Textarea, TextField } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Avtale, AvtaleRequest, Avtaletype, Norg2Type } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  AvtaleRequest,
+  Avtaletype,
+  Norg2Type,
+} from "mulighetsrommet-api-client";
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
-import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-frontend-common/constants";
+import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
 import { mulighetsrommetClient } from "../../api/clients";
+import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import {
   capitalize,
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
-import { Datovelger } from "../skjema/Datovelger";
-import { VirksomhetInput } from "../virksomhet/VirksomhetInput";
-import styles from "./OpprettAvtaleContainer.module.scss";
-import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { Datovelger } from "../skjema/Datovelger";
+import { SokeSelect } from "../skjema/SokeSelect";
+import styles from "./OpprettAvtaleContainer.module.scss";
+import { useSokVirksomheter } from "../../api/virksomhet/useVirksomhet";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -45,8 +50,8 @@ const Schema = z.object({
   }),
   leverandor: z
     .string()
-    .min(9, "Organisasjonsnummer må være 9 siffer")
-    .max(9, "Organisasjonsnummer må være 9 siffer")
+    .min(9, "Du må velge en leverandør")
+    .max(9, "Du må velge en leverandør")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
   navRegion: z.string({ required_error: "Du må velge en enhet" }),
   navEnheter: z
@@ -86,7 +91,12 @@ export function OpprettAvtaleContainer({
   const { navigerTilAvtale } = useNavigerTilAvtale();
   const redigeringsModus = !!avtale;
   const [feil, setFeil] = useState<string | null>("");
-  const [navRegion, setNavRegion] = useState<string | undefined>(avtale?.navRegion?.enhetsnummer);
+  const [navRegion, setNavRegion] = useState<string | undefined>(
+    avtale?.navRegion?.enhetsnummer
+  );
+  const [sokLeverandor, setSokLeverandor] = useState("");
+  const { data: leverandorVirksomheter = [] } =
+    useSokVirksomheter(sokLeverandor);
 
   const clickCancel = () => {
     setFeil(null);
@@ -108,9 +118,7 @@ export function OpprettAvtaleContainer({
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(),
       navEnheter:
-        avtale?.navEnheter.length === 0
-          ? ["alle_enheter"]
-          : avtale?.navEnheter,
+        avtale?.navEnheter.length === 0 ? ["alle_enheter"] : avtale?.navEnheter,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
       avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
@@ -143,7 +151,9 @@ export function OpprettAvtaleContainer({
     const postData: AvtaleRequest = {
       antallPlasser: data.antallPlasser,
       navRegion: data.navRegion,
-      navEnheter: data.navEnheter.includes("alle_enheter") ? [] : data.navEnheter,
+      navEnheter: data.navEnheter.includes("alle_enheter")
+        ? []
+        : data.navEnheter,
       avtalenummer: avtale?.avtalenummer || "",
       leverandorOrganisasjonsnummer: data.leverandor,
       navn: data.avtalenavn,
@@ -208,7 +218,7 @@ export function OpprettAvtaleContainer({
 
     const options = enheter
       ?.filter((enhet: NavEnhet) => {
-        return navRegion === enhet.overordnetEnhet
+        return navRegion === enhet.overordnetEnhet;
       })
       .map((enhet: NavEnhet) => ({
         label: enhet.navn,
@@ -280,7 +290,7 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup>
-         <SokeSelect
+          <SokeSelect
             placeholder="Velg en"
             label={"NAV region"}
             {...register("navRegion")}
@@ -303,8 +313,19 @@ export function OpprettAvtaleContainer({
             options={enheterOptions()}
           />
         </FormGroup>
+        <FormGroup cols={1}>
+          <SokeSelect
+            placeholder="Søk etter tiltaksarrangør"
+            label={"Tiltaksarrangør hovedenhet"}
+            {...register("leverandor")}
+            onInputChange={(value) => setSokLeverandor(value)}
+            options={leverandorVirksomheter.map((enhet) => ({
+              value: enhet.organisasjonsnummer,
+              label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+            }))}
+          />
+        </FormGroup>
         <FormGroup>
-          <VirksomhetInput avtale={avtale} />
           <TextField
             error={errors.url?.message}
             label="URL til avtale"
@@ -333,6 +354,7 @@ export function OpprettAvtaleContainer({
             ]}
           />
         </FormGroup>
+
         <div className={styles.button_row}>
           <Button
             className={styles.button}
