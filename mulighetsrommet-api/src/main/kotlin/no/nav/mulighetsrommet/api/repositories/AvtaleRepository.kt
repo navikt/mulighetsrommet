@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dbo.Virksomhetstype
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -101,14 +100,14 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertUnderenheter = """
-             insert into leverandor_virksomhet_avtale (avtale_id, organisasjonsnummer, type_virksomhet)
-             values (?::uuid, ?, ?::virksomhetstype)
+             insert into avtale_underleverandor (avtale_id, organisasjonsnummer)
+             values (?::uuid, ?)
              on conflict (avtale_id, organisasjonsnummer) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteUnderenheter = """
-             delete from leverandor_virksomhet_avtale
+             delete from avtale_underleverandor
              where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
         """.trimIndent()
 
@@ -148,7 +147,6 @@ class AvtaleRepository(private val db: Database) {
                     upsertUnderenheter,
                     avtale.id,
                     underenhet,
-                    Virksomhetstype.Underenhet.name,
                 ).asExecute.let { tx.run(it) }
             }
 
@@ -187,7 +185,7 @@ class AvtaleRepository(private val db: Database) {
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
                      left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                      left join avtale_nav_enhet e on e.avtale_id = a.id
-                     left join leverandor_virksomhet_avtale lva on lva.avtale_id = a.id
+                     left join avtale_underleverandor lva on lva.avtale_id = a.id
             where a.id = ?::uuid
             group by a.id, t.tiltakskode, t.navn, aa.navident, nav_enhet.navn
         """.trimIndent()
@@ -277,7 +275,7 @@ class AvtaleRepository(private val db: Database) {
                      left join nav_enhet on a.nav_region = nav_enhet.enhetsnummer
                      left join avtale_ansvarlig aa on a.id = aa.avtale_id
                      left join avtale_nav_enhet ae on ae.avtale_id = a.id
-                     left join leverandor_virksomhet_avtale lva on lva.avtale_id = a.id
+                     left join avtale_underleverandor lva on lva.avtale_id = a.id
             $where
             group by a.id, t.navn, t.tiltakskode, aa.navident, nav_enhet.navn
             order by $order

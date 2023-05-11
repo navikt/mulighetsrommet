@@ -72,7 +72,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
             avtaleFixture.upsertAvtaler(listOf(avtale1))
             avtaleFixture.upsertAvtaler(listOf(avtale1))
-            database.assertThat("leverandor_virksomhet_avtale").row()
+            database.assertThat("avtale_underleverandor").row()
                 .value("organisasjonsnummer").isEqualTo(underenhet)
                 .value("avtale_id").isEqualTo(avtale1.id)
         }

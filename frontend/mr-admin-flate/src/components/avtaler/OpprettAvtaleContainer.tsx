@@ -147,9 +147,7 @@ export function OpprettAvtaleContainer({
     watch,
   } = form;
 
-  const { data: leverandorData } = useVirksomhet(
-    watch("leverandor", "") || avtale?.leverandor.organisasjonsnummer || ""
-  );
+  const { data: leverandorData } = useVirksomhet(watch("leverandor"));
   const underenheterForLeverandor = leverandorData?.underenheter || [];
 
   const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
