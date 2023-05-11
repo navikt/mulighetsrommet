@@ -92,6 +92,9 @@ app:
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
 
+  brreg:
+    baseUrl: https://data.brreg.no/enhetsregisteret/api
+
   slack:
     token: ${SLACK_TOKEN:-}
     channel: "#team-valp-monitoring"

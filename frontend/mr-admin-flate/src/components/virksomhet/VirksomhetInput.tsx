@@ -39,7 +39,7 @@ export function VirksomhetInput({ avtale }: Props) {
       virksomhetDispatcher({ type: "Hent data" });
       try {
         const response =
-          await mulighetsrommetClient.hentVirksomhet.hentVirksomhetMedOrgnr({
+          await mulighetsrommetClient.hentVirksomhet.hentVirksomhet({
             orgnr: orgnr.trim(),
           });
 
