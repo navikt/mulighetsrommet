@@ -3,13 +3,11 @@ package no.nav.mulighetsrommet.api.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
-import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.FylkeResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.metrics.Metrikker
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -154,11 +152,7 @@ class VeilederflateSanityService(
         logger.info("Henter data om fylkeskontor basert på enhetsId: '$enhetsId' - Response: {}", response)
 
         val fylkeResponse = when (response) {
-            is SanityResponse.Result -> response.result?.let {
-                JsonIgnoreUnknownKeys.decodeFromJsonElement<FylkeResponse>(
-                    it,
-                )
-            }
+            is SanityResponse.Result -> response.decode<FylkeResponse>()
 
             else -> null
         }
