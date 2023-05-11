@@ -972,6 +972,10 @@ components:
           type: string
         leverandor:
           $ref: "#/components/schemas/Leverandor"
+        leverandorUnderenheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/Leverandor"
         startDato:
           type: string
           format: date
@@ -1006,6 +1010,7 @@ components:
         - navn
         - avtalenummer
         - leverandor
+        - leverandorUnderenheter
         - startDato
         - sluttDato
         - avtaletype
@@ -1028,6 +1033,10 @@ components:
           type: string
         leverandorOrganisasjonsnummer:
           type: string
+        leverandorUnderenheter:
+          type: array
+          items:
+            type: string
         startDato:
           type: string
           format: date
@@ -1055,6 +1064,7 @@ components:
         - navn
         - avtalenummer
         - leverandorOrganisasjonsnummer
+        - leverandorUnderenheter
         - startDato
         - sluttDato
         - navRegion

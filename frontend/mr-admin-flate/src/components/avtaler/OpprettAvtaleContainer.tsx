@@ -26,7 +26,8 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { Datovelger } from "../skjema/Datovelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useSokVirksomheter } from "../../api/virksomhet/useVirksomhet";
+import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
+import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -53,6 +54,7 @@ const Schema = z.object({
     .min(9, "Du må velge en leverandør")
     .max(9, "Du må velge en leverandør")
     .regex(/^\d+$/, "Leverandør må være et nummer"),
+  leverandorUnderenheter: z.string().array(),
   navRegion: z.string({ required_error: "Du må velge en enhet" }),
   navEnheter: z
     .string()
@@ -94,7 +96,9 @@ export function OpprettAvtaleContainer({
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer
   );
-  const [sokLeverandor, setSokLeverandor] = useState("");
+  const [sokLeverandor, setSokLeverandor] = useState(
+    avtale?.leverandor.organisasjonsnummer || ""
+  );
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
 
@@ -123,6 +127,12 @@ export function OpprettAvtaleContainer({
       avtalenavn: avtale?.navn || "",
       avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
       leverandor: avtale?.leverandor?.organisasjonsnummer || "",
+      leverandorUnderenheter:
+        avtale?.leverandorUnderenheter.length === 0
+          ? []
+          : avtale?.leverandorUnderenheter?.map(
+              (enhet) => enhet.organisasjonsnummer
+            ),
       antallPlasser: avtale?.antallPlasser || 0,
       startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
       sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
@@ -136,6 +146,9 @@ export function OpprettAvtaleContainer({
     formState: { errors },
     watch,
   } = form;
+
+  const { data: leverandorData } = useVirksomhet(watch("leverandor"));
+  const underenheterForLeverandor = leverandorData?.underenheter || [];
 
   const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
     const tiltakstype = tiltakstyper.find((type) => type.id === tiltakstypeId);
@@ -156,6 +169,11 @@ export function OpprettAvtaleContainer({
         : data.navEnheter,
       avtalenummer: avtale?.avtalenummer || "",
       leverandorOrganisasjonsnummer: data.leverandor,
+      leverandorUnderenheter: data.leverandorUnderenheter.includes(
+        "alle_underenheter"
+      )
+        ? []
+        : data.leverandorUnderenheter,
       navn: data.avtalenavn,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
@@ -226,6 +244,19 @@ export function OpprettAvtaleContainer({
       }));
     options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
     return options || [];
+  };
+
+  const underenheterOptions = () => {
+    const options = underenheterForLeverandor.map((enhet) => ({
+      value: enhet.organisasjonsnummer,
+      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+    }));
+
+    options?.unshift({
+      value: "alle_underenheter",
+      label: "Alle underenheter",
+    });
+    return options;
   };
 
   return (
@@ -323,6 +354,13 @@ export function OpprettAvtaleContainer({
               value: enhet.organisasjonsnummer,
               label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
             }))}
+          />
+          <ControlledMultiSelect
+            placeholder="Velg underenhet for tiltaksarrangør"
+            label={"Tiltaksarrangør underenhet"}
+            disabled={!watch("leverandor")}
+            {...register("leverandorUnderenheter")}
+            options={underenheterOptions()}
           />
         </FormGroup>
         <FormGroup>

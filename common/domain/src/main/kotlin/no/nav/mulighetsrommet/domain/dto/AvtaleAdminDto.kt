@@ -14,6 +14,7 @@ data class AvtaleAdminDto(
     val navn: String,
     val avtalenummer: String?,
     val leverandor: Leverandor,
+    val leverandorUnderenheter: List<Leverandor>,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
