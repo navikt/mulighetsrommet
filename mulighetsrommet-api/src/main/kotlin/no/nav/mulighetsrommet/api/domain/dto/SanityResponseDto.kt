@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
 data class SanityTiltaksgjennomforingResponse(
@@ -12,8 +13,6 @@ data class SanityTiltaksgjennomforingResponse(
 @Serializable
 data class Enhet(
     val _ref: String?,
-    val _type: String?,
-    val _key: String?,
 )
 
 @Serializable
@@ -40,7 +39,7 @@ sealed class SanityResponse {
         val result: JsonElement,
     ) : SanityResponse() {
         inline fun <reified T> decode(): T {
-            return Json.decodeFromJsonElement(result)
+            return JsonIgnoreUnknownKeys.decodeFromJsonElement(result)
         }
     }
 
