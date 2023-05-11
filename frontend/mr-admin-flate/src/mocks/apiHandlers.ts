@@ -16,7 +16,7 @@ import {
   UserNotificationSummary,
   Virksomhet,
 } from "mulighetsrommet-api-client";
-import { mockBrregEnheter } from "./fixtures/mock_BrregEnheter";
+import { mockVirksomheter } from "./fixtures/mock_virksomheter";
 import { mockBetabruker } from "./fixtures/mock_ansatt";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
 import { mockAvtaler } from "./fixtures/mock_avtaler";
@@ -266,7 +266,7 @@ export const apiHandlers = [
       return res(
         ctx.status(200),
         ctx.json(
-          mockBrregEnheter.filter((enhet) =>
+          mockVirksomheter.filter((enhet) =>
             enhet.navn?.toLowerCase().includes(req.params.sok.toLowerCase())
           )
         )

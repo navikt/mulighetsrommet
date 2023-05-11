@@ -7,7 +7,7 @@ export function useSokVirksomheter(sokestreng: string) {
   const debouncedSok = useDebounce(sokestreng, 300);
 
   return useQuery(
-    QueryKeys.brregSok(debouncedSok),
+    QueryKeys.virksomhetSok(debouncedSok),
     () =>
       mulighetsrommetClient.virksomhet.sokVirksomhet({
         sok: debouncedSok.trim(),

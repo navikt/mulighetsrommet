@@ -1,6 +1,6 @@
 import { Virksomhet } from "mulighetsrommet-api-client";
 
-export const mockBrregEnheter: Virksomhet[] = [
+export const mockVirksomheter: Virksomhet[] = [
   {
     organisasjonsnummer: "123456789",
     navn: "Testbedrift AS",
