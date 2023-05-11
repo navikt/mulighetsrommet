@@ -10,23 +10,23 @@ import {
 import { Ansatt } from "mulighetsrommet-api-client/build/models/Ansatt";
 import { NavEnhet } from "mulighetsrommet-api-client/build/models/NavEnhet";
 import { Tiltakstype } from "mulighetsrommet-api-client/build/models/Tiltakstype";
-import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { porten } from "mulighetsrommet-frontend-common/constants";
+import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
 import { mulighetsrommetClient } from "../../api/clients";
+import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import {
   capitalize,
   formaterDatoSomYYYYMMDD,
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
-import { Datovelger } from "../skjema/Datovelger";
-import styles from "./OpprettAvtaleContainer.module.scss";
-import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
-import { SokeSelect } from "../skjema/SokeSelect";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { useSokBrregEnheter } from "../../api/brreg/useSokBrregEnheter";
+import { Datovelger } from "../skjema/Datovelger";
+import { SokeSelect } from "../skjema/SokeSelect";
+import styles from "./OpprettAvtaleContainer.module.scss";
+import { useSokVirksomheter } from "../../api/virksomhet/useVirksomhet";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -95,6 +95,8 @@ export function OpprettAvtaleContainer({
     avtale?.navRegion?.enhetsnummer
   );
   const [sokLeverandor, setSokLeverandor] = useState("");
+  const { data: leverandorVirksomheter = [] } =
+    useSokVirksomheter(sokLeverandor);
 
   const clickCancel = () => {
     setFeil(null);
@@ -134,8 +136,6 @@ export function OpprettAvtaleContainer({
     formState: { errors },
     watch,
   } = form;
-
-  const { data = [] } = useSokBrregEnheter(sokLeverandor);
 
   const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
     const tiltakstype = tiltakstyper.find((type) => type.id === tiltakstypeId);
@@ -319,7 +319,7 @@ export function OpprettAvtaleContainer({
             label={"Tiltaksarrangør hovedenhet"}
             {...register("leverandor")}
             onInputChange={(value) => setSokLeverandor(value)}
-            options={data.map((enhet) => ({
+            options={leverandorVirksomheter.map((enhet) => ({
               value: enhet.organisasjonsnummer,
               label: enhet.navn,
             }))}
