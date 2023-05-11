@@ -22,7 +22,6 @@ import {
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { Datovelger } from "../skjema/Datovelger";
-import { VirksomhetInput } from "../virksomhet/VirksomhetInput";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import { SokeSelect } from "../skjema/SokeSelect";

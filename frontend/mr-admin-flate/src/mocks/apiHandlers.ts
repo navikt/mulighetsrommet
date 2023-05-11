@@ -248,13 +248,6 @@ export const apiHandlers = [
       ctx.json({ id: "d1f163b7-1a41-4547-af16-03fd4492b7ba" })
     );
   }),
-
-  rest.get<any, any, Virksomhet>(
-    "*/api/v1/internal/virksomhet/:orgnr",
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockVirksomhet));
-    }
-  ),
   rest.get<any, any, PaginertUserNotifications>(
     "*/api/v1/internal/notifications",
     (req, res, ctx) => {
@@ -269,7 +262,7 @@ export const apiHandlers = [
   ),
 
   // TODO Type opp korrekt returtype
-  rest.get<any, any, any>(
+  rest.get<any, any, Virksomhet[]>(
     "*/api/v1/internal/virksomhet/sok/:sok",
     (req, res, ctx) => {
       return res(
