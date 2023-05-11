@@ -108,13 +108,6 @@ describe("Avtaler", () => {
       cy.getByTestId("registrer-ny-avtale").should("exist").click();
       cy.getByTestId("avtale_modal_header").contains("Registrer ny avtale");
     });
-
-    it("Skal validere organisasjonsnummer for leverandør på avtale", () => {
-      cy.visit("/avtaler");
-      cy.getByTestId("registrer-ny-avtale").should("exist").click();
-      cy.getByTestId("leverandor-input").type("123456789");
-      cy.getByTestId("leverandor-validert-navn").contains("Joblearn As");
-    });
   });
 });
 

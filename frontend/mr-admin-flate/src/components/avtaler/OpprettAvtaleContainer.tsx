@@ -321,7 +321,7 @@ export function OpprettAvtaleContainer({
             onInputChange={(value) => setSokLeverandor(value)}
             options={leverandorVirksomheter.map((enhet) => ({
               value: enhet.organisasjonsnummer,
-              label: enhet.navn,
+              label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
             }))}
           />
         </FormGroup>

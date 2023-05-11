@@ -16,18 +16,17 @@ import {
   UserNotificationSummary,
   Virksomhet,
 } from "mulighetsrommet-api-client";
+import { mockBrregEnheter } from "./fixtures/mock_BrregEnheter";
 import { mockBetabruker } from "./fixtures/mock_ansatt";
-import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockAvtaleNokkeltall } from "./fixtures/mock_avtale_nokkeltall";
+import { mockAvtaler } from "./fixtures/mock_avtaler";
 import { mockEnheter } from "./fixtures/mock_enheter";
+import { mockNotifikasjoner } from "./fixtures/mock_notifikasjoner";
 import { mockTiltaksgjennomforinger } from "./fixtures/mock_tiltaksgjennomforinger";
+import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
 import { mockTiltakstyper } from "./fixtures/mock_tiltakstyper";
 import { mockTiltakstyperNokkeltall } from "./fixtures/mock_tiltakstyper_nokkeltall";
-import { mockTiltaksgjennomforingerNokkeltall } from "./fixtures/mock_tiltaksgjennomforinger_nokkeltall";
-import { mockVirksomhet } from "./fixtures/mock_virksomhet";
-import { mockNotifikasjoner } from "./fixtures/mock_notifikasjoner";
 import { mockUserNotificationSummary } from "./fixtures/mock_userNotificationSummary";
-import { mockBrregEnheter } from "./fixtures/mock_BrregEnheter";
 
 export const apiHandlers = [
   rest.get<any, any, PaginertTiltakstype>(
