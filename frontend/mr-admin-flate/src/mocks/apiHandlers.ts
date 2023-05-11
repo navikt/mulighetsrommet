@@ -260,7 +260,6 @@ export const apiHandlers = [
     }
   ),
 
-  // TODO Type opp korrekt returtype
   rest.get<any, any, Virksomhet[]>(
     "*/api/v1/internal/virksomhet/sok/:sok",
     (req, res, ctx) => {
