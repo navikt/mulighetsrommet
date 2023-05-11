@@ -24,7 +24,7 @@
     "**/fsevents": "^1.2.9"
   },
   "dependencies": {
-    "@navikt/aksel-icons": "^2.9.8",
+    "@navikt/aksel-icons": "^3.1.2",
     "@navikt/ds-css": "^2.9.8",
     "@navikt/ds-react": "^2.8.15",
     "@navikt/navspa": "^6.0.1",
