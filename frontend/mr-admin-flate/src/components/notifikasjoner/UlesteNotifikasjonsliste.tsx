@@ -1,5 +1,5 @@
 import { useFeatureToggles } from "../../api/features/feature-toggles";
-import styles from "./BrukerNotifikasjoner.module.scss";
+import styles from "./Notifikasjonsliste.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { UlestNotifikasjonssrad } from "./UlestNotifikasjonssrad";
 import { Laster } from "../laster/Laster";

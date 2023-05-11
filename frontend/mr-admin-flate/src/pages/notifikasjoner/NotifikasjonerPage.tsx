@@ -19,43 +19,41 @@ export function NotifikasjonerPage() {
 
   return (
     <main className={styles.container}>
-      <ContainerLayout>
-        <Heading className={styles.heading} size={"large"}>
-          Varsler
-        </Heading>
-        <Tabs
-          defaultValue={fane}
-          size="small"
-          selectionFollowsFocus
-          className={styles.fane_root}
-          onChange={(value) => {
-            logEvent("mulighetsrommet.faner", {
-              value: tabValueTilFaneoverskrifter[value],
-            });
-            setFane(value);
-          }}
-        >
-          <Tabs.List className={styles.fane_liste} id="fane_liste">
-            {faneoverskrifter.map((fane, index) => (
-              <Tabs.Tab
-                key={index}
-                value={`tab${index + 1}`}
-                label={fane}
-                className={styles.btn_tab}
-                data-testid={`fane_${kebabCase(fane)}`}
-              />
-            ))}
-          </Tabs.List>
-          <div className={styles.fane_panel}>
-            <Tabs.Panel value="tab1" data-testid="tab1">
-              <UlesteNotifikasjonsliste />
-            </Tabs.Panel>
-            <Tabs.Panel value="tab2" data-testid="tab2">
-              <LesteNotifikasjonsliste />
-            </Tabs.Panel>
-          </div>
-        </Tabs>
-      </ContainerLayout>
+      <Heading className={styles.heading} size={"large"}>
+        Varsler
+      </Heading>
+      <Tabs
+        defaultValue={fane}
+        size="small"
+        selectionFollowsFocus
+        className={styles.fane_root}
+        onChange={(value) => {
+          logEvent("mulighetsrommet.faner", {
+            value: tabValueTilFaneoverskrifter[value],
+          });
+          setFane(value);
+        }}
+      >
+        <Tabs.List className={styles.fane_liste} id="fane_liste">
+          {faneoverskrifter.map((fane, index) => (
+            <Tabs.Tab
+              key={index}
+              value={`tab${index + 1}`}
+              label={fane}
+              className={styles.btn_tab}
+              data-testid={`fane_${kebabCase(fane)}`}
+            />
+          ))}
+        </Tabs.List>
+        <div className={styles.fane_panel}>
+          <Tabs.Panel value="tab1" data-testid="tab1">
+            <UlesteNotifikasjonsliste />
+          </Tabs.Panel>
+          <Tabs.Panel value="tab2" data-testid="tab2">
+            <LesteNotifikasjonsliste />
+          </Tabs.Panel>
+        </div>
+      </Tabs>
     </main>
   );
 }

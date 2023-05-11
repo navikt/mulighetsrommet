@@ -2,7 +2,7 @@ import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "../laster/Laster";
-import styles from "./BrukerNotifikasjoner.module.scss";
+import styles from "./Notifikasjonsliste.module.scss";
 import { EmptyState } from "./EmptyState";
 import { LestNotifikasjonssrad } from "./LestNotifikasjonssrad";
 
