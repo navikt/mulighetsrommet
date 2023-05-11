@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.services
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
-import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -22,39 +21,40 @@ class NavEnheterSyncServiceTest : FunSpec({
     )
     val navEnheterSyncService = NavEnheterSyncService(norg2Client, sanityClient, enheter, slackNotifier)
 
-    test("Synkroniser enheter skal slette enheter som ikke tilfredstiller whitelist") {
-        val norg2Enhet = Norg2EnhetDto(
-            enhetId = Math.random().toInt(),
-            enhetNr = "1000",
-            navn = "Enhet X",
-            status = Norg2EnhetStatus.AKTIV,
-            type = Norg2Type.LOKAL,
-        )
+    fun createEnhet(enhet: String, type: Norg2Type) = Norg2EnhetDto(
+        enhetId = Math.random().toInt(),
+        enhetNr = enhet,
+        navn = "Enhet $enhet",
+        status = Norg2EnhetStatus.AKTIV,
+        type = type,
+    )
 
+    test("skal utlede ALS-, LOKAL- og FYLKE-enheter for synkronisering til sanity") {
         val mockEnheter = listOf(
             Norg2Response(
-                enhet = norg2Enhet.copy(enhetId = 1, type = Norg2Type.AAREG),
+                enhet = createEnhet("1000", Norg2Type.AAREG),
                 overordnetEnhet = "1200",
             ),
             Norg2Response(
-                enhet = norg2Enhet.copy(enhetId = 2),
+                enhet = createEnhet("1001", Norg2Type.LOKAL),
                 overordnetEnhet = "1200",
             ),
             Norg2Response(
-                enhet = norg2Enhet.copy(enhetId = 3),
-                overordnetEnhet = "1400",
+                enhet = createEnhet("1200", Norg2Type.FYLKE),
+                overordnetEnhet = null,
+            ),
+            Norg2Response(
+                enhet = createEnhet("1300", Norg2Type.ALS),
+                overordnetEnhet = null,
             ),
         )
 
-        coEvery {
-            norg2Client.hentEnheter()
-        } returns mockEnheter
+        val tilSanity = navEnheterSyncService.utledEnheterTilSanity(mockEnheter)
 
-        val tilLagring = navEnheterSyncService.synkroniserEnheter()
-        tilLagring.size shouldBe 2
-        tilLagring[0].enhet.enhetId shouldBe 2
-        tilLagring[0].overordnetEnhet shouldBe "1200"
-        tilLagring[1].enhet.enhetId shouldBe 3
-        tilLagring[1].overordnetEnhet shouldBe "1400"
+        tilSanity.size shouldBe 3
+        tilSanity[0]._id shouldBe "enhet.als.1300"
+        tilSanity[1]._id shouldBe "enhet.fylke.1200"
+        tilSanity[2]._id shouldBe "enhet.lokal.1001"
+        tilSanity[2].fylke?._ref shouldBe "enhet.fylke.1200"
     }
 })
