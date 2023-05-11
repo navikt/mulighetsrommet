@@ -12,6 +12,8 @@ data class SanityTiltaksgjennomforingResponse(
 @Serializable
 data class Enhet(
     val _ref: String?,
+    val _type: String?,
+    val _key: String?,
 )
 
 @Serializable
