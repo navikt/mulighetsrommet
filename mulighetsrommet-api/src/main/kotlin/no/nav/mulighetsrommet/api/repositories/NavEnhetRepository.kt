@@ -6,12 +6,12 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
-import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class NavEnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -38,23 +38,28 @@ class NavEnhetRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun getAll(filter: EnhetFilter? = null): List<NavEnhetDbo> {
-        val statuser = filter?.statuser ?: emptyList()
-        logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
+    fun getAll(
+        statuser: List<NavEnhetStatus>? = null,
+        typer: List<Norg2Type>? = null,
+    ): List<NavEnhetDbo> {
+        logger.info("Henter enheter med status: ${statuser?.joinToString(", ")}")
+
         val parameters = mapOf(
-            "statuser" to db.createTextArray(statuser.map { it.name }),
+            "statuser" to statuser?.let { items -> db.createTextArray(items.map { it.name }) },
+            "typer" to typer?.let { items -> db.createTextArray(items.map { it.name }) },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter?.statuser to "e.status = any(:statuser)",
+            statuser to "e.status = any(:statuser)",
+            typer to "e.type = any(:typer)",
         )
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.status, e.type, e.overordnet_enhet
+            select distinct e.navn, e.enhetsnummer, e.status, e.type, e.overordnet_enhet
             from nav_enhet e
             $where
-            order by e.navn asc
+            order by e.navn
         """.trimIndent()
 
         return queryOf(query, parameters)
@@ -63,27 +68,29 @@ class NavEnhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAllEnheterWithAvtale(filter: EnhetFilter): List<NavEnhetDbo> {
-        val statuser = filter.statuser ?: emptyList()
-        logger.info("Henter enheter med status: ${statuser.joinToString(", ")}")
+    fun getAllEnheterWithAvtale(
+        statuser: List<NavEnhetStatus>? = null,
+        tiltakstypeId: UUID? = null,
+    ): List<NavEnhetDbo> {
+        logger.info("Henter enheter med statuser=${statuser?.joinToString(", ")}, tiltakstypeId=$tiltakstypeId")
+
         val parameters = mapOf(
-            "statuser" to db.createTextArray(statuser.map { it.name }),
-            "tiltakstypeId" to filter.tiltakstypeId,
+            "statuser" to statuser?.let { items -> db.createTextArray(items.map { it.name }) },
+            "tiltakstypeId" to tiltakstypeId,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.statuser to "e.status = any(:statuser)",
-            filter.tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid",
+            statuser to "e.status = any(:statuser)",
+            tiltakstypeId to "a.tiltakstype_id = :tiltakstypeId::uuid",
         )
 
         @Language("PostgreSQL")
         val query = """
-            select distinct e.navn,(e.enhetsnummer), e.status, e.type, e.overordnet_enhet
+            select distinct e.navn, e.enhetsnummer, e.status, e.type, e.overordnet_enhet
             from nav_enhet e
-            join avtale a
-            on a.enhet = e.enhetsnummer
+            join avtale a on a.enhet = e.enhetsnummer
             $where
-            order by e.navn asc
+            order by e.navn
         """.trimIndent()
 
         return queryOf(query, parameters)
