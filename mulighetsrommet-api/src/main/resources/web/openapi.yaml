@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/internal/bruker:
@@ -420,7 +420,7 @@ paths:
           description: Sanity query result
           content:
             application/json:
-              schema: { }
+              schema: {}
 
   /api/v1/internal/sanity/innsatsgrupper:
     get:
@@ -700,10 +700,12 @@ paths:
               $ref: "#/components/schemas/NavEnhetStatus"
           description: Hvilke status skal enheten ha
         - in: query
-          name: tiltakstypeId
+          name: typer
           schema:
-            type: string
-          description: ID for tiltakstype knyttet til avtaler
+            type: array
+            items:
+              $ref: "#/components/schemas/Norg2Type"
+          description: Hvilke typer enheter man spør på
       responses:
         200:
           description: Alle enheter filterert på filter

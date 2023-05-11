@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.metrics.Metrikker
-import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
@@ -25,18 +24,10 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter)
+        return enhetRepository.getAll(filter.statuser, filter.typer)
     }
 
-    fun hentEnheterForAvtale(
-        filter: EnhetFilter,
-    ): List<NavEnhetDbo> {
-        return enhetRepository.getAllEnheterWithAvtale(filter)
-    }
-
-    fun hentEnhet(enhet: String): NavEnhetDbo? {
-        return CacheUtils.tryCacheFirstNullable(cache, enhet) {
-            enhetRepository.get(enhet)
-        }
+    fun hentEnheterForAvtale(filter: EnhetFilter): List<NavEnhetDbo> {
+        return enhetRepository.getAllEnheterWithAvtale(filter.statuser, filter.tiltakstypeId)
     }
 }
