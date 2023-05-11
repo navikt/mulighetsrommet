@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.api.services
 
-import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.utils.getOrThrow
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 
 class SanityTiltaksgjennomforingEnheterTilApiService(
@@ -29,11 +27,7 @@ class SanityTiltaksgjennomforingEnheterTilApiService(
     suspend fun oppdaterTiltaksgjennomforingEnheter() {
         val gjennomforinger = when (val response = hentEnheterForTiltaksgjennomforinger()) {
             is SanityResponse.Result -> {
-                if (response.result != null) {
-                    JsonIgnoreUnknownKeys.decodeFromJsonElement<List<SanityTiltaksgjennomforingResponse>>(response.result)
-                } else {
-                    emptyList()
-                }
+                response.decode<List<SanityTiltaksgjennomforingResponse>>()
             }
 
             is SanityResponse.Error -> {
