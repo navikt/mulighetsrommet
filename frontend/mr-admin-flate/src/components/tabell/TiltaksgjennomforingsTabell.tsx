@@ -48,7 +48,7 @@ export const TiltaksgjennomforingsTabell = ({
     );
   }
 
-  if (data?.data.length === 0) {
+  if (tiltaksgjennomforinger.length === 0) {
     return (
       <Alert variant="info">
         Det finnes ingen tiltaksgjennomføringer for avtalen.
