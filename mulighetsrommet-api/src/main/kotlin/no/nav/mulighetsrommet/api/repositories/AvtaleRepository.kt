@@ -177,7 +177,7 @@ class AvtaleRepository(private val db: Database) {
                    nav_enhet.navn as nav_enhet_navn,
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
-                   array_agg(lva.organisasjonsnummer) as leverandorUnderenheter,
+                   array_agg(distinct lva.organisasjonsnummer) as leverandorUnderenheter,
                    array_agg(e.enhetsnummer) as navEnheter,
                    aa.navident
             from avtale a
