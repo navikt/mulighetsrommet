@@ -77,6 +77,7 @@ const SokeSelect = React.forwardRef((props: SelectProps, _) => {
             <ReactSelect
               placeholder={placeholder}
               isDisabled={!!disabled}
+              isClearable
               ref={ref}
               noOptionsMessage={() => "Ingen funnet"}
               name={name}
