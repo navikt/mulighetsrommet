@@ -267,7 +267,7 @@ class AvtaleRepository(private val db: Database) {
                    t.navn as tiltakstype_navn,
                    t.tiltakskode,
                    aa.navident as navident,
-                   array_agg(lva.organisasjonsnummer) as leverandorUnderenheter,
+                   array_agg(distinct lva.organisasjonsnummer) as leverandorUnderenheter,
                    array_agg(ae.enhetsnummer) as navEnheter,
                    count(*) over () as full_count
             from avtale a
