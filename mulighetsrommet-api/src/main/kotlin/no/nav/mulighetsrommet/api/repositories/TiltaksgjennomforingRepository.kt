@@ -184,6 +184,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.arena_ansvarlig_enhet,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
+                   tg.sanity_tiltaksgjennomforing_id,
                    tg.antall_plasser,
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
@@ -199,6 +200,61 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
             .asSingle
+            .let { db.run(it) }
+    }
+
+    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityTiltaksgjennomforingId: String): QueryResult<Unit> = query {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+                set sanity_tiltaksgjennomforing_id = :sanity_tiltaksgjennomforing_id
+                where id = :id::uuid
+                and sanity_tiltaksgjennomforing_id is null
+        """.trimIndent()
+
+        queryOf(
+            query,
+            mapOf(
+                "sanity_tiltaksgjennomforing_id" to sanityTiltaksgjennomforingId,
+                "id" to id,
+            ),
+        )
+            .asUpdate
+            .let { db.run(it) }
+    }
+
+    fun getTiltaksgjennomforingerUtenSanityId(): QueryResult<List<TiltaksgjennomforingAdminDto>> = query {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.tiltakstype_id,
+                   tg.tiltaksnummer,
+                   tg.virksomhetsnummer,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   t.tiltakskode,
+                   t.navn as tiltakstype_navn,
+                   tg.arena_ansvarlig_enhet,
+                   tg.avslutningsstatus,
+                   tg.tilgjengelighet,
+                   tg.sanity_tiltaksgjennomforing_id,
+                   tg.antall_plasser,
+                   tg.avtale_id,
+                   array_agg(a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as navEnheter
+            from tiltaksgjennomforing tg
+                   inner join tiltakstype t on tg.tiltakstype_id = t.id
+                   left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                   left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+            where tg.sanity_tiltaksgjennomforing_id is null
+            group by tg.id, t.id
+            limit 100
+        """.trimIndent()
+
+        queryOf(query)
+            .map { it.toTiltaksgjennomforingAdminDto() }
+            .asList
             .let { db.run(it) }
     }
 
@@ -255,8 +311,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.start_dato,
                    tg.slutt_dato,
                    t.tiltakskode,
-                   t.navn           as tiltakstype_navn,
+                   t.navn as tiltakstype_navn,
                    tg.arena_ansvarlig_enhet,
+                   tg.sanity_tiltaksgjennomforing_id,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
                    tg.antall_plasser,
@@ -449,6 +506,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlige = ansvarlige,
             navEnheter = navEnheter,
+            sanityTiltaksgjennomforingId = stringOrNull("sanity_tiltaksgjennomforing_id"),
         )
     }
 

@@ -122,6 +122,7 @@ class ArenaAdapterServiceTest : FunSpec({
             antallPlasser = null,
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
+            sanityTiltaksgjennomforingId = null,
         )
     }
 
