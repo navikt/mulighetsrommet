@@ -37,6 +37,21 @@ fun Route.externalRoutes() {
                 }
         }
 
+        get("tiltaksgjennomforinger/orgnr/{orgnr}") {
+            val orgnr = call.parameters["orgnr"] ?: return@get call.respondText(
+                "Mangler eller ugyldig orgnr",
+                status = HttpStatusCode.BadRequest,
+            )
+            tiltaksgjennomforingService.getAllByOrgnr(orgnr)
+                .onRight {
+                    call.respond(it)
+                }
+                .onLeft { error ->
+                    log.error("$error")
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføringer for organisasjonsnummer : '$orgnr'")
+                }
+        }
+
         get("tiltaksgjennomforinger/id/{arenaId}") {
             val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
                 "Mangler eller ugyldig arenaId",

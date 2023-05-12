@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
@@ -481,5 +482,63 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun getAllByOrgnr(orgnr: String): QueryResult<List<TiltaksgjennomforingDto>> = query {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.tiltakstype_id,
+                   tg.tiltaksnummer,
+                   tg.virksomhetsnummer,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   t.tiltakskode,
+                   t.navn as tiltakstype_navn,
+                   tg.arena_ansvarlig_enhet,
+                   tg.avslutningsstatus,
+                   tg.tilgjengelighet,
+                   tg.antall_plasser,
+                   tg.avtale_id,
+                   array_agg(a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as navEnheter
+            from tiltaksgjennomforing tg
+                     inner join tiltakstype t on t.id = tg.tiltakstype_id
+                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+            where tg.virksomhetsnummer = ?
+            group by tg.id, t.id
+        """.trimIndent()
+
+        queryOf(query, orgnr)
+            .map { it.toTiltaksgjennomforingDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
+        val startDato = localDate("start_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
+        return TiltaksgjennomforingDto(
+            id = uuid("id"),
+            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
+                id = uuid("tiltakstype_id"),
+                navn = string("tiltakstype_navn"),
+                arenaKode = string("tiltakskode"),
+            ),
+            navn = string("navn"),
+            virksomhetsnummer = string("virksomhetsnummer"),
+            startDato = startDato,
+            sluttDato = sluttDato,
+            status = Tiltaksgjennomforingsstatus.fromDbo(
+                LocalDate.now(),
+                startDato,
+                sluttDato,
+                Avslutningsstatus.valueOf(string("avslutningsstatus")),
+            ),
+
+        )
     }
 }

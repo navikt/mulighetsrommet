@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -19,6 +20,10 @@ class TiltaksgjennomforingService(
     suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
             .map { it?.hentVirksomhetsnavnForTiltaksgjennomforing() }
+
+    fun getAllByOrgnr(orgnr: String): QueryResult<List<TiltaksgjennomforingDto>> {
+        return tiltaksgjennomforingRepository.getAllByOrgnr(orgnr)
+    }
 
     suspend fun getAll(
         paginationParams: PaginationParams,
