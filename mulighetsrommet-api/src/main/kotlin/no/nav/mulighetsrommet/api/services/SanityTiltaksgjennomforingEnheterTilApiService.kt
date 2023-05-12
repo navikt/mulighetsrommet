@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.api.services
 
-import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.utils.getOrThrow
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 
 class SanityTiltaksgjennomforingEnheterTilApiService(
@@ -19,7 +17,7 @@ class SanityTiltaksgjennomforingEnheterTilApiService(
         val query = """ *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))] """.trimIndent()
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                JsonIgnoreUnknownKeys.decodeFromJsonElement(response.result)
+                response.decode()
             }
 
             is SanityResponse.Error -> {

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -40,12 +41,9 @@ data class AdminTiltaksgjennomforingFilter(
 )
 
 data class EnhetFilter(
-    val statuser: List<NavEnhetStatus>? = listOf(
-        NavEnhetStatus.AKTIV,
-        NavEnhetStatus.UNDER_AVVIKLING,
-        NavEnhetStatus.UNDER_ETABLERING,
-    ),
-    val tiltakstypeId: String? = null,
+    val statuser: List<NavEnhetStatus>? = null,
+    val tiltakstypeId: UUID? = null,
+    val typer: List<Norg2Type>? = null,
 )
 
 data class TiltaksgjennomforingFilter(
@@ -125,9 +123,30 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
-    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]
-    val statuser = call.parameters.getAll("statuser")?.map { NavEnhetStatus.valueOf(it) }
-    return EnhetFilter(tiltakstypeId = tiltakstypeId, statuser = statuser)
+    val tiltakstypeId = call.request.queryParameters["tiltakstypeId"]?.toUUID()
+
+    val statuser = call.parameters.getAll("statuser")
+        ?.map { NavEnhetStatus.valueOf(it) }
+        ?: listOf(
+            NavEnhetStatus.AKTIV,
+            NavEnhetStatus.UNDER_AVVIKLING,
+            NavEnhetStatus.UNDER_ETABLERING,
+        )
+
+    val typer = call.parameters.getAll("typer")
+        ?.map { Norg2Type.valueOf(it) }
+        ?: listOf(
+            Norg2Type.FYLKE,
+            Norg2Type.LOKAL,
+            Norg2Type.ALS,
+            Norg2Type.TILTAK,
+        )
+
+    return EnhetFilter(
+        tiltakstypeId = tiltakstypeId,
+        statuser = statuser,
+        typer = typer,
+    )
 }
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltaksgjennomforingsFilter(): TiltaksgjennomforingFilter {

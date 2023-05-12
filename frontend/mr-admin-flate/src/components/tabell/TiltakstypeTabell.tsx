@@ -22,11 +22,11 @@ export const TiltakstypeTabell = () => {
   const pagination = data?.pagination;
   const tiltakstyper = data?.data ?? [];
 
-  if (!tiltakstyper && isLoading) {
+  if ((!tiltakstyper || tiltakstyper.length === 0) && isLoading) {
     return <Laster size="xlarge" tekst="Laster tiltakstyper..." />;
   }
 
-  if (!tiltakstyper) {
+  if (tiltakstyper.length === 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
   }
 

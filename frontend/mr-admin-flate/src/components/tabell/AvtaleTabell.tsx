@@ -40,14 +40,14 @@ export const AvtaleTabell = () => {
     return <Laster size="xlarge" tekst="Laster avtaler..." />;
   }
 
+  if (avtaler.length === 0) {
+    return <Alert variant="info">Fant ingen avtaler</Alert>;
+  }
+
   if (isError) {
     return (
       <Alert variant="error">Vi hadde problemer med henting av avtaler</Alert>
     );
-  }
-
-  if (avtaler.length === 0) {
-    return <Alert variant="info">Fant ingen avtaler</Alert>;
   }
 
   return (

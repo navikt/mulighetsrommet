@@ -21,24 +21,20 @@ class NavEnheterSyncService(
     private val fylkerOgEnheterTyper = listOf(Norg2Type.FYLKE, Norg2Type.TILTAK, Norg2Type.LOKAL)
     private val spesialEnheterTyper = listOf(Norg2Type.ALS)
 
-    suspend fun synkroniserEnheter(): List<Norg2Response> {
-        val enheterFraNorg = norg2Client.hentEnheter()
-        val (tilLagring, tilSletting) = enheterFraNorg.partition { erFylkeEllerUnderenhet(it) }
-        val spesialEnheter =
-            enheterFraNorg.filter { erSpesialenhet(it) }
-        logger.info("Hentet ${enheterFraNorg.size} enheter fra NORG2. Sletter potensielt ${tilSletting.size} enheter som ikke har en whitelistet type ($fylkerOgEnheterTyper). Lagrer ${tilLagring.size} enheter fra NORG2 med type = $fylkerOgEnheterTyper")
+    suspend fun synkroniserEnheter() {
+        val enheter = norg2Client.hentEnheter()
 
-        val spesialEnheterToSanity = spesialEnheterToSanityEnheter(spesialEnheter)
-        val fylkerOgEnheterToSanity = fylkeOgUnderenheterToSanity(tilLagring)
+        logger.info("Hentet ${enheter.size} enheter fra NORG2")
 
-        slettEnheterSomIkkeHarWhitelistetType(tilSletting.map { it.enhet.enhetNr })
-        lagreEnheter(tilLagring + spesialEnheter)
-        lagreEnheterTilSanity(spesialEnheterToSanity + fylkerOgEnheterToSanity)
+        lagreEnheter(enheter)
 
-        return tilLagring
+        val enheterToSanity = utledEnheterTilSanity(enheter)
+        lagreEnheterTilSanity(enheterToSanity)
     }
 
     private fun lagreEnheter(enheter: List<Norg2Response>) {
+        logger.info("Lagrer ${enheter.size} enheter til database")
+
         enheter.forEach {
             enhetRepository.upsert(
                 NavEnhetDbo(
@@ -50,6 +46,12 @@ class NavEnheterSyncService(
                 ),
             )
         }
+    }
+
+    fun utledEnheterTilSanity(enheter: List<Norg2Response>): List<SanityEnhet> {
+        val spesialEnheterToSanity = spesialEnheterToSanityEnheter(enheter)
+        val fylkerOgEnheterToSanity = fylkeOgUnderenheterToSanity(enheter)
+        return spesialEnheterToSanity + fylkerOgEnheterToSanity
     }
 
     suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
@@ -67,15 +69,21 @@ class NavEnheterSyncService(
     }
 
     fun spesialEnheterToSanityEnheter(enheter: List<Norg2Response>): List<SanityEnhet> {
-        return enheter.filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) }.map { toSanityEnhet(it.enhet) }
+        return enheter
+            .filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) && erSpesialenhet(it) }
+            .map { toSanityEnhet(it.enhet) }
     }
 
-    fun fylkeOgUnderenheterToSanity(fylkerOgEnheter: List<Norg2Response>): List<SanityEnhet> {
-        val fylker =
-            fylkerOgEnheter.filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) && it.enhet.type == Norg2Type.FYLKE }
+    fun fylkeOgUnderenheterToSanity(enheter: List<Norg2Response>): List<SanityEnhet> {
+        val relevanteEnheter = enheter
+            .filter { erFylkeEllerUnderenhet(it) }
+
+        val fylker = relevanteEnheter
+            .filter { NavEnhetUtils.relevanteStatuser(it.enhet.status) && it.enhet.type == Norg2Type.FYLKE }
 
         return fylker.flatMap { fylke ->
-            val underliggendeEnheter = fylkerOgEnheter.filter { NavEnhetUtils.isUnderliggendeEnhet(fylke.enhet, it) }
+            val underliggendeEnheter = relevanteEnheter
+                .filter { NavEnhetUtils.isUnderliggendeEnhet(fylke.enhet, it) }
                 .map { toSanityEnhet(it.enhet, fylke.enhet) }
             listOf(toSanityEnhet(fylke.enhet)) + underliggendeEnheter
         }
@@ -137,10 +145,6 @@ class NavEnheterSyncService(
             return null
         }
         return fantFylke
-    }
-
-    private fun slettEnheterSomIkkeHarWhitelistetType(ider: List<String>) {
-        enhetRepository.deleteWhereEnhetsnummer(ider)
     }
 
     private fun erSpesialenhet(enhet: Norg2Response): Boolean {

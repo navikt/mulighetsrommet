@@ -22,6 +22,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
@@ -38,6 +39,11 @@ const Schema = z.object({
     .string()
     .array()
     .nonempty({ message: "Du må velge minst én enhet" }),
+  tiltaksArrangorUnderenhetOrganisasjonsnummer: z
+    .string({
+      required_error: "Du må velge en underenhet for tiltaksarrangør",
+    })
+    .min(1, "Du må velge en underenhet for tiltaksarrangør"),
   ansvarlig: z.string({ required_error: "Du må velge en ansvarlig" }),
 });
 
@@ -53,39 +59,42 @@ interface OpprettTiltaksgjennomforingContainerProps {
 
 const tekniskFeilError = () => (
   <>
-    Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil
-    hos oss. Forsøk på nytt eller ta <a href={porten}>kontakt</a> i
-    Porten dersom du trenger mer hjelp.
+    Gjennomføringen kunne ikke opprettes på grunn av en teknisk feil hos oss.
+    Forsøk på nytt eller ta <a href={porten}>kontakt</a> i Porten dersom du
+    trenger mer hjelp.
   </>
-)
+);
 
 const avtaleManglerNavRegionError = () => (
   <>
-    Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for
-    å kunne opprette en gjennomføring. Ta <a href={porten}>kontakt</a> i
-    Porten dersom du trenger mer hjelp.
+    Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for å kunne
+    opprette en gjennomføring. Ta <a href={porten}>kontakt</a> i Porten dersom
+    du trenger mer hjelp.
   </>
-)
+);
 
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
 ) => {
+  const { avtale, tiltaksgjennomforing, setError, onAvbryt } = props;
   const form = useForm<inferredSchema>({
     resolver: zodResolver(Schema),
     defaultValues: {
-      tittel: props.tiltaksgjennomforing?.navn,
+      tittel: tiltaksgjennomforing?.navn,
       navEnheter:
-        props.tiltaksgjennomforing?.navEnheter.length === 0
+        tiltaksgjennomforing?.navEnheter.length === 0
           ? ["alle_enheter"]
-          : props.tiltaksgjennomforing?.navEnheter,
-      ansvarlig: props.tiltaksgjennomforing?.ansvarlig,
-      antallPlasser: props.tiltaksgjennomforing?.antallPlasser,
-      startDato: props.tiltaksgjennomforing?.startDato
-        ? new Date(props.tiltaksgjennomforing.startDato)
+          : tiltaksgjennomforing?.navEnheter,
+      ansvarlig: tiltaksgjennomforing?.ansvarlig,
+      antallPlasser: tiltaksgjennomforing?.antallPlasser,
+      startDato: tiltaksgjennomforing?.startDato
+        ? new Date(tiltaksgjennomforing.startDato)
         : undefined,
-      sluttDato: props.tiltaksgjennomforing?.sluttDato
-        ? new Date(props.tiltaksgjennomforing.sluttDato)
+      sluttDato: tiltaksgjennomforing?.sluttDato
+        ? new Date(tiltaksgjennomforing.sluttDato)
         : undefined,
+      tiltaksArrangorUnderenhetOrganisasjonsnummer:
+        tiltaksgjennomforing?.virksomhetsnummer || "",
     },
   });
   const {
@@ -110,29 +119,38 @@ export const OpprettTiltaksgjennomforingContainer = (
     isError: isErrorAnsatt,
   } = useHentAnsatt();
 
+  const { data: virksomhet } = useVirksomhet(
+    avtale.leverandor.organisasjonsnummer
+  );
+
   useEffect(() => {
     if (ansatt && !isLoadingAnsatt) {
       setValue("ansvarlig", ansatt.ident!!);
     }
   }, [ansatt, isLoadingAnsatt, setValue]);
 
-  const redigeringsModus = !!props.tiltaksgjennomforing;
+  const redigeringsModus = !!tiltaksgjennomforing;
 
   const postData: SubmitHandler<inferredSchema> = async (
     data
   ): Promise<void> => {
     const body: TiltaksgjennomforingRequest = {
-      id: props.tiltaksgjennomforing ? props.tiltaksgjennomforing.id : uuidv4(),
+      id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
-      tiltakstypeId: props.avtale.tiltakstype.id,
-      navEnheter: data.navEnheter.includes("alle_enheter") ? [] : data.navEnheter,
+      tiltakstypeId: avtale.tiltakstype.id,
+      navEnheter: data.navEnheter.includes("alle_enheter")
+        ? []
+        : data.navEnheter,
       navn: data.tittel,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
-      avtaleId: props.avtale.id,
+      avtaleId: avtale.id,
       ansvarlig: data.ansvarlig,
-      virksomhetsnummer: props.avtale.leverandor.organisasjonsnummer,
-      tiltaksnummer: props.tiltaksgjennomforing?.tiltaksnummer,
+      virksomhetsnummer:
+        data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
+        tiltaksgjennomforing?.virksomhetsnummer ||
+        "",
+      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
     };
 
     try {
@@ -144,7 +162,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         );
       navigerTilTiltaksgjennomforing(response.id);
     } catch {
-      props.setError(tekniskFeilError());
+      setError(tekniskFeilError());
     }
   };
 
@@ -157,25 +175,51 @@ export const OpprettTiltaksgjennomforingContainer = (
   if (!enheter) {
     return <Laster />;
   }
-  if (!props.avtale.navRegion) {
-    props.setError(avtaleManglerNavRegionError());
+  if (!avtale.navRegion) {
+    setError(avtaleManglerNavRegionError());
   }
 
   if (isErrorAnsatt || isErrorEnheter) {
-    props.setError(tekniskFeilError());
+    setError(tekniskFeilError());
   }
 
   const enheterOptions = () => {
     const options = enheter
-      .filter((enhet: NavEnhet) => props.avtale.navRegion?.enhetsnummer === enhet.overordnetEnhet)
-      .filter((enhet: NavEnhet) => props.avtale.navEnheter.length === 0 || props.avtale.navEnheter.includes(enhet.enhetsnummer))
+      .filter(
+        (enhet: NavEnhet) =>
+          avtale.navRegion?.enhetsnummer === enhet.overordnetEnhet
+      )
+      .filter(
+        (enhet: NavEnhet) =>
+          avtale.navEnheter.length === 0 ||
+          avtale.navEnheter.includes(enhet.enhetsnummer)
+      )
       .map((enhet) => ({
         label: enhet.navn,
-        value: enhet.enhetsnummer
-      }))
+        value: enhet.enhetsnummer,
+      }));
 
     options?.unshift({ value: "alle_enheter", label: "Alle enheter" });
     return options || [];
+  };
+
+  const arrangorUnderenheterOptions = () => {
+    const options = avtale.leverandorUnderenheter.map((lev) => {
+      return {
+        label: `${lev.navn} - ${lev.organisasjonsnummer}`,
+        value: lev.organisasjonsnummer,
+      };
+    });
+
+    // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
+    if (options.length === 0) {
+      const enheter = virksomhet?.underenheter || [];
+      return enheter.map((enhet) => ({
+        value: enhet.organisasjonsnummer,
+        label: `${enhet?.navn} - ${enhet?.organisasjonsnummer}`,
+      }));
+    }
+    return options;
   };
 
   return (
@@ -193,7 +237,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly
             style={{ backgroundColor: "#F1F1F1" }}
             label={"Avtale"}
-            value={props.avtale.navn || ""}
+            value={avtale.navn || ""}
           />
         </FormGroup>
         <FormGroup>
@@ -222,13 +266,29 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly
             style={{ backgroundColor: "#F1F1F1" }}
             label={"NAV region"}
-            value={props.avtale.navRegion?.navn || ""}
+            value={avtale.navRegion?.navn || ""}
           />
           <ControlledMultiSelect
             placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
             label={"NAV enhet (kontorer)"}
             {...register("navEnheter")}
             options={enheterOptions()}
+          />
+        </FormGroup>
+        <FormGroup>
+          <TextField
+            label="Tiltaksarrangør hovedenhet"
+            placeholder=""
+            defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
+            style={{ backgroundColor: "#F1F1F1" }}
+            readOnly
+          />
+          <SokeSelect
+            label="Tiltaksarrangør underenhet"
+            placeholder="Velg underenhet for tiltaksarrangør"
+            {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
+            disabled={!avtale.leverandor.organisasjonsnummer}
+            options={arrangorUnderenheterOptions()}
           />
         </FormGroup>
         <FormGroup>
@@ -253,7 +313,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         <div className={styles.button_row}>
           <Button
             className={styles.button}
-            onClick={props.onAvbryt}
+            onClick={onAvbryt}
             variant="tertiary"
             type="button"
           >

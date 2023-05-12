@@ -24,7 +24,11 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "864965962",
         navn: "ÅMLI KOMMUNE",
       },
-
+      leverandorUnderenheter: [
+        { organisasjonsnummer: "456798321", navn: "Underenhet 1" },
+        { organisasjonsnummer: "456798322", navn: "Underenhet 2" },
+        { organisasjonsnummer: "456798323", navn: "Underenhet 3" },
+      ],
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",
       navEnheter: [],
@@ -51,7 +55,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "911830868",
         navn: "KRIMINALOMSORGSDIREKTORATET",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2020-07-01",
       sluttDato: "2024-06-30",
       navEnheter: [],
@@ -76,7 +80,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "983887457",
         navn: "ARBEIDS- OG INKLUDERINGSDEPARTEMENTET",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2020-07-01",
       sluttDato: "2023-06-30",
       navEnheter: [],
@@ -102,7 +106,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "911830868",
         navn: "KRIMINALOMSORGSDIREKTORATET",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2020-07-01",
       sluttDato: "2024-06-30",
       navEnheter: [],
@@ -127,7 +131,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "911615649",
         navn: "ASKØY KOMMUNE BARNEHAGE",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2021-11-01",
       sluttDato: "2023-10-31",
       navEnheter: [],
@@ -152,7 +156,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "964338442",
         navn: "ASKØY KOMMUNE",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2021-11-01",
       sluttDato: "2024-06-30",
       navEnheter: [],
@@ -177,7 +181,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "974760983",
         navn: "DIREKTORATET FOR SAMFUNNSSIKKERHET OG BEREDSKAP (DSB)",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2019-08-20",
       sluttDato: "2023-08-19",
       navEnheter: [],
@@ -202,7 +206,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "995448394",
         navn: "BÆRUM KOMMUNE MILJØTEKNISK",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2022-01-01",
       sluttDato: "2025-05-09",
       navEnheter: [],
@@ -227,10 +231,10 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "918781390",
         navn: "KRISTIANSAND KOMMUNE SAMHANDLING OG INNOVASJON",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2021-10-01",
       sluttDato: "2024-12-31",
-      navEnheter: ['alle_enheter'],
+      navEnheter: ["alle_enheter"],
       navRegion: {
         enhetsnummer: "1087",
         navn: "NAV Våler",
@@ -252,9 +256,10 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "976821580",
         navn: "BERGEN KOMMUNE BYRÅDSAVDELING FOR KLIMA, MILJØ OG BYUTVIKLING",
       },
+      leverandorUnderenheter: [],
       startDato: "2020-07-01",
       sluttDato: "2023-06-30",
-      navEnheter: ['alle_enheter'],
+      navEnheter: ["alle_enheter"],
       navRegion: {
         enhetsnummer: "1287",
         navn: "NAV Våler",
@@ -276,7 +281,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "870534612",
         navn: "OSLO KOMMUNE BYDEL 2 GRUNERLØKKA",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2019-07-01",
       sluttDato: "2023-06-30",
       navEnheter: [],
@@ -301,7 +306,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "984054408",
         navn: "DRAMMENSREGIONENS BRANNVESEN IKS",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2020-10-01",
       sluttDato: "2023-09-30",
       navEnheter: [],
@@ -326,7 +331,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "964969590",
         navn: "HÅ KOMMUNE",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2021-09-21",
       sluttDato: "2024-09-20",
       navEnheter: [],
@@ -351,7 +356,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "974761076",
         navn: "SKATTEETATEN",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2022-01-01",
       sluttDato: "2024-12-31",
       navEnheter: [],
@@ -376,7 +381,7 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "974761076",
         navn: "SKATTEETATEN",
       },
-
+      leverandorUnderenheter: [],
       startDato: "2022-01-01",
       sluttDato: "2024-12-31",
       navEnheter: [],

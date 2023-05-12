@@ -24,6 +24,7 @@ class AvtaleService(
     suspend fun get(id: UUID): QueryResult<AvtaleAdminDto?> {
         return avtaler.get(id)
             .map { it?.hentVirksomhetsnavnForAvtale() }
+            .map { it?.hentNavnForUnderenheterTilLeverandor() }
     }
 
     suspend fun upsert(avtale: AvtaleRequest): QueryResult<AvtaleAdminDto> {
@@ -52,6 +53,7 @@ class AvtaleService(
 
         val avtalerMedLeverandorNavn = items
             .map { it.hentVirksomhetsnavnForAvtale() }
+            .map { it.hentNavnForUnderenheterTilLeverandor() }
 
         return PaginatedResponse(
             data = avtalerMedLeverandorNavn,
@@ -66,6 +68,17 @@ class AvtaleService(
     private suspend fun AvtaleAdminDto.hentVirksomhetsnavnForAvtale(): AvtaleAdminDto {
         val virksomhet = arrangorService.hentVirksomhet(this.leverandor.organisasjonsnummer)
         return this.copy(leverandor = this.leverandor.copy(navn = virksomhet?.navn))
+    }
+
+    private suspend fun AvtaleAdminDto.hentNavnForUnderenheterTilLeverandor(): AvtaleAdminDto {
+        val underenheterMedNavn = this.leverandorUnderenheter.map {
+            val virksomhet = arrangorService.hentVirksomhet(it.organisasjonsnummer)
+            AvtaleAdminDto.Leverandor(
+                organisasjonsnummer = it.organisasjonsnummer,
+                navn = virksomhet?.navn,
+            )
+        }
+        return this.copy(leverandorUnderenheter = underenheterMedNavn)
     }
 
     fun getNokkeltallForAvtaleMedId(id: UUID): AvtaleNokkeltallDto {

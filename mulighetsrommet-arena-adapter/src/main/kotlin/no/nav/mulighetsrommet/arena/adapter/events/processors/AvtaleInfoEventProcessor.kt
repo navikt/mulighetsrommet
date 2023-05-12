@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.*
+import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -122,6 +125,7 @@ class AvtaleInfoEventProcessor(
             tiltakstypeId = tiltakstypeMapping.entityId,
             avtalenummer = "${avtale.aar}#${avtale.lopenr}",
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            leverandorUnderenheter = emptyList(),
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = avtale.ansvarligEnhet,

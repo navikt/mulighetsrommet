@@ -64,6 +64,20 @@ class AvtaleRepositoryTest : FunSpec({
         }
     }
 
+    context("Underenheter for leverandør til avtalen") {
+        test("Underenheter blir populert i korrekt tabell") {
+            val underenhet = "123456789"
+            val avtale1 = avtaleFixture.createAvtaleForTiltakstype(
+                leverandorUnderenheter = listOf(underenhet),
+            )
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+            avtaleFixture.upsertAvtaler(listOf(avtale1))
+            database.assertThat("avtale_underleverandor").row()
+                .value("organisasjonsnummer").isEqualTo(underenhet)
+                .value("avtale_id").isEqualTo(avtale1.id)
+        }
+    }
+
     context("Filter for avtaler") {
 
         val defaultFilter = AvtaleFilter(

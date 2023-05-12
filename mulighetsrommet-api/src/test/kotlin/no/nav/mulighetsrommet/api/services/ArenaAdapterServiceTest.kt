@@ -45,6 +45,7 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltakstypeId = tiltakstype.id,
         avtalenummer = "2023#1000",
         leverandorOrganisasjonsnummer = "123456789",
+        leverandorUnderenheter = emptyList(),
         startDato = LocalDate.of(2022, 11, 11),
         sluttDato = LocalDate.of(2023, 11, 11),
         arenaAnsvarligEnhet = "2990",

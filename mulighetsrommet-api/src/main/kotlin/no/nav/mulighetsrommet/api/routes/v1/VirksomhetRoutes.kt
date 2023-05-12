@@ -6,12 +6,10 @@ import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.clients.brreg.OrgnummerUtil
-import no.nav.mulighetsrommet.api.clients.enhetsregister.AmtEnhetsregisterClient
 import no.nav.mulighetsrommet.api.services.BrregService
 import org.koin.ktor.ext.inject
 
 fun Route.virksomhetRoutes() {
-    val amtEnhetsregisterClientImpl: AmtEnhetsregisterClient by inject()
     val brregService: BrregService by inject()
 
     route("api/v1/internal/virksomhet") {
