@@ -24,7 +24,11 @@ export const mockAvtaler: PaginertAvtale = {
         organisasjonsnummer: "864965962",
         navn: "ÅMLI KOMMUNE",
       },
-      leverandorUnderenheter: [],
+      leverandorUnderenheter: [
+        { organisasjonsnummer: "456798321", navn: "Underenhet 1" },
+        { organisasjonsnummer: "456798322", navn: "Underenhet 2" },
+        { organisasjonsnummer: "456798323", navn: "Underenhet 3" },
+      ],
       startDato: "2021-08-02",
       sluttDato: "2026-08-01",
       navEnheter: [],
