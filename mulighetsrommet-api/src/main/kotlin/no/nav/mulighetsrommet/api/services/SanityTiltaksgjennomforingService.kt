@@ -24,7 +24,7 @@ class SanityTiltaksgjennomforingService(
             .sumOf { opprettSanityTiltaksgjennomforing(it, dryRun) }
         log.info(
             "Lagde $opprettet Sanity dokumenter for ${gjennomforingerSomMangler.size}" +
-            " tiltaksgjennomforinger som manglet sanity_id",
+                " tiltaksgjennomforinger som manglet sanity_id",
         )
     }
 
@@ -60,7 +60,7 @@ class SanityTiltaksgjennomforingService(
         )
         val response = sanityClient.mutate(
             Mutations(mutations = listOf(Mutation(createIfNotExists = sanityTiltaksgjennomforing))),
-            dryRun = dryRun
+            dryRun = dryRun,
         )
 
         if (response.status.value != HttpStatusCode.OK.value) {

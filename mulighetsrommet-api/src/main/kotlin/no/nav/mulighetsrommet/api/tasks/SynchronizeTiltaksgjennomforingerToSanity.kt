@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.tasks
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.SanityTiltaksgjennomforingService
 import no.nav.mulighetsrommet.slack.SlackNotifier

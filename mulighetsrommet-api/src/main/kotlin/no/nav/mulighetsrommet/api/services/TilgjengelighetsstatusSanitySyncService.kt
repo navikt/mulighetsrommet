@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 
 @Serializable
 data class Tiltaksgjennomforing(
