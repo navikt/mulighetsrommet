@@ -22,6 +22,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
@@ -118,6 +119,10 @@ export const OpprettTiltaksgjennomforingContainer = (
     isError: isErrorAnsatt,
   } = useHentAnsatt();
 
+  const { data: virksomhet } = useVirksomhet(
+    avtale.leverandor.organisasjonsnummer
+  );
+
   useEffect(() => {
     if (ansatt && !isLoadingAnsatt) {
       setValue("ansvarlig", ansatt.ident!!);
@@ -198,6 +203,25 @@ export const OpprettTiltaksgjennomforingContainer = (
     return options || [];
   };
 
+  const arrangorUnderenheterOptions = () => {
+    const options = avtale.leverandorUnderenheter.map((lev) => {
+      return {
+        label: `${lev.navn} - ${lev.organisasjonsnummer}`,
+        value: lev.organisasjonsnummer,
+      };
+    });
+
+    // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
+    if (options.length === 0) {
+      const enheter = virksomhet?.underenheter || [];
+      return enheter.map((enhet) => ({
+        value: enhet.organisasjonsnummer,
+        label: `${enhet?.navn} - ${enhet?.organisasjonsnummer}`,
+      }));
+    }
+    return options;
+  };
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -264,12 +288,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
             disabled={!avtale.leverandor.organisasjonsnummer}
-            options={avtale.leverandorUnderenheter.map((lev) => {
-              return {
-                label: `${lev.navn} - ${lev.organisasjonsnummer}`,
-                value: lev.organisasjonsnummer,
-              };
-            })}
+            options={arrangorUnderenheterOptions()}
           />
         </FormGroup>
         <FormGroup>

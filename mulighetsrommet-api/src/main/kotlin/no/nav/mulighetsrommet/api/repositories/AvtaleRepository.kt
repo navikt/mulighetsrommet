@@ -323,7 +323,7 @@ class AvtaleRepository(private val db: Database) {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
         val underenheter = sqlArrayOrNull("leverandorUnderenheter")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
+            (it.array as Array<String?>).filterNotNull()
                 .map { AvtaleAdminDto.Leverandor(organisasjonsnummer = it) }
         } ?: emptyList()
 
