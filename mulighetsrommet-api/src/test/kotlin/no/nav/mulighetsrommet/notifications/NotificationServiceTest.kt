@@ -4,12 +4,15 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.timing.eventually
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.should
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
@@ -19,9 +22,9 @@ class NotificationServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("NotificationService") {
-        val slack: SlackNotifier = mockk()
         val notifications = NotificationRepository(database.db)
-        val service = NotificationService(database.db, slack, notifications)
+
+        val service = NotificationService(database.db, mockk(), notifications)
 
         beforeEach {
             val scheduler = Scheduler
@@ -32,23 +35,40 @@ class NotificationServiceTest : FunSpec({
             scheduler.start()
         }
 
-        test("scheduled notification should eventually be created") {
-            val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+        val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)
 
-            val commonNotification = Notification(
-                id = UUID.randomUUID(),
-                type = NotificationType.Notification,
-                title = "Notifikasjon for alle brukere",
-                user = null,
-                createdAt = now,
+        val notification = ScheduledNotification(
+            id = UUID.randomUUID(),
+            type = NotificationType.Notification,
+            title = "Notifikasjon for alle brukere",
+            createdAt = now,
+            targets = listOf("ABC", "XYZ"),
+        )
+
+        fun ScheduledNotification.asUserNotification(user: String): UserNotification = run {
+            UserNotification(
+                id = id,
+                type = type,
+                title = title,
+                description = description,
+                user = user,
+                createdAt = LocalDateTime.ofInstant(createdAt, ZoneOffset.systemDefault()),
+                readAt = null,
             )
+        }
 
-            service.scheduleNotification(commonNotification, now)
+        test("scheduled notification should eventually be created for all targets") {
+            service.scheduleNotification(notification, now)
 
             notifications.getAll() shouldBeRight listOf()
 
             eventually(30.seconds) {
-                notifications.getAll() shouldBeRight listOf(commonNotification)
+                notifications.getAll().shouldBeRight().should {
+                    it shouldContainExactlyInAnyOrder listOf(
+                        notification.asUserNotification("ABC"),
+                        notification.asUserNotification("XYZ"),
+                    )
+                }
             }
         }
     }

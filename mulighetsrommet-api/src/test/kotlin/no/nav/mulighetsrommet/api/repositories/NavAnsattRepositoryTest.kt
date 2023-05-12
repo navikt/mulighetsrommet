@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import java.util.*
 
 class NavAnsattRepositoryTest : FunSpec({
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("NavAnsattRepository") {
