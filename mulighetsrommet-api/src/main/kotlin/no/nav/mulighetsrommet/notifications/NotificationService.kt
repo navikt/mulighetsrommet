@@ -5,7 +5,9 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.ExecutionComplete
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.utils.NotificationFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.getOrThrow
@@ -81,6 +83,11 @@ class NotificationService(
                 logger.error("Failed to mark notification as read", it.error)
                 throw StatusException(InternalServerError, "Failed to mark notification as read")
             }
+            .onRight { updated ->
+                if (updated == 0) {
+                    throw StatusException(BadRequest, "Could not mark notification=$id as read for user=$userId")
+                }
+            }
     }
 
     fun markNotificationAsUnread(id: UUID, userId: String) {
@@ -91,7 +98,7 @@ class NotificationService(
             }
             .onRight { updated ->
                 if (updated == 0) {
-                    throw StatusException(BadRequest, "Could not mark notification=$id as read for user=$userId")
+                    throw StatusException(BadRequest, "Could not mark notification=$id as unread for user=$userId")
                 }
             }
     }

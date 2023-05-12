@@ -37,7 +37,6 @@ fun Route.notificationRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
             val userId = getNavIdent()
 
-            // TODO: access control to ensure that `id` is `userId`'s notificaiton
             notificationService.markNotificationAsRead(id, userId)
 
             call.respond(HttpStatusCode.OK)
@@ -47,7 +46,6 @@ fun Route.notificationRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
             val userId = getNavIdent()
 
-            // TODO: access control to ensure that `id` is `userId`'s notificaiton
             notificationService.markNotificationAsUnread(id, userId)
 
             call.respond(HttpStatusCode.OK)

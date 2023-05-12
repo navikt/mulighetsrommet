@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import java.time.Instant
@@ -20,6 +21,15 @@ import kotlin.time.Duration.Companion.seconds
 class NotificationServiceTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+
+    val domain = MulighetsrommetTestDomain()
+
+    beforeEach {
+        domain.initialize(database.db)
+    }
+
+    val user1 = domain.ansatt1.navIdent
+    val user2 = domain.ansatt2.navIdent
 
     context("NotificationService") {
         val notifications = NotificationRepository(database.db)
@@ -42,7 +52,7 @@ class NotificationServiceTest : FunSpec({
             type = NotificationType.Notification,
             title = "Notifikasjon for alle brukere",
             createdAt = now,
-            targets = listOf("ABC", "XYZ"),
+            targets = listOf(user1, user2),
         )
 
         fun ScheduledNotification.asUserNotification(user: String): UserNotification = run {
@@ -65,8 +75,8 @@ class NotificationServiceTest : FunSpec({
             eventually(30.seconds) {
                 notifications.getAll().shouldBeRight().should {
                     it shouldContainExactlyInAnyOrder listOf(
-                        notification.asUserNotification("ABC"),
-                        notification.asUserNotification("XYZ"),
+                        notification.asUserNotification(user1),
+                        notification.asUserNotification(user2),
                     )
                 }
             }
