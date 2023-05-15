@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -35,10 +36,10 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureSwagger(config.swagger)
     configureStatusPagesForStatusException()
 
     routing {
+        swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
         authenticate(AuthProvider.AzureAdNavIdent.name) {
             tiltakstypeRoutes()
             avtaleRoutes()
@@ -53,9 +54,12 @@ fun Application.configure(config: AppConfig) {
             virksomhetRoutes()
             notificationRoutes()
         }
+
         authenticate(AuthProvider.AzureAdDefaultApp.name) {
             arenaAdapterRoutes()
         }
+
+        swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")
         authenticate(AuthProvider.AzureAdTiltaksgjennomforingApp.name) {
             externalRoutes()
         }
