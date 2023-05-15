@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
-import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -138,9 +137,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
-            sanityTiltaksgjennomforingService = mockk {
-                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
-            },
+            sanityTiltaksgjennomforingService = mockk(relaxed = true),
         )
 
         afterTest {
@@ -181,6 +178,7 @@ class ArenaAdapterServiceTest : FunSpec({
             verify(exactly = 0) { tiltakstypeKafkaProducer.retract(any()) }
         }
     }
+
     context("avtaler") {
         val service = ArenaAdapterService(
             tiltakstyper = TiltakstypeRepository(database.db),
@@ -190,9 +188,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
-            sanityTiltaksgjennomforingService = mockk {
-                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
-            },
+            sanityTiltaksgjennomforingService = mockk(relaxed = true),
         )
 
         test("CRUD") {
@@ -232,9 +228,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             tiltakstypeKafkaProducer = mockk(relaxed = true),
-            sanityTiltaksgjennomforingService = mockk {
-                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
-            },
+            sanityTiltaksgjennomforingService = mockk(relaxed = true),
         )
 
         afterTest {
@@ -301,9 +295,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
-            sanityTiltaksgjennomforingService = mockk {
-                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
-            },
+            sanityTiltaksgjennomforingService = mockk(relaxed = true),
         )
 
         beforeTest {
