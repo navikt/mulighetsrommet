@@ -40,11 +40,7 @@ class TiltaksgjennomforingService(
             .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
             .map { it!! } // If upsert is succesfull it should exist here
             .onRight {
-                try {
-                    sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
-                } catch (t: Throwable) {
-                    log.error("Error ved opprettelse av sanity tiltaksgjennomforing: $t")
-                }
+                sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
             }
 
     fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =

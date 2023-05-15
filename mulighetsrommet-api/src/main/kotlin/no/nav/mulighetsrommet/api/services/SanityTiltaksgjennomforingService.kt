@@ -1,13 +1,11 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
-import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -70,7 +68,7 @@ class SanityTiltaksgjennomforingService(
         """.trimIndent()
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                JsonIgnoreUnknownKeys.decodeFromJsonElement(response.result)
+                response.decode()
             }
 
             is SanityResponse.Error -> {

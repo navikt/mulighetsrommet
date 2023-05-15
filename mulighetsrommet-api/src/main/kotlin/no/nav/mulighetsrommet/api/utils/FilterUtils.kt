@@ -4,6 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -34,7 +35,7 @@ data class AdminTiltaksgjennomforingFilter(
     val tiltakstypeId: UUID? = null,
     val status: Tiltaksgjennomforingsstatus? = null,
     val sortering: String? = null,
-    val sluttDatoCutoff: LocalDate? = LocalDate.of(2023, 1, 1),
+    val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),
     val fylkesenhet: String? = null,
     val avtaleId: UUID? = null,

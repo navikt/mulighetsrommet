@@ -6,12 +6,11 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
-import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.*
 
 class ArenaAdapterService(
@@ -24,8 +23,6 @@ class ArenaAdapterService(
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
             tiltakstyper.get(tiltakstype.id)?.let {
@@ -60,12 +57,8 @@ class ArenaAdapterService(
                 tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
             }
             .onRight {
-                if (it.sluttDato == null || it.sluttDato?.isAfter(LocalDate.of(2023, 1, 1)) == true) {
-                    try {
-                        sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
-                    } catch (t: Throwable) {
-                        log.error("Error ved opprettelse av sanity tiltaksgjennomforing: $t")
-                    }
+                if (it.sluttDato == null || it.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
+                    sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
                 }
             }
     }
