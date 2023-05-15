@@ -23,11 +23,11 @@ import {
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { Datovelger } from "../skjema/Datovelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { Dato } from "../skjema/Dato";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -186,6 +186,9 @@ export function OpprettAvtaleContainer({
         : undefined,
     };
 
+    console.log("data", postData.startDato);
+    console.log("data", postData.sluttDato);
+
     if (avtale?.id) {
       postData.id = avtale.id; // Ved oppdatering av eksisterende avtale
     }
@@ -307,17 +310,21 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup>
-          <Datovelger
-            fra={{
-              label: "Startdato",
-              error: errors.startDato?.message,
-              ...register("startDato"),
-            }}
-            til={{
-              label: "Sluttdato",
-              error: errors.sluttDato?.message,
-              ...register("sluttDato"),
-            }}
+          {/*<Datovelger*/}
+          {/*  fra={{*/}
+          {/*    label: "Startdato",*/}
+          {/*    error: errors.startDato?.message,*/}
+          {/*    ...register("startDato"),*/}
+          {/*  }}*/}
+          {/*  til={{*/}
+          {/*    label: "Sluttdato",*/}
+          {/*    error: errors.sluttDato?.message,*/}
+          {/*    ...register("sluttDato"),*/}
+          {/*  }}*/}
+          {/*/>*/}
+          <Dato
+            startdato={{ ...register("startDato") }}
+            sluttdato={{ ...register("sluttDato") }}
           />
         </FormGroup>
         <FormGroup>

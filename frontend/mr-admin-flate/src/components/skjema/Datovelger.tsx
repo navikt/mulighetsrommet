@@ -42,7 +42,7 @@ export function Datovelger<T>({
     return new Date(yearsFromNow);
   };
 
-  const { datepickerProps, toInputProps, fromInputProps } =
+  const { datepickerProps, toInputProps, fromInputProps, setSelected } =
     UNSAFE_useRangeDatepicker({
       onRangeChange: (val) => {
         if (!val) return;
@@ -53,6 +53,8 @@ export function Datovelger<T>({
       inputFormat: "dd.MM.yyyy",
       fromDate: pastDate(),
       toDate: futureDate(),
+      // defaultMonth: setSelected,
+      // onValidate: setSelected,
     });
 
   return (
