@@ -50,7 +50,7 @@ class DelMedBrukerService(private val db: Database) {
     fun getDeltMedBruker(fnr: String, sanityId: String): QueryResult<DelMedBrukerDbo?> = query {
         @Language("PostgreSQL")
         val query = """
-            select * from del_med_bruker where norsk_ident = ? and sanity_id = ? order by created_at desc
+            select * from del_med_bruker where norsk_ident = ? and sanity_id = ? order by created_at desc limit 1
         """.trimIndent()
         queryOf(query, fnr, sanityId)
             .map { it.toDelMedBruker() }
