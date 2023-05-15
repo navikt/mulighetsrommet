@@ -47,7 +47,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^8.0.0",
     "@types/node": "^18.16.3",
     "@types/react-modal": "^3.16.0",
     "@types/react-router-dom": "^5.3.3",
