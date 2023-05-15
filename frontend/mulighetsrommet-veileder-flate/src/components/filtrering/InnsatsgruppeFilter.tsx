@@ -39,30 +39,28 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
   };
 
   return (
-    <Accordion className={styles.accordion}>
-      <Accordion.Item defaultOpen={defaultOpen}>
-        <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
-          {accordionNavn}
-        </Accordion.Header>
-        <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
-          {isLoading && !data ? <Loader size="xlarge" /> : null}
-          {data && (
-            <RadioGroup
-              legend=""
-              hideLegend
-              size="small"
-              onChange={(e: Innsatsgruppe) => {
-                setOption(e);
-              }}
-              value={option}
-            >
-              {data.map(radiobox)}
-            </RadioGroup>
-          )}
-          {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
-        </Accordion.Content>
-      </Accordion.Item>
-    </Accordion>
+    <Accordion.Item defaultOpen={defaultOpen}>
+      <Accordion.Header data-testid={`filter_accordionheader_${kebabCase(accordionNavn)}`}>
+        {accordionNavn}
+      </Accordion.Header>
+      <Accordion.Content data-testid={`filter_accordioncontent_${kebabCase(accordionNavn)}`}>
+        {isLoading && !data ? <Loader size="xlarge" /> : null}
+        {data && (
+          <RadioGroup
+            legend=""
+            hideLegend
+            size="small"
+            onChange={(e: Innsatsgruppe) => {
+              setOption(e);
+            }}
+            value={option}
+          >
+            {data.map(radiobox)}
+          </RadioGroup>
+        )}
+        {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
+      </Accordion.Content>
+    </Accordion.Item>
   );
 };
 

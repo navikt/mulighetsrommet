@@ -38,6 +38,7 @@ export function DelMedBrukerContent({
   const { lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus();
   const personligHilsenRef = useRef<HTMLTextAreaElement>(null);
   const { harDeltMedBruker } = useHentDeltMedBrukerStatus();
+  console.log(harDeltMedBruker);
   const datoSidenSistDelt = harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
 
   useEffect(() => {
