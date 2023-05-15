@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -137,7 +138,9 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
-            sanityTiltaksgjennomforingService = mockk(),
+            sanityTiltaksgjennomforingService = mockk {
+                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
+            },
         )
 
         afterTest {
@@ -187,7 +190,9 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
-            sanityTiltaksgjennomforingService = mockk(),
+            sanityTiltaksgjennomforingService = mockk {
+                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
+            },
         )
 
         test("CRUD") {
@@ -227,7 +232,9 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             tiltakstypeKafkaProducer = mockk(relaxed = true),
-            sanityTiltaksgjennomforingService = mockk(),
+            sanityTiltaksgjennomforingService = mockk {
+                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
+            },
         )
 
         afterTest {
@@ -294,7 +301,9 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
-            sanityTiltaksgjennomforingService = mockk(),
+            sanityTiltaksgjennomforingService = mockk {
+                coEvery { opprettSanityTiltaksgjennomforing(any()) } returns Unit
+            },
         )
 
         beforeTest {
