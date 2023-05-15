@@ -528,7 +528,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakskode"),
             ),
-            tiltaksnummer = stringOrNull("tiltaksnummer"),
             navn = string("navn"),
             virksomhetsnummer = string("virksomhetsnummer"),
             startDato = startDato,

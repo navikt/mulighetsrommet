@@ -11,7 +11,6 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,
-    val tiltaksnummer: String? = null,
     val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -37,7 +36,6 @@ data class TiltaksgjennomforingDto(
                     navn = tiltaksgjennomforing.tiltakstype.navn,
                     arenaKode = tiltaksgjennomforing.tiltakstype.arenaKode,
                 ),
-                tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
                 navn = tiltaksgjennomforing.navn,
                 startDato = tiltaksgjennomforing.startDato,
                 sluttDato = tiltaksgjennomforing.sluttDato,
