@@ -4,7 +4,10 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNavAnsatte
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
+import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
