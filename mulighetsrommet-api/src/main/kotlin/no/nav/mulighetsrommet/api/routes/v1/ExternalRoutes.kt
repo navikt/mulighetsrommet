@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
@@ -16,8 +17,22 @@ fun Route.externalRoutes() {
     val arenaAdapterService: ArenaAdapterClient by inject()
 
     route("/api/v1") {
+        get("tiltaksgjennomforinger") {
+            val orgnr = call.request.queryParameters.getOrFail("orgnr")
+            tiltaksgjennomforingService.getAllByOrgnr(orgnr)
+                .onRight {
+                    call.respond(it)
+                }
+                .onLeft { error ->
+                    log.error("$error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Kunne ikke hente gjennomføringer for organisasjonsnummer : '$orgnr'",
+                    )
+                }
+        }
         get("tiltaksgjennomforinger/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
+            val id = call.parameters ["id"]?.toUUID() ?: return@get call.respondText(
                 "Mangler eller ugyldig id",
                 status = HttpStatusCode.BadRequest,
             )
@@ -34,21 +49,6 @@ fun Route.externalRoutes() {
                 .onLeft { error ->
                     log.error("$error")
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføring")
-                }
-        }
-
-        get("tiltaksgjennomforinger/orgnr/{orgnr}") {
-            val orgnr = call.parameters["orgnr"] ?: return@get call.respondText(
-                "Mangler eller ugyldig orgnr",
-                status = HttpStatusCode.BadRequest,
-            )
-            tiltaksgjennomforingService.getAllByOrgnr(orgnr)
-                .onRight {
-                    call.respond(it)
-                }
-                .onLeft { error ->
-                    log.error("$error")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføringer for organisasjonsnummer : '$orgnr'")
                 }
         }
 
@@ -78,10 +78,11 @@ fun Route.externalRoutes() {
                             status = HttpStatusCode.NotFound,
                         )
                     }
-                    val status = arenaAdapterService.hentTiltaksgjennomforingsstatus(id)?.status ?: return@get call.respondText(
-                        "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                        status = HttpStatusCode.NotFound,
-                    )
+                    val status =
+                        arenaAdapterService.hentTiltaksgjennomforingsstatus(id)?.status ?: return@get call.respondText(
+                            "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                            status = HttpStatusCode.NotFound,
+                        )
                     call.respond(TiltaksgjennomforingsArenadataDto.from(it, status))
                 }
                 .onLeft { error ->
