@@ -73,6 +73,7 @@ class KafkaSyncServiceTest : FunSpec({
                 navn = tiltakstype.navn,
                 arenaKode = tiltakstype.tiltakskode,
             ),
+            tiltaksnummer = tiltaksnummer,
             navn = navn,
             virksomhetsnummer = virksomhetsnummer,
             startDato = startDato,
