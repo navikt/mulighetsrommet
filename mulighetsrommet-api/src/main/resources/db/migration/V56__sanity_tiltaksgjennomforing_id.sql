@@ -1,1 +1,0 @@
-alter table tiltaksgjennomforing add column sanity_tiltaksgjennomforing_id varchar;

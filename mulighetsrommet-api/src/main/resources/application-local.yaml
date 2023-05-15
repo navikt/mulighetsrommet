@@ -78,9 +78,6 @@ app:
     scope: default
 
   tasks:
-    synchronizeTiltaksgjennomforingerToSanity:
-      dryRun: true
-      delayOfMinutes: 60 # Hvert minutt
     synchronizeNorgEnheter:
       disabled: true
       delayOfMinutes: 360 # Hver 6. time

@@ -76,7 +76,6 @@ data class TaskConfig(
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
     val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
     val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
-    val synchronizeTiltaksgjennomforingerToSanity: SynchronizeTiltaksgjennomforingerToSanity.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
 )
 

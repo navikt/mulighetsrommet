@@ -78,9 +78,6 @@ app:
     scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default
 
   tasks:
-    synchronizeTiltaksgjennomforingerToSanity:
-      dryRun: true
-      delayOfMinutes: 60 # Hver time
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeEnheterFraSanityTilApi:

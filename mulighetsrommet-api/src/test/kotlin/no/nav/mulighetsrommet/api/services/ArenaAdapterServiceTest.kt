@@ -123,7 +123,7 @@ class ArenaAdapterServiceTest : FunSpec({
             antallPlasser = null,
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
-            sanityTiltaksgjennomforingId = null,
+            sanityId = null,
         )
     }
 
@@ -137,6 +137,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
+            sanityTiltaksgjennomforingService = mockk(),
         )
 
         afterTest {
@@ -186,6 +187,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
+            sanityTiltaksgjennomforingService = mockk(),
         )
 
         test("CRUD") {
@@ -225,6 +227,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             tiltakstypeKafkaProducer = mockk(relaxed = true),
+            sanityTiltaksgjennomforingService = mockk(),
         )
 
         afterTest {
@@ -291,6 +294,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltakere = DeltakerRepository(database.db),
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
+            sanityTiltaksgjennomforingService = mockk(),
         )
 
         beforeTest {

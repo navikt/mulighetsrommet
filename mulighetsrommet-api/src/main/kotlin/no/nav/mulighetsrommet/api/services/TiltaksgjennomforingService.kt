@@ -9,13 +9,18 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arrangorService: ArrangorService,
     private val deltakerRepository: DeltakerRepository,
+    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
 ) {
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
+
     suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
             .map { it?.hentVirksomhetsnavnForTiltaksgjennomforing() }
@@ -30,10 +35,17 @@ class TiltaksgjennomforingService(
                 totalCount to items.map { it.hentVirksomhetsnavnForTiltaksgjennomforing() }
             }
 
-    fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> =
+    suspend fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
             .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
             .map { it!! } // If upsert is succesfull it should exist here
+            .onRight {
+                try {
+                    sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
+                } catch (t: Throwable) {
+                    log.error("Error ved opprettelse av sanity tiltaksgjennomforing: $t")
+                }
+            }
 
     fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =
         TiltaksgjennomforingNokkeltallDto(

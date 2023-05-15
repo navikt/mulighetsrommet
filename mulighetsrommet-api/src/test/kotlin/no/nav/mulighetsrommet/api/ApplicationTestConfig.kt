@@ -66,10 +66,6 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
             disabled = true,
         ),
-        synchronizeTiltaksgjennomforingerToSanity = SynchronizeTiltaksgjennomforingerToSanity.Config(
-            delayOfMinutes = 10,
-            disabled = true,
-        ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(

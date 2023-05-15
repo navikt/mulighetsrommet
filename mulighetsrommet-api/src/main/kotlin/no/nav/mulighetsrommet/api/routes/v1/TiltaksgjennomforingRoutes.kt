@@ -10,7 +10,6 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
-import no.nav.mulighetsrommet.api.services.SanityTiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
@@ -25,7 +24,6 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService by inject()
     val log = application.environment.log
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
@@ -81,13 +79,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                     call.respond(HttpStatusCode.BadRequest, error.message.toString())
                 }
                 .flatMap { tiltaksgjennomforingService.upsert(it) }
-                .onRight {
-                    try {
-                        sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
-                    } catch (t: Throwable) {
-                        log.error("Error ved opprettelse av sanity tiltaksgjennomforing: $t")
-                    }
-                }
                 .onRight { call.respond(it) }
                 .onLeft { error ->
                     log.error("$error")

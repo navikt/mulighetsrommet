@@ -17,17 +17,6 @@ class SanityTiltaksgjennomforingService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun syncTiltaksgjennomforingerTilSanity(dryRun: Boolean) {
-        val gjennomforingerSomMangler = tiltaksgjennomforingRepository.getTiltaksgjennomforingerUtenSanityId()
-            .getOrThrow()
-        val opprettet = gjennomforingerSomMangler
-            .sumOf { opprettSanityTiltaksgjennomforing(it, dryRun) }
-        log.info(
-            "Lagde $opprettet Sanity dokumenter for ${gjennomforingerSomMangler.size}" +
-                " tiltaksgjennomforinger som manglet sanity_id",
-        )
-    }
-
     private suspend fun oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing: TiltaksgjennomforingAdminDto): Boolean {
         val tiltaksnummer = tiltaksgjennomforing.tiltaksnummer ?: return false
 
@@ -40,7 +29,7 @@ class SanityTiltaksgjennomforingService(
         }
         tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
             tiltaksgjennomforing.id,
-            sanityTiltaksgjennomforinger[0]._id,
+            UUID.fromString(sanityTiltaksgjennomforinger[0]._id),
         ).getOrThrow()
         return true
     }
@@ -48,14 +37,14 @@ class SanityTiltaksgjennomforingService(
     suspend fun opprettSanityTiltaksgjennomforing(
         tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
         dryRun: Boolean = false,
-    ): Int {
-        if (oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)) {
-            return 0
+    ) {
+        if (tiltaksgjennomforing.sanityId != null || oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)) {
+            return
         }
 
-        val sanityTiltaksgjennomforingId = UUID.randomUUID().toString()
+        val sanityTiltaksgjennomforingId = UUID.randomUUID()
         val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(
-            _id = sanityTiltaksgjennomforingId,
+            _id = sanityTiltaksgjennomforingId.toString(),
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
         )
         val response = sanityClient.mutate(
@@ -71,8 +60,6 @@ class SanityTiltaksgjennomforingService(
 
         tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(tiltaksgjennomforing.id, sanityTiltaksgjennomforingId)
             .getOrThrow()
-
-        return 1
     }
 
     private suspend fun hentTiltaksgjennomforinger(tiltaksnummer: String): List<SanityTiltaksgjennomforingResponse> {

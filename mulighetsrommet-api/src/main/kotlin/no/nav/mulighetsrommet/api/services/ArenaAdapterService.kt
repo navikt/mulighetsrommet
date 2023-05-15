@@ -10,6 +10,8 @@ import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
+import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class ArenaAdapterService(
@@ -20,7 +22,10 @@ class ArenaAdapterService(
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
+    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
             tiltakstyper.get(tiltakstype.id)?.let {
@@ -47,12 +52,21 @@ class ArenaAdapterService(
         return avtaler.delete(id)
     }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+    suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
             .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
             .map { it!! }
             .onRight {
                 tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
+            }
+            .onRight {
+                if (it.sluttDato == null || it.sluttDato?.isAfter(LocalDate.of(2023, 1, 1)) == true) {
+                    try {
+                        sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
+                    } catch (t: Throwable) {
+                        log.error("Error ved opprettelse av sanity tiltaksgjennomforing: $t")
+                    }
+                }
             }
     }
 

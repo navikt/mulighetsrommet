@@ -84,7 +84,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 avtaleId = gjennomforing1.avtaleId,
                 ansvarlige = emptyList(),
                 navEnheter = emptyList(),
-                sanityTiltaksgjennomforingId = null,
+                sanityId = null,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -180,13 +180,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
 
-        test("update sanity_tiltaksgjennomforing_id") {
+        test("update sanity_id") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val id = UUID.randomUUID()
 
             tiltaksgjennomforinger.upsert(gjennomforing1).shouldBeRight()
-            tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(gjennomforing1.id, "s_id").shouldBeRight()
+            tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(gjennomforing1.id, id).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing1.id).shouldBeRight().should {
-                it!!.sanityTiltaksgjennomforingId.shouldBe("s_id")
+                it!!.sanityId.shouldBe(id.toString())
             }
         }
     }
