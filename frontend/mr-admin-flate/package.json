@@ -61,7 +61,7 @@
     "eslint-plugin-react": "^7.32.2",
     "msw": "^1.2.1",
     "typescript": "^5.0.4",
-    "vite": "^4.3.5",
+    "vite": "^4.3.6",
     "vitest": "^0.31.0"
   },
   "msw": {
