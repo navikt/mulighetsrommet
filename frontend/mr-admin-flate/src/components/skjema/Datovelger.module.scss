@@ -1,8 +1,4 @@
-:global(.navds-date__wrapper) {
-  width: 100%;
-}
-
-.datofelt {
-  display: grid;
-  grid-template-columns: auto auto;
+.dato_container {
+  display: flex;
+  justify-content: space-between;
 }

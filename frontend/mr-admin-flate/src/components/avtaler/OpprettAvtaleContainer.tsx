@@ -27,7 +27,7 @@ import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { Dato } from "../skjema/Dato";
+import { Datovelger } from "../skjema/Datovelger";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -68,11 +68,21 @@ const Schema = z.object({
     .gt(0, "Antall plasser må være større enn 0")
     .int(),
   startDato: z
-    .date({ required_error: "En avtale må ha en startdato" })
-    .nullable(),
+    .date({
+      required_error: "En avtale må ha en startdato",
+    })
+    .nullable()
+    .refine((val) => val !== null, {
+      message: "En avtale må ha en startdato",
+    }),
   sluttDato: z
-    .date({ required_error: "En avtale må ha en sluttdato" })
-    .nullable(),
+    .date({
+      required_error: "En avtale må ha en sluttdato",
+    })
+    .nullable()
+    .refine((val) => val !== null, {
+      message: "En avtale må ha en sluttdato",
+    }),
   avtaleansvarlig: z.string({
     required_error: "Du må velge en avtaleansvarlig",
   }),
@@ -185,9 +195,6 @@ export function OpprettAvtaleContainer({
         ? data.prisOgBetalingsinfo
         : undefined,
     };
-
-    console.log("data", postData.startDato);
-    console.log("data", postData.sluttDato);
 
     if (avtale?.id) {
       postData.id = avtale.id; // Ved oppdatering av eksisterende avtale
@@ -310,21 +317,17 @@ export function OpprettAvtaleContainer({
           />
         </FormGroup>
         <FormGroup>
-          {/*<Datovelger*/}
-          {/*  fra={{*/}
-          {/*    label: "Startdato",*/}
-          {/*    error: errors.startDato?.message,*/}
-          {/*    ...register("startDato"),*/}
-          {/*  }}*/}
-          {/*  til={{*/}
-          {/*    label: "Sluttdato",*/}
-          {/*    error: errors.sluttDato?.message,*/}
-          {/*    ...register("sluttDato"),*/}
-          {/*  }}*/}
-          {/*/>*/}
-          <Dato
-            startdato={{ ...register("startDato") }}
-            sluttdato={{ ...register("sluttDato") }}
+          <Datovelger
+            fra={{
+              ...register("startDato"),
+              label: "Startdato",
+              error: errors.startDato?.message,
+            }}
+            til={{
+              ...register("sluttDato"),
+              label: "Sluttdato",
+              error: errors.sluttDato?.message,
+            }}
           />
         </FormGroup>
         <FormGroup>
