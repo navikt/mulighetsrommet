@@ -75,17 +75,6 @@ export const tiltakstype = defineType({
       hidden: true, //Skjules frem til innsiktsfanen er klar
     }),
 
-    defineField({
-      name: "tiltakstypeApiReferanse",
-      title: "Tiltakstype API Referanse",
-      description: "Id og kode til tiltakstypen i api databasen",
-      fields: [
-          { name: "tiltakstypeDbId", type: "string", title: "Tiltakstype Database ID" },
-          { name: "tiltakstypeKode", type: "string", title: "Tiltakstype Kode" }
-      ],
-      type: "object",
-      hidden: ({currentUser}) => currentUser.roles.includes("administrator")
-    }),
   ],
   preview: {
     select: {
