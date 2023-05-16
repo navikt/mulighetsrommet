@@ -71,6 +71,7 @@ class ArenaAdapterServiceTest : FunSpec({
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = TiltaksgjennomforingDbo.Oppstartstype.Dato,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -124,6 +125,7 @@ class ArenaAdapterServiceTest : FunSpec({
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
             sanityId = null,
+            oppstart = oppstart,
         )
     }
 

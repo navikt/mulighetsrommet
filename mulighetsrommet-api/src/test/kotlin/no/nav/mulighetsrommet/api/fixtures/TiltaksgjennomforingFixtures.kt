@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
 import java.time.LocalDate
 import java.util.*
@@ -21,6 +22,7 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = Oppstartstype.Dato,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -37,6 +39,7 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = Oppstartstype.Dato,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -53,5 +56,6 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = Oppstartstype.Dato,
     )
 }

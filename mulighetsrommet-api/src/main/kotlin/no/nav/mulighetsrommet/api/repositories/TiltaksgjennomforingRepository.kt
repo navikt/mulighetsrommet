@@ -26,8 +26,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id, oppstart)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id, :oppstart::tiltaksgjennomforing_oppstart)
             on conflict (id)
                 do update set navn                  = excluded.navn,
                               tiltakstype_id        = excluded.tiltakstype_id,
@@ -39,7 +39,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               avslutningsstatus     = excluded.avslutningsstatus,
                               tilgjengelighet       = excluded.tilgjengelighet,
                               antall_plasser        = excluded.antall_plasser,
-                              avtale_id             = excluded.avtale_id
+                              avtale_id             = excluded.avtale_id,
+                              oppstart              = excluded.oppstart
             returning *
         """.trimIndent()
 
@@ -186,6 +187,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.sanity_id,
                    tg.antall_plasser,
                    tg.avtale_id,
+                   tg.oppstart,
                    array_agg(a.navident) as ansvarlige,
                    array_agg(e.enhetsnummer) as navEnheter
             from tiltaksgjennomforing tg
@@ -284,6 +286,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.tilgjengelighet,
                    tg.antall_plasser,
                    tg.avtale_id,
+                   tg.oppstart,
                    array_agg(a.navident) as ansvarlige,
                    array_agg(e.enhetsnummer) as navEnheter,
                    count(*) over () as full_count
@@ -331,7 +334,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    avslutningsstatus,
                    tilgjengelighet,
                    antall_plasser,
-                   avtale_id
+                   avtale_id,
+                   oppstart
             from tiltaksgjennomforing
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
@@ -418,6 +422,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tilgjengelighet" to tilgjengelighet.name,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
+        "oppstart" to oppstart.name,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -435,6 +440,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         avtaleId = uuidOrNull("avtale_id"),
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
@@ -468,6 +474,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ansvarlige = ansvarlige,
             navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it) },
             sanityId = stringOrNull("sanity_id"),
+            oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
         )
     }
 

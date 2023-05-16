@@ -86,6 +86,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ansvarlige = emptyList(),
                 navEnheter = emptyList(),
                 sanityId = null,
+                oppstart = TiltaksgjennomforingDbo.Oppstartstype.Dato,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -541,6 +542,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         antallPlasser = null,
                         ansvarlige = emptyList(),
                         navEnheter = emptyList(),
+                        oppstart = TiltaksgjennomforingDbo.Oppstartstype.Dato,
                     ),
                 )
             }

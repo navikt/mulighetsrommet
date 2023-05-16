@@ -22,9 +22,12 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.AktivitetsplanenLaunchDate
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.Tiltakskoder.hasFellesOppstart
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.Dato
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.Lopende
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
 import java.util.*
@@ -60,8 +63,8 @@ class TiltakgjennomforingEventProcessor(
         }
 
         val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
-        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        val tiltaksgjennomforing = data.toTiltaksgjennomforing(mapping.entityId, avtaleId)
+        val tiltaksgjennomforing = entities.getMapping(event.arenaTable, event.arenaId)
+            .flatMap { data.toTiltaksgjennomforing(it.entityId, avtaleId) }
             .flatMap { entities.upsertTiltaksgjennomforing(it) }
             .bind()
 
@@ -166,5 +169,6 @@ class TiltakgjennomforingEventProcessor(
             avtaleId = avtaleId,
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
+            oppstart = if (hasFellesOppstart(tiltakskode)) Dato else Lopende,
         )
 }
