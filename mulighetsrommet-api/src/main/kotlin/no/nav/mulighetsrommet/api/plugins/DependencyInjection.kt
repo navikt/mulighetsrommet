@@ -240,7 +240,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single { TiltaksgjennomforingService(get(), get(), get(), get()) }
-    single { SanityTiltaksgjennomforingService(get(), get()) }
+    single { SanityTiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }

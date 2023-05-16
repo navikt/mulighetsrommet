@@ -74,6 +74,14 @@ export const tiltakstype = defineType({
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
       hidden: true, //Skjules frem til innsiktsfanen er klar
     }),
+
+    defineField({
+      name: "tiltakstypeDbId",
+      title: "Tiltakstype Database ID",
+      description: "Id'en til tiltakstypen i api databasen",
+      type: "string",
+      hidden: ({currentUser}) => currentUser.roles.includes("administrator")
+    }),
   ],
   preview: {
     select: {

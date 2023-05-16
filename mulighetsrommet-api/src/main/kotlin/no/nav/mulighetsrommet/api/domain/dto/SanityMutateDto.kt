@@ -23,6 +23,9 @@ data class SanityTiltaksgjennomforing(
     @EncodeDefault
     val _type: String = "tiltaksgjennomforing",
     val tiltaksgjennomforingNavn: String,
+    val fylke: FylkeRef? = null,
+    val enheter: List<EnhetRef>? = null,
+    val tiltakstype: TiltakstypeRef? = null,
 )
 
 @Serializable
@@ -47,6 +50,11 @@ data class TiltakstypeRef(
     val _type: String = "reference",
     val _ref: String,
     val _key: String? = null,
+)
+
+@Serializable
+data class TiltakstypeIdResponse(
+    val _id: String,
 )
 
 @Serializable
