@@ -48,6 +48,7 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
+import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -268,11 +269,19 @@ private fun tasks(config: TaskConfig) = module {
             get(),
         )
         val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get())
+        val notifySluttdatoForGjennomforingerNarmerSeg =
+            NotifySluttdatoForGjennomforingerNarmerSeg(
+                config.notifySluttdatoForGjennomforingerNarmerSeg,
+                get(),
+                get(),
+                get(),
+            )
+        val notificationService: NotificationService by inject()
 
         val db: Database by inject()
 
         Scheduler
-            .create(db.getDatasource())
+            .create(db.getDatasource(), notificationService.getScheduledNotificationTask())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
@@ -280,7 +289,9 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeTiltaksgjennomforingEnheter.task,
                 synchronizeTilgjengelighetsstatuserToSanity.task,
                 synchronizeNavAnsatte.task,
+                notifySluttdatoForGjennomforingerNarmerSeg.task,
             )
+            .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()
             .build()
     }

@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -46,5 +48,9 @@ class TiltaksgjennomforingService(
             return this.copy(virksomhetsnavn = virksomhet.navn)
         }
         return this
+    }
+
+    fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
+        return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato(LocalDate.of(2023, 5, 16))
     }
 }
