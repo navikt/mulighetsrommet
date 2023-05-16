@@ -6,13 +6,27 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
 data class SanityTiltaksgjennomforingResponse(
-    val tiltaksnummer: String?,
-    val enheter: List<Enhet>?,
+    val _id: String,
+    val tiltaksgjennomforingNavn: String,
+    val enheter: List<EnhetRef>? = null,
+    val lokasjon: String? = null,
+    val tilgjengelighetsstatus: String? = null,
+    val tiltakstype: TiltakstypeRef? = null,
+    val fylkeRef: FylkeRef? = null,
+    val tiltaksnummer: TiltaksnummerSlug? = null,
 )
 
 @Serializable
-data class Enhet(
-    val _ref: String?,
+data class EnhetRef(
+    val _type: String = "reference",
+    val _ref: String,
+    val _key: String? = null,
+)
+
+@Serializable
+data class TiltaksnummerSlug(
+    val current: String,
+    val _type: String = "slug",
 )
 
 @Serializable

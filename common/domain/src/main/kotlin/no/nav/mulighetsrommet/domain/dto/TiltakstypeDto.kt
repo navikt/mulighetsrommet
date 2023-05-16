@@ -25,6 +25,8 @@ data class TiltakstypeDto(
     val tilDato: LocalDate,
     val rettPaaTiltakspenger: Boolean,
     val status: Tiltakstypestatus,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID?,
 ) {
     companion object {
         fun from(tiltakstype: TiltakstypeDbo) = tiltakstype.run {
@@ -38,6 +40,7 @@ data class TiltakstypeDto(
                 tilDato = tilDato,
                 rettPaaTiltakspenger = rettPaaTiltakspenger,
                 status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato),
+                sanityId = null,
             )
         }
     }

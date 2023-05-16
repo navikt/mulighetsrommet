@@ -74,6 +74,7 @@ export const tiltakstype = defineType({
       of: [{ type: "reference", to: [{ type: "forskningsrapport" }] }],
       hidden: true, //Skjules frem til innsiktsfanen er klar
     }),
+
   ],
   preview: {
     select: {

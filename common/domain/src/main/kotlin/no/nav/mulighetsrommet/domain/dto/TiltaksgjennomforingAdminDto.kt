@@ -28,6 +28,7 @@ data class TiltaksgjennomforingAdminDto(
     val avtaleId: UUID? = null,
     val ansvarlige: List<String>,
     val navEnheter: List<String>,
+    val sanityId: String?,
 ) {
     @Serializable
     data class Tiltakstype(
