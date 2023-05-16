@@ -12,22 +12,6 @@ interface Props {
 }
 
 export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ventetid }: Props) {
-  if (oppstart === 'midlertidig_stengt') {
-    return (
-      <div>
-        <div className={styles.tilgjengelighetsstatus}>
-          <img src={StatusRod} alt="Rødt ikon som representerer at tilgjengelighetsstatus er midlertidig stengt" />
-          <div>Midlertidig stengt</div>
-        </div>
-        {estimert_ventetid ? (
-          <small title={estimert_ventetid} className={styles.estimert_ventetid}>
-            {estimert_ventetid}
-          </small>
-        ) : null}
-      </div>
-    );
-  }
-
   if (status === 'Ledig' || !status) {
     return (
       <div>
