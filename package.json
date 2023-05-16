@@ -9,6 +9,6 @@
   },
   "packageManager": "npm@8.5.2",
   "dependencies": {
-    "gitmoji-cli": "^8.1.1"
+    "gitmoji-cli": "^8.2.2"
   }
 }
