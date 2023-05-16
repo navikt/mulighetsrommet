@@ -55,10 +55,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
       setJoyride({ ...joyride, joyrideDetaljer: false });
       setState(prevState => ({ ...prevState, run: true, stepIndex: 0 }));
     }
-
-    console.log(status);
-    console.log(action);
-    console.log(type);
   };
 
   return (

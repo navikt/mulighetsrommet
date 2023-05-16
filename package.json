@@ -5,10 +5,10 @@
   ],
   "devDependencies": {
     "prettier": "^2.8.8",
-    "turbo": "^1.9.3"
+    "turbo": "^1.9.5"
   },
   "packageManager": "npm@8.5.2",
   "dependencies": {
-    "gitmoji-cli": "^8.1.1"
+    "gitmoji-cli": "^8.2.2"
   }
 }

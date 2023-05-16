@@ -24,10 +24,10 @@ import {
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { Datovelger } from "../skjema/Datovelger";
 import { SokeSelect } from "../skjema/SokeSelect";
-import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 import styles from "./OpprettAvtaleContainer.module.scss";
+import { Datovelger } from "../skjema/Datovelger";
+import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -295,14 +295,14 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
+              ...register("startDato"),
               label: "Startdato",
               error: errors.startDato?.message,
-              ...register("startDato"),
             }}
             til={{
+              ...register("sluttDato"),
               label: "Sluttdato",
               error: errors.sluttDato?.message,
-              ...register("sluttDato"),
             }}
           />
         </FormGroup>

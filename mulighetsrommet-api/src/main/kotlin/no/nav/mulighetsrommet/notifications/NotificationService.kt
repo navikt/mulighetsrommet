@@ -5,7 +5,9 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.ExecutionComplete
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.utils.NotificationFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.getOrThrow
@@ -25,19 +27,19 @@ class NotificationService(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val handleScheduledNotification: OneTimeTask<Notification> = Tasks
-        .oneTime("handle-scheduled-notification", Notification::class.java)
+    private val handleScheduledNotification: OneTimeTask<ScheduledNotification> = Tasks
+        .oneTime("handle-scheduled-notification", ScheduledNotification::class.java)
         .onFailure { x: ExecutionComplete, _ ->
             val name = x.execution.taskInstance.taskName
             val id = x.execution.taskInstance.id
             slack.sendMessage("Klarte ikke kjøre task '$name' med id=$id. Se loggene for hva som gikk galt.")
         }
         .execute { instance, _ ->
-            val notification: Notification = instance.data
+            val notification: ScheduledNotification = instance.data
 
             logger.info("Running task ${instance.taskName} for notification id=${notification.id}")
 
-            notifications.upsert(notification).getOrThrow()
+            notifications.insert(notification).getOrThrow()
         }
 
     private val client = SchedulerClient.Builder
@@ -50,7 +52,7 @@ class NotificationService(
     /**
      * Schedules the [notification] to be created at the specified [instant] in time (defaults to [Instant.now]).
      */
-    fun scheduleNotification(notification: Notification, instant: Instant = Instant.now()) {
+    fun scheduleNotification(notification: ScheduledNotification, instant: Instant = Instant.now()) {
         val id = notification.id
 
         logger.info("Scheduling notification id=$id for time=$instant")
@@ -81,6 +83,11 @@ class NotificationService(
                 logger.error("Failed to mark notification as read", it.error)
                 throw StatusException(InternalServerError, "Failed to mark notification as read")
             }
+            .onRight { updated ->
+                if (updated == 0) {
+                    throw StatusException(BadRequest, "Could not mark notification=$id as read for user=$userId")
+                }
+            }
     }
 
     fun markNotificationAsUnread(id: UUID, userId: String) {
@@ -88,6 +95,11 @@ class NotificationService(
             .onLeft {
                 logger.error("Failed to mark notification as unread", it.error)
                 throw StatusException(InternalServerError, "Failed to mark notification as unread")
+            }
+            .onRight { updated ->
+                if (updated == 0) {
+                    throw StatusException(BadRequest, "Could not mark notification=$id as unread for user=$userId")
+                }
             }
     }
 }
