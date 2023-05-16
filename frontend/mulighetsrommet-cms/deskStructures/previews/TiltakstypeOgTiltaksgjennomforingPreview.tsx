@@ -82,7 +82,6 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     } else if (displayed.oppstart === "lopende") {
       return "Løpende oppstart";
     }
-    return "Midlertidig stengt";
   }
 
   function Verktoylinje() {
