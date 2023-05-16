@@ -54,7 +54,7 @@ class SanityTiltaksgjennomforingService(
 
     suspend fun opprettSanityTiltaksgjennomforing(
         tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
-        dryRun: Boolean = false,
+        dryRun: Boolean = true,
     ) {
         if (tiltaksgjennomforing.sanityId != null || oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)) {
             return
