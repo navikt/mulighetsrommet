@@ -4,7 +4,7 @@ import { SelectOption } from "./SokeSelect";
 
 export interface MultiSelectProps {
   name: string;
-  ref: React.Ref<any>;
+  childRef: React.Ref<any>;
   placeholder: string;
   options: SelectOption[];
   size?: "small" | "medium";
@@ -16,7 +16,16 @@ export interface MultiSelectProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
-  const { name, placeholder, options, onChange, value, ref, error, disabled } = props;
+  const {
+    name,
+    placeholder,
+    options,
+    onChange,
+    value,
+    childRef,
+    error,
+    disabled,
+  } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
@@ -59,11 +68,10 @@ const MultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
       color: "#0000008f",
     }),
   });
-
   return (
     <ReactSelect
       placeholder={placeholder}
-      ref={ref}
+      ref={childRef}
       isMulti
       isDisabled={!!disabled}
       noOptionsMessage={() => "Ingen funnet"}

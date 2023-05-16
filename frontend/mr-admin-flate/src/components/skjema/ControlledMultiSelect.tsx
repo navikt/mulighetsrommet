@@ -34,7 +34,7 @@ const ControlledMultiSelect = React.forwardRef((props: MultiSelectProps, _) => {
             <MultiSelect
               error={Boolean(error)}
               placeholder={placeholder}
-              ref={ref}
+              childRef={ref}
               name={name}
               value={options.filter((c) => value?.includes(c.value))}
               onChange={(e) => {
