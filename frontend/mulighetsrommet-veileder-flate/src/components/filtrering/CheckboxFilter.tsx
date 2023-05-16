@@ -54,28 +54,26 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   };
 
   return (
-    <Accordion>
-      <Accordion.Item defaultOpen={defaultOpen}>
-        <Accordion.Header data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}>
-          {accordionNavn}
-        </Accordion.Header>
-        <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
-          {isLoading && !data ? <Loader size="xlarge" /> : null}
-          {data && (
-            <CheckboxGroup
-              legend=""
-              hideLegend
-              size="small"
-              value={valgteTypeIDer.map(String)}
-              data-testid={`checkboxgroup_${kebabCaseAccordionNavn}`}
-            >
-              {sortert ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox) : data.map(checkbox)}
-            </CheckboxGroup>
-          )}
-          {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
-        </Accordion.Content>
-      </Accordion.Item>
-    </Accordion>
+    <Accordion.Item defaultOpen={defaultOpen}>
+      <Accordion.Header data-testid={`filter_accordionheader_${kebabCaseAccordionNavn}`}>
+        {accordionNavn}
+      </Accordion.Header>
+      <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
+        {isLoading && !data ? <Loader size="xlarge" /> : null}
+        {data && (
+          <CheckboxGroup
+            legend=""
+            hideLegend
+            size="small"
+            value={valgteTypeIDer.map(String)}
+            data-testid={`checkboxgroup_${kebabCaseAccordionNavn}`}
+          >
+            {sortert ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox) : data.map(checkbox)}
+          </CheckboxGroup>
+        )}
+        {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
+      </Accordion.Content>
+    </Accordion.Item>
   );
 };
 
