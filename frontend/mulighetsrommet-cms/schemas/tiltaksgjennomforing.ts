@@ -131,7 +131,7 @@ export const tiltaksgjennomforing = defineType({
     }),
     defineField({
       name: "oppstart",
-      title: "Oppstart eller midlertidig stengt",
+      title: "Oppstart",
       type: "string",
       options: {
         list: [
