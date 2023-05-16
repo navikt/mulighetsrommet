@@ -22,7 +22,7 @@ export function UlesteNotifikasjonsliste() {
     return null;
   }
 
-  const { data } = paginertResultat;
+  const { data = [] } = paginertResultat;
 
   if (data.length === 0) {
     return (

@@ -27,6 +27,7 @@ class DelMedBrukerServiceTest : FunSpec({
         val service = DelMedBrukerService(database.db)
 
         val payload = DelMedBrukerDbo(
+            id = "123",
             norskIdent = "12345678910",
             navident = "nav123",
             sanityId = "123456",
@@ -56,6 +57,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
         test("Les fra tabell") {
             service.lagreDelMedBruker(payload)
+            service.lagreDelMedBruker(payload.copy(navident = "nav234", dialogId = "987"))
 
             val delMedBruker = service.getDeltMedBruker(
                 fnr = "12345678910",
@@ -65,11 +67,11 @@ class DelMedBrukerServiceTest : FunSpec({
             delMedBruker.shouldBeRight().should {
                 it.shouldNotBeNull()
 
-                it.id shouldBe "1"
+                it.id shouldBe "2"
                 it.norskIdent shouldBe "12345678910"
-                it.navident shouldBe "nav123"
+                it.navident shouldBe "nav234"
                 it.sanityId shouldBe "123456"
-                it.dialogId shouldBe "1234"
+                it.dialogId shouldBe "987"
             }
         }
     }

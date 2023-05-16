@@ -6,6 +6,7 @@ import InnsatsgruppeFilter from './InnsatsgruppeFilter';
 import { LokasjonFilter } from './LokasjonFilter';
 import Sokefelt from './Sokefelt';
 import { Tiltakstypefilter } from './Tiltakstypefilter';
+import { Accordion } from '@navikt/ds-react';
 
 const Filtermeny = () => {
   usePrepopulerFilter();
@@ -14,9 +15,11 @@ const Filtermeny = () => {
   return (
     <div className={styles.tiltakstype_oversikt_filtermeny} id="tiltakstype_oversikt_filtermeny">
       <Sokefelt sokefilter={filter.search!} setSokefilter={(search: string) => setFilter({ ...filter, search })} />
-      <InnsatsgruppeFilter />
-      <Tiltakstypefilter />
-      <LokasjonFilter />
+      <Accordion>
+        <InnsatsgruppeFilter />
+        <Tiltakstypefilter />
+        <LokasjonFilter />
+      </Accordion>
     </div>
   );
 };

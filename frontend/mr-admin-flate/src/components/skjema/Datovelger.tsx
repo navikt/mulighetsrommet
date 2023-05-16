@@ -1,9 +1,9 @@
 import { UNSAFE_DatePicker, UNSAFE_useDatepicker } from "@navikt/ds-react";
 import { useController } from "react-hook-form";
 import { formaterDato } from "../../utils/Utils";
-import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
 import styles from "./Datovelger.module.scss";
 import { forwardRef } from "react";
+import { inferredSchema } from "../avtaler/AvtaleSchema";
 
 interface DatoProps {
   name: string;

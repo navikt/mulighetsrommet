@@ -95,7 +95,6 @@ const SidemenyDetaljer = () => {
 };
 
 function resolveOppstart({ oppstart, oppstartsdato }: SanityTiltaksgjennomforing) {
-  if (oppstart === 'midlertidig_stengt') return 'Midlertidig stengt';
   return oppstart === 'dato' && oppstartsdato ? formaterDato(oppstartsdato) : 'Løpende';
 }
 

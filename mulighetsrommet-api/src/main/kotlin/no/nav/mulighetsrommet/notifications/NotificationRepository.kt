@@ -14,117 +14,95 @@ import java.util.*
 class NotificationRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(notification: Notification): QueryResult<Notification> = query {
+    fun insert(notification: ScheduledNotification): QueryResult<Unit> = query {
         logger.info("Saving notification id=${notification.id}")
 
         @Language("PostgreSQL")
-        val upsertNotification = """
-            insert into notification (id, type, target, title, description, created_at)
-            values (:id::uuid, :type::notification_type, :target::notification_target, :title, :description, :created_at)
-            on conflict (id) do update set type        = excluded.type,
-                                           target      = excluded.target,
-                                           title       = excluded.title,
-                                           description = excluded.description
-            returning id, type, target, title, description, created_at
+        val insertNotification = """
+            insert into notification (id, type, title, description, created_at)
+            values (:id::uuid, :type::notification_type, :title, :description, :created_at)
+            returning id, type, title, description, created_at
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertUserNotification = """
+        val insertUserNotification = """
             insert into user_notification (notification_id, user_id, read_at)
             values (:notification_id::uuid, :user_id, :read_at)
-            on conflict (notification_id, user_id) do update set read_at = excluded.read_at
             returning notification_id, user_id, read_at
         """.trimIndent()
 
         db.transaction { tx ->
-            val notificationDbo = queryOf(
-                upsertNotification,
-                mapOf<String, Any?>(
+            queryOf(
+                insertNotification,
+                mapOf(
                     "id" to notification.id,
                     "type" to notification.type.name,
-                    "target" to if (notification.user == null) {
-                        NotificationTarget.All
-                    } else {
-                        NotificationTarget.User
-                    }.name,
                     "title" to notification.title,
                     "description" to notification.description,
                     "created_at" to notification.createdAt,
                 ),
             )
-                .map { it.toNotificationDbo() }
-                .asSingle
-                .let { tx.run(it)!! }
+                .asExecute
+                .let { tx.run(it) }
 
-            val userNotificationDbo = notification.user?.let {
+            notification.targets.forEach { userId ->
                 queryOf(
-                    upsertUserNotification,
+                    insertUserNotification,
                     mapOf(
                         "notification_id" to notification.id,
-                        "user_id" to notification.user,
+                        "user_id" to userId,
                         "read_at" to null,
                     ),
                 )
-                    .map { it.toUserNotificationDbo() }
-                    .asSingle
-                    .let { tx.run(it)!! }
+                    .asExecute
+                    .let { tx.run(it) }
             }
-
-            Notification(
-                id = notificationDbo.id,
-                type = notificationDbo.type,
-                title = notificationDbo.title,
-                description = notificationDbo.description,
-                user = userNotificationDbo?.userId,
-                createdAt = notificationDbo.createdAt,
-            )
         }
     }
 
-    fun setNotificationReadAt(id: UUID, userId: String, readAt: LocalDateTime?): QueryResult<Unit> = query {
+    fun setNotificationReadAt(id: UUID, userId: String, readAt: LocalDateTime?): QueryResult<Int> = query {
         logger.info("Setting notification id=$id readAt=$readAt")
 
         @Language("PostgreSQL")
         val query = """
-            insert into user_notification (notification_id, user_id, read_at)
-            values (:notification_id::uuid, :user_id, :read_at)
-            on conflict (notification_id, user_id) do update set read_at = excluded.read_at
-            returning notification_id, user_id, read_at
+            update user_notification
+            set read_at = :read_at
+            where notification_id = :notification_id and user_id = :user_id
         """.trimIndent()
 
         queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "read_at" to readAt))
-            .asExecute
+            .asUpdate
             .let { db.run(it) }
     }
 
-    fun get(id: UUID): QueryResult<Notification> = query {
+    fun get(id: UUID): QueryResult<UserNotification> = query {
         logger.info("Getting notification id=$id")
 
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.read_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             where id = ?::uuid
         """.trimIndent()
 
         queryOf(query, id)
-            .map { it.toNotification() }
+            .map { it.toUserNotification() }
             .asSingle
             .let { db.run(it)!! }
     }
 
-    fun getAll(): QueryResult<List<Notification>> = query {
+    fun getAll(): QueryResult<List<UserNotification>> = query {
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.read_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             order by created_at desc
         """.trimIndent()
 
         queryOf(query)
-            .map { it.toNotification() }
+            .map { it.toUserNotification() }
             .asList
             .let { db.run(it) }
     }
@@ -132,13 +110,13 @@ class NotificationRepository(private val db: Database) {
     fun getUserNotifications(userId: String? = null, filter: NotificationFilter): QueryResult<List<UserNotification>> =
         query {
             val where = DatabaseUtils.andWhereParameterNotNull(
-                userId to "(n.target = 'All' or un.user_id = :user_id)",
+                userId to "un.user_id = :user_id",
                 filter.status to filter.status?.toDbStatement(),
             )
 
             @Language("PostgreSQL")
             val query = """
-            select n.id, n.type, n.target, n.title, n.description, n.created_at, un.user_id, un.read_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.read_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             $where
@@ -146,7 +124,7 @@ class NotificationRepository(private val db: Database) {
             """.trimIndent()
 
             queryOf(query, mapOf("user_id" to userId))
-                .map { it.toUserNotification(userId) }
+                .map { it.toUserNotification() }
                 .asList
                 .let { db.run(it) }
         }
@@ -154,23 +132,11 @@ class NotificationRepository(private val db: Database) {
     fun getUserNotificationSummary(userId: String): QueryResult<UserNotificationSummary> = query {
         @Language("PostgreSQL")
         val query = """
-            with all_common_notifications as (select count(*) as count
-                                              from notification
-                                              where target = 'All'),
-                 read_common_notifications as (select count(*) as count
-                                               from notification n
-                                                        left join user_notification un on n.id = un.notification_id
-                                               where target = 'All'
-                                                 and (un.user_id = :user_id and un.read_at is not null)),
-                 unread_user_notifications as (select count(*) as count
-                                               from notification n
-                                                        join user_notification un on n.id = un.notification_id
-                                               where n.target = 'User'
-                                                 and user_id = :user_id
-                                                 and read_at is null)
-            select (select count from all_common_notifications) -
-                   (select count from read_common_notifications) +
-                   (select count from unread_user_notifications) as unread_count
+            select count(*) as unread_count
+            from notification n
+                     join user_notification un on n.id = un.notification_id
+            where user_id = :user_id
+              and read_at is null
         """.trimIndent()
 
         queryOf(query, mapOf("user_id" to userId))
@@ -197,36 +163,12 @@ class NotificationRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Row.toNotificationDbo() = NotificationDbo(
-        id = uuid("id"),
-        type = NotificationType.valueOf(string("type")),
-        target = NotificationTarget.valueOf(string("target")),
-        title = string("title"),
-        description = stringOrNull("description"),
-        createdAt = instant("created_at"),
-    )
-
-    private fun Row.toUserNotificationDbo() = UserNotificationDbo(
-        notificationId = uuid("notification_id"),
-        userId = string("user_id"),
-        readAt = localDateTimeOrNull("read_at"),
-    )
-
-    private fun Row.toNotification() = Notification(
+    private fun Row.toUserNotification() = UserNotification(
         id = uuid("id"),
         type = NotificationType.valueOf(string("type")),
         title = string("title"),
         description = stringOrNull("description"),
-        user = stringOrNull("user_id"),
-        createdAt = instant("created_at"),
-    )
-
-    private fun Row.toUserNotification(userId: String?) = UserNotification(
-        id = uuid("id"),
-        type = NotificationType.valueOf(string("type")),
-        title = string("title"),
-        description = stringOrNull("description"),
-        user = userId ?: string("user_id"),
+        user = string("user_id"),
         createdAt = localDateTime("created_at"),
         readAt = localDateTimeOrNull("read_at"),
     )

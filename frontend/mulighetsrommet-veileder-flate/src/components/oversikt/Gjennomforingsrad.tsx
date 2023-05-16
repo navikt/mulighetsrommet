@@ -21,8 +21,6 @@ const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstar
       return formaterDato(oppstartsdato!);
     case 'lopende':
       return 'Løpende oppstart';
-    case 'midlertidig_stengt':
-      return 'Midlertidig stengt';
   }
 };
 

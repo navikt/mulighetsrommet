@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNorskIdent
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.utils.getTiltaksgjennomforingsFilter
 import org.koin.ktor.ext.inject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 val log: Logger = LoggerFactory.getLogger("sanityRouteLogger")
 
@@ -55,10 +57,7 @@ fun Route.sanityRoutes() {
 
         get("/tiltaksgjennomforing/{id}") {
             poaoTilgangService.verfiyAccessToModia(getNavAnsattAzureId())
-            val id = call.parameters["id"] ?: return@get call.respondText(
-                text = "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail("id")
             call.respondWithData(veilederflateSanityService.hentTiltaksgjennomforing(id).toResponse())
         }
     }
