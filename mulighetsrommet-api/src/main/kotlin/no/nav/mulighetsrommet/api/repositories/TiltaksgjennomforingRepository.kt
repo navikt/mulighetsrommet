@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.ktor.utils.io.core.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -189,11 +191,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.avtale_id,
                    tg.oppstart,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter
+                   jsonb_agg(
+                     case
+                       when e.enhetsnummer is null then null::jsonb
+                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
+                     end
+                   ) as nav_enheter
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                      left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                     left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
             where tg.id = ?::uuid
             group by tg.id, t.id
         """.trimIndent()
@@ -288,12 +296,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.avtale_id,
                    tg.oppstart,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter,
+                   jsonb_agg(
+                     case
+                       when e.enhetsnummer is null then null::jsonb
+                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
+                     end
+                   ) as nav_enheter,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                   left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
             $where
             group by tg.id, t.id
             order by $order
@@ -445,7 +459,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
         val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
-        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
+        val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -472,7 +486,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlige = ansvarlige,
-            navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it) },
+            navEnheter = navEnheter,
             sanityId = stringOrNull("sanity_id"),
             oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
         )
@@ -481,7 +495,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
         val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
-        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -491,7 +504,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             startDato = startDato,
             sluttDato = sluttDato,
             ansvarlige = ansvarlige,
-            navEnheter = navEnheter,
         )
     }
 

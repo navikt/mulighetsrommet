@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -9,9 +8,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
@@ -27,59 +25,31 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val log = application.environment.log
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
-            tiltaksgjennomforingService.getAll(paginationParams, filter)
-                .onRight { (totalCount, items) ->
-                    call.respond(
-                        PaginatedResponse(
-                            pagination = Pagination(
-                                totalCount = totalCount,
-                                currentPage = paginationParams.page,
-                                pageSize = paginationParams.limit,
-                            ),
-                            data = items,
-                        ),
-                    )
-                }
-                .onLeft {
-                    log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføringer")
-                }
+
+            val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
+
+            call.respondWithStatusResponse(result)
         }
 
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            tiltaksgjennomforingService
-                .get(id)
-                .onRight {
-                    if (it == null) {
-                        return@get call.respondText(
-                            "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                            status = HttpStatusCode.NotFound,
-                        )
-                    }
-                    return@get call.respond(it)
-                }
-                .onLeft {
-                    log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
-                }
+
+            val result = tiltaksgjennomforingService.get(id)
+
+            call.respondWithStatusResponse(result)
         }
 
         put {
             val request = call.receive<TiltaksgjennomforingRequest>()
 
-            tiltaksgjennomforingService.upsert(request)
-                .onRight { call.respond(it) }
-                .onLeft { error ->
-                    log.error("$error")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
-                }
+            val result = tiltaksgjennomforingService.upsert(request)
+
+            call.respondWithStatusResponse(result)
         }
 
         get("{id}/nokkeltall") {

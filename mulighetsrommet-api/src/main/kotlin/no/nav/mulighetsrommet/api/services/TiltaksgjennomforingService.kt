@@ -9,13 +9,9 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponseError
+import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import org.slf4j.Logger
@@ -33,21 +29,38 @@ class TiltaksgjennomforingService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
+    suspend fun get(id: UUID): StatusResponse<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository.get(id)
-            .map { it?.hentVirksomhetsnavnForTiltaksgjennomforing()?.hentEnhetsnavn() }
+            .mapLeft {
+                log.error("Klarte ikke hente tiltaksgjennomføring", it.error)
+                ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id")
+            }
+            .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
+            .map { withVirksomhetsnavn(it) }
 
     suspend fun getAll(
         paginationParams: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
-    ): QueryResult<Pair<Int, List<TiltaksgjennomforingAdminDto>>> =
+    ): StatusResponse<PaginatedResponse<TiltaksgjennomforingAdminDto>> =
         tiltaksgjennomforingRepository
             .getAll(paginationParams, filter)
+            .mapLeft {
+                log.error("Klarte ikke hente tiltaksgjennomføringer", it.error)
+                ServerError("Klarte ikke hente tiltaksgjennomføringer")
+            }
             .map { (totalCount, items) ->
-                totalCount to items.map { it.hentVirksomhetsnavnForTiltaksgjennomforing().hentEnhetsnavn() }
+                val data = items.map { withVirksomhetsnavn(it) }
+                PaginatedResponse(
+                    pagination = Pagination(
+                        totalCount = totalCount,
+                        currentPage = paginationParams.page,
+                        pageSize = paginationParams.limit,
+                    ),
+                    data = data,
+                )
             }
 
-    suspend fun upsert(gjennomforing: TiltaksgjennomforingRequest): Either<StatusResponseError, TiltaksgjennomforingAdminDto> {
+    suspend fun upsert(gjennomforing: TiltaksgjennomforingRequest): StatusResponse<TiltaksgjennomforingAdminDto> {
         return Either
             .catch { tiltakstyper.get(gjennomforing.tiltakstypeId) }
             .mapLeft {
@@ -76,20 +89,10 @@ class TiltaksgjennomforingService(
             antallDeltakere = deltakerRepository.countAntallDeltakereForTiltakstypeWithId(tiltaksgjennomforingId),
         )
 
-    private suspend fun TiltaksgjennomforingAdminDto.hentVirksomhetsnavnForTiltaksgjennomforing(): TiltaksgjennomforingAdminDto {
-        val virksomhet = this.virksomhetsnummer.let { arrangorService.hentVirksomhet(it) }
-        if (virksomhet != null) {
-            return this.copy(virksomhetsnavn = virksomhet.navn)
-        }
-        return this
-    }
-
-    private fun TiltaksgjennomforingAdminDto.hentEnhetsnavn(): TiltaksgjennomforingAdminDto {
-        val enheterMedNavn: List<NavEnhet> = this.navEnheter.mapNotNull {
-            val enhet = enhetService.hentEnhet(it.enhetsnummer)
-            enhet?.let { it1 -> NavEnhet(enhetsnummer = it1.enhetsnummer, navn = enhet.navn) }
-        }
-        return this.copy(navEnheter = enheterMedNavn)
+    private suspend fun withVirksomhetsnavn(tiltaksgjennomforing: TiltaksgjennomforingAdminDto): TiltaksgjennomforingAdminDto {
+        return arrangorService.hentVirksomhet(tiltaksgjennomforing.virksomhetsnummer)
+            ?.let { tiltaksgjennomforing.copy(virksomhetsnavn = it.navn) }
+            ?: tiltaksgjennomforing
     }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {

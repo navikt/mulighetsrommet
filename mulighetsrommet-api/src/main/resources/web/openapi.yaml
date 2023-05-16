@@ -983,7 +983,7 @@ components:
           type: string
           format: date
         navRegion:
-          $ref: "#/components/schemas/AvtaleNavEnhet"
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
@@ -1175,13 +1175,7 @@ components:
         navEnheter:
           type: array
           items:
-            type: object
-            properties:
-              enhetsnummer:
-                type: string
-              navn:
-                type: string
-                nullable: true
+            $ref: "#/components/schemas/EmbeddedNavEnhet"
         ansvarlig:
           type: string
         antallPlasser:
@@ -1489,13 +1483,16 @@ components:
       required:
         - organisasjonsnummer
 
-    AvtaleNavEnhet:
+    EmbeddedNavEnhet:
       type: object
       properties:
         navn:
           type: string
         enhetsnummer:
           type: string
+      required:
+        - navn
+        - enhetsnummer
 
     SanityInnsatsgruppe:
       type: object

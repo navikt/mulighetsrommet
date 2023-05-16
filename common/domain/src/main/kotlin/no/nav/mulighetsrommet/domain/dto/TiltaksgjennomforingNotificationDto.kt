@@ -16,5 +16,4 @@ data class TiltaksgjennomforingNotificationDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate? = null,
     val ansvarlige: List<String>,
-    val navEnheter: List<String>,
 )

@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NavEnhet(
     val enhetsnummer: String,
-    val navn: String? = null,
+    val navn: String,
 )
