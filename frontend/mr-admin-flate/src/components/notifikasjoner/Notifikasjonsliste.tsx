@@ -16,13 +16,14 @@ export function Notifikasjonsliste({ lest }: Props) {
     lest ? Notifikasjonsstatus.READ : Notifikasjonsstatus.UNREAD
   );
 
-  if (!features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]) return null;
-
   if (isLoading && !paginertResultat) {
     return <Laster />;
   }
 
-  if (!paginertResultat) {
+  if (
+    !paginertResultat ||
+    !features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]
+  ) {
     return null;
   }
 
