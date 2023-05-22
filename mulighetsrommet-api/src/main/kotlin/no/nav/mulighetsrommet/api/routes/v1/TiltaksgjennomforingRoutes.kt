@@ -88,7 +88,7 @@ data class TiltaksgjennomforingRequest(
         }
 
         val oppstart = if (Tiltakskoder.hasFellesOppstart(tiltakstype.arenaKode)) {
-            TiltaksgjennomforingDbo.Oppstartstype.Dato
+            TiltaksgjennomforingDbo.Oppstartstype.Felles
         } else {
             TiltaksgjennomforingDbo.Oppstartstype.Lopende
         }

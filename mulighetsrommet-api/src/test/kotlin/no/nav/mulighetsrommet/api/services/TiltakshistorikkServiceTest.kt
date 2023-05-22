@@ -44,7 +44,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.Dato,
+        oppstart = TiltaksgjennomforingDbo.Oppstartstype.Felles,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
