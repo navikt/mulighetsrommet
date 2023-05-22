@@ -6,16 +6,23 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.ktor.server.plugins.*
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.database.utils.query
 
-class BrregServiceTest : FunSpec({
+class VirksomhetServiceTest : FunSpec({
 
     val brregClient: BrregClient = mockk()
-    val brregService = BrregService(brregClient)
+    val virksomhetRepository: VirksomhetRepository = mockk()
+    val virksomhetService = VirksomhetService(brregClient, virksomhetRepository)
 
     beforeSpec {
+        every { virksomhetRepository.get(any()) } returns query { null }
+        every { virksomhetRepository.upsert(any()) } returns query {}
+
         coEvery { brregClient.hentEnhet("123456789") } returns VirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "Testbedriften AS",
@@ -44,9 +51,9 @@ class BrregServiceTest : FunSpec({
     }
 
     test("Hent enhet skal hente enhet") {
-        brregService.hentEnhet("123456789").organisasjonsnummer shouldBe "123456789"
-        brregService.hentEnhet("123456789").navn shouldBe "Testbedriften AS"
-        brregService.hentEnhet("123456789").underenheter?.shouldContain(
+        virksomhetService.hentEnhet("123456789").organisasjonsnummer shouldBe "123456789"
+        virksomhetService.hentEnhet("123456789").navn shouldBe "Testbedriften AS"
+        virksomhetService.hentEnhet("123456789").underenheter?.shouldContain(
             VirksomhetDto(
                 organisasjonsnummer = "234567891",
                 navn = "Underenhet til Testbedriften AS",
@@ -56,7 +63,7 @@ class BrregServiceTest : FunSpec({
 
     test("Hent enhet skal returnere 404 not found hvis ingen enhet finnes") {
         val exception = shouldThrow<NotFoundException> {
-            brregService.hentEnhet("999999999")
+            virksomhetService.hentEnhet("999999999")
         }
 
         exception.message shouldBe "Fant ingen enhet i Brreg med orgnr: '999999999'"
@@ -64,7 +71,7 @@ class BrregServiceTest : FunSpec({
 
     test("Søk etter enhet skal returnere en liste med treff") {
         val sokestreng = "Nav"
-        val result = brregService.sokEtterEnhet(sokestreng)
+        val result = virksomhetService.sokEtterEnhet(sokestreng)
         result.size shouldBe 2
         result[0].navn shouldBe "NAV AS"
         result[1].navn shouldBe "Navesen AS"
@@ -72,7 +79,7 @@ class BrregServiceTest : FunSpec({
 
     test("Søk etter enhet skal returnere en tom liste hvis ingen treff") {
         val sokestreng = "ingen treff her"
-        val result = brregService.sokEtterEnhet(sokestreng)
+        val result = virksomhetService.sokEtterEnhet(sokestreng)
         result.size shouldBe 0
     }
 })

@@ -228,7 +228,7 @@ private fun services(appConfig: AppConfig) = module {
     single<BrregClient> {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
-    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateSanityService(get(), get()) }
@@ -248,7 +248,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
-    single { BrregService(get()) }
+    single { VirksomhetService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

@@ -22,6 +22,7 @@ class ArenaAdapterService(
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val virksomhetService: VirksomhetService,
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
@@ -39,7 +40,8 @@ class ArenaAdapterService(
         }
     }
 
-    fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleAdminDto> {
+    suspend fun upsertAvtale(avtale: AvtaleDbo): QueryResult<AvtaleAdminDto> {
+        virksomhetService.hentEnhet(avtale.leverandorOrganisasjonsnummer) // Oppdaterer DB hvis den ikke finnes
         return avtaler.upsert(avtale)
             .flatMap { avtaler.get(avtale.id) }
             .map { it!! }
@@ -50,6 +52,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+        virksomhetService.hentEnhet(tiltaksgjennomforing.virksomhetsnummer)
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
             .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
             .map { it!! }
