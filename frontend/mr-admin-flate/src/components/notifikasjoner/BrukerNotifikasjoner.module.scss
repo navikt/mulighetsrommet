@@ -1,8 +1,8 @@
-.container {
+.brukernotifikasjoner_container {
   margin-bottom: 1rem;
   max-width: 100%;
 
-  @media screen and (min-width: 850px) {
+  @media (width >= 900px) {
     max-width: 35%;
   }
 }

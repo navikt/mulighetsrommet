@@ -1,12 +1,16 @@
 import { useFeatureToggles } from "../../api/features/feature-toggles";
-import styles from "./Notifikasjonsliste.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
-import { UlestNotifikasjonssrad } from "./UlestNotifikasjonssrad";
 import { Laster } from "../laster/Laster";
 import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
 import { EmptyState } from "./EmptyState";
+import styles from "./Notifikasjoner.module.scss";
+import { Notifikasjonssrad } from "./Notifikasjonsrad";
 
-export function UlesteNotifikasjonsliste() {
+interface Props {
+  lest: boolean;
+}
+
+export function Notifikasjonsliste({ lest }: Props) {
   const { data: features } = useFeatureToggles();
   const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt(
     Notifikasjonsstatus.UNREAD
@@ -27,20 +31,29 @@ export function UlesteNotifikasjonsliste() {
   if (data.length === 0) {
     return (
       <EmptyState
-        tittel={"Ingen nye varsler"}
-        beskrivelse={"Vi varsler deg når noe skjer"}
+        tittel={
+          lest
+            ? "Du har ingen tidligere notifikasjoner"
+            : "Ingen nye notifikasjoner"
+        }
+        beskrivelse={
+          lest
+            ? "Når du har gjort en oppgave eller lest en beskjed havner de her"
+            : "Vi varsler deg når noe skjer"
+        }
       />
     );
   }
 
   return (
-    <ul className={styles.container}>
+    <ul className={styles.notifikasjonsliste_ul}>
       {data.map((n) => {
         return (
-          <UlestNotifikasjonssrad
+          <Notifikasjonssrad
+            lest={lest}
             key={n.id}
             notifikasjon={n}
-          ></UlestNotifikasjonssrad>
+          ></Notifikasjonssrad>
         );
       })}
     </ul>

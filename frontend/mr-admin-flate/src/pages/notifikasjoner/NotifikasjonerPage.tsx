@@ -1,26 +1,27 @@
 import { Heading, Tabs } from "@navikt/ds-react";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { LesteNotifikasjonsliste } from "../../components/notifikasjoner/LesteNotifikasjonsliste";
 import { useAtom } from "jotai/index";
 import { logEvent } from "mulighetsrommet-veileder-flate/src/core/api/logger";
 import { kebabCase } from "mulighetsrommet-veileder-flate/src/utils/Utils";
 import { faneAtom } from "../../api/atoms";
 import styles from "./NotifikasjonerPage.module.scss";
-import { UlesteNotifikasjonsliste } from "../../components/notifikasjoner/UlesteNotifikasjonsliste";
+import { Notifikasjonsliste } from "../../components/notifikasjoner/Notifikasjonsliste";
 
 export function NotifikasjonerPage() {
   const [fane, setFane] = useAtom(faneAtom);
 
-  const faneoverskrifter = ["Nye varsler", "Tidligere varsler"] as const;
+  const faneoverskrifter = [
+    "Nye notifikasjoner",
+    "Tidligere notifikasjoner",
+  ] as const;
   const tabValueTilFaneoverskrifter: { [key: string]: string } = {
-    tab1: faneoverskrifter[0],
-    tab2: faneoverskrifter[1],
+    tab_notifikasjoner_1: faneoverskrifter[0],
+    tab_notifikasjoner_2: faneoverskrifter[1],
   };
 
   return (
-    <main className={styles.container}>
-      <Heading className={styles.heading} size={"large"}>
-        Varsler
+    <div className={styles.notifikasjoner}>
+      <Heading level="2" size="large" className={styles.heading}>
+        Notifikasjoner
       </Heading>
       <Tabs
         defaultValue={fane}
@@ -38,7 +39,7 @@ export function NotifikasjonerPage() {
           {faneoverskrifter.map((fane, index) => (
             <Tabs.Tab
               key={index}
-              value={`tab${index + 1}`}
+              value={`tab_notifikasjoner_${index + 1}`}
               label={fane}
               className={styles.btn_tab}
               data-testid={`fane_${kebabCase(fane)}`}
@@ -46,14 +47,14 @@ export function NotifikasjonerPage() {
           ))}
         </Tabs.List>
         <div className={styles.fane_panel}>
-          <Tabs.Panel value="tab1" data-testid="tab1">
-            <UlesteNotifikasjonsliste />
+          <Tabs.Panel value="tab_notifikasjoner_1">
+            <Notifikasjonsliste lest={false} />
           </Tabs.Panel>
-          <Tabs.Panel value="tab2" data-testid="tab2">
-            <LesteNotifikasjonsliste />
+          <Tabs.Panel value="tab_notifikasjoner_2">
+            <Notifikasjonsliste lest={true} />
           </Tabs.Panel>
         </div>
       </Tabs>
-    </main>
+    </div>
   );
 }

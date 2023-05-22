@@ -1,0 +1,30 @@
+.notifikasjon_container {
+  background-color: var(--a-orange-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+
+  .flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .ikon {
+    color: #b86b00;
+    display: inline-block;
+    font-size: 1.5rem;
+  }
+
+  .ikon_container {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--a-orange-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
