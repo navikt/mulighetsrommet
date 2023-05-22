@@ -19,7 +19,7 @@ export function NotifikasjonerPage() {
   };
 
   return (
-    <div className={styles.notifikasjoner}>
+    <main className={styles.notifikasjoner}>
       <Heading level="2" size="large" className={styles.heading}>
         Notifikasjoner
       </Heading>
@@ -55,6 +55,6 @@ export function NotifikasjonerPage() {
           </Tabs.Panel>
         </div>
       </Tabs>
-    </div>
+    </main>
   );
 }
