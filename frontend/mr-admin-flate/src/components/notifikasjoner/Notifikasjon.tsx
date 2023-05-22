@@ -1,17 +1,21 @@
 import { BellIcon } from "@navikt/aksel-icons";
 import { LinkPanel } from "@navikt/ds-react";
-import styles from "./Varsel.module.scss";
+import styles from "./Notifikasjon.module.scss";
 
-interface IVarsel {
+interface NotifikasjonProps {
   tittel: string;
   melding: string;
   href: string;
 }
 
-export function Varsel({ tittel, melding, href }: IVarsel) {
+export function Notifikasjon({ tittel, melding, href }: NotifikasjonProps) {
   return (
     <>
-      <LinkPanel href={href} className={styles.container} border={false}>
+      <LinkPanel
+        href={href}
+        className={styles.notifikasjon_container}
+        border={false}
+      >
         <div className={styles.flex}>
           <div>
             <span className={styles.ikon_container}>

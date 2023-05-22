@@ -1,69 +1,22 @@
-.heading {
-  margin-bottom: 2rem;
-  margin-top: 1rem;
-}
+.notifikasjoner {
+  margin: 2rem 1rem;
+  width: 60%;
 
-.container {
-  margin-left: 4rem;
-}
-
-.fane {
-  &_root {
-    margin-bottom: 2rem;
+  @media (width <= 900px) {
+    width: 100%;
   }
 
-  &_liste {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    justify-content: start;
-
-    :global(.navds-label) {
-      font-weight: normal;
-      margin: 0 0.5rem;
-      color: var(--a-text-default);
-    }
-
-    button {
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-
-      &:hover {
-        color: var(--a-surface-action);
-      }
-    }
-
-    .btn_tab {
-      width: fit-content;
-    }
-
-    button[data-state='active'] {
-      .navds-label {
-        font-weight: bold;
-      }
-    }
+  @media (width >= 2000px) {
+    width: 100%;
+    max-width: 60%;
+    margin: 2rem auto;
   }
-}
 
-.fane_panel {
-  margin-top: 24px;
-}
-
-@media (width <= 1200px) {
-  .fane {
-    &_root {
-      grid-row: 3;
-      max-width: none;
-    }
-
-    &_liste {
-      justify-content: space-between;
-    }
+  .heading {
+    margin: 1rem 0;
   }
-}
 
-:global(.navds-tabs__tablist-wrapper) {
-  background-color: transparent;
-  width: 704px;
+  :global(.navds-tabs__tablist-wrapper) {
+    background-color: transparent;
+  }
 }

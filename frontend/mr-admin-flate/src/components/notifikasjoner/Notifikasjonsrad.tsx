@@ -1,21 +1,31 @@
 import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
 import { UserNotification } from "mulighetsrommet-api-client";
 import { formaterDatoTid } from "../../utils/Utils";
-import styles from "./UlestNotifikasjonsrad.module.scss";
+import styles from "./Notifikasjoner.module.scss";
 import { useState } from "react";
 import { CheckmarkButton } from "./CheckmarkButton";
+import classNames from "classnames";
 
-interface Props {
+interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
+  lest: boolean;
 }
 
-export function UlestNotifikasjonssrad({ notifikasjon }: Props) {
+export function Notifikasjonssrad({
+  notifikasjon,
+  lest,
+}: NotifikasjonssradProps) {
   const { title, description, createdAt } = notifikasjon;
 
-  const [read, setRead] = useState<boolean>(false);
+  const [read, setRead] = useState<boolean>(lest);
 
   return (
-    <li className={styles.list_element}>
+    <li
+      className={classNames(
+        styles.list_element,
+        lest ? styles.leste : styles.uleste
+      )}
+    >
       <div className={styles.flex}>
         <Heading
           level="2"
