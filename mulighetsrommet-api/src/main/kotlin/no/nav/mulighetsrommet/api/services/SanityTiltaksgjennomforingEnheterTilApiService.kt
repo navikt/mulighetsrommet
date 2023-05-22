@@ -12,43 +12,34 @@ class SanityTiltaksgjennomforingEnheterTilApiService(
     private val sanityClient: SanityClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private suspend fun hentEnheterForTiltaksgjennomforinger(): SanityResponse {
-        val query =
-            """
-            *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))]{
-              _id,
-              "tiltaksnummer": tiltaksnummer.current,
-              "enheter": enheter
-            }
-            """.trimIndent()
-        return sanityClient.query(query)
-    }
 
-    suspend fun oppdaterTiltaksgjennomforingEnheter() {
-        val gjennomforinger = when (val response = hentEnheterForTiltaksgjennomforinger()) {
+    private suspend fun hentTiltaksgjennomforinger(): List<SanityTiltaksgjennomforingResponse> {
+        val query = """ *[_type == "tiltaksgjennomforing" && !(_id in path('drafts.**'))] """.trimIndent()
+        return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> {
-                response.decode<List<SanityTiltaksgjennomforingResponse>>()
+                response.decode()
             }
 
             is SanityResponse.Error -> {
                 throw RuntimeException("Feil ved henting av gjennomføringer fra Sanity: ${response.error}")
             }
         }
+    }
+
+    suspend fun oppdaterTiltaksgjennomforingEnheter() {
+        val gjennomforinger = hentTiltaksgjennomforinger()
 
         val gjennomforingerMedEnheter = gjennomforinger
             .filter {
-                (it.tiltaksnummer != null) &&
-                    !it.enheter.isNullOrEmpty() &&
-                    it.enheter.any { enhet -> enhet._ref != null }
+                (it.tiltaksnummer != null) && !it.enheter.isNullOrEmpty()
             }
 
         val suksesser = gjennomforingerMedEnheter
             .sumOf {
                 val enheter = it.enheter!!
-                    .filter { enhet -> enhet._ref != null }
-                    .map { enhet -> enhet._ref!!.takeLast(4) }
+                    .map { enhet -> enhet._ref.takeLast(4) }
 
-                tiltaksgjennomforingRepository.updateEnheter(it.tiltaksnummer!!, enheter)
+                tiltaksgjennomforingRepository.updateEnheter(it.tiltaksnummer!!.current, enheter)
                     .getOrThrow()
             }
 

@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
@@ -20,6 +21,7 @@ class ArenaAdapterService(
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
+    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
 ) {
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
         return tiltakstyper.upsert(tiltakstype).onRight {
@@ -47,12 +49,17 @@ class ArenaAdapterService(
         return avtaler.delete(id)
     }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+    suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
             .flatMap { tiltaksgjennomforinger.get(tiltaksgjennomforing.id) }
             .map { it!! }
             .onRight {
                 tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
+            }
+            .onRight {
+                if (it.sluttDato == null || it.sluttDato?.isAfter(TiltaksgjennomforingSluttDatoCutoffDate) == true) {
+                    sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
+                }
             }
     }
 
