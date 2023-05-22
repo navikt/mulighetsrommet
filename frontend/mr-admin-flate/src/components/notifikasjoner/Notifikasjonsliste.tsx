@@ -13,7 +13,7 @@ interface Props {
 export function Notifikasjonsliste({ lest }: Props) {
   const { data: features } = useFeatureToggles();
   const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt(
-    Notifikasjonsstatus.UNREAD
+    lest ? Notifikasjonsstatus.READ : Notifikasjonsstatus.UNREAD
   );
 
   if (!features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]) return null;
