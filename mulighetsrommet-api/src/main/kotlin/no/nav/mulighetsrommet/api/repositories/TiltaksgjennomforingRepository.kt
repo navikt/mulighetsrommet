@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
@@ -184,6 +185,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.arena_ansvarlig_enhet,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
+                   tg.sanity_id,
                    tg.antall_plasser,
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
@@ -199,6 +201,26 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, id)
             .map { it.toTiltaksgjennomforingAdminDto() }
             .asSingle
+            .let { db.run(it) }
+    }
+
+    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID): QueryResult<Unit> = query {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+                set sanity_id = :sanity_id::uuid
+                where id = :id::uuid
+                and sanity_id is null
+        """.trimIndent()
+
+        queryOf(
+            query,
+            mapOf(
+                "sanity_id" to sanityId,
+                "id" to id,
+            ),
+        )
+            .asUpdate
             .let { db.run(it) }
     }
 
@@ -255,8 +277,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.start_dato,
                    tg.slutt_dato,
                    t.tiltakskode,
-                   t.navn           as tiltakstype_navn,
+                   t.navn as tiltakstype_navn,
                    tg.arena_ansvarlig_enhet,
+                   tg.sanity_id,
                    tg.avslutningsstatus,
                    tg.tilgjengelighet,
                    tg.antall_plasser,
@@ -449,10 +472,32 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlige = ansvarlige,
             navEnheter = navEnheter,
+            sanityId = stringOrNull("sanity_id"),
+        )
+    }
+
+    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
+        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+        } ?: emptyList()
+        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+        } ?: emptyList()
+
+        val startDato = localDate("start_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
+        return TiltaksgjennomforingNotificationDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            startDato = startDato,
+            sluttDato = sluttDato,
+            ansvarlige = ansvarlige,
+            navEnheter = navEnheter,
         )
     }
 
     fun countGjennomforingerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        @Language("PostgreSQL")
         val query = """
             SELECT count(id) AS antall
             FROM tiltaksgjennomforing
@@ -468,6 +513,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun countDeltakereForAvtaleWithId(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        @Language("PostgreSQL")
         val query = """
             SELECT count(*) AS antall
             FROM tiltaksgjennomforing tg
@@ -481,5 +527,28 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   array_agg(distinct a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as navEnheter
+            from tiltaksgjennomforing tg
+                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+            where (?::timestamp + interval '14' day) = tg.slutt_dato
+               or (?::timestamp + interval '7' day) = tg.slutt_dato
+               or (?::timestamp + interval '1' day) = tg.slutt_dato
+            group by tg.id, a.navident;
+        """.trimIndent()
+
+        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
+            .asList
+            .let { db.run(it) }
     }
 }

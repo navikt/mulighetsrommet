@@ -88,6 +88,9 @@ app:
       disabled: true
     synchronizeNavAnsatte:
       disabled: true
+    notifySluttdatoForGjennomforingerNarmerSeg:
+      disabled: true
+      cronPattern: "0 */10 * * * *" # Hvert 10. minutt
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

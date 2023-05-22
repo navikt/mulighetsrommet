@@ -9,13 +9,16 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import java.util.*
 
 class TiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arrangorService: ArrangorService,
     private val deltakerRepository: DeltakerRepository,
+    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
 ) {
+
     suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
             .map { it?.hentVirksomhetsnavnForTiltaksgjennomforing() }
@@ -30,10 +33,13 @@ class TiltaksgjennomforingService(
                 totalCount to items.map { it.hentVirksomhetsnavnForTiltaksgjennomforing() }
             }
 
-    fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> =
+    suspend fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> =
         tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
             .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
             .map { it!! } // If upsert is succesfull it should exist here
+            .onRight {
+                sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
+            }
 
     fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =
         TiltaksgjennomforingNokkeltallDto(
@@ -46,5 +52,9 @@ class TiltaksgjennomforingService(
             return this.copy(virksomhetsnavn = virksomhet.navn)
         }
         return this
+    }
+
+    fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
+        return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato()
     }
 }

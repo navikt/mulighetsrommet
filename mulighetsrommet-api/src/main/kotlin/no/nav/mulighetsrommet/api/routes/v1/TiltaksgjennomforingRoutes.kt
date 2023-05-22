@@ -7,6 +7,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
@@ -50,10 +50,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
 
         get("{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
             tiltaksgjennomforingService
                 .get(id)
                 .onRight {
@@ -87,10 +84,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
 
         get("{id}/nokkeltall") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
             call.respond(tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id))
         }
     }

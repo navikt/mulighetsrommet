@@ -13,7 +13,7 @@ interface ModalProps {
   handleCancel?: () => void;
   shouldCloseOnOverlayClick?: boolean;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
-  avtale: Avtale;
+  avtale?: Avtale;
 }
 
 export const OpprettTiltaksgjennomforingModal = ({
@@ -54,7 +54,9 @@ export const OpprettTiltaksgjennomforingModal = ({
         >
           <Modal.Content>
             <Heading size="medium" level="2" data-testid="modal_header">
-              { redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring" }
+              {redigeringsModus
+                ? "Rediger gjennomføring"
+                : "Opprett ny gjennomføring"}
             </Heading>
             <OpprettTiltaksgjennomforingContainer
               onAvbryt={clickCancel}

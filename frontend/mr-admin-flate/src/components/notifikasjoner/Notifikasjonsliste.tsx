@@ -26,7 +26,7 @@ export function Notifikasjonsliste({ lest }: Props) {
     return null;
   }
 
-  const { data } = paginertResultat;
+  const { data = [] } = paginertResultat;
 
   if (data.length === 0) {
     return (

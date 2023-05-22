@@ -14,8 +14,9 @@ import { porten } from "mulighetsrommet-frontend-common/constants";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import z from "zod";
 import { mulighetsrommetClient } from "../../api/clients";
+import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
+import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { useNavigerTilAvtale } from "../../hooks/useNavigerTilAvtale";
 import {
   capitalize,
@@ -23,10 +24,10 @@ import {
   tiltakstypekodeErAnskaffetTiltak,
 } from "../../utils/Utils";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { Datovelger } from "../skjema/Datovelger";
 import { SokeSelect } from "../skjema/SokeSelect";
 import styles from "./OpprettAvtaleContainer.module.scss";
-import { useSokVirksomheter } from "../../api/virksomhet/useVirksomhet";
+import { Datovelger } from "../skjema/Datovelger";
+import { AvtaleSchema, inferredSchema } from "./AvtaleSchema";
 
 interface OpprettAvtaleContainerProps {
   onAvbryt: () => void;
@@ -36,49 +37,6 @@ interface OpprettAvtaleContainerProps {
   avtale?: Avtale;
   enheter: NavEnhet[];
 }
-
-const GyldigUrlHvisVerdi = z.union([
-  z.literal(""),
-  z.string().trim().url("Du må skrive inn en gyldig nettadresse"),
-]);
-
-const Schema = z.object({
-  avtalenavn: z.string().min(5, "Et avtalenavn må minst være 5 tegn langt"),
-  tiltakstype: z.string({ required_error: "Du må velge en tiltakstype" }),
-  avtaletype: z.nativeEnum(Avtaletype, {
-    required_error: "Du må velge en avtaletype",
-  }),
-  leverandor: z
-    .string()
-    .min(9, "Du må velge en leverandør")
-    .max(9, "Du må velge en leverandør")
-    .regex(/^\d+$/, "Leverandør må være et nummer"),
-  navRegion: z.string({ required_error: "Du må velge en enhet" }),
-  navEnheter: z
-    .string()
-    .array()
-    .nonempty({ message: "Du må velge minst én enhet" }),
-  antallPlasser: z
-    .number({
-      invalid_type_error:
-        "Du må skrive inn antall plasser for avtalen som et tall",
-    })
-    .gt(0, "Antall plasser må være større enn 0")
-    .int(),
-  startDato: z
-    .date({ required_error: "En avtale må ha en startdato" })
-    .nullable(),
-  sluttDato: z
-    .date({ required_error: "En avtale må ha en sluttdato" })
-    .nullable(),
-  avtaleansvarlig: z.string({
-    required_error: "Du må velge en avtaleansvarlig",
-  }),
-  url: GyldigUrlHvisVerdi,
-  prisOgBetalingsinfo: z.string().optional(),
-});
-
-export type inferredSchema = z.infer<typeof Schema>;
 
 export function OpprettAvtaleContainer({
   onAvbryt,
@@ -94,7 +52,9 @@ export function OpprettAvtaleContainer({
   const [navRegion, setNavRegion] = useState<string | undefined>(
     avtale?.navRegion?.enhetsnummer
   );
-  const [sokLeverandor, setSokLeverandor] = useState("");
+  const [sokLeverandor, setSokLeverandor] = useState(
+    avtale?.leverandor.organisasjonsnummer || ""
+  );
   const { data: leverandorVirksomheter = [] } =
     useSokVirksomheter(sokLeverandor);
 
@@ -112,22 +72,41 @@ export function OpprettAvtaleContainer({
     return undefined;
   };
 
+  function getValueOrDefault<T>(
+    value: T | undefined | null,
+    defaultValue: T
+  ): T {
+    return value || defaultValue;
+  }
+
   const form = useForm<inferredSchema>({
-    resolver: zodResolver(Schema),
+    resolver: zodResolver(AvtaleSchema),
     defaultValues: {
       tiltakstype: avtale?.tiltakstype?.id,
       navRegion: defaultEnhet(),
       navEnheter:
         avtale?.navEnheter.length === 0 ? ["alle_enheter"] : avtale?.navEnheter,
       avtaleansvarlig: avtale?.ansvarlig || ansatt?.ident || "",
-      avtalenavn: avtale?.navn || "",
-      avtaletype: avtale?.avtaletype || Avtaletype.AVTALE,
-      leverandor: avtale?.leverandor?.organisasjonsnummer || "",
-      antallPlasser: avtale?.antallPlasser || 0,
+      avtalenavn: getValueOrDefault(avtale?.navn, ""),
+      avtaletype: getValueOrDefault(avtale?.avtaletype, Avtaletype.AVTALE),
+      leverandor: getValueOrDefault(
+        avtale?.leverandor?.organisasjonsnummer,
+        ""
+      ),
+      leverandorUnderenheter:
+        avtale?.leverandorUnderenheter.length === 0
+          ? []
+          : avtale?.leverandorUnderenheter?.map(
+              (enhet) => enhet.organisasjonsnummer
+            ),
+      antallPlasser: getValueOrDefault(avtale?.antallPlasser, 0),
       startDato: avtale?.startDato ? new Date(avtale.startDato) : null,
       sluttDato: avtale?.sluttDato ? new Date(avtale.sluttDato) : null,
-      url: avtale?.url || "",
-      prisOgBetalingsinfo: avtale?.prisbetingelser || undefined,
+      url: getValueOrDefault(avtale?.url, ""),
+      prisOgBetalingsinfo: getValueOrDefault(
+        avtale?.prisbetingelser,
+        undefined
+      ),
     },
   });
   const {
@@ -136,6 +115,12 @@ export function OpprettAvtaleContainer({
     formState: { errors },
     watch,
   } = form;
+
+  const { data: leverandorData } = useVirksomhet(watch("leverandor"));
+  const underenheterForLeverandor = getValueOrDefault(
+    leverandorData?.underenheter,
+    []
+  );
 
   const erAnskaffetTiltak = (tiltakstypeId: string): boolean => {
     const tiltakstype = tiltakstyper.find((type) => type.id === tiltakstypeId);
@@ -148,33 +133,52 @@ export function OpprettAvtaleContainer({
     setFeil(null);
     setResult(null);
 
-    const postData: AvtaleRequest = {
-      antallPlasser: data.antallPlasser,
-      navRegion: data.navRegion,
-      navEnheter: data.navEnheter.includes("alle_enheter")
+    const {
+      antallPlasser,
+      navRegion,
+      navEnheter,
+      leverandor: leverandorOrganisasjonsnummer,
+      leverandorUnderenheter,
+      avtalenavn: navn,
+      sluttDato,
+      startDato,
+      tiltakstype: tiltakstypeId,
+      avtaleansvarlig: ansvarlig,
+      avtaletype,
+      prisOgBetalingsinfo,
+      url,
+    } = data;
+
+    const requestBody: AvtaleRequest = {
+      antallPlasser,
+      navRegion,
+      navEnheter: navEnheter.includes("alle_enheter") ? [] : navEnheter,
+      avtalenummer: getValueOrDefault(avtale?.avtalenummer, ""),
+      leverandorOrganisasjonsnummer,
+      leverandorUnderenheter: leverandorUnderenheter.includes(
+        "alle_underenheter"
+      )
         ? []
-        : data.navEnheter,
-      avtalenummer: avtale?.avtalenummer || "",
-      leverandorOrganisasjonsnummer: data.leverandor,
-      navn: data.avtalenavn,
-      sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
-      startDato: formaterDatoSomYYYYMMDD(data.startDato),
-      tiltakstypeId: data.tiltakstype,
-      url: data.url,
-      ansvarlig: data.avtaleansvarlig,
-      avtaletype: data.avtaletype,
-      prisOgBetalingsinformasjon: erAnskaffetTiltak(data.tiltakstype)
-        ? data.prisOgBetalingsinfo
+        : leverandorUnderenheter,
+      navn,
+      sluttDato: formaterDatoSomYYYYMMDD(sluttDato),
+      startDato: formaterDatoSomYYYYMMDD(startDato),
+      tiltakstypeId,
+      url,
+      ansvarlig,
+      avtaletype,
+      prisOgBetalingsinformasjon: erAnskaffetTiltak(tiltakstypeId)
+        ? prisOgBetalingsinfo
         : undefined,
     };
 
     if (avtale?.id) {
-      postData.id = avtale.id; // Ved oppdatering av eksisterende avtale
+      requestBody.id = avtale.id; // Ved oppdatering av eksisterende avtale
     }
 
     try {
       const response = await mulighetsrommetClient.avtaler.opprettAvtale({
-        requestBody: postData,
+        requestBody,
       });
       navigerTilAvtale(response.id);
       return;
@@ -228,6 +232,19 @@ export function OpprettAvtaleContainer({
     return options || [];
   };
 
+  const underenheterOptions = () => {
+    const options = underenheterForLeverandor.map((enhet) => ({
+      value: enhet.organisasjonsnummer,
+      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+    }));
+
+    options?.unshift({
+      value: "alle_underenheter",
+      label: "Alle underenheter",
+    });
+    return options;
+  };
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -278,14 +295,14 @@ export function OpprettAvtaleContainer({
         <FormGroup>
           <Datovelger
             fra={{
+              ...register("startDato"),
               label: "Startdato",
               error: errors.startDato?.message,
-              ...register("startDato"),
             }}
             til={{
+              ...register("sluttDato"),
               label: "Sluttdato",
               error: errors.sluttDato?.message,
-              ...register("sluttDato"),
             }}
           />
         </FormGroup>
@@ -323,6 +340,13 @@ export function OpprettAvtaleContainer({
               value: enhet.organisasjonsnummer,
               label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
             }))}
+          />
+          <ControlledMultiSelect
+            placeholder="Velg underenhet for tiltaksarrangør"
+            label={"Tiltaksarrangør underenhet"}
+            disabled={!watch("leverandor")}
+            {...register("leverandorUnderenheter")}
+            options={underenheterOptions()}
           />
         </FormGroup>
         <FormGroup>

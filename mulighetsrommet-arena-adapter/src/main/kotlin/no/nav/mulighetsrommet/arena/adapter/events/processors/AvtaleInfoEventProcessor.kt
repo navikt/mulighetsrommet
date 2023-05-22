@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.*
+import arrow.core.Either
 import arrow.core.continuations.either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -17,6 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaAvtaleCutoffDateTime
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -28,10 +32,6 @@ class AvtaleInfoEventProcessor(
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.AvtaleInfo
-
-    companion object {
-        val ArenaAvtaleCutoffDate = ArenaUtils.parseTimestamp("2023-01-01 00:00:00")
-    }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaAvtaleInfo>()
@@ -89,7 +89,7 @@ class AvtaleInfoEventProcessor(
             return true
         }
 
-        return ArenaAvtaleCutoffDate.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
+        return ArenaAvtaleCutoffDateTime.isBefore(ArenaUtils.parseTimestamp(avtale.DATO_TIL))
     }
 
     private suspend fun toAvtaleDbo(avtale: Avtale): Either<ProcessingError, AvtaleDbo> = either {
@@ -122,6 +122,7 @@ class AvtaleInfoEventProcessor(
             tiltakstypeId = tiltakstypeMapping.entityId,
             avtalenummer = "${avtale.aar}#${avtale.lopenr}",
             leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            leverandorUnderenheter = emptyList(),
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = avtale.ansvarligEnhet,

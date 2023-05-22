@@ -82,5 +82,6 @@ spec:
         - host: norg2.dev-fss-pub.nais.io
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
+        - host: data.brreg.no
   envFrom:
     - secret: mulighetsrommet-api

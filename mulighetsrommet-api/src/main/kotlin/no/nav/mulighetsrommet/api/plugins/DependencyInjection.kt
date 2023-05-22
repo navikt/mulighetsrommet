@@ -48,6 +48,7 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
+import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -227,7 +228,7 @@ private fun services(appConfig: AppConfig) = module {
     single<BrregClient> {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
-    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get()) }
+    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateSanityService(get(), get()) }
@@ -239,7 +240,8 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get(), get()) }
+    single { SanityTiltaksgjennomforingService(get(), get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { KafkaSyncService(get(), get(), get(), get()) }
@@ -268,11 +270,19 @@ private fun tasks(config: TaskConfig) = module {
             get(),
         )
         val synchronizeNavAnsatte = SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get())
+        val notifySluttdatoForGjennomforingerNarmerSeg =
+            NotifySluttdatoForGjennomforingerNarmerSeg(
+                config.notifySluttdatoForGjennomforingerNarmerSeg,
+                get(),
+                get(),
+                get(),
+            )
+        val notificationService: NotificationService by inject()
 
         val db: Database by inject()
 
         Scheduler
-            .create(db.getDatasource())
+            .create(db.getDatasource(), notificationService.getScheduledNotificationTask())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
                 synchronizeTiltaksgjennomforingsstatuserToKafka.task,
@@ -280,7 +290,9 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeTiltaksgjennomforingEnheter.task,
                 synchronizeTilgjengelighetsstatuserToSanity.task,
                 synchronizeNavAnsatte.task,
+                notifySluttdatoForGjennomforingerNarmerSeg.task,
             )
+            .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()
             .build()
     }

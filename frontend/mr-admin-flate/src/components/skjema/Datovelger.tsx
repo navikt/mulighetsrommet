@@ -1,8 +1,9 @@
-import { UNSAFE_DatePicker, UNSAFE_useRangeDatepicker } from "@navikt/ds-react";
+import { UNSAFE_DatePicker, UNSAFE_useDatepicker } from "@navikt/ds-react";
 import { useController } from "react-hook-form";
-import { inferredSchema } from "../avtaler/OpprettAvtaleContainer";
-import style from "./Datovelger.module.scss";
 import { formaterDato } from "../../utils/Utils";
+import styles from "./Datovelger.module.scss";
+import { forwardRef } from "react";
+import { inferredSchema } from "../avtaler/AvtaleSchema";
 
 interface DatoProps {
   name: string;
@@ -10,13 +11,7 @@ interface DatoProps {
   error?: string;
 }
 
-export function Datovelger<T>({
-  fra,
-  til,
-}: {
-  fra: DatoProps;
-  til: DatoProps;
-}) {
+export function Datovelger({ fra, til }: { fra: DatoProps; til: DatoProps }) {
   const { field: startDato } = useController<inferredSchema, "startDato">({
     name: "startDato",
   });
@@ -42,52 +37,77 @@ export function Datovelger<T>({
     return new Date(yearsFromNow);
   };
 
-  const { datepickerProps, toInputProps, fromInputProps } =
-    UNSAFE_useRangeDatepicker({
-      onRangeChange: (val) => {
-        if (!val) return;
-        startDato.onChange(val?.from);
-        sluttDato.onChange(val?.to);
-      },
-      allowTwoDigitYear: true,
-      inputFormat: "dd.MM.yyyy",
-      fromDate: pastDate(),
-      toDate: futureDate(),
-    });
+  const {
+    datepickerProps: startdatoProps,
+    inputProps: startdatoInputProps,
+    selectedDay: selectedStartdato,
+  } = UNSAFE_useDatepicker({
+    onDateChange: (val) => {
+      if (val) {
+        startDato.onChange(val);
+      } else {
+        startDato.onChange(null);
+      }
+    },
+    allowTwoDigitYear: true,
+    inputFormat: "dd.MM.yyyy",
+    fromDate: pastDate(),
+    toDate: futureDate(),
+    defaultSelected: startDato.value ? new Date(startDato.value) : undefined,
+  });
+
+  const {
+    datepickerProps: sluttdatoProps,
+    inputProps: sluttdatoInputProps,
+    selectedDay: selectedSluttdato,
+  } = UNSAFE_useDatepicker({
+    onDateChange: (val) => {
+      if (val) {
+        sluttDato.onChange(val);
+      } else {
+        sluttDato.onChange(null);
+      }
+    },
+    allowTwoDigitYear: true,
+    inputFormat: "dd.MM.yyyy",
+    fromDate: pastDate(),
+    toDate: futureDate(),
+    defaultSelected: sluttDato.value ? new Date(sluttDato.value) : undefined,
+  });
 
   return (
-    <UNSAFE_DatePicker {...datepickerProps} dropdownCaption>
-      <div className={style.datofelt}>
-        <DatoFelt<T>
+    <div className={styles.dato_container}>
+      <UNSAFE_DatePicker {...startdatoProps} dropdownCaption>
+        <DatoFelt
           {...fra}
-          {...fromInputProps}
-          ref={null}
-          value={formaterDato(startDato.value!!)}
+          {...startdatoInputProps}
+          value={
+            selectedStartdato ? formaterDato(selectedStartdato) : undefined
+          }
         />
-        <DatoFelt<T>
+      </UNSAFE_DatePicker>
+      <UNSAFE_DatePicker {...sluttdatoProps} dropdownCaption>
+        <DatoFelt
           {...til}
-          {...toInputProps}
-          ref={null}
-          value={formaterDato(sluttDato.value!!)}
+          {...sluttdatoInputProps}
+          value={
+            selectedSluttdato ? formaterDato(selectedSluttdato) : undefined
+          }
         />
-      </div>
-    </UNSAFE_DatePicker>
+      </UNSAFE_DatePicker>
+    </div>
   );
 }
 
-export function DatoFelt<T>({
-  name,
-  label,
-  value,
-  ...rest
-}: { name: keyof T; label: string } & any) {
+const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
+  const { name, label, ...rest } = props;
   return (
     <UNSAFE_DatePicker.Input
       {...rest}
       label={label}
       name={name}
       size="medium"
-      defaultValue={value}
+      ref={ref}
     />
   );
-}
+});

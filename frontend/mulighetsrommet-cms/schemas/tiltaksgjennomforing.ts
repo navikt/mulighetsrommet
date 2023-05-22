@@ -131,13 +131,12 @@ export const tiltaksgjennomforing = defineType({
     }),
     defineField({
       name: "oppstart",
-      title: "Oppstart eller midlertidig stengt",
+      title: "Oppstart",
       type: "string",
       options: {
         list: [
           { title: "Dato", value: "dato" },
           { title: "Løpende oppstart", value: "lopende" },
-          { title: "Midlertidig stengt", value: "midlertidig_stengt" },
         ],
       },
       validation: (rule) => rule.required(),
