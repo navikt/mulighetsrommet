@@ -66,6 +66,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
             disabled = true,
         ),
+        notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg.Config(
+            disabled = true,
+        ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(

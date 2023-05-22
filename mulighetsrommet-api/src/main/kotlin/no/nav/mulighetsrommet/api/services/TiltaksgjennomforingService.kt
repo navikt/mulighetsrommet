@@ -9,8 +9,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -19,7 +18,6 @@ class TiltaksgjennomforingService(
     private val deltakerRepository: DeltakerRepository,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
@@ -54,5 +52,9 @@ class TiltaksgjennomforingService(
             return this.copy(virksomhetsnavn = virksomhet.navn)
         }
         return this
+    }
+
+    fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
+        return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato()
     }
 }

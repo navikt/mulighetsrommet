@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
@@ -475,7 +476,28 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
+    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
+        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+        } ?: emptyList()
+        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
+            (it.array as Array<String?>).asList().filterNotNull()
+        } ?: emptyList()
+
+        val startDato = localDate("start_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
+        return TiltaksgjennomforingNotificationDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            startDato = startDato,
+            sluttDato = sluttDato,
+            ansvarlige = ansvarlige,
+            navEnheter = navEnheter,
+        )
+    }
+
     fun countGjennomforingerForTiltakstypeWithId(id: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        @Language("PostgreSQL")
         val query = """
             SELECT count(id) AS antall
             FROM tiltaksgjennomforing
@@ -491,6 +513,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun countDeltakereForAvtaleWithId(avtaleId: UUID, currentDate: LocalDate = LocalDate.now()): Int {
+        @Language("PostgreSQL")
         val query = """
             SELECT count(*) AS antall
             FROM tiltaksgjennomforing tg
@@ -504,5 +527,28 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.int("antall") }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   array_agg(distinct a.navident) as ansvarlige,
+                   array_agg(e.enhetsnummer) as navEnheter
+            from tiltaksgjennomforing tg
+                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+            where (?::timestamp + interval '14' day) = tg.slutt_dato
+               or (?::timestamp + interval '7' day) = tg.slutt_dato
+               or (?::timestamp + interval '1' day) = tg.slutt_dato
+            group by tg.id, a.navident;
+        """.trimIndent()
+
+        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
+            .asList
+            .let { db.run(it) }
     }
 }
