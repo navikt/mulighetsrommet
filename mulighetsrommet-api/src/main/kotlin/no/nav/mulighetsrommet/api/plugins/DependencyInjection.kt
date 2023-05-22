@@ -144,6 +144,7 @@ private fun repositories() = module {
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
+    single { VirksomhetRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -240,7 +241,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get(), get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingService(get(), get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
