@@ -61,8 +61,8 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.Task,
-                            title = "Sluttdato nærmer seg for tiltaksgjennomføring",
-                            description = "Sluttdato nærmer seg for tiltaksgjennomføringen: ${it.navn}. Sluttdato er ${it.sluttDato}. Hvis gjennomføringen skal forlenges må du inn og endre til ny sluttdato. Hvis gjennomføringen ikke skal forlenges kan du se bort fra denne meldingen",
+                            title = "Tiltaksgjennomføring utløper snart",
+                            description = "Tiltaksgjennomføringen '${it.navn}' utløper ${it.sluttDato}",
                             targets = it.ansvarlige,
                             createdAt = Instant.now(),
                         )
