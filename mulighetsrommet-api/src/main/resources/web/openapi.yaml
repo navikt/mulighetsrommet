@@ -1183,6 +1183,8 @@ components:
         avtaleId:
           type: string
           format: uuid
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
       required:
         - id
         - tiltakstype
@@ -1251,6 +1253,12 @@ components:
         - AVLYST
         - AVSLUTTET
         - APENT_FOR_INNSOK
+
+    TiltaksgjennomforingOppstartstype:
+      type: string
+      enum:
+        - Lopende
+        - Felles
 
     Bruker:
       type: object
