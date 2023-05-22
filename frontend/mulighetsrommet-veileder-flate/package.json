@@ -70,7 +70,7 @@
     "rollup-plugin-visualizer": "^5.9.0",
     "sass": "^1.62.1",
     "typescript": "^5.0.4",
-    "vite": "^4.3.6",
+    "vite": "^4.3.8",
     "vite-plugin-require": "^1.1.10"
   },
   "msw": {
