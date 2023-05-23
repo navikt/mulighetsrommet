@@ -4,6 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -97,6 +98,61 @@ class VirksomhetRepositoryTest : FunSpec({
             virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
                 it!!.underenheter!! shouldHaveSize 1
                 it.underenheter!! shouldContain underenhet1
+            }
+        }
+
+        test("Upsert underenhet etter overenhet") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+
+            val underenhet1 = VirksomhetDto(
+                organisasjonsnummer = "880907522",
+                overordnetEnhet = "982254604",
+                navn = "REMA 1000 NORGE AS REGION NORDLAND",
+            )
+
+            val virksomhet = VirksomhetDto(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                underenheter = listOf(), // Tom først
+            )
+
+            virksomhetRepository.upsert(virksomhet).shouldBeRight()
+            virksomhetRepository.upsert(underenhet1).shouldBeRight()
+
+            virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
+                it!!.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
+            }
+            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
+                it!!.underenheter shouldContainExactly listOf(underenhet1)
+            }
+        }
+
+        test("Delete overordnet cascader") {
+            val virksomhetRepository = VirksomhetRepository(database.db)
+
+            val underenhet1 = VirksomhetDto(
+                organisasjonsnummer = "880907522",
+                overordnetEnhet = "982254604",
+                navn = "REMA 1000 NORGE AS REGION NORDLAND",
+            )
+
+            val virksomhet = VirksomhetDto(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                underenheter = listOf(underenhet1),
+            )
+            virksomhetRepository.upsert(virksomhet).shouldBeRight()
+
+            virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
+                it!!.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
+            }
+
+            virksomhetRepository.delete(virksomhet.organisasjonsnummer).shouldBeRight()
+            virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
+                it shouldBe null
+            }
+            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
+                it shouldBe null
             }
         }
     }

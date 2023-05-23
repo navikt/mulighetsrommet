@@ -474,6 +474,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
         val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
             (it.array as Array<String?>).asList().filterNotNull()

@@ -43,6 +43,7 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.amt.AmtVirksomheterV1TopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -126,6 +127,7 @@ private fun kafka(config: KafkaConfig) = module {
     single {
         val consumers = listOf(
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
+            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,

@@ -16,19 +16,18 @@ class VirksomhetRepository(private val db: Database) {
 
     fun upsert(virksomhetDto: VirksomhetDto): QueryResult<Unit> = query {
         logger.info("Lagrer virksomhet ${virksomhetDto.organisasjonsnummer}")
-        if (virksomhetDto.overordnetEnhet != null) {
-            throw IllegalArgumentException("Virksomhet må være en overordnet enhet")
-        }
 
         @Language("PostgreSQL")
         val query = """
             insert into virksomhet(
                 organisasjonsnummer,
-                navn
+                navn,
+                overordnet_enhet
             )
-            values (:organisasjonsnummer, :navn)
-            on conflict (organisasjonsnummer) do update
-                set navn = excluded.navn
+            values (:organisasjonsnummer, :navn, :overordnet_enhet)
+            on conflict (organisasjonsnummer) do update set
+                navn = excluded.navn,
+                overordnet_enhet = excluded.overordnet_enhet
             returning *
         """.trimIndent()
 
@@ -117,6 +116,19 @@ class VirksomhetRepository(private val db: Database) {
                 .map { it.toVirksomhetDto() }
                 .asSingle
                 .let { db.run(it) }
+        }
+    }
+
+    fun delete(orgnr: String): QueryResult<Unit> = query {
+        logger.info("Sletter virksomhet $orgnr")
+
+        @Language("PostgreSQL")
+        val query = """
+            delete from virksomhet where organisasjonsnummer = ?
+        """.trimIndent()
+
+        db.transaction { tx ->
+            tx.run(queryOf(query, orgnr).asExecute)
         }
     }
 

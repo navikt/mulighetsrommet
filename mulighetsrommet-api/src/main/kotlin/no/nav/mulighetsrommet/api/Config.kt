@@ -54,6 +54,7 @@ data class KafkaProducers(
 
 data class KafkaConsumers(
     val amtDeltakerV1: KafkaTopicConsumer.Config,
+    val amtVirksomheterV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(
