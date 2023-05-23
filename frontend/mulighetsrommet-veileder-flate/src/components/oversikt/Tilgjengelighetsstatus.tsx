@@ -6,12 +6,11 @@ import StatusRod from '../../ikoner/Sirkel-rod.png';
 import styles from './Tilgjengelighetsstatus.module.scss';
 
 interface Props {
-  oppstart?: SanityTiltaksgjennomforing.oppstart;
   status?: SanityTiltaksgjennomforing.tilgjengelighetsstatus;
   estimert_ventetid?: string;
 }
 
-export function TilgjengelighetsstatusComponent({ oppstart, status, estimert_ventetid }: Props) {
+export function TilgjengelighetsstatusComponent({ status, estimert_ventetid }: Props) {
   if (status === 'Ledig' || !status) {
     return (
       <div>

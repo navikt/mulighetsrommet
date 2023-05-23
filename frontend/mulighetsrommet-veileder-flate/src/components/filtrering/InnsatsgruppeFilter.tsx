@@ -5,7 +5,7 @@ import { logEvent } from '../../core/api/logger';
 import { useInnsatsgrupper } from '../../core/api/queries/useInnsatsgrupper';
 import { tiltaksgjennomforingsfilter } from '../../core/atoms/atoms';
 import { kebabCase } from '../../utils/Utils';
-import styles from './Filtermeny.module.scss';
+import './Filtermeny.module.scss';
 
 interface InnsatsgruppeFilterProps<T extends { id: string; tittel: string; nokkel?: Innsatsgruppe }> {
   accordionNavn: string;
