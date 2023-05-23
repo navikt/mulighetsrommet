@@ -61,46 +61,6 @@ class VirksomhetRepositoryTest : FunSpec({
             }
         }
 
-        test("Upsert underenhet") {
-            val virksomhetRepository = VirksomhetRepository(database.db)
-
-            val underenhet1 = VirksomhetDto(
-                organisasjonsnummer = "880907522",
-                overordnetEnhet = "982254604",
-                navn = "REMA 1000 NORGE AS REGION NORDLAND",
-            )
-
-            val underenhet2 = VirksomhetDto(
-                organisasjonsnummer = "912704327",
-                overordnetEnhet = "982254604",
-                navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
-            )
-            val underenhet3 = VirksomhetDto(
-                organisasjonsnummer = "912704394",
-                overordnetEnhet = "982254604",
-                navn = "REMA 1000 NORGE AS REGION NORD",
-            )
-
-            val virksomhet = VirksomhetDto(
-                navn = "REMA 1000 AS",
-                organisasjonsnummer = "982254604",
-                underenheter = listOf(underenhet1, underenhet2, underenhet3),
-            )
-            virksomhetRepository.upsert(virksomhet).shouldBeRight()
-
-            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
-                it!!.navn shouldBe "REMA 1000 AS"
-                it.underenheter!! shouldHaveSize 3
-                it.underenheter!! shouldContainAll listOf(underenhet1, underenhet2, underenhet3)
-            }
-
-            virksomhetRepository.upsert(virksomhet.copy(underenheter = listOf(underenhet1))).shouldBeRight()
-            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
-                it!!.underenheter!! shouldHaveSize 1
-                it.underenheter!! shouldContain underenhet1
-            }
-        }
-
         test("Upsert underenhet etter overenhet") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 

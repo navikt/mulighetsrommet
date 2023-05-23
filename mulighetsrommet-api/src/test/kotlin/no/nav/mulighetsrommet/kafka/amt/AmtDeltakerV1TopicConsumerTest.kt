@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.kafka.amt
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.serialization.json.Json
@@ -23,9 +22,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AmtDeltakerV1TopicConsumerTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume deltakere") {

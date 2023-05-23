@@ -4,7 +4,6 @@ create table virksomhet
     overordnet_enhet        text references virksomhet(organisasjonsnummer) on delete cascade,
     navn                    text not null,
     created_at              timestamp default now() not null,
-    updated_at              timestamp default now() not null,
     primary key (organisasjonsnummer)
 );
 

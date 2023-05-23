@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.kafka.amt
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -21,12 +20,9 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 class AmtVirksomheterV1TopicConsumerTest : FunSpec({
-
-    testOrder = TestCaseOrder.Sequential
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    context("consume deltakere") {
+    context("consume virksomheter") {
         beforeTest {
             database.db.migrate()
 
@@ -63,7 +59,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             overordnetEnhet = amtVirksomhet1.organisasjonsnummer,
         )
 
-        test("upsert deltakere from topic") {
+        test("upsert virksomheter from topic") {
             virksomhetConsumer.consume(amtVirksomhet1.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet1))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
@@ -74,7 +70,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             }
         }
 
-        test("delete deltakere for tombstone messages") {
+        test("delete virksomheter for tombstone messages") {
             virksomhetRepository.upsert(underenhetDto)
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
