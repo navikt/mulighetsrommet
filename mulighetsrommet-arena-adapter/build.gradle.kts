@@ -53,7 +53,7 @@ dependencies {
 
     implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.4.10") {
+        implementation("net.minidev:json-smart:2.4.11") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
