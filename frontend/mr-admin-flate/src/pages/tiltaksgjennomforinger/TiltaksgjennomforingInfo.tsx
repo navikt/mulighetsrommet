@@ -76,7 +76,6 @@ export function TiltaksgjennomforingInfo() {
             verdi={
               tiltaksgjennomforing.navEnheter.length > 0 ? (
                 <ul>
-                  {" "}
                   {tiltaksgjennomforing.navEnheter.map((enhet) => (
                     <li key={enhet.enhetsnummer}>{enhet.navn}</li>
                   ))}
