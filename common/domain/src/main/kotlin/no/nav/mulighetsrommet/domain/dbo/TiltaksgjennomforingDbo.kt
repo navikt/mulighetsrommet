@@ -36,7 +36,7 @@ data class TiltaksgjennomforingDbo(
     }
 
     enum class Oppstartstype {
-        Lopende,
-        Felles,
+        LOPENDE,
+        FELLES,
     }
 }

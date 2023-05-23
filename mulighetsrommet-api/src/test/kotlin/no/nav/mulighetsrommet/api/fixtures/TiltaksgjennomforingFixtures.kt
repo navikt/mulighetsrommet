@@ -22,7 +22,7 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = Oppstartstype.Felles,
+        oppstart = Oppstartstype.FELLES,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -39,7 +39,7 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = Oppstartstype.Felles,
+        oppstart = Oppstartstype.FELLES,
     )
 
     val Arbeidstrening1 = TiltaksgjennomforingDbo(
@@ -56,6 +56,6 @@ object TiltaksgjennomforingFixtures {
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = Oppstartstype.Felles,
+        oppstart = Oppstartstype.FELLES,
     )
 }

@@ -26,8 +26,8 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder.hasFellesOppstart
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.Felles
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.Lopende
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.FELLES
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Oppstartstype.LOPENDE
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Ledig
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus.Stengt
 import java.util.*
@@ -169,6 +169,6 @@ class TiltakgjennomforingEventProcessor(
             avtaleId = avtaleId,
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
-            oppstart = if (hasFellesOppstart(tiltakskode)) Felles else Lopende,
+            oppstart = if (hasFellesOppstart(tiltakskode)) FELLES else LOPENDE,
         )
 }

@@ -71,7 +71,7 @@ class ArenaAdapterServiceTest : FunSpec({
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingDbo.Oppstartstype.Felles,
+        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(

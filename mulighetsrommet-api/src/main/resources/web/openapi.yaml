@@ -1257,8 +1257,8 @@ components:
     TiltaksgjennomforingOppstartstype:
       type: string
       enum:
-        - Lopende
-        - Felles
+        - LOPENDE
+        - FELLES
 
     Bruker:
       type: object
