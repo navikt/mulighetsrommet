@@ -28,11 +28,10 @@ class VirksomhetService(
     }
 
     suspend fun hentEnhet(orgnr: String): VirksomhetDto {
-        val virksomhetFraDb = virksomhetRepository.get(orgnr).getOrThrow()
-        if (virksomhetFraDb != null) {
-            return virksomhetFraDb
-        }
+        return virksomhetRepository.get(orgnr).getOrThrow() ?: syncEnhetFraBrreg(orgnr)
+    }
 
+    suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto {
         val enhet = CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)
         }

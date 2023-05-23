@@ -34,15 +34,18 @@ class VirksomhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertUnderenheter = """
-             insert into underenhet (organisasjonsnummer, navn, underenhetsnummer)
+             insert into virksomhet (overordnet_enhet, navn, organisasjonsnummer)
              values (?, ?, ?)
-             on conflict (underenhetsnummer) do nothing
+             on conflict (organisasjonsnummer) do update set
+                navn             = excluded.navn,
+                overordnet_enhet = excluded.overordnet_enhet
+            returning *
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteUnderenheter = """
-             delete from underenhet
-             where organisasjonsnummer = ? and not (underenhetsnummer = any (?))
+             delete from virksomhet
+             where overordnet_enhet = ? and not (organisasjonsnummer = any (?))
         """.trimIndent()
 
         db.transaction { tx ->
@@ -72,7 +75,7 @@ class VirksomhetRepository(private val db: Database) {
         val selectVirksomhet = """
             select
                 v.organisasjonsnummer,
-                null as overordnetEnhet,
+                v.overordnet_enhet,
                 v.navn
             from virksomhet v
             where v.organisasjonsnummer = ?
@@ -81,21 +84,21 @@ class VirksomhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val selectUnderenhet = """
             select
-                u.organisasjonsnummer as overordnetEnhet,
-                u.underenhetsnummer as organisasjonsnummer,
-                u.navn
-            from underenhet u
-            where u.underenhetsnummer = ?
+                v.organisasjonsnummer,
+                v.overordnet_enhet,
+                v.navn
+            from virksomhet v
+            where v.organisasjonsnummer = ?
         """.trimIndent()
 
         @Language("PostgreSQL")
         val selectUnderenheterTilVirksomhet = """
             select
-                u.organisasjonsnummer as overordnetEnhet,
-                u.underenhetsnummer as organisasjonsnummer,
-                u.navn
-            from underenhet u
-            where u.organisasjonsnummer = ?
+                v.organisasjonsnummer,
+                v.overordnet_enhet,
+                v.navn
+            from virksomhet v
+            where v.overordnet_enhet = ?
         """.trimIndent()
 
         val virksomhet = queryOf(selectVirksomhet, orgnr)
@@ -120,12 +123,13 @@ class VirksomhetRepository(private val db: Database) {
     private fun Row.toVirksomhetDto() = VirksomhetDto(
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),
-        overordnetEnhet = stringOrNull("overordnetEnhet"),
+        overordnetEnhet = stringOrNull("overordnet_enhet"),
         underenheter = null,
     )
 
     private fun VirksomhetDto.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
+        "overordnet_enhet" to overordnetEnhet,
     )
 }
