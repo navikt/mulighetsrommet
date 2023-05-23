@@ -240,7 +240,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.search to "(lower(tg.navn) like lower(:search))",
+            filter.search to "(lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search)",
             filter.enhet to "lower(tg.arena_ansvarlig_enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
