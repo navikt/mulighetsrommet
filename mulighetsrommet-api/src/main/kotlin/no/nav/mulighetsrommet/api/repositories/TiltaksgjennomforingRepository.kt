@@ -240,7 +240,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            filter.search to "(lower(tg.navn) like lower(:search))",
+            filter.search to "(lower(tg.navn) like lower(:search)) or (tg.tiltaksnummer like :search)",
             filter.enhet to "lower(tg.arena_ansvarlig_enhet) = lower(:enhet)",
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
@@ -435,14 +435,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navEnheter = emptyList(),
     )
 
-    @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
-        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
+        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -476,12 +471,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
-        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
+        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")

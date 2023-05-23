@@ -30,7 +30,7 @@ data class AvtaleFilter(
 )
 
 data class AdminTiltaksgjennomforingFilter(
-    val search: String? = "",
+    val search: String? = null,
     val enhet: String? = null,
     val tiltakstypeId: UUID? = null,
     val status: Tiltaksgjennomforingsstatus? = null,
