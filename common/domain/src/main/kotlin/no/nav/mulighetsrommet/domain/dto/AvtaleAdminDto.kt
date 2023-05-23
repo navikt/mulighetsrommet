@@ -37,12 +37,6 @@ data class AvtaleAdminDto(
     )
 
     @Serializable
-    data class NavEnhet(
-        val enhetsnummer: String,
-        val navn: String,
-    )
-
-    @Serializable
     data class Leverandor(
         val organisasjonsnummer: String,
         val navn: String? = null,

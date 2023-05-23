@@ -68,8 +68,22 @@ export function TiltaksgjennomforingInfo() {
         <Separator />
         <dl className={styles.bolk}>
           <Metadata
+            header="Fylke/region"
+            verdi={avtale?.navRegion?.navn || "Ingen region valgt for avtale"}
+          />
+          <Metadata
             header="Enhet"
-            verdi={tiltaksgjennomforing.arenaAnsvarligEnhet}
+            verdi={
+              tiltaksgjennomforing.navEnheter.length > 0 ? (
+                <ul>
+                  {tiltaksgjennomforing.navEnheter.map((enhet) => (
+                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
+                  ))}
+                </ul>
+              ) : (
+                "Alle enheter"
+              )
+            }
           />
           {tiltaksgjennomforing.virksomhetsnavn ? (
             <Metadata

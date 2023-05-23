@@ -84,7 +84,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       navEnheter:
         tiltaksgjennomforing?.navEnheter.length === 0
           ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter,
+          : tiltaksgjennomforing?.navEnheter.map((enhet) => enhet.enhetsnummer),
       ansvarlig: tiltaksgjennomforing?.ansvarlig,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startDato: tiltaksgjennomforing?.startDato

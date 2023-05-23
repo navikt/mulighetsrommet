@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo.Tilgjengelighetsstatus
+import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
@@ -128,13 +129,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder("1", "2")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(
+                    listOf(
+                        NavEnhet(enhetsnummer = "1", navn = null),
+                        NavEnhet(enhetsnummer = "2", navn = null),
+                    ),
+                )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1"))).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder("1", "3")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(
+                    listOf(
+                        NavEnhet(enhetsnummer = "1", navn = null),
+                        NavEnhet(enhetsnummer = "3", navn = null),
+                    ),
+                )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
         }
@@ -169,13 +180,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder("1", "2")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "1", navn = null), NavEnhet(enhetsnummer = "2", navn = null)))
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder("2")
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "2", navn = null)))
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
@@ -266,16 +277,24 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
         test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val gjennomforing14Dager = gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 30))
+            val gjennomforing14Dager =
+                gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 30))
             val gjennomforing7Dager = gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 23))
             val gjennomforing1Dager = gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 17))
-            val gjennomforing10Dager = gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 26))
+            val gjennomforing10Dager =
+                gjennomforing1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 5, 26))
             tiltaksgjennomforinger.upsert(gjennomforing14Dager).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing7Dager).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing1Dager).shouldBeRight()
             tiltaksgjennomforinger.upsert(gjennomforing10Dager).shouldBeRight()
 
-            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(currentDate = LocalDate.of(2023, 5, 16))
+            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(
+                currentDate = LocalDate.of(
+                    2023,
+                    5,
+                    16,
+                ),
+            )
             result.size shouldBe 3
         }
     }

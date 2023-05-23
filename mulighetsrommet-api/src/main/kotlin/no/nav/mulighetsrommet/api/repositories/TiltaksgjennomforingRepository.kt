@@ -11,9 +11,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
@@ -471,7 +469,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlige = ansvarlige,
-            navEnheter = navEnheter,
+            navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it) },
             sanityId = stringOrNull("sanity_id"),
         )
     }

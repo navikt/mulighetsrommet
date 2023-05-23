@@ -52,7 +52,7 @@ class SanityTiltaksgjennomforingService(
             _id = sanityTiltaksgjennomforingId.toString(),
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
             enheter = tiltaksgjennomforing.navEnheter.map {
-                EnhetRef(_ref = "enhet.lokal.$it", _key = it)
+                EnhetRef(_ref = "enhet.lokal.$it", _key = it.enhetsnummer)
             },
             fylke = avtale?.navRegion?.enhetsnummer?.let {
                 FylkeRef(_ref = "enhet.fylke.$it")

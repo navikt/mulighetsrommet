@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavEnhet
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -322,8 +323,8 @@ class AvtaleRepository(private val db: Database) {
         val navEnheter = sqlArrayOrNull("navEnheter")?.let {
             (it.array as Array<String?>).asList().filterNotNull()
         } ?: emptyList()
-        val underenheter = sqlArrayOrNull("leverandorUnderenheter")?.let {
-            (it.array as Array<String?>).filterNotNull()
+        val underenheter = sqlArrayOrNull("leverandorUnderenheter")?.let { underenheter ->
+            (underenheter.array as Array<String?>).filterNotNull()
                 .map { AvtaleAdminDto.Leverandor(organisasjonsnummer = it) }
         } ?: emptyList()
 
@@ -344,7 +345,7 @@ class AvtaleRepository(private val db: Database) {
             startDato = startDato,
             sluttDato = sluttDato,
             navRegion = navRegion?.let {
-                AvtaleAdminDto.NavEnhet(
+                NavEnhet(
                     enhetsnummer = it,
                     navn = string("nav_enhet_navn"),
                 )

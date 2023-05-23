@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
@@ -21,6 +22,12 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         val cacheMetrics: CacheMetricsCollector =
             CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
         cacheMetrics.addCache("enhetCache", cache)
+    }
+
+    fun hentEnhet(enhetsnummer: String): NavEnhetDbo? {
+        return CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
+            enhetRepository.get(enhetsnummer)
+        }
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
