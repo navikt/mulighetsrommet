@@ -71,6 +71,20 @@ export const TiltaksgjennomforingsTabell = ({
     });
   };
 
+  const formaterNavEnheter = (
+    navEnheter?: { navn?: string | null; enhetsnummer?: string }[]
+  ): string => {
+    const liste = [...(navEnheter || [])];
+    if (!liste) return "";
+
+    const forsteEnhet = liste.shift();
+    if (!forsteEnhet) return "";
+
+    return `${forsteEnhet?.navn} ${
+      liste.length > 0 ? `+ ${liste.length}` : ""
+    }`;
+  };
+
   return (
     <div className={styles.tabell_wrapper}>
       <PagineringsOversikt
@@ -96,6 +110,7 @@ export const TiltaksgjennomforingsTabell = ({
             <Table.ColumnHeader sortKey="navn" sortable>
               Tittel
             </Table.ColumnHeader>
+            <Table.ColumnHeader>Enhet</Table.ColumnHeader>
             <Table.ColumnHeader sortKey="tiltaksnummer" sortable>
               Tiltaksnr.
             </Table.ColumnHeader>
@@ -138,6 +153,16 @@ export const TiltaksgjennomforingsTabell = ({
                     >
                       {tiltaksgjennomforing.navn}
                     </Lenke>
+                  </Table.DataCell>
+                  <Table.DataCell
+                    aria-label={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                      .map((enhet) => enhet?.navn)
+                      .join(", ")}`}
+                    title={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                      .map((enhet) => enhet?.navn)
+                      .join(", ")}`}
+                  >
+                    {formaterNavEnheter(tiltaksgjennomforing.navEnheter)}
                   </Table.DataCell>
                   <Table.DataCell
                     aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
