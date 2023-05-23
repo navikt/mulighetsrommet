@@ -435,14 +435,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navEnheter = emptyList(),
     )
 
-    @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
-        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
+        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -475,12 +470,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val ansvarlige = sqlArrayOrNull("ansvarlige")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
-        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
+        val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
+        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
