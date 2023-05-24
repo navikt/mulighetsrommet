@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import kotlin.jvm.optionals.getOrNull
 
 class NotifySluttdatoForGjennomforingerNarmerSeg(
@@ -62,7 +64,11 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                         val notification = ScheduledNotification(
                             type = NotificationType.Task,
                             title = "Tiltaksgjennomføring utløper snart",
-                            description = "Tiltaksgjennomføringen '${it.navn}' utløper ${it.sluttDato}",
+                            description = "Tiltaksgjennomføringen \"${it.navn}\" utløper ${
+                                it.sluttDato?.format(
+                                    DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
+                                )
+                            }",
                             targets = it.ansvarlige,
                             createdAt = Instant.now(),
                         )
