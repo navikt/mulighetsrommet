@@ -38,9 +38,6 @@ app:
     projectId: ${SANITY_PROJECT_ID}
     token: ${SANITY_AUTH_TOKEN}
 
-  swagger:
-    enable: true
-
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api
     scope: api://dev-fss.pto.veilarbvedtaksstotte/.default

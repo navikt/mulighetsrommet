@@ -38,9 +38,6 @@ app:
     token: ${SANITY_AUTH_TOKEN:-}
     useCdn: false
 
-  swagger:
-    enable: true
-
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api
     scope: default

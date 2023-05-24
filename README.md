@@ -104,7 +104,8 @@ Sanity Studio til forvaltning av informasjon for veiledere.
 | Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api>           |
 | README          | <https://github.com/navikt/mulighetsrommet/blob/main/mulighetsrommet-api/README.md> |
 | Url (dev-miljø) | <https://mulighetsrommet-api.intern.dev.nav.no/>                                    |
-| API             | <https://mulighetsrommet-api.intern.dev.nav.no/swagger-ui>                          |
+| API (internt)   | <https://mulighetsrommet-api.intern.dev.nav.no/swagger-ui/internal>                 |
+| API (eksternt)  | <https://mulighetsrommet-api.intern.dev.nav.no/swagger-ui/external>                 |
 
 ### `mulighetsrommet-kafka-manager`
 
