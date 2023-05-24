@@ -92,6 +92,7 @@ class KafkaSyncServiceTest : FunSpec({
             tilDato = tilDato,
             rettPaaTiltakspenger = rettPaaTiltakspenger,
             status = tiltakstypestatus,
+            sanityId = null,
         )
     }
 

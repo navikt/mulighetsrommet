@@ -38,9 +38,6 @@ app:
     projectId: ${SANITY_PROJECT_ID}
     token: ${SANITY_AUTH_TOKEN}
 
-  swagger:
-    enable: true
-
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api
     scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
@@ -89,6 +86,9 @@ app:
       groups:
         - 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
         - ee45478c-57a5-4ee6-b28d-b65f8c1733fe # 0000-GA-mr-admin-flate_betabruker
+    notifySluttdatoForGjennomforingerNarmerSeg:
+      disabled: false
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

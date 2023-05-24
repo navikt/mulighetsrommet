@@ -5,14 +5,15 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
+import java.util.*
 
 fun Route.arenaAdapterRoutes() {
     val logger = application.environment.log
@@ -32,10 +33,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         delete("tiltakstype/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeTiltakstype(id)
                 .map { call.response.status(HttpStatusCode.OK) }
@@ -57,10 +55,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         delete("avtale/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeAvtale(id)
                 .map { call.response.status(HttpStatusCode.OK) }
@@ -82,10 +77,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         delete("tiltaksgjennomforing/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeTiltaksgjennomforing(id)
                 .map { call.response.status(HttpStatusCode.OK) }
@@ -115,10 +107,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         delete("tiltakshistorikk/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
             arenaAdapterService.removeTiltakshistorikk(id)
                 .map { call.response.status(HttpStatusCode.OK) }
                 .mapLeft {
@@ -139,10 +128,7 @@ fun Route.arenaAdapterRoutes() {
         }
 
         delete("deltaker/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@delete call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeDeltaker(id)
                 .onRight { call.response.status(HttpStatusCode.OK) }

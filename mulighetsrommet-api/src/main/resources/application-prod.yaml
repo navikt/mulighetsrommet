@@ -82,10 +82,14 @@ app:
     synchronizeTilgjengelighetsstatuser:
       cronPattern: "0 0/30 6-18 * * *" # Hver halvtime fra kl 06:00 til 18:00
     synchronizeNavAnsatte:
+      disabled: true
       cronPattern: "0 0 6 * * *" # Hver dag kl 06:00
       groups:
         - 676673aa-ec8f-4606-8399-723dce26b361 # team-mulighetsrommet
         - dde41c4b-42af-401f-bedf-9e537bcbdd37 # 0000-GA-mr-admin-flate_betabruker
+    notifySluttdatoForGjennomforingerNarmerSeg:
+      disabled: false
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06.00
 
   norg2:
     baseUrl: https://norg2.prod-fss-pub.nais.io/norg2/api/v1

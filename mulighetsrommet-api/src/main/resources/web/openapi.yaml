@@ -1175,7 +1175,13 @@ components:
         navEnheter:
           type: array
           items:
-            type: string
+            type: object
+            properties:
+              enhetsnummer:
+                type: string
+              navn:
+                type: string
+                nullable: true
         ansvarlig:
           type: string
         antallPlasser:
@@ -1569,7 +1575,6 @@ components:
           enum:
             - dato
             - lopende
-            - midlertidig_stengt
         oppstartsdato:
           type: string
         sluttdato:

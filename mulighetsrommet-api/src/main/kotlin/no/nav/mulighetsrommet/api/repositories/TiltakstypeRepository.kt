@@ -46,7 +46,16 @@ class TiltakstypeRepository(private val db: Database) {
     fun get(id: UUID): TiltakstypeDto? {
         @Language("PostgreSQL")
         val query = """
-            select id::uuid, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger
+            select
+                id::uuid,
+                navn,
+                tiltakskode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                rett_paa_tiltakspenger,
+                sanity_id
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -72,6 +81,7 @@ class TiltakstypeRepository(private val db: Database) {
                 sist_endret_dato_i_arena,
                 fra_dato,
                 til_dato,
+                sanity_id,
                 rett_paa_tiltakspenger,
                 count(*) OVER() AS full_count
             from tiltakstype
@@ -133,6 +143,7 @@ class TiltakstypeRepository(private val db: Database) {
                 sist_endret_dato_i_arena,
                 fra_dato,
                 til_dato,
+                sanity_id,
                 rett_paa_tiltakspenger,
                 count(*) OVER() AS full_count
             from tiltakstype
@@ -160,7 +171,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
+            select id, navn, tiltakskode, sanity_id, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, count(*) OVER() AS full_count
             from tiltakstype
             where
                 (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
@@ -230,6 +241,7 @@ class TiltakstypeRepository(private val db: Database) {
             sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
             fraDato = fraDato,
             tilDato = tilDato,
+            sanityId = uuidOrNull("sanity_id"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
             status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato),
         )

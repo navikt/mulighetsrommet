@@ -13,7 +13,8 @@ import java.nio.charset.StandardCharsets
  * - https://github.com/kagkarlsson/db-scheduler/tree/431f162e6a2e43774a0b6a283aa576bd9c2cf5bf#serializers
  */
 class DbSchedulerKotlinSerializer : Serializer {
-    override fun serialize(data: Any): ByteArray {
+    override fun serialize(data: Any?): ByteArray? {
+        if (data == null) return null
         val serializer = serializer(data.javaClass)
         return Json.encodeToString(serializer, data).toByteArray(StandardCharsets.UTF_8)
     }

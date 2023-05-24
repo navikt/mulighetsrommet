@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
-import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Route.externalRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
@@ -32,10 +32,7 @@ fun Route.externalRoutes() {
                 }
         }
         get("tiltaksgjennomforinger/{id}") {
-            val id = call.parameters ["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
             tiltaksgjennomforingService.get(id)
                 .onRight {
                     if (it == null) {
@@ -53,10 +50,7 @@ fun Route.externalRoutes() {
         }
 
         get("tiltaksgjennomforinger/id/{arenaId}") {
-            val arenaId = call.parameters["arenaId"] ?: return@get call.respondText(
-                "Mangler eller ugyldig arenaId",
-                status = HttpStatusCode.BadRequest,
-            )
+            val arenaId = call.parameters.getOrFail("arenaId")
             val idResponse = arenaAdapterService.exchangeTiltaksgjennomforingsArenaIdForId(arenaId)
                 ?: return@get call.respondText(
                     "Det finnes ikke noe tiltaksgjennomføring med arenaId $arenaId",
@@ -66,10 +60,7 @@ fun Route.externalRoutes() {
         }
 
         get("tiltaksgjennomforinger/arenadata/{id}") {
-            val id = call.parameters["id"]?.toUUID() ?: return@get call.respondText(
-                "Mangler eller ugyldig id",
-                status = HttpStatusCode.BadRequest,
-            )
+            val id = call.parameters.getOrFail<UUID>("id")
             tiltaksgjennomforingService.get(id)
                 .map {
                     if (it == null) {

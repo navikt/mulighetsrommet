@@ -3,7 +3,7 @@ import { useHentAnsatt } from "../../api/administrator/useHentAdministrator";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
 import styles from "./BrukerNotifikasjoner.module.scss";
-import { Varsel } from "./Varsel";
+import { Notifikasjon } from "./Notifikasjon";
 
 export function BrukerNotifikasjoner() {
   const { data: features } = useFeatureToggles();
@@ -16,14 +16,14 @@ export function BrukerNotifikasjoner() {
   if (antallUlesteNotifikasjoner <= 0) return null;
 
   return (
-    <section className={styles.container}>
+    <section className={styles.brukernotifikasjoner_container}>
       <Heading level="3" size="medium">
         Hei {bruker?.fornavn}
       </Heading>
-      <Varsel
+      <Notifikasjon
         href="/notifikasjoner"
-        tittel="Varsler"
-        melding="Du har nye varsler"
+        tittel="Notifikasjoner"
+        melding="Du har nye notifikasjoner"
       />
     </section>
   );

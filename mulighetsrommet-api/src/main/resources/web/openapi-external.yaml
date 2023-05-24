@@ -1,0 +1,238 @@
+openapi: 3.0.1
+
+info:
+  version: 1.0.0
+  title: Mulighetsrommet API
+
+security:
+  - bearerAuth: [ ]
+
+paths:
+  /api/v1/tiltaksgjennomforinger:
+    parameters:
+      - in: query
+        name: orgnr
+        schema:
+          type: string
+        description: Organisasjonsnummer koblet til tiltaksgjennomføringer
+    get:
+      tags:
+        - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforinger
+      responses:
+        200:
+          description: Gjennomføringer for gitt orgnr.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        500:
+          description: Noe gikk galt.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/v1/tiltaksgjennomforinger/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforing
+      responses:
+        200:
+          description: Gjennomføring for gitt id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tiltaksgjennomforing"
+        404:
+          description: Gjennomføring ble ikke funnet.
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Noe gikk galt.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/tiltaksgjennomforinger/id/{arenaId}:
+    parameters:
+      - $ref: "#/components/parameters/ArenaId"
+    get:
+      tags:
+        - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforingId
+      responses:
+        200:
+          description: |
+            Returnerer id'en til en tiltaksgjennomføring, gitt tiltaksgjennomføringens id i Arena.
+
+            Dette endepunktet vil være nyttig om man har tilgang til kildedata i Arena og ønsker å opprette en kobling
+            til gjennomføringene fra Mulighetsrommet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingIdResponse"
+        404:
+          description: |
+            Fant ikke id for gitt arenaId.
+
+            Dette kan bety at gjennomføringen aldri vil finnes i Mulighetsrommet, eller det kan bety at gjennomføringen
+            enda ikke finnes. Mange applikasjoner får med seg endringer i data fra Arena via Kafka, inkludert
+            Mulighetsrommet, men vi har ikke implementert noen egne returkoder som indikerer denne forskjellen (enda).
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Noe gikk galt.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/tiltaksgjennomforinger/arenadata/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforingArenadata
+      responses:
+        200:
+          description: |
+            Returnerer ymse data som finnes på gjennomføringen i Arena, men som enda ikke har blitt en del av
+            datamodellen for tiltaksgjennomføringer som blir eksponert i dette APIet.
+
+            Om dette endepunktet mangler noen datapunkter er det mulig å komme med egne bestillinger for dette.
+            Kontakt i så fall #team-valp på Slack for å komme i kontakt med oss.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingArenadata"
+        404:
+          description: |
+            Fant ikke id for gitt arenaId.
+
+            Dette kan bety at gjennomføringen aldri kan finnes i Mulighetsrommet, eller det kan bety at gjennomføringen
+            enda ikke finnes. Mange applikasjoner får med seg endringer i data fra Arena via Kafka, inkludert
+            Mulighetsrommet, men vi har ikke implementert noen egne returkoder som indikerer denne forskjellen (enda).
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Noe gikk galt.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ID:
+      name: id
+      in: path
+      description: ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ArenaId:
+      name: arenaId
+      in: path
+      description: |
+        Id i Arena.
+        Typisk en primary key fra en databasetabell i Arena.
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    EmbeddedTiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        arenaKode:
+          type: string
+      required:
+        - id
+        - navn
+        - arenaKode
+
+    Tiltaksgjennomforing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/EmbeddedTiltakstype"
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+        virksomhetsnummer:
+          type: string
+      required:
+        - id
+        - tiltakstype
+        - navn
+        - status
+        - virksomhetsnummer
+
+    TiltaksgjennomforingStatus:
+      type: string
+      enum:
+        - GJENNOMFORES
+        - AVBRUTT
+        - AVLYST
+        - AVSLUTTET
+        - APENT_FOR_INNSOK
+
+    TiltaksgjennomforingIdResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+
+    TiltaksgjennomforingArenadata:
+      type: object
+      properties:
+        opprettetAar:
+          type: integer
+          description: AAR fra saken i Arena som er tilknyttet gjennomføringen.
+        lopenr:
+          type: integer
+          description: LOPENRSAK fra saken i Arena som er tilknyttet gjennomføringen.
+        ansvarligNavEnhetId:
+          type: string
+          description: AETATENHET_ANSVARLIG fra saken i Arena som er tilknyttet gjennomføringen.
+        status:
+          type: string
+          description: Status på tiltaksgjennomføring i Arena.
+      required:
+        - status

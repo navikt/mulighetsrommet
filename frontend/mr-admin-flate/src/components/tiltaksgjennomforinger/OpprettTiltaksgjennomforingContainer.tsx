@@ -53,7 +53,7 @@ interface OpprettTiltaksgjennomforingContainerProps {
   onAvbryt: () => void;
   setError: Dispatch<SetStateAction<React.ReactNode | null>>;
   setResult: Dispatch<SetStateAction<string | null>>;
-  avtale: Avtale;
+  avtale?: Avtale;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
@@ -84,7 +84,7 @@ export const OpprettTiltaksgjennomforingContainer = (
       navEnheter:
         tiltaksgjennomforing?.navEnheter.length === 0
           ? ["alle_enheter"]
-          : tiltaksgjennomforing?.navEnheter,
+          : tiltaksgjennomforing?.navEnheter.map((enhet) => enhet.enhetsnummer),
       ansvarlig: tiltaksgjennomforing?.ansvarlig,
       antallPlasser: tiltaksgjennomforing?.antallPlasser,
       startDato: tiltaksgjennomforing?.startDato
@@ -120,7 +120,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   } = useHentAnsatt();
 
   const { data: virksomhet } = useVirksomhet(
-    avtale.leverandor.organisasjonsnummer
+    avtale?.leverandor.organisasjonsnummer || ""
   );
 
   useEffect(() => {
@@ -137,14 +137,14 @@ export const OpprettTiltaksgjennomforingContainer = (
     const body: TiltaksgjennomforingRequest = {
       id: tiltaksgjennomforing ? tiltaksgjennomforing.id : uuidv4(),
       antallPlasser: data.antallPlasser,
-      tiltakstypeId: avtale.tiltakstype.id,
+      tiltakstypeId: avtale?.tiltakstype.id || "",
       navEnheter: data.navEnheter.includes("alle_enheter")
         ? []
         : data.navEnheter,
       navn: data.tittel,
       sluttDato: formaterDatoSomYYYYMMDD(data.sluttDato),
       startDato: formaterDatoSomYYYYMMDD(data.startDato),
-      avtaleId: avtale.id,
+      avtaleId: avtale?.id || "",
       ansvarlig: data.ansvarlig,
       virksomhetsnummer:
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
@@ -175,7 +175,8 @@ export const OpprettTiltaksgjennomforingContainer = (
   if (!enheter) {
     return <Laster />;
   }
-  if (!avtale.navRegion) {
+
+  if (!avtale?.navRegion) {
     setError(avtaleManglerNavRegionError());
   }
 
@@ -187,12 +188,12 @@ export const OpprettTiltaksgjennomforingContainer = (
     const options = enheter
       .filter(
         (enhet: NavEnhet) =>
-          avtale.navRegion?.enhetsnummer === enhet.overordnetEnhet
+          avtale?.navRegion?.enhetsnummer === enhet.overordnetEnhet
       )
       .filter(
         (enhet: NavEnhet) =>
-          avtale.navEnheter.length === 0 ||
-          avtale.navEnheter.includes(enhet.enhetsnummer)
+          avtale?.navEnheter.length === 0 ||
+          avtale?.navEnheter.includes(enhet.enhetsnummer)
       )
       .map((enhet) => ({
         label: enhet.navn,
@@ -204,12 +205,13 @@ export const OpprettTiltaksgjennomforingContainer = (
   };
 
   const arrangorUnderenheterOptions = () => {
-    const options = avtale.leverandorUnderenheter.map((lev) => {
-      return {
-        label: `${lev.navn} - ${lev.organisasjonsnummer}`,
-        value: lev.organisasjonsnummer,
-      };
-    });
+    const options =
+      avtale?.leverandorUnderenheter.map((lev) => {
+        return {
+          label: `${lev.navn} - ${lev.organisasjonsnummer}`,
+          value: lev.organisasjonsnummer,
+        };
+      }) || [];
 
     // Ingen underenheter betyr at alle er valgt, må gi valg om alle underenheter fra virksomhet
     if (options.length === 0) {
@@ -237,7 +239,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly
             style={{ backgroundColor: "#F1F1F1" }}
             label={"Avtale"}
-            value={avtale.navn || ""}
+            value={avtale?.navn || ""}
           />
         </FormGroup>
         <FormGroup>
@@ -266,7 +268,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             readOnly
             style={{ backgroundColor: "#F1F1F1" }}
             label={"NAV region"}
-            value={avtale.navRegion?.navn || ""}
+            value={avtale?.navRegion?.navn || ""}
           />
           <ControlledMultiSelect
             placeholder={isLoadingEnheter ? "Laster enheter..." : "Velg en"}
@@ -279,7 +281,7 @@ export const OpprettTiltaksgjennomforingContainer = (
           <TextField
             label="Tiltaksarrangør hovedenhet"
             placeholder=""
-            defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
+            defaultValue={`${avtale?.leverandor.navn} - ${avtale?.leverandor.organisasjonsnummer}`}
             style={{ backgroundColor: "#F1F1F1" }}
             readOnly
           />
@@ -287,7 +289,7 @@ export const OpprettTiltaksgjennomforingContainer = (
             label="Tiltaksarrangør underenhet"
             placeholder="Velg underenhet for tiltaksarrangør"
             {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-            disabled={!avtale.leverandor.organisasjonsnummer}
+            disabled={!avtale?.leverandor.organisasjonsnummer}
             options={arrangorUnderenheterOptions()}
           />
         </FormGroup>

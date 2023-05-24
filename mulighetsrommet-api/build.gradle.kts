@@ -76,7 +76,7 @@ dependencies {
     }
     implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.4.10") {
+        implementation("net.minidev:json-smart:2.4.11") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
@@ -87,7 +87,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.0") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.74") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.75") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

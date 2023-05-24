@@ -1,4 +1,5 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
+import styles from "./EmptyState.module.scss";
 
 interface Props {
   tittel: string;
@@ -24,6 +25,7 @@ const Ikon = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
+      className={styles.bell}
     >
       <rect width="96" height="96" fill="url(#pattern0)" />
       <defs>

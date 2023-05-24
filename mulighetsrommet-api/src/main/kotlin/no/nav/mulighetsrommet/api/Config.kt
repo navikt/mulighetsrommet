@@ -4,10 +4,7 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClientImpl
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.producers.TiltakstypeKafkaProducer
-import no.nav.mulighetsrommet.api.tasks.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.tasks.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTilgjengelighetsstatuserToSanity
-import no.nav.mulighetsrommet.api.tasks.SynchronizeTiltaksgjennomforingEnheter
+import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
@@ -22,7 +19,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
-    val swagger: SwaggerConfig = SwaggerConfig(enable = false),
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
     val veilarbpersonConfig: ServiceClientConfig,
@@ -66,10 +62,6 @@ data class AuthProvider(
     val tokenEndpointUrl: String,
 )
 
-data class SwaggerConfig(
-    val enable: Boolean,
-)
-
 data class ServiceClientConfig(
     val url: String,
     val scope: String,
@@ -80,6 +72,7 @@ data class TaskConfig(
     val synchronizeEnheterFraSanityTilApi: SynchronizeTiltaksgjennomforingEnheter.Config,
     val synchronizeTilgjengelighetsstatuser: SynchronizeTilgjengelighetsstatuserToSanity.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
+    val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
 )
 
 data class Norg2Config(

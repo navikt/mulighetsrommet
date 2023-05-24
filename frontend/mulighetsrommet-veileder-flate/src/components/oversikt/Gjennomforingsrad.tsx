@@ -21,8 +21,6 @@ const visOppstartsdato = (oppstart: SanityTiltaksgjennomforing.oppstart, oppstar
       return formaterDato(oppstartsdato!);
     case 'lopende':
       return 'Løpende oppstart';
-    case 'midlertidig_stengt':
-      return 'Midlertidig stengt';
   }
 };
 
@@ -70,11 +68,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index }: Props) {
             <BodyShort size="small" title={visOppstartsdato(oppstart, oppstartsdato)} className={styles.truncate}>
               {visOppstartsdato(oppstart, oppstartsdato)}
             </BodyShort>
-            <TilgjengelighetsstatusComponent
-              oppstart={oppstart}
-              status={tilgjengelighetsstatus}
-              estimert_ventetid={estimert_ventetid}
-            />
+            <TilgjengelighetsstatusComponent status={tilgjengelighetsstatus} estimert_ventetid={estimert_ventetid} />
           </div>
           <ChevronRightIcon className={styles.ikon} />
         </div>
