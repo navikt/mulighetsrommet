@@ -85,6 +85,7 @@ paths:
             datamodellen for tiltaksgjennomføringer som blir eksponert i dette APIet.
 
             Om dette endepunktet mangler noen datapunkter er det mulig å komme med egne bestillinger for dette.
+            Kontakt i så fall #team-valp på Slack for å komme i kontakt med oss.
           content:
             application/json:
               schema:
