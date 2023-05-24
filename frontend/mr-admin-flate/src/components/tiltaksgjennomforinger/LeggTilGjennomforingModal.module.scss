@@ -1,0 +1,12 @@
+.modal_container {
+  min-width: 40rem;
+  min-height: 50rem;
+  height: auto;
+
+  .modal_content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+}
+

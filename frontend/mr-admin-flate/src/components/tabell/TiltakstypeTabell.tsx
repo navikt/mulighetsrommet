@@ -13,6 +13,7 @@ import pageStyles from "../../pages/Page.module.scss";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useSort } from "../../hooks/useSort";
+import classNames from "classnames";
 
 export const TiltakstypeTabell = () => {
   const [page, setPage] = useAtom(paginationAtom);
@@ -53,7 +54,9 @@ export const TiltakstypeTabell = () => {
     });
   };
   return (
-    <div className={styles.tabell_wrapper}>
+    <div
+      className={classNames(styles.tabell_wrapper, styles.tiltakstypetabell)}
+    >
       <PagineringsOversikt
         page={page}
         antall={tiltakstyper.length}

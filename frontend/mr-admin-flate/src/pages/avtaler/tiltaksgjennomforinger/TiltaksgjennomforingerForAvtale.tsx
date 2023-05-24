@@ -31,7 +31,13 @@ export function TiltaksgjennomforingerForAvtale() {
         skjulFilter={{ tiltakstype: true }}
         avtale={avtale}
       />
-      <TiltaksgjennomforingsTabell skjulKolonner />
+      <TiltaksgjennomforingsTabell
+        skjulKolonner={{
+          tiltakstype: true,
+          arrangor: true,
+          leggTilKnapp: true,
+        }}
+      />
     </>
   );
 }

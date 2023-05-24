@@ -1,4 +1,4 @@
-import { Alert, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
@@ -12,15 +12,66 @@ import Lenke from "mulighetsrommet-veileder-flate/src/components/lenke/Lenke";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import pageStyles from "../../pages/Page.module.scss";
-import classNames from "classnames";
 import { useSort } from "../../hooks/useSort";
+import React from "react";
+import { PlusIcon } from "@navikt/aksel-icons";
 
-interface Props {
-  skjulKolonner?: boolean;
+interface ColumnHeader {
+  sortKey: Kolonne;
+  tittel: string;
+  sortable: boolean;
+  width: string;
 }
 
+const headers: ColumnHeader[] = [
+  { sortKey: "navn", tittel: "Tittel", sortable: true, width: "3fr" },
+  {
+    sortKey: "tiltaksnummer",
+    tittel: "Tiltaksnr.",
+    sortable: true,
+    width: "1fr",
+  },
+  { sortKey: "arrangor", tittel: "Arrangør", sortable: false, width: "3fr" },
+  {
+    sortKey: "tiltakstype",
+    tittel: "Tiltakstype",
+    sortable: true,
+    width: "3fr",
+  },
+  { sortKey: "startdato", tittel: "Startdato", sortable: true, width: "1fr" },
+  { sortKey: "sluttdato", tittel: "Sluttdato", sortable: true, width: "1fr" },
+  { sortKey: "status", tittel: "Status", sortable: true, width: "1fr" },
+  { sortKey: "leggTilKnapp", tittel: "", sortable: false, width: "1fr" },
+];
+
+type Kolonne =
+  | "navn"
+  | "tiltaksnummer"
+  | "tiltakstype"
+  | "arrangor"
+  | "startdato"
+  | "sluttdato"
+  | "status"
+  | "leggTilKnapp";
+
+interface Props {
+  skjulKolonner: Partial<Record<Kolonne, boolean>>;
+  leggTilNyGjennomforingModal?: boolean;
+}
+
+const SkjulKolonne = ({
+  children,
+  skjul,
+}: {
+  children: React.ReactNode;
+  skjul: boolean;
+}) => {
+  return skjul ? null : <>{children}</>;
+};
+
 export const TiltaksgjennomforingsTabell = ({
-  skjulKolonner = false,
+  skjulKolonner,
+  leggTilNyGjennomforingModal,
 }: Props) => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
@@ -73,12 +124,14 @@ export const TiltaksgjennomforingsTabell = ({
 
   return (
     <div className={styles.tabell_wrapper}>
-      <PagineringsOversikt
-        page={page}
-        antall={tiltaksgjennomforinger.length}
-        maksAntall={pagination?.totalCount}
-        type="tiltaksgjennomføringer"
-      />
+      {!leggTilNyGjennomforingModal && (
+        <PagineringsOversikt
+          page={page}
+          antall={tiltaksgjennomforinger.length}
+          maksAntall={pagination?.totalCount}
+          type="tiltaksgjennomføringer"
+        />
+      )}
 
       <Table
         sort={sort!}
@@ -86,34 +139,23 @@ export const TiltaksgjennomforingsTabell = ({
         className={styles.tabell}
       >
         <Table.Header>
-          <Table.Row
-            className={classNames(
-              !skjulKolonner
-                ? styles.tiltaksgjennomforing_tabellrad
-                : styles.tiltaksgjennomforing_skjul_kolonner
-            )}
-          >
-            <Table.ColumnHeader sortKey="navn" sortable>
-              Tittel
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="tiltaksnummer" sortable>
-              Tiltaksnr.
-            </Table.ColumnHeader>
-            {!skjulKolonner && (
-              <>
-                <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
-                <Table.ColumnHeader sortKey="tiltakstype" sortable>
-                  Tiltakstype
+          <Table.Row className={styles.tiltaksgjennomforing_tabellrad}>
+            {headers
+              .filter((header) => {
+                return skjulKolonner ? !skjulKolonner[header.sortKey] : true;
+              })
+              .map((header) => (
+                <Table.ColumnHeader
+                  key={header.sortKey}
+                  sortKey={header.sortKey}
+                  sortable={
+                    leggTilNyGjennomforingModal ? false : header.sortable
+                  }
+                  style={{ width: header.width }}
+                >
+                  {header.tittel}
                 </Table.ColumnHeader>
-              </>
-            )}
-            <Table.ColumnHeader sortKey="startdato" sortable>
-              Startdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="sluttdato" sortable>
-              Sluttdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader>Status</Table.ColumnHeader>
+              ))}
           </Table.Row>
         </Table.Header>
         {tiltaksgjennomforinger.length > 0 ? (
@@ -122,81 +164,108 @@ export const TiltaksgjennomforingsTabell = ({
               return (
                 <Table.Row
                   key={index}
-                  className={classNames(
-                    !skjulKolonner
-                      ? styles.tiltaksgjennomforing_tabellrad
-                      : styles.tiltaksgjennomforing_skjul_kolonner
-                  )}
+                  className={styles.tiltaksgjennomforing_tabellrad}
                 >
-                  <Table.DataCell
-                    aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
-                    className={styles.title}
-                  >
-                    <Lenke
-                      to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
-                      data-testid="tiltaksgjennomforingrad"
+                  <SkjulKolonne skjul={!!skjulKolonner?.navn}>
+                    <Table.DataCell
+                      aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
+                      className={
+                        leggTilNyGjennomforingModal ? "" : styles.title
+                      }
                     >
-                      {tiltaksgjennomforing.navn}
-                    </Lenke>
-                  </Table.DataCell>
-                  <Table.DataCell
-                    aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
-                  >
-                    {tiltaksgjennomforing.tiltaksnummer}
-                  </Table.DataCell>
-                  {!skjulKolonner && (
-                    <>
-                      <Table.DataCell
-                        aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
+                      {leggTilNyGjennomforingModal ? (
+                        tiltaksgjennomforing.navn
+                      ) : (
+                        <Lenke
+                          to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                          data-testid="tiltaksgjennomforingrad"
+                        >
+                          {tiltaksgjennomforing.navn}
+                        </Lenke>
+                      )}
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.tiltaksnummer}>
+                    <Table.DataCell
+                      aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
+                    >
+                      {tiltaksgjennomforing.tiltaksnummer}
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.arrangor}>
+                    <Table.DataCell
+                      aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.virksomhetsnavn}`}
+                    >
+                      {tiltaksgjennomforing.virksomhetsnavn}
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.tiltakstype}>
+                    <Table.DataCell
+                      aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
+                    >
+                      {tiltaksgjennomforing.tiltakstype.navn}
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
+                    <Table.DataCell
+                      title={`Startdato ${formaterDato(
+                        tiltaksgjennomforing.startDato
+                      )}`}
+                      aria-label={`Startdato: ${formaterDato(
+                        tiltaksgjennomforing.startDato
+                      )}`}
+                    >
+                      {formaterDato(tiltaksgjennomforing.startDato)}
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
+                    <Table.DataCell
+                      title={`Sluttdato ${formaterDato(
+                        tiltaksgjennomforing.sluttDato
+                      )}, "-"`}
+                      aria-label={
+                        tiltaksgjennomforing.sluttDato
+                          ? `Sluttdato: ${formaterDato(
+                              tiltaksgjennomforing.sluttDato,
+                              "-"
+                            )}`
+                          : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
+                      }
+                    >
+                      {formaterDato(tiltaksgjennomforing.sluttDato)}
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.status}>
+                    <Table.DataCell>
+                      <Tiltaksgjennomforingstatus
+                        tiltaksgjennomforing={tiltaksgjennomforing}
+                      />
+                    </Table.DataCell>
+                  </SkjulKolonne>
+                  <SkjulKolonne skjul={!!skjulKolonner?.leggTilKnapp}>
+                    <Table.DataCell>
+                      <Button
+                        variant="tertiary"
+                        className={styles.legg_til_knapp}
                       >
-                        {tiltaksgjennomforing.virksomhetsnavn}
-                      </Table.DataCell>
-                      <Table.DataCell
-                        aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
-                      >
-                        {tiltaksgjennomforing.tiltakstype.navn}
-                      </Table.DataCell>
-                    </>
-                  )}
-                  <Table.DataCell
-                    title={`Startdato ${formaterDato(
-                      tiltaksgjennomforing.startDato
-                    )}`}
-                    aria-label={`Startdato: ${formaterDato(
-                      tiltaksgjennomforing.startDato
-                    )}`}
-                  >
-                    {formaterDato(tiltaksgjennomforing.startDato)}
-                  </Table.DataCell>
-                  <Table.DataCell
-                    title={`Sluttdato ${formaterDato(
-                      tiltaksgjennomforing.sluttDato
-                    )}, "-"`}
-                    aria-label={
-                      tiltaksgjennomforing.sluttDato
-                        ? `Sluttdato: ${formaterDato(
-                            tiltaksgjennomforing.sluttDato,
-                            "-"
-                          )}`
-                        : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
-                    }
-                  >
-                    {formaterDato(tiltaksgjennomforing.sluttDato)}
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <Tiltaksgjennomforingstatus
-                      tiltaksgjennomforing={tiltaksgjennomforing}
-                    />
-                  </Table.DataCell>
+                        <PlusIcon fontSize={22} />
+                        Legg til
+                      </Button>
+                    </Table.DataCell>
+                  </SkjulKolonne>
                 </Table.Row>
               );
             })}
           </Table.Body>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </Table>
-      {tiltaksgjennomforinger.length > 0 ? (
+      {tiltaksgjennomforinger.length > 0 && !leggTilNyGjennomforingModal ? (
         <PagineringContainer>
           <PagineringsOversikt
             page={page}
