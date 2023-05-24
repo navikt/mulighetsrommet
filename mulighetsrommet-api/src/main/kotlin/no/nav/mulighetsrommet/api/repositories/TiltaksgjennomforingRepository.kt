@@ -553,17 +553,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.slutt_dato,
                    t.tiltakskode,
                    t.navn as tiltakstype_navn,
-                   tg.arena_ansvarlig_enhet,
-                   tg.avslutningsstatus,
-                   tg.tilgjengelighet,
-                   tg.antall_plasser,
-                   tg.avtale_id,
-                   array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter
+                   tg.avslutningsstatus
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
-                     left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
-                     left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
             where tg.virksomhetsnummer = ?
             group by tg.id, t.id
         """.trimIndent()
@@ -574,7 +566,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
