@@ -18,6 +18,7 @@ class TiltaksgjennomforingService(
     private val arrangorService: ArrangorService,
     private val deltakerRepository: DeltakerRepository,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val virksomhetService: VirksomhetService,
     private val enhetService: NavEnhetService,
 ) {
 
@@ -35,13 +36,15 @@ class TiltaksgjennomforingService(
                 totalCount to items.map { it.hentVirksomhetsnavnForTiltaksgjennomforing().hentEnhetsnavn() }
             }
 
-    suspend fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> =
-        tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
+    suspend fun upsert(tiltaksgjennomforingDbo: TiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+        virksomhetService.syncEnhetFraBrreg(tiltaksgjennomforingDbo.virksomhetsnummer)
+        return tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
             .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
             .map { it!! } // If upsert is succesfull it should exist here
             .onRight {
                 sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
             }
+    }
 
     fun getNokkeltallForTiltaksgjennomforing(tiltaksgjennomforingId: UUID): TiltaksgjennomforingNokkeltallDto =
         TiltaksgjennomforingNokkeltallDto(

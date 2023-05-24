@@ -43,6 +43,7 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.amt.AmtVirksomheterV1TopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -126,6 +127,7 @@ private fun kafka(config: KafkaConfig) = module {
     single {
         val consumers = listOf(
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
+            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -144,6 +146,7 @@ private fun repositories() = module {
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
+    single { VirksomhetRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -228,7 +231,7 @@ private fun services(appConfig: AppConfig) = module {
     single<BrregClient> {
         BrregClientImpl(baseUrl = appConfig.brreg.baseUrl)
     }
-    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { ArenaAdapterService(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { AvtaleService(get(), get(), get(), get()) }
     single { TiltakshistorikkService(get(), get()) }
     single { VeilederflateSanityService(get(), get()) }
@@ -240,7 +243,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
-    single { TiltaksgjennomforingService(get(), get(), get(), get(), get()) }
+    single { TiltaksgjennomforingService(get(), get(), get(), get(), get(), get()) }
     single { SanityTiltaksgjennomforingService(get(), get(), get(), get()) }
     single { TiltakstypeService(get(), get(), get(), get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
@@ -248,7 +251,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { TilgjengelighetsstatusSanitySyncService(get(), get()) }
     single { NotificationService(get(), get(), get()) }
-    single { BrregService(get()) }
+    single { VirksomhetService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

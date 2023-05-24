@@ -24,6 +24,9 @@ app:
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt-deltaker-v1
+      amtVirksomheterV1:
+        id: amt-virksomheter
+        topic: amt.virksomheter-v1
 
   auth:
     azure:
