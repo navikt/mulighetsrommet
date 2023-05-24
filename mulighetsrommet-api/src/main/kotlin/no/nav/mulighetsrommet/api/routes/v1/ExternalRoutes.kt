@@ -11,6 +11,7 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -24,13 +25,14 @@ fun Route.externalRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
     val arenaAdapterService: ArenaAdapterClient by inject()
 
-    route("/api/v1") {
-        get("tiltaksgjennomforinger") {
+    route("/api/v1/tiltaksgjennomforinger") {
+        get {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
-            val paginationParams = getPaginationParams()
             val filter = AdminTiltaksgjennomforingFilter(organisasjonsnummer = orgnr)
+            val paginationParams = getPaginationParams()
 
             val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføringer") }
                 .map {
                     val data = it.data.map { dto -> TiltaksgjennomforingDto.from(dto) }
                     PaginatedResponse(pagination = it.pagination, data = data)
@@ -38,16 +40,19 @@ fun Route.externalRoutes() {
 
             call.respondWithStatusResponse(result)
         }
-        get("tiltaksgjennomforinger/{id}") {
+
+        get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val result = tiltaksgjennomforingService.get(id)
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
+                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
                 .map { TiltaksgjennomforingDto.from(it) }
 
             call.respondWithStatusResponse(result)
         }
 
-        get("tiltaksgjennomforinger/id/{arenaId}") {
+        get("id/{arenaId}") {
             val arenaId = call.parameters.getOrFail("arenaId")
             val idResponse = arenaAdapterService.exchangeTiltaksgjennomforingsArenaIdForId(arenaId)
                 ?: return@get call.respondText(
@@ -57,14 +62,16 @@ fun Route.externalRoutes() {
             call.respond(idResponse)
         }
 
-        get("tiltaksgjennomforinger/arenadata/{id}") {
+        get("arenadata/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val result = tiltaksgjennomforingService.get(id)
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
+                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
                 .flatMap { gjennomforing ->
                     arenaAdapterService.hentTiltaksgjennomforingsstatus(id)
                         ?.let { TiltaksgjennomforingsArenadataDto.from(gjennomforing, it.status).right() }
-                        ?: NotFound("Det finnes ikke noe tiltaksgjennomføring med id=$id").left()
+                        ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left()
                 }
 
             call.respondWithStatusResponse(result)

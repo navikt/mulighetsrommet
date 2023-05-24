@@ -1225,6 +1225,8 @@ components:
           type: array
           items:
             type: string
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
       required:
         - id
         - avtaleId
@@ -1236,6 +1238,7 @@ components:
         - virksomhetsnummer
         - ansvarlig
         - navEnheter
+        - oppstart
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string

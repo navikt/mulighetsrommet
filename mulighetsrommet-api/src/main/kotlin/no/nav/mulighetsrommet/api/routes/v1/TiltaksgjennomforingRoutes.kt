@@ -1,22 +1,21 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -27,11 +26,24 @@ fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
+        put {
+            val request = call.receive<TiltaksgjennomforingRequest>()
+
+            val result = request.toDbo()
+                .flatMap {
+                    tiltaksgjennomforingService.upsert(it)
+                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring") }
+                }
+
+            call.respondWithStatusResponse(result)
+        }
+
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
             val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføringer") }
 
             call.respondWithStatusResponse(result)
         }
@@ -40,14 +52,8 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val result = tiltaksgjennomforingService.get(id)
-
-            call.respondWithStatusResponse(result)
-        }
-
-        put {
-            val request = call.receive<TiltaksgjennomforingRequest>()
-
-            val result = tiltaksgjennomforingService.upsert(request)
+                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
 
             call.respondWithStatusResponse(result)
         }
@@ -78,8 +84,9 @@ data class TiltaksgjennomforingRequest(
     val tiltaksnummer: String? = null,
     val ansvarlig: String,
     val navEnheter: List<String>,
+    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
 ) {
-    fun toDbo(tiltakstype: TiltakstypeDto): StatusResponse<TiltaksgjennomforingDbo> {
+    fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (sluttDato.isBefore(startDato)) {
             return Either.Left(BadRequest("Sluttdato kan ikke være før startdato"))
         }
@@ -87,11 +94,6 @@ data class TiltaksgjennomforingRequest(
             return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
 
-        val oppstart = if (Tiltakskoder.hasFellesOppstart(tiltakstype.arenaKode)) {
-            TiltaksgjennomforingDbo.Oppstartstype.FELLES
-        } else {
-            TiltaksgjennomforingDbo.Oppstartstype.LOPENDE
-        }
         return Either.Right(
             TiltaksgjennomforingDbo(
                 id = id,

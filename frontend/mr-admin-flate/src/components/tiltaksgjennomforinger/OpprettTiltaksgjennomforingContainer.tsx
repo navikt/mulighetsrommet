@@ -4,6 +4,7 @@ import {
   Avtale,
   NavEnhet,
   Tiltaksgjennomforing,
+  TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
@@ -24,6 +25,7 @@ import { porten } from "mulighetsrommet-frontend-common/constants";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { Link } from "react-router-dom";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
@@ -82,6 +84,21 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
     Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
   </>
 );
+
+// På sikt burde denne egenskapen spesifiseres i skjema for gjennomføring, evt.
+// utledes basert på eksplisitt styre-data i avtale eller tiltakstype.
+function temporaryResolveOppstartstypeFromAvtale(
+  avtale?: Avtale
+): TiltaksgjennomforingOppstartstype {
+  if (!avtale) {
+    return TiltaksgjennomforingOppstartstype.LOPENDE;
+  }
+
+  const tiltakskode = avtale.tiltakstype.arenaKode;
+  return isTiltakMedFellesOppstart(tiltakskode)
+    ? TiltaksgjennomforingOppstartstype.FELLES
+    : TiltaksgjennomforingOppstartstype.LOPENDE;
+}
 
 export const OpprettTiltaksgjennomforingContainer = (
   props: OpprettTiltaksgjennomforingContainerProps
@@ -161,6 +178,7 @@ export const OpprettTiltaksgjennomforingContainer = (
         tiltaksgjennomforing?.virksomhetsnummer ||
         "",
       tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer,
+      oppstart: temporaryResolveOppstartstypeFromAvtale(avtale),
     };
 
     try {
