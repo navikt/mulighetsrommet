@@ -97,22 +97,27 @@ export function TiltaksgjennomforingInfo() {
               verdi={tiltaksgjennomforing.virksomhetsnavn}
             />
           ) : null}
-          {tiltaksgjennomforing.sanityId ? (
-            <Metadata
-              header="Sanity dokument"
-              verdi={
-                <>
-                  <Link
-                    target="_blank"
-                    href={sanityTiltaksgjennomforingUrl + tiltaksgjennomforing.sanityId}
-                  >
-                    Åpne tiltaksgjennomføringen i Sanity <ExternalLinkIcon title="a11y-title" />
-                  </Link>
-                </>
-              }
-            />
-          ) : null}
         </dl>
+        {tiltaksgjennomforing.sanityId ? (
+          <>
+            <Separator />
+            <dl className={styles.bolk}>
+              <Metadata
+                header="Sanity dokument"
+                verdi={
+                  <>
+                    <Link
+                      target="_blank"
+                      href={sanityTiltaksgjennomforingUrl + tiltaksgjennomforing.sanityId}
+                    >
+                      Åpne tiltaksgjennomføringen i Sanity <ExternalLinkIcon title="a11y-title" />
+                    </Link>
+                  </>
+                }
+              />
+            </dl>
+          </>
+        ) : null}
       </div>
       <div className={styles.knapperad}>
         {features?.["mulighetsrommet.admin-flate-rediger-avtale"] ? (
