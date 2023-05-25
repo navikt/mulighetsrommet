@@ -15,9 +15,9 @@ import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { inneholderUrl, resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
+import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { LeggTilGjennomforingModal } from "../tiltaksgjennomforinger/LeggTilGjennomforingModal";
+import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 
 type Filters = "tiltakstype";
 

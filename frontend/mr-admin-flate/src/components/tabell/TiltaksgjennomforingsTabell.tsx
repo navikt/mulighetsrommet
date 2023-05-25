@@ -1,4 +1,4 @@
-import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Pagination, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { SorteringTiltaksgjennomforinger } from "../../../../mulighetsrommet-api-client";
@@ -14,7 +14,6 @@ import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomfor
 import pageStyles from "../../pages/Page.module.scss";
 import { useSort } from "../../hooks/useSort";
 import React from "react";
-import { PlusIcon } from "@navikt/aksel-icons";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -25,6 +24,7 @@ interface ColumnHeader {
 
 const headers: ColumnHeader[] = [
   { sortKey: "navn", tittel: "Tittel", sortable: true, width: "3fr" },
+  { sortKey: "enhet", tittel: "Enhet", sortable: false, width: "2fr" },
   {
     sortKey: "tiltaksnummer",
     tittel: "Tiltaksnr.",
@@ -46,6 +46,7 @@ const headers: ColumnHeader[] = [
 
 type Kolonne =
   | "navn"
+  | "enhet"
   | "tiltaksnummer"
   | "tiltakstype"
   | "arrangor"
@@ -56,7 +57,6 @@ type Kolonne =
 
 interface Props {
   skjulKolonner: Partial<Record<Kolonne, boolean>>;
-  leggTilNyGjennomforingModal?: boolean;
 }
 
 const SkjulKolonne = ({
@@ -69,10 +69,7 @@ const SkjulKolonne = ({
   return skjul ? null : <>{children}</>;
 };
 
-export const TiltaksgjennomforingsTabell = ({
-  skjulKolonner,
-  leggTilNyGjennomforingModal,
-}: Props) => {
+export const TiltaksgjennomforingsTabell = ({ skjulKolonner }: Props) => {
   const { data, isLoading, isError } = useAdminTiltaksgjennomforinger();
   const [page, setPage] = useAtom(paginationAtom);
   const [sort, setSort] = useSort("navn");
@@ -122,16 +119,28 @@ export const TiltaksgjennomforingsTabell = ({
     });
   };
 
+  const formaterNavEnheter = (
+    navEnheter?: { navn?: string | null; enhetsnummer?: string }[]
+  ): string => {
+    const liste = [...(navEnheter || [])];
+    if (!liste) return "";
+
+    const forsteEnhet = liste.shift();
+    if (!forsteEnhet) return "";
+
+    return `${forsteEnhet?.navn} ${
+      liste.length > 0 ? `+ ${liste.length}` : ""
+    }`;
+  };
+
   return (
     <div className={styles.tabell_wrapper}>
-      {!leggTilNyGjennomforingModal && (
-        <PagineringsOversikt
-          page={page}
-          antall={tiltaksgjennomforinger.length}
-          maksAntall={pagination?.totalCount}
-          type="tiltaksgjennomføringer"
-        />
-      )}
+      <PagineringsOversikt
+        page={page}
+        antall={tiltaksgjennomforinger.length}
+        maksAntall={pagination?.totalCount}
+        type="tiltaksgjennomføringer"
+      />
 
       <Table
         sort={sort!}
@@ -148,9 +157,7 @@ export const TiltaksgjennomforingsTabell = ({
                 <Table.ColumnHeader
                   key={header.sortKey}
                   sortKey={header.sortKey}
-                  sortable={
-                    leggTilNyGjennomforingModal ? false : header.sortable
-                  }
+                  sortable={header.sortable}
                   style={{ width: header.width }}
                 >
                   {header.tittel}
@@ -169,20 +176,27 @@ export const TiltaksgjennomforingsTabell = ({
                   <SkjulKolonne skjul={!!skjulKolonner?.navn}>
                     <Table.DataCell
                       aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
-                      className={
-                        leggTilNyGjennomforingModal ? "" : styles.title
-                      }
+                      className={styles.title}
                     >
-                      {leggTilNyGjennomforingModal ? (
-                        tiltaksgjennomforing.navn
-                      ) : (
-                        <Lenke
-                          to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
-                          data-testid="tiltaksgjennomforingrad"
-                        >
-                          {tiltaksgjennomforing.navn}
-                        </Lenke>
-                      )}
+                      <Lenke
+                        to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
+                        data-testid="tiltaksgjennomforingrad"
+                      >
+                        {tiltaksgjennomforing.navn}
+                      </Lenke>
+                    </Table.DataCell>
+                  </SkjulKolonne>
+
+                  <SkjulKolonne skjul={!!skjulKolonner?.enhet}>
+                    <Table.DataCell
+                      aria-label={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                        .map((enhet) => enhet?.navn)
+                        .join(", ")}`}
+                      title={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                        .map((enhet) => enhet?.navn)
+                        .join(", ")}`}
+                    >
+                      {formaterNavEnheter(tiltaksgjennomforing.navEnheter)}
                     </Table.DataCell>
                   </SkjulKolonne>
 
@@ -248,24 +262,13 @@ export const TiltaksgjennomforingsTabell = ({
                       />
                     </Table.DataCell>
                   </SkjulKolonne>
-                  <SkjulKolonne skjul={!!skjulKolonner?.leggTilKnapp}>
-                    <Table.DataCell>
-                      <Button
-                        variant="tertiary"
-                        className={styles.legg_til_knapp}
-                      >
-                        <PlusIcon fontSize={22} />
-                        Legg til
-                      </Button>
-                    </Table.DataCell>
-                  </SkjulKolonne>
                 </Table.Row>
               );
             })}
           </Table.Body>
         ) : null}
       </Table>
-      {tiltaksgjennomforinger.length > 0 && !leggTilNyGjennomforingModal ? (
+      {tiltaksgjennomforinger.length > 0 ? (
         <PagineringContainer>
           <PagineringsOversikt
             page={page}

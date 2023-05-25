@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./LeggTilGjennomforingModal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
-import { TiltaksgjennomforingsTabell } from "../tabell/TiltaksgjennomforingsTabell";
+import { Tiltaksgjennomforingsliste } from "../tiltaksgjennomforinger/Tiltaksgjennomforingsliste";
 
 interface ModalProps {
   modalOpen: boolean;
@@ -52,19 +52,11 @@ ModalProps) => {
               Legg til ny gjennomføring til avtalen
             </Heading>
             <Search
-              label={"Søk etter gjennomføring"}
+              label="Søk på tiltaksnummer"
               variant="simple"
               hideLabel={false}
             />
-
-            <TiltaksgjennomforingsTabell
-              skjulKolonner={{
-                tiltakstype: true,
-                arrangor: true,
-                status: true,
-              }}
-              leggTilNyGjennomforingModal
-            />
+            <Tiltaksgjennomforingsliste />
           </Modal.Content>
         </Modal>
       )}

@@ -1,7 +1,7 @@
 .modal_container {
-  min-width: 40rem;
-  min-height: 50rem;
+  width: 40rem;
   height: auto;
+  max-height: 70rem;
 
   .modal_content {
     display: flex;
