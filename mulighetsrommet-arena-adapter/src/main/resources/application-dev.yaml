@@ -27,7 +27,7 @@ app:
 
   tasks:
     retryFailedEvents:
-      delayOfMinutes: 5
+      delayOfMinutes: 15
 
     notifyFailedEvents:
       maxRetries: 5
