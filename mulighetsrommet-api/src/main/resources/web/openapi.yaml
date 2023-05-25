@@ -1189,6 +1189,8 @@ components:
         avtaleId:
           type: string
           format: uuid
+        sanityId:
+          type: string
       required:
         - id
         - tiltakstype

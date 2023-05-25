@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
     "lint": "eslint src --ext .js,.ts,.tsx && tsc",
-    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
-    "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
-    "build:demo": "cross-env VITE_INCLUDE_MOCKS=true VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite build",
+    "backend": "cross-env VITE_SANITY_WORKSPACE='test' VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_EKSTERNE_SYSTEMER_MOCK=true vite",
+    "build": "cross-env VITE_SANITY_WORKSPACE='prod' VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
+    "build-dev": "cross-env VITE_SANITY_WORKSPACE='test' VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
+    "build:demo": "cross-env VITE_SANITY_WORKSPACE='test' VITE_INCLUDE_MOCKS=true VITE_MULIGHETSROMMET_API_MOCK=true VITE_EKSTERNE_SYSTEMER_MOCK=true vite build",
     "preview": "vite preview",
     "cy:run": "npx cypress run --e2e --browser chrome",
     "cypress": "npx cypress open",
