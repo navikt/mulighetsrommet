@@ -237,6 +237,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "today" to filter.dagensDato,
             "fylkesenhet" to filter.fylkesenhet,
             "avtaleId" to filter.avtaleId,
+            "virksomhetsnummer" to filter.organisasjonsnummer,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -247,6 +248,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
             filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from enhet where overordnet_enhet = :fylkesenhet)",
             filter.avtaleId to "tg.avtale_id = :avtaleId",
+            filter.organisasjonsnummer to "tg.virksomhetsnummer = :virksomhetsnummer",
         )
 
         val order = when (filter.sortering) {
@@ -539,54 +541,5 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
             .asList
             .let { db.run(it) }
-    }
-
-    fun getAllByOrgnr(orgnr: String): QueryResult<List<TiltaksgjennomforingDto>> = query {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.tiltakstype_id,
-                   tg.tiltaksnummer,
-                   tg.virksomhetsnummer,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   t.tiltakskode,
-                   t.navn as tiltakstype_navn,
-                   tg.avslutningsstatus
-            from tiltaksgjennomforing tg
-                     inner join tiltakstype t on t.id = tg.tiltakstype_id
-            where tg.virksomhetsnummer = ?
-            group by tg.id, t.id
-        """.trimIndent()
-
-        queryOf(query, orgnr)
-            .map { it.toTiltaksgjennomforingDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
-    private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-        return TiltaksgjennomforingDto(
-            id = uuid("id"),
-            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                arenaKode = string("tiltakskode"),
-            ),
-            navn = string("navn"),
-            virksomhetsnummer = string("virksomhetsnummer"),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.fromDbo(
-                LocalDate.now(),
-                startDato,
-                sluttDato,
-                Avslutningsstatus.valueOf(string("avslutningsstatus")),
-            ),
-
-        )
     }
 }

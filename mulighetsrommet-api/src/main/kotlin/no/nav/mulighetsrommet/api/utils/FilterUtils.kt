@@ -39,6 +39,7 @@ data class AdminTiltaksgjennomforingFilter(
     val dagensDato: LocalDate = LocalDate.now(),
     val fylkesenhet: String? = null,
     val avtaleId: UUID? = null,
+    val organisasjonsnummer: String? = null,
 )
 
 data class EnhetFilter(

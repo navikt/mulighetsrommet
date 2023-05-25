@@ -15,6 +15,16 @@ paths:
         schema:
           type: string
         description: Organisasjonsnummer koblet til tiltaksgjennomføringer
+      - in: query
+        name: page
+        schema:
+          type: number
+        description: Page number, default 1
+      - in: query
+        name: size
+        schema:
+          type: number
+        description: Page size, default 50
     get:
       tags:
         - Tiltaksgjennomforing
@@ -25,13 +35,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
         500:
           description: Noe gikk galt.
           content:
             text/plain:
               schema:
                 type: string
+
   /api/v1/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -236,3 +247,27 @@ components:
           description: Status på tiltaksgjennomføring i Arena.
       required:
         - status
+
+
+    Pagination:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        currentPage:
+          type: integer
+        pageSize:
+          type: integer
+
+    PaginertTiltaksgjennomforing:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltaksgjennomforing"
