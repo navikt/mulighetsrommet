@@ -10,16 +10,14 @@ function Notifier() {
 
 export function Notifikasjonsbjelle() {
   const { data: features } = useFeatureToggles();
-  const {
-    data: antallUlesteNotifikasjoner,
-    isLoading: isLoadingUlesteNotifikasjoner,
-  } = useNotificationSummary();
+  const { data: summary, isLoading: isLoadingUlesteNotifikasjoner } =
+    useNotificationSummary();
 
-  if (isLoadingUlesteNotifikasjoner && !antallUlesteNotifikasjoner) {
+  if (isLoadingUlesteNotifikasjoner || !summary) {
     return null;
   }
 
-  const harUlesteNotifikasjoner = antallUlesteNotifikasjoner?.unreadCount || -1;
+  const harUlesteNotifikasjoner = summary.notDoneCount > 0;
 
   return features?.["mulighetsrommet.admin-flate-se-notifikasjoner"] ? (
     <Link
@@ -28,7 +26,7 @@ export function Notifikasjonsbjelle() {
       data-testid="notifikasjonsbjelle"
     >
       <div className={styles.bell_container}>
-        {harUlesteNotifikasjoner > 0 ? <Notifier /> : null}
+        {harUlesteNotifikasjoner ? <Notifier /> : null}
         <BellIcon fontSize={24} title="Notifikasjonsbjelle" />
       </div>
     </Link>

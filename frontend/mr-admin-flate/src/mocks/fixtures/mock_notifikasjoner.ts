@@ -19,7 +19,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
         "Beskrivelse med en ganske lang tekst fordi vi har så komplekse prosesser så det viktig at det blir gitt nøyaktig beskjed om hva som skal til for å løse denne vanskelige problemstillingen.",
       user: "B99876",
       createdAt: "2023-01-26T13:51:50.417-07:00",
-      readAt: "2023-01-26T13:51:50.417-07:00",
+      doneAt: "2023-01-26T13:51:50.417-07:00",
     },
     {
       id: "eccd9a93-3f08-4006-b3cb-751762e8bccf",
@@ -30,7 +30,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
         "Beskrivelsen her er ikke så lang som den forrige, men sånn er det av og til.",
       user: "B99876",
       createdAt: "2023-01-26T13:51:50.417-07:00",
-      readAt: "2023-01-26T13:51:50.417-07:00",
+      doneAt: "2023-01-26T13:51:50.417-07:00",
     },
   ],
 };

@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.notifications.NotificationStatus
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 import java.util.*
@@ -58,10 +59,6 @@ data class TiltaksgjennomforingFilter(
 data class NotificationFilter(
     val status: NotificationStatus? = null,
 )
-
-enum class NotificationStatus {
-    Unread, Read
-}
 
 enum class Tiltakstypekategori {
     INDIVIDUELL, GRUPPE

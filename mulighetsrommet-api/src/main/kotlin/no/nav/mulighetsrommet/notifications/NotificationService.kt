@@ -62,7 +62,7 @@ class NotificationService(
     }
 
     fun getNotifications(userId: String, filter: NotificationFilter): List<UserNotification> {
-        return notifications.getUserNotifications(userId, filter)
+        return notifications.getUserNotifications(userId, filter.status)
             .getOrElse {
                 logger.error("Failed to get notifications for user=$userId", it.error)
                 throw StatusException(InternalServerError, "Failed to get notifications for user=$userId")
@@ -77,28 +77,22 @@ class NotificationService(
             }
     }
 
-    fun markNotificationAsRead(id: UUID, userId: String) {
-        notifications.setNotificationReadAt(id, userId, LocalDateTime.now())
+    fun setNotificationStatus(id: UUID, userId: String, status: NotificationStatus) {
+        val doneAt = when (status) {
+            NotificationStatus.DONE -> LocalDateTime.now()
+            NotificationStatus.NOT_DONE -> null
+        }
+        notifications.setNotificationDoneAt(id, userId, doneAt)
             .onLeft {
-                logger.error("Failed to mark notification as read", it.error)
-                throw StatusException(InternalServerError, "Failed to mark notification as read")
+                logger.error("Failed to set notification status", it.error)
+                throw StatusException(InternalServerError, "Failed to set notification status")
             }
             .onRight { updated ->
                 if (updated == 0) {
-                    throw StatusException(BadRequest, "Could not mark notification=$id as read for user=$userId")
-                }
-            }
-    }
-
-    fun markNotificationAsUnread(id: UUID, userId: String) {
-        notifications.setNotificationReadAt(id, userId, null)
-            .onLeft {
-                logger.error("Failed to mark notification as unread", it.error)
-                throw StatusException(InternalServerError, "Failed to mark notification as unread")
-            }
-            .onRight { updated ->
-                if (updated == 0) {
-                    throw StatusException(BadRequest, "Could not mark notification=$id as unread for user=$userId")
+                    throw StatusException(
+                        BadRequest,
+                        "Could not set notification status for notification=$id and user=$userId",
+                    )
                 }
             }
     }

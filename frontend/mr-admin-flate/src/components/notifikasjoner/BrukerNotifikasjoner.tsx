@@ -9,7 +9,7 @@ export function BrukerNotifikasjoner() {
   const { data: features } = useFeatureToggles();
   const { data: bruker } = useHentAnsatt();
   const { data: notificationSummary } = useNotificationSummary();
-  const antallUlesteNotifikasjoner = notificationSummary?.unreadCount || -1;
+  const antallUlesteNotifikasjoner = notificationSummary?.notDoneCount || -1;
 
   if (!features?.["mulighetsrommet.admin-flate-se-notifikasjoner"]) return null;
 

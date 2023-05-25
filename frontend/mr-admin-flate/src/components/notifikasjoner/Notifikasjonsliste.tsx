@@ -1,7 +1,7 @@
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "../laster/Laster";
-import { Notifikasjonsstatus } from "mulighetsrommet-api-client";
+import { NotificationStatus } from "mulighetsrommet-api-client";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
@@ -13,7 +13,7 @@ interface Props {
 export function Notifikasjonsliste({ lest }: Props) {
   const { data: features } = useFeatureToggles();
   const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt(
-    lest ? Notifikasjonsstatus.READ : Notifikasjonsstatus.UNREAD
+    lest ? NotificationStatus.DONE : NotificationStatus.NOT_DONE
   );
 
   if (isLoading && !paginertResultat) {

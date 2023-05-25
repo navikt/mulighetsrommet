@@ -805,7 +805,7 @@ paths:
         - in: query
           name: status
           schema:
-            $ref: "#/components/schemas/Notifikasjonsstatus"
+            $ref: "#/components/schemas/NotificationStatus"
           description: Status for notifikasjon
       responses:
         200:
@@ -828,24 +828,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserNotificationSummary"
 
-  /api/v1/internal/notifications/{id}/read:
+  /api/v1/internal/notifications/{id}/status:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Notifications
-      operationId: markAsRead
-      responses:
-        200:
-          description: OK
-
-  /api/v1/internal/notifications/{id}/unread:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Notifications
-      operationId: markAsUnread
+      operationId: setNotificationStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: "#/components/schemas/NotificationStatus"
+              required:
+                - status
+        required: true
       responses:
         200:
           description: OK
@@ -1116,11 +1116,11 @@ components:
         - Avsluttet
         - Avbrutt
 
-    Notifikasjonsstatus:
+    NotificationStatus:
       type: string
       enum:
-        - Read
-        - Unread
+        - DONE
+        - NOT_DONE
 
     SorteringAvtaler:
       type: string
@@ -1816,7 +1816,7 @@ components:
         createdAt:
           type: string
           format: date-time
-        readAt:
+        doneAt:
           type: string
           format: date-time
       required:
@@ -1826,15 +1826,15 @@ components:
         - description
         - user
         - createdAt
-        - readAt
+        - doneAt
 
     UserNotificationSummary:
       type: object
       properties:
-        unreadCount:
+        notDoneCount:
           type: integer
       required:
-        - unreadCount
+        - notDoneCount
 
     AvtaleForGjennomforingRequest:
       type: object

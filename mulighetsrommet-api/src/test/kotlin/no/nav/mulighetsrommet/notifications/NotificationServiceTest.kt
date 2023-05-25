@@ -63,7 +63,7 @@ class NotificationServiceTest : FunSpec({
                 description = description,
                 user = user,
                 createdAt = LocalDateTime.ofInstant(createdAt, ZoneOffset.systemDefault()),
-                readAt = null,
+                doneAt = null,
             )
         }
 

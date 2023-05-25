@@ -26,9 +26,9 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val insertUserNotification = """
-            insert into user_notification (notification_id, user_id, read_at)
-            values (:notification_id::uuid, :user_id, :read_at)
-            returning notification_id, user_id, read_at
+            insert into user_notification (notification_id, user_id, done_at)
+            values (:notification_id::uuid, :user_id, :done_at)
+            returning notification_id, user_id, done_at
         """.trimIndent()
 
         db.transaction { tx ->
@@ -51,7 +51,7 @@ class NotificationRepository(private val db: Database) {
                     mapOf(
                         "notification_id" to notification.id,
                         "user_id" to userId,
-                        "read_at" to null,
+                        "done_at" to null,
                     ),
                 )
                     .asExecute
@@ -60,17 +60,17 @@ class NotificationRepository(private val db: Database) {
         }
     }
 
-    fun setNotificationReadAt(id: UUID, userId: String, readAt: LocalDateTime?): QueryResult<Int> = query {
-        logger.info("Setting notification id=$id readAt=$readAt")
+    fun setNotificationDoneAt(id: UUID, userId: String, doneAt: LocalDateTime?): QueryResult<Int> = query {
+        logger.info("Setting notification id=$id doneAt=$doneAt")
 
         @Language("PostgreSQL")
         val query = """
             update user_notification
-            set read_at = :read_at
+            set done_at = :done_at
             where notification_id = :notification_id and user_id = :user_id
         """.trimIndent()
 
-        queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "read_at" to readAt))
+        queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "done_at" to doneAt))
             .asUpdate
             .let { db.run(it) }
     }
@@ -80,7 +80,7 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.read_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             where id = ?::uuid
@@ -95,7 +95,7 @@ class NotificationRepository(private val db: Database) {
     fun getAll(): QueryResult<List<UserNotification>> = query {
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.read_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             order by created_at desc
@@ -107,16 +107,19 @@ class NotificationRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getUserNotifications(userId: String? = null, filter: NotificationFilter): QueryResult<List<UserNotification>> =
+    fun getUserNotifications(
+        userId: String? = null,
+        status: NotificationStatus? = null,
+    ): QueryResult<List<UserNotification>> =
         query {
             val where = DatabaseUtils.andWhereParameterNotNull(
                 userId to "un.user_id = :user_id",
-                filter.status to filter.status?.toDbStatement(),
+                status to status?.toDbStatement(),
             )
 
             @Language("PostgreSQL")
             val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.read_at
+            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at
             from notification n
                      left join user_notification un on n.id = un.notification_id
             $where
@@ -132,17 +135,17 @@ class NotificationRepository(private val db: Database) {
     fun getUserNotificationSummary(userId: String): QueryResult<UserNotificationSummary> = query {
         @Language("PostgreSQL")
         val query = """
-            select count(*) as unread_count
+            select count(*) as not_done_count
             from notification n
                      join user_notification un on n.id = un.notification_id
             where user_id = :user_id
-              and read_at is null
+              and done_at is null
         """.trimIndent()
 
         queryOf(query, mapOf("user_id" to userId))
             .map {
                 UserNotificationSummary(
-                    unreadCount = it.int("unread_count"),
+                    notDoneCount = it.int("not_done_count"),
                 )
             }
             .asSingle
@@ -170,13 +173,13 @@ class NotificationRepository(private val db: Database) {
         description = stringOrNull("description"),
         user = string("user_id"),
         createdAt = localDateTime("created_at"),
-        readAt = localDateTimeOrNull("read_at"),
+        doneAt = localDateTimeOrNull("done_at"),
     )
 
     private fun NotificationStatus.toDbStatement(): String {
         return when (this) {
-            NotificationStatus.Read -> "un.read_at is not null"
-            NotificationStatus.Unread -> "un.read_at is null"
+            NotificationStatus.DONE -> "un.done_at is not null"
+            NotificationStatus.NOT_DONE -> "un.done_at is null"
         }
     }
 }
