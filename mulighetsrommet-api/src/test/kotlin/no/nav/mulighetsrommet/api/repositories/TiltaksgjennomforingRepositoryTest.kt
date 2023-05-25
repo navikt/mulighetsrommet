@@ -180,7 +180,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "1", navn = null), NavEnhet(enhetsnummer = "2", navn = null)))
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(
+                    listOf(
+                        NavEnhet(enhetsnummer = "1", navn = null),
+                        NavEnhet(enhetsnummer = "2", navn = null),
+                    ),
+                )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
@@ -213,7 +218,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .shouldBeRight()
 
             val result =
-                tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter(avtaleId = avtale1.id))
+                tiltaksgjennomforinger.getAll(
+                    filter = AdminTiltaksgjennomforingFilter(
+                        avtaleId = avtale1.id,
+                    ),
+                )
                     .shouldBeRight().second
             result shouldHaveSize 1
             result.first().id shouldBe gjennomforing2.id
@@ -539,7 +548,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("default pagination gets first 50 tiltak") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(filter = AdminTiltaksgjennomforingFilter())
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(
+                filter = AdminTiltaksgjennomforingFilter(),
+            )
                 .shouldBeRight()
 
             items.size shouldBe DEFAULT_PAGINATION_LIMIT

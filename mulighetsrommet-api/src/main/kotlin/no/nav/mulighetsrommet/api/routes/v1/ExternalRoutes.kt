@@ -6,7 +6,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
+import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
 import org.koin.ktor.ext.inject
@@ -17,6 +21,34 @@ fun Route.externalRoutes() {
     val arenaAdapterService: ArenaAdapterClient by inject()
 
     route("/api/v1") {
+        get("tiltaksgjennomforinger") {
+            val orgnr = call.request.queryParameters.getOrFail("orgnr")
+            val paginationParams = getPaginationParams()
+            tiltaksgjennomforingService.getAll(
+                paginationParams = paginationParams,
+                filter = AdminTiltaksgjennomforingFilter(organisasjonsnummer = orgnr),
+            )
+                .onRight {
+                    val gjennomforinger = it.second.map { gjen -> TiltaksgjennomforingDto.from(gjen) }
+                    call.respond(
+                        PaginatedResponse(
+                            pagination = Pagination(
+                                totalCount = it.first,
+                                currentPage = paginationParams.page,
+                                pageSize = paginationParams.limit,
+                            ),
+                            data = gjennomforinger,
+                        ),
+                    )
+                }
+                .onLeft { error ->
+                    log.error("$error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Kunne ikke hente gjennomføringer for organisasjonsnummer : '$orgnr'",
+                    )
+                }
+        }
         get("tiltaksgjennomforinger/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             tiltaksgjennomforingService.get(id)
@@ -55,10 +87,11 @@ fun Route.externalRoutes() {
                             status = HttpStatusCode.NotFound,
                         )
                     }
-                    val status = arenaAdapterService.hentTiltaksgjennomforingsstatus(id)?.status ?: return@get call.respondText(
-                        "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                        status = HttpStatusCode.NotFound,
-                    )
+                    val status =
+                        arenaAdapterService.hentTiltaksgjennomforingsstatus(id)?.status ?: return@get call.respondText(
+                            "Det finnes ikke noe tiltaksgjennomføring med id $id",
+                            status = HttpStatusCode.NotFound,
+                        )
                     call.respond(TiltaksgjennomforingsArenadataDto.from(it, status))
                 }
                 .onLeft { error ->

@@ -130,7 +130,11 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeAktiv)
         tiltakstyper.upsert(tiltakstypeAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
-        Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let { database.db.run(it) }
+        Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let {
+            database.db.run(
+                it,
+            )
+        }
 
         test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
             tiltakstyper.getAllSkalMigreres(
@@ -320,7 +324,9 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltaksgjennomforingRepository.upsert(gjennomforing3).getOrThrow()
             tiltaksgjennomforingRepository.upsert(gjennomforing4).getOrThrow()
 
-            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(filter = AdminTiltaksgjennomforingFilter()).getOrThrow()
+            val antallGjennomforinger = tiltaksgjennomforingRepository.getAll(
+                filter = AdminTiltaksgjennomforingFilter(),
+            ).getOrThrow()
             antallGjennomforinger.first shouldBe 3
 
             val antallGjennomforingerForTiltakstype =
@@ -331,7 +337,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         test("Skal telle korrekt antall deltakere tilknyttet en avtale") {
             val tiltakstypeIdSomIkkeSkalMatche = UUID.randomUUID()
 
-            val avtale = AvtaleFixtures(database).createAvtaleForTiltakstype(tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId)
+            val avtale =
+                AvtaleFixtures(database).createAvtaleForTiltakstype(tiltakstypeId = tiltaksgjennomforingFixture.Oppfolging1.tiltakstypeId)
 
             val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
@@ -360,10 +367,18 @@ class TiltakstypeRepositoryTest : FunSpec({
                 sluttDato = LocalDate.of(2050, 10, 15),
             )
 
-            val deltaker1 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID())
-            val deltaker2 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID(), startDato = LocalDate.of(2021, 1, 1), sluttDato = LocalDate.of(2023, 1, 1))
-            val deltaker3 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
-            val deltaker4 = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
+            val deltaker1 =
+                DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing1.id, id = UUID.randomUUID())
+            val deltaker2 = DeltakerFixture.Deltaker.copy(
+                tiltaksgjennomforingId = gjennomforing1.id,
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2021, 1, 1),
+                sluttDato = LocalDate.of(2023, 1, 1),
+            )
+            val deltaker3 =
+                DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
+            val deltaker4 =
+                DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing3.id, id = UUID.randomUUID())
 
             val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(id = gjennomforing1.tiltakstypeId)
             val tiltakstypeUtenGjennomforinger =

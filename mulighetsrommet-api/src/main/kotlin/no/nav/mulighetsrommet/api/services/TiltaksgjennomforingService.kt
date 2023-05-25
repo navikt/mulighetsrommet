@@ -40,7 +40,7 @@ class TiltaksgjennomforingService(
         virksomhetService.syncEnhetFraBrreg(tiltaksgjennomforingDbo.virksomhetsnummer)
         return tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingDbo)
             .flatMap { tiltaksgjennomforingRepository.get(tiltaksgjennomforingDbo.id) }
-            .map { it!! } // If upsert is succesfull it should exist here
+            .map { it!! } // If upsert is successful it should exist here
             .onRight {
                 sanityTiltaksgjennomforingService.opprettSanityTiltaksgjennomforing(it)
             }
