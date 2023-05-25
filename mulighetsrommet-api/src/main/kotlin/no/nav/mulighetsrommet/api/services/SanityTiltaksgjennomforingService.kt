@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -16,6 +17,7 @@ class SanityTiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val avtaleRepository: AvtaleRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
+    private val brregClientImpl: BrregClient,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -44,6 +46,8 @@ class SanityTiltaksgjennomforingService(
         val sanityTiltaksgjennomforingId = UUID.randomUUID()
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it).getOrThrow() }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
+        val lokasjonForVirksomhetFraBrreg =
+            brregClientImpl.hentEnhet(tiltaksgjennomforing.virksomhetsnummer).postnummerOgStedLokasjon
 
         val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(
             _id = sanityTiltaksgjennomforingId.toString(),
@@ -57,6 +61,7 @@ class SanityTiltaksgjennomforingService(
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
             tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
             sluttdato = tiltaksgjennomforing.sluttDato,
+            lokasjon = lokasjonForVirksomhetFraBrreg,
         )
 
         val response = sanityClient.mutate(
@@ -69,7 +74,10 @@ class SanityTiltaksgjennomforingService(
             log.info("Opprettet tiltaksgjennomforing i Sanity med id: $sanityTiltaksgjennomforingId")
         }
 
-        tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(tiltaksgjennomforing.id, sanityTiltaksgjennomforingId)
+        tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
+            tiltaksgjennomforing.id,
+            sanityTiltaksgjennomforingId,
+        )
             .getOrThrow()
     }
 
@@ -77,7 +85,9 @@ class SanityTiltaksgjennomforingService(
         val query = """
             *[_type == "tiltaksgjennomforing" &&
             !(_id in path('drafts.**')) &&
-            (tiltaksnummer.current == "$tiltaksnummer" || tiltaksnummer.current == "${tiltaksnummer.split("#").getOrNull(1)}")]
+            (tiltaksnummer.current == "$tiltaksnummer" || tiltaksnummer.current == "${
+            tiltaksnummer.split("#").getOrNull(1)
+        }")]
         """.trimIndent()
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> {

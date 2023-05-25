@@ -31,6 +31,7 @@ data class SanityTiltaksgjennomforing(
     val tiltaksnummer: TiltaksnummerSlug? = null,
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate? = null,
+    val lokasjon: String? = null,
 )
 
 @Serializable
