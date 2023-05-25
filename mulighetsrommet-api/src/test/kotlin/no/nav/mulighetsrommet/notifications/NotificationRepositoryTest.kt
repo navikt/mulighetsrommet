@@ -89,7 +89,7 @@ class NotificationRepositoryTest : FunSpec({
         )
     }
 
-    test("set notification status for user") {
+    test("should only set done_at for the specific user when the notification type is Notification") {
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
@@ -97,17 +97,32 @@ class NotificationRepositoryTest : FunSpec({
         notifications.insert(notification2).shouldBeRight()
 
         notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight()
-        notifications.setNotificationDoneAt(notification2.id, user1, doneAtTime).shouldBeRight()
-        notifications.setNotificationDoneAt(notification1.id, user2, doneAtTime).shouldBeRight()
 
         notifications.getUserNotifications() shouldBeRight listOf(
+            notification1.asUserNotification(user2),
+            notification2.asUserNotification(user1),
             notification1.asUserNotification(user1, doneAtTime),
-            notification2.asUserNotification(user1, doneAtTime),
-            notification1.asUserNotification(user2, doneAtTime),
         )
     }
 
-    test("filter for notification status") {
+    test("should set done_at for all users when the notification type is Task") {
+        val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+        val notifications = NotificationRepository(database.db)
+
+        val task = notification1.copy(type = NotificationType.Task)
+        notifications.insert(task).shouldBeRight()
+        notifications.insert(notification2).shouldBeRight()
+
+        notifications.setNotificationDoneAt(task.id, user1, doneAtTime).shouldBeRight()
+
+        notifications.getUserNotifications() shouldBeRight listOf(
+            notification2.asUserNotification(user1),
+            task.asUserNotification(user1, doneAtTime),
+            task.asUserNotification(user2, doneAtTime),
+        )
+    }
+
+    test("filter on notification status") {
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
@@ -121,10 +136,8 @@ class NotificationRepositoryTest : FunSpec({
 
         notifications.getUserNotifications(user1, NotificationStatus.DONE) shouldBeRight emptyList()
 
-        notifications.setNotificationDoneAt(notification2.id, user1, doneAtTime)
-            .shouldBeRight(1)
-        notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime)
-            .shouldBeRight(1)
+        notifications.setNotificationDoneAt(notification2.id, user1, doneAtTime).shouldBeRight(1)
+        notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight(1)
 
         notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE) shouldBeRight emptyList()
 
@@ -140,8 +153,7 @@ class NotificationRepositoryTest : FunSpec({
 
         notifications.insert(notification2).shouldBeRight()
 
-        notifications.setNotificationDoneAt(notification2.id, user2, doneAtTime)
-            .shouldBeRight(0)
+        notifications.setNotificationDoneAt(notification2.id, user2, doneAtTime).shouldBeRight(0)
 
         notifications.getUserNotifications(user1) shouldBeRight listOf(
             notification2.asUserNotification(user1, null),

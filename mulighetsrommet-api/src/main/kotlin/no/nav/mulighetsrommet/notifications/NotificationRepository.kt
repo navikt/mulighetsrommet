@@ -65,9 +65,15 @@ class NotificationRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            update user_notification
+            with matched_notification as (select *
+                                          from notification n
+                                               join user_notification un on n.id = un.notification_id
+                                              and notification_id = :notification_id
+                                              and user_id = :user_id)
+            update user_notification un
             set done_at = :done_at
-            where notification_id = :notification_id and user_id = :user_id
+            from matched_notification mn
+            where un.notification_id = mn.id and (un.user_id = :user_id or mn.type = 'Task')
         """.trimIndent()
 
         queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "done_at" to doneAt))
