@@ -23,7 +23,6 @@ VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
 #   - NAVident: En tilfeldig NAVident
 #   - oid: En tilfeldig UUID
 VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
-VITE_SANITY_WORKSPACE=test
 ```
 
 Deretter kan du kjøre `npm run backend`.

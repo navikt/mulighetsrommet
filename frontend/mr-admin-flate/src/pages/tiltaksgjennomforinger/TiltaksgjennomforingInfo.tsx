@@ -1,5 +1,5 @@
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { formaterDato } from "../../utils/Utils";
+import { formaterDato, inneholderUrl } from "../../utils/Utils";
 import styles from "../DetaljerInfo.module.scss";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
 import { OpprettTiltaksgjennomforingModal } from "../../components/tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 export function TiltaksgjennomforingInfo() {
   const {
@@ -27,7 +28,7 @@ export function TiltaksgjennomforingInfo() {
 
   const sanityTiltaksgjennomforingUrl =
     "https://mulighetsrommet-sanity-studio.intern.nav.no/" +
-    import.meta.env.VITE_SANITY_WORKSPACE +
+    (inneholderUrl("intern.nav.no") ? "prod" : "test") +
     "/desk/tiltaksgjennomforinger;alleTiltaksgjennomforinger;";
 
   if (isLoadingTiltaksgjennomforing || isLoadingAvtale) {
@@ -100,12 +101,14 @@ export function TiltaksgjennomforingInfo() {
             <Metadata
               header="Sanity dokument"
               verdi={
-                <Link
-                  target="_blank"
-                  href={sanityTiltaksgjennomforingUrl + tiltaksgjennomforing.sanityId}
-                >
-                  {tiltaksgjennomforing.sanityId}
-                </Link>
+                <>
+                  <Link
+                    target="_blank"
+                    href={sanityTiltaksgjennomforingUrl + tiltaksgjennomforing.sanityId}
+                  >
+                    Åpne tiltaksgjennomføringen i Sanity <ExternalLinkIcon title="a11y-title" />
+                  </Link>
+                </>
               }
             />
           ) : null}

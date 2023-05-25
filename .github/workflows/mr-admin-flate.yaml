@@ -60,7 +60,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build-dev --filter=mr-admin-flate
+        run: npx turbo run build --filter=mr-admin-flate
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
