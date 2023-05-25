@@ -24,7 +24,10 @@ class TiltaksgjennomforingService(
 
     suspend fun get(id: UUID): QueryResult<TiltaksgjennomforingAdminDto?> =
         tiltaksgjennomforingRepository.get(id)
-            .map { it?.hentVirksomhetsnavnForTiltaksgjennomforing()?.hentEnhetsnavn() }
+            .map {
+                it?.hentVirksomhetsnavnForTiltaksgjennomforing()?.hentVirksomhetsnavnForTiltaksgjennomforing()
+                    ?.hentEnhetsnavn()
+            }
 
     suspend fun getAll(
         paginationParams: PaginationParams,
@@ -52,8 +55,11 @@ class TiltaksgjennomforingService(
         )
 
     private suspend fun TiltaksgjennomforingAdminDto.hentVirksomhetsnavnForTiltaksgjennomforing(): TiltaksgjennomforingAdminDto {
+        if (this.virksomhetsnavn != null) return this
+
         val virksomhet = this.virksomhetsnummer.let { arrangorService.hentVirksomhet(it) }
         if (virksomhet != null) {
+            virksomhetService.syncEnhetFraBrreg(this.virksomhetsnummer)
             return this.copy(virksomhetsnavn = virksomhet.navn)
         }
         return this

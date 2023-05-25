@@ -187,13 +187,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.antall_plasser,
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter
+                   array_agg(e.enhetsnummer) as navEnheter,
+                   v.navn as virksomhetsnavn
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                      left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                     left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
             where tg.id = ?::uuid
-            group by tg.id, t.id
+            group by tg.id, t.id, v.organisasjonsnummer
         """.trimIndent()
 
         queryOf(query, id)
@@ -286,13 +288,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.avtale_id,
                    array_agg(a.navident) as ansvarlige,
                    array_agg(e.enhetsnummer) as navEnheter,
-                   count(*) over () as full_count
+                   count(*) over () as full_count,
+                   v.navn as virksomhetsnavn
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                   left join virksomhet v on v.organisasjonsnummer = tg.virksomhetsnummer
             $where
-            group by tg.id, t.id
+            group by tg.id, t.id, v.organisasjonsnummer
             order by $order
             limit :limit
             offset :offset
@@ -453,6 +457,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             virksomhetsnummer = string("virksomhetsnummer"),
+            virksomhetsnavn = stringOrNull("virksomhetsnavn"),
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
