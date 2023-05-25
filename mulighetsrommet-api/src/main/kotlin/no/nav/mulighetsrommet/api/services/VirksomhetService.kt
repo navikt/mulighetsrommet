@@ -9,12 +9,15 @@ import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
+import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class VirksomhetService(
     private val brregClient: BrregClient,
     private val virksomhetRepository: VirksomhetRepository,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     private val brregServiceCache: Cache<String, VirksomhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(3, TimeUnit.HOURS)
         .maximumSize(500)
@@ -42,7 +45,8 @@ class VirksomhetService(
                 brregClient.hentEnhet(orgnr)
             }
         }
-        virksomhetRepository.upsert(overordnetEnhet).getOrThrow()
+        virksomhetRepository.upsert(overordnetEnhet)
+            .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 
         return enhet
     }
