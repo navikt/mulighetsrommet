@@ -49,7 +49,7 @@ class NotificationServiceTest : FunSpec({
 
         val notification = ScheduledNotification(
             id = UUID.randomUUID(),
-            type = NotificationType.Notification,
+            type = NotificationType.NOTIFICATION,
             title = "Notifikasjon for alle brukere",
             createdAt = now,
             targets = listOf(user1, user2),

@@ -73,7 +73,7 @@ class NotificationRepository(private val db: Database) {
             update user_notification un
             set done_at = :done_at
             from matched_notification mn
-            where un.notification_id = mn.id and (un.user_id = :user_id or mn.type = 'Task')
+            where un.notification_id = mn.id and (un.user_id = :user_id or mn.type = 'TASK')
         """.trimIndent()
 
         queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "done_at" to doneAt))

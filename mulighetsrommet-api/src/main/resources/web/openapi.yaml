@@ -1802,10 +1802,7 @@ components:
           type: string
           format: uuid
         type:
-          type: string
-          enum:
-            - Notification
-            - Task
+          $ref: "#/components/schemas/NotificationType"
         title:
           type: string
         description:
@@ -1827,6 +1824,12 @@ components:
         - user
         - createdAt
         - doneAt
+
+    NotificationType:
+      type: string
+      enum:
+        - NOTIFICATION
+        - TASK
 
     UserNotificationSummary:
       type: object

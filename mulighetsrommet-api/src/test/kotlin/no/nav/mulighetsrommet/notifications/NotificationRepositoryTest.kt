@@ -28,14 +28,14 @@ class NotificationRepositoryTest : FunSpec({
 
     val notification1 = ScheduledNotification(
         id = UUID.randomUUID(),
-        type = NotificationType.Notification,
+        type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for flere brukere",
         createdAt = now,
         targets = listOf(user1, user2),
     )
     val notification2 = ScheduledNotification(
         id = UUID.randomUUID(),
-        type = NotificationType.Notification,
+        type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for spesifikk bruker",
         createdAt = now,
         targets = listOf(user1),
@@ -89,7 +89,7 @@ class NotificationRepositoryTest : FunSpec({
         )
     }
 
-    test("should only set done_at for the specific user when the notification type is Notification") {
+    test("should only set done_at for the specific user when the notification type is NOTIFICATION") {
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
@@ -105,11 +105,11 @@ class NotificationRepositoryTest : FunSpec({
         )
     }
 
-    test("should set done_at for all users when the notification type is Task") {
+    test("should set done_at for all users when the notification type is TASK") {
         val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         val notifications = NotificationRepository(database.db)
 
-        val task = notification1.copy(type = NotificationType.Task)
+        val task = notification1.copy(type = NotificationType.TASK)
         notifications.insert(task).shouldBeRight()
         notifications.insert(notification2).shouldBeRight()
 

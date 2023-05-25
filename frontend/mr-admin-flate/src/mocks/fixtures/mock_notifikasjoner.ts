@@ -1,6 +1,6 @@
 import {
+  NotificationType,
   PaginertUserNotifications,
-  UserNotification,
 } from "mulighetsrommet-api-client";
 
 export const mockNotifikasjoner: PaginertUserNotifications = {
@@ -12,7 +12,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
   data: [
     {
       id: "d65c2be1-980d-4782-a51f-0ad9b52c3fda",
-      type: UserNotification.type.NOTIFICATION,
+      type: NotificationType.NOTIFICATION,
       title:
         "Avtalen Oppfølging, tjenesteområde F - Moss utløper den 30.06.2023",
       description:
@@ -23,7 +23,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
     },
     {
       id: "eccd9a93-3f08-4006-b3cb-751762e8bccf",
-      type: UserNotification.type.NOTIFICATION,
+      type: NotificationType.NOTIFICATION,
       title:
         "Avtalen Oppfølging, tjenesteområde E - Moss utløper den 31.07.2023",
       description:

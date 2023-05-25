@@ -62,7 +62,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                         logger.info("Fant ingen ansvarlige for gjennomføring med id: ${it.id}")
                     } else {
                         val notification = ScheduledNotification(
-                            type = NotificationType.Task,
+                            type = NotificationType.TASK,
                             title = "Gjennomføringen \"${it.navn}\" utløper ${
                                 it.sluttDato?.format(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),

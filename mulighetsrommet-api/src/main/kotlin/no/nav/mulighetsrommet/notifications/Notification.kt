@@ -9,8 +9,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 enum class NotificationType {
-    Notification,
-    Task,
+    NOTIFICATION,
+    TASK,
 }
 
 enum class NotificationStatus {
