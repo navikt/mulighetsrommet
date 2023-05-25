@@ -23,6 +23,7 @@ import { FormGroup } from "../avtaler/OpprettAvtaleContainer";
 import { porten } from "mulighetsrommet-frontend-common/constants";
 import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { Link } from "react-router-dom";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
@@ -65,11 +66,16 @@ const tekniskFeilError = () => (
   </>
 );
 
-const avtaleManglerNavRegionError = () => (
+const avtaleManglerNavRegionError = (avtaleId: string) => (
   <>
     Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for å kunne
-    opprette en gjennomføring. Ta <a href={porten}>kontakt</a> i Porten dersom
-    du trenger mer hjelp.
+    opprette en gjennomføring.
+    <br />
+    <br />
+    <Link to={`/avtaler/${avtaleId}`}>Klikk her for å fikse avtalen</Link>
+    <br />
+    <br />
+    Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
   </>
 );
 
@@ -177,7 +183,7 @@ export const OpprettTiltaksgjennomforingContainer = (
   }
 
   if (!avtale?.navRegion) {
-    setError(avtaleManglerNavRegionError());
+    setError(avtaleManglerNavRegionError(avtale?.id));
   }
 
   if (isErrorAnsatt || isErrorEnheter) {
