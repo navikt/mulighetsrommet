@@ -66,15 +66,19 @@ const tekniskFeilError = () => (
   </>
 );
 
-const avtaleManglerNavRegionError = (avtaleId: string) => (
+const avtaleManglerNavRegionError = (avtaleId?: string) => (
   <>
     Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for å kunne
     opprette en gjennomføring.
-    <br />
-    <br />
-    <Link to={`/avtaler/${avtaleId}`}>Klikk her for å fikse avtalen</Link>
-    <br />
-    <br />
+    {avtaleId ? (
+      <>
+        <br />
+        <br />
+        <Link to={`/avtaler/${avtaleId}`}>Klikk her for å fikse avtalen</Link>
+        <br />
+        <br />
+      </>
+    ) : null}
     Ta <a href={porten}>kontakt</a> i Porten dersom du trenger mer hjelp.
   </>
 );
