@@ -36,10 +36,7 @@ class SanityTiltaksgjennomforingService(
         return true
     }
 
-    suspend fun opprettSanityTiltaksgjennomforing(
-        tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
-        dryRun: Boolean = true,
-    ) {
+    suspend fun opprettSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
         if (tiltaksgjennomforing.sanityId != null || oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)) {
             return
         }
@@ -64,7 +61,6 @@ class SanityTiltaksgjennomforingService(
 
         val response = sanityClient.mutate(
             Mutations(mutations = listOf(Mutation(createIfNotExists = sanityTiltaksgjennomforing))),
-            dryRun = dryRun,
         )
 
         if (response.status.value != HttpStatusCode.OK.value) {
