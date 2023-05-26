@@ -46,4 +46,8 @@ export const QueryKeys = {
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   virksomhetSok: (sokestreng: string) => ["virksomhetSok", sokestreng],
   virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],
+  tiltaksgjennomforingerTilAvtale: (filter: string) => [
+    "tiltaksgjennomforinger",
+    filter,
+  ],
 };

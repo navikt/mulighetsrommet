@@ -67,4 +67,8 @@ class TiltaksgjennomforingService(
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato()
     }
+
+    fun kobleGjennomforingTilAvtale(gjennomforingId: UUID, avtaleId: UUID) {
+    return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
+    }
 }

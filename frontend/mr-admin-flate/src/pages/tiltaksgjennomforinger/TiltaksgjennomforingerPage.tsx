@@ -13,7 +13,7 @@ export function TiltaksgjennomforingerPage() {
           Oversikt over tiltaksgjennomføringer
         </Heading>
         <Tiltaksgjennomforingfilter />
-        <TiltaksgjennomforingsTabell skjulKolonner={{ leggTilKnapp: true }} />
+        <TiltaksgjennomforingsTabell />
       </ContainerLayout>
     </MainContainer>
   );

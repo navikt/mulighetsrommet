@@ -549,4 +549,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
     }
+
+    fun updateAvtaleIdForGjennomforing(gjennomforingId: UUID, avtaleId: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set avtale_id = ?
+            where id = ?
+        """.trimIndent()
+
+        return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { db.run(it) }
+    }
 }

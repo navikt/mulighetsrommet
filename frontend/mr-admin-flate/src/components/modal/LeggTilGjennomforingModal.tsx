@@ -1,8 +1,8 @@
 import { Heading, Modal, Search } from "@navikt/ds-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./LeggTilGjennomforingModal.module.scss";
-import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
-import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
+import { useAtom } from "jotai";
+import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { Tiltaksgjennomforingsliste } from "../tiltaksgjennomforinger/Tiltaksgjennomforingsliste";
 
 interface ModalProps {
@@ -11,81 +11,64 @@ interface ModalProps {
   handleForm?: () => void;
   handleCancel?: () => void;
   shouldCloseOnOverlayClick?: boolean;
-  // tiltaksgjennomforing?: Tiltaksgjennomforing;
 }
 
 export const LeggTilGjennomforingModal = ({
   modalOpen,
   onClose,
   handleCancel,
-}: // tiltaksgjennomforing,
-ModalProps) => {
+}: ModalProps) => {
   const clickCancel = () => {
-    setError(null);
-    setResult(null);
+    // setError(null);
     onClose();
     handleCancel?.();
   };
 
-  const [error, setError] = useState<React.ReactNode | null>(null);
-  const [result, setResult] = useState<string | null>(null);
+  // const [error, setError] = useState<React.ReactNode | null>(null);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
 
-  const { navigerTilTiltaksgjennomforing } =
-    useNavigerTilTiltaksgjennomforing();
-  useEffect(() => {
-    Modal.setAppElement("#root");
-  });
+  // useEffect(() => {
+  //   Modal.setAppElement("#root");
+  // });
 
   return (
     <>
-      {!error && !result && (
-        <Modal
-          shouldCloseOnOverlayClick={false}
-          closeButton
-          open={modalOpen}
-          onClose={clickCancel}
-          className={styles.modal_container}
-          aria-label="modal"
-        >
-          <Modal.Content className={styles.modal_content}>
-            <Heading size="medium" level="2">
-              Legg til ny gjennomføring til avtalen
-            </Heading>
-            <Search
-              label="Søk på tiltaksnummer"
-              variant="simple"
-              hideLabel={false}
-            />
-            <Tiltaksgjennomforingsliste />
-          </Modal.Content>
-        </Modal>
-      )}
-      {error && (
-        <StatusModal
-          modalOpen={modalOpen}
-          ikonVariant="error"
-          heading="Kunne ikke legge til gjennomføring"
-          text={error}
-          onClose={clickCancel}
-          primaryButtonOnClick={() => setError(null)}
-          primaryButtonText="Prøv igjen"
-          secondaryButtonOnClick={clickCancel}
-          secondaryButtonText="Avbryt"
-        />
-      )}
-      {result && (
-        <StatusModal
-          modalOpen={modalOpen}
-          onClose={clickCancel}
-          ikonVariant="success"
-          heading="Gjennomføringen er lagt til."
-          text="Gjennomføringen ble lagt til."
-          primaryButtonText="Gå til gjennomføringen"
-          primaryButtonOnClick={() => navigerTilTiltaksgjennomforing(result)}
-          secondaryButtonText="Lukk"
-          secondaryButtonOnClick={clickCancel}
-        />
-      )}
+      {/*{!error && (*/}
+      <Modal
+        shouldCloseOnOverlayClick={false}
+        closeButton
+        open={modalOpen}
+        onClose={clickCancel}
+        className={styles.modal_container}
+        aria-label="modal"
+      >
+        <Modal.Content className={styles.modal_content}>
+          <Heading size="medium" level="2">
+            Legg til ny gjennomføring til avtalen
+          </Heading>
+          <Search
+            label="Søk på navn eller tiltaksnummer"
+            variant="simple"
+            hideLabel={false}
+            onChange={(e) => setFilter({ ...filter, search: e })}
+          />
+          <Tiltaksgjennomforingsliste />
+        </Modal.Content>
+      </Modal>
+      {/*)}*/}
+      {/*{error && (*/}
+      {/*  <StatusModal*/}
+      {/*    modalOpen={modalOpen}*/}
+      {/*    ikonVariant="error"*/}
+      {/*    heading="Kunne ikke legge til gjennomføring"*/}
+      {/*    text={error}*/}
+      {/*    onClose={clickCancel}*/}
+      {/*    primaryButtonOnClick={() => setError(null)}*/}
+      {/*    primaryButtonText="Prøv igjen"*/}
+      {/*    secondaryButtonOnClick={clickCancel}*/}
+      {/*    secondaryButtonText="Avbryt"*/}
+      {/*  />*/}
+      {/*)}*/}
     </>
   );
 };

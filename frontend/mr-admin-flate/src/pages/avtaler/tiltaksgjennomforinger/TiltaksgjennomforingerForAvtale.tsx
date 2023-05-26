@@ -35,7 +35,6 @@ export function TiltaksgjennomforingerForAvtale() {
         skjulKolonner={{
           tiltakstype: true,
           arrangor: true,
-          leggTilKnapp: true,
         }}
       />
     </>

@@ -83,6 +83,12 @@ fun Route.tiltaksgjennomforingRoutes() {
                 }
         }
 
+        put("{id}") {
+            val gjennomforingId = call.parameters.getOrFail<UUID>("id")
+            val request = call.receive<GjennomforingTilAvtaleRequest>()
+            call.respond(tiltaksgjennomforingService.kobleGjennomforingTilAvtale(gjennomforingId, request.avtaleId))
+        }
+
         get("{id}/nokkeltall") {
             val id = call.parameters.getOrFail<UUID>("id")
             call.respond(tiltaksgjennomforingService.getNokkeltallForTiltaksgjennomforing(id))
@@ -137,3 +143,10 @@ data class TiltaksgjennomforingRequest(
         )
     }
 }
+
+@Serializable
+data class GjennomforingTilAvtaleRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID,
+
+)
