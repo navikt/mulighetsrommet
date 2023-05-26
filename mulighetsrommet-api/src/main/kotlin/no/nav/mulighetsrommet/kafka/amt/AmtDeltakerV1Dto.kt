@@ -39,5 +39,6 @@ data class AmtDeltakerV1Dto(
         AVBRUTT,
         SOKT_INN,
         VENTELISTE,
+        VURDERES,
     }
 }
