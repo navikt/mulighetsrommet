@@ -147,6 +147,5 @@ data class TiltaksgjennomforingRequest(
 @Serializable
 data class GjennomforingTilAvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
-
+    val avtaleId: UUID? = null,
 )

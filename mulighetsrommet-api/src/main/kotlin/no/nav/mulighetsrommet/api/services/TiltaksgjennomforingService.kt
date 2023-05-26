@@ -68,7 +68,7 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforingRepository.getAllGjennomforingerSomNarmerSegSluttdato()
     }
 
-    fun kobleGjennomforingTilAvtale(gjennomforingId: UUID, avtaleId: UUID) {
-    return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
+    fun kobleGjennomforingTilAvtale(gjennomforingId: UUID, avtaleId: UUID? = null) {
+        return tiltaksgjennomforingRepository.updateAvtaleIdForGjennomforing(gjennomforingId, avtaleId)
     }
 }

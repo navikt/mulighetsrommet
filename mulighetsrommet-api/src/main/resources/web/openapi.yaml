@@ -1832,3 +1832,4 @@ components:
         avtaleId:
           type: string
           format: UUID
+          nullable: true

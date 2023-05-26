@@ -18,22 +18,16 @@ export const LeggTilGjennomforingModal = ({
   onClose,
   handleCancel,
 }: ModalProps) => {
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
+
   const clickCancel = () => {
-    // setError(null);
+    setFilter({ search: "" });
     onClose();
     handleCancel?.();
   };
 
-  // const [error, setError] = useState<React.ReactNode | null>(null);
-  const [filter, setFilter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
-
-  // useEffect(() => {
-  //   Modal.setAppElement("#root");
-  // });
-
   return (
     <>
-      {/*{!error && (*/}
       <Modal
         shouldCloseOnOverlayClick={false}
         closeButton
@@ -50,25 +44,14 @@ export const LeggTilGjennomforingModal = ({
             label="Søk på navn eller tiltaksnummer"
             variant="simple"
             hideLabel={false}
-            onChange={(e) => setFilter({ ...filter, search: e })}
+            autoFocus
+            onChange={(search) =>
+              setFilter({ ...filter, search: search.trim() })
+            }
           />
           <Tiltaksgjennomforingsliste />
         </Modal.Content>
       </Modal>
-      {/*)}*/}
-      {/*{error && (*/}
-      {/*  <StatusModal*/}
-      {/*    modalOpen={modalOpen}*/}
-      {/*    ikonVariant="error"*/}
-      {/*    heading="Kunne ikke legge til gjennomføring"*/}
-      {/*    text={error}*/}
-      {/*    onClose={clickCancel}*/}
-      {/*    primaryButtonOnClick={() => setError(null)}*/}
-      {/*    primaryButtonText="Prøv igjen"*/}
-      {/*    secondaryButtonOnClick={clickCancel}*/}
-      {/*    secondaryButtonText="Avbryt"*/}
-      {/*  />*/}
-      {/*)}*/}
     </>
   );
 };
