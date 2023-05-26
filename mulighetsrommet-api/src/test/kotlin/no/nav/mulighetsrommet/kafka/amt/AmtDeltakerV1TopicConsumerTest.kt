@@ -45,14 +45,21 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             deltakere,
         )
 
+        val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+
         val amtDeltaker1 = AmtDeltakerV1Dto(
             id = UUID.randomUUID(),
             gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
-            status = AmtDeltakerV1Dto.Status.VENTER_PA_OPPSTART,
-            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            status = AmtDeltakerStatus(
+                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                aarsak = null,
+                opprettetDato = deltakelsesdato,
+            ),
+            registrertDato = deltakelsesdato,
+            endretDato = deltakelsesdato,
             dagerPerUke = null,
             prosentStilling = null,
         )
@@ -99,7 +106,13 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         test("delete deltakere that have status FEILREGISTRERT") {
             deltakere.upsert(deltaker1Dbo)
 
-            val feilregistrertDeltaker1 = amtDeltaker1.copy(status = AmtDeltakerV1Dto.Status.FEILREGISTRERT)
+            val feilregistrertDeltaker1 = amtDeltaker1.copy(
+                status = AmtDeltakerStatus(
+                    type = AmtDeltakerStatus.Type.FEILREGISTRERT,
+                    aarsak = null,
+                    opprettetDato = LocalDateTime.now(),
+                ),
+            )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
             deltakere.getAll().shouldBeEmpty()
