@@ -78,45 +78,47 @@ export const Tiltaksgjennomforingsliste = () => {
             <BodyShort>Status</BodyShort>
           </div>
 
-          {tiltaksgjennomforinger.map(
-            (gjennomforing: Tiltaksgjennomforing, index: number) => (
-              <div key={index} className={styles.gjennomforingsliste}>
-                <BodyShort>{gjennomforing.navn}</BodyShort>
-                <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-                <Tiltaksgjennomforingstatus
-                  tiltaksgjennomforing={gjennomforing}
-                />
-                {!gjennomforing.avtaleId ? (
-                  <Button
-                    variant="tertiary"
-                    className={styles.legg_til_knapp}
-                    onClick={() => handleLeggTil(gjennomforing, avtale?.id)}
-                    disabled={isLoadingKobleGjennomforingForAvtale}
-                  >
-                    <PlusIcon fontSize={22} />
-                    Legg til
-                  </Button>
-                ) : gjennomforing.avtaleId === avtale?.id ? (
-                  <Button
-                    variant="tertiary"
-                    className={styles.legg_til_knapp}
-                    onClick={() => handleLeggTil(gjennomforing, undefined)}
-                    disabled={isLoadingKobleGjennomforingForAvtale}
-                  >
-                    <MinusIcon fontSize={22} />
-                    Fjern
-                  </Button>
-                ) : (
-                  <div style={{ margin: "0 auto" }}>
-                    <HelpText title="Hvorfor har du ikke legg til eller fjern-knapp?">
-                      Denne tiltaksgjennomføringen er allerede koblet til
-                      avtalen med avtalenavn <b>{avtale?.navn}</b>.
-                    </HelpText>
-                  </div>
-                )}
-              </div>
-            )
-          )}
+          <ul className={styles.gjennomforingsliste}>
+            {tiltaksgjennomforinger.map(
+              (gjennomforing: Tiltaksgjennomforing, index: number) => (
+                <li key={index} className={styles.gjennomforingsliste_element}>
+                  <BodyShort>{gjennomforing.navn}</BodyShort>
+                  <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
+                  <Tiltaksgjennomforingstatus
+                    tiltaksgjennomforing={gjennomforing}
+                  />
+                  {!gjennomforing.avtaleId ? (
+                    <Button
+                      variant="tertiary"
+                      className={styles.legg_til_knapp}
+                      onClick={() => handleLeggTil(gjennomforing, avtale?.id)}
+                      disabled={isLoadingKobleGjennomforingForAvtale}
+                    >
+                      <PlusIcon fontSize={22} />
+                      Legg til
+                    </Button>
+                  ) : gjennomforing.avtaleId === avtale?.id ? (
+                    <Button
+                      variant="tertiary"
+                      className={styles.legg_til_knapp}
+                      onClick={() => handleLeggTil(gjennomforing, undefined)}
+                      disabled={isLoadingKobleGjennomforingForAvtale}
+                    >
+                      <MinusIcon fontSize={22} />
+                      Fjern
+                    </Button>
+                  ) : (
+                    <div style={{ margin: "0 auto" }}>
+                      <HelpText title="Hvorfor har du ikke legg til eller fjern-knapp?">
+                        Denne tiltaksgjennomføringen er allerede koblet til
+                        avtalen med avtalenavn <b>{avtale?.navn}</b>.
+                      </HelpText>
+                    </div>
+                  )}
+                </li>
+              )
+            )}
+          </ul>
         </div>
       )}
     </>
