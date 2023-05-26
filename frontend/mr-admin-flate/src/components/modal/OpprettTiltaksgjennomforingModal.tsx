@@ -4,10 +4,7 @@ import styles from "./Modal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
 import { OpprettTiltaksgjennomforingContainer } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingContainer";
-import {
-  Avtale,
-  Tiltaksgjennomforing,
-} from "frontend/mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 interface ModalProps {
   modalOpen: boolean;
