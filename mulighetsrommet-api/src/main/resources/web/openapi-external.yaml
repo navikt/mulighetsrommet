@@ -205,12 +205,16 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         virksomhetsnummer:
           type: string
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
       required:
         - id
         - tiltakstype
         - navn
+        - startDato
         - status
         - virksomhetsnummer
+        - oppstart
 
     TiltaksgjennomforingStatus:
       type: string
@@ -220,6 +224,12 @@ components:
         - AVLYST
         - AVSLUTTET
         - APENT_FOR_INNSOK
+
+    TiltaksgjennomforingOppstartstype:
+      type: string
+      enum:
+        - LOPENDE
+        - FELLES
 
     TiltaksgjennomforingIdResponse:
       type: object

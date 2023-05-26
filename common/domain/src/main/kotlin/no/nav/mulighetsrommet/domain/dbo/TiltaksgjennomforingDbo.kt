@@ -27,10 +27,16 @@ data class TiltaksgjennomforingDbo(
     val avtaleId: UUID? = null,
     val ansvarlige: List<String>,
     val navEnheter: List<String>,
+    val oppstart: Oppstartstype,
 ) {
     enum class Tilgjengelighetsstatus {
         Ledig,
         Venteliste,
         Stengt,
+    }
+
+    enum class Oppstartstype {
+        LOPENDE,
+        FELLES,
     }
 }

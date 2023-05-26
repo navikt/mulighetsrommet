@@ -86,6 +86,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ansvarlige = emptyList(),
                 navEnheter = emptyList(),
                 sanityId = null,
+                oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
             )
 
             tiltaksgjennomforinger.delete(gjennomforing1.id)
@@ -129,22 +130,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.upsert(gjennomforing).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(
-                    listOf(
-                        NavEnhet(enhetsnummer = "1", navn = null),
-                        NavEnhet(enhetsnummer = "2", navn = null),
-                    ),
+                it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
+                    NavEnhet(enhetsnummer = "1", navn = "Navn1"),
+                    NavEnhet(enhetsnummer = "2", navn = "Navn2"),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.upsert(gjennomforing.copy(navEnheter = listOf("3", "1"))).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(
-                    listOf(
-                        NavEnhet(enhetsnummer = "1", navn = null),
-                        NavEnhet(enhetsnummer = "3", navn = null),
-                    ),
+                it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
+                    NavEnhet(enhetsnummer = "1", navn = "Navn1"),
+                    NavEnhet(enhetsnummer = "3", navn = "Navn3"),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
@@ -180,18 +177,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
             tiltaksgjennomforinger.updateEnheter("1", listOf("1", "2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(
-                    listOf(
-                        NavEnhet(enhetsnummer = "1", navn = null),
-                        NavEnhet(enhetsnummer = "2", navn = null),
-                    ),
+                it!!.navEnheter shouldContainExactlyInAnyOrder listOf(
+                    NavEnhet(enhetsnummer = "1", navn = "Navn1"),
+                    NavEnhet(enhetsnummer = "2", navn = "Navn2"),
                 )
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(2)
 
             tiltaksgjennomforinger.updateEnheter("1", listOf("2")).shouldBeRight()
             tiltaksgjennomforinger.get(gjennomforing.id).shouldBeRight().should {
-                it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "2", navn = null)))
+                it!!.navEnheter.shouldContainExactlyInAnyOrder(listOf(NavEnhet(enhetsnummer = "2", navn = "Navn2")))
             }
             database.assertThat("tiltaksgjennomforing_nav_enhet").hasNumberOfRows(1)
         }
@@ -217,13 +212,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing2.copy(id = UUID.randomUUID(), avtaleId = avtale2.id))
                 .shouldBeRight()
 
-            val result =
-                tiltaksgjennomforinger.getAll(
-                    filter = AdminTiltaksgjennomforingFilter(
-                        avtaleId = avtale1.id,
-                    ),
-                )
-                    .shouldBeRight().second
+            val result = tiltaksgjennomforinger.getAll(
+                filter = AdminTiltaksgjennomforingFilter(avtaleId = avtale1.id),
+            )
+                .shouldBeRight().second
             result shouldHaveSize 1
             result.first().id shouldBe gjennomforing2.id
         }
@@ -541,6 +533,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         antallPlasser = null,
                         ansvarlige = emptyList(),
                         navEnheter = emptyList(),
+                        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
                     ),
                 )
             }
