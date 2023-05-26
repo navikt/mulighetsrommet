@@ -12,7 +12,6 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { mulighetsrommetClient } from "../../api/clients";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { Datovelger } from "../skjema/Datovelger";
 import { SokeSelect } from "../skjema/SokeSelect";
@@ -26,6 +25,7 @@ import { capitalize, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
 import { Link } from "react-router-dom";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { mulighetsrommetClient } from "../../api/clients";
 
 const Schema = z.object({
   tittel: z.string().min(1, "Du må skrive inn tittel"),
