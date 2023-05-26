@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
@@ -23,13 +24,15 @@ class VirksomhetServiceTest : FunSpec({
         every { virksomhetRepository.get(any()) } returns query { null }
         every { virksomhetRepository.upsert(any()) } returns query {}
 
-        coEvery { brregClient.hentEnhet("123456789") } returns VirksomhetDto(
-            organisasjonsnummer = "123456789",
-            navn = "Testbedriften AS",
-            underenheter = listOf(
-                VirksomhetDto(
-                    organisasjonsnummer = "234567891",
-                    navn = "Underenhet til Testbedriften AS",
+        coEvery { brregClient.hentEnhet("123456789") } returns Either.Right(
+            VirksomhetDto(
+                organisasjonsnummer = "123456789",
+                navn = "Testbedriften AS",
+                underenheter = listOf(
+                    VirksomhetDto(
+                        organisasjonsnummer = "234567891",
+                        navn = "Underenhet til Testbedriften AS",
+                    ),
                 ),
             ),
         )

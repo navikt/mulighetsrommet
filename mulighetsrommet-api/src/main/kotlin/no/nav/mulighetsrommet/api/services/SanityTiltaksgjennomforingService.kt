@@ -47,7 +47,7 @@ class SanityTiltaksgjennomforingService(
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it).getOrThrow() }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
         val lokasjonForVirksomhetFraBrreg =
-            brregClientImpl.hentEnhet(tiltaksgjennomforing.virksomhetsnummer).postnummerOgStedLokasjon
+            brregClientImpl.hentEnhet(tiltaksgjennomforing.virksomhetsnummer)
 
         val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(
             _id = sanityTiltaksgjennomforingId.toString(),
@@ -61,7 +61,7 @@ class SanityTiltaksgjennomforingService(
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
             tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
             sluttdato = tiltaksgjennomforing.sluttDato,
-            lokasjon = lokasjonForVirksomhetFraBrreg,
+            lokasjon = lokasjonForVirksomhetFraBrreg.getOrNull()?.postnummerOgStedLokasjon,
         )
 
         val response = sanityClient.mutate(
