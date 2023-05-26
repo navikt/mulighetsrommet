@@ -37,5 +37,7 @@ data class AmtDeltakerV1Dto(
         PABEGYNT,
 
         AVBRUTT,
+        SOKT_INN,
+        VENTELISTE,
     }
 }
