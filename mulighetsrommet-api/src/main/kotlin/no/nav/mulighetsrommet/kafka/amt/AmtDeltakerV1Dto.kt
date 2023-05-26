@@ -19,26 +19,46 @@ data class AmtDeltakerV1Dto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: Status,
+    val status: AmtDeltakerStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertDato: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val endretDato: LocalDateTime,
     val dagerPerUke: Int?,
     val prosentStilling: Float?,
+)
+
+@Serializable
+data class AmtDeltakerStatus(
+    val type: Type,
+    val aarsak: Aarsak?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val opprettetDato: LocalDateTime,
 ) {
-    enum class Status {
+    enum class Type {
         VENTER_PA_OPPSTART,
         DELTAR,
         HAR_SLUTTET,
         IKKE_AKTUELL,
         FEILREGISTRERT,
         PABEGYNT_REGISTRERING,
-
-        /** PABEGYNT er erstattet av PABEGYNT_REGISTRERING, men status kan fortsatt være på topic */
-        PABEGYNT,
-
-        AVBRUTT,
         SOKT_INN,
-        VENTELISTE,
         VURDERES,
+        VENTELISTE,
+        AVBRUTT,
+    }
+
+    enum class Aarsak {
+        SYK,
+        FATT_JOBB,
+        TRENGER_ANNEN_STOTTE,
+        FIKK_IKKE_PLASS,
+        UTDANNING,
+        FERDIG,
+        AVLYST_KONTRAKT,
+        IKKE_MOTT,
+        FEILREGISTRERT,
+        OPPFYLLER_IKKE_KRAVENE,
+        ANNET,
     }
 }

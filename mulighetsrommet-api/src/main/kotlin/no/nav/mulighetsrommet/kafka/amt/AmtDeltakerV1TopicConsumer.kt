@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.amt.AmtDeltakerV1Dto.Status
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -37,7 +36,7 @@ class AmtDeltakerV1TopicConsumer(
                 deltakere.delete(key)
             }
 
-            amtDeltaker.status == Status.FEILREGISTRERT -> {
+            amtDeltaker.status.type == AmtDeltakerStatus.Type.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
                 deltakere.delete(key)
             }
@@ -65,18 +64,18 @@ class AmtDeltakerV1TopicConsumer(
     private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
         id = id,
         tiltaksgjennomforingId = gjennomforingId,
-        status = when (status) {
-            Status.VENTER_PA_OPPSTART -> Deltakerstatus.VENTER
-            Status.DELTAR -> Deltakerstatus.DELTAR
-            Status.HAR_SLUTTET -> Deltakerstatus.AVSLUTTET
-            Status.IKKE_AKTUELL -> Deltakerstatus.IKKE_AKTUELL
-            Status.FEILREGISTRERT -> Deltakerstatus.IKKE_AKTUELL
-            Status.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
-            Status.PABEGYNT -> Deltakerstatus.PABEGYNT_REGISTRERING
-            Status.AVBRUTT -> Deltakerstatus.AVSLUTTET
-            Status.SOKT_INN -> Deltakerstatus.VENTER
-            Status.VENTELISTE -> Deltakerstatus.VENTER
-            Status.VURDERES -> Deltakerstatus.VENTER
+        // TODO ta en ny runde på statuser og se om vi trenger å gjøre noen oppdatering
+        status = when (status.type) {
+            AmtDeltakerStatus.Type.VENTER_PA_OPPSTART -> Deltakerstatus.VENTER
+            AmtDeltakerStatus.Type.DELTAR -> Deltakerstatus.DELTAR
+            AmtDeltakerStatus.Type.HAR_SLUTTET -> Deltakerstatus.AVSLUTTET
+            AmtDeltakerStatus.Type.IKKE_AKTUELL -> Deltakerstatus.IKKE_AKTUELL
+            AmtDeltakerStatus.Type.FEILREGISTRERT -> Deltakerstatus.IKKE_AKTUELL
+            AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
+            AmtDeltakerStatus.Type.SOKT_INN -> Deltakerstatus.VENTER
+            AmtDeltakerStatus.Type.VURDERES -> Deltakerstatus.VENTER
+            AmtDeltakerStatus.Type.VENTELISTE -> Deltakerstatus.VENTER
+            AmtDeltakerStatus.Type.AVBRUTT -> Deltakerstatus.AVSLUTTET
         },
         opphav = Deltakeropphav.AMT,
         startDato = startDato,
