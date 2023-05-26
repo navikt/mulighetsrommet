@@ -63,8 +63,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                     } else {
                         val notification = ScheduledNotification(
                             type = NotificationType.Task,
-                            title = "Tiltaksgjennomføring utløper snart",
-                            description = "Tiltaksgjennomføringen \"${it.navn}\" utløper ${
+                            title = "Gjennomføringen \"${it.navn}\" utløper ${
                                 it.sluttDato?.format(
                                     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
                                 )
