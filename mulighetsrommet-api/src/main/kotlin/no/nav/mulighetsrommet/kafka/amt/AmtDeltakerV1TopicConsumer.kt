@@ -27,7 +27,10 @@ class AmtDeltakerV1TopicConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: UUID, message: JsonElement) {
+        logger.info("Konsumerer deltaker med id=$key")
+
         val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
+
         when {
             amtDeltaker == null -> {
                 logger.info("Mottok tombstone for deltaker med id=$key, sletter deltakeren")
@@ -40,6 +43,7 @@ class AmtDeltakerV1TopicConsumer(
             }
 
             else -> {
+                logger.info("Forsøker å lagre deltaker med id=$key")
                 val deltaker = amtDeltaker.toDeltakerDbo()
                 query { deltakere.upsert(deltaker) }
                     .onLeft {
@@ -49,7 +53,7 @@ class AmtDeltakerV1TopicConsumer(
                             }
 
                             else -> {
-                                logger.warn("Feil under konsumering av deltakelse")
+                                logger.warn("Feil under konsumering av deltaker med id=$key", it.error)
                                 throw it.error
                             }
                         }
@@ -69,6 +73,7 @@ class AmtDeltakerV1TopicConsumer(
             Status.FEILREGISTRERT -> Deltakerstatus.IKKE_AKTUELL
             Status.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
             Status.PABEGYNT -> Deltakerstatus.PABEGYNT_REGISTRERING
+            Status.AVBRUTT -> Deltakerstatus.AVSLUTTET
         },
         opphav = Deltakeropphav.AMT,
         startDato = startDato,
