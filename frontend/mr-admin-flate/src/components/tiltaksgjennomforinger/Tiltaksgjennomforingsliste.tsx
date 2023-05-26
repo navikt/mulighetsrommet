@@ -1,18 +1,16 @@
-import { Alert, BodyShort, Button, HelpText, ReadMore } from "@navikt/ds-react";
-import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
-import React from "react";
 import { MinusIcon, PlusIcon } from "@navikt/aksel-icons";
-import styles from "./Tiltaksgjennomforingsliste.module.scss";
-import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Alert, BodyShort, Button, HelpText } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { useAdminTiltaksgjennomforingerForAvtale } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforingerForAvtale";
 import { useMutateKobleGjennomforingForAvtale } from "../../api/tiltaksgjennomforing/useMutateKobleGjennomforingForAvtale";
+import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { Laster } from "../laster/Laster";
-import { Link } from "react-router-dom";
+import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
+import styles from "./Tiltaksgjennomforingsliste.module.scss";
 
 export const Tiltaksgjennomforingsliste = () => {
   const {

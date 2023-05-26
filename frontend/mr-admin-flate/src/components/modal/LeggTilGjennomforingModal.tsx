@@ -1,9 +1,8 @@
 import { Heading, Modal, Search } from "@navikt/ds-react";
-import React from "react";
-import styles from "./LeggTilGjennomforingModal.module.scss";
 import { useAtom } from "jotai";
 import { tiltaksgjennomforingTilAvtaleFilter } from "../../api/atoms";
 import { Tiltaksgjennomforingsliste } from "../tiltaksgjennomforinger/Tiltaksgjennomforingsliste";
+import styles from "./LeggTilGjennomforingModal.module.scss";
 
 interface ModalProps {
   modalOpen: boolean;
