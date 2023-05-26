@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.domain.dbo.toOverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.utils.getOrThrow
@@ -45,7 +46,7 @@ class VirksomhetService(
                 brregClient.hentEnhet(orgnr)
             }
         }
-        virksomhetRepository.upsert(overordnetEnhet)
+        virksomhetRepository.upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
             .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 
         return enhet

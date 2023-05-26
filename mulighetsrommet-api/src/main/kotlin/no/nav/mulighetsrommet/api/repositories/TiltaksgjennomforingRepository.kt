@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.ktor.utils.io.core.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
@@ -26,8 +28,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id)
+            insert into tiltaksgjennomforing (id, navn, tiltakstype_id, tiltaksnummer, virksomhetsnummer, arena_ansvarlig_enhet, start_dato, slutt_dato, avslutningsstatus, tilgjengelighet, antall_plasser, avtale_id, oppstart)
+            values (:id::uuid, :navn, :tiltakstype_id::uuid, :tiltaksnummer, :virksomhetsnummer, :arena_ansvarlig_enhet, :start_dato, :slutt_dato, :avslutningsstatus::avslutningsstatus, :tilgjengelighet::tilgjengelighetsstatus, :antall_plasser, :avtale_id, :oppstart::tiltaksgjennomforing_oppstartstype)
             on conflict (id)
                 do update set navn                  = excluded.navn,
                               tiltakstype_id        = excluded.tiltakstype_id,
@@ -39,7 +41,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               avslutningsstatus     = excluded.avslutningsstatus,
                               tilgjengelighet       = excluded.tilgjengelighet,
                               antall_plasser        = excluded.antall_plasser,
-                              avtale_id             = excluded.avtale_id
+                              avtale_id             = excluded.avtale_id,
+                              oppstart              = excluded.oppstart
             returning *
         """.trimIndent()
 
@@ -186,12 +189,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.sanity_id,
                    tg.antall_plasser,
                    tg.avtale_id,
+                   tg.oppstart,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter
+                   jsonb_agg(
+                     case
+                       when e.enhetsnummer is null then null::jsonb
+                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
+                     end
+                   ) as nav_enheter
             from tiltaksgjennomforing tg
                      inner join tiltakstype t on t.id = tg.tiltakstype_id
                      left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                      left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                     left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
             where tg.id = ?::uuid
             group by tg.id, t.id
         """.trimIndent()
@@ -284,13 +294,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    tg.tilgjengelighet,
                    tg.antall_plasser,
                    tg.avtale_id,
+                   tg.oppstart,
                    array_agg(a.navident) as ansvarlige,
-                   array_agg(e.enhetsnummer) as navEnheter,
+                   jsonb_agg(
+                     case
+                       when e.enhetsnummer is null then null::jsonb
+                       else jsonb_build_object('enhetsnummer', e.enhetsnummer, 'navn', ne.navn)
+                     end
+                   ) as nav_enheter,
                    count(*) over () as full_count
             from tiltaksgjennomforing tg
                    inner join tiltakstype t on tg.tiltakstype_id = t.id
                    left join tiltaksgjennomforing_ansvarlig a on a.tiltaksgjennomforing_id = tg.id
                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+                   left join nav_enhet ne on e.enhetsnummer = ne.enhetsnummer
             $where
             group by tg.id, t.id
             order by $order
@@ -331,7 +348,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    avslutningsstatus,
                    tilgjengelighet,
                    antall_plasser,
-                   avtale_id
+                   avtale_id,
+                   oppstart
             from tiltaksgjennomforing
             where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
@@ -418,6 +436,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tilgjengelighet" to tilgjengelighet.name,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
+        "oppstart" to oppstart.name,
     )
 
     private fun Row.toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
@@ -435,11 +454,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         avtaleId = uuidOrNull("avtale_id"),
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
     )
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
         val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
-        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
+        val navEnheter = Json.decodeFromString<List<NavEnhet?>>(string("nav_enheter")).filterNotNull()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -466,15 +486,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             ansvarlige = ansvarlige,
-            navEnheter = navEnheter.map { NavEnhet(enhetsnummer = it) },
+            navEnheter = navEnheter,
             sanityId = stringOrNull("sanity_id"),
+            oppstart = TiltaksgjennomforingDbo.Oppstartstype.valueOf(string("oppstart")),
         )
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
         val ansvarlige = arrayOrNull<String?>("ansvarlige")?.asList()?.filterNotNull() ?: emptyList()
-        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -484,7 +504,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             startDato = startDato,
             sluttDato = sluttDato,
             ansvarlige = ansvarlige,
-            navEnheter = navEnheter,
         )
     }
 

@@ -22,6 +22,7 @@ class VirksomhetServiceTest : FunSpec({
     beforeSpec {
         every { virksomhetRepository.get(any()) } returns query { null }
         every { virksomhetRepository.upsert(any()) } returns query {}
+        every { virksomhetRepository.upsertOverordnetEnhet(any()) } returns query {}
 
         coEvery { brregClient.hentEnhet("123456789") } returns
             VirksomhetDto(
