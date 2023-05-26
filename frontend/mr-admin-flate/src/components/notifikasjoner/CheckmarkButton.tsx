@@ -19,8 +19,14 @@ export function CheckmarkButton({ id, read, setRead }: Props) {
   const { mutate } = useSetNotificationStatus(id);
 
   const setStatus = async (status: NotificationStatus) => {
-    mutate({ status });
-    setRead(status === NotificationStatus.DONE);
+    mutate(
+      { status },
+      {
+        onSuccess: () => {
+          setRead(status === NotificationStatus.DONE);
+        },
+      }
+    );
   };
 
   return read ? (
