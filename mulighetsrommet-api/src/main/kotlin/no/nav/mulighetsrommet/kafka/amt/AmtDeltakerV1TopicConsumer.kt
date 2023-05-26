@@ -73,6 +73,7 @@ class AmtDeltakerV1TopicConsumer(
             Status.FEILREGISTRERT -> Deltakerstatus.IKKE_AKTUELL
             Status.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
             Status.PABEGYNT -> Deltakerstatus.PABEGYNT_REGISTRERING
+            Status.AVBRUTT -> Deltakerstatus.AVSLUTTET
         },
         opphav = Deltakeropphav.AMT,
         startDato = startDato,

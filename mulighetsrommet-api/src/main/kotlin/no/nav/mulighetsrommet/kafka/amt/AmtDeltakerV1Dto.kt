@@ -35,5 +35,7 @@ data class AmtDeltakerV1Dto(
 
         /** PABEGYNT er erstattet av PABEGYNT_REGISTRERING, men status kan fortsatt være på topic */
         PABEGYNT,
+
+        AVBRUTT,
     }
 }
