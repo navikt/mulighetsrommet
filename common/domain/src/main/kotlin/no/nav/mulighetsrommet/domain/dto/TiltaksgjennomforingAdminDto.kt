@@ -29,6 +29,7 @@ data class TiltaksgjennomforingAdminDto(
     val ansvarlige: List<String>,
     val navEnheter: List<NavEnhet>,
     val sanityId: String?,
+    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
 ) {
     @Serializable
     data class Tiltakstype(

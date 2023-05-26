@@ -30,7 +30,7 @@ data class AvtaleFilter(
 )
 
 data class AdminTiltaksgjennomforingFilter(
-    val search: String? = "",
+    val search: String? = null,
     val enhet: String? = null,
     val tiltakstypeId: UUID? = null,
     val status: Tiltaksgjennomforingsstatus? = null,
@@ -39,6 +39,7 @@ data class AdminTiltaksgjennomforingFilter(
     val dagensDato: LocalDate = LocalDate.now(),
     val fylkesenhet: String? = null,
     val avtaleId: UUID? = null,
+    val organisasjonsnummer: String? = null,
 )
 
 data class EnhetFilter(

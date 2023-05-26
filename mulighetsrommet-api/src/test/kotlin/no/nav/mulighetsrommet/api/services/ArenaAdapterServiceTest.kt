@@ -71,6 +71,7 @@ class ArenaAdapterServiceTest : FunSpec({
         antallPlasser = null,
         ansvarlige = emptyList(),
         navEnheter = emptyList(),
+        oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
     )
 
     val tiltakshistorikkGruppe = TiltakshistorikkDbo.Gruppetiltak(
@@ -124,6 +125,7 @@ class ArenaAdapterServiceTest : FunSpec({
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
             sanityId = null,
+            oppstart = oppstart,
         )
     }
 
@@ -138,6 +140,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
+            virksomhetService = mockk(relaxed = true),
         )
 
         afterTest {
@@ -189,6 +192,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
+            virksomhetService = mockk(relaxed = true),
         )
 
         test("CRUD") {
@@ -229,6 +233,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
+            virksomhetService = mockk(relaxed = true),
         )
 
         afterTest {
@@ -296,6 +301,7 @@ class ArenaAdapterServiceTest : FunSpec({
             tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
             tiltakstypeKafkaProducer = mockk(relaxed = true),
             sanityTiltaksgjennomforingService = mockk(relaxed = true),
+            virksomhetService = mockk(relaxed = true),
         )
 
         beforeTest {

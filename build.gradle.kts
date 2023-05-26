@@ -32,6 +32,8 @@ allprojects {
     }
 
     tasks.withType<Test> {
+        failFast = System.getenv("CI") == "true"
+
         useJUnitPlatform()
 
         testLogging {

@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import java.time.LocalDate
 
 @Serializable
 data class Mutations<T>(
@@ -26,6 +28,9 @@ data class SanityTiltaksgjennomforing(
     val fylke: FylkeRef? = null,
     val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
+    val tiltaksnummer: TiltaksnummerSlug? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttdato: LocalDate? = null,
 )
 
 @Serializable

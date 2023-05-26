@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -18,6 +19,7 @@ data class TiltaksgjennomforingDto(
     val sluttDato: LocalDate? = null,
     val status: Tiltaksgjennomforingsstatus,
     val virksomhetsnummer: String,
+    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -28,19 +30,21 @@ data class TiltaksgjennomforingDto(
     )
 
     companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) =
+        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) = tiltaksgjennomforing.run {
             TiltaksgjennomforingDto(
-                id = tiltaksgjennomforing.id,
+                id = id,
                 tiltakstype = Tiltakstype(
-                    id = tiltaksgjennomforing.tiltakstype.id,
-                    navn = tiltaksgjennomforing.tiltakstype.navn,
-                    arenaKode = tiltaksgjennomforing.tiltakstype.arenaKode,
+                    id = tiltakstype.id,
+                    navn = tiltakstype.navn,
+                    arenaKode = tiltakstype.arenaKode,
                 ),
-                navn = tiltaksgjennomforing.navn,
-                startDato = tiltaksgjennomforing.startDato,
-                sluttDato = tiltaksgjennomforing.sluttDato,
-                status = tiltaksgjennomforing.status,
-                virksomhetsnummer = tiltaksgjennomforing.virksomhetsnummer,
+                navn = navn,
+                startDato = startDato,
+                sluttDato = sluttDato,
+                status = status,
+                virksomhetsnummer = virksomhetsnummer,
+                oppstart = oppstart,
             )
+        }
     }
 }

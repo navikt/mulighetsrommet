@@ -19,7 +19,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
-    val swagger: SwaggerConfig = SwaggerConfig(enable = false),
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
     val veilarbpersonConfig: ServiceClientConfig,
@@ -54,6 +53,7 @@ data class KafkaProducers(
 
 data class KafkaConsumers(
     val amtDeltakerV1: KafkaTopicConsumer.Config,
+    val amtVirksomheterV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(
@@ -61,10 +61,6 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
-)
-
-data class SwaggerConfig(
-    val enable: Boolean,
 )
 
 data class ServiceClientConfig(

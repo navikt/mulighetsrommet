@@ -315,18 +315,15 @@ class AvtaleRepository(private val db: Database) {
         "opphav" to opphav.name,
     )
 
-    @Suppress("UNCHECKED_CAST")
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDate("slutt_dato")
         val navRegion = stringOrNull("nav_region")
-        val navEnheter = sqlArrayOrNull("navEnheter")?.let {
-            (it.array as Array<String?>).asList().filterNotNull()
-        } ?: emptyList()
-        val underenheter = sqlArrayOrNull("leverandorUnderenheter")?.let { underenheter ->
-            (underenheter.array as Array<String?>).filterNotNull()
-                .map { AvtaleAdminDto.Leverandor(organisasjonsnummer = it) }
-        } ?: emptyList()
+        val navEnheter = arrayOrNull<String?>("navEnheter")?.asList()?.filterNotNull() ?: emptyList()
+        val underenheter = arrayOrNull<String?>("leverandorUnderenheter")
+            ?.filterNotNull()
+            ?.map { AvtaleAdminDto.Leverandor(organisasjonsnummer = it) }
+            ?: emptyList()
 
         return AvtaleAdminDto(
             id = uuid("id"),

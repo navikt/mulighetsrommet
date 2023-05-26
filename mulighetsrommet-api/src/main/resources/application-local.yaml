@@ -24,6 +24,9 @@ app:
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt-deltaker-v1
+      amtVirksomheterV1:
+        id: amt-virksomheter
+        topic: amt.virksomheter-v1
 
   auth:
     azure:
@@ -37,9 +40,6 @@ app:
     projectId: xegcworx
     token: ${SANITY_AUTH_TOKEN:-}
     useCdn: false
-
-  swagger:
-    enable: true
 
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api

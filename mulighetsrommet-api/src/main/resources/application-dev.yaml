@@ -25,6 +25,9 @@ app:
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt.deltaker-v1
+      amtVirksomheterV1:
+        id: amt-virksomheter
+        topic: amt.virksomheter-v1
 
   auth:
     azure:
@@ -37,9 +40,6 @@ app:
     dataset: ${SANITY_DATASET}
     projectId: ${SANITY_PROJECT_ID}
     token: ${SANITY_AUTH_TOKEN}
-
-  swagger:
-    enable: true
 
   veilarbvedtaksstotteConfig:
     url: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api

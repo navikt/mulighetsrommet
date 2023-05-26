@@ -995,7 +995,7 @@ components:
           type: string
           format: date
         navRegion:
-          $ref: "#/components/schemas/AvtaleNavEnhet"
+          $ref: "#/components/schemas/EmbeddedNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         avtalestatus:
@@ -1187,13 +1187,7 @@ components:
         navEnheter:
           type: array
           items:
-            type: object
-            properties:
-              enhetsnummer:
-                type: string
-              navn:
-                type: string
-                nullable: true
+            $ref: "#/components/schemas/EmbeddedNavEnhet"
         ansvarlig:
           type: string
         antallPlasser:
@@ -1201,6 +1195,10 @@ components:
         avtaleId:
           type: string
           format: uuid
+        sanityId:
+          type: string
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
       required:
         - id
         - tiltakstype
@@ -1241,6 +1239,8 @@ components:
           type: array
           items:
             type: string
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
       required:
         - id
         - avtaleId
@@ -1252,6 +1252,7 @@ components:
         - virksomhetsnummer
         - ansvarlig
         - navEnheter
+        - oppstart
 
     TiltaksgjennomforingAvslutningsstatus:
       type: string
@@ -1269,6 +1270,12 @@ components:
         - AVLYST
         - AVSLUTTET
         - APENT_FOR_INNSOK
+
+    TiltaksgjennomforingOppstartstype:
+      type: string
+      enum:
+        - LOPENDE
+        - FELLES
 
     Bruker:
       type: object
@@ -1501,13 +1508,16 @@ components:
       required:
         - organisasjonsnummer
 
-    AvtaleNavEnhet:
+    EmbeddedNavEnhet:
       type: object
       properties:
         navn:
           type: string
         enhetsnummer:
           type: string
+      required:
+        - navn
+        - enhetsnummer
 
     SanityInnsatsgruppe:
       type: object

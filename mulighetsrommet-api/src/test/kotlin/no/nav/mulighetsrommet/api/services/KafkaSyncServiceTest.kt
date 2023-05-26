@@ -62,6 +62,7 @@ class KafkaSyncServiceTest : FunSpec({
             antallPlasser = null,
             ansvarlige = emptyList(),
             navEnheter = emptyList(),
+            oppstart = TiltaksgjennomforingDbo.Oppstartstype.FELLES,
         )
     }
 
@@ -78,6 +79,7 @@ class KafkaSyncServiceTest : FunSpec({
             startDato = startDato,
             sluttDato = sluttDato,
             status = tiltaksgjennomforingsstatus,
+            oppstart = oppstart,
         )
     }
 

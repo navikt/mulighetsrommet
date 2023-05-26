@@ -36,10 +36,7 @@ class SanityTiltaksgjennomforingService(
         return true
     }
 
-    suspend fun opprettSanityTiltaksgjennomforing(
-        tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
-        dryRun: Boolean = true,
-    ) {
+    suspend fun opprettSanityTiltaksgjennomforing(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) {
         if (tiltaksgjennomforing.sanityId != null || oppdaterIdOmAlleredeFinnes(tiltaksgjennomforing)) {
             return
         }
@@ -52,17 +49,18 @@ class SanityTiltaksgjennomforingService(
             _id = sanityTiltaksgjennomforingId.toString(),
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
             enheter = tiltaksgjennomforing.navEnheter.map {
-                EnhetRef(_ref = "enhet.lokal.$it", _key = it.enhetsnummer)
+                EnhetRef(_ref = "enhet.lokal.${it.enhetsnummer}", _key = it.enhetsnummer)
             },
             fylke = avtale?.navRegion?.enhetsnummer?.let {
                 FylkeRef(_ref = "enhet.fylke.$it")
             },
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
+            tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
+            sluttdato = tiltaksgjennomforing.sluttDato,
         )
 
         val response = sanityClient.mutate(
             Mutations(mutations = listOf(Mutation(createIfNotExists = sanityTiltaksgjennomforing))),
-            dryRun = dryRun,
         )
 
         if (response.status.value != HttpStatusCode.OK.value) {

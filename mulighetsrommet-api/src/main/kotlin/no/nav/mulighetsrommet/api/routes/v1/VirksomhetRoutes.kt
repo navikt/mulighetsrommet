@@ -6,11 +6,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.brreg.OrgnummerUtil
-import no.nav.mulighetsrommet.api.services.BrregService
+import no.nav.mulighetsrommet.api.services.VirksomhetService
 import org.koin.ktor.ext.inject
 
 fun Route.virksomhetRoutes() {
-    val brregService: BrregService by inject()
+    val virksomhetService: VirksomhetService by inject()
 
     route("api/v1/internal/virksomhet") {
         get("{orgnr}") {
@@ -20,7 +20,7 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
             }
 
-            call.respond(brregService.hentEnhet(orgnr))
+            call.respond(virksomhetService.hentEnhet(orgnr))
         }
 
         get("sok/{sok}") {
@@ -30,7 +30,7 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("'sok' kan ikke være en tom streng")
             }
 
-            call.respond(brregService.sokEtterEnhet(sokestreng))
+            call.respond(virksomhetService.sokEtterEnhet(sokestreng))
         }
     }
 }

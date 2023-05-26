@@ -71,6 +71,11 @@ spec:
           permissions:
             roles:
               - tiltaksgjennomforing-read
+        - application: journalforing-frontend-q2
+          namespace: isa
+          permission:
+            roles:
+              - tiltaksgjennomforing-read
     outbound:
       rules:
         - application: mulighetsrommet-arena-adapter

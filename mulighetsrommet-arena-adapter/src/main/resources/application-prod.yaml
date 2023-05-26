@@ -20,7 +20,7 @@ app:
     arenaEventService:
       channelCapacity: 10000
       numChannelConsumers: 100
-      maxRetries: 5
+      maxRetries: 10
     arenaOrdsProxy:
       url: https://amt-arena-ords-proxy.prod-fss-pub.nais.io/api
       scope: api://prod-fss.amt.amt-arena-ords-proxy/.default
@@ -30,7 +30,7 @@ app:
       delayOfMinutes: 15
 
     notifyFailedEvents:
-      maxRetries: 5
+      maxRetries: 10
       cron: '0 0 7 * * MON-FRI'
 
   enableFailedRecordProcessor: true

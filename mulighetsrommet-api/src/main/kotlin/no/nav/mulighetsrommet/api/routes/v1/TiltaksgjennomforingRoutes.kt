@@ -2,15 +2,15 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
 import arrow.core.flatMap
-import io.ktor.http.*
+import arrow.core.left
+import arrow.core.right
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.Pagination
+import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
@@ -24,63 +24,38 @@ import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
     val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
-    val log = application.environment.log
 
     route("/api/v1/internal/tiltaksgjennomforinger") {
+        put {
+            val request = call.receive<TiltaksgjennomforingRequest>()
+
+            val result = request.toDbo()
+                .flatMap {
+                    tiltaksgjennomforingService.upsert(it)
+                        .mapLeft { ServerError("Klarte ikke lagre tiltaksgjennomføring") }
+                }
+
+            call.respondWithStatusResponse(result)
+        }
+
         get {
             val paginationParams = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
-            tiltaksgjennomforingService.getAll(paginationParams, filter)
-                .onRight { (totalCount, items) ->
-                    call.respond(
-                        PaginatedResponse(
-                            pagination = Pagination(
-                                totalCount = totalCount,
-                                currentPage = paginationParams.page,
-                                pageSize = paginationParams.limit,
-                            ),
-                            data = items,
-                        ),
-                    )
-                }
-                .onLeft {
-                    log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente gjennomføringer")
-                }
+
+            val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføringer") }
+
+            call.respondWithStatusResponse(result)
         }
 
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
-            tiltaksgjennomforingService
-                .get(id)
-                .onRight {
-                    if (it == null) {
-                        return@get call.respondText(
-                            "Det finnes ikke noe tiltaksgjennomføring med id $id",
-                            status = HttpStatusCode.NotFound,
-                        )
-                    }
-                    return@get call.respond(it)
-                }
-                .onLeft {
-                    log.error("$it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
-                }
-        }
 
-        put {
-            val request = call.receive<TiltaksgjennomforingRequest>()
+            val result = tiltaksgjennomforingService.get(id)
+                .flatMap { it?.right() ?: NotFound("Ingen tiltaksgjennomføring med id=$id").left() }
+                .mapLeft { ServerError("Klarte ikke hente tiltaksgjennomføring med id=$id") }
 
-            request.toDbo()
-                .onLeft { error ->
-                    call.respond(HttpStatusCode.BadRequest, error.message.toString())
-                }
-                .flatMap { tiltaksgjennomforingService.upsert(it) }
-                .onRight { call.respond(it) }
-                .onLeft { error ->
-                    log.error("$error")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette gjennomføring")
-                }
+            call.respondWithStatusResponse(result)
         }
 
         put("{id}") {
@@ -115,14 +90,16 @@ data class TiltaksgjennomforingRequest(
     val tiltaksnummer: String? = null,
     val ansvarlig: String,
     val navEnheter: List<String>,
+    val oppstart: TiltaksgjennomforingDbo.Oppstartstype,
 ) {
-    fun toDbo(): Either<Exception, TiltaksgjennomforingDbo> {
+    fun toDbo(): StatusResponse<TiltaksgjennomforingDbo> {
         if (sluttDato.isBefore(startDato)) {
-            return Either.Left(Exception("Sluttdato kan ikke være før startdato"))
+            return Either.Left(BadRequest("Sluttdato kan ikke være før startdato"))
         }
         if (antallPlasser <= 0) {
-            return Either.Left(Exception("Antall plasser må være større enn 0"))
+            return Either.Left(BadRequest("Antall plasser må være større enn 0"))
         }
+
         return Either.Right(
             TiltaksgjennomforingDbo(
                 id = id,
@@ -139,6 +116,7 @@ data class TiltaksgjennomforingRequest(
                 virksomhetsnummer = virksomhetsnummer,
                 ansvarlige = listOf(ansvarlig),
                 navEnheter = navEnheter,
+                oppstart = oppstart,
             ),
         )
     }
