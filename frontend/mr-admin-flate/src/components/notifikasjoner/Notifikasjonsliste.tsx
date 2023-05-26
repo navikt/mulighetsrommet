@@ -49,13 +49,7 @@ export function Notifikasjonsliste({ lest }: Props) {
   return (
     <ul className={styles.notifikasjonsliste_ul}>
       {data.map((n) => {
-        return (
-          <Notifikasjonssrad
-            lest={lest}
-            key={n.id}
-            notifikasjon={n}
-          ></Notifikasjonssrad>
-        );
+        return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
       })}
     </ul>
   );
