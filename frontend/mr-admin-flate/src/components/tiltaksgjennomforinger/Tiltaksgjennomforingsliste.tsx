@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Button } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, HelpText, ReadMore } from "@navikt/ds-react";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import React from "react";
 import { MinusIcon, PlusIcon } from "@navikt/aksel-icons";
@@ -80,12 +80,8 @@ export const Tiltaksgjennomforingsliste = () => {
             <BodyShort>Status</BodyShort>
           </div>
 
-          {tiltaksgjennomforinger
-            .filter(
-              (gjennomforing) =>
-                !gjennomforing.avtaleId || gjennomforing.avtaleId === avtale?.id
-            )
-            .map((gjennomforing: Tiltaksgjennomforing, index: number) => (
+          {tiltaksgjennomforinger.map(
+            (gjennomforing: Tiltaksgjennomforing, index: number) => (
               <div key={index} className={styles.gjennomforingsliste}>
                 <BodyShort>{gjennomforing.navn}</BodyShort>
                 <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
@@ -112,9 +108,17 @@ export const Tiltaksgjennomforingsliste = () => {
                     <MinusIcon fontSize={22} />
                     Fjern
                   </Button>
-                ) : null}
+                ) : (
+                  <div style={{ margin: "0 auto" }}>
+                    <HelpText title="Hvorfor har du ikke legg til eller fjern-knapp?">
+                      Denne tiltaksgjennomføringen er allerede koblet til
+                      avtalen med avtalenavn <b>{avtale?.navn}</b>.
+                    </HelpText>
+                  </div>
+                )}
               </div>
-            ))}
+            )
+          )}
         </div>
       )}
     </>
