@@ -259,6 +259,11 @@ export const apiHandlers = [
       return res(ctx.status(200), ctx.json(mockUserNotificationSummary));
     }
   ),
+  rest.post<any, any, any>( "*/api/v1/internal/notifications/:id/status",
+    (req, res, ctx) => {
+      return res(ctx.status(200));
+    }
+  ),
 
   rest.get<any, any, Virksomhet[]>(
     "*/api/v1/internal/virksomhet/sok/:sok",

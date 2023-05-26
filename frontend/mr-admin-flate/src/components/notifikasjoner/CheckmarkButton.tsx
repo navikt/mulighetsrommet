@@ -3,11 +3,10 @@ import {
   CheckmarkCircleFillIcon,
   CheckmarkCircleIcon,
 } from "@navikt/aksel-icons";
-import { mulighetsrommetClient } from "../../api/clients";
 import { NotificationStatus } from "mulighetsrommet-api-client";
 import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
-import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
+import { useSetNotificationStatus } from "../../api/notifikasjoner/useSetNotificationStatus";
 
 interface Props {
   id: string;
@@ -16,22 +15,13 @@ interface Props {
 }
 
 export function CheckmarkButton({ id, read, setRead }: Props) {
-  const { refetch } = useNotificationSummary();
+  // TODO handle error/loading states
+  const { mutate } = useSetNotificationStatus(id);
 
   const setStatus = async (status: NotificationStatus) => {
-    try {
-      await mulighetsrommetClient.notifications.setNotificationStatus({
-        id,
-        requestBody: { status },
-      });
-      await refetch();
-    } catch (e) {
-      return;
-    }
-
+    mutate({ status });
     setRead(status === NotificationStatus.DONE);
   };
-
 
   return read ? (
     <CheckmarkCircleFillIcon
