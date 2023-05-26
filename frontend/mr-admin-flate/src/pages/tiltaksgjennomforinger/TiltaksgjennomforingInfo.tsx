@@ -110,7 +110,7 @@ export function TiltaksgjennomforingInfo() {
                       target="_blank"
                       href={sanityTiltaksgjennomforingUrl + tiltaksgjennomforing.sanityId}
                     >
-                      Åpne tiltaksgjennomføringen i Sanity <ExternalLinkIcon title="a11y-title" />
+                      Åpne tiltaksgjennomføringen i Sanity <ExternalLinkIcon title="Åpner tiltaksgjennomføringen i Sanity" />
                     </Link>
                   </>
                 }
