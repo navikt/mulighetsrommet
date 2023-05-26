@@ -3,7 +3,11 @@ import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
 export function useNotificationSummary() {
-  return useQuery(QueryKeys.antallUlesteNotifikasjoner(), () =>
-    mulighetsrommetClient.notifications.getNotificationSummary()
+  return useQuery(
+    QueryKeys.antallUlesteNotifikasjoner(),
+    () => mulighetsrommetClient.notifications.getNotificationSummary(),
+    {
+      refetchInterval: 1000 * 60 * 5, // Hvert 5. minutt
+    }
   );
 }

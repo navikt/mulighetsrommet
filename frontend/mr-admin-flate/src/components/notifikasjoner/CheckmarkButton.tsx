@@ -5,6 +5,7 @@ import {
 import { mulighetsrommetClient } from "../../api/clients";
 import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
+import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
 
 interface Props {
   id: string;
@@ -13,18 +14,21 @@ interface Props {
 }
 
 export function CheckmarkButton({ id, read, setRead }: Props) {
-  const markUnread = () => {
+  const { refetch } = useNotificationSummary();
+  const markUnread = async () => {
     try {
-      mulighetsrommetClient.notifications.markAsUnread({ id });
+      await mulighetsrommetClient.notifications.markAsUnread({ id });
+      await refetch();
     } catch (e) {
       return;
     }
     setRead(false);
   };
 
-  const markRead = () => {
+  const markRead = async () => {
     try {
-      mulighetsrommetClient.notifications.markAsRead({ id });
+      await mulighetsrommetClient.notifications.markAsRead({ id });
+      await refetch();
     } catch (e) {
       return;
     }
