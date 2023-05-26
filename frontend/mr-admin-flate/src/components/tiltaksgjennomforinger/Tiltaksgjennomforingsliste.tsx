@@ -11,6 +11,7 @@ import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
 import { Laster } from "../laster/Laster";
 import { Tiltaksgjennomforingstatus } from "../statuselementer/Tiltaksgjennomforingstatus";
 import styles from "./Tiltaksgjennomforingsliste.module.scss";
+import { useState } from "react";
 
 export const Tiltaksgjennomforingsliste = () => {
   const {
@@ -25,6 +26,7 @@ export const Tiltaksgjennomforingsliste = () => {
     useMutateKobleGjennomforingForAvtale();
   const avtaleId = useGetAvtaleIdFromUrl();
   const { data: avtale } = useAvtale(avtaleId);
+  const [error, setError] = useState("");
 
   const [filter] = useAtom(tiltaksgjennomforingTilAvtaleFilter);
   const tiltaksgjennomforinger = data?.data ?? [];
@@ -64,6 +66,9 @@ export const Tiltaksgjennomforingsliste = () => {
           await refetchAvtaler();
           await refetchTiltaksgjennomforinger();
         },
+        onError: () => {
+          setError(`Klarte ikke koble gjennomføring til avtale`);
+        },
       }
     );
   };
@@ -72,6 +77,7 @@ export const Tiltaksgjennomforingsliste = () => {
     <>
       {filter.search && tiltaksgjennomforinger.length > 0 && (
         <div className={styles.gjennomforingsliste_container}>
+          {error ? <Alert variant="error">{error}</Alert> : null}
           <div className={styles.gjennomforingsliste_headers}>
             <BodyShort>Tittel</BodyShort>
             <BodyShort>Tiltaksnr.</BodyShort>
