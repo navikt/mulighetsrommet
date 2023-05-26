@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
+    implementation(projects.common.metrics)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
