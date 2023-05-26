@@ -42,7 +42,7 @@ class VirksomhetService(
         val overordnetEnhet = if (enhet.overordnetEnhet == null) {
             enhet
         } else {
-            CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
+            CacheUtils.tryCacheFirstNotNull(brregServiceCache, enhet.overordnetEnhet) {
                 brregClient.hentEnhet(orgnr)
             }
         }
