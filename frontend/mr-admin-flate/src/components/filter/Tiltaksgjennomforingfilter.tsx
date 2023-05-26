@@ -192,21 +192,21 @@ export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
                   />
                 </>
               )}
-              {/*{erAFTellerVTA && (*/}
-              <>
-                <Button
-                  size="small"
-                  onClick={() => setModalOpen(true)}
-                  variant="secondary"
-                >
-                  Legg til gjennomføring
-                </Button>
-                <LeggTilGjennomforingModal
-                  modalOpen={modalOpen}
-                  onClose={() => setModalOpen(false)}
-                />
-              </>
-              {/*)}*/}
+              {erAFTellerVTA && (
+                <>
+                  <Button
+                    size="small"
+                    onClick={() => setModalOpen(true)}
+                    variant="secondary"
+                  >
+                    Legg til gjennomføring
+                  </Button>
+                  <LeggTilGjennomforingModal
+                    modalOpen={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
