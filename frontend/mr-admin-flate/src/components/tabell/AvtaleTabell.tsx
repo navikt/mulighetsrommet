@@ -12,6 +12,7 @@ import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Avtalestatus } from "../statuselementer/Avtalestatus";
 import styles from "./Tabell.module.scss";
+import classNames from "classnames";
 
 export const AvtaleTabell = () => {
   const { data, isLoading, isError } = useAvtaler();
@@ -51,7 +52,7 @@ export const AvtaleTabell = () => {
   }
 
   return (
-    <div className={styles.tabell_wrapper}>
+    <div className={classNames(styles.tabell_wrapper, styles.avtaletabell)}>
       <PagineringsOversikt
         page={page}
         antall={avtaler.length}

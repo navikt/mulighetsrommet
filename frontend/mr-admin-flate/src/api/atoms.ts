@@ -8,6 +8,7 @@ import {
   Tiltakstypekategori,
   Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
+import { atom } from "jotai";
 
 export const paginationAtom = atomWithHash("page", 1, {
   setHash: "replaceState",
@@ -67,6 +68,10 @@ export const tiltaksgjennomforingfilter =
       setHash: "replaceState",
     }
   );
+
+export const tiltaksgjennomforingTilAvtaleFilter = atom<
+  Pick<Tiltaksgjennomforingfilter, "search">
+>({ search: "" });
 
 const avtaleFilter = atomWithHash<{
   sok: string;

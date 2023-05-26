@@ -7,7 +7,7 @@ import { Alert, Button, Link } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
 import { useFeatureToggles } from "../../api/features/feature-toggles";
-import { OpprettTiltaksgjennomforingModal } from "../../components/tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
+import { OpprettTiltaksgjennomforingModal } from "../../components/modal/OpprettTiltaksgjennomforingModal";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 

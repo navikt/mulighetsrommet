@@ -15,8 +15,9 @@ import { paginationAtom, tiltaksgjennomforingfilter } from "../../api/atoms";
 import { useAlleEnheter } from "../../api/enhet/useAlleEnheter";
 import { inneholderUrl, resetPaginering } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
-import { OpprettTiltaksgjennomforingModal } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingModal";
+import { OpprettTiltaksgjennomforingModal } from "../modal/OpprettTiltaksgjennomforingModal";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 
 type Filters = "tiltakstype";
 
@@ -25,7 +26,7 @@ interface Props {
   avtale?: Avtale;
 }
 
-export function Tiltaksgjennomforingfilter(props: Props) {
+export function Tiltaksgjennomforingfilter({ skjulFilter, avtale }: Props) {
   const [sokefilter, setSokefilter] = useAtom(tiltaksgjennomforingfilter);
   const [, setPage] = useAtom(paginationAtom);
   const { data: enheter } = useAlleEnheter();
@@ -35,12 +36,18 @@ export function Tiltaksgjennomforingfilter(props: Props) {
     },
     1
   );
+  const [opprettModal, setOpprettModalOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+
   const features = useFeatureToggles();
   const visOpprettTiltaksgjennomforingKnapp =
     features.isSuccess &&
     features.data[OPPRETT_TILTAKSGJENNOMFORING_ADMIN_FLATE] &&
     inneholderUrl("/avtaler/");
+
+  const erAFTellerVTA =
+    avtale?.tiltakstype.arenaKode === "ARBFORB" ||
+    avtale?.tiltakstype.arenaKode === "VASV";
 
   return (
     <>
@@ -115,7 +122,7 @@ export function Tiltaksgjennomforingfilter(props: Props) {
                 </option>
               ))}
           </Select>
-          {props.skjulFilter?.tiltakstype ? null : (
+          {skjulFilter?.tiltakstype ? null : (
             <Select
               label="Filtrer på tiltakstype"
               hideLabel
@@ -167,17 +174,39 @@ export function Tiltaksgjennomforingfilter(props: Props) {
           </Select>
         </div>
         <div className={styles.filter_right}>
-          {props.avtale && visOpprettTiltaksgjennomforingKnapp && (
+          {avtale && (
             <>
-              <Button size="small" onClick={() => setModalOpen(true)}>
-                Opprett ny gjennomføring
-              </Button>
+              {visOpprettTiltaksgjennomforingKnapp && (
+                <>
+                  <Button
+                    size="small"
+                    onClick={() => setOpprettModalOpen(true)}
+                  >
+                    Opprett ny gjennomføring
+                  </Button>
 
-              <OpprettTiltaksgjennomforingModal
-                modalOpen={modalOpen}
-                avtale={props.avtale}
-                onClose={() => setModalOpen(false)}
-              />
+                  <OpprettTiltaksgjennomforingModal
+                    modalOpen={opprettModal}
+                    avtale={avtale}
+                    onClose={() => setOpprettModalOpen(false)}
+                  />
+                </>
+              )}
+              {erAFTellerVTA && (
+                <>
+                  <Button
+                    size="small"
+                    onClick={() => setModalOpen(true)}
+                    variant="secondary"
+                  >
+                    Legg til gjennomføring
+                  </Button>
+                  <LeggTilGjennomforingModal
+                    modalOpen={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                  />
+                </>
+              )}
             </>
           )}
         </div>

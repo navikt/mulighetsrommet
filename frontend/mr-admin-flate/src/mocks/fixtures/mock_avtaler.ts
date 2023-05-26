@@ -14,6 +14,36 @@ export const mockAvtaler: PaginertAvtale = {
     {
       id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
       tiltakstype: {
+        id: "186df85f-c773-4f34-8904-1983787a3c51",
+        navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
+        arenaKode: "VASV",
+      },
+      navn: "Testtiltak Varig",
+      avtalenummer: "2021#10579",
+      leverandor: {
+        organisasjonsnummer: "864965962",
+        navn: "ÅMLI KOMMUNE",
+      },
+      leverandorUnderenheter: [
+        { organisasjonsnummer: "456798321", navn: "Underenhet 1" },
+        { organisasjonsnummer: "456798322", navn: "Underenhet 2" },
+        { organisasjonsnummer: "456798323", navn: "Underenhet 3" },
+      ],
+      startDato: "2021-08-02",
+      sluttDato: "2026-08-01",
+      navEnheter: [],
+      navRegion: {
+        enhetsnummer: "1087",
+        navn: "NAV Våler",
+      },
+      avtaletype: Avtaletype.RAMMEAVTALE,
+      avtalestatus: Avtalestatus.AKTIV,
+      prisbetingelser: "Maskert prisbetingelser",
+      url: "https://www.mercell.no",
+    },
+    {
+      id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
+      tiltakstype: {
         id: "afb69ca8-ddff-45be-9fd0-8f968519468d",
         navn: "Oppfølging",
         arenaKode: "INDOPPFAG",

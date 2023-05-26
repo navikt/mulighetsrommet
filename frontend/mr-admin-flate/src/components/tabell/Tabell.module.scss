@@ -12,17 +12,12 @@
   .title {
     text-decoration: underline;
   }
+}
 
+.tiltakstypetabell,
+.avtaletabell {
   :global(.navds-table__row) {
     display: grid;
-  }
-
-  .tiltaksgjennomforing_tabellrad {
-    grid-template-columns: 3fr 2fr 1fr 3fr 3fr repeat(3, 1fr);
-  }
-
-  .tiltaksgjennomforing_skjul_kolonner {
-    grid-template-columns: 3fr 2fr 1fr 1fr 1fr 1fr;
   }
 
   .tiltakstype_tabellrad {

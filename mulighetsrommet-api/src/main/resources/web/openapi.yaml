@@ -256,6 +256,18 @@ paths:
             application/json:
               schema:
                 type: string
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: oppdaterAvtaleIdForGjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtaleForGjennomforingRequest"
+      responses:
+        200:
+          description: ''
 
   /api/v1/internal/tiltaksgjennomforinger/{id}/nokkeltall:
     get:
@@ -1823,3 +1835,11 @@ components:
           type: integer
       required:
         - unreadCount
+
+    AvtaleForGjennomforingRequest:
+      type: object
+      properties:
+        avtaleId:
+          type: string
+          format: UUID
+          nullable: true

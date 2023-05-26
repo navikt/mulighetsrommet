@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./Modal.module.scss";
 import { StatusModal } from "mulighetsrommet-veileder-flate/src/components/modal/delemodal/StatusModal";
 import { useNavigerTilTiltaksgjennomforing } from "../../hooks/useNavigerTilTiltaksgjennomforing";
-import { OpprettTiltaksgjennomforingContainer } from "./OpprettTiltaksgjennomforingContainer";
+import { OpprettTiltaksgjennomforingContainer } from "../tiltaksgjennomforinger/OpprettTiltaksgjennomforingContainer";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 interface ModalProps {
