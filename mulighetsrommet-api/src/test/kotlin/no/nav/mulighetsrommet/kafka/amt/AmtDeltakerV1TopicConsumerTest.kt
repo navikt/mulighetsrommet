@@ -80,6 +80,14 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             deltakere.getAll().shouldContainExactly(deltaker1Dbo, deltaker2Dbo)
         }
 
+        test("ignore deltakere with invalid foreign key reference to gjennomforing") {
+            val deltakerForUnknownGjennomforing = amtDeltaker1.copy(gjennomforingId = UUID.randomUUID())
+
+            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltakerForUnknownGjennomforing))
+
+            deltakere.getAll().shouldBeEmpty()
+        }
+
         test("delete deltakere for tombstone messages") {
             deltakere.upsert(deltaker1Dbo)
 
