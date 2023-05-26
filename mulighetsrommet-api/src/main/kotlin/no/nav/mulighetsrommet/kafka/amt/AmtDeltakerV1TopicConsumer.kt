@@ -4,6 +4,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
+import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
@@ -39,7 +41,19 @@ class AmtDeltakerV1TopicConsumer(
 
             else -> {
                 val deltaker = amtDeltaker.toDeltakerDbo()
-                deltakere.upsert(deltaker)
+                query { deltakere.upsert(deltaker) }
+                    .onLeft {
+                        when (it) {
+                            is DatabaseOperationError.ForeignKeyViolation -> {
+                                logger.info("Ignorerer deltakelse med id=$key da den tilhører en gjennomføring som ikke finnes i databasen")
+                            }
+
+                            else -> {
+                                logger.warn("Feil under konsumering av deltakelse")
+                                throw it.error
+                            }
+                        }
+                    }
             }
         }
     }
