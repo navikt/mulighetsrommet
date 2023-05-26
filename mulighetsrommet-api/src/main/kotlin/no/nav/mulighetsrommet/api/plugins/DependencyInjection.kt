@@ -127,7 +127,7 @@ private fun kafka(config: KafkaConfig) = module {
     single {
         val consumers = listOf(
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
-            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get()),
+            AmtVirksomheterV1TopicConsumer(config = config.consumers.amtVirksomheterV1, virksomhetRepository = get(), brregClient = get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,

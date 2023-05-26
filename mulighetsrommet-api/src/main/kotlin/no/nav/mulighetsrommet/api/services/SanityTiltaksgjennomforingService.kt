@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingAdminDto
 import org.slf4j.LoggerFactory
@@ -17,7 +17,7 @@ class SanityTiltaksgjennomforingService(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val avtaleRepository: AvtaleRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
-    private val brregClientImpl: BrregClient,
+    private val virksomhetRepository: VirksomhetRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -46,8 +46,8 @@ class SanityTiltaksgjennomforingService(
         val sanityTiltaksgjennomforingId = UUID.randomUUID()
         val avtale = tiltaksgjennomforing.avtaleId?.let { avtaleRepository.get(it).getOrThrow() }
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
-        val lokasjonForVirksomhetFraBrreg =
-            brregClientImpl.hentEnhet(tiltaksgjennomforing.virksomhetsnummer).postnummerOgStedLokasjon
+        val enhet = virksomhetRepository.get(tiltaksgjennomforing.virksomhetsnummer).getOrNull()
+        val lokasjonForVirksomhetFraBrreg = "${enhet?.postnummer} ${enhet?.poststed}"
 
         val sanityTiltaksgjennomforing = SanityTiltaksgjennomforing(
             _id = sanityTiltaksgjennomforingId.toString(),

@@ -47,7 +47,8 @@ class BrregClientImpl(
                 navn = data.navn,
                 overordnetEnhet = null,
                 underenheter = hentUnderenheterForOverordnetEnhet(orgnr),
-                postnummerOgStedLokasjon = data.beliggenhetsadresse.let { "${data.beliggenhetsadresse?.postnummer} ${data.beliggenhetsadresse?.poststed}" },
+                postnummer = data.beliggenhetsadresse?.postnummer,
+                poststed = data.beliggenhetsadresse?.poststed,
 
             )
         }
@@ -62,7 +63,8 @@ class BrregClientImpl(
                 navn = it.navn,
                 overordnetEnhet = it.overordnetEnhet,
                 underenheter = null,
-                postnummerOgStedLokasjon = underenhetData.beliggenhetsadresse.let { "${underenhetData.beliggenhetsadresse?.postnummer} ${underenhetData.beliggenhetsadresse?.poststed}" },
+                postnummer = underenhetData.beliggenhetsadresse?.postnummer,
+                poststed = underenhetData.beliggenhetsadresse?.poststed,
             )
         } ?: throw NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'")
     }
