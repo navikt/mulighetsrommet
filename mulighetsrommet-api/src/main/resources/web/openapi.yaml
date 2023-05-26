@@ -1183,6 +1183,8 @@ components:
         avtaleId:
           type: string
           format: uuid
+        sanityId:
+          type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
       required:
