@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.clients.brreg
 
-import arrow.core.Either
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
@@ -36,21 +35,20 @@ class BrregClientImpl(
         val baseUrl: String,
     )
 
-    override suspend fun hentEnhet(orgnr: String): Either<Exception, VirksomhetDto> {
+    override suspend fun hentEnhet(orgnr: String): VirksomhetDto {
         validerOrgnr(orgnr)
         val response = client.get("$baseUrl/enheter/$orgnr")
         val data = tolkRespons<BrregEnhet>(response, orgnr)
 
         // Vi fikk treff på hovedenhet
         if (data != null) {
-            return Either.Right(
-                VirksomhetDto(
-                    organisasjonsnummer = data.organisasjonsnummer,
-                    navn = data.navn,
-                    overordnetEnhet = null,
-                    underenheter = hentUnderenheterForOverordnetEnhet(orgnr),
-                    postnummerOgStedLokasjon = data.beliggenhetsadresse.let { "${data.beliggenhetsadresse?.postnummer} ${data.beliggenhetsadresse?.poststed}" },
-                ),
+            return VirksomhetDto(
+                organisasjonsnummer = data.organisasjonsnummer,
+                navn = data.navn,
+                overordnetEnhet = null,
+                underenheter = hentUnderenheterForOverordnetEnhet(orgnr),
+                postnummerOgStedLokasjon = data.beliggenhetsadresse.let { "${data.beliggenhetsadresse?.postnummer} ${data.beliggenhetsadresse?.poststed}" },
+
             )
         }
 
@@ -59,16 +57,14 @@ class BrregClientImpl(
         val underenhetData = tolkRespons<BrregEnhet>(underenhetResponse, orgnr)
 
         return underenhetData?.let {
-            Either.Right(
-                VirksomhetDto(
-                    organisasjonsnummer = it.organisasjonsnummer,
-                    navn = it.navn,
-                    overordnetEnhet = it.overordnetEnhet,
-                    underenheter = null,
-                    postnummerOgStedLokasjon = underenhetData.beliggenhetsadresse.let { "${underenhetData.beliggenhetsadresse?.postnummer} ${underenhetData.beliggenhetsadresse?.poststed}" },
-                ),
+            VirksomhetDto(
+                organisasjonsnummer = it.organisasjonsnummer,
+                navn = it.navn,
+                overordnetEnhet = it.overordnetEnhet,
+                underenheter = null,
+                postnummerOgStedLokasjon = underenhetData.beliggenhetsadresse.let { "${underenhetData.beliggenhetsadresse?.postnummer} ${underenhetData.beliggenhetsadresse?.poststed}" },
             )
-        } ?: return Either.Left(NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'"))
+        } ?: throw NotFoundException("Fant ingen enhet i Brreg med orgnr: '$orgnr'")
     }
 
     override suspend fun sokEtterOverordnetEnheter(orgnr: String): List<VirksomhetDto> {

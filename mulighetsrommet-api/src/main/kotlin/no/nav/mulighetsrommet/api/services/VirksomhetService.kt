@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.getOrElse
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
@@ -37,15 +36,13 @@ class VirksomhetService(
 
     suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto {
         val enhet = CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
-            brregClient.hentEnhet(orgnr).getOrElse { throw it }
+            brregClient.hentEnhet(orgnr)
         }
         val overordnetEnhet = if (enhet.overordnetEnhet == null) {
             enhet
         } else {
             CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
-                brregClient.hentEnhet(orgnr).getOrElse {
-                    throw it
-                }
+                brregClient.hentEnhet(orgnr)
             }
         }
         virksomhetRepository.upsert(overordnetEnhet)
