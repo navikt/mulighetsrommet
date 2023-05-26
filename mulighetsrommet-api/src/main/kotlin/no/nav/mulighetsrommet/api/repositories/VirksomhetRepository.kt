@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.utils.*
 import no.nav.mulighetsrommet.database.Database
@@ -14,20 +15,19 @@ import java.util.*
 class VirksomhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(virksomhetDto: VirksomhetDto): QueryResult<Unit> = query {
-        logger.info("Lagrer virksomhet ${virksomhetDto.organisasjonsnummer}")
+    /** Upserter en overordnet enhet og oppdaterer listen med underenheter */
+    fun upsertOverordnetEnhet(overordnetEnhetDbo: OverordnetEnhetDbo): QueryResult<Unit> = query {
+        logger.info("Lagrer overordnet enhet ${overordnetEnhetDbo.organisasjonsnummer}")
 
         @Language("PostgreSQL")
         val query = """
             insert into virksomhet(
                 organisasjonsnummer,
-                navn,
-                overordnet_enhet
+                navn
             )
-            values (:organisasjonsnummer, :navn, :overordnet_enhet)
+            values (:organisasjonsnummer, :navn)
             on conflict (organisasjonsnummer) do update set
-                navn = excluded.navn,
-                overordnet_enhet = excluded.overordnet_enhet
+                navn = excluded.navn
             returning *
         """.trimIndent()
 
@@ -48,24 +48,45 @@ class VirksomhetRepository(private val db: Database) {
         """.trimIndent()
 
         db.transaction { tx ->
-            tx.run(queryOf(query, virksomhetDto.toSqlParameters()).asExecute)
+            tx.run(queryOf(query, overordnetEnhetDbo.toSqlParameters()).asExecute)
 
-            virksomhetDto.underenheter?.forEach { underenhet ->
+            overordnetEnhetDbo.underenheter.forEach { underenhet ->
                 queryOf(
                     upsertUnderenheter,
-                    virksomhetDto.organisasjonsnummer,
+                    overordnetEnhetDbo.organisasjonsnummer,
                     underenhet.navn,
                     underenhet.organisasjonsnummer,
                 ).asExecute.let { tx.run(it) }
             }
 
-            virksomhetDto.underenheter?.let {
-                queryOf(
-                    deleteUnderenheter,
-                    virksomhetDto.organisasjonsnummer,
-                    db.createTextArray(virksomhetDto.underenheter.map { it.organisasjonsnummer }),
-                ).asExecute.let { tx.run(it) }
-            }
+            queryOf(
+                deleteUnderenheter,
+                overordnetEnhetDbo.organisasjonsnummer,
+                db.createTextArray(overordnetEnhetDbo.underenheter.map { it.organisasjonsnummer }),
+            ).asExecute.let { tx.run(it) }
+        }
+    }
+
+    /** Upserter kun enheten og tar ikke hensyn til underenheter */
+    fun upsert(virksomhetDto: VirksomhetDto): QueryResult<Unit> = query {
+        logger.info("Lagrer virksomhet ${virksomhetDto.organisasjonsnummer}")
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into virksomhet(
+                organisasjonsnummer,
+                navn,
+                overordnet_enhet
+            )
+            values (:organisasjonsnummer, :navn, :overordnet_enhet)
+            on conflict (organisasjonsnummer) do update set
+                navn = excluded.navn,
+                overordnet_enhet = excluded.overordnet_enhet
+            returning *
+        """.trimIndent()
+
+        db.transaction { tx ->
+            tx.run(queryOf(query, virksomhetDto.toSqlParameters()).asExecute)
         }
     }
 
@@ -143,5 +164,10 @@ class VirksomhetRepository(private val db: Database) {
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
         "overordnet_enhet" to overordnetEnhet,
+    )
+
+    private fun OverordnetEnhetDbo.toSqlParameters() = mapOf(
+        "organisasjonsnummer" to organisasjonsnummer,
+        "navn" to navn,
     )
 }

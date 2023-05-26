@@ -9,9 +9,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import java.util.*
 
 class VirksomhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -41,21 +41,21 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "REMA 1000 NORGE AS REGION NORD",
             )
 
-            val virksomhet = VirksomhetDto(
+            val overordnet = OverordnetEnhetDbo(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(underenhet1, underenhet2, underenhet3),
             )
-            virksomhetRepository.upsert(virksomhet).shouldBeRight()
+            virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 
-            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
+            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it!!.navn shouldBe "REMA 1000 AS"
                 it.underenheter!! shouldHaveSize 3
                 it.underenheter!! shouldContainAll listOf(underenhet1, underenhet2, underenhet3)
             }
 
-            virksomhetRepository.upsert(virksomhet.copy(underenheter = listOf(underenhet1))).shouldBeRight()
-            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
+            virksomhetRepository.upsertOverordnetEnhet(overordnet.copy(underenheter = listOf(underenhet1))).shouldBeRight()
+            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it!!.underenheter!! shouldHaveSize 1
                 it.underenheter!! shouldContain underenhet1
             }
@@ -70,19 +70,19 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
             )
 
-            val virksomhet = VirksomhetDto(
+            val overordnet = VirksomhetDto(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(), // Tom først
             )
 
-            virksomhetRepository.upsert(virksomhet).shouldBeRight()
+            virksomhetRepository.upsert(overordnet).shouldBeRight()
             virksomhetRepository.upsert(underenhet1).shouldBeRight()
 
             virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
                 it!!.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
             }
-            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
+            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it!!.underenheter shouldContainExactly listOf(underenhet1)
             }
         }
@@ -96,22 +96,22 @@ class VirksomhetRepositoryTest : FunSpec({
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
             )
 
-            val virksomhet = VirksomhetDto(
+            val overordnet = OverordnetEnhetDbo(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(underenhet1),
             )
-            virksomhetRepository.upsert(virksomhet).shouldBeRight()
+            virksomhetRepository.upsertOverordnetEnhet(overordnet).shouldBeRight()
 
             virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
                 it!!.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
             }
 
-            virksomhetRepository.delete(virksomhet.organisasjonsnummer).shouldBeRight()
+            virksomhetRepository.delete(overordnet.organisasjonsnummer).shouldBeRight()
             virksomhetRepository.get(underenhet1.organisasjonsnummer).shouldBeRight().should {
                 it shouldBe null
             }
-            virksomhetRepository.get(virksomhet.organisasjonsnummer).shouldBeRight().should {
+            virksomhetRepository.get(overordnet.organisasjonsnummer).shouldBeRight().should {
                 it shouldBe null
             }
         }
