@@ -87,7 +87,9 @@ class VirksomhetRepository(private val db: Database) {
             values (:organisasjonsnummer, :navn, :overordnet_enhet, :postnummer, :poststed)
             on conflict (organisasjonsnummer) do update set
                 navn = excluded.navn,
-                overordnet_enhet = excluded.overordnet_enhet
+                overordnet_enhet = excluded.overordnet_enhet,
+                postnummer = excluded.postnummer,
+                poststed = excluded.poststed
             returning *
         """.trimIndent()
 
