@@ -33,7 +33,7 @@
     "axe-core": "^4.7.1",
     "classnames": "^2.3.2",
     "cypress-localstorage-commands": "^2.2.3",
-    "groq": "^3.11.1",
+    "groq": "^3.11.3",
     "jotai": "^2.1.0",
     "jotai-location": "^0.5.1",
     "mulighetsrommet-api-client": "*",
