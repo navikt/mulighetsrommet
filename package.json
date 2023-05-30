@@ -5,7 +5,7 @@
   ],
   "devDependencies": {
     "prettier": "^2.8.8",
-    "turbo": "^1.9.8"
+    "turbo": "^1.9.9"
   },
   "packageManager": "npm@8.5.2"
 }
