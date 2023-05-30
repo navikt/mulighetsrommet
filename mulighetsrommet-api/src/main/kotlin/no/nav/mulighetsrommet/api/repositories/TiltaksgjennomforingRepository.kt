@@ -260,7 +260,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             filter.tiltakstypeId to "tg.tiltakstype_id = :tiltakstypeId",
             filter.status to filter.status?.toDbStatement(),
             filter.sluttDatoCutoff to "(tg.slutt_dato >= :cutoffdato or tg.slutt_dato is null)",
-            filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from enhet where overordnet_enhet = :fylkesenhet)",
+            filter.fylkesenhet to "tg.arena_ansvarlig_enhet in (select enhetsnummer from nav_enhet where overordnet_enhet = :fylkesenhet)",
             filter.avtaleId to "tg.avtale_id = :avtaleId",
             filter.organisasjonsnummer to "tg.virksomhetsnummer = :virksomhetsnummer",
         )
