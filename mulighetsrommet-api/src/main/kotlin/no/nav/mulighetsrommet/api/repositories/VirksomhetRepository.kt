@@ -25,10 +25,9 @@ class VirksomhetRepository(private val db: Database) {
                 organisasjonsnummer,
                 navn,
                 postnummer,
-                poststed,
-                slettedato
+                poststed
             )
-            values (:organisasjonsnummer, :navn, :postnummer, :poststed, :slettedato)
+            values (:organisasjonsnummer, :navn, :postnummer, :poststed)
             on conflict (organisasjonsnummer) do update set
                 navn        = excluded.navn,
                 postnummer  = excluded.postnummer,
@@ -194,6 +193,5 @@ class VirksomhetRepository(private val db: Database) {
         "navn" to navn,
         "postnummer" to postnummer,
         "poststed" to poststed,
-        "slettedato" to slettedato,
     )
 }

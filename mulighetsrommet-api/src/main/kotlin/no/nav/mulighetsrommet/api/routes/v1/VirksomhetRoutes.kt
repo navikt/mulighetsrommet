@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
@@ -20,7 +21,12 @@ fun Route.virksomhetRoutes() {
                 throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
             }
 
-            call.respond(virksomhetService.hentEnhet(orgnr))
+            val enhet = virksomhetService.hentEnhet(orgnr)
+            if (enhet == null) {
+                call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
+            } else {
+                call.respond(enhet)
+            }
         }
 
         get("sok/{sok}") {

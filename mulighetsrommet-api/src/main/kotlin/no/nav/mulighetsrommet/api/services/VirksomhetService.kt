@@ -31,11 +31,11 @@ class VirksomhetService(
         cacheMetrics.addCache("brregServiceCache", brregServiceCache)
     }
 
-    suspend fun hentEnhet(orgnr: String): VirksomhetDto {
+    suspend fun hentEnhet(orgnr: String): VirksomhetDto? {
         return virksomhetRepository.get(orgnr).getOrThrow() ?: syncEnhetFraBrreg(orgnr)
     }
 
-    suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto {
+    suspend fun syncEnhetFraBrreg(orgnr: String): VirksomhetDto? {
         log.info("Skal synkronisere enhet med orgnr: $orgnr fra Brreg")
         val enhet = CacheUtils.tryCacheFirstNotNull(brregServiceCache, orgnr) {
             brregClient.hentEnhet(orgnr)
@@ -49,6 +49,12 @@ class VirksomhetService(
             }
         }
         log.info("Potensiell overordnet enhet fra Brreg: $overordnetEnhet")
+
+        if (enhet.slettedato != null) {
+            log.debug("Enhet med orgnr: ${enhet.organisasjonsnummer} er slettet i Brreg med slettedato ${enhet.slettedato}")
+            return null
+        }
+
         virksomhetRepository.upsertOverordnetEnhet(overordnetEnhet.toOverordnetEnhetDbo())
             .onLeft { log.warn("Feil ved upsert av virksomhet: $it") }
 

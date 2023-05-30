@@ -68,6 +68,17 @@ class BrregClientImpl(
         val underenhetResponse = client.get("$baseUrl/underenheter/$orgnr")
         val underenhetData = tolkRespons<BrregEnhet>(underenhetResponse, orgnr)
 
+        if (underenhetData?.slettedato != null) {
+            log.debug("Enhet med orgnr: $orgnr er slettet fra Brreg. Slettedato: ${underenhetData.slettedato}. Enhet fra Brreg: $data")
+            return VirksomhetDto(
+                organisasjonsnummer = underenhetData.organisasjonsnummer,
+                navn = underenhetData.navn,
+                overordnetEnhet = null,
+                underenheter = null,
+                slettedato = underenhetData.slettedato,
+            )
+        }
+
         return underenhetData?.let {
             VirksomhetDto(
                 organisasjonsnummer = it.organisasjonsnummer,

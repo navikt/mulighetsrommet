@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import java.time.LocalDate
 
 data class OverordnetEnhetDbo(
     val organisasjonsnummer: String,
@@ -9,7 +8,6 @@ data class OverordnetEnhetDbo(
     val underenheter: List<VirksomhetDto>,
     val poststed: String? = null,
     val postnummer: String? = null,
-    val slettedato: LocalDate? = null,
 )
 
 fun VirksomhetDto.toOverordnetEnhetDbo(): OverordnetEnhetDbo {
@@ -22,6 +20,5 @@ fun VirksomhetDto.toOverordnetEnhetDbo(): OverordnetEnhetDbo {
         underenheter = underenheter,
         postnummer = postnummer,
         poststed = poststed,
-        slettedato = slettedato?.let { LocalDate.parse(slettedato) },
     )
 }
